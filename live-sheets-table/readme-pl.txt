@@ -4,7 +4,7 @@ Tags: arkusze google, tabela, arkusz kalkulacyjny, csv, tabela danych
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -123,6 +123,18 @@ Wersja darmowa przechowuje trzy źródła arkuszy. Pro znosi ten limit.
 Tak. Wszystko z arkusza jest escapowane przy wyjściu, więc komórka zawierająca HTML albo znacznik `<script>` pokazuje się jako tekst i nie może niczego wstrzyknąć na Twoją stronę.
 
 == Changelog ==
+
+= 1.1.0 =
+* Poprawka: szerokie tabele mogły chować ostatnie kolumny w wąskiej kolumnie motywu, bez paska przewijania i bez przełączenia na karty. Moment przejścia w karty zależy teraz od liczby kolumn.
+* Poprawka: wybór presetu stylu nie zmieniał podglądu, a edycja zapisanego źródła zawsze pokazywała preset domyślny.
+* Poprawka: arkusze stylów i skrypty były serwowane pod stałą wersją, więc po aktualizacji mógł zostać stary CSS z cache. Adresy plików zmieniają się teraz razem z plikami.
+* Nowość: trzy zapisane źródła arkuszy w wersji darmowej zamiast jednego.
+* Nowość: sterowanie układem (automatyczny, zawsze tabela, zawsze karty) w bloku i shortcode.
+* Nowość: przełącznik szerokości podglądu, żeby sprawdzić oba układy przed publikacją.
+* Nowość: wykrywanie kolumn liczbowych i wyrównanie ich do prawej cyframi tabelarycznymi.
+* Nowość: jasny i ciemny schemat kolorów dla darmowych presetów.
+* Zmiana: odświeżona stylistyka tabel i cieniowana krawędź oznaczająca przewijanie w poziomie.
+* Zmiana: lista źródeł nie ładuje już wszystkich zapisanych migawek; pojedyncze źródła czytane są przez object cache.
 
 = 1.0.0 =
 * Pierwsze wydanie.

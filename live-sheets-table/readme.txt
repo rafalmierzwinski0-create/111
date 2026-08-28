@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -137,6 +137,18 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 
 == Changelog ==
 
+= 1.1.0 =
+* Fixed: wide tables could hide their last columns inside a narrow theme column, with no scrollbar and no switch to the card layout. The point at which a table becomes cards now depends on how many columns it has.
+* Fixed: choosing a style preset did not change the preview, and editing a saved source always previewed the default preset.
+* Fixed: stylesheets and scripts were served under a fixed version, so an upgrade could keep using the previous release's cached CSS. Asset URLs now change whenever the file does.
+* Added: three saved sheet sources in the free version, up from one.
+* Added: a layout control (automatic, always a table, always cards) on the block and the shortcode.
+* Added: a preview width switcher, so the table and card layouts can both be checked before publishing.
+* Added: numeric columns are detected and right-aligned with tabular figures.
+* Added: light and dark colour schemes for the free presets.
+* Changed: refreshed table styling, and an edge fade marking a table that scrolls sideways.
+* Changed: listing sources no longer loads every stored snapshot; single sources are read through the object cache.
+
 = 1.0.0 =
 * First release.
 * Google Sheets source management with a live parsed preview before saving.
@@ -153,6 +165,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+Fixes wide tables losing columns in narrow theme columns, and style presets not applying. Clear any page cache after updating.
 
 = 1.0.0 =
 First release.

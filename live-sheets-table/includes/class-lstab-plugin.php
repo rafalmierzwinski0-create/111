@@ -87,6 +87,30 @@ class LSTAB_Plugin {
 	}
 
 	/**
+	 * Cache-busting version for a bundled asset.
+	 *
+	 * Using the plugin version alone means a stylesheet rewritten between two
+	 * releases that forgot to bump it keeps being served from the browser (and
+	 * any page-cache) under the old URL. Folding in the file's modification
+	 * time makes the URL change whenever the file actually does, so a stale
+	 * asset cannot survive an upgrade.
+	 *
+	 * @param string $relative_path Path within the plugin directory.
+	 * @return string
+	 */
+	public static function asset_version( $relative_path ) {
+		$file = LSTAB_PATH . ltrim( $relative_path, '/' );
+
+		if ( ! is_readable( $file ) ) {
+			return LSTAB_VERSION;
+		}
+
+		$modified = filemtime( $file );
+
+		return $modified ? LSTAB_VERSION . '.' . $modified : LSTAB_VERSION;
+	}
+
+	/**
 	 * Register (but do not enqueue) front-end assets.
 	 *
 	 * @return void
@@ -96,14 +120,14 @@ class LSTAB_Plugin {
 			'lstab-table',
 			LSTAB_URL . 'assets/css/lstab-table.css',
 			array(),
-			LSTAB_VERSION
+			self::asset_version( 'assets/css/lstab-table.css' )
 		);
 
 		wp_register_script(
 			'lstab-table',
 			LSTAB_URL . 'assets/js/lstab-table.js',
 			array(),
-			LSTAB_VERSION,
+			self::asset_version( 'assets/js/lstab-table.js' ),
 			true
 		);
 

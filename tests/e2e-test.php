@@ -645,6 +645,76 @@ lstab_assert( is_callable( $block_type->render_callback ), 'Block has a server-s
 
 // ---------------------------------------------------------------------------
 
+lstab_section( '13b. Asset cache busting' );
+
+// Shipping an edited stylesheet under an unchanged version string means
+// browsers and page caches keep serving the previous release. Every bundled
+// asset must therefore carry a version that tracks the file.
+$assets = array(
+	'assets/css/lstab-table.css',
+	'assets/js/lstab-table.js',
+	'assets/css/lstab-admin.css',
+	'assets/js/lstab-admin.js',
+);
+
+foreach ( $assets as $asset ) {
+	$version = LSTAB_Plugin::asset_version( $asset );
+	lstab_assert(
+		'' !== $version && LSTAB_VERSION !== $version,
+		"Asset version for {$asset} is more than the plugin version",
+		$version
+	);
+	lstab_assert(
+		0 === strpos( $version, LSTAB_VERSION . '.' ),
+		"Asset version for {$asset} still identifies the release",
+		$version
+	);
+}
+
+// Touching a file must change its URL.
+$probe    = LSTAB_PATH . 'assets/css/lstab-table.css';
+$original = filemtime( $probe );
+$before   = LSTAB_Plugin::asset_version( 'assets/css/lstab-table.css' );
+touch( $probe, $original + 60 );
+clearstatcache( true, $probe );
+$after = LSTAB_Plugin::asset_version( 'assets/css/lstab-table.css' );
+touch( $probe, $original );
+clearstatcache( true, $probe );
+
+lstab_assert( $before !== $after, 'Editing an asset changes its version', "{$before} vs {$after}" );
+
+lstab_assert(
+	LSTAB_VERSION === LSTAB_Plugin::asset_version( 'assets/css/does-not-exist.css' ),
+	'A missing asset falls back to the plugin version'
+);
+
+// The block editor script must not be pinned either.
+$block_asset = require LSTAB_PATH . 'blocks/sheet-table/index.asset.php';
+lstab_assert(
+	'1.0.0' !== $block_asset['version'] && '' !== $block_asset['version'],
+	'Block editor script carries a file-derived version',
+	(string) $block_asset['version']
+);
+
+// The declared version has to match what the readme advertises, or WordPress
+// will not offer the update that carries these files.
+$plugin_header = get_file_data( LSTAB_FILE, array( 'Version' => 'Version' ) );
+$readme        = (string) file_get_contents( LSTAB_PATH . 'readme.txt' );
+preg_match( '#^Stable tag:\s*(.+)$#m', $readme, $stable );
+
+lstab_assert(
+	LSTAB_VERSION === trim( $plugin_header['Version'] ),
+	'Plugin header and LSTAB_VERSION agree',
+	$plugin_header['Version'] . ' vs ' . LSTAB_VERSION
+);
+lstab_assert(
+	isset( $stable[1] ) && LSTAB_VERSION === trim( $stable[1] ),
+	'readme.txt stable tag matches the plugin version',
+	isset( $stable[1] ) ? trim( $stable[1] ) : '(none)'
+);
+
+// ---------------------------------------------------------------------------
+
 lstab_section( '14. Object cache invalidation' );
 
 // A stale cache here would mean the front end kept serving old data after a

@@ -19,5 +19,7 @@ return array(
 		'wp-api-fetch',
 		'wp-server-side-render',
 	),
-	'version'      => '1.0.0',
+	// Derived from the script itself rather than hard-coded, so an edited
+	// editor script can never be served from a stale browser cache.
+	'version'      => (string) ( @filemtime( __DIR__ . '/index.js' ) ?: '1.0.0' ), // phpcs:ignore WordPress.PHP.NoSilencedErrors
 );

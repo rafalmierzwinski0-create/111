@@ -97,14 +97,14 @@ class LSTAB_Admin {
 			'lstab-admin',
 			LSTAB_URL . 'assets/css/lstab-admin.css',
 			array( 'lstab-table' ),
-			LSTAB_VERSION
+			LSTAB_Plugin::asset_version( 'assets/css/lstab-admin.css' )
 		);
 
 		wp_enqueue_script(
 			'lstab-admin',
 			LSTAB_URL . 'assets/js/lstab-admin.js',
 			array( 'wp-api-fetch' ),
-			LSTAB_VERSION,
+			LSTAB_Plugin::asset_version( 'assets/js/lstab-admin.js' ),
 			true
 		);
 
