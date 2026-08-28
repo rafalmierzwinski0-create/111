@@ -22,6 +22,7 @@ $lstab_can_add = LSTAB_Limits::can_add_source();
 
 	<hr class="wp-header-end">
 
+	<?php LSTAB_Admin::print_cron_notice(); ?>
 	<?php LSTAB_Admin::print_notice(); ?>
 
 	<?php if ( ! $sources ) : ?>

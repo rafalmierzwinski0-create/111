@@ -17,8 +17,9 @@ defined( 'ABSPATH' ) || exit;
  */
 class LSTAB_Cron {
 
-	const TICK_HOOK    = 'lstab_sync_tick';
-	const TICK_OPTION  = 'lstab_tick_schedule';
+	const TICK_HOOK     = 'lstab_sync_tick';
+	const TICK_OPTION   = 'lstab_tick_schedule';
+	const LAST_TICK_OPT = 'lstab_last_tick';
 
 	/**
 	 * Register hooks.
@@ -133,6 +134,7 @@ class LSTAB_Cron {
 			$timestamp = wp_next_scheduled( self::TICK_HOOK );
 		}
 		delete_option( self::TICK_OPTION );
+		delete_option( self::LAST_TICK_OPT );
 	}
 
 	/**
@@ -141,6 +143,96 @@ class LSTAB_Cron {
 	 * @return void
 	 */
 	public function run_tick() {
+		// Recorded even when nothing was due: this is the proof that the
+		// scheduler is running at all, which is what health() reports on.
+		update_option( self::LAST_TICK_OPT, time(), false );
+
 		LSTAB_Sync::run_due();
+	}
+
+	/**
+	 * Whether the scheduler is actually running.
+	 *
+	 * A broken WP-Cron does not break the site: pages keep rendering the stored
+	 * copy. It just quietly stops updating, and the first person to notice is
+	 * usually the site owner's customer. This is what turns that into a notice
+	 * in the dashboard instead.
+	 *
+	 * @return array{state:string,message:string,detail:string}
+	 */
+	public static function health() {
+		$sources = LSTAB_Storage::get_all();
+
+		if ( ! $sources ) {
+			return array(
+				'state'   => 'ok',
+				'message' => '',
+				'detail'  => '',
+			);
+		}
+
+		if ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) {
+			return array(
+				'state'   => 'disabled',
+				'message' => __( 'Scheduled syncing is switched off on this site.', 'live-sheets-table' ),
+				'detail'  => __( 'DISABLE_WP_CRON is set in wp-config.php, which is normal on hosts that run a real system cron. If yours does, your sheets are refreshing on that schedule and nothing is wrong. If it does not, your tables will keep showing the copy they already have until someone presses “Refresh now”.', 'live-sheets-table' ),
+			);
+		}
+
+		if ( ! wp_next_scheduled( self::TICK_HOOK ) ) {
+			return array(
+				'state'   => 'unscheduled',
+				'message' => __( 'The sync schedule is missing.', 'live-sheets-table' ),
+				'detail'  => __( 'Another plugin or a maintenance tool may have cleared it. Saving any sheet source restores it.', 'live-sheets-table' ),
+			);
+		}
+
+		$last = (int) get_option( self::LAST_TICK_OPT, 0 );
+
+		if ( ! $last ) {
+			// Nothing has run yet. Only a concern once the first run is overdue.
+			$next = (int) wp_next_scheduled( self::TICK_HOOK );
+			if ( $next && $next > time() - HOUR_IN_SECONDS ) {
+				return array(
+					'state'   => 'ok',
+					'message' => '',
+					'detail'  => '',
+				);
+			}
+		}
+
+		$interval = self::current_interval();
+		$overdue  = time() - ( $last ? $last : (int) wp_next_scheduled( self::TICK_HOOK ) );
+
+		// Three missed cycles is past any reasonable jitter on a quiet site.
+		if ( $overdue > max( 3 * $interval, HOUR_IN_SECONDS ) ) {
+			return array(
+				'state'   => 'stalled',
+				'message' => sprintf(
+					/* translators: %s: human readable time difference, e.g. "2 hours". */
+					__( 'Sheets have not been checked for %s.', 'live-sheets-table' ),
+					human_time_diff( $last ? $last : time() - $overdue, time() )
+				),
+				'detail'  => __( 'WordPress runs scheduled work when someone visits the site, so a quiet site can fall behind. On a site that should be busy this usually means WP-Cron is blocked — by a security plugin, a page cache serving every request, or a host that disables it. Your tables are still showing their last good copy.', 'live-sheets-table' ),
+			);
+		}
+
+		return array(
+			'state'   => 'ok',
+			'message' => '',
+			'detail'  => '',
+		);
+	}
+
+	/**
+	 * Length of the currently scheduled tick, in seconds.
+	 *
+	 * @return int
+	 */
+	protected static function current_interval() {
+		$slug      = (string) get_option( self::TICK_OPTION );
+		$schedules = self::schedule_map();
+
+		return isset( $schedules[ $slug ] ) ? $schedules[ $slug ] : 900;
 	}
 }

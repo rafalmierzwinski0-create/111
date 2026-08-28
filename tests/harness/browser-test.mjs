@@ -532,6 +532,61 @@ check( sliderVisible, 'A scrolling table shows the slider on a phone' );
 const phoneTable = await mpage.locator( '.lstab-style-striped .lstab-table' ).evaluate( ( el ) => getComputedStyle( el ).display );
 check( phoneTable === 'table', 'A phone keeps the table rather than stacking it', phoneTable );
 
+// The pinned first column is what makes sideways scrolling usable: without it
+// the numbers on screen stop belonging to any particular row.
+const pinned = await mpage.evaluate( async () => {
+	const root = document.querySelector( '.lstab-style-striped' );
+	const scroller = root.querySelector( '.lstab-scroll' );
+	const firstCell = root.querySelector( 'tbody td:first-child' );
+	const secondCell = root.querySelector( 'tbody td:nth-child(2)' );
+
+	scroller.scrollLeft = 0;
+	scroller.dispatchEvent( new Event( 'scroll' ) );
+	await new Promise( ( r ) => requestAnimationFrame( r ) );
+
+	const firstBefore = firstCell.getBoundingClientRect().left;
+	const secondBefore = secondCell.getBoundingClientRect().left;
+
+	scroller.scrollLeft = 200;
+	scroller.dispatchEvent( new Event( 'scroll' ) );
+	await new Promise( ( r ) => requestAnimationFrame( r ) );
+
+	return {
+		position: getComputedStyle( firstCell ).position,
+		background: getComputedStyle( firstCell ).backgroundColor,
+		firstBefore: Math.round( firstBefore ),
+		firstAfter: Math.round( firstCell.getBoundingClientRect().left ),
+		secondBefore: Math.round( secondBefore ),
+		secondAfter: Math.round( secondCell.getBoundingClientRect().left ),
+		width: Math.round( firstCell.getBoundingClientRect().width ),
+		viewport: Math.round( scroller.clientWidth ),
+		scrolledClass: root.classList.contains( 'lstab-is-scrolled' ),
+	};
+} );
+
+check( pinned.position === 'sticky', 'The first column is pinned', pinned.position );
+check(
+	Math.abs( pinned.firstAfter - pinned.firstBefore ) <= 1,
+	'The first column stays put while the rest scrolls',
+	JSON.stringify( pinned )
+);
+check(
+	pinned.secondAfter < pinned.secondBefore - 50,
+	'The other columns really did move',
+	JSON.stringify( pinned )
+);
+check(
+	pinned.background !== 'rgba(0, 0, 0, 0)',
+	'The pinned column is opaque, so rows do not show through it',
+	pinned.background
+);
+check(
+	pinned.width <= pinned.viewport * 0.5,
+	'The pinned column cannot eat the screen; there is still room to scroll',
+	`${ pinned.width }px of ${ pinned.viewport }px`
+);
+check( pinned.scrolledClass, 'A divider is shown once content is hidden behind the pinned column' );
+
 // Dragging the slider must move the table, and the two must stay in step.
 const dragResult = await mpage.evaluate( async () => {
 	const root = document.querySelector( '.lstab-style-striped' );

@@ -104,6 +104,22 @@ return array(
 		=> 'Nie udało się odczytać listy zakładek — zostanie użyta zakładka z Twojego linku.',
 	'Paste a Google Sheets link first.'          => 'Najpierw wklej link do arkusza Google.',
 
+	// Scheduler health.
+	'Scheduled syncing is switched off on this site.'
+		=> 'Zaplanowana synchronizacja jest na tej stronie wyłączona.',
+	'DISABLE_WP_CRON is set in wp-config.php, which is normal on hosts that run a real system cron. If yours does, your sheets are refreshing on that schedule and nothing is wrong. If it does not, your tables will keep showing the copy they already have until someone presses “Refresh now”.'
+		=> 'W pliku wp-config.php ustawiono DISABLE_WP_CRON, co jest normalne na hostingach z prawdziwym systemowym cronem. Jeśli Twój go ma, arkusze odświeżają się według tamtego harmonogramu i wszystko jest w porządku. Jeśli nie ma, tabele będą pokazywać kopię, którą już mają, dopóki ktoś nie naciśnie „Odśwież teraz”.',
+	'The sync schedule is missing.'              => 'Brakuje harmonogramu synchronizacji.',
+	'Another plugin or a maintenance tool may have cleared it. Saving any sheet source restores it.'
+		=> 'Mogła go wyczyścić inna wtyczka albo narzędzie serwisowe. Zapisanie dowolnego źródła arkusza przywraca go.',
+	'Sheets have not been checked for %s.'       => 'Arkusze nie były sprawdzane od %s.',
+	'WordPress runs scheduled work when someone visits the site, so a quiet site can fall behind. On a site that should be busy this usually means WP-Cron is blocked — by a security plugin, a page cache serving every request, or a host that disables it. Your tables are still showing their last good copy.'
+		=> 'WordPress wykonuje zaplanowane zadania, gdy ktoś odwiedza stronę, więc mało odwiedzana witryna może się opóźniać. Na stronie, która powinna mieć ruch, zwykle oznacza to zablokowany WP-Cron — przez wtyczkę bezpieczeństwa, cache serwujący każde żądanie albo hosting, który go wyłącza. Twoje tabele nadal pokazują ostatnią poprawną kopię.',
+	'Meanwhile you can update any sheet by hand with “Refresh now”. %s'
+		=> 'W międzyczasie możesz zaktualizować dowolny arkusz ręcznie przyciskiem „Odśwież teraz”. %s',
+	'How to run WordPress schedules from a system cron'
+		=> 'Jak uruchamiać harmonogramy WordPressa z systemowego crona',
+
 	// Layout and the horizontal slider.
 	'On screens too narrow for the whole table'  => 'Na ekranach zbyt wąskich dla całej tabeli',
 	'Keep the table and add a slider to scroll it sideways'

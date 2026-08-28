@@ -25,7 +25,10 @@
 	--lstab-fg-muted: #61696f;
 	--lstab-fg-faint: #848d94;
 	--lstab-bg: #fff;
-	--lstab-head-bg: transparent;
+	/* Opaque by default rather than transparent: the pinned first column would
+	   otherwise let the scrolling content show through the header. Same colour
+	   either way, since this is the table's own background. */
+	--lstab-head-bg: var(--lstab-bg);
 	--lstab-head-fg: #61696f;
 	--lstab-border: #e3e8ec;
 	--lstab-border-strong: #cdd5db;
@@ -50,6 +53,8 @@
 	--lstab-scroll-overflow: auto;
 	--lstab-slider-display: block;
 	--lstab-table-min: max-content;
+	--lstab-sticky: sticky;
+	--lstab-sticky-max: min( 38cqi, 22rem );
 	--lstab-row-gap: 0;
 	--lstab-row-border-width: 0 0 1px 0;
 	--lstab-row-last-bottom: 0;
@@ -232,6 +237,7 @@
 }
 
 .lstab-table tbody tr {
+	background-color: var(--lstab-bg);
 	border-width: var(--lstab-row-border-width);
 	border-style: solid;
 	border-color: var(--lstab-border);
@@ -356,6 +362,54 @@
 }
 
 /* -------------------------------------------------------------- meta / misc */
+
+/* ---------------------------------------------------- pinned first column */
+
+/*
+ * Scroll a wide table sideways and the first column leaves with it, so the
+ * numbers on screen stop belonging to anything. Pinning it keeps the row's
+ * identity in view.
+ *
+ * Two details make it work rather than merely stick:
+ *
+ * - The cell inherits the row's background, so striped and hovered rows carry
+ *   their colour into the pinned column instead of going transparent and
+ *   letting the scrolling content show through underneath.
+ * - The header background token defaults to the table background rather than
+ *   to transparent, so a pinned header cell is opaque too.
+ */
+
+.lstab-table tbody td:first-child,
+.lstab-table thead th:first-child {
+	position: var(--lstab-sticky, sticky);
+	left: 0;
+	z-index: 1;
+}
+
+.lstab-table tbody td:first-child {
+	background-color: inherit;
+}
+
+.lstab-table thead th:first-child {
+	z-index: 2;
+}
+
+/*
+ * Cap the pinned column so it cannot eat the whole screen: pinning a 380px
+ * column on a 390px phone would leave nothing to scroll. Container query units
+ * measure the table's own column, not the viewport, so this holds inside a
+ * narrow sidebar too.
+ */
+.lstab-table tbody td:first-child .lstab-cell-value,
+.lstab-table thead th:first-child {
+	max-width: var(--lstab-sticky-max, min( 38cqi, 22rem ));
+}
+
+/* The divider only earns its place once there is something hidden behind it. */
+.lstab-is-scrolled .lstab-table tbody td:first-child,
+.lstab-is-scrolled .lstab-table thead th:first-child {
+	box-shadow: 1px 0 0 var(--lstab-border), 6px 0 8px -6px rgba( 16, 24, 40, 0.22 );
+}
 
 /* ------------------------------------------------------- horizontal slider */
 
@@ -630,6 +684,10 @@
 		--lstab-cell-max: none;
 		--lstab-slider-display: none;
 		--lstab-table-min: 0;
+		--lstab-sticky: static;
+		--lstab-sticky-max: none;
+	--lstab-sticky: static;
+	--lstab-sticky-max: none;
 		--lstab-frame-border: 0;
 		--lstab-frame-shadow: none;
 	}
@@ -654,6 +712,10 @@
 		--lstab-cell-max: none;
 		--lstab-slider-display: none;
 		--lstab-table-min: 0;
+		--lstab-sticky: static;
+		--lstab-sticky-max: none;
+	--lstab-sticky: static;
+	--lstab-sticky-max: none;
 		--lstab-frame-border: 0;
 		--lstab-frame-shadow: none;
 	}
@@ -678,6 +740,10 @@
 		--lstab-cell-max: none;
 		--lstab-slider-display: none;
 		--lstab-table-min: 0;
+		--lstab-sticky: static;
+		--lstab-sticky-max: none;
+	--lstab-sticky: static;
+	--lstab-sticky-max: none;
 		--lstab-frame-border: 0;
 		--lstab-frame-shadow: none;
 	}
@@ -702,6 +768,10 @@
 		--lstab-cell-max: none;
 		--lstab-slider-display: none;
 		--lstab-table-min: 0;
+		--lstab-sticky: static;
+		--lstab-sticky-max: none;
+	--lstab-sticky: static;
+	--lstab-sticky-max: none;
 		--lstab-frame-border: 0;
 		--lstab-frame-shadow: none;
 	}
@@ -726,6 +796,10 @@
 		--lstab-cell-max: none;
 		--lstab-slider-display: none;
 		--lstab-table-min: 0;
+		--lstab-sticky: static;
+		--lstab-sticky-max: none;
+	--lstab-sticky: static;
+	--lstab-sticky-max: none;
 		--lstab-frame-border: 0;
 		--lstab-frame-shadow: none;
 	}
@@ -752,6 +826,8 @@
 	--lstab-scroll-overflow: auto;
 	--lstab-slider-display: block;
 	--lstab-table-min: max-content;
+	--lstab-sticky: sticky;
+	--lstab-sticky-max: min( 38cqi, 22rem );
 	--lstab-row-gap: 0;
 	--lstab-row-border-width: 0 0 1px 0;
 	--lstab-row-last-bottom: 0;
@@ -784,6 +860,8 @@
 	--lstab-cell-max: none;
 	--lstab-slider-display: none;
 	--lstab-table-min: 0;
+	--lstab-sticky: static;
+	--lstab-sticky-max: none;
 	--lstab-frame-border: 0;
 	--lstab-frame-shadow: none;
 }
@@ -844,6 +922,12 @@
 			--lstab-cell-max: none;
 			--lstab-slider-display: none;
 			--lstab-table-min: 0;
+			--lstab-sticky: static;
+			--lstab-sticky-max: none;
+		--lstab-sticky: static;
+		--lstab-sticky-max: none;
+	--lstab-sticky: static;
+	--lstab-sticky-max: none;
 			--lstab-frame-border: 0;
 			--lstab-frame-shadow: none;
 		}

@@ -111,11 +111,16 @@
 			if ( scrollable <= 2 ) {
 				bar.hidden = true;
 				root.classList.remove( 'lstab-has-slider' );
+				root.classList.remove( 'lstab-is-scrolled' );
 				return;
 			}
 
 			bar.hidden = false;
 			root.classList.add( 'lstab-has-slider' );
+
+			// The pinned column's divider is only meaningful once something is
+			// actually hidden behind it.
+			root.classList.toggle( 'lstab-is-scrolled', scroller.scrollLeft > 0 );
 
 			var trackWidth = track.clientWidth;
 			var ratio = scroller.clientWidth / scroller.scrollWidth;

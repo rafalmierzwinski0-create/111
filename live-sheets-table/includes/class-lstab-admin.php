@@ -357,6 +357,42 @@ class LSTAB_Admin {
 	}
 
 	/**
+	 * Warn when the scheduler has stopped running.
+	 *
+	 * @return void
+	 */
+	public static function print_cron_notice() {
+		$health = LSTAB_Cron::health();
+
+		if ( 'ok' === $health['state'] ) {
+			return;
+		}
+
+		$class = 'disabled' === $health['state'] ? 'notice-info' : 'notice-warning';
+		?>
+		<div class="notice <?php echo esc_attr( $class ); ?> lstab-cron-notice">
+			<p>
+				<strong><?php echo esc_html( $health['message'] ); ?></strong>
+			</p>
+			<p><?php echo esc_html( $health['detail'] ); ?></p>
+			<?php if ( 'disabled' !== $health['state'] ) : ?>
+				<p>
+					<?php
+					printf(
+						/* translators: %s: link to the WordPress cron documentation. */
+						esc_html__( 'Meanwhile you can update any sheet by hand with “Refresh now”. %s', 'live-sheets-table' ),
+						'<a href="https://developer.wordpress.org/plugins/cron/hooking-wp-cron-into-the-system-task-scheduler/" target="_blank" rel="noopener noreferrer">'
+							. esc_html__( 'How to run WordPress schedules from a system cron', 'live-sheets-table' )
+							. '</a>'
+					);
+					?>
+				</p>
+			<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Print and clear the queued notice.
 	 *
 	 * @return void

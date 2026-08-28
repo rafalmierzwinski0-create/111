@@ -4,7 +4,7 @@ Tags: arkusze google, tabela, arkusz kalkulacyjny, csv, tabela danych
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,7 @@ Wklejasz link, a parser pokazuje dokładnie to, co odczytał — nagłówki, wie
 * Trzy dopracowane presety stylu, każdy podąża za jasnym lub ciemnym schematem kolorów czytelnika.
 * Wizualny edytor wyglądu: kolory, wielkość tekstu, wysokość wiersza i zaokrąglenie narożników per tabela, z podglądem aktualizowanym na bieżąco.
 * Widoczny, przeciągany suwak pod każdą tabelą szerszą od swojej kolumny, więc nic nigdy nie chowa się za niewidocznym paskiem przewijania.
+* Pierwsza kolumna zostaje przyklejona, gdy reszta się przewija, więc cena nigdy nie przestaje należeć do produktu.
 * Sterowanie układem per źródło: przewijaj tabelę w bok albo układaj każdy wiersz jako kartę.
 * Etykietę „zaktualizowano N minut temu”, którą można wyłączyć.
 * Pełne wsparcie tłumaczeń, z polskim w komplecie.
@@ -127,6 +128,11 @@ Wersja darmowa przechowuje trzy źródła arkuszy. Pro znosi ten limit.
 Tak. Wszystko z arkusza jest escapowane przy wyjściu, więc komórka zawierająca HTML albo znacznik `<script>` pokazuje się jako tekst i nie może niczego wstrzyknąć na Twoją stronę.
 
 == Changelog ==
+
+= 1.4.0 =
+* Nowość: pierwsza kolumna zostaje przyklejona, gdy szeroka tabela przewija się w bok, więc każdy wiersz zachowuje swoją etykietę. Jest ograniczona, żeby nigdy nie zajęła całego ekranu, i pokazuje linię oddzielającą dopiero wtedy, gdy coś się za nią chowa.
+* Nowość: kokpit informuje, gdy zaplanowana synchronizacja przestała działać. Zablokowany WP-Cron niczego nie psuje — strony nadal serwują zapisaną kopię — po prostu cicho przestaje aktualizować, a to rodzaj usterki, której nikt nie zauważa, dopóki nie zauważy jej klient.
+* Poprawka: kolor tła nagłówka był raportowany jako tło tabeli, przez co ta kontrolka w edytorze wyglądu sprawiała wrażenie martwej.
 
 = 1.3.0 =
 * Nowość: widoczny, przeciągany suwak pod każdą tabelą szerszą od swojej kolumny. Przeglądarki na macOS, iOS i Androidzie chowają poziomy pasek przewijania, dopóki nie zaczniesz przewijać — przez co szeroka tabela wyglądała na uciętą. Ten suwak zostaje na ekranie, dopóki jest co pokazywać, i działa przeciąganiem, kliknięciem, dotykiem i klawiaturą.

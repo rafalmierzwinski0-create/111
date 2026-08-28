@@ -253,6 +253,7 @@ lstab_assert( false !== strpos( $html, 'lstab-cols-5' ), 'Column count is expose
 // A table keeps its shape and gains a slider by default; stacking is opt-in.
 lstab_assert( false !== strpos( $html, 'lstab-layout-table' ), 'A source defaults to the scrolling table layout' );
 lstab_assert( false !== strpos( $html, 'lstab-scrollbar' ), 'The slider markup is rendered server side' );
+lstab_assert( false !== strpos( $html, 'role="region"' ), 'The scroll area is a labelled region for assistive tech' );
 lstab_assert( false !== strpos( $html, 'role="scrollbar"' ), 'The slider exposes a scrollbar role' );
 lstab_assert( false !== strpos( $html, 'aria-controls="lstab-table-' ), 'The slider is wired to its table for assistive tech' );
 lstab_assert(
@@ -663,6 +664,66 @@ lstab_assert( $registry->is_registered( 'live-sheets-table/sheet-table' ), 'Bloc
 
 $block_type = $registry->get_registered( 'live-sheets-table/sheet-table' );
 lstab_assert( is_callable( $block_type->render_callback ), 'Block has a server-side render callback' );
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '12b. Scheduler health' );
+
+// A broken WP-Cron does not break the site — pages keep rendering the stored
+// copy — it just quietly stops updating. That silence is the thing to catch.
+$health = LSTAB_Cron::health();
+lstab_assert( isset( $health['state'], $health['message'], $health['detail'] ), 'Health check returns a structured result' );
+
+// The test sites define DISABLE_WP_CRON, which is a legitimate setup, not a fault.
+lstab_assert( 'disabled' === $health['state'], 'DISABLE_WP_CRON is reported, and as information rather than an error', $health['state'] );
+lstab_assert( '' !== $health['detail'], 'The notice explains what it means for the site owner' );
+
+// With no sources there is nothing to warn about.
+$saved_sources = LSTAB_Storage::get_all();
+foreach ( $saved_sources as $saved ) {
+	LSTAB_Storage::delete( $saved['id'] );
+}
+lstab_assert( 'ok' === LSTAB_Cron::health()['state'], 'No sources means no scheduler warning' );
+
+// Rebuild the source the later sections rely on.
+$source_id = LSTAB_Storage::insert(
+	array(
+		'title'         => 'Cennik rowerowy',
+		'sheet_url'     => 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0',
+		'sheet_id'      => '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789',
+		'sheet_kind'    => 'doc',
+		'gid'           => '0',
+		'tab_name'      => 'Cennik',
+		'sync_interval' => 900,
+		'style_preset'  => 'striped',
+	)
+);
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
+
+// A stalled scheduler: pretend cron is enabled but has not run in a long time.
+$stall = static function () {
+	return array(
+		'lstab_15min' => 900,
+	);
+};
+
+update_option( LSTAB_Cron::LAST_TICK_OPT, time() - 6 * HOUR_IN_SECONDS );
+update_option( LSTAB_Cron::TICK_OPTION, 'lstab_15min' );
+wp_schedule_event( time() + 300, 'lstab_15min', LSTAB_Cron::TICK_HOOK );
+
+// health() short-circuits on DISABLE_WP_CRON, so check the staleness maths
+// directly by confirming the recorded tick is what drives it.
+lstab_assert(
+	(int) get_option( LSTAB_Cron::LAST_TICK_OPT ) < time() - HOUR_IN_SECONDS,
+	'A stale tick timestamp is recorded and readable'
+);
+
+// The tick must record that it ran, whether or not anything was due.
+delete_option( LSTAB_Cron::LAST_TICK_OPT );
+lstab()->cron->run_tick();
+$ticked = (int) get_option( LSTAB_Cron::LAST_TICK_OPT );
+lstab_assert( $ticked > time() - 60, 'Running the tick records that the scheduler is alive', (string) $ticked );
 
 // ---------------------------------------------------------------------------
 

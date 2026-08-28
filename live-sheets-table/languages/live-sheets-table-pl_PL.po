@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-08-28 19:11+0000\n"
-"PO-Revision-Date: 2026-08-28 19:11+0000\n"
+"POT-Creation-Date: 2026-08-28 19:38+0000\n"
+"PO-Revision-Date: 2026-08-28 19:38+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -18,27 +18,27 @@ msgid "%1$s of %2$s rows"
 msgstr "%1$s z %2$s wierszy"
 
 #. translators: 1: row count, 2: column count.
-#: includes/views/list-page.php:90
+#: includes/views/list-page.php:91
 msgid "%1$s rows × %2$s cols"
 msgstr "%1$s wierszy × %2$s kol."
 
-#: includes/views/edit-page.php:41
+#: includes/views/edit-page.php:42
 msgid "1. Point at your sheet"
 msgstr "1. Wskaż swój arkusz"
 
-#: includes/views/edit-page.php:79
+#: includes/views/edit-page.php:80
 msgid "2. Name it and set the schedule"
 msgstr "2. Nazwij go i ustaw harmonogram"
 
-#: includes/views/edit-page.php:110
+#: includes/views/edit-page.php:111
 msgid "3. Pick a look"
 msgstr "3. Wybierz wygląd"
 
-#: includes/views/edit-page.php:164
+#: includes/views/edit-page.php:165
 msgid "4. Fine-tune the look"
 msgstr "4. Dopracuj wygląd"
 
-#: includes/views/edit-page.php:265
+#: includes/views/edit-page.php:266
 msgid "A wide table becomes one card per row once its column gets too narrow. Use these to check both before you publish."
 msgstr "Szeroka tabela zamienia się w jedną kartę na wiersz, gdy jej kolumna staje się zbyt wąska. Sprawdź oba warianty, zanim opublikujesz."
 
@@ -50,11 +50,11 @@ msgstr "Szeroka tabela zachowuje swój kształt i zyskuje przeciągany suwak. Uk
 msgid "Accent"
 msgstr "Akcent"
 
-#: includes/views/list-page.php:46
+#: includes/views/list-page.php:47
 msgid "Actions"
 msgstr "Akcje"
 
-#: includes/views/list-page.php:34 blocks/sheet-table/index.js:185
+#: includes/views/list-page.php:35 blocks/sheet-table/index.js:185
 msgid "Add a sheet source"
 msgstr "Dodaj źródło arkusza"
 
@@ -83,9 +83,13 @@ msgstr "Naprzemienne tło wierszy, ułatwia przeglądanie długich list."
 msgid "Always cards"
 msgstr "Zawsze karty"
 
-#: includes/views/edit-page.php:119
+#: includes/views/edit-page.php:120
 msgid "Always use cards, at every width"
 msgstr "Zawsze używaj kart, przy każdej szerokości"
+
+#: includes/class-lstab-cron.php:186
+msgid "Another plugin or a maintenance tool may have cleared it. Saving any sheet source restores it."
+msgstr "Mogła go wyczyścić inna wtyczka albo narzędzie serwisowe. Zapisanie dowolnego źródła arkusza przywraca go."
 
 #: includes/views/limit-reached.php:38
 msgid "Back to sources"
@@ -99,7 +103,7 @@ msgstr "Tło"
 msgid "Bordered"
 msgstr "Ramki"
 
-#: includes/views/edit-page.php:233
+#: includes/views/edit-page.php:234
 msgid "Cancel"
 msgstr "Anuluj"
 
@@ -107,7 +111,7 @@ msgstr "Anuluj"
 msgid "Caption"
 msgstr "Podpis"
 
-#: includes/views/edit-page.php:93
+#: includes/views/edit-page.php:94
 msgid "Check Google for changes"
 msgstr "Sprawdzaj zmiany w Google"
 
@@ -129,7 +133,7 @@ msgstr "Kolumna %d"
 msgid "Compact"
 msgstr "Zwarta"
 
-#: includes/views/list-page.php:158
+#: includes/views/list-page.php:159
 msgid "Compare Free and Pro"
 msgstr "Porównaj wersję darmową i Pro"
 
@@ -154,19 +158,23 @@ msgstr "Nie udało się odczytać listy zakładek — zostanie użyta zakładka 
 msgid "Could not save the sheet source."
 msgstr "Nie udało się zapisać źródła arkusza."
 
+#: includes/class-lstab-cron.php:178
+msgid "DISABLE_WP_CRON is set in wp-config.php, which is normal on hosts that run a real system cron. If yours does, your sheets are refreshing on that schedule and nothing is wrong. If it does not, your tables will keep showing the copy they already have until someone presses “Refresh now”."
+msgstr "W pliku wp-config.php ustawiono DISABLE_WP_CRON, co jest normalne na hostingach z prawdziwym systemowym cronem. Jeśli Twój go ma, arkusze odświeżają się według tamtego harmonogramu i wszystko jest w porządku. Jeśli nie ma, tabele będą pokazywać kopię, którą już mają, dopóki ktoś nie naciśnie „Odśwież teraz”."
+
 #: includes/class-lstab-limits.php:72
 msgid "Daily"
 msgstr "Codziennie"
 
-#: includes/views/list-page.php:142
+#: includes/views/list-page.php:143
 msgid "Delete"
 msgstr "Usuń"
 
-#: includes/views/list-page.php:137
+#: includes/views/list-page.php:138
 msgid "Delete this sheet source? Tables using it will stop rendering."
 msgstr "Usunąć to źródło arkusza? Tabele, które go używają, przestaną się wyświetlać."
 
-#: includes/views/list-page.php:125
+#: includes/views/list-page.php:126
 msgid "Edit"
 msgstr "Edytuj"
 
@@ -179,7 +187,7 @@ msgid "Editorial"
 msgstr "Redakcyjny"
 
 #. translators: %s: duration.
-#: includes/views/list-page.php:103
+#: includes/views/list-page.php:104
 msgid "Every %s"
 msgstr "Co %s"
 
@@ -204,7 +212,7 @@ msgid "Every minute"
 msgstr "Co minutę"
 
 #. translators: %s: human readable time difference.
-#: includes/class-lstab-admin.php:416
+#: includes/class-lstab-admin.php:452
 msgid "Failing since the last good sync %s ago"
 msgstr "Błąd od ostatniej udanej synchronizacji %s temu"
 
@@ -216,7 +224,7 @@ msgstr "Znaleziono %1$s wierszy w %2$s kolumnach."
 msgid "Full grid with a shaded header. Good for dense numeric data."
 msgstr "Pełna siatka z cieniowanym nagłówkiem. Dobre dla gęstych danych liczbowych."
 
-#: includes/views/edit-page.php:249
+#: includes/views/edit-page.php:250
 msgid "Full width"
 msgstr "Pełna szerokość"
 
@@ -225,7 +233,7 @@ msgstr "Pełna szerokość"
 msgid "Google Sheets Table"
 msgstr "Tabela z Arkuszy Google"
 
-#: includes/views/edit-page.php:48
+#: includes/views/edit-page.php:49
 msgid "Google Sheets link"
 msgstr "Link do arkusza Google"
 
@@ -270,11 +278,15 @@ msgstr "Ciemny preset o wysokim kontraście."
 msgid "Hourly"
 msgstr "Co godzinę"
 
-#: includes/views/edit-page.php:44
+#: includes/class-lstab-admin.php:385
+msgid "How to run WordPress schedules from a system cron"
+msgstr "Jak uruchamiać harmonogramy WordPressa z systemowego crona"
+
+#: includes/views/edit-page.php:45
 msgid "In Google Sheets choose Share → General access → “Anyone with the link”, role “Viewer”, then copy the link from your browser. No API key or Google Cloud project is needed."
 msgstr "W Arkuszach Google wybierz Udostępnij → Dostęp ogólny → „Każdy, kto ma link”, rola „Przeglądający”, a następnie skopiuj adres z przeglądarki. Klucz API ani projekt Google Cloud nie są potrzebne."
 
-#: includes/views/edit-page.php:117
+#: includes/views/edit-page.php:118
 msgid "Keep the table and add a slider to scroll it sideways"
 msgstr "Zachowaj tabelę i dodaj suwak do przewijania w bok"
 
@@ -283,7 +295,7 @@ msgid "Large"
 msgstr "Duża"
 
 #. translators: %s: human readable time difference.
-#: includes/class-lstab-admin.php:405
+#: includes/class-lstab-admin.php:441
 msgid "Last sync OK (%s ago)"
 msgstr "Ostatnia synchronizacja OK (%s temu)"
 
@@ -304,11 +316,11 @@ msgid "Live Sheets Table"
 msgstr "Live Sheets Table"
 
 #. translators: %s: human readable duration, e.g. "15 minutes".
-#: includes/class-lstab-cron.php:50
+#: includes/class-lstab-cron.php:51
 msgid "Live Sheets Table: every %s"
 msgstr "Live Sheets Table: co %s"
 
-#: includes/views/edit-page.php:60
+#: includes/views/edit-page.php:61
 msgid "Load preview"
 msgstr "Wczytaj podgląd"
 
@@ -320,19 +332,24 @@ msgstr "Wczytywanie podglądu…"
 msgid "Manage sheet sources"
 msgstr "Zarządzaj źródłami arkuszy"
 
+#. translators: %s: link to the WordPress cron documentation.
+#: includes/class-lstab-admin.php:383
+msgid "Meanwhile you can update any sheet by hand with “Refresh now”. %s"
+msgstr "W międzyczasie możesz zaktualizować dowolny arkusz ręcznie przyciskiem „Odśwież teraz”. %s"
+
 #: includes/class-lstab-styles.php:38
 msgid "Midnight"
 msgstr "Północ"
 
-#: includes/views/edit-page.php:250
+#: includes/views/edit-page.php:251
 msgid "Narrow column"
 msgstr "Wąska kolumna"
 
-#: includes/views/list-page.php:153
+#: includes/views/list-page.php:154
 msgid "Need more than one sheet?"
 msgstr "Potrzebujesz więcej niż jednego arkusza?"
 
-#: includes/class-lstab-admin.php:419
+#: includes/class-lstab-admin.php:455
 msgid "Never synced successfully"
 msgstr "Nigdy nie zsynchronizowano poprawnie"
 
@@ -357,11 +374,11 @@ msgstr "Nie znaleziono identyfikatora arkusza w tym linku. Użyj adresu samego a
 msgid "Normal"
 msgstr "Normalna"
 
-#: includes/class-lstab-admin.php:434
+#: includes/class-lstab-admin.php:470
 msgid "Not synced yet"
 msgstr "Jeszcze nie zsynchronizowano"
 
-#: includes/views/edit-page.php:113
+#: includes/views/edit-page.php:114
 msgid "On screens too narrow for the whole table"
 msgstr "Na ekranach zbyt wąskich dla całej tabeli"
 
@@ -369,23 +386,23 @@ msgstr "Na ekranach zbyt wąskich dla całej tabeli"
 msgid "Only Google Sheets links are supported. The address must start with https://docs.google.com/spreadsheets/."
 msgstr "Obsługiwane są wyłącznie linki do Arkuszy Google. Adres musi zaczynać się od https://docs.google.com/spreadsheets/."
 
-#: includes/views/edit-page.php:89
+#: includes/views/edit-page.php:90
 msgid "Only shown in the dashboard, to tell sources apart."
 msgstr "Widoczne tylko w kokpicie, żeby odróżnić źródła."
 
-#: includes/views/list-page.php:61
+#: includes/views/list-page.php:62
 msgid "Open in Google Sheets"
 msgstr "Otwórz w Arkuszach Google"
 
-#: includes/views/edit-page.php:284
+#: includes/views/edit-page.php:285
 msgid "Optional attributes: search=\"no\", sort=\"no\", meta=\"no\", style=\"striped\", caption=\"My table\"."
 msgstr "Opcjonalne atrybuty: search=\"no\", sort=\"no\", meta=\"no\", style=\"striped\", caption=\"Moja tabela\"."
 
-#: includes/views/edit-page.php:166
+#: includes/views/edit-page.php:167
 msgid "Optional. Anything you leave untouched follows the preset above, so you can change one colour without redefining the rest. The preview updates as you go."
 msgstr "Opcjonalne. Wszystko, czego nie ruszysz, podąża za presetem powyżej, więc możesz zmienić jeden kolor bez definiowania reszty. Podgląd aktualizuje się na bieżąco."
 
-#: includes/views/edit-page.php:103
+#: includes/views/edit-page.php:104
 msgid "Pages always render from the local copy, so visitors never wait for Google. Pro syncs as often as every minute."
 msgstr "Strony zawsze renderują się z lokalnej kopii, więc odwiedzający nigdy nie czekają na Google. Pro synchronizuje nawet co minutę."
 
@@ -393,7 +410,7 @@ msgstr "Strony zawsze renderują się z lokalnej kopii, więc odwiedzający nigd
 msgid "Paste a Google Sheets link first."
 msgstr "Najpierw wklej link do arkusza Google."
 
-#: includes/views/edit-page.php:270
+#: includes/views/edit-page.php:271
 msgid "Paste a link and choose “Load preview”."
 msgstr "Wklej link i wybierz „Wczytaj podgląd”."
 
@@ -401,7 +418,7 @@ msgstr "Wklej link i wybierz „Wczytaj podgląd”."
 msgid "Paste the link to your Google Sheet first."
 msgstr "Najpierw wklej link do swojego arkusza Google."
 
-#: includes/views/edit-page.php:251
+#: includes/views/edit-page.php:252
 msgid "Phone"
 msgstr "Telefon"
 
@@ -409,7 +426,7 @@ msgstr "Telefon"
 msgid "Pick the tab you want to publish:"
 msgstr "Wybierz zakładkę, którą chcesz opublikować:"
 
-#: includes/views/edit-page.php:239
+#: includes/views/edit-page.php:240
 msgid "Preview"
 msgstr "Podgląd"
 
@@ -417,27 +434,27 @@ msgstr "Podgląd"
 msgid "Preview failed"
 msgstr "Podgląd nie powiódł się"
 
-#: includes/views/edit-page.php:245
+#: includes/views/edit-page.php:246
 msgid "Preview width"
 msgstr "Szerokość podglądu"
 
-#: includes/views/edit-page.php:87
+#: includes/views/edit-page.php:88
 msgid "Price list"
 msgstr "Cennik"
 
-#: includes/views/edit-page.php:147
+#: includes/views/edit-page.php:148
 msgid "Pro"
 msgstr "Pro"
 
-#: includes/views/list-page.php:155
+#: includes/views/list-page.php:156
 msgid "Pro adds unlimited sources, one-minute syncing, conditional cell formatting, pagination, premium presets and private-sheet support."
 msgstr "Pro dodaje nielimitowaną liczbę źródeł, synchronizację co minutę, formatowanie warunkowe komórek, paginację, presety premium i obsługę arkuszy prywatnych."
 
-#: includes/views/list-page.php:29
+#: includes/views/list-page.php:30
 msgid "Publish your first Google Sheet"
 msgstr "Opublikuj swój pierwszy arkusz Google"
 
-#: includes/views/edit-page.php:278
+#: includes/views/edit-page.php:279
 msgid "Put it on a page"
 msgstr "Umieść na stronie"
 
@@ -446,15 +463,15 @@ msgstr "Umieść na stronie"
 msgid "Refresh failed: %s"
 msgstr "Odświeżanie nie powiodło się: %s"
 
-#: includes/views/list-page.php:132
+#: includes/views/list-page.php:133
 msgid "Refresh now"
 msgstr "Odśwież teraz"
 
-#: includes/views/edit-page.php:188
+#: includes/views/edit-page.php:189
 msgid "Reset"
 msgstr "Wyczyść"
 
-#: includes/views/edit-page.php:218
+#: includes/views/edit-page.php:219
 msgid "Reset everything to the preset"
 msgstr "Przywróć wszystko do presetu"
 
@@ -478,11 +495,11 @@ msgstr "Wiersz pod kursorem"
 msgid "Rows are never limited — a source can hold as many rows as your sheet does. To publish several different sheets at once, upgrade to Pro."
 msgstr "Liczba wierszy nigdy nie jest ograniczona — źródło pomieści tyle wierszy, ile ma Twój arkusz. Aby publikować kilka różnych arkuszy naraz, przejdź na Pro."
 
-#: includes/views/edit-page.php:228
+#: includes/views/edit-page.php:229
 msgid "Save changes and sync"
 msgstr "Zapisz zmiany i zsynchronizuj"
 
-#: includes/views/edit-page.php:229
+#: includes/views/edit-page.php:230
 msgid "Save source and sync"
 msgstr "Zapisz źródło i zsynchronizuj"
 
@@ -495,9 +512,13 @@ msgstr "Zapisane źródło"
 msgid "Saved, but the first sync failed: %s"
 msgstr "Zapisano, ale pierwsza synchronizacja nie powiodła się: %s"
 
-#: includes/views/list-page.php:44
+#: includes/views/list-page.php:45
 msgid "Schedule"
 msgstr "Harmonogram"
+
+#: includes/class-lstab-cron.php:177
+msgid "Scheduled syncing is switched off on this site."
+msgstr "Zaplanowana synchronizacja jest na tej stronie wyłączona."
 
 #: includes/class-lstab-renderer.php:322
 msgid "Scroll the table sideways"
@@ -527,7 +548,7 @@ msgstr "Wybierz arkusz…"
 msgid "Serif headings and hairline rules, styled after print tables."
 msgstr "Szeryfowe nagłówki i włosowe linie, stylizowane na tabele drukowane."
 
-#: includes/views/list-page.php:31
+#: includes/views/list-page.php:32
 msgid "Share a sheet as “Anyone with the link – Viewer”, paste the link, and check the preview before you save. No API key, no Google Cloud project."
 msgstr "Udostępnij arkusz jako „Każdy, kto ma link – Przeglądający”, wklej link i sprawdź podgląd przed zapisaniem. Bez klucza API i bez projektu Google Cloud."
 
@@ -551,7 +572,7 @@ msgstr "Źródło arkusza zapisane i zsynchronizowane."
 msgid "Sheet sources"
 msgstr "Źródła arkuszy"
 
-#: includes/views/edit-page.php:66
+#: includes/views/edit-page.php:67
 msgid "Sheet tab"
 msgstr "Zakładka arkusza"
 
@@ -559,7 +580,12 @@ msgstr "Zakładka arkusza"
 msgid "Sheets Tables"
 msgstr "Tabele z arkuszy"
 
-#: includes/views/list-page.php:45
+#. translators: %s: human readable time difference, e.g. "2 hours".
+#: includes/class-lstab-cron.php:213
+msgid "Sheets have not been checked for %s."
+msgstr "Arkusze nie były sprawdzane od %s."
+
+#: includes/views/list-page.php:46
 msgid "Shortcode"
 msgstr "Shortcode"
 
@@ -571,7 +597,7 @@ msgstr "Pokaż „zaktualizowano … temu”"
 msgid "Showing the first 25 rows."
 msgstr "Pokazano pierwsze 25 wierszy."
 
-#: includes/views/list-page.php:43
+#: includes/views/list-page.php:44
 msgid "Size"
 msgstr "Rozmiar"
 
@@ -588,7 +614,7 @@ msgstr "Sortuj według: %s"
 msgid "Sortable columns"
 msgstr "Sortowalne kolumny"
 
-#: includes/views/list-page.php:41
+#: includes/views/list-page.php:42
 msgid "Source"
 msgstr "Źródło"
 
@@ -612,20 +638,20 @@ msgstr "Naprzemienne wiersze"
 msgid "Style preset"
 msgstr "Preset stylu"
 
-#: includes/class-lstab-admin.php:426
+#: includes/class-lstab-admin.php:462
 msgid "Sync error — nothing to show yet"
 msgstr "Błąd synchronizacji — nie ma jeszcze czego pokazać"
 
-#: includes/class-lstab-admin.php:425
+#: includes/class-lstab-admin.php:461
 msgid "Sync error — visitors still see the last good copy"
 msgstr "Błąd synchronizacji — odwiedzający wciąż widzą ostatnią poprawną kopię"
 
-#: includes/views/list-page.php:42
+#: includes/views/list-page.php:43
 msgid "Sync status"
 msgstr "Status synchronizacji"
 
 #. translators: %s: sheet tab name.
-#: includes/views/list-page.php:70
+#: includes/views/list-page.php:71
 msgid "Tab: %s"
 msgstr "Zakładka: %s"
 
@@ -657,7 +683,7 @@ msgstr "To nie wygląda na poprawny link. Skopiuj adres bezpośrednio z przeglą
 msgid "That sheet source no longer exists."
 msgstr "To źródło arkusza już nie istnieje."
 
-#: includes/views/edit-page.php:73
+#: includes/views/edit-page.php:74
 msgid "The first row contains column headings"
 msgstr "Pierwszy wiersz zawiera nagłówki kolumn"
 
@@ -682,11 +708,15 @@ msgstr[2] "Wersja darmowa przechowuje %d źródeł arkuszy. Usuń jedno albo prz
 msgid "The sheet returned no data. Check that the tab you picked actually contains rows."
 msgstr "Arkusz nie zwrócił żadnych danych. Sprawdź, czy wybrana zakładka faktycznie zawiera wiersze."
 
-#: includes/views/edit-page.php:130
+#: includes/views/edit-page.php:131
 msgid "The slider is always visible while there is more table to see, unlike the browser's own scrollbar. Use the width buttons beside the preview to check it."
 msgstr "Suwak jest widoczny zawsze, gdy tabela ma coś jeszcze do pokazania — inaczej niż pasek przewijania przeglądarki. Sprawdź go przyciskami szerokości obok podglądu."
 
-#: includes/views/edit-page.php:241
+#: includes/class-lstab-cron.php:185
+msgid "The sync schedule is missing."
+msgstr "Brakuje harmonogramu synchronizacji."
+
+#: includes/views/edit-page.php:242
 msgid "This is exactly what the parser sees. Check the headings and a few rows before you save — wrong tab, merged cells or a shifted header row show up here, not on your live page."
 msgstr "Dokładnie to widzi parser. Sprawdź nagłówki i kilka wierszy przed zapisaniem — zła zakładka, scalone komórki czy przesunięty wiersz nagłówka widać tutaj, a nie na działającej stronie."
 
@@ -694,11 +724,11 @@ msgstr "Dokładnie to widzi parser. Sprawdź nagłówki i kilka wierszy przed za
 msgid "This sheet source no longer exists."
 msgstr "To źródło arkusza już nie istnieje."
 
-#: includes/views/edit-page.php:82
+#: includes/views/edit-page.php:83
 msgid "Title"
 msgstr "Tytuł"
 
-#: includes/views/edit-page.php:118
+#: includes/views/edit-page.php:119
 msgid "Turn each row into a labelled card"
 msgstr "Zamień każdy wiersz w kartę z etykietami"
 
@@ -715,7 +745,7 @@ msgstr "Zaktualizowano %s temu"
 msgid "Use the source default"
 msgstr "Użyj domyślnego dla źródła"
 
-#: includes/views/edit-page.php:280
+#: includes/views/edit-page.php:281
 msgid "Use the “Google Sheets Table” block, or paste this shortcode into any editor, widget or page builder:"
 msgstr "Użyj bloku „Tabela z Arkuszy Google” albo wklej ten shortcode w dowolnym edytorze, widżecie lub kreatorze stron:"
 
@@ -723,9 +753,13 @@ msgstr "Użyj bloku „Tabela z Arkuszy Google” albo wklej ten shortcode w dow
 msgid "Very rounded"
 msgstr "Mocno zaokrąglone"
 
-#: includes/views/edit-page.php:246
+#: includes/views/edit-page.php:247
 msgid "Width:"
 msgstr "Szerokość:"
+
+#: includes/class-lstab-cron.php:216
+msgid "WordPress runs scheduled work when someone visits the site, so a quiet site can fall behind. On a site that should be busy this usually means WP-Cron is blocked — by a security plugin, a page cache serving every request, or a host that disables it. Your tables are still showing their last good copy."
+msgstr "WordPress wykonuje zaplanowane zadania, gdy ktoś odwiedza stronę, więc mało odwiedzana witryna może się opóźniać. Na stronie, która powinna mieć ruch, zwykle oznacza to zablokowany WP-Cron — przez wtyczkę bezpieczeństwa, cache serwujący każde żądanie albo hosting, który go wyłącza. Twoje tabele nadal pokazują ostatnią poprawną kopię."
 
 #: includes/class-lstab-rest.php:120
 msgid "You are not allowed to list sheet sources."

@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,7 @@ Paste your link and the parser shows you exactly what it read — headings, rows
 * Three polished style presets, each following the reader's light or dark colour scheme.
 * A visual appearance editor: set colours, text size, row height and corners per table, with the preview updating as you go.
 * A visible, draggable slider under any table too wide for its column, so nothing is ever hidden behind an invisible scrollbar.
+* The first column stays pinned while the rest scrolls, so a price never stops belonging to a product.
 * A layout control per source: scroll the table sideways, or stack each row into a card.
 * An "updated N minutes ago" label you can switch off.
 * Full translation support.
@@ -118,6 +119,8 @@ Every value is a CSS custom property on `.lstab`, so a theme stylesheet can over
 
 The scheduled refresh uses WP-Cron. If you have disabled it, use a real system cron calling `wp-cron.php`, or press "Refresh now". A failed schedule never blanks your table — the stored copy keeps rendering.
 
+You do not have to keep an eye on it: if the schedule stops running, the plugin says so on its own screens and explains what it means, rather than letting the table go quietly stale.
+
 = Can I show several different sheets? =
 
 The free version stores three sheet sources. Pro removes the limit.
@@ -140,6 +143,11 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 1.4.0 =
+* Added: the first column stays pinned while a wide table scrolls sideways, so every row keeps its label. It is capped so it can never take up the whole screen, and shows a divider only once something is hidden behind it.
+* Added: the dashboard now says when scheduled syncing has stopped running. A blocked WP-Cron does not break anything — pages keep serving the stored copy — it just quietly stops updating, which is the kind of fault nobody notices until a customer does.
+* Fixed: the header background colour was reported as the table background, which made that control in the appearance editor look inert.
 
 = 1.3.0 =
 * Added: a visible, draggable slider beneath any table wider than its column. Browsers hide the horizontal scrollbar until you scroll on macOS, iOS and Android, which made a wide table look cut off; this one stays on screen while there is more to see, and works by drag, click, touch and keyboard.
@@ -179,6 +187,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 1.4.0 =
+Pins the first column of a scrolling table, and warns when scheduled syncing has stopped.
 
 = 1.3.0 =
 Wide tables now scroll with a visible slider instead of stacking into cards. Existing tables switch automatically; choose "Turn each row into a labelled card" on the source screen to keep the old behaviour.
