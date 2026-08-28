@@ -104,6 +104,21 @@ return array(
 		=> 'Nie udało się odczytać listy zakładek — zostanie użyta zakładka z Twojego linku.',
 	'Paste a Google Sheets link first.'          => 'Najpierw wklej link do arkusza Google.',
 
+	// Layout and the horizontal slider.
+	'On screens too narrow for the whole table'  => 'Na ekranach zbyt wąskich dla całej tabeli',
+	'Keep the table and add a slider to scroll it sideways'
+		=> 'Zachowaj tabelę i dodaj suwak do przewijania w bok',
+	'Turn each row into a labelled card'         => 'Zamień każdy wiersz w kartę z etykietami',
+	'Always use cards, at every width'           => 'Zawsze używaj kart, przy każdej szerokości',
+	'The slider is always visible while there is more table to see, unlike the browser\'s own scrollbar. Use the width buttons beside the preview to check it.'
+		=> 'Suwak jest widoczny zawsze, gdy tabela ma coś jeszcze do pokazania — inaczej niż pasek przewijania przeglądarki. Sprawdź go przyciskami szerokości obok podglądu.',
+	'Table with a slider'                        => 'Tabela z suwakiem',
+	'Stack into cards when narrow'               => 'Karty, gdy wąsko',
+	'A wide table keeps its shape and gains a draggable slider. Card layouts stack each row instead, which suits tables of long text.'
+		=> 'Szeroka tabela zachowuje swój kształt i zyskuje przeciągany suwak. Układy kartowe zamiast tego układają wiersze pionowo, co pasuje do tabel z długim tekstem.',
+	'Table, scrollable sideways'                 => 'Tabela, przewijana w bok',
+	'Scroll the table sideways'                  => 'Przewiń tabelę w bok',
+
 	// Visual appearance editor.
 	'4. Fine-tune the look'                      => '4. Dopracuj wygląd',
 	'Optional. Anything you leave untouched follows the preset above, so you can change one colour without redefining the rest. The preview updates as you go.'

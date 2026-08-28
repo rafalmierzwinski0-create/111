@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -50,7 +50,8 @@ Paste your link and the parser shows you exactly what it read — headings, rows
 * Numeric columns detected and right-aligned with tabular figures, so decimals line up.
 * Three polished style presets, each following the reader's light or dark colour scheme.
 * A visual appearance editor: set colours, text size, row height and corners per table, with the preview updating as you go.
-* A layout control: let the table decide when to become cards, or pin it to one or the other.
+* A visible, draggable slider under any table too wide for its column, so nothing is ever hidden behind an invisible scrollbar.
+* A layout control per source: scroll the table sideways, or stack each row into a card.
 * An "updated N minutes ago" label you can switch off.
 * Full translation support.
 
@@ -101,11 +102,11 @@ Yes. The shortcode `[sheet_table id="123"]` works anywhere shortcodes are run �
 
 = My table is very wide. What happens on phones? =
 
-Each row becomes a labelled card, so every value stays readable at full size. There is no horizontal scrolling and no shrunken text.
+It stays a table, at full text size, and a slider appears underneath so it can be moved left and right. Nothing shrinks and nothing is hidden — the usual complaint about wide tables is microscopic type, which comes from squeezing a table rather than scrolling it.
 
-The switch happens whenever the space per column drops too low, which depends on how many columns you have — so it also fires for a five-column table sitting in a narrow desktop theme column, not only on phones.
+The slider is drawn by the plugin rather than left to the browser, because macOS, iOS and Android hide the horizontal scrollbar until you are already scrolling, which is exactly when it is too late to be useful.
 
-If you would rather always have a table, set the layout to "Always a table" in the block, or `layout="table"` in the shortcode; it will scroll sideways instead, with a shaded edge showing there is more to see. `layout="cards"` forces the opposite. Giving the block a wide or full alignment is usually the better fix, since it hands the table the room it needs.
+By default the table keeps its shape and gains a slider you can drag, so the text stays full size and nothing is hidden. To stack rows into cards instead, change "On screens too narrow for the whole table" on the source screen, or pass `layout="cards"` to the shortcode. Giving the block a wide or full alignment is often better still, since it hands the table the room it needs.
 
 = Can I change how the table looks? =
 
@@ -131,7 +132,7 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 2. The source list, showing sync status, size, schedule and the ready-to-copy shortcode.
 3. Switching between the tabs of a multi-tab spreadsheet.
 4. The published table on a desktop screen.
-5. The same table on a phone: one labelled card per row, no horizontal scrolling.
+5. The same table on a phone: full-size text, with a slider to move it sideways.
 6. Searching inside the table.
 7. Sorting by a column, numerically where the data is numeric.
 8. A failed sync reported in the dashboard, with instructions.
@@ -139,6 +140,12 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 1.3.0 =
+* Added: a visible, draggable slider beneath any table wider than its column. Browsers hide the horizontal scrollbar until you scroll on macOS, iOS and Android, which made a wide table look cut off; this one stays on screen while there is more to see, and works by drag, click, touch and keyboard.
+* Changed: narrow screens now keep the table and scroll it, rather than stacking every row into a card. Text stays full size — the table moves, it does not shrink. The card layout is still available per source.
+* Changed: the layout choice is now a setting on the source screen, so it is made once rather than repeated on every shortcode; the block and shortcode can still override it.
+* Fixed: a table too wide for its column collapsed its columns to the narrowest possible, making rows several lines tall for no benefit. Columns now keep their natural width and the slider does the work.
 
 = 1.2.0 =
 * Added: a visual appearance editor on the source screen. Colours, text size, row height and corner rounding can be set per table, and the preview updates live. Anything left untouched follows the chosen preset, so one colour can be changed without redefining the rest.
@@ -172,6 +179,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 1.3.0 =
+Wide tables now scroll with a visible slider instead of stacking into cards. Existing tables switch automatically; choose "Turn each row into a labelled card" on the source screen to keep the old behaviour.
 
 = 1.2.0 =
 Adds a visual appearance editor for per-table colours and spacing.

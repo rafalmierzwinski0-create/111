@@ -26,8 +26,9 @@
 	var ExternalLink = components.ExternalLink;
 
 	var LAYOUTS = [
-		{ label: __( 'Automatic — stack into cards when the column is narrow', 'live-sheets-table' ), value: 'auto' },
-		{ label: __( 'Always a table — scroll sideways instead', 'live-sheets-table' ), value: 'table' },
+		{ label: __( 'Use the source default', 'live-sheets-table' ), value: 'inherit' },
+		{ label: __( 'Table with a slider', 'live-sheets-table' ), value: 'table' },
+		{ label: __( 'Stack into cards when narrow', 'live-sheets-table' ), value: 'auto' },
 		{ label: __( 'Always cards', 'live-sheets-table' ), value: 'cards' }
 	];
 
@@ -143,7 +144,7 @@
 						label: __( 'Layout', 'live-sheets-table' ),
 						value: attributes.layout,
 						options: LAYOUTS,
-						help: __( 'Narrow theme columns cannot fit a wide table. "Automatic" turns each row into a labelled card rather than hiding columns.', 'live-sheets-table' ),
+						help: __( 'A wide table keeps its shape and gains a draggable slider. Card layouts stack each row instead, which suits tables of long text.', 'live-sheets-table' ),
 						onChange: function ( value ) {
 							setAttributes( { layout: value } );
 						},

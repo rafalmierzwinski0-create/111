@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class LSTAB_Storage {
 
-	const DB_VERSION     = '1.1.0';
+	const DB_VERSION     = '1.2.0';
 	const DB_VERSION_OPT = 'lstab_db_version';
 	const CACHE_GROUP    = 'lstab_sources';
 
@@ -48,6 +48,7 @@ class LSTAB_Storage {
 			sync_interval int(10) unsigned NOT NULL DEFAULT 900,
 			first_row_header tinyint(1) NOT NULL DEFAULT 1,
 			style_preset varchar(50) NOT NULL DEFAULT 'clean',
+			layout varchar(20) NOT NULL DEFAULT 'table',
 			style_vars text NULL,
 			snapshot longtext NULL,
 			snapshot_hash varchar(32) NOT NULL DEFAULT '',
@@ -96,6 +97,7 @@ class LSTAB_Storage {
 			'sync_interval'    => LSTAB_Limits::min_interval(),
 			'first_row_header' => 1,
 			'style_preset'     => 'clean',
+			'layout'           => 'table',
 			'style_vars'       => LSTAB_Customizer::defaults(),
 		);
 	}
@@ -122,6 +124,7 @@ class LSTAB_Storage {
 			'sync_interval'    => (int) $data['sync_interval'],
 			'first_row_header' => empty( $data['first_row_header'] ) ? 0 : 1,
 			'style_preset'     => (string) $data['style_preset'],
+			'layout'           => (string) $data['layout'],
 			'style_vars'       => wp_json_encode( LSTAB_Customizer::sanitize( $data['style_vars'] ) ),
 			'snapshot'         => null,
 			'snapshot_hash'    => '',
@@ -135,7 +138,7 @@ class LSTAB_Storage {
 			'updated_gmt'      => $now,
 		);
 
-		$formats = array( '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s' );
+		$formats = array( '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s' );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Custom table, no core API available.
 		$inserted = $wpdb->insert( self::table(), $row, $formats );
@@ -167,6 +170,7 @@ class LSTAB_Storage {
 			'sync_interval'    => '%d',
 			'first_row_header' => '%d',
 			'style_preset'     => '%s',
+			'layout'           => '%s',
 			'style_vars'       => '%s',
 		);
 
@@ -355,7 +359,7 @@ class LSTAB_Storage {
 	 */
 	protected static function meta_columns() {
 		return 'id, title, sheet_url, sheet_id, sheet_kind, gid, tab_name, sync_interval, '
-			. 'first_row_header, style_preset, style_vars, snapshot_hash, row_count, col_count, '
+			. 'first_row_header, style_preset, layout, style_vars, snapshot_hash, row_count, col_count, '
 			. 'last_status, last_error, last_attempt_gmt, last_success_gmt, created_gmt, updated_gmt';
 	}
 

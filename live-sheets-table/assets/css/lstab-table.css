@@ -48,6 +48,8 @@
 	--lstab-cell-display: table-cell;
 	--lstab-label-display: none;
 	--lstab-scroll-overflow: auto;
+	--lstab-slider-display: block;
+	--lstab-table-min: max-content;
 	--lstab-row-gap: 0;
 	--lstab-row-border-width: 0 0 1px 0;
 	--lstab-row-last-bottom: 0;
@@ -58,6 +60,7 @@
 	--lstab-cell-align: inherit;
 	--lstab-align-end: right;
 	--lstab-cell-max: 22rem;
+	--lstab-slider-display: block;
 	--lstab-frame-border: 1px solid var(--lstab-border);
 	--lstab-frame-shadow: var(--lstab-shadow);
 
@@ -153,6 +156,15 @@
 
 .lstab-table {
 	width: 100%;
+	/*
+	 * Without this a table too wide for its container collapses to min-content
+	 * and wraps every column to the narrowest it can manage — the rows go three
+	 * lines tall and nothing is gained, because it still scrolls. Asking for
+	 * max-content keeps columns at their natural width (capped per cell above)
+	 * and lets the slider do the work. The 100% above still stretches it when
+	 * there is room to spare.
+	 */
+	min-width: var(--lstab-table-min, max-content);
 	/* Auto layout lets long values wrap so the table fits its column instead
 	   of overflowing and hiding the last columns behind a scrollbar. */
 	table-layout: var(--lstab-table-layout);
@@ -344,6 +356,78 @@
 }
 
 /* -------------------------------------------------------------- meta / misc */
+
+/* ------------------------------------------------------- horizontal slider */
+
+/*
+ * Native horizontal scrollbars are overlay-only on macOS, iOS and Android:
+ * they appear while scrolling and then vanish, so a table that scrolls simply
+ * looks cut off. This is a real, always-visible, draggable control. The script
+ * unhides it only when there is genuinely something to scroll, and adds
+ * .lstab-has-slider so the native bar can step aside and leave just one.
+ */
+
+.lstab-scrollbar {
+	display: var(--lstab-slider-display, block);
+	margin-top: 0.7em;
+	padding: 0.15em 0;
+	touch-action: none;
+}
+
+.lstab-scrollbar[hidden] {
+	display: none;
+}
+
+.lstab-scrollbar-track {
+	position: relative;
+	height: 12px;
+	border-radius: 999px;
+	background-color: color-mix( in srgb, var(--lstab-border) 55%, transparent );
+	cursor: pointer;
+}
+
+.lstab-scrollbar-thumb {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	min-width: 32px;
+	border-radius: 999px;
+	background-color: var(--lstab-border-strong);
+	cursor: grab;
+	transition: background-color 0.12s ease;
+}
+
+.lstab-scrollbar-thumb:hover {
+	background-color: var(--lstab-fg-muted);
+}
+
+.lstab-scrollbar-thumb:focus-visible {
+	outline: 2px solid var(--lstab-accent);
+	outline-offset: 2px;
+}
+
+.lstab-scrollbar-thumb.is-dragging {
+	background-color: var(--lstab-accent);
+	cursor: grabbing;
+}
+
+/* One scrollbar is enough: hide the native one once ours is live. */
+.lstab-has-slider .lstab-scroll {
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+
+.lstab-has-slider .lstab-scroll::-webkit-scrollbar {
+	height: 0;
+	width: 0;
+}
+
+/* The scroll region is focusable so it can be scrolled from the keyboard. */
+.lstab-scroll:focus-visible {
+	outline: 2px solid var(--lstab-accent);
+	outline-offset: 2px;
+}
 
 .lstab-meta {
 	margin: 0.75em 0 0;
@@ -544,6 +628,8 @@
 		--lstab-cell-align: left;
 		--lstab-align-end: left;
 		--lstab-cell-max: none;
+		--lstab-slider-display: none;
+		--lstab-table-min: 0;
 		--lstab-frame-border: 0;
 		--lstab-frame-shadow: none;
 	}
@@ -566,6 +652,8 @@
 		--lstab-cell-align: left;
 		--lstab-align-end: left;
 		--lstab-cell-max: none;
+		--lstab-slider-display: none;
+		--lstab-table-min: 0;
 		--lstab-frame-border: 0;
 		--lstab-frame-shadow: none;
 	}
@@ -588,6 +676,8 @@
 		--lstab-cell-align: left;
 		--lstab-align-end: left;
 		--lstab-cell-max: none;
+		--lstab-slider-display: none;
+		--lstab-table-min: 0;
 		--lstab-frame-border: 0;
 		--lstab-frame-shadow: none;
 	}
@@ -610,6 +700,8 @@
 		--lstab-cell-align: left;
 		--lstab-align-end: left;
 		--lstab-cell-max: none;
+		--lstab-slider-display: none;
+		--lstab-table-min: 0;
 		--lstab-frame-border: 0;
 		--lstab-frame-shadow: none;
 	}
@@ -632,6 +724,8 @@
 		--lstab-cell-align: left;
 		--lstab-align-end: left;
 		--lstab-cell-max: none;
+		--lstab-slider-display: none;
+		--lstab-table-min: 0;
 		--lstab-frame-border: 0;
 		--lstab-frame-shadow: none;
 	}
@@ -656,6 +750,8 @@
 	--lstab-cell-display: table-cell;
 	--lstab-label-display: none;
 	--lstab-scroll-overflow: auto;
+	--lstab-slider-display: block;
+	--lstab-table-min: max-content;
 	--lstab-row-gap: 0;
 	--lstab-row-border-width: 0 0 1px 0;
 	--lstab-row-last-bottom: 0;
@@ -664,6 +760,7 @@
 	--lstab-cell-align: inherit;
 	--lstab-align-end: right;
 	--lstab-cell-max: 22rem;
+	--lstab-slider-display: block;
 	--lstab-frame-border: 1px solid var(--lstab-border);
 	--lstab-frame-shadow: var(--lstab-shadow);
 }
@@ -685,6 +782,8 @@
 	--lstab-cell-align: left;
 	--lstab-align-end: left;
 	--lstab-cell-max: none;
+	--lstab-slider-display: none;
+	--lstab-table-min: 0;
 	--lstab-frame-border: 0;
 	--lstab-frame-shadow: none;
 }
@@ -743,6 +842,8 @@
 			--lstab-cell-align: left;
 			--lstab-align-end: left;
 			--lstab-cell-max: none;
+			--lstab-slider-display: none;
+			--lstab-table-min: 0;
 			--lstab-frame-border: 0;
 			--lstab-frame-shadow: none;
 		}

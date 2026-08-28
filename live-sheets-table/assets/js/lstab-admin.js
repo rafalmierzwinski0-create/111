@@ -29,6 +29,7 @@
 	var titleField = document.getElementById( 'lstab-title' );
 	var firstRowHeader = document.getElementById( 'lstab-first-row-header' );
 	var presetInputs = form.querySelectorAll( 'input[name="style_preset"]' );
+	var layoutSelect = document.getElementById( 'lstab-layout' );
 
 	var inFlight = false;
 
@@ -129,7 +130,8 @@
 				url: url,
 				gid: undefined === gid ? '' : String( gid ),
 				firstRowHeader: firstRowHeader ? firstRowHeader.checked : true,
-				style: selectedPreset()
+				style: selectedPreset(),
+				layout: layoutSelect ? layoutSelect.value : 'table'
 			}
 		} ).then( function ( response ) {
 			setBusy( false );
@@ -291,6 +293,27 @@
 			applyPreset( input.value );
 		} );
 	} );
+
+	// Layout is a class too, so swap it in place rather than refetching.
+	if ( layoutSelect ) {
+		layoutSelect.addEventListener( 'change', function () {
+			var table = stage.querySelector( '.lstab' );
+			if ( ! table ) {
+				return;
+			}
+
+			[ 'table', 'auto', 'cards' ].forEach( function ( value ) {
+				table.classList.remove( 'lstab-layout-' + value );
+			} );
+
+			if ( 'auto' !== layoutSelect.value ) {
+				table.classList.add( 'lstab-layout-' + layoutSelect.value );
+			}
+
+			// The slider has to re-measure once the layout changes.
+			table.dispatchEvent( new CustomEvent( 'lstab:resize' ) );
+		} );
+	}
 
 	if ( firstRowHeader ) {
 		firstRowHeader.addEventListener( 'change', function () {

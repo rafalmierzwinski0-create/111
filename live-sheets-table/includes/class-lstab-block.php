@@ -66,7 +66,7 @@ class LSTAB_Block {
 				'showUpdated' => true,
 				'stylePreset' => '',
 				'caption'     => '',
-				'layout'      => 'auto',
+				'layout'      => 'inherit',
 			)
 		);
 

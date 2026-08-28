@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-08-28 17:09+0000\n"
+"POT-Creation-Date: 2026-08-28 19:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "X-Domain: live-sheets-table\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: includes/class-lstab-renderer.php:200
+#: includes/class-lstab-renderer.php:207
 msgid "%1$s of %2$s rows"
 msgstr ""
 
@@ -33,12 +33,16 @@ msgstr ""
 msgid "3. Pick a look"
 msgstr ""
 
-#: includes/views/edit-page.php:142
+#: includes/views/edit-page.php:164
 msgid "4. Fine-tune the look"
 msgstr ""
 
-#: includes/views/edit-page.php:243
+#: includes/views/edit-page.php:265
 msgid "A wide table becomes one card per row once its column gets too narrow. Use these to check both before you publish."
+msgstr ""
+
+#: blocks/sheet-table/index.js:147
+msgid "A wide table keeps its shape and gains a draggable slider. Card layouts stack each row instead, which suits tables of long text."
 msgstr ""
 
 #: includes/class-lstab-customizer.php:70
@@ -49,7 +53,7 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
-#: includes/views/list-page.php:34 blocks/sheet-table/index.js:184
+#: includes/views/list-page.php:34 blocks/sheet-table/index.js:185
 msgid "Add a sheet source"
 msgstr ""
 
@@ -74,16 +78,12 @@ msgstr ""
 msgid "Alternating row tint for scanning long lists."
 msgstr ""
 
-#: blocks/sheet-table/index.js:30
-msgid "Always a table — scroll sideways instead"
-msgstr ""
-
-#: blocks/sheet-table/index.js:31
+#: blocks/sheet-table/index.js:32
 msgid "Always cards"
 msgstr ""
 
-#: blocks/sheet-table/index.js:29
-msgid "Automatic — stack into cards when the column is narrow"
+#: includes/views/edit-page.php:119
+msgid "Always use cards, at every width"
 msgstr ""
 
 #: includes/views/limit-reached.php:38
@@ -94,15 +94,15 @@ msgstr ""
 msgid "Background"
 msgstr ""
 
-#: includes/class-lstab-styles.php:33 blocks/sheet-table/index.js:38
+#: includes/class-lstab-styles.php:33 blocks/sheet-table/index.js:39
 msgid "Bordered"
 msgstr ""
 
-#: includes/views/edit-page.php:211
+#: includes/views/edit-page.php:233
 msgid "Cancel"
 msgstr ""
 
-#: blocks/sheet-table/index.js:162
+#: blocks/sheet-table/index.js:163
 msgid "Caption"
 msgstr ""
 
@@ -110,11 +110,11 @@ msgstr ""
 msgid "Check Google for changes"
 msgstr ""
 
-#: blocks/sheet-table/index.js:192
+#: blocks/sheet-table/index.js:193
 msgid "Choose which saved sheet to show."
 msgstr ""
 
-#: includes/class-lstab-styles.php:23 blocks/sheet-table/index.js:36
+#: includes/class-lstab-styles.php:23 blocks/sheet-table/index.js:37
 msgid "Clean"
 msgstr ""
 
@@ -145,11 +145,11 @@ msgstr ""
 msgid "Could not read the tab list for this spreadsheet."
 msgstr ""
 
-#: includes/class-lstab-admin.php:129
+#: includes/class-lstab-admin.php:134
 msgid "Could not read the tab list — the tab from your link will be used."
 msgstr ""
 
-#: includes/class-lstab-storage.php:144
+#: includes/class-lstab-storage.php:147
 msgid "Could not save the sheet source."
 msgstr ""
 
@@ -203,11 +203,11 @@ msgid "Every minute"
 msgstr ""
 
 #. translators: %s: human readable time difference.
-#: includes/class-lstab-admin.php:408
+#: includes/class-lstab-admin.php:416
 msgid "Failing since the last good sync %s ago"
 msgstr ""
 
-#: includes/class-lstab-admin.php:126
+#: includes/class-lstab-admin.php:131
 msgid "Found %1$s rows across %2$s columns."
 msgstr ""
 
@@ -215,12 +215,12 @@ msgstr ""
 msgid "Full grid with a shaded header. Good for dense numeric data."
 msgstr ""
 
-#: includes/views/edit-page.php:227
+#: includes/views/edit-page.php:249
 msgid "Full width"
 msgstr ""
 
-#: blocks/sheet-table/index.js:175 blocks/sheet-table/index.js:181
-#: blocks/sheet-table/index.js:191
+#: blocks/sheet-table/index.js:176 blocks/sheet-table/index.js:182
+#: blocks/sheet-table/index.js:192
 msgid "Google Sheets Table"
 msgstr ""
 
@@ -273,16 +273,20 @@ msgstr ""
 msgid "In Google Sheets choose Share → General access → “Anyone with the link”, role “Viewer”, then copy the link from your browser. No API key or Google Cloud project is needed."
 msgstr ""
 
+#: includes/views/edit-page.php:117
+msgid "Keep the table and add a slider to scroll it sideways"
+msgstr ""
+
 #: includes/class-lstab-customizer.php:93
 msgid "Large"
 msgstr ""
 
 #. translators: %s: human readable time difference.
-#: includes/class-lstab-admin.php:397
+#: includes/class-lstab-admin.php:405
 msgid "Last sync OK (%s ago)"
 msgstr ""
 
-#: blocks/sheet-table/index.js:143
+#: blocks/sheet-table/index.js:144
 msgid "Layout"
 msgstr ""
 
@@ -307,11 +311,11 @@ msgstr ""
 msgid "Load preview"
 msgstr ""
 
-#: includes/class-lstab-admin.php:124
+#: includes/class-lstab-admin.php:129
 msgid "Loading preview…"
 msgstr ""
 
-#: blocks/sheet-table/index.js:111
+#: blocks/sheet-table/index.js:112
 msgid "Manage sheet sources"
 msgstr ""
 
@@ -319,23 +323,19 @@ msgstr ""
 msgid "Midnight"
 msgstr ""
 
-#: includes/views/edit-page.php:228
+#: includes/views/edit-page.php:250
 msgid "Narrow column"
-msgstr ""
-
-#: blocks/sheet-table/index.js:146
-msgid "Narrow theme columns cannot fit a wide table. \"Automatic\" turns each row into a labelled card rather than hiding columns."
 msgstr ""
 
 #: includes/views/list-page.php:153
 msgid "Need more than one sheet?"
 msgstr ""
 
-#: includes/class-lstab-admin.php:411
+#: includes/class-lstab-admin.php:419
 msgid "Never synced successfully"
 msgstr ""
 
-#: includes/class-lstab-renderer.php:308
+#: includes/class-lstab-renderer.php:330
 msgid "No rows match your search."
 msgstr ""
 
@@ -343,7 +343,7 @@ msgstr ""
 msgid "No sheet selected yet."
 msgstr ""
 
-#: blocks/sheet-table/index.js:182
+#: blocks/sheet-table/index.js:183
 msgid "No sheet sources yet. Add one in the dashboard, then pick it here."
 msgstr ""
 
@@ -356,8 +356,12 @@ msgstr ""
 msgid "Normal"
 msgstr ""
 
-#: includes/class-lstab-admin.php:426
+#: includes/class-lstab-admin.php:434
 msgid "Not synced yet"
+msgstr ""
+
+#: includes/views/edit-page.php:113
+msgid "On screens too narrow for the whole table"
 msgstr ""
 
 #: includes/class-lstab-url.php:71
@@ -372,11 +376,11 @@ msgstr ""
 msgid "Open in Google Sheets"
 msgstr ""
 
-#: includes/views/edit-page.php:262
+#: includes/views/edit-page.php:284
 msgid "Optional attributes: search=\"no\", sort=\"no\", meta=\"no\", style=\"striped\", caption=\"My table\"."
 msgstr ""
 
-#: includes/views/edit-page.php:144
+#: includes/views/edit-page.php:166
 msgid "Optional. Anything you leave untouched follows the preset above, so you can change one colour without redefining the rest. The preview updates as you go."
 msgstr ""
 
@@ -384,11 +388,11 @@ msgstr ""
 msgid "Pages always render from the local copy, so visitors never wait for Google. Pro syncs as often as every minute."
 msgstr ""
 
-#: includes/class-lstab-admin.php:130
+#: includes/class-lstab-admin.php:135
 msgid "Paste a Google Sheets link first."
 msgstr ""
 
-#: includes/views/edit-page.php:248
+#: includes/views/edit-page.php:270
 msgid "Paste a link and choose “Load preview”."
 msgstr ""
 
@@ -396,23 +400,23 @@ msgstr ""
 msgid "Paste the link to your Google Sheet first."
 msgstr ""
 
-#: includes/views/edit-page.php:229
+#: includes/views/edit-page.php:251
 msgid "Phone"
 msgstr ""
 
-#: includes/class-lstab-admin.php:128
+#: includes/class-lstab-admin.php:133
 msgid "Pick the tab you want to publish:"
 msgstr ""
 
-#: includes/views/edit-page.php:217
+#: includes/views/edit-page.php:239
 msgid "Preview"
 msgstr ""
 
-#: includes/class-lstab-admin.php:125
+#: includes/class-lstab-admin.php:130
 msgid "Preview failed"
 msgstr ""
 
-#: includes/views/edit-page.php:223
+#: includes/views/edit-page.php:245
 msgid "Preview width"
 msgstr ""
 
@@ -420,7 +424,7 @@ msgstr ""
 msgid "Price list"
 msgstr ""
 
-#: includes/views/edit-page.php:125
+#: includes/views/edit-page.php:147
 msgid "Pro"
 msgstr ""
 
@@ -432,12 +436,12 @@ msgstr ""
 msgid "Publish your first Google Sheet"
 msgstr ""
 
-#: includes/views/edit-page.php:256
+#: includes/views/edit-page.php:278
 msgid "Put it on a page"
 msgstr ""
 
 #. translators: %s: error message.
-#: includes/class-lstab-admin.php:290
+#: includes/class-lstab-admin.php:298
 msgid "Refresh failed: %s"
 msgstr ""
 
@@ -445,11 +449,11 @@ msgstr ""
 msgid "Refresh now"
 msgstr ""
 
-#: includes/views/edit-page.php:166
+#: includes/views/edit-page.php:188
 msgid "Reset"
 msgstr ""
 
-#: includes/views/edit-page.php:196
+#: includes/views/edit-page.php:218
 msgid "Reset everything to the preset"
 msgstr ""
 
@@ -473,20 +477,20 @@ msgstr ""
 msgid "Rows are never limited — a source can hold as many rows as your sheet does. To publish several different sheets at once, upgrade to Pro."
 msgstr ""
 
-#: includes/views/edit-page.php:206
+#: includes/views/edit-page.php:228
 msgid "Save changes and sync"
 msgstr ""
 
-#: includes/views/edit-page.php:207
+#: includes/views/edit-page.php:229
 msgid "Save source and sync"
 msgstr ""
 
-#: blocks/sheet-table/index.js:97
+#: blocks/sheet-table/index.js:98
 msgid "Saved source"
 msgstr ""
 
 #. translators: %s: error message.
-#: includes/class-lstab-admin.php:247
+#: includes/class-lstab-admin.php:255
 msgid "Saved, but the first sync failed: %s"
 msgstr ""
 
@@ -494,15 +498,19 @@ msgstr ""
 msgid "Schedule"
 msgstr ""
 
-#: blocks/sheet-table/index.js:119
+#: includes/class-lstab-renderer.php:322
+msgid "Scroll the table sideways"
+msgstr ""
+
+#: blocks/sheet-table/index.js:120
 msgid "Search box"
 msgstr ""
 
-#: includes/class-lstab-renderer.php:193
+#: includes/class-lstab-renderer.php:200
 msgid "Search this table"
 msgstr ""
 
-#: includes/class-lstab-renderer.php:196
+#: includes/class-lstab-renderer.php:203
 msgid "Search…"
 msgstr ""
 
@@ -510,7 +518,7 @@ msgstr ""
 msgid "See what Pro adds"
 msgstr ""
 
-#: blocks/sheet-table/index.js:81
+#: blocks/sheet-table/index.js:82
 msgid "Select a sheet…"
 msgstr ""
 
@@ -522,19 +530,19 @@ msgstr ""
 msgid "Share a sheet as “Anyone with the link – Viewer”, paste the link, and check the preview before you save. No API key, no Google Cloud project."
 msgstr ""
 
-#: includes/class-lstab-admin.php:297
+#: includes/class-lstab-admin.php:305
 msgid "Sheet refreshed from Google."
 msgstr ""
 
-#: blocks/sheet-table/index.js:95
+#: blocks/sheet-table/index.js:96
 msgid "Sheet source"
 msgstr ""
 
-#: includes/class-lstab-admin.php:270
+#: includes/class-lstab-admin.php:278
 msgid "Sheet source deleted."
 msgstr ""
 
-#: includes/class-lstab-admin.php:253
+#: includes/class-lstab-admin.php:261
 msgid "Sheet source saved and synced."
 msgstr ""
 
@@ -554,11 +562,11 @@ msgstr ""
 msgid "Shortcode"
 msgstr ""
 
-#: blocks/sheet-table/index.js:135
+#: blocks/sheet-table/index.js:136
 msgid "Show “updated … ago”"
 msgstr ""
 
-#: includes/class-lstab-admin.php:127
+#: includes/class-lstab-admin.php:132
 msgid "Showing the first 25 rows."
 msgstr ""
 
@@ -571,11 +579,11 @@ msgid "Small"
 msgstr ""
 
 #. translators: %s: column name.
-#: includes/class-lstab-renderer.php:227
+#: includes/class-lstab-renderer.php:235
 msgid "Sort by %s"
 msgstr ""
 
-#: blocks/sheet-table/index.js:127
+#: blocks/sheet-table/index.js:128
 msgid "Sortable columns"
 msgstr ""
 
@@ -587,7 +595,11 @@ msgstr ""
 msgid "Square"
 msgstr ""
 
-#: includes/class-lstab-styles.php:28 blocks/sheet-table/index.js:37
+#: blocks/sheet-table/index.js:31
+msgid "Stack into cards when narrow"
+msgstr ""
+
+#: includes/class-lstab-styles.php:28 blocks/sheet-table/index.js:38
 msgid "Striped"
 msgstr ""
 
@@ -595,15 +607,15 @@ msgstr ""
 msgid "Striped rows"
 msgstr ""
 
-#: blocks/sheet-table/index.js:153
+#: blocks/sheet-table/index.js:154
 msgid "Style preset"
 msgstr ""
 
-#: includes/class-lstab-admin.php:418
+#: includes/class-lstab-admin.php:426
 msgid "Sync error — nothing to show yet"
 msgstr ""
 
-#: includes/class-lstab-admin.php:417
+#: includes/class-lstab-admin.php:425
 msgid "Sync error — visitors still see the last good copy"
 msgstr ""
 
@@ -616,8 +628,16 @@ msgstr ""
 msgid "Tab: %s"
 msgstr ""
 
-#: blocks/sheet-table/index.js:117
+#: blocks/sheet-table/index.js:118
 msgid "Table options"
+msgstr ""
+
+#: blocks/sheet-table/index.js:30
+msgid "Table with a slider"
+msgstr ""
+
+#: includes/class-lstab-renderer.php:218
+msgid "Table, scrollable sideways"
 msgstr ""
 
 #: includes/class-lstab-customizer.php:42
@@ -648,7 +668,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of sources allowed.
-#: includes/class-lstab-admin.php:194
+#: includes/class-lstab-admin.php:199
 msgid "The free version stores %d sheet source. Remove the existing one, or upgrade to add more."
 msgid_plural "The free version stores %d sheet sources. Remove one, or upgrade to add more."
 msgstr[0] ""
@@ -659,7 +679,11 @@ msgstr[1] ""
 msgid "The sheet returned no data. Check that the tab you picked actually contains rows."
 msgstr ""
 
-#: includes/views/edit-page.php:219
+#: includes/views/edit-page.php:130
+msgid "The slider is always visible while there is more table to see, unlike the browser's own scrollbar. Use the width buttons beside the preview to check it."
+msgstr ""
+
+#: includes/views/edit-page.php:241
 msgid "This is exactly what the parser sees. Check the headings and a few rows before you save — wrong tab, merged cells or a shifted header row show up here, not on your live page."
 msgstr ""
 
@@ -671,20 +695,24 @@ msgstr ""
 msgid "Title"
 msgstr ""
 
-#: includes/class-lstab-admin.php:224
+#: includes/views/edit-page.php:118
+msgid "Turn each row into a labelled card"
+msgstr ""
+
+#: includes/class-lstab-admin.php:232
 msgid "Untitled sheet"
 msgstr ""
 
 #. translators: %s: human readable time difference, e.g. "5 mins".
-#: includes/class-lstab-renderer.php:320
+#: includes/class-lstab-renderer.php:342
 msgid "Updated %s ago"
 msgstr ""
 
-#: blocks/sheet-table/index.js:35
+#: blocks/sheet-table/index.js:29 blocks/sheet-table/index.js:36
 msgid "Use the source default"
 msgstr ""
 
-#: includes/views/edit-page.php:258
+#: includes/views/edit-page.php:280
 msgid "Use the “Google Sheets Table” block, or paste this shortcode into any editor, widget or page builder:"
 msgstr ""
 
@@ -692,20 +720,20 @@ msgstr ""
 msgid "Very rounded"
 msgstr ""
 
-#: includes/views/edit-page.php:224
+#: includes/views/edit-page.php:246
 msgid "Width:"
 msgstr ""
 
-#: includes/class-lstab-rest.php:116
+#: includes/class-lstab-rest.php:120
 msgid "You are not allowed to list sheet sources."
 msgstr ""
 
-#: includes/class-lstab-rest.php:99 includes/class-lstab-admin.php:143
-#: includes/class-lstab-admin.php:157 includes/class-lstab-admin.php:309
+#: includes/class-lstab-rest.php:103 includes/class-lstab-admin.php:148
+#: includes/class-lstab-admin.php:162 includes/class-lstab-admin.php:317
 msgid "You are not allowed to manage sheet sources."
 msgstr ""
 
-#: blocks/sheet-table/index.js:85
+#: blocks/sheet-table/index.js:86
 msgid "rows"
 msgstr ""
 

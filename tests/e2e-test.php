@@ -250,16 +250,35 @@ lstab_assert( false !== strpos( $html, 'data-label="Produkt"' ), 'Cells carry da
 lstab_assert( false !== strpos( $html, 'lstab-cell-label' ), 'Stacked-layout labels rendered server side' );
 lstab_assert( false !== strpos( $html, 'lstab-container' ), 'Sizing container wraps the table' );
 lstab_assert( false !== strpos( $html, 'lstab-cols-5' ), 'Column count is exposed so CSS can pick a breakpoint' );
-lstab_assert( false === strpos( $html, 'lstab-layout-' ), 'Layout defaults to automatic (no override class)' );
-
-$forced_table = do_shortcode( '[sheet_table id="' . $source_id . '" layout="table"]' );
-lstab_assert( false !== strpos( $forced_table, 'lstab-layout-table' ), 'layout="table" pins the table layout' );
+// A table keeps its shape and gains a slider by default; stacking is opt-in.
+lstab_assert( false !== strpos( $html, 'lstab-layout-table' ), 'A source defaults to the scrolling table layout' );
+lstab_assert( false !== strpos( $html, 'lstab-scrollbar' ), 'The slider markup is rendered server side' );
+lstab_assert( false !== strpos( $html, 'role="scrollbar"' ), 'The slider exposes a scrollbar role' );
+lstab_assert( false !== strpos( $html, 'aria-controls="lstab-table-' ), 'The slider is wired to its table for assistive tech' );
+lstab_assert(
+	(bool) preg_match( '#<div class="lstab-scrollbar" hidden>#', $html ),
+	'The slider starts hidden and is revealed only when the table overflows'
+);
 
 $forced_cards = do_shortcode( '[sheet_table id="' . $source_id . '" layout="cards"]' );
 lstab_assert( false !== strpos( $forced_cards, 'lstab-layout-cards' ), 'layout="cards" pins the card layout' );
 
+$forced_auto = do_shortcode( '[sheet_table id="' . $source_id . '" layout="auto"]' );
+lstab_assert( false === strpos( $forced_auto, 'lstab-layout-' ), 'layout="auto" leaves the breakpoints in charge' );
+
 $bogus_layout = do_shortcode( '[sheet_table id="' . $source_id . '" layout="nonsense"]' );
-lstab_assert( false === strpos( $bogus_layout, 'lstab-layout-' ), 'An unknown layout falls back to automatic' );
+lstab_assert( false !== strpos( $bogus_layout, 'lstab-layout-table' ), 'An unknown layout falls back to the table' );
+
+// A source carries its own choice, and the block or shortcode may override it.
+LSTAB_Storage::update( $source_id, array( 'layout' => 'cards' ) );
+$inherited = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false !== strpos( $inherited, 'lstab-layout-cards' ), 'A shortcode with no layout follows the source setting' );
+
+$overridden = do_shortcode( '[sheet_table id="' . $source_id . '" layout="table"]' );
+lstab_assert( false !== strpos( $overridden, 'lstab-layout-table' ), 'An explicit shortcode layout overrides the source' );
+
+$block_inherits = lstab()->block->render( array( 'sourceId' => $source_id ) );
+lstab_assert( false !== strpos( $block_inherits, 'lstab-layout-cards' ), 'The block follows the source setting too' );
 
 $block_layout = lstab()->block->render(
 	array(
@@ -267,7 +286,9 @@ $block_layout = lstab()->block->render(
 		'layout'   => 'table',
 	)
 );
-lstab_assert( false !== strpos( $block_layout, 'lstab-layout-table' ), 'The block passes the layout through too' );
+lstab_assert( false !== strpos( $block_layout, 'lstab-layout-table' ), 'The block can override it' );
+
+LSTAB_Storage::update( $source_id, array( 'layout' => 'table' ) );
 
 // The numeric price column should be right-aligned; the product name should not.
 lstab_assert(

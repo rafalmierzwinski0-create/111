@@ -4,7 +4,7 @@ Tags: arkusze google, tabela, arkusz kalkulacyjny, csv, tabela danych
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -50,7 +50,8 @@ Wklejasz link, a parser pokazuje dokładnie to, co odczytał — nagłówki, wie
 * Wykrywanie kolumn liczbowych i wyrównanie ich do prawej cyframi tabelarycznymi, dzięki czemu przecinki dziesiętne są w jednej linii.
 * Trzy dopracowane presety stylu, każdy podąża za jasnym lub ciemnym schematem kolorów czytelnika.
 * Wizualny edytor wyglądu: kolory, wielkość tekstu, wysokość wiersza i zaokrąglenie narożników per tabela, z podglądem aktualizowanym na bieżąco.
-* Sterowanie układem: pozwól tabeli samej zdecydować, kiedy zamienić się w karty, albo przypnij ją na stałe do jednego z trybów.
+* Widoczny, przeciągany suwak pod każdą tabelą szerszą od swojej kolumny, więc nic nigdy nie chowa się za niewidocznym paskiem przewijania.
+* Sterowanie układem per źródło: przewijaj tabelę w bok albo układaj każdy wiersz jako kartę.
 * Etykietę „zaktualizowano N minut temu”, którą można wyłączyć.
 * Pełne wsparcie tłumaczeń, z polskim w komplecie.
 
@@ -101,11 +102,11 @@ Tak. Shortcode `[sheet_table id="123"]` działa wszędzie tam, gdzie wykonywane 
 
 = Moja tabela jest bardzo szeroka. Co się dzieje na telefonach? =
 
-Każdy wiersz staje się kartą z etykietami, więc każda wartość zostaje czytelna w pełnym rozmiarze. Nie ma poziomego przewijania ani pomniejszonego tekstu.
+Zostaje tabelą, w pełnym rozmiarze tekstu, a pod nią pojawia się suwak, którym można ją przesuwać w lewo i w prawo. Nic się nie kurczy i nic nie znika — typowa skarga na szerokie tabele dotyczy mikroskopijnego tekstu, a ten bierze się ze ściskania tabeli zamiast jej przewijania.
 
-Przełączenie następuje wtedy, gdy miejsca na kolumnę robi się za mało — a to zależy od liczby kolumn. Zadziała więc także dla pięciokolumnowej tabeli w wąskiej kolumnie motywu na komputerze, nie tylko na telefonie.
+Suwak rysuje wtyczka, a nie przeglądarka, bo macOS, iOS i Android chowają poziomy pasek przewijania, dopóki już nie przewijasz — czyli dokładnie wtedy, gdy jest za późno, by się przydał.
 
-Jeśli wolisz zawsze mieć tabelę, ustaw układ „Zawsze tabela" w bloku albo `layout="table"` w shortcode — będzie przewijana w poziomie, z cieniowaną krawędzią pokazującą, że jest tam coś jeszcze. `layout="cards"` wymusza odwrotność. Zwykle lepszym rozwiązaniem jest nadanie blokowi szerokiego lub pełnego wyrównania, bo daje tabeli miejsce, którego potrzebuje.
+Domyślnie tabela zachowuje swój kształt i zyskuje suwak, który można przeciągać, więc tekst zostaje w pełnym rozmiarze i nic się nie chowa. Aby zamiast tego układać wiersze jako karty, zmień „Na ekranach zbyt wąskich dla całej tabeli" na ekranie źródła albo przekaż `layout="cards"` do shortcode. Często jeszcze lepiej jest nadać blokowi szerokie lub pełne wyrównanie, bo daje tabeli miejsce, którego potrzebuje.
 
 = Czy mogę zmienić wygląd tabeli? =
 
@@ -126,6 +127,12 @@ Wersja darmowa przechowuje trzy źródła arkuszy. Pro znosi ten limit.
 Tak. Wszystko z arkusza jest escapowane przy wyjściu, więc komórka zawierająca HTML albo znacznik `<script>` pokazuje się jako tekst i nie może niczego wstrzyknąć na Twoją stronę.
 
 == Changelog ==
+
+= 1.3.0 =
+* Nowość: widoczny, przeciągany suwak pod każdą tabelą szerszą od swojej kolumny. Przeglądarki na macOS, iOS i Androidzie chowają poziomy pasek przewijania, dopóki nie zaczniesz przewijać — przez co szeroka tabela wyglądała na uciętą. Ten suwak zostaje na ekranie, dopóki jest co pokazywać, i działa przeciąganiem, kliknięciem, dotykiem i klawiaturą.
+* Zmiana: wąskie ekrany zachowują teraz tabelę i przewijają ją, zamiast układać każdy wiersz jako kartę. Tekst zostaje w pełnym rozmiarze — tabela się przesuwa, a nie kurczy. Układ kartowy nadal jest dostępny per źródło.
+* Zmiana: wybór układu jest teraz ustawieniem na ekranie źródła, więc podejmuje się go raz zamiast powtarzać przy każdym shortcode; blok i shortcode nadal mogą go nadpisać.
+* Poprawka: tabela za szeroka dla swojej kolumny zwijała kolumny do minimum, przez co wiersze miały po kilka linii bez żadnego zysku. Kolumny zachowują teraz naturalną szerokość, a robotę wykonuje suwak.
 
 = 1.2.0 =
 * Nowość: wizualny edytor wyglądu na ekranie źródła. Kolory, wielkość tekstu, wysokość wiersza i zaokrąglenie narożników można ustawić per tabela, a podgląd aktualizuje się na żywo. Wszystko, czego nie ruszysz, podąża za wybranym presetem, więc zmiana jednego koloru nie wymaga definiowania reszty.

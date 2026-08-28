@@ -43,7 +43,7 @@ class LSTAB_Shortcode {
 				'style'   => '',
 				'caption' => '',
 				'class'   => '',
-				'layout'  => 'auto',
+				'layout'  => 'inherit',
 			),
 			$atts,
 			self::TAG

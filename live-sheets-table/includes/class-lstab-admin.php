@@ -220,6 +220,9 @@ class LSTAB_Admin {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Presence check only; the value is never used.
 			'first_row_header' => empty( $_POST['first_row_header'] ) ? 0 : 1,
 			'style_preset'     => isset( $_POST['style_preset'] ) ? LSTAB_Styles::sanitize( wp_unslash( $_POST['style_preset'] ) ) : 'clean',
+			'layout'           => isset( $_POST['layout'] ) && in_array( sanitize_key( wp_unslash( $_POST['layout'] ) ), array( 'table', 'auto', 'cards' ), true )
+				? sanitize_key( wp_unslash( $_POST['layout'] ) )
+				: 'table',
 			// LSTAB_Customizer::sanitize() drops anything it does not recognise
 			// and hex-checks every colour, so the raw array is safe to hand over.
 			'style_vars'       => isset( $_POST['style_vars'] ) ? LSTAB_Customizer::sanitize( wp_unslash( $_POST['style_vars'] ) ) : LSTAB_Customizer::defaults(), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput

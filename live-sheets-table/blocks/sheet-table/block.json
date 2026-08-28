@@ -52,7 +52,7 @@
 		},
 		"layout": {
 			"type": "string",
-			"default": "auto"
+			"default": "inherit"
 		}
 	},
 	"editorScript": "file:./index.js",

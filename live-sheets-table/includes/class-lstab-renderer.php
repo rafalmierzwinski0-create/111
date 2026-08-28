@@ -30,7 +30,7 @@ class LSTAB_Renderer {
 			'style'       => '',
 			'caption'     => '',
 			'class'       => '',
-			'layout'      => 'auto',
+			'layout'      => 'inherit',
 			'style_vars'  => array(),
 		);
 	}
@@ -150,7 +150,11 @@ class LSTAB_Renderer {
 
 		// 'auto' lets the breakpoints decide; the other two pin the layout for
 		// authors who know their table and their theme's column width.
-		$layout = in_array( $args['layout'], array( 'table', 'cards' ), true ) ? $args['layout'] : 'auto';
+		$layout = $args['layout'];
+		if ( '' === $layout || 'inherit' === $layout ) {
+			$layout = isset( $source['layout'] ) ? (string) $source['layout'] : 'table';
+		}
+		$layout = in_array( $layout, array( 'table', 'cards', 'auto' ), true ) ? $layout : 'table';
 		if ( 'auto' !== $layout ) {
 			$classes[] = 'lstab-layout-' . $layout;
 		}
@@ -210,7 +214,8 @@ class LSTAB_Renderer {
 				</p>
 			<?php endif; ?>
 
-			<div class="lstab-scroll">
+			<div class="lstab-scroll" tabindex="0" role="region"
+				aria-label="<?php esc_attr_e( 'Table, scrollable sideways', 'live-sheets-table' ); ?>">
 				<table id="<?php echo esc_attr( $table_id ); ?>" class="lstab-table" role="table"
 					<?php if ( $args['caption'] ) : ?>
 						aria-labelledby="<?php echo esc_attr( $caption_id ); ?>"
@@ -305,6 +310,20 @@ class LSTAB_Renderer {
 						<?php endforeach; ?>
 					</tbody>
 				</table>
+			</div>
+
+			<div class="lstab-scrollbar" hidden>
+				<div class="lstab-scrollbar-track">
+					<div class="lstab-scrollbar-thumb"
+						role="scrollbar"
+						tabindex="0"
+						aria-orientation="horizontal"
+						aria-controls="<?php echo esc_attr( $table_id ); ?>"
+						aria-label="<?php esc_attr_e( 'Scroll the table sideways', 'live-sheets-table' ); ?>"
+						aria-valuemin="0"
+						aria-valuemax="100"
+						aria-valuenow="0"></div>
+				</div>
 			</div>
 
 			<?php if ( $searchable ) : ?>

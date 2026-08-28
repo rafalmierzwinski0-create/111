@@ -109,6 +109,28 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 			<div class="lstab-card">
 				<h2 class="lstab-card-title"><?php esc_html_e( '3. Pick a look', 'live-sheets-table' ); ?></h2>
 
+				<p>
+					<label for="lstab-layout"><strong><?php esc_html_e( 'On screens too narrow for the whole table', 'live-sheets-table' ); ?></strong></label>
+					<select id="lstab-layout" name="layout">
+						<?php
+						$lstab_layouts = array(
+							'table' => __( 'Keep the table and add a slider to scroll it sideways', 'live-sheets-table' ),
+							'auto'  => __( 'Turn each row into a labelled card', 'live-sheets-table' ),
+							'cards' => __( 'Always use cards, at every width', 'live-sheets-table' ),
+						);
+						$lstab_layout  = $lstab_is_edit && ! empty( $source['layout'] ) ? $source['layout'] : 'table';
+						foreach ( $lstab_layouts as $lstab_layout_key => $lstab_layout_label ) :
+							?>
+							<option value="<?php echo esc_attr( $lstab_layout_key ); ?>" <?php selected( $lstab_layout, $lstab_layout_key ); ?>>
+								<?php echo esc_html( $lstab_layout_label ); ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+					<span class="lstab-help">
+						<?php esc_html_e( 'The slider is always visible while there is more table to see, unlike the browser\'s own scrollbar. Use the width buttons beside the preview to check it.', 'live-sheets-table' ); ?>
+					</span>
+				</p>
+
 				<div class="lstab-presets">
 					<?php foreach ( $lstab_presets as $lstab_slug => $lstab_preset ) : ?>
 						<?php $lstab_locked = ! empty( $lstab_preset['pro'] ) && ! $lstab_is_pro; ?>

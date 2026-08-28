@@ -26,19 +26,30 @@ turning private, a timeout, a 403 or a Google sign-in page all leave the last
 good copy on the page. The failure is reported in the dashboard, where someone
 can act on it, and never to visitors.
 
-## How the table decides to be a table
+## Wide tables
 
-A table stays a table while it fits and reflows into one labelled card per row
-when it does not. The threshold scales with the column count — five columns
-need far more room than two — because a fixed breakpoint leaves a wide table
-clipped inside a typical 650px theme column, hiding the last columns behind an
-invisible scrollbar.
+A table wider than its column keeps its shape and gains a **visible, draggable
+slider** underneath. That is deliberate: macOS, iOS and Android render
+horizontal scrollbars as overlays that only appear once you are already
+scrolling, so a wide table looks simply cut off, which is what makes wide
+tables feel broken. The slider is the plugin's own — drag, click, touch and
+keyboard — and hides itself when the table fits.
 
-Authors who want to override the decision can set the block's Layout control,
-or `layout="table"` / `layout="cards"` on the shortcode. A table pinned to
-`table` scrolls sideways instead, with a shaded edge so a clipped column always
-announces itself. Giving the block a wide or full alignment is usually the
-better answer, since it hands the table the room it needs.
+Text is never shrunk to fit. The usual complaint about wide tables is
+microscopic type, and that comes from squeezing a table rather than moving it.
+
+Two details matter for this to read well:
+
+- `width: 100%` alone makes a table that cannot fit collapse to *min-content*,
+  wrapping every column as hard as possible and producing rows several lines
+  tall for no benefit, since it still scrolls. `min-width: max-content` keeps
+  columns at their natural width (capped per cell) and lets the slider work.
+- Column count still decides the stacking threshold for sources that opt into
+  the card layout, since five columns need far more room than two.
+
+The card layout — one labelled card per row — remains available per source, and
+suits tables of long prose. The choice lives on the source screen; the block
+and shortcode can override it with `layout="table"`, `"cards"` or `"auto"`.
 
 Columns whose values are overwhelmingly numeric are detected and right-aligned
 with tabular figures, so decimal points line up. The heuristic tolerates

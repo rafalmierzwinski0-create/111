@@ -118,7 +118,10 @@ const phonePreview = await page.locator( '.lstab-preview .lstab-table' ).evaluat
 	container: Math.round( el.closest( '.lstab-container' ).getBoundingClientRect().width ),
 } ) );
 check( phonePreview.container <= 392, 'Phone width constrains the preview stage', String( phonePreview.container ) );
-check( phonePreview.display === 'block', 'Phone width previews the card layout', phonePreview.display );
+check( phonePreview.display === 'table', 'Phone width still previews a table', phonePreview.display );
+
+const previewSlider = await page.locator( '.lstab-preview .lstab-scrollbar' ).isVisible();
+check( previewSlider, 'The phone preview shows the slider, so the control can be checked too' );
 
 await page.locator( '.lstab-width-button[data-lstab-width="650"]' ).click();
 await page.waitForTimeout( 350 );
@@ -393,11 +396,12 @@ const clipping = await page.evaluate( () => {
 	).map( ( wrap ) => {
 		const scroll = wrap.querySelector( '.lstab-scroll' );
 		const table = wrap.querySelector( '.lstab-table' );
+		const bar = wrap.querySelector( '.lstab-scrollbar' );
 		return {
 			preset: wrap.className,
 			hidden: scroll.scrollWidth - scroll.clientWidth,
 			stacked: getComputedStyle( table ).display === 'block',
-			scrollable: getComputedStyle( scroll ).overflowX === 'auto',
+			slider: !! bar && ! bar.hidden && getComputedStyle( bar ).display !== 'none',
 		};
 	} );
 } );
@@ -405,12 +409,14 @@ const clipping = await page.evaluate( () => {
 check( clipping.length === 2, 'Both tables are present to measure', String( clipping.length ) );
 
 clipping.forEach( ( t ) => {
-	// Either the table fits, or it has stacked into cards. A five-column table
-	// inside a ~650px theme column used to do neither and lost two columns.
+	// The rule is that a column is never hidden without a way to reach it. That
+	// is satisfied three ways: the table fits, it stacked into cards, or it
+	// scrolls and says so with a visible slider. What is not allowed — and what
+	// used to happen — is a clipped table with none of the three.
 	check(
-		t.hidden === 0 || t.stacked,
-		`No hidden columns in a theme-width column (${ t.preset.replace( /lstab-?/g, '' ).trim() })`,
-		`${ t.hidden }px hidden, stacked=${ t.stacked }`
+		t.hidden <= 2 || t.stacked || t.slider,
+		`No unreachable columns (${ t.preset.replace( /lstab-?/g, '' ).trim() })`,
+		`${ t.hidden }px hidden, stacked=${ t.stacked }, slider=${ t.slider }`
 	);
 } );
 
@@ -504,7 +510,7 @@ check(
 await page.screenshot( { path: `${ SHOTS }/07-frontend-sorted.png` } );
 
 // ------------------------------------------------------- front end — mobile
-section( '8. Front end — mobile card layout' );
+section( '8. Front end — narrow screens and the slider' );
 const mobile = await browser.newContext( {
 	viewport: { width: 390, height: 900 },
 	deviceScaleFactor: 3,
@@ -516,43 +522,138 @@ const mpage = await mobile.newPage();
 await mpage.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
 
 const headDisplay = await mpage.locator( '.lstab-style-striped thead' ).evaluate( ( el ) => getComputedStyle( el ).display );
-check( headDisplay === 'none', 'Header row is dropped on narrow screens; per-cell labels carry the meaning', headDisplay );
-check( await mpage.locator( '.lstab-style-striped .lstab-cell-label' ).first().isVisible(), 'Per-cell labels become visible (card layout)' );
+check( headDisplay === 'table-header-group', 'Column headings stay on screen', headDisplay );
+// The slider is the whole point: a native overlay scrollbar is invisible until
+// you already know to scroll, which is what made a clipped table look broken.
+const sliderVisible = await mpage.locator( '.lstab-style-striped .lstab-scrollbar' ).isVisible();
+check( sliderVisible, 'A scrolling table shows the slider on a phone' );
 
-// Below 420px the label goes on its own line so long headings never break mid-word.
-const stackedPair = await mpage.locator( '.lstab-style-striped tbody td' ).first().evaluate( ( el ) => {
-	const label = el.querySelector( '.lstab-cell-label' ).getBoundingClientRect();
-	const value = el.querySelector( '.lstab-cell-value' ).getBoundingClientRect();
-	return { labelBottom: label.bottom, valueTop: value.top, labelLeft: label.left, valueLeft: value.left };
+// The default is now a table that scrolls, so a phone keeps the tabular shape.
+const phoneTable = await mpage.locator( '.lstab-style-striped .lstab-table' ).evaluate( ( el ) => getComputedStyle( el ).display );
+check( phoneTable === 'table', 'A phone keeps the table rather than stacking it', phoneTable );
+
+// Dragging the slider must move the table, and the two must stay in step.
+const dragResult = await mpage.evaluate( async () => {
+	const root = document.querySelector( '.lstab-style-striped' );
+	const scroller = root.querySelector( '.lstab-scroll' );
+	const thumb = root.querySelector( '.lstab-scrollbar-thumb' );
+	const track = root.querySelector( '.lstab-scrollbar-track' );
+
+	const before = scroller.scrollLeft;
+	const thumbBefore = thumb.getBoundingClientRect().left;
+	const trackRect = track.getBoundingClientRect();
+
+	const send = ( type, x ) => thumb.dispatchEvent( new PointerEvent( type, {
+		bubbles: true, cancelable: true, pointerId: 1, clientX: x,
+		clientY: trackRect.top + trackRect.height / 2,
+	} ) );
+
+	send( 'pointerdown', thumbBefore + 5 );
+	send( 'pointermove', trackRect.right );
+	send( 'pointerup', trackRect.right );
+
+	await new Promise( ( r ) => requestAnimationFrame( r ) );
+
+	return {
+		before,
+		after: scroller.scrollLeft,
+		max: scroller.scrollWidth - scroller.clientWidth,
+		thumbAfter: thumb.getBoundingClientRect().left,
+		thumbBefore,
+	};
+} );
+
+check( dragResult.max > 0, 'The phone-width table really does overflow', JSON.stringify( dragResult ) );
+check( dragResult.after > dragResult.before, 'Dragging the slider scrolls the table', JSON.stringify( dragResult ) );
+check( dragResult.thumbAfter > dragResult.thumbBefore, 'The thumb follows the drag', JSON.stringify( dragResult ) );
+
+// And scrolling the table must move the slider back.
+const syncResult = await mpage.evaluate( async () => {
+	const root = document.querySelector( '.lstab-style-striped' );
+	const scroller = root.querySelector( '.lstab-scroll' );
+	const thumb = root.querySelector( '.lstab-scrollbar-thumb' );
+
+	scroller.scrollLeft = 0;
+	scroller.dispatchEvent( new Event( 'scroll' ) );
+	await new Promise( ( r ) => requestAnimationFrame( r ) );
+
+	return {
+		transform: thumb.style.transform,
+		valuenow: thumb.getAttribute( 'aria-valuenow' ),
+	};
+} );
+check( syncResult.valuenow === '0', 'Scrolling the table moves the slider back', JSON.stringify( syncResult ) );
+
+// Keyboard users need it too.
+const keyboardResult = await mpage.evaluate( async () => {
+	const root = document.querySelector( '.lstab-style-striped' );
+	const scroller = root.querySelector( '.lstab-scroll' );
+	const thumb = root.querySelector( '.lstab-scrollbar-thumb' );
+
+	scroller.scrollLeft = 0;
+	thumb.focus();
+	thumb.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'End', bubbles: true, cancelable: true } ) );
+	await new Promise( ( r ) => requestAnimationFrame( r ) );
+
+	return { scrollLeft: Math.round( scroller.scrollLeft ), max: Math.round( scroller.scrollWidth - scroller.clientWidth ) };
 } );
 check(
-	stackedPair.valueTop >= stackedPair.labelBottom - 1,
-	'Narrow phones stack the label above the value',
-	JSON.stringify( stackedPair )
+	keyboardResult.scrollLeft === keyboardResult.max && keyboardResult.max > 0,
+	'End key jumps the table to its far edge',
+	JSON.stringify( keyboardResult )
 );
 
-// Right alignment is for table columns; inside a card it would strand the
-// number away from its label.
-const cardAlign = await mpage.evaluate( () => {
-	const cell = document.querySelector( '.lstab-style-striped tbody td[data-lstab-align="end"]' );
-	return cell ? getComputedStyle( cell ).textAlign : null;
+// A table that fits must not show a slider at all.
+await mpage.setViewportSize( { width: 1500, height: 900 } );
+await mpage.waitForTimeout( 400 );
+const wideSlider = await mpage.evaluate( () => {
+	const root = document.querySelector( '.lstab-style-striped' );
+	const scroller = root.querySelector( '.lstab-scroll' );
+	return {
+		hidden: root.querySelector( '.lstab-scrollbar' ).hidden,
+		overflow: Math.round( scroller.scrollWidth - scroller.clientWidth ),
+	};
 } );
-check( cardAlign === 'left', 'Numeric cells align left inside a card', String( cardAlign ) );
+check( wideSlider.overflow <= 2 && wideSlider.hidden, 'A table that fits shows no slider', JSON.stringify( wideSlider ) );
+await mpage.setViewportSize( { width: 390, height: 900 } );
+await mpage.waitForTimeout( 400 );
 
-const longestLabel = await mpage.locator( '.lstab-style-striped .lstab-cell-label' ).last();
-const labelBox = await longestLabel.boundingBox();
-const labelLine = await longestLabel.evaluate( ( el ) => parseFloat( getComputedStyle( el ).lineHeight ) || el.offsetHeight );
+// Full-size text is the point of scrolling rather than shrinking: the competitor
+// complaint was microscopic type, not sideways movement.
+const phoneTypography = await mpage.evaluate( () => {
+	const root = document.querySelector( '.lstab-style-striped' );
+	return {
+		cell: parseFloat( getComputedStyle( root.querySelector( 'tbody td' ) ).fontSize ),
+		body: parseFloat( getComputedStyle( document.body ).fontSize ),
+	};
+} );
 check(
-	labelBox.height < labelLine * 1.6,
-	'Long labels such as "Zaktualizowano" stay on one line',
-	`height ${ labelBox.height } vs line ${ labelLine }`
+	phoneTypography.cell >= phoneTypography.body * 0.8,
+	'Text stays full size on a phone; the table scrolls instead of shrinking',
+	JSON.stringify( phoneTypography )
 );
 
-// A mid-width container (tablet, or a table in a content column) keeps the compact two-column card.
+// The card layout is still available, and still works, when a source asks for it.
 await mpage.setViewportSize( { width: 560, height: 900 } );
 await mpage.waitForTimeout( 200 );
-const midDisplay = await mpage.locator( '.lstab-style-striped tbody td' ).first().evaluate( ( el ) => getComputedStyle( el ).display );
-check( midDisplay === 'grid', 'Mid-width screens use the compact label/value grid', midDisplay );
+const cardsOnDemand = await mpage.evaluate( () => {
+	const root = document.querySelector( '.lstab-style-striped' );
+	root.classList.remove( 'lstab-layout-table' );
+	root.classList.add( 'lstab-layout-cards' );
+	const table = root.querySelector( '.lstab-table' );
+	const cell = root.querySelector( 'tbody td' );
+	const result = {
+		table: getComputedStyle( table ).display,
+		cell: getComputedStyle( cell ).display,
+		slider: getComputedStyle( root.querySelector( '.lstab-scrollbar' ) ).display,
+	};
+	root.classList.remove( 'lstab-layout-cards' );
+	root.classList.add( 'lstab-layout-table' );
+	return result;
+} );
+check( cardsOnDemand.table === 'block', 'The card layout still stacks when chosen', JSON.stringify( cardsOnDemand ) );
+check( cardsOnDemand.cell === 'grid', 'Card cells still use the label/value grid', JSON.stringify( cardsOnDemand ) );
+check( cardsOnDemand.slider === 'none', 'Cards have nothing to scroll, so no slider', JSON.stringify( cardsOnDemand ) );
 const captionBox = await mpage.locator( '.lstab-style-striped .lstab-caption' ).boundingBox();
 const wrapBox = await mpage.locator( '.lstab-style-striped' ).boundingBox();
 check(
@@ -568,7 +669,7 @@ const captionAbove = await mpage.locator( '.lstab-style-striped' ).evaluate( ( w
 check( captionAbove, 'Caption sits above the table frame, not inside it' );
 const labelled = await mpage.locator( '.lstab-style-striped .lstab-table' ).getAttribute( 'aria-labelledby' );
 check( !! labelled, 'Table is still associated with its caption for screen readers', String( labelled ) );
-await mpage.screenshot( { path: `${ SHOTS }/05b-frontend-tablet-cards.png`, fullPage: false } );
+await mpage.screenshot( { path: `${ SHOTS }/05b-frontend-narrow-slider.png`, fullPage: false } );
 await mpage.setViewportSize( { width: 390, height: 900 } );
 await mpage.waitForTimeout( 200 );
 
@@ -582,7 +683,7 @@ check(
 	JSON.stringify( bodyOverflow )
 );
 
-await mpage.screenshot( { path: `${ SHOTS }/05-frontend-mobile-cards.png`, fullPage: true } );
+await mpage.screenshot( { path: `${ SHOTS }/05-frontend-mobile-slider.png`, fullPage: true } );
 
 // ------------------------------------------------------- failure → fallback
 section( '9. Sync failure — visitor still sees the last good copy' );
