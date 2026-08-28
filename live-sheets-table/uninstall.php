@@ -10,6 +10,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 }
 
 require_once __DIR__ . '/includes/class-lstab-limits.php';
+require_once __DIR__ . '/includes/class-lstab-customizer.php';
 require_once __DIR__ . '/includes/class-lstab-storage.php';
 require_once __DIR__ . '/includes/class-lstab-cron.php';
 

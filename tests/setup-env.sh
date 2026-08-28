@@ -71,6 +71,14 @@ make_site() {
 	# The Google mock, so no test ever leaves the machine.
 	ln -sfn "$REPO/tests/mock-google-mu-plugin.php" "$SCRATCH/$dir/wp-content/mu-plugins/lstab-mock.php"
 
+	# Opt-in Pro unlock for manual review. Off by default: the automated suite
+	# asserts the *free* tier's limits, so it must not run with these lifted.
+	# Enable with LSTAB_PRO_PREVIEW=1 tests/setup-env.sh
+	if [ "${LSTAB_PRO_PREVIEW:-0}" = "1" ]; then
+		ln -sfn "$REPO/dev/live-sheets-table-pro-preview.php" \
+			"$SCRATCH/$dir/wp-content/mu-plugins/lstab-pro-preview.php"
+	fi
+
 	# wp and wp71 run the plugin straight from the working tree; wpzip gets the
 	# built archive installed into it instead.
 	if [ "$link_plugin" = "yes" ]; then

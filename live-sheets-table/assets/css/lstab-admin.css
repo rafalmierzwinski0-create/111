@@ -326,3 +326,107 @@
 		transition: none;
 	}
 }
+
+/* Appearance panel */
+
+.lstab-swatches {
+	display: grid;
+	grid-template-columns: repeat( auto-fit, minmax( 11rem, 1fr ) );
+	gap: 0.8rem 1rem;
+	margin-bottom: 1.1rem;
+}
+
+.lstab-swatch label {
+	display: block;
+	margin-bottom: 0.25rem;
+	font-size: 0.86rem;
+	color: #50575e;
+}
+
+.lstab-swatch-controls {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.lstab-color-input {
+	width: 2.4rem;
+	height: 2rem;
+	padding: 0.15rem;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	background: #fff;
+	cursor: pointer;
+	flex: none;
+}
+
+/* An untouched colour is following the preset, not sitting on white. */
+.lstab-color-input[data-lstab-unset] {
+	background-image: repeating-linear-gradient(
+		45deg,
+		#f0f0f1 0 5px,
+		#fff 5px 10px
+	);
+}
+
+.lstab-color-clear {
+	font-size: 0.8rem;
+}
+
+.lstab-color-clear[disabled] {
+	color: #a7aaad;
+	cursor: default;
+	text-decoration: none;
+}
+
+.lstab-metrics {
+	display: grid;
+	grid-template-columns: repeat( auto-fit, minmax( 12rem, 1fr ) );
+	gap: 0.4rem 1rem;
+	margin-bottom: 0.6rem;
+}
+
+.lstab-metric {
+	margin: 0;
+}
+
+.lstab-metric select {
+	width: 100%;
+}
+
+/*
+ * The dashboard styles inputs and buttons globally, which would otherwise win
+ * inside the preview and show WordPress's blue instead of the table's own
+ * accent. Re-assert the plugin's look here, scoped to the preview only, so the
+ * author sees the colours their visitors will.
+ */
+
+.lstab-preview .lstab-search-input,
+.lstab-preview .lstab-search-input:focus {
+	border-color: var(--lstab-border-strong);
+	box-shadow: 0 1px 2px rgba( 16, 24, 40, 0.04 );
+	outline: none;
+	min-height: 0;
+}
+
+.lstab-preview .lstab-search-input:focus {
+	border-color: var(--lstab-accent);
+	box-shadow: 0 0 0 3px color-mix( in srgb, var(--lstab-accent) 18%, transparent );
+}
+
+.lstab-preview .lstab-sort {
+	background: none;
+	border: 0;
+	box-shadow: none;
+	padding: 0;
+	min-height: 0;
+	color: inherit;
+	text-shadow: none;
+}
+
+.lstab-preview .lstab-sort:hover,
+.lstab-preview .lstab-sort:focus {
+	background: none;
+	box-shadow: none;
+	color: inherit;
+}

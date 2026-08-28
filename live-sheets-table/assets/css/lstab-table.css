@@ -198,7 +198,9 @@
 
 .lstab-table thead th {
 	color: var(--lstab-head-fg);
-	background-color: var(--lstab-bg);
+	/* Defaults to transparent, so the frame's background shows through unless a
+	   preset or an author override actually asks for a header colour. */
+	background-color: var(--lstab-head-bg);
 	font-weight: 600;
 	font-size: 0.82em;
 	letter-spacing: 0.03em;
@@ -398,10 +400,6 @@
 	--lstab-head-bg: #f7f9fa;
 }
 
-.lstab-style-bordered .lstab-table thead th {
-	background-color: var(--lstab-head-bg);
-}
-
 .lstab-style-bordered .lstab-table th,
 .lstab-style-bordered .lstab-table td {
 	border-right: 1px solid var(--lstab-border);
@@ -413,39 +411,75 @@
 }
 
 .lstab-style-midnight {
-	--lstab-fg: #e8eef4;
-	--lstab-fg-muted: #a3b0bd;
-	--lstab-fg-faint: #7f8b98;
-	--lstab-bg: #0f141b;
-	--lstab-head-bg: #151b24;
-	--lstab-head-fg: #a3b0bd;
-	--lstab-border: #232c38;
-	--lstab-border-strong: #35404f;
-	--lstab-stripe: #131922;
-	--lstab-hover: #1a2432;
-	--lstab-accent: #6aa8ff;
-	--lstab-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+	--lstab-fg: #eaf0f6;
+	--lstab-fg-muted: #9fb0c0;
+	--lstab-fg-faint: #7b8b9b;
+	--lstab-bg: #0e131a;
+	--lstab-head-bg: #131a23;
+	--lstab-head-fg: #9fb0c0;
+	--lstab-border: #212a36;
+	--lstab-border-strong: #33404f;
+	--lstab-stripe: #121922;
+	--lstab-hover: #1b2635;
+	--lstab-accent: #7ab4ff;
+	--lstab-shadow: 0 2px 6px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(122, 180, 255, 0.06);
+}
+
+.lstab-style-midnight .lstab-table thead th {
+	background-image: linear-gradient( to bottom, #18202b, #131a23 );
+	border-bottom-color: #3a4a5d;
+	box-shadow: inset 0 -1px 0 #3a4a5d;
+}
+
+.lstab-style-midnight .lstab-search-input {
+	background-color: #131a23;
+	border-color: #2c3846;
+	color: var(--lstab-fg);
+}
+
+.lstab-style-midnight .lstab-search-input::placeholder {
+	color: var(--lstab-fg-faint);
 }
 
 .lstab-style-editorial {
 	--lstab-fg: #23201b;
 	--lstab-fg-muted: #6b6459;
+	--lstab-fg-faint: #8a8377;
+	--lstab-bg: #fdfcf9;
 	--lstab-border: #ddd6c9;
 	--lstab-border-strong: #23201b;
-	--lstab-stripe: #faf8f4;
-	--lstab-hover: #f3efe6;
+	--lstab-stripe: #f7f4ed;
+	--lstab-hover: #f1ece1;
+	--lstab-accent: #9a5b2c;
 	--lstab-radius: 0;
 	--lstab-frame-border: 0;
 	--lstab-frame-shadow: none;
-	--lstab-font-size: 1em;
+	--lstab-font-size: 1.02em;
+	--lstab-pad-y: 0.85em;
+}
+
+.lstab-style-editorial .lstab-caption {
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: 1.3em;
+	font-weight: 400;
 }
 
 .lstab-style-editorial .lstab-table thead th {
 	font-family: Georgia, "Times New Roman", serif;
-	font-weight: 700;
-	letter-spacing: 0.06em;
+	font-weight: 400;
+	font-style: italic;
+	font-size: 0.94em;
+	letter-spacing: 0.01em;
+	text-transform: none;
+	color: var(--lstab-fg);
 	border-bottom-width: 2px;
 	box-shadow: inset 0 -2px 0 var(--lstab-border-strong);
+}
+
+/* A rule under the last row closes the block, the way a printed table does. */
+.lstab-style-editorial .lstab-table tbody tr:last-child {
+	border-bottom-width: 1px;
+	border-bottom-color: var(--lstab-border-strong);
 }
 
 /* Presets that follow the reader's colour scheme. */

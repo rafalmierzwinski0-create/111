@@ -132,6 +132,73 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 				</div>
 			</div>
 
+			<?php if ( LSTAB_Customizer::is_enabled() ) : ?>
+				<?php
+				$lstab_vars = $lstab_is_edit
+					? LSTAB_Customizer::sanitize( $source['style_vars'] )
+					: LSTAB_Customizer::defaults();
+				?>
+				<div class="lstab-card lstab-appearance">
+					<h2 class="lstab-card-title"><?php esc_html_e( '4. Fine-tune the look', 'live-sheets-table' ); ?></h2>
+					<p class="lstab-help">
+						<?php esc_html_e( 'Optional. Anything you leave untouched follows the preset above, so you can change one colour without redefining the rest. The preview updates as you go.', 'live-sheets-table' ); ?>
+					</p>
+
+					<div class="lstab-swatches">
+						<?php foreach ( LSTAB_Customizer::colors() as $lstab_key => $lstab_color ) : ?>
+							<?php $lstab_value = isset( $lstab_vars[ $lstab_key ] ) ? $lstab_vars[ $lstab_key ] : ''; ?>
+							<div class="lstab-swatch" data-lstab-token="<?php echo esc_attr( $lstab_key ); ?>" data-lstab-var="<?php echo esc_attr( $lstab_color['var'] ); ?>">
+								<label for="lstab-color-<?php echo esc_attr( $lstab_key ); ?>">
+									<?php echo esc_html( $lstab_color['label'] ); ?>
+								</label>
+								<div class="lstab-swatch-controls">
+									<input type="color"
+										id="lstab-color-<?php echo esc_attr( $lstab_key ); ?>"
+										class="lstab-color-input"
+										value="<?php echo esc_attr( $lstab_value ? $lstab_value : '#ffffff' ); ?>"
+										<?php echo $lstab_value ? '' : 'data-lstab-unset="1"'; ?>>
+									<input type="hidden"
+										class="lstab-color-value"
+										name="style_vars[<?php echo esc_attr( $lstab_key ); ?>]"
+										value="<?php echo esc_attr( $lstab_value ); ?>">
+									<button type="button" class="button-link lstab-color-clear"
+										<?php disabled( '' === $lstab_value ); ?>>
+										<?php esc_html_e( 'Reset', 'live-sheets-table' ); ?>
+									</button>
+								</div>
+							</div>
+						<?php endforeach; ?>
+					</div>
+
+					<div class="lstab-metrics">
+						<?php foreach ( LSTAB_Customizer::metrics() as $lstab_key => $lstab_metric ) : ?>
+							<p class="lstab-metric">
+								<label for="lstab-metric-<?php echo esc_attr( $lstab_key ); ?>">
+									<strong><?php echo esc_html( $lstab_metric['label'] ); ?></strong>
+								</label>
+								<select id="lstab-metric-<?php echo esc_attr( $lstab_key ); ?>"
+									class="lstab-metric-input"
+									name="style_vars[<?php echo esc_attr( $lstab_key ); ?>]"
+									data-lstab-token="<?php echo esc_attr( $lstab_key ); ?>">
+									<?php foreach ( $lstab_metric['choices'] as $lstab_choice => $lstab_choice_label ) : ?>
+										<option value="<?php echo esc_attr( $lstab_choice ); ?>"
+											<?php selected( isset( $lstab_vars[ $lstab_key ] ) ? $lstab_vars[ $lstab_key ] : 'normal', $lstab_choice ); ?>>
+											<?php echo esc_html( $lstab_choice_label ); ?>
+										</option>
+									<?php endforeach; ?>
+								</select>
+							</p>
+						<?php endforeach; ?>
+					</div>
+
+					<p>
+						<button type="button" class="button" id="lstab-reset-appearance">
+							<?php esc_html_e( 'Reset everything to the preset', 'live-sheets-table' ); ?>
+						</button>
+					</p>
+				</div>
+			<?php endif; ?>
+
 			<p class="lstab-submit">
 				<button type="submit" class="button button-primary button-large">
 					<?php

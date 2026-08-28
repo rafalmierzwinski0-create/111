@@ -104,6 +104,32 @@ return array(
 		=> 'Nie udało się odczytać listy zakładek — zostanie użyta zakładka z Twojego linku.',
 	'Paste a Google Sheets link first.'          => 'Najpierw wklej link do arkusza Google.',
 
+	// Visual appearance editor.
+	'4. Fine-tune the look'                      => '4. Dopracuj wygląd',
+	'Optional. Anything you leave untouched follows the preset above, so you can change one colour without redefining the rest. The preview updates as you go.'
+		=> 'Opcjonalne. Wszystko, czego nie ruszysz, podąża za presetem powyżej, więc możesz zmienić jeden kolor bez definiowania reszty. Podgląd aktualizuje się na bieżąco.',
+	'Text'                                       => 'Tekst',
+	'Background'                                 => 'Tło',
+	'Header text'                                => 'Tekst nagłówka',
+	'Header background'                          => 'Tło nagłówka',
+	'Lines'                                      => 'Linie',
+	'Striped rows'                               => 'Naprzemienne wiersze',
+	'Row hover'                                  => 'Wiersz pod kursorem',
+	'Accent'                                     => 'Akcent',
+	'Text size'                                  => 'Wielkość tekstu',
+	'Row height'                                 => 'Wysokość wiersza',
+	'Corners'                                    => 'Narożniki',
+	'Small'                                      => 'Mała',
+	'Normal'                                     => 'Normalna',
+	'Large'                                      => 'Duża',
+	'Compact'                                    => 'Zwarta',
+	'Roomy'                                      => 'Przestronna',
+	'Square'                                     => 'Proste',
+	'Rounded'                                    => 'Zaokrąglone',
+	'Very rounded'                               => 'Mocno zaokrąglone',
+	'Reset'                                      => 'Wyczyść',
+	'Reset everything to the preset'             => 'Przywróć wszystko do presetu',
+
 	// Style presets.
 	'Clean'                                      => 'Czysty',
 	'Light rules between rows, generous spacing. Inherits your theme fonts.'

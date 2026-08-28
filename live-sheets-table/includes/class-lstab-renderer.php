@@ -31,6 +31,7 @@ class LSTAB_Renderer {
 			'caption'     => '',
 			'class'       => '',
 			'layout'      => 'auto',
+			'style_vars'  => array(),
 		);
 	}
 
@@ -81,9 +82,12 @@ class LSTAB_Renderer {
 			array_merge(
 				self::defaults(),
 				array(
+					// Search and sorting stay on so the preview matches the
+					// published table — the accent colour, for one, is only
+					// visible on those controls.
 					'show_meta' => false,
-					'search'    => false,
-					'sort'      => false,
+					'search'    => true,
+					'sort'      => true,
 				)
 			)
 		);
@@ -96,6 +100,7 @@ class LSTAB_Renderer {
 			'row_count'        => isset( $data['rows'] ) ? count( (array) $data['rows'] ) : 0,
 			'col_count'        => isset( $data['headers'] ) ? count( (array) $data['headers'] ) : 0,
 			'last_success_gmt' => null,
+			'style_vars'       => isset( $args['style_vars'] ) ? $args['style_vars'] : array(),
 		);
 
 		return self::render_table( $source, $args );
@@ -163,13 +168,27 @@ class LSTAB_Renderer {
 		 */
 		$classes = (array) apply_filters( 'lstab_wrapper_classes', $classes, $source, $args );
 
+		// Per-source appearance overrides ride along as inline custom
+		// properties. An inline style beats any stylesheet rule, so an explicit
+		// choice also wins over the dark-scheme block.
+		$overrides = $args['style_vars'];
+		if ( ! $overrides && isset( $source['style_vars'] ) ) {
+			$overrides = $source['style_vars'];
+		}
+		$inline_style = LSTAB_Customizer::is_enabled()
+			? LSTAB_Customizer::inline_style( $overrides )
+			: '';
+
 		self::enqueue_assets();
 
 		ob_start();
 		?>
 		<div class="lstab-container">
 		<div class="<?php echo esc_attr( implode( ' ', array_map( 'sanitize_html_class', $classes ) ) ); ?>"
-			data-lstab-id="<?php echo esc_attr( (string) $source_id ); ?>">
+			data-lstab-id="<?php echo esc_attr( (string) $source_id ); ?>"
+			<?php if ( '' !== $inline_style ) : ?>
+				style="<?php echo esc_attr( $inline_style ); ?>"
+			<?php endif; ?>>
 
 			<?php if ( $searchable ) : ?>
 				<div class="lstab-controls">

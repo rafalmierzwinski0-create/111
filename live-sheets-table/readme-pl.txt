@@ -4,7 +4,7 @@ Tags: arkusze google, tabela, arkusz kalkulacyjny, csv, tabela danych
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -49,6 +49,7 @@ Wklejasz link, a parser pokazuje dokładnie to, co odczytał — nagłówki, wie
 * Opcjonalne pole wyszukiwania i sortowanie kolumn (świadome liczb, więc 1 215,50 sortuje się nad 349,00).
 * Wykrywanie kolumn liczbowych i wyrównanie ich do prawej cyframi tabelarycznymi, dzięki czemu przecinki dziesiętne są w jednej linii.
 * Trzy dopracowane presety stylu, każdy podąża za jasnym lub ciemnym schematem kolorów czytelnika.
+* Wizualny edytor wyglądu: kolory, wielkość tekstu, wysokość wiersza i zaokrąglenie narożników per tabela, z podglądem aktualizowanym na bieżąco.
 * Sterowanie układem: pozwól tabeli samej zdecydować, kiedy zamienić się w karty, albo przypnij ją na stałe do jednego z trybów.
 * Etykietę „zaktualizowano N minut temu”, którą można wyłączyć.
 * Pełne wsparcie tłumaczeń, z polskim w komplecie.
@@ -108,7 +109,9 @@ Jeśli wolisz zawsze mieć tabelę, ustaw układ „Zawsze tabela" w bloku albo 
 
 = Czy mogę zmienić wygląd tabeli? =
 
-Wybierz jeden z trzech presetów albo napisz własny CSS pod klasy `.lstab-table` w swoim motywie. Każdy kolor jest własnością niestandardową CSS na `.lstab`, więc nadpisanie jednej wartości przestyluje całą tabelę. Dodatkowe presety i wbudowane pole na własny CSS to funkcje Pro.
+Wybierz jeden z trzech presetów, a potem dopracuj go: ekran źródła ma próbniki kolorów dla tekstu, tła, nagłówków, linii, naprzemiennych wierszy, podświetlenia i akcentu, a także wielkość tekstu, wysokość wiersza i zaokrąglenie narożników. To, czego nie ruszysz, nadal podąża za presetem, więc zmiana jednego koloru nie oznacza definiowania wszystkich.
+
+Każda wartość jest własnością niestandardową CSS na `.lstab`, więc te same rzeczy można nadpisać z arkusza motywu. Dodatkowe presety i pole na dowolny własny CSS to funkcje Pro.
 
 = Czy WP-Cron musi działać? =
 
@@ -123,6 +126,10 @@ Wersja darmowa przechowuje trzy źródła arkuszy. Pro znosi ten limit.
 Tak. Wszystko z arkusza jest escapowane przy wyjściu, więc komórka zawierająca HTML albo znacznik `<script>` pokazuje się jako tekst i nie może niczego wstrzyknąć na Twoją stronę.
 
 == Changelog ==
+
+= 1.2.0 =
+* Nowość: wizualny edytor wyglądu na ekranie źródła. Kolory, wielkość tekstu, wysokość wiersza i zaokrąglenie narożników można ustawić per tabela, a podgląd aktualizuje się na żywo. Wszystko, czego nie ruszysz, podąża za wybranym presetem, więc zmiana jednego koloru nie wymaga definiowania reszty.
+* Zmiana: dopracowane presety Midnight i Editorial.
 
 = 1.1.0 =
 * Poprawka: szerokie tabele mogły chować ostatnie kolumny w wąskiej kolumnie motywu, bez paska przewijania i bez przełączenia na karty. Moment przejścia w karty zależy teraz od liczby kolumn.

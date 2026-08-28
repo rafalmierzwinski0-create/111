@@ -64,6 +64,7 @@ live-sheets-table/          The plugin — this is what ships
     class-lstab-rest.php      Preview, source list, manual refresh
     class-lstab-admin.php     Dashboard screens and admin-post handlers
     class-lstab-limits.php    Every free/Pro boundary, behind filters
+    class-lstab-customizer.php Editable appearance tokens and their sanitising
     views/                    Admin templates
   blocks/sheet-table/       block.json + plain-ES5 editor script (no build step)
   assets/                   Front-end and admin CSS/JS
@@ -79,6 +80,9 @@ tests/                      Verification
   fixtures/                 Deliberately awkward CSV and an htmlview page
   setup-env.sh              Builds three WordPress sites from scratch
   run-all.sh                Runs everything
+
+dev/
+  live-sheets-table-pro-preview.php  Unlocks the Pro tier for local review
 
 tools/
   make-pot.php              String extractor and PO/MO compiler
@@ -152,6 +156,35 @@ Refuses to produce an archive if `readme.txt` is missing, if its stable tag
 disagrees with the plugin header version, if the compiled catalogues are
 absent, or if any PHP file fails a syntax check.
 
+## Reviewing the Pro tier locally
+
+`dev/live-sheets-table-pro-preview.php` unlocks the Pro presets and limits for
+evaluation. It contains nothing but filter calls — the same surface the real
+add-on would use — so if it works, the extension points work.
+
+Copy it into `wp-content/mu-plugins/`, or into `wp-content/plugins/` and
+activate it. It prints a warning on the plugin's screens so an unlocked site is
+never mistaken for a licensed one. The automated suite deliberately runs
+*without* it, since that suite asserts the free tier's limits; pass
+`LSTAB_PRO_PREVIEW=1` to `tests/setup-env.sh` to install it into the test sites
+for manual review.
+
+## Appearance overrides
+
+Every colour and metric the stylesheet uses is a CSS custom property on the
+table wrapper, so the visual editor on the source screen is simply those
+properties set inline: no generated stylesheet, no `!important`, and a control
+left untouched falls straight back to the preset. Inline properties also beat
+the dark-scheme block, so an explicit choice wins there too.
+
+`LSTAB_Customizer` is the registry. Colours are validated with
+`sanitize_hex_color()` and metrics are keyword lookups, so nothing
+caller-supplied reaches the `style` attribute unchecked — the suite feeds it
+`expression()`, `javascript:` and markup payloads and asserts none survive.
+
+`lstab_customizer_enabled` gates the whole panel, so it can be moved behind the
+Pro add-on later without touching this code.
+
 ## Extension points
 
 Every free/Pro boundary is a filter, so the Pro add-on lifts limits without
@@ -165,6 +198,8 @@ forking the free plugin. The suite exercises these by simulating Pro.
 | `lstab_style_presets` | Register presets, or unlock the Pro-marked ones |
 | `lstab_render_cell` | Replace a cell's HTML — conditional formatting |
 | `lstab_column_alignments` | Override which columns are treated as numeric |
+| `lstab_customizer_enabled` | Turn the visual appearance editor on or off |
+| `lstab_customizer_colors` / `lstab_customizer_metrics` | Add or remove editable tokens |
 | `lstab_cell_attributes` | Add attributes to a cell |
 | `lstab_render_rows` | Filter the rows rendered — pagination |
 | `lstab_fetch_url` / `lstab_fetch_args` | Route fetches elsewhere — private sheets |

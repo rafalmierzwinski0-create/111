@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -49,6 +49,7 @@ Paste your link and the parser shows you exactly what it read — headings, rows
 * Optional search box and sortable columns (numeric-aware, so 1 215,50 sorts above 349,00).
 * Numeric columns detected and right-aligned with tabular figures, so decimals line up.
 * Three polished style presets, each following the reader's light or dark colour scheme.
+* A visual appearance editor: set colours, text size, row height and corners per table, with the preview updating as you go.
 * A layout control: let the table decide when to become cards, or pin it to one or the other.
 * An "updated N minutes ago" label you can switch off.
 * Full translation support.
@@ -108,7 +109,9 @@ If you would rather always have a table, set the layout to "Always a table" in t
 
 = Can I change how the table looks? =
 
-Pick one of three presets, or target the `.lstab-table` classes from your theme's CSS. Every colour is a CSS custom property on `.lstab`, so overriding one value restyles the whole table. Extra presets and a built-in custom CSS field are Pro features.
+Pick one of three presets, then fine-tune it: the source screen has colour pickers for text, background, headings, lines, striped rows, hover and accent, plus text size, row height and corner rounding. Anything you leave alone keeps following the preset, so changing one colour does not mean defining all of them.
+
+Every value is a CSS custom property on `.lstab`, so a theme stylesheet can override the same things. Extra presets and a free-form custom CSS field are Pro features.
 
 = Does WP-Cron have to be working? =
 
@@ -136,6 +139,10 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 1.2.0 =
+* Added: a visual appearance editor on the source screen. Colours, text size, row height and corner rounding can be set per table, and the preview updates live. Anything left untouched follows the chosen preset, so one colour can be changed without redefining the rest.
+* Changed: refined the Midnight and Editorial presets.
 
 = 1.1.0 =
 * Fixed: wide tables could hide their last columns inside a narrow theme column, with no scrollbar and no switch to the card layout. The point at which a table becomes cards now depends on how many columns it has.
@@ -165,6 +172,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 1.2.0 =
+Adds a visual appearance editor for per-table colours and spacing.
 
 = 1.1.0 =
 Fixes wide tables losing columns in narrow theme columns, and style presets not applying. Clear any page cache after updating.

@@ -67,6 +67,7 @@
 			return;
 		}
 
+
 		( settings.presets || [] ).forEach( function ( slug ) {
 			table.classList.remove( 'lstab-style-' + slug );
 		} );
@@ -134,6 +135,7 @@
 			setBusy( false );
 
 			stage.innerHTML = response.html || '';
+			applyAppearance();
 			if ( window.lstabInit ) {
 				window.lstabInit();
 			}
@@ -177,6 +179,96 @@
 		}
 		loadPreview( tabsSelect.value );
 	} );
+
+	// ---------------------------------------------------------- appearance
+
+	var swatches = document.querySelectorAll( '.lstab-swatch' );
+	var metricInputs = document.querySelectorAll( '.lstab-metric-input' );
+	var resetAppearance = document.getElementById( 'lstab-reset-appearance' );
+
+	/**
+	 * Push every override onto the previewed table.
+	 *
+	 * Overrides are CSS custom properties, so applying them is a property set
+	 * on the element — no restyle round trip and no regenerated markup.
+	 */
+	function applyAppearance() {
+		var table = stage.querySelector( '.lstab' );
+		if ( ! table ) {
+			return;
+		}
+
+		Array.prototype.forEach.call( swatches, function ( swatch ) {
+			var property = swatch.getAttribute( 'data-lstab-var' );
+			var value = swatch.querySelector( '.lstab-color-value' ).value;
+
+			if ( value ) {
+				table.style.setProperty( property, value );
+			} else {
+				table.style.removeProperty( property );
+			}
+		} );
+
+		// Metrics map one choice onto several properties, so the server is the
+		// single source of truth for that mapping; mirror it via a data blob.
+		Array.prototype.forEach.call( metricInputs, function ( input ) {
+			var token = input.getAttribute( 'data-lstab-token' );
+			var map = ( settings.metrics || {} )[ token ] || {};
+			var chosen = map[ input.value ] || {};
+
+			Object.keys( map ).forEach( function ( choice ) {
+				Object.keys( map[ choice ] || {} ).forEach( function ( property ) {
+					table.style.removeProperty( property );
+				} );
+			} );
+
+			Object.keys( chosen ).forEach( function ( property ) {
+				table.style.setProperty( property, chosen[ property ] );
+			} );
+		} );
+	}
+
+	Array.prototype.forEach.call( swatches, function ( swatch ) {
+		var picker = swatch.querySelector( '.lstab-color-input' );
+		var hidden = swatch.querySelector( '.lstab-color-value' );
+		var clear = swatch.querySelector( '.lstab-color-clear' );
+
+		picker.addEventListener( 'input', function () {
+			hidden.value = picker.value;
+			picker.removeAttribute( 'data-lstab-unset' );
+			clear.disabled = false;
+			applyAppearance();
+		} );
+
+		clear.addEventListener( 'click', function () {
+			hidden.value = '';
+			picker.setAttribute( 'data-lstab-unset', '1' );
+			clear.disabled = true;
+			applyAppearance();
+		} );
+	} );
+
+	Array.prototype.forEach.call( metricInputs, function ( input ) {
+		input.addEventListener( 'change', applyAppearance );
+	} );
+
+	if ( resetAppearance ) {
+		resetAppearance.addEventListener( 'click', function () {
+			Array.prototype.forEach.call( swatches, function ( swatch ) {
+				swatch.querySelector( '.lstab-color-value' ).value = '';
+				swatch.querySelector( '.lstab-color-input' ).setAttribute( 'data-lstab-unset', '1' );
+				swatch.querySelector( '.lstab-color-clear' ).disabled = true;
+			} );
+			Array.prototype.forEach.call( metricInputs, function ( input ) {
+				input.value = 'normal';
+			} );
+
+			var table = stage.querySelector( '.lstab' );
+			if ( table ) {
+				table.removeAttribute( 'style' );
+			}
+		} );
+	}
 
 	// Constrain the stage so the author can see the table and the card layout
 	// without resizing the browser. The container query does the rest.

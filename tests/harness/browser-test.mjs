@@ -172,6 +172,183 @@ check( afterReload.includes( 'lstab-style-bordered' ), 'A reloaded preview keeps
 
 await page.locator( 'input[name="style_preset"][value="striped"]' ).check();
 
+// ----------------------------------------------------- visual appearance
+section( '3c. Visual appearance editor' );
+
+const tableStyle = () =>
+	page.locator( '.lstab-preview .lstab' ).evaluate( ( el ) => ( {
+		accent: el.style.getPropertyValue( '--lstab-accent' ).trim(),
+		background: getComputedStyle( el.querySelector( '.lstab-scroll' ) ).backgroundColor,
+		padding: getComputedStyle( el.querySelector( 'tbody td' ) ).paddingTop,
+		inline: el.getAttribute( 'style' ) || '',
+	} ) );
+
+const beforeCustomising = await tableStyle();
+check( beforeCustomising.accent === '', 'A fresh source has no overrides', beforeCustomising.inline );
+
+// Colour inputs cannot be typed into, so drive them the way the browser does.
+await page.locator( '.lstab-swatch[data-lstab-token="accent"] .lstab-color-input' ).evaluate( ( el ) => {
+	el.value = '#c0392b';
+	el.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+} );
+await page.waitForTimeout( 150 );
+
+const afterAccent = await tableStyle();
+check( afterAccent.accent === '#c0392b', 'Picking a colour applies it live', afterAccent.inline );
+
+await page.locator( '.lstab-swatch[data-lstab-token="background"] .lstab-color-input' ).evaluate( ( el ) => {
+	el.value = '#fff7e6';
+	el.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+} );
+await page.waitForTimeout( 150 );
+const afterBackground = await tableStyle();
+check(
+	afterBackground.background !== beforeCustomising.background,
+	'A background colour visibly changes the table',
+	`${ beforeCustomising.background } → ${ afterBackground.background }`
+);
+
+await page.selectOption( '#lstab-metric-density', 'roomy' );
+await page.waitForTimeout( 150 );
+const afterDensity = await tableStyle();
+check(
+	parseFloat( afterDensity.padding ) > parseFloat( beforeCustomising.padding ),
+	'Row height actually changes the padding',
+	`${ beforeCustomising.padding } → ${ afterDensity.padding }`
+);
+
+// Every colour control must actually reach the page. A token that maps to a
+// property nothing reads looks like a working control and does nothing — which
+// is exactly what "Header background" did on every preset but Bordered.
+const colourTargets = {
+	text: { selector: 'tbody td', property: 'color' },
+	background: { selector: '.lstab-scroll', property: 'backgroundColor' },
+	headerText: { selector: 'thead th', property: 'color' },
+	headerBg: { selector: 'thead th', property: 'backgroundColor' },
+	border: { selector: 'tbody tr', property: 'borderBottomColor' },
+	stripe: { selector: 'tbody tr:nth-child(2)', property: 'backgroundColor' },
+	accent: { selector: '.lstab-search-input', property: 'borderColor' },
+};
+
+const probeColour = '#ff00ff';
+const probeRgb = 'rgb(255, 0, 255)';
+
+// Row backgrounds and the focus ring animate over ~120-150ms. Sampling a
+// computed colour mid-transition yields a value a few units off and makes this
+// section flaky, so take animation out of the measurement entirely.
+await page.addStyleTag( {
+	content: '.lstab-preview *, .lstab-preview *::before, .lstab-preview *::after { transition: none !important; animation: none !important; }',
+} );
+
+for ( const [ token, target ] of Object.entries( colourTargets ) ) {
+	await page.locator( '#lstab-reset-appearance' ).click();
+	await page.waitForTimeout( 80 );
+
+	await page.locator( `.lstab-swatch[data-lstab-token="${ token }"] .lstab-color-input` ).evaluate( ( el, v ) => {
+		el.value = v;
+		el.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+	}, probeColour );
+	await page.waitForTimeout( 120 );
+
+	const computed = await page.locator( '.lstab-preview .lstab' ).evaluate( ( el, t ) => {
+		const node = el.querySelector( t.selector );
+		return node ? getComputedStyle( node )[ t.property ] : null;
+	}, target );
+
+	// The accent only shows on interactive parts: the sorted column's arrow and
+	// the focused search field. Check both, since the dashboard's own input
+	// styling has historically fought the latter.
+	let effective = computed;
+	if ( 'accent' === token ) {
+		await page.locator( '.lstab-preview thead th .lstab-sort' ).first().click();
+		await page.waitForTimeout( 150 );
+		const icon = await page.locator( '.lstab-preview thead th[aria-sort] .lstab-sort-icon' ).evaluate(
+			( el ) => getComputedStyle( el ).backgroundColor
+		);
+
+		await page.locator( '.lstab-preview .lstab-search-input' ).focus();
+		await page.waitForTimeout( 120 );
+		const focused = await page.locator( '.lstab-preview .lstab-search-input' ).evaluate(
+			( el ) => getComputedStyle( el ).borderColor
+		);
+		await page.locator( '#lstab-title' ).focus();
+
+		check( String( focused ).includes( probeRgb ), 'Accent survives the dashboard\'s own input styling', focused );
+		effective = icon;
+	}
+
+	check(
+		String( effective ).includes( probeRgb ),
+		`Colour control "${ token }" reaches the rendered table`,
+		`${ target.selector } ${ target.property } = ${ effective }`
+	);
+}
+
+await page.locator( '#lstab-reset-appearance' ).click();
+await page.waitForTimeout( 100 );
+await page.locator( '.lstab-swatch[data-lstab-token="accent"] .lstab-color-input' ).evaluate( ( el ) => {
+	el.value = '#c0392b';
+	el.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+} );
+await page.locator( '.lstab-swatch[data-lstab-token="background"] .lstab-color-input' ).evaluate( ( el ) => {
+	el.value = '#fff7e6';
+	el.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+} );
+await page.waitForTimeout( 120 );
+
+// Clearing one colour must leave the others alone.
+await page.locator( '.lstab-swatch[data-lstab-token="accent"] .lstab-color-clear' ).click();
+await page.waitForTimeout( 150 );
+const afterClear = await tableStyle();
+check( afterClear.accent === '', 'Resetting one colour removes just that one', afterClear.inline );
+check( afterClear.inline.includes( '--lstab-bg' ), 'The other colours survive that reset', afterClear.inline );
+
+// Reloading the preview must not discard what has been set.
+await page.locator( '#lstab-preview-button' ).click();
+await page.waitForTimeout( 1400 );
+const afterReloadStyle = await tableStyle();
+check(
+	afterReloadStyle.inline.includes( '--lstab-bg' ),
+	'Overrides survive a preview reload',
+	afterReloadStyle.inline
+);
+
+// Reset everything, then save, so the rest of the run sees a clean table.
+await page.locator( '#lstab-reset-appearance' ).click();
+await page.waitForTimeout( 150 );
+const afterResetAll = await tableStyle();
+check( afterResetAll.inline === '', 'Reset clears every override', afterResetAll.inline );
+
+// Set one, save, and confirm it reaches the published page.
+await page.locator( '.lstab-swatch[data-lstab-token="accent"] .lstab-color-input' ).evaluate( ( el ) => {
+	el.value = '#116149';
+	el.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+} );
+await Promise.all( [
+	page.waitForURL( /page=live-sheets-table/ ),
+	page.locator( '#lstab-source-form button[type="submit"]' ).click(),
+] );
+await page.waitForLoadState( 'networkidle' );
+
+const publishedStyle = await page.evaluate( async ( base ) => {
+	const res = await fetch( base + '/cennik/', { credentials: 'same-origin' } );
+	const html = await res.text();
+	return html.includes( '--lstab-accent:#116149' );
+}, BASE );
+check( publishedStyle, 'A saved override reaches the published page' );
+
+// Put it back.
+const sourceEditUrl = `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`;
+await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
+await page.waitForSelector( '.lstab-preview .lstab-table', { timeout: 15000 } );
+await page.locator( '#lstab-reset-appearance' ).click();
+await Promise.all( [
+	page.waitForURL( /page=live-sheets-table/ ),
+	page.locator( '#lstab-source-form button[type="submit"]' ).click(),
+] );
+await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
+await page.waitForSelector( '.lstab-preview .lstab-table', { timeout: 15000 } );
+
 // Switching tab re-fetches the preview.
 section( '4. Switching sheet tab' );
 await page.selectOption( '#lstab-tabs', '1734829105' );

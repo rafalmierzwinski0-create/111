@@ -93,6 +93,11 @@ class LSTAB_Admin {
 		}
 
 		wp_enqueue_style( 'lstab-table' );
+
+		// The preview renders the real table markup, so it needs the real
+		// behaviour too: without this its search box and sort buttons are inert.
+		wp_enqueue_script( 'lstab-table' );
+
 		wp_enqueue_style(
 			'lstab-admin',
 			LSTAB_URL . 'assets/css/lstab-admin.css',
@@ -103,7 +108,7 @@ class LSTAB_Admin {
 		wp_enqueue_script(
 			'lstab-admin',
 			LSTAB_URL . 'assets/js/lstab-admin.js',
-			array( 'wp-api-fetch' ),
+			array( 'wp-api-fetch', 'lstab-table' ),
 			LSTAB_Plugin::asset_version( 'assets/js/lstab-admin.js' ),
 			true
 		);
@@ -117,6 +122,9 @@ class LSTAB_Admin {
 				// Needed so the script can clear whichever preset class is on
 				// the preview before applying the newly chosen one.
 				'presets'    => array_keys( LSTAB_Styles::all() ),
+				// The metric mapping lives in PHP; the script mirrors it rather
+				// than keeping a second copy that could drift.
+				'metrics'    => wp_list_pluck( LSTAB_Customizer::metrics(), 'vars' ),
 				'i18n'       => array(
 					'loading'     => __( 'Loading preview…', 'live-sheets-table' ),
 					'failed'      => __( 'Preview failed', 'live-sheets-table' ),
@@ -212,6 +220,9 @@ class LSTAB_Admin {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Presence check only; the value is never used.
 			'first_row_header' => empty( $_POST['first_row_header'] ) ? 0 : 1,
 			'style_preset'     => isset( $_POST['style_preset'] ) ? LSTAB_Styles::sanitize( wp_unslash( $_POST['style_preset'] ) ) : 'clean',
+			// LSTAB_Customizer::sanitize() drops anything it does not recognise
+			// and hex-checks every colour, so the raw array is safe to hand over.
+			'style_vars'       => isset( $_POST['style_vars'] ) ? LSTAB_Customizer::sanitize( wp_unslash( $_POST['style_vars'] ) ) : LSTAB_Customizer::defaults(), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 		);
 
 		if ( '' === $data['title'] ) {

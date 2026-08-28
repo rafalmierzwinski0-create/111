@@ -645,6 +645,87 @@ lstab_assert( is_callable( $block_type->render_callback ), 'Block has a server-s
 
 // ---------------------------------------------------------------------------
 
+lstab_section( '13a. Appearance overrides' );
+
+lstab_assert( LSTAB_Customizer::is_enabled(), 'The visual editor is available' );
+
+$empty = LSTAB_Customizer::defaults();
+lstab_assert( ! LSTAB_Customizer::has_overrides( $empty ), 'Untouched settings produce no overrides' );
+lstab_assert( '' === LSTAB_Customizer::inline_style( $empty ), 'Untouched settings produce no style attribute' );
+
+// These values end up inside a style attribute, so anything that is not a
+// colour or a known keyword must be dropped rather than escaped and passed on.
+$hostile = LSTAB_Customizer::sanitize(
+	array(
+		'accent'     => '#ff0000',
+		'text'       => 'red; background:url(javascript:alert(1))',
+		'background' => 'expression(alert(1))',
+		'border'     => '#ABC',
+		'stripe'     => '"><script>alert(1)</script>',
+		'hover'      => '',
+		'density'    => 'roomy',
+		'fontSize'   => '../../etc/passwd',
+		'corners'    => 'square',
+		'unknownKey' => '#123456',
+	)
+);
+
+lstab_assert( '#ff0000' === $hostile['accent'], 'A valid hex colour survives', $hostile['accent'] );
+lstab_assert( '#ABC' === $hostile['border'], 'Short hex colours survive', $hostile['border'] );
+lstab_assert( '' === $hostile['text'], 'A colour with a CSS payload is dropped', $hostile['text'] );
+lstab_assert( '' === $hostile['background'], 'expression() is dropped', $hostile['background'] );
+lstab_assert( '' === $hostile['stripe'], 'A markup payload is dropped', $hostile['stripe'] );
+lstab_assert( 'roomy' === $hostile['density'], 'A known metric choice survives', $hostile['density'] );
+lstab_assert( 'normal' === $hostile['fontSize'], 'An unknown metric choice falls back to normal', $hostile['fontSize'] );
+lstab_assert( ! array_key_exists( 'unknownKey', $hostile ), 'Unknown keys are removed entirely' );
+
+$style_attr = LSTAB_Customizer::inline_style( $hostile );
+lstab_assert( false !== strpos( $style_attr, '--lstab-accent:#ff0000' ), 'Accent reaches the style attribute', $style_attr );
+lstab_assert( false !== strpos( $style_attr, '--lstab-pad-y:1.05em' ), 'Roomy density maps onto padding', $style_attr );
+lstab_assert( false !== strpos( $style_attr, '--lstab-radius:0' ), 'Square corners map onto the radius', $style_attr );
+lstab_assert( false === strpos( $style_attr, 'javascript' ), 'No script payload reaches the style attribute' );
+lstab_assert( false === strpos( $style_attr, '<' ), 'No markup reaches the style attribute' );
+
+// Round-trip through the database and out to the rendered page.
+LSTAB_Storage::update(
+	$source_id,
+	array(
+		'style_vars' => array(
+			'accent'     => '#8b5cf6',
+			'background' => '#fffdf7',
+			'density'    => 'compact',
+		),
+	)
+);
+
+$stored = LSTAB_Storage::get( $source_id );
+lstab_assert( '#8b5cf6' === $stored['style_vars']['accent'], 'Overrides survive a round trip', wp_json_encode( $stored['style_vars'] ) );
+lstab_assert( 'compact' === $stored['style_vars']['density'], 'Metric choices survive a round trip' );
+
+$customised = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false !== strpos( $customised, '--lstab-accent:#8b5cf6' ), 'The rendered table carries the override' );
+lstab_assert( false !== strpos( $customised, '--lstab-pad-y:0.42em' ), 'Compact density reaches the page' );
+lstab_assert(
+	(bool) preg_match( '#<div class="lstab [^"]*"[^>]*style="[^"]*--lstab-accent#s', $customised ),
+	'The override lands on the table wrapper, not somewhere else'
+);
+
+// Clearing them must actually clear them.
+LSTAB_Storage::update( $source_id, array( 'style_vars' => LSTAB_Customizer::defaults() ) );
+$cleared = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false === strpos( $cleared, '--lstab-accent' ), 'Resetting removes the override from the page' );
+lstab_assert( false === strpos( $cleared, 'style=""' ), 'No empty style attribute is left behind' );
+
+// Turning the feature off must stop it rendering, whatever is stored.
+LSTAB_Storage::update( $source_id, array( 'style_vars' => array( 'accent' => '#123456' ) ) );
+add_filter( 'lstab_customizer_enabled', '__return_false' );
+$disabled = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false === strpos( $disabled, '--lstab-accent' ), 'Disabling the editor stops overrides rendering' );
+remove_all_filters( 'lstab_customizer_enabled' );
+LSTAB_Storage::update( $source_id, array( 'style_vars' => LSTAB_Customizer::defaults() ) );
+
+// ---------------------------------------------------------------------------
+
 lstab_section( '13b. Asset cache busting' );
 
 // Shipping an edited stylesheet under an unchanged version string means
