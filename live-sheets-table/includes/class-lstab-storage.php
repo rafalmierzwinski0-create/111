@@ -12,8 +12,9 @@ defined( 'ABSPATH' ) || exit;
  */
 class LSTAB_Storage {
 
-	const DB_VERSION    = '1.0.0';
+	const DB_VERSION     = '1.0.0';
 	const DB_VERSION_OPT = 'lstab_db_version';
+	const CACHE_GROUP    = 'lstab_sources';
 
 	/**
 	 * Fully qualified table name.
@@ -182,7 +183,11 @@ class LSTAB_Storage {
 		$formats[]          = '%s';
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Custom table, no core API available.
-		return false !== $wpdb->update( self::table(), $row, array( 'id' => (int) $id ), $formats, array( '%d' ) );
+		$updated = false !== $wpdb->update( self::table(), $row, array( 'id' => (int) $id ), $formats, array( '%d' ) );
+
+		self::flush_cache( $id );
+
+		return $updated;
 	}
 
 	/**
@@ -204,7 +209,7 @@ class LSTAB_Storage {
 		$rows     = isset( $data['rows'] ) && is_array( $data['rows'] ) ? $data['rows'] : array();
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Custom table, no core API available.
-		return false !== $wpdb->update(
+		$updated = false !== $wpdb->update(
 			self::table(),
 			array(
 				'snapshot'         => $encoded,
@@ -221,6 +226,10 @@ class LSTAB_Storage {
 			array( '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s' ),
 			array( '%d' )
 		);
+
+		self::flush_cache( $id );
+
+		return $updated;
 	}
 
 	/**
@@ -236,7 +245,7 @@ class LSTAB_Storage {
 		$now = current_time( 'mysql', true );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Custom table, no core API available.
-		return false !== $wpdb->update(
+		$updated = false !== $wpdb->update(
 			self::table(),
 			array(
 				'last_status'      => 'error',
@@ -248,6 +257,10 @@ class LSTAB_Storage {
 			array( '%s', '%s', '%s', '%s' ),
 			array( '%d' )
 		);
+
+		self::flush_cache( $id );
+
+		return $updated;
 	}
 
 	/**
@@ -259,31 +272,78 @@ class LSTAB_Storage {
 	public static function get( $id ) {
 		global $wpdb;
 
+		$id = (int) $id;
+
+		// Every page view that renders a table reads this row, snapshot and all.
+		// On a site with a persistent object cache that turns into one query
+		// per sync instead of one per request; without one, nothing changes.
+		$cached = wp_cache_get( $id, self::CACHE_GROUP );
+		if ( false !== $cached ) {
+			return is_array( $cached ) ? $cached : null;
+		}
+
 		$table = self::table();
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name cannot be a placeholder.
 		$row = $wpdb->get_row(
-			$wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", (int) $id ),
+			$wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $id ),
 			ARRAY_A
 		);
 		// phpcs:enable
 
-		return $row ? self::hydrate( $row ) : null;
+		$source = $row ? self::hydrate( $row ) : null;
+
+		// Cache the miss too, so a shortcode pointing at a deleted source does
+		// not re-query on every request.
+		wp_cache_set( $id, null === $source ? 0 : $source, self::CACHE_GROUP );
+
+		return $source;
 	}
 
 	/**
-	 * Fetch all sources, newest first.
+	 * Drop a source from the object cache.
 	 *
+	 * @param int $id Source ID.
+	 * @return void
+	 */
+	public static function flush_cache( $id ) {
+		wp_cache_delete( (int) $id, self::CACHE_GROUP );
+	}
+
+	/**
+	 * Fetch all sources.
+	 *
+	 * Snapshots can run to megabytes, and the callers that list sources — the
+	 * dashboard table, the cron due-check, the block picker — only need the
+	 * metadata. They pass false so the payload is left in the database.
+	 *
+	 * @param bool $with_data Include the stored snapshot.
 	 * @return array<int,array<string,mixed>>
 	 */
-	public static function get_all() {
+	public static function get_all( $with_data = false ) {
 		global $wpdb;
 
-		$table = self::table();
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name cannot be a placeholder.
-		$rows = $wpdb->get_results( "SELECT * FROM {$table} ORDER BY id ASC", ARRAY_A );
+		$table   = self::table();
+		$columns = $with_data ? '*' : self::meta_columns();
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names cannot be placeholders.
+		$rows = $wpdb->get_results( "SELECT {$columns} FROM {$table} ORDER BY id ASC", ARRAY_A );
 		// phpcs:enable
 
 		return array_map( array( __CLASS__, 'hydrate' ), (array) $rows );
+	}
+
+	/**
+	 * Every column except the snapshot payload.
+	 *
+	 * Written out rather than built dynamically so the query stays a constant
+	 * string with no caller-supplied input anywhere near it.
+	 *
+	 * @return string
+	 */
+	protected static function meta_columns() {
+		return 'id, title, sheet_url, sheet_id, sheet_kind, gid, tab_name, sync_interval, '
+			. 'first_row_header, style_preset, snapshot_hash, row_count, col_count, '
+			. 'last_status, last_error, last_attempt_gmt, last_success_gmt, created_gmt, updated_gmt';
 	}
 
 	/**
@@ -312,6 +372,8 @@ class LSTAB_Storage {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Custom table, no core API available.
 		$deleted = $wpdb->delete( self::table(), array( 'id' => (int) $id ), array( '%d' ) );
 
+		self::flush_cache( $id );
+
 		if ( $deleted ) {
 			do_action( 'lstab_source_deleted', (int) $id );
 		}
@@ -332,15 +394,19 @@ class LSTAB_Storage {
 		$row['row_count']        = (int) $row['row_count'];
 		$row['col_count']        = (int) $row['col_count'];
 
-		$decoded = ( null === $row['snapshot'] || '' === $row['snapshot'] )
-			? null
-			: json_decode( (string) $row['snapshot'], true );
+		// Metadata-only reads have no snapshot column; 'data' stays absent so a
+		// caller cannot mistake "not loaded" for "no data stored".
+		if ( array_key_exists( 'snapshot', $row ) ) {
+			$decoded = ( null === $row['snapshot'] || '' === $row['snapshot'] )
+				? null
+				: json_decode( (string) $row['snapshot'], true );
 
-		$row['data'] = ( is_array( $decoded ) && isset( $decoded['headers'], $decoded['rows'] ) )
-			? $decoded
-			: null;
+			$row['data'] = ( is_array( $decoded ) && isset( $decoded['headers'], $decoded['rows'] ) )
+				? $decoded
+				: null;
 
-		unset( $row['snapshot'] );
+			unset( $row['snapshot'] );
+		}
 
 		return $row;
 	}

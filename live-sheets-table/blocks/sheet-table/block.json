@@ -6,11 +6,20 @@
 	"category": "widgets",
 	"icon": "editor-table",
 	"description": "Show a saved Google Sheet as a responsive, auto-refreshing table.",
-	"keywords": [ "google", "sheets", "table", "csv", "spreadsheet" ],
+	"keywords": [
+		"google",
+		"sheets",
+		"table",
+		"csv",
+		"spreadsheet"
+	],
 	"textdomain": "live-sheets-table",
 	"supports": {
 		"html": false,
-		"align": [ "wide", "full" ],
+		"align": [
+			"wide",
+			"full"
+		],
 		"spacing": {
 			"margin": true,
 			"padding": true
@@ -40,6 +49,10 @@
 		"caption": {
 			"type": "string",
 			"default": ""
+		},
+		"layout": {
+			"type": "string",
+			"default": "auto"
 		}
 	},
 	"editorScript": "file:./index.js",

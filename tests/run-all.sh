@@ -69,7 +69,7 @@ echo
 echo "=============================================="
 echo " Browser suite + screenshots — WordPress 7.1"
 echo "=============================================="
-cd "$SCRATCH" && node browser-test.mjs
+cd "$SCRATCH" && LSTAB_SCRATCH="$SCRATCH" LSTAB_SHOTS="$REPO/screenshots" node browser-test.mjs
 
 echo
 echo "All suites passed."

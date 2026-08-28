@@ -30,6 +30,7 @@ class LSTAB_Renderer {
 			'style'       => '',
 			'caption'     => '',
 			'class'       => '',
+			'layout'      => 'auto',
 		);
 	}
 
@@ -126,11 +127,29 @@ class LSTAB_Renderer {
 		$source_id = (int) $source['id'];
 		$uid       = $source_id > 0 ? (string) $source_id : uniqid();
 		$table_id  = 'lstab-table-' . $uid;
+		$caption_id = 'lstab-caption-' . $uid;
 
 		$searchable = ! empty( $args['search'] ) && $rows;
 		$sortable   = ! empty( $args['sort'] ) && $rows;
 
-		$classes = array( 'lstab', 'lstab-style-' . $style );
+		// The width at which a table must stack depends on how many columns it
+		// has: five columns need far more room than two. The bucket is emitted
+		// as a class so the stylesheet can pick a matching breakpoint.
+		$column_count = count( $headers );
+		$bucket       = max( 1, min( 6, $column_count ) );
+
+		// Columns that hold numbers read better right-aligned with tabular figures.
+		$alignments = self::detect_alignments( $headers, $rows );
+
+		$classes = array( 'lstab', 'lstab-style-' . $style, 'lstab-cols-' . $bucket );
+
+		// 'auto' lets the breakpoints decide; the other two pin the layout for
+		// authors who know their table and their theme's column width.
+		$layout = in_array( $args['layout'], array( 'table', 'cards' ), true ) ? $args['layout'] : 'auto';
+		if ( 'auto' !== $layout ) {
+			$classes[] = 'lstab-layout-' . $layout;
+		}
+
 		if ( $args['class'] ) {
 			$classes[] = $args['class'];
 		}
@@ -148,6 +167,7 @@ class LSTAB_Renderer {
 
 		ob_start();
 		?>
+		<div class="lstab-container">
 		<div class="<?php echo esc_attr( implode( ' ', array_map( 'sanitize_html_class', $classes ) ) ); ?>"
 			data-lstab-id="<?php echo esc_attr( (string) $source_id ); ?>">
 
@@ -165,15 +185,23 @@ class LSTAB_Renderer {
 				</div>
 			<?php endif; ?>
 
+			<?php if ( $args['caption'] ) : ?>
+				<p class="lstab-caption" id="<?php echo esc_attr( $caption_id ); ?>">
+					<?php echo esc_html( $args['caption'] ); ?>
+				</p>
+			<?php endif; ?>
+
 			<div class="lstab-scroll">
-				<table id="<?php echo esc_attr( $table_id ); ?>" class="lstab-table" role="table">
+				<table id="<?php echo esc_attr( $table_id ); ?>" class="lstab-table" role="table"
 					<?php if ( $args['caption'] ) : ?>
-						<caption class="lstab-caption"><?php echo esc_html( $args['caption'] ); ?></caption>
-					<?php endif; ?>
+						aria-labelledby="<?php echo esc_attr( $caption_id ); ?>"
+					<?php endif; ?>>
 					<thead role="rowgroup">
 						<tr role="row">
 							<?php foreach ( $headers as $index => $header ) : ?>
-								<th scope="col" role="columnheader" data-lstab-col="<?php echo esc_attr( (string) $index ); ?>">
+								<th scope="col" role="columnheader"
+									data-lstab-col="<?php echo esc_attr( (string) $index ); ?>"
+									data-lstab-align="<?php echo esc_attr( isset( $alignments[ $index ] ) ? $alignments[ $index ] : 'start' ); ?>">
 									<?php if ( $sortable ) : ?>
 										<button type="button" class="lstab-sort" aria-label="
 											<?php
@@ -229,7 +257,10 @@ class LSTAB_Renderer {
 									 */
 									$attributes = (array) apply_filters(
 										'lstab_cell_attributes',
-										array( 'data-label' => $label ),
+										array(
+											'data-label'       => $label,
+											'data-lstab-align' => isset( $alignments[ $col_index ] ) ? $alignments[ $col_index ] : 'start',
+										),
 										(string) $cell,
 										(int) $col_index,
 										(int) $row_index,
@@ -278,6 +309,7 @@ class LSTAB_Renderer {
 				</p>
 			<?php endif; ?>
 		</div>
+		</div>
 		<?php
 
 		$html = (string) ob_get_clean();
@@ -290,6 +322,82 @@ class LSTAB_Renderer {
 		 * @param array  $args   Rendering options.
 		 */
 		return (string) apply_filters( 'lstab_rendered_table', $html, $source, $args );
+	}
+
+	/**
+	 * Decide how each column should be aligned.
+	 *
+	 * A column whose values are overwhelmingly numeric reads far better right
+	 * aligned with tabular figures, so prices and quantities line up on the
+	 * decimal point instead of drifting.
+	 *
+	 * @param array<int,string>             $headers Column labels.
+	 * @param array<int,array<int,string>>  $rows    Body rows.
+	 * @return array<int,string> Column index to 'start' or 'end'.
+	 */
+	protected static function detect_alignments( $headers, $rows ) {
+		$alignments = array();
+		$sample     = array_slice( $rows, 0, 200 );
+
+		foreach ( array_keys( $headers ) as $index ) {
+			$numeric = 0;
+			$filled  = 0;
+
+			foreach ( $sample as $row ) {
+				$value = isset( $row[ $index ] ) ? trim( (string) $row[ $index ] ) : '';
+				if ( '' === $value ) {
+					continue;
+				}
+				$filled++;
+				if ( self::is_numeric_value( $value ) ) {
+					$numeric++;
+				}
+			}
+
+			// Require a clear majority so a stray number does not flip a text column.
+			$alignments[ $index ] = ( $filled > 0 && ( $numeric / $filled ) >= 0.8 ) ? 'end' : 'start';
+		}
+
+		/**
+		 * Filters the per-column alignment.
+		 *
+		 * @param array $alignments Column index to 'start' or 'end'.
+		 * @param array $headers    Column labels.
+		 * @param array $rows       Body rows.
+		 */
+		return (array) apply_filters( 'lstab_column_alignments', $alignments, $headers, $rows );
+	}
+
+	/**
+	 * Whether a cell holds a number, tolerating the ways spreadsheets format them.
+	 *
+	 * Accepts thousands separators (including the non-breaking and narrow spaces
+	 * Google emits), comma decimals, currency symbols, percentages and sign
+	 * suffixes, so "1 215,50 zł" and "-4.5%" both count.
+	 *
+	 * @param string $value Raw cell value.
+	 * @return bool
+	 */
+	protected static function is_numeric_value( $value ) {
+		// Strip currency symbols, percent signs and every flavour of space.
+		$cleaned = preg_replace( '/[\p{Sc}%\s\x{00A0}\x{202F}\x{2009}]/u', '', $value );
+
+		if ( null === $cleaned || '' === $cleaned ) {
+			return false;
+		}
+
+		// Many currencies are written as letters rather than a symbol, and always
+		// after the amount: "12,00 zł", "100 kr", "9 PLN". Drop a short trailing
+		// alphabetic tail, but only when digits came first, so a product code
+		// like "A1" is not mistaken for a number.
+		$cleaned = preg_replace( '/(?<=[0-9])\p{L}{1,3}$/u', '', $cleaned );
+
+		if ( null === $cleaned || '' === $cleaned ) {
+			return false;
+		}
+
+		return (bool) preg_match( '/^[-+]?[0-9]{1,3}(?:[.,][0-9]{3})*(?:[.,][0-9]+)?$/', $cleaned )
+			|| (bool) preg_match( '/^[-+]?[0-9]+(?:[.,][0-9]+)?$/', $cleaned );
 	}
 
 	/**

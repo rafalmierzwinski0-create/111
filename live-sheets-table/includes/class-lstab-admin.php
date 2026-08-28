@@ -375,7 +375,9 @@ class LSTAB_Admin {
 	 * @return array{state:string,icon:string,text:string,detail:string} The icon is a Dashicons class.
 	 */
 	public static function status_for( $source ) {
-		$has_data = ! empty( $source['data']['rows'] ) || ! empty( $source['data']['headers'] );
+		// Read this from the metadata, not the payload: the list screen loads
+		// sources without their snapshots on purpose.
+		$has_data = '' !== (string) $source['snapshot_hash'];
 
 		if ( 'ok' === $source['last_status'] && $source['last_success_gmt'] ) {
 			return array(

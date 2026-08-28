@@ -25,6 +25,12 @@
 	var Spinner = components.Spinner;
 	var ExternalLink = components.ExternalLink;
 
+	var LAYOUTS = [
+		{ label: __( 'Automatic — stack into cards when the column is narrow', 'live-sheets-table' ), value: 'auto' },
+		{ label: __( 'Always a table — scroll sideways instead', 'live-sheets-table' ), value: 'table' },
+		{ label: __( 'Always cards', 'live-sheets-table' ), value: 'cards' }
+	];
+
 	var PRESETS = [
 		{ label: __( 'Use the source default', 'live-sheets-table' ), value: '' },
 		{ label: __( 'Clean', 'live-sheets-table' ), value: 'clean' },
@@ -130,6 +136,16 @@
 						checked: !! attributes.showUpdated,
 						onChange: function ( value ) {
 							setAttributes( { showUpdated: value } );
+						},
+						__nextHasNoMarginBottom: true
+					} ),
+					el( SelectControl, {
+						label: __( 'Layout', 'live-sheets-table' ),
+						value: attributes.layout,
+						options: LAYOUTS,
+						help: __( 'Narrow theme columns cannot fit a wide table. "Automatic" turns each row into a labelled card rather than hiding columns.', 'live-sheets-table' ),
+						onChange: function ( value ) {
+							setAttributes( { layout: value } );
 						},
 						__nextHasNoMarginBottom: true
 					} ),

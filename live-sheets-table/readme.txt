@@ -43,11 +43,13 @@ Paste your link and the parser shows you exactly what it read — headings, rows
 = What you get =
 
 * Unlimited rows.
-* One saved sheet source.
+* Three saved sheet sources.
 * A "Google Sheets Table" block plus a `[sheet_table id="123"]` shortcode, both driven by the same renderer.
 * Background sync every 15 minutes, plus a "Refresh now" button.
 * Optional search box and sortable columns (numeric-aware, so 1 215,50 sorts above 349,00).
-* Three polished style presets.
+* Numeric columns detected and right-aligned with tabular figures, so decimals line up.
+* Three polished style presets, each following the reader's light or dark colour scheme.
+* A layout control: let the table decide when to become cards, or pin it to one or the other.
 * An "updated N minutes ago" label you can switch off.
 * Full translation support.
 
@@ -100,9 +102,13 @@ Yes. The shortcode `[sheet_table id="123"]` works anywhere shortcodes are run �
 
 Each row becomes a labelled card, so every value stays readable at full size. There is no horizontal scrolling and no shrunken text.
 
+The switch happens whenever the space per column drops too low, which depends on how many columns you have — so it also fires for a five-column table sitting in a narrow desktop theme column, not only on phones.
+
+If you would rather always have a table, set the layout to "Always a table" in the block, or `layout="table"` in the shortcode; it will scroll sideways instead, with a shaded edge showing there is more to see. `layout="cards"` forces the opposite. Giving the block a wide or full alignment is usually the better fix, since it hands the table the room it needs.
+
 = Can I change how the table looks? =
 
-Pick one of three presets, or target the `.lstab-table` classes from your theme's CSS. Extra presets and a built-in custom CSS field are Pro features.
+Pick one of three presets, or target the `.lstab-table` classes from your theme's CSS. Every colour is a CSS custom property on `.lstab`, so overriding one value restyles the whole table. Extra presets and a built-in custom CSS field are Pro features.
 
 = Does WP-Cron have to be working? =
 
@@ -110,7 +116,7 @@ The scheduled refresh uses WP-Cron. If you have disabled it, use a real system c
 
 = Can I show several different sheets? =
 
-The free version stores one sheet source. Pro removes that limit.
+The free version stores three sheet sources. Pro removes the limit.
 
 = Is the sheet content safe to display? =
 
@@ -140,7 +146,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Server-side rendering shared by the Gutenberg block and the shortcode.
 * Responsive card layout on narrow containers, driven by container queries.
 * Optional search and numeric-aware column sorting.
-* Three style presets.
+* Three style presets, with light and dark colour schemes.
+* Numeric column detection with right alignment and tabular figures.
+* A layout control for pinning the table or card presentation.
 * RFC 4180 CSV parser handling quoted commas, embedded quotes and newlines, and UTF-8 with or without a BOM.
 * Full internationalisation, with a Polish translation included.
 

@@ -133,6 +133,13 @@ return array(
 	'Search box'                                 => 'Pole wyszukiwania',
 	'Sortable columns'                           => 'Sortowalne kolumny',
 	'Show “updated … ago”'                       => 'Pokaż „zaktualizowano … temu”',
+	'Layout'                                     => 'Układ',
+	'Automatic — stack into cards when the column is narrow'
+		=> 'Automatyczny — zamień w karty, gdy kolumna jest wąska',
+	'Always a table — scroll sideways instead'   => 'Zawsze tabela — przewijaj w poziomie',
+	'Always cards'                               => 'Zawsze karty',
+	'Narrow theme columns cannot fit a wide table. "Automatic" turns each row into a labelled card rather than hiding columns.'
+		=> 'Wąskie kolumny motywu nie pomieszczą szerokiej tabeli. „Automatyczny” zamienia każdy wiersz w kartę z etykietami, zamiast chować kolumny.',
 	'Style preset'                               => 'Preset stylu',
 	'Use the source default'                     => 'Użyj domyślnego dla źródła',
 	'Caption'                                    => 'Podpis',

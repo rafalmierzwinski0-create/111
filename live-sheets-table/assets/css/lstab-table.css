@@ -1,34 +1,69 @@
 /**
  * Live Sheets Table — front-end styles.
  *
- * Layout strategy: the table stays a real <table> on wide containers and
- * re-flows into one card per row on narrow ones. The switch is driven by a
- * container query, so a table inside a narrow sidebar stacks even on a wide
- * screen; a media query covers browsers without container query support.
+ * Layout strategy
+ * ---------------
+ * A table stays a real table while it comfortably fits, and reflows into one
+ * card per row when it does not. The switch is driven by a container query, so
+ * a table in a narrow sidebar stacks even on a wide screen.
+ *
+ * Crucially the threshold scales with the column count: five columns need far
+ * more room than two, and a fixed breakpoint leaves wide tables clipped inside
+ * a typical 650px theme column. The renderer emits an .lstab-cols-N class and
+ * each bucket below flips a small set of custom properties; the layout rules
+ * themselves are written once and simply read those properties.
  */
 
-.lstab {
-	--lstab-font: inherit;
-	--lstab-fg: #1f2328;
-	--lstab-fg-muted: #57606a;
-	--lstab-bg: transparent;
-	--lstab-head-bg: transparent;
-	--lstab-head-fg: #1f2328;
-	--lstab-border: #d8dee4;
-	--lstab-border-strong: #b9c0c8;
-	--lstab-stripe: #f6f8fa;
-	--lstab-hover: #f0f4f8;
-	--lstab-accent: #2563eb;
-	--lstab-radius: 8px;
-	--lstab-pad-y: 0.7em;
-	--lstab-pad-x: 0.85em;
-	--lstab-font-size: 0.95em;
-
+.lstab-container {
 	container-type: inline-size;
 	container-name: lstab;
+}
+
+.lstab {
+	/* Palette */
+	--lstab-fg: #1c2024;
+	--lstab-fg-muted: #61696f;
+	--lstab-fg-faint: #848d94;
+	--lstab-bg: #fff;
+	--lstab-head-bg: transparent;
+	--lstab-head-fg: #61696f;
+	--lstab-border: #e3e8ec;
+	--lstab-border-strong: #cdd5db;
+	--lstab-stripe: #f7f9fa;
+	--lstab-hover: #eef4f9;
+	--lstab-accent: #2563eb;
+	--lstab-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+
+	/* Metrics */
+	--lstab-radius: 10px;
+	--lstab-pad-y: 0.72em;
+	--lstab-pad-x: 0.95em;
+	--lstab-font-size: 0.94em;
+
+	/* Layout switches — overridden by the container queries at the bottom. */
+	--lstab-table-display: table;
+	--lstab-tbody-display: table-row-group;
+	--lstab-thead-display: table-header-group;
+	--lstab-row-display: table-row;
+	--lstab-cell-display: table-cell;
+	--lstab-label-display: none;
+	--lstab-scroll-overflow: auto;
+	--lstab-row-gap: 0;
+	--lstab-row-border-width: 0 0 1px 0;
+	--lstab-row-last-bottom: 0;
+	--lstab-row-radius: 0;
+	--lstab-cell-border: 0;
+	--lstab-cell-cols: minmax(0, 38%) 1fr;
+	--lstab-table-layout: auto;
+	--lstab-cell-align: inherit;
+	--lstab-align-end: right;
+	--lstab-cell-max: 22rem;
+	--lstab-frame-border: 1px solid var(--lstab-border);
+	--lstab-frame-shadow: var(--lstab-shadow);
+
 	color: var(--lstab-fg);
-	font-family: var(--lstab-font);
-	margin-block: 1.25em;
+	font-size: var(--lstab-font-size);
+	margin-block: 1.4em;
 }
 
 .lstab *,
@@ -43,64 +78,109 @@
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 0.75em;
+	justify-content: space-between;
+	gap: 0.6em 1em;
 	margin-bottom: 0.85em;
 }
 
 .lstab-search {
 	position: relative;
-	flex: 1 1 14em;
-	max-width: 22em;
+	flex: 1 1 15em;
+	max-width: 24em;
 	display: block;
 }
 
 .lstab-search-input {
 	width: 100%;
-	padding: 0.55em 0.8em 0.55em 2.2em;
+	padding: 0.6em 0.9em 0.6em 2.3em;
 	font: inherit;
-	font-size: var(--lstab-font-size);
+	font-size: 1em;
 	color: var(--lstab-fg);
-	background-color: #fff;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2357606a' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E");
+	background-color: var(--lstab-bg);
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2361696f' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.6-3.6'/%3E%3C/svg%3E");
 	background-repeat: no-repeat;
-	background-position: 0.6em center;
+	background-position: 0.7em center;
 	background-size: 1.05em;
-	border: 1px solid var(--lstab-border);
-	border-radius: var(--lstab-radius);
+	border: 1px solid var(--lstab-border-strong);
+	border-radius: 8px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+	appearance: none;
+}
+
+.lstab-search-input::placeholder {
+	color: var(--lstab-fg-faint);
 }
 
 .lstab-search-input:focus {
 	outline: none;
 	border-color: var(--lstab-accent);
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--lstab-accent) 22%, transparent);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--lstab-accent) 18%, transparent);
 }
 
 .lstab-count {
-	font-size: 0.85em;
+	font-size: 0.86em;
 	color: var(--lstab-fg-muted);
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
 }
 
-/* ------------------------------------------------------------------- table */
+/* ------------------------------------------------------------------- frame */
 
+/*
+ * The horizontal fade is painted with background-attachment: local — the
+ * gradients only show while there is actually something scrolled out of view,
+ * so a table that fits shows no shadow and a clipped one always announces
+ * itself instead of silently cutting a column in half.
+ */
 .lstab-scroll {
-	overflow-x: auto;
+	overflow-x: var(--lstab-scroll-overflow);
+	overflow-y: hidden;
 	-webkit-overflow-scrolling: touch;
+	border: var(--lstab-frame-border);
+	border-radius: var(--lstab-radius);
+	box-shadow: var(--lstab-frame-shadow);
+	background:
+		linear-gradient(to right, var(--lstab-bg) 30%, rgba(255, 255, 255, 0)) left center,
+		linear-gradient(to left, var(--lstab-bg) 30%, rgba(255, 255, 255, 0)) right center,
+		radial-gradient(farthest-side at 0 50%, rgba(16, 24, 40, 0.14), rgba(16, 24, 40, 0)) left center,
+		radial-gradient(farthest-side at 100% 50%, rgba(16, 24, 40, 0.14), rgba(16, 24, 40, 0)) right center;
+	background-color: var(--lstab-bg);
+	background-repeat: no-repeat;
+	background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+	background-attachment: local, local, scroll, scroll;
 }
 
 .lstab-table {
 	width: 100%;
+	/* Auto layout lets long values wrap so the table fits its column instead
+	   of overflowing and hiding the last columns behind a scrollbar. */
+	table-layout: var(--lstab-table-layout);
 	border-collapse: collapse;
-	font-size: var(--lstab-font-size);
-	background-color: var(--lstab-bg);
+	background-color: transparent;
+	display: var(--lstab-table-display);
+	font-variant-numeric: tabular-nums;
 }
 
 .lstab-caption {
-	caption-side: top;
+	margin: 0 0 0.6em;
 	text-align: left;
 	font-weight: 600;
-	padding-bottom: 0.6em;
+	font-size: 1.02em;
+	line-height: 1.35;
 	color: var(--lstab-fg);
+}
+
+.lstab-table thead {
+	display: var(--lstab-thead-display);
+}
+
+.lstab-table tbody {
+	display: var(--lstab-tbody-display);
+}
+
+.lstab-table tr {
+	display: var(--lstab-row-display);
 }
 
 .lstab-table th,
@@ -108,20 +188,47 @@
 	padding: var(--lstab-pad-y) var(--lstab-pad-x);
 	text-align: left;
 	vertical-align: top;
-	line-height: 1.45;
+	line-height: 1.5;
 	border: 0;
+}
+
+.lstab-table th {
+	display: var(--lstab-cell-display);
 }
 
 .lstab-table thead th {
 	color: var(--lstab-head-fg);
-	background-color: var(--lstab-head-bg);
+	background-color: var(--lstab-bg);
 	font-weight: 600;
-	white-space: nowrap;
-	border-bottom: 2px solid var(--lstab-border-strong);
+	font-size: 0.82em;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
+	vertical-align: bottom;
+	overflow-wrap: break-word;
+	border-bottom: 1px solid var(--lstab-border-strong);
+	box-shadow: inset 0 -1px 0 var(--lstab-border-strong);
+}
+
+.lstab-table tbody td {
+	display: var(--lstab-cell-display);
+	grid-template-columns: var(--lstab-cell-cols);
+	gap: 0.15em 1em;
+	border-bottom: var(--lstab-cell-border);
+	text-align: var(--lstab-cell-align);
 }
 
 .lstab-table tbody tr {
-	border-bottom: 1px solid var(--lstab-border);
+	border-width: var(--lstab-row-border-width);
+	border-style: solid;
+	border-color: var(--lstab-border);
+	margin-bottom: var(--lstab-row-gap);
+	border-radius: var(--lstab-row-radius);
+	background-clip: padding-box;
+	transition: background-color 0.12s ease;
+}
+
+.lstab-table tbody tr:last-child {
+	border-bottom-width: var(--lstab-row-last-bottom);
 }
 
 .lstab-table tbody tr:hover {
@@ -132,9 +239,41 @@
 	display: none;
 }
 
-/* Column labels are only for the stacked layout. */
+/*
+ * Numeric columns line up on the right with tabular figures. In card mode the
+ * label and value share one row, so right-aligning would push the label away
+ * from its value; the variable lets the card rules pull it back to the left.
+ */
+.lstab-table [data-lstab-align="end"] {
+	text-align: var(--lstab-align-end, right);
+}
+
+.lstab-table thead th[data-lstab-align="end"] .lstab-sort {
+	justify-content: flex-end;
+	width: 100%;
+}
+
 .lstab-cell-label {
-	display: none;
+	display: var(--lstab-label-display);
+}
+
+/*
+ * "anywhere" rather than "break-word": only the former reduces the element's
+ * min-content contribution, which is what stops one long unbroken value (a
+ * URL, a code, a pasted tag) from forcing its whole column wide enough to
+ * push the last columns out of view.
+ */
+.lstab-cell-value {
+	overflow-wrap: anywhere;
+	word-break: break-word;
+	/*
+	 * Automatic table layout sizes each column to its longest value, so one
+	 * long entry can claim half the table while the rest stay cramped. A table
+	 * cell ignores max-width under that algorithm, but its content box does
+	 * not — capping here is what actually evens the columns out.
+	 */
+	display: block;
+	max-width: var(--lstab-cell-max, 22rem);
 }
 
 /* ------------------------------------------------------------------ sorting */
@@ -142,63 +281,81 @@
 .lstab-sort {
 	display: inline-flex;
 	align-items: center;
-	gap: 0.35em;
+	gap: 0.4em;
 	padding: 0;
 	margin: 0;
 	border: 0;
 	background: none;
 	font: inherit;
-	font-weight: 600;
+	letter-spacing: inherit;
+	text-transform: inherit;
 	color: inherit;
 	cursor: pointer;
-	text-align: left;
-	border-radius: 3px;
+	text-align: inherit;
+	border-radius: 4px;
+	transition: color 0.12s ease;
 }
 
-.lstab-sort:hover .lstab-sort-label {
-	text-decoration: underline;
+.lstab-sort:hover {
+	color: var(--lstab-fg);
 }
 
 .lstab-sort:focus-visible {
 	outline: 2px solid var(--lstab-accent);
-	outline-offset: 2px;
+	outline-offset: 3px;
 }
 
 .lstab-sort-icon {
-	width: 0.7em;
-	height: 0.7em;
+	width: 0.62em;
+	height: 0.62em;
 	flex: none;
-	opacity: 0.3;
+	opacity: 0.35;
 	background-color: currentColor;
+	transition: opacity 0.12s ease;
 	-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1l4 5H4zM8 15l-4-5h8z'/%3E%3C/svg%3E") center / contain no-repeat;
 	mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1l4 5H4zM8 15l-4-5h8z'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
-.lstab-table th[aria-sort="ascending"] .lstab-sort-icon {
+.lstab-sort:hover .lstab-sort-icon {
+	opacity: 0.6;
+}
+
+.lstab-table th[aria-sort] {
+	color: var(--lstab-fg);
+}
+
+.lstab-table th[aria-sort="ascending"] .lstab-sort-icon,
+.lstab-table th[aria-sort="descending"] .lstab-sort-icon {
 	opacity: 1;
-	-webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 3l5 7H3z'/%3E%3C/svg%3E");
-	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 3l5 7H3z'/%3E%3C/svg%3E");
+	color: var(--lstab-accent);
+	background-color: var(--lstab-accent);
+}
+
+.lstab-table th[aria-sort="ascending"] .lstab-sort-icon {
+	-webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 3l5 8H3z'/%3E%3C/svg%3E");
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 3l5 8H3z'/%3E%3C/svg%3E");
 }
 
 .lstab-table th[aria-sort="descending"] .lstab-sort-icon {
-	opacity: 1;
-	-webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 13L3 6h10z'/%3E%3C/svg%3E");
-	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 13L3 6h10z'/%3E%3C/svg%3E");
+	-webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 13L3 5h10z'/%3E%3C/svg%3E");
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 13L3 5h10z'/%3E%3C/svg%3E");
 }
 
 /* -------------------------------------------------------------- meta / misc */
 
-.lstab-meta,
-.lstab-no-results {
-	margin: 0.8em 0 0;
+.lstab-meta {
+	margin: 0.75em 0 0;
 	font-size: 0.82em;
-	color: var(--lstab-fg-muted);
+	color: var(--lstab-fg-faint);
 }
 
 .lstab-no-results {
-	padding: 1.2em;
+	margin: 0.75em 0 0;
+	padding: 1.6em 1.2em;
 	text-align: center;
-	border: 1px dashed var(--lstab-border);
+	font-size: 0.9em;
+	color: var(--lstab-fg-muted);
+	border: 1px dashed var(--lstab-border-strong);
 	border-radius: var(--lstab-radius);
 }
 
@@ -207,7 +364,7 @@
 	border-left: 4px solid #d97706;
 	background: #fffbeb;
 	color: #7c2d12;
-	border-radius: 4px;
+	border-radius: 6px;
 	font-size: 0.9em;
 }
 
@@ -229,11 +386,7 @@
 
 /* ---------------------------------------------------------------- presets */
 
-.lstab-style-clean .lstab-table thead th {
-	border-bottom-color: var(--lstab-fg);
-}
-
-.lstab-style-striped .lstab-table tbody tr:nth-child(odd) {
+.lstab-style-striped .lstab-table tbody tr:nth-child(even) {
 	background-color: var(--lstab-stripe);
 }
 
@@ -242,12 +395,11 @@
 }
 
 .lstab-style-bordered {
-	--lstab-head-bg: #f6f8fa;
+	--lstab-head-bg: #f7f9fa;
 }
 
-.lstab-style-bordered .lstab-scroll {
-	border: 1px solid var(--lstab-border);
-	border-radius: var(--lstab-radius);
+.lstab-style-bordered .lstab-table thead th {
+	background-color: var(--lstab-head-bg);
 }
 
 .lstab-style-bordered .lstab-table th,
@@ -260,211 +412,320 @@
 	border-right: 0;
 }
 
-.lstab-style-bordered .lstab-table tbody tr:last-child {
-	border-bottom: 0;
-}
-
 .lstab-style-midnight {
-	--lstab-fg: #e6edf3;
-	--lstab-fg-muted: #9aa7b4;
-	--lstab-bg: #0d1117;
-	--lstab-head-bg: #161b22;
-	--lstab-head-fg: #e6edf3;
-	--lstab-border: #263041;
-	--lstab-border-strong: #3a465c;
-	--lstab-stripe: #11161f;
-	--lstab-hover: #172033;
-	--lstab-accent: #58a6ff;
-}
-
-.lstab-style-midnight .lstab-scroll {
-	background: var(--lstab-bg);
-	border-radius: var(--lstab-radius);
+	--lstab-fg: #e8eef4;
+	--lstab-fg-muted: #a3b0bd;
+	--lstab-fg-faint: #7f8b98;
+	--lstab-bg: #0f141b;
+	--lstab-head-bg: #151b24;
+	--lstab-head-fg: #a3b0bd;
+	--lstab-border: #232c38;
+	--lstab-border-strong: #35404f;
+	--lstab-stripe: #131922;
+	--lstab-hover: #1a2432;
+	--lstab-accent: #6aa8ff;
+	--lstab-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .lstab-style-editorial {
-	--lstab-border: #cfc9be;
-	--lstab-border-strong: #2b2620;
-	--lstab-fg: #2b2620;
+	--lstab-fg: #23201b;
+	--lstab-fg-muted: #6b6459;
+	--lstab-border: #ddd6c9;
+	--lstab-border-strong: #23201b;
+	--lstab-stripe: #faf8f4;
+	--lstab-hover: #f3efe6;
+	--lstab-radius: 0;
+	--lstab-frame-border: 0;
+	--lstab-frame-shadow: none;
 	--lstab-font-size: 1em;
 }
 
 .lstab-style-editorial .lstab-table thead th {
 	font-family: Georgia, "Times New Roman", serif;
 	font-weight: 700;
-	letter-spacing: 0.02em;
-	text-transform: uppercase;
-	font-size: 0.8em;
+	letter-spacing: 0.06em;
+	border-bottom-width: 2px;
+	box-shadow: inset 0 -2px 0 var(--lstab-border-strong);
+}
+
+/* Presets that follow the reader's colour scheme. */
+@media (prefers-color-scheme: dark) {
+	.lstab-style-clean,
+	.lstab-style-striped,
+	.lstab-style-bordered {
+		--lstab-fg: #e8eef4;
+		--lstab-fg-muted: #a3b0bd;
+		--lstab-fg-faint: #7f8b98;
+		--lstab-bg: #12171e;
+		--lstab-head-fg: #a3b0bd;
+		--lstab-border: #242d39;
+		--lstab-border-strong: #36414f;
+		--lstab-stripe: #161d26;
+		--lstab-hover: #1c2634;
+		--lstab-accent: #6aa8ff;
+		--lstab-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+	}
+
+	.lstab-style-bordered {
+		--lstab-head-bg: #171e27;
+	}
+
+	.lstab-scroll {
+		background-image:
+			linear-gradient(to right, var(--lstab-bg) 30%, rgba(18, 23, 30, 0)) ,
+			linear-gradient(to left, var(--lstab-bg) 30%, rgba(18, 23, 30, 0)),
+			radial-gradient(farthest-side at 0 50%, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0)),
+			radial-gradient(farthest-side at 100% 50%, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
+		background-position: left center, right center, left center, right center;
+	}
+
+	.lstab-notice {
+		background: #2a2113;
+		color: #fbd9a5;
+	}
 }
 
 /* --------------------------------------------------- stacked "card" layout */
 
-@container lstab (max-width: 620px) {
-	.lstab-table,
-	.lstab-table thead,
-	.lstab-table tbody,
-	.lstab-table tr,
-	.lstab-table th,
-	.lstab-table td {
-		display: block;
+/*
+ * Each bucket only flips the switches; the layout itself lives in the rules
+ * above. Thresholds allow roughly 150px per column, which is about the width
+ * a short label and its value need before they start truncating.
+ */
+@container lstab (max-width: 280px) {
+	.lstab-cols-1,
+	.lstab-cols-2 {
+		--lstab-table-display: block;
+		--lstab-tbody-display: block;
+		--lstab-thead-display: none;
+		--lstab-row-display: block;
+		--lstab-cell-display: grid;
+		--lstab-label-display: block;
+		--lstab-scroll-overflow: visible;
+		--lstab-row-gap: 0.8em;
+		--lstab-row-border-width: 1px;
+		--lstab-row-last-bottom: 1px;
+		--lstab-row-radius: var(--lstab-radius);
+		--lstab-cell-border: 1px solid var(--lstab-border);
+		--lstab-cell-align: left;
+		--lstab-align-end: left;
+		--lstab-cell-max: none;
+		--lstab-frame-border: 0;
+		--lstab-frame-shadow: none;
 	}
+}
 
-	/* A table-caption box shrink-wraps once the table itself is display:block. */
-	.lstab-caption {
-		display: block;
-		width: 100%;
+@container lstab (max-width: 420px) {
+	.lstab-cols-3 {
+		--lstab-table-display: block;
+		--lstab-tbody-display: block;
+		--lstab-thead-display: none;
+		--lstab-row-display: block;
+		--lstab-cell-display: grid;
+		--lstab-label-display: block;
+		--lstab-scroll-overflow: visible;
+		--lstab-row-gap: 0.8em;
+		--lstab-row-border-width: 1px;
+		--lstab-row-last-bottom: 1px;
+		--lstab-row-radius: var(--lstab-radius);
+		--lstab-cell-border: 1px solid var(--lstab-border);
+		--lstab-cell-align: left;
+		--lstab-align-end: left;
+		--lstab-cell-max: none;
+		--lstab-frame-border: 0;
+		--lstab-frame-shadow: none;
 	}
+}
 
-	.lstab-scroll {
-		overflow-x: visible;
+@container lstab (max-width: 560px) {
+	.lstab-cols-4 {
+		--lstab-table-display: block;
+		--lstab-tbody-display: block;
+		--lstab-thead-display: none;
+		--lstab-row-display: block;
+		--lstab-cell-display: grid;
+		--lstab-label-display: block;
+		--lstab-scroll-overflow: visible;
+		--lstab-row-gap: 0.8em;
+		--lstab-row-border-width: 1px;
+		--lstab-row-last-bottom: 1px;
+		--lstab-row-radius: var(--lstab-radius);
+		--lstab-cell-border: 1px solid var(--lstab-border);
+		--lstab-cell-align: left;
+		--lstab-align-end: left;
+		--lstab-cell-max: none;
+		--lstab-frame-border: 0;
+		--lstab-frame-shadow: none;
 	}
+}
 
-	.lstab-table thead {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		overflow: hidden;
-		clip: rect(0, 0, 0, 0);
-		white-space: nowrap;
+@container lstab (max-width: 700px) {
+	.lstab-cols-5 {
+		--lstab-table-display: block;
+		--lstab-tbody-display: block;
+		--lstab-thead-display: none;
+		--lstab-row-display: block;
+		--lstab-cell-display: grid;
+		--lstab-label-display: block;
+		--lstab-scroll-overflow: visible;
+		--lstab-row-gap: 0.8em;
+		--lstab-row-border-width: 1px;
+		--lstab-row-last-bottom: 1px;
+		--lstab-row-radius: var(--lstab-radius);
+		--lstab-cell-border: 1px solid var(--lstab-border);
+		--lstab-cell-align: left;
+		--lstab-align-end: left;
+		--lstab-cell-max: none;
+		--lstab-frame-border: 0;
+		--lstab-frame-shadow: none;
 	}
+}
 
-	.lstab-table tbody tr {
-		margin-bottom: 0.85em;
-		padding: 0.25em 0;
-		border: 1px solid var(--lstab-border);
-		border-radius: var(--lstab-radius);
-		background-color: var(--lstab-bg);
-		overflow: hidden;
+@container lstab (max-width: 840px) {
+	.lstab-cols-6 {
+		--lstab-table-display: block;
+		--lstab-tbody-display: block;
+		--lstab-thead-display: none;
+		--lstab-row-display: block;
+		--lstab-cell-display: grid;
+		--lstab-label-display: block;
+		--lstab-scroll-overflow: visible;
+		--lstab-row-gap: 0.8em;
+		--lstab-row-border-width: 1px;
+		--lstab-row-last-bottom: 1px;
+		--lstab-row-radius: var(--lstab-radius);
+		--lstab-cell-border: 1px solid var(--lstab-border);
+		--lstab-cell-align: left;
+		--lstab-align-end: left;
+		--lstab-cell-max: none;
+		--lstab-frame-border: 0;
+		--lstab-frame-shadow: none;
 	}
+}
 
-	.lstab-table tbody td {
-		display: grid;
-		grid-template-columns: minmax(6em, 40%) 1fr;
-		gap: 0.25em 0.9em;
-		padding: 0.55em var(--lstab-pad-x);
-		border-bottom: 1px solid color-mix(in srgb, var(--lstab-border) 60%, transparent);
-	}
 
-	.lstab-table tbody td:last-child {
-		border-bottom: 0;
-	}
+/* ------------------------------------------------------- explicit overrides */
 
-	.lstab-cell-label {
-		display: block;
-		font-size: 0.78em;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.03em;
-		color: var(--lstab-fg-muted);
-		padding-top: 0.15em;
-		overflow-wrap: break-word;
-	}
+/*
+ * These come after every container query on purpose: the query blocks and
+ * these rules have equal specificity, so source order is what lets an author
+ * pin the layout regardless of how narrow the container gets.
+ */
 
-	.lstab-cell-value {
-		overflow-wrap: break-word;
-	}
+/* "Always a table": scroll sideways rather than stack. The edge fade above
+   means a clipped column always announces itself. */
+.lstab-layout-table {
+	--lstab-table-display: table;
+	--lstab-tbody-display: table-row-group;
+	--lstab-thead-display: table-header-group;
+	--lstab-row-display: table-row;
+	--lstab-cell-display: table-cell;
+	--lstab-label-display: none;
+	--lstab-scroll-overflow: auto;
+	--lstab-row-gap: 0;
+	--lstab-row-border-width: 0 0 1px 0;
+	--lstab-row-last-bottom: 0;
+	--lstab-row-radius: 0;
+	--lstab-cell-border: 0;
+	--lstab-cell-align: inherit;
+	--lstab-align-end: right;
+	--lstab-cell-max: 22rem;
+	--lstab-frame-border: 1px solid var(--lstab-border);
+	--lstab-frame-shadow: var(--lstab-shadow);
+}
 
-	.lstab-style-striped .lstab-table tbody tr:nth-child(odd) {
-		background-color: var(--lstab-stripe);
-	}
-
-	.lstab-style-bordered .lstab-scroll {
-		border: 0;
-	}
+/* "Always cards": useful for tables that are mostly long prose. */
+.lstab-layout-cards {
+	--lstab-table-display: block;
+	--lstab-tbody-display: block;
+	--lstab-thead-display: none;
+	--lstab-row-display: block;
+	--lstab-cell-display: grid;
+	--lstab-label-display: block;
+	--lstab-scroll-overflow: visible;
+	--lstab-row-gap: 0.8em;
+	--lstab-row-border-width: 1px;
+	--lstab-row-last-bottom: 1px;
+	--lstab-row-radius: var(--lstab-radius);
+	--lstab-cell-border: 1px solid var(--lstab-border);
+	--lstab-cell-align: left;
+	--lstab-align-end: left;
+	--lstab-cell-max: none;
+	--lstab-frame-border: 0;
+	--lstab-frame-shadow: none;
 }
 
 /*
- * Narrower still: a 40% label column cannot hold a word like "Zaktualizowano"
- * without breaking it mid-word, so put the label on its own line.
+ * The width cap exists to stop one column dominating a multi-column table. A
+ * one or two column table has nothing to dominate, so capping it there just
+ * strands the content in a narrow ribbon.
  */
-@container lstab (max-width: 440px) {
-	.lstab-table tbody td {
-		display: block;
-		padding: 0.6em var(--lstab-pad-x);
-	}
+.lstab-cols-1,
+.lstab-cols-2 {
+	--lstab-cell-max: none;
+}
 
-	.lstab-cell-label {
-		margin-bottom: 0.15em;
-		padding-top: 0;
+/* Below this a 38% label column would break long headings mid-word. */
+@container lstab (max-width: 420px) {
+	.lstab {
+		--lstab-cell-cols: 1fr;
 	}
 }
 
-/* Fallback for browsers without container queries. */
+/* Card presentation. These only take effect once the switches above flip. */
+.lstab-table tbody td {
+	align-items: baseline;
+}
+
+.lstab-cell-label {
+	font-size: 0.76em;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--lstab-fg-faint);
+	overflow-wrap: break-word;
+	padding-top: 0.15em;
+}
+
+/*
+ * Browsers without container query support fall back to viewport widths. The
+ * thresholds are the same; only the thing being measured differs.
+ */
 @supports not (container-type: inline-size) {
-	@media (max-width: 620px) {
-		.lstab-table,
-		.lstab-table thead,
-		.lstab-table tbody,
-		.lstab-table tr,
-		.lstab-table th,
-		.lstab-table td {
-			display: block;
-		}
-
-		.lstab-caption {
-			display: block;
-			width: 100%;
-		}
-
-		.lstab-scroll {
-			overflow-x: visible;
-		}
-
-		.lstab-table thead {
-			position: absolute;
-			width: 1px;
-			height: 1px;
-			overflow: hidden;
-			clip: rect(0, 0, 0, 0);
-			white-space: nowrap;
-		}
-
-		.lstab-table tbody tr {
-			margin-bottom: 0.85em;
-			padding: 0.25em 0;
-			border: 1px solid var(--lstab-border);
-			border-radius: var(--lstab-radius);
-			overflow: hidden;
-		}
-
-		.lstab-table tbody td {
-			display: grid;
-			grid-template-columns: minmax(6em, 40%) 1fr;
-			gap: 0.25em 0.9em;
-			padding: 0.55em var(--lstab-pad-x);
-			border-bottom: 1px solid var(--lstab-border);
-		}
-
-		.lstab-table tbody td:last-child {
-			border-bottom: 0;
-		}
-
-		.lstab-cell-label {
-			display: block;
-			font-size: 0.78em;
-			font-weight: 600;
-			text-transform: uppercase;
-			letter-spacing: 0.03em;
-			color: var(--lstab-fg-muted);
-			overflow-wrap: break-word;
+	@media (max-width: 700px) {
+		.lstab {
+			--lstab-table-display: block;
+			--lstab-tbody-display: block;
+			--lstab-thead-display: none;
+			--lstab-row-display: block;
+			--lstab-cell-display: grid;
+			--lstab-label-display: block;
+			--lstab-scroll-overflow: visible;
+			--lstab-row-gap: 0.8em;
+			--lstab-row-border-width: 1px;
+			--lstab-row-last-bottom: 1px;
+			--lstab-row-radius: var(--lstab-radius);
+			--lstab-cell-border: 1px solid var(--lstab-border);
+			--lstab-cell-align: left;
+			--lstab-align-end: left;
+			--lstab-cell-max: none;
+			--lstab-frame-border: 0;
+			--lstab-frame-shadow: none;
 		}
 	}
 
-	@media (max-width: 440px) {
-		.lstab-table tbody td {
-			display: block;
-			padding: 0.6em var(--lstab-pad-x);
-		}
-
-		.lstab-cell-label {
-			margin-bottom: 0.15em;
-			padding-top: 0;
+	@media (max-width: 420px) {
+		.lstab {
+			--lstab-cell-cols: 1fr;
 		}
 	}
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.lstab-search-input {
+	.lstab-search-input,
+	.lstab-sort,
+	.lstab-sort-icon,
+	.lstab-table tbody tr {
 		transition: none;
 	}
 }

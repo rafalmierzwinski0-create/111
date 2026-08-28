@@ -105,7 +105,11 @@ await page.waitForFunction(
 	{ timeout: 15000 }
 );
 const tabHeaders = await page.locator( '.lstab-preview thead th' ).allInnerTexts();
-check( tabHeaders.join( ',' ).includes( 'Miasto' ), 'Switching tab loads the other sheet', JSON.stringify( tabHeaders ) );
+check(
+	tabHeaders.join( ',' ).toLowerCase().includes( 'miasto' ),
+	'Switching tab loads the other sheet',
+	JSON.stringify( tabHeaders )
+);
 await page.screenshot( { path: `${ SHOTS }/03-tab-switch-preview.png`, fullPage: true } );
 
 // Put it back on the first tab.
@@ -126,6 +130,73 @@ const labelHidden = await page.locator( '.lstab-style-striped .lstab-cell-label'
 check( ! labelHidden, 'Stacked-layout labels are hidden on desktop' );
 
 await page.screenshot( { path: `${ SHOTS }/04-frontend-desktop.png`, fullPage: true } );
+
+// --------------------------------------------------- no silently clipped columns
+section( '5b. Nothing is clipped without a way to reach it' );
+
+const clipping = await page.evaluate( () => {
+	return Array.from( document.querySelectorAll( '.lstab' ) ).filter( ( wrap ) =>
+		wrap.querySelector( '.lstab-scroll' ) && wrap.querySelector( '.lstab-table' )
+	).map( ( wrap ) => {
+		const scroll = wrap.querySelector( '.lstab-scroll' );
+		const table = wrap.querySelector( '.lstab-table' );
+		return {
+			preset: wrap.className,
+			hidden: scroll.scrollWidth - scroll.clientWidth,
+			stacked: getComputedStyle( table ).display === 'block',
+			scrollable: getComputedStyle( scroll ).overflowX === 'auto',
+		};
+	} );
+} );
+
+check( clipping.length === 2, 'Both tables are present to measure', String( clipping.length ) );
+
+clipping.forEach( ( t ) => {
+	// Either the table fits, or it has stacked into cards. A five-column table
+	// inside a ~650px theme column used to do neither and lost two columns.
+	check(
+		t.hidden === 0 || t.stacked,
+		`No hidden columns in a theme-width column (${ t.preset.replace( /lstab-?/g, '' ).trim() })`,
+		`${ t.hidden }px hidden, stacked=${ t.stacked }`
+	);
+} );
+
+// A genuinely wide table on a wide screen may still scroll — but must say so.
+await page.setViewportSize( { width: 1600, height: 1000 } );
+await page.waitForTimeout( 200 );
+const affordance = await page.evaluate( () => {
+	const scroll = document.querySelector( '.lstab-scroll' );
+	const style = getComputedStyle( scroll );
+	return {
+		hasEdgeFade: style.backgroundImage.includes( 'radial-gradient' ),
+		attachment: style.backgroundAttachment,
+	};
+} );
+check( affordance.hasEdgeFade, 'Scrollable tables carry an edge-fade affordance', affordance.attachment );
+await page.setViewportSize( { width: 1440, height: 1000 } );
+await page.waitForTimeout( 200 );
+
+// --------------------------------------------------------- numeric alignment
+section( '5c. Numeric columns' );
+
+const alignments = await page.evaluate( () => {
+	const heads = document.querySelectorAll( '.lstab-style-striped thead th' );
+	return Array.from( heads ).map( ( th ) => ( {
+		label: th.textContent.trim(),
+		align: th.getAttribute( 'data-lstab-align' ),
+		computed: getComputedStyle( th ).textAlign,
+	} ) );
+} );
+const priceColumn = alignments.find( ( a ) => a.label.startsWith( 'Cena' ) );
+const productColumn = alignments.find( ( a ) => a.label.startsWith( 'Produkt' ) );
+check( priceColumn && priceColumn.align === 'end', 'Price column marked numeric', JSON.stringify( priceColumn ) );
+check( priceColumn && priceColumn.computed === 'right', 'Price column renders right-aligned', priceColumn && priceColumn.computed );
+check( productColumn && productColumn.align === 'start', 'Product column stays left-aligned', JSON.stringify( productColumn ) );
+
+const tabular = await page.evaluate( () =>
+	getComputedStyle( document.querySelector( '.lstab-table' ) ).fontVariantNumeric
+);
+check( tabular.includes( 'tabular-nums' ), 'Figures are tabular so decimals line up', tabular );
 
 // ----------------------------------------------------------------- search
 section( '6. Search' );
@@ -191,17 +262,29 @@ const mobile = await browser.newContext( {
 const mpage = await mobile.newPage();
 await mpage.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
 
-const headBox = await mpage.locator( '.lstab-style-striped thead' ).boundingBox();
-check(
-	headBox !== null && headBox.height <= 2 && headBox.width <= 2,
-	'Header row is visually collapsed on narrow screens (still in the a11y tree)',
-	JSON.stringify( headBox )
-);
+const headDisplay = await mpage.locator( '.lstab-style-striped thead' ).evaluate( ( el ) => getComputedStyle( el ).display );
+check( headDisplay === 'none', 'Header row is dropped on narrow screens; per-cell labels carry the meaning', headDisplay );
 check( await mpage.locator( '.lstab-style-striped .lstab-cell-label' ).first().isVisible(), 'Per-cell labels become visible (card layout)' );
 
-// Below 440px the label goes on its own line so long headings never break mid-word.
-const cellDisplay = await mpage.locator( '.lstab-style-striped tbody td' ).first().evaluate( ( el ) => getComputedStyle( el ).display );
-check( cellDisplay === 'block', 'Narrow phones stack label above value', cellDisplay );
+// Below 420px the label goes on its own line so long headings never break mid-word.
+const stackedPair = await mpage.locator( '.lstab-style-striped tbody td' ).first().evaluate( ( el ) => {
+	const label = el.querySelector( '.lstab-cell-label' ).getBoundingClientRect();
+	const value = el.querySelector( '.lstab-cell-value' ).getBoundingClientRect();
+	return { labelBottom: label.bottom, valueTop: value.top, labelLeft: label.left, valueLeft: value.left };
+} );
+check(
+	stackedPair.valueTop >= stackedPair.labelBottom - 1,
+	'Narrow phones stack the label above the value',
+	JSON.stringify( stackedPair )
+);
+
+// Right alignment is for table columns; inside a card it would strand the
+// number away from its label.
+const cardAlign = await mpage.evaluate( () => {
+	const cell = document.querySelector( '.lstab-style-striped tbody td[data-lstab-align="end"]' );
+	return cell ? getComputedStyle( cell ).textAlign : null;
+} );
+check( cardAlign === 'left', 'Numeric cells align left inside a card', String( cardAlign ) );
 
 const longestLabel = await mpage.locator( '.lstab-style-striped .lstab-cell-label' ).last();
 const labelBox = await longestLabel.boundingBox();
@@ -224,6 +307,14 @@ check(
 	'Caption spans the table width in card mode',
 	`caption ${ Math.round( captionBox.width ) } vs wrap ${ Math.round( wrapBox.width ) }`
 );
+const captionAbove = await mpage.locator( '.lstab-style-striped' ).evaluate( ( wrap ) => {
+	const cap = wrap.querySelector( '.lstab-caption' ).getBoundingClientRect();
+	const box = wrap.querySelector( '.lstab-scroll' ).getBoundingClientRect();
+	return cap.bottom <= box.top + 1;
+} );
+check( captionAbove, 'Caption sits above the table frame, not inside it' );
+const labelled = await mpage.locator( '.lstab-style-striped .lstab-table' ).getAttribute( 'aria-labelledby' );
+check( !! labelled, 'Table is still associated with its caption for screen readers', String( labelled ) );
 await mpage.screenshot( { path: `${ SHOTS }/05b-frontend-tablet-cards.png`, fullPage: false } );
 await mpage.setViewportSize( { width: 390, height: 900 } );
 await mpage.waitForTimeout( 200 );

@@ -43,11 +43,13 @@ Wklejasz link, a parser pokazuje dokładnie to, co odczytał — nagłówki, wie
 = Co dostajesz =
 
 * Nielimitowaną liczbę wierszy.
-* Jedno zapisane źródło arkusza.
+* Trzy zapisane źródła arkuszy.
 * Blok „Tabela z Arkuszy Google” oraz shortcode `[sheet_table id="123"]`, oba oparte na tym samym rendererze.
 * Synchronizację w tle co 15 minut i przycisk „Odśwież teraz”.
 * Opcjonalne pole wyszukiwania i sortowanie kolumn (świadome liczb, więc 1 215,50 sortuje się nad 349,00).
-* Trzy dopracowane presety stylu.
+* Wykrywanie kolumn liczbowych i wyrównanie ich do prawej cyframi tabelarycznymi, dzięki czemu przecinki dziesiętne są w jednej linii.
+* Trzy dopracowane presety stylu, każdy podąża za jasnym lub ciemnym schematem kolorów czytelnika.
+* Sterowanie układem: pozwól tabeli samej zdecydować, kiedy zamienić się w karty, albo przypnij ją na stałe do jednego z trybów.
 * Etykietę „zaktualizowano N minut temu”, którą można wyłączyć.
 * Pełne wsparcie tłumaczeń, z polskim w komplecie.
 
@@ -100,9 +102,13 @@ Tak. Shortcode `[sheet_table id="123"]` działa wszędzie tam, gdzie wykonywane 
 
 Każdy wiersz staje się kartą z etykietami, więc każda wartość zostaje czytelna w pełnym rozmiarze. Nie ma poziomego przewijania ani pomniejszonego tekstu.
 
+Przełączenie następuje wtedy, gdy miejsca na kolumnę robi się za mało — a to zależy od liczby kolumn. Zadziała więc także dla pięciokolumnowej tabeli w wąskiej kolumnie motywu na komputerze, nie tylko na telefonie.
+
+Jeśli wolisz zawsze mieć tabelę, ustaw układ „Zawsze tabela" w bloku albo `layout="table"` w shortcode — będzie przewijana w poziomie, z cieniowaną krawędzią pokazującą, że jest tam coś jeszcze. `layout="cards"` wymusza odwrotność. Zwykle lepszym rozwiązaniem jest nadanie blokowi szerokiego lub pełnego wyrównania, bo daje tabeli miejsce, którego potrzebuje.
+
 = Czy mogę zmienić wygląd tabeli? =
 
-Wybierz jeden z trzech presetów albo napisz własny CSS pod klasy `.lstab-table` w swoim motywie. Dodatkowe presety i wbudowane pole na własny CSS to funkcje Pro.
+Wybierz jeden z trzech presetów albo napisz własny CSS pod klasy `.lstab-table` w swoim motywie. Każdy kolor jest własnością niestandardową CSS na `.lstab`, więc nadpisanie jednej wartości przestyluje całą tabelę. Dodatkowe presety i wbudowane pole na własny CSS to funkcje Pro.
 
 = Czy WP-Cron musi działać? =
 
@@ -110,7 +116,7 @@ Zaplanowane odświeżanie korzysta z WP-Cron. Jeśli go wyłączyłeś, użyj sy
 
 = Czy mogę pokazać kilka różnych arkuszy? =
 
-Wersja darmowa przechowuje jedno źródło arkusza. Pro znosi ten limit.
+Wersja darmowa przechowuje trzy źródła arkuszy. Pro znosi ten limit.
 
 = Czy zawartość arkusza jest bezpieczna do wyświetlenia? =
 
@@ -127,6 +133,8 @@ Tak. Wszystko z arkusza jest escapowane przy wyjściu, więc komórka zawierają
 * Renderowanie po stronie serwera, wspólne dla bloku Gutenberga i shortcode'a.
 * Responsywny układ kart na wąskich kontenerach, oparty na container queries.
 * Opcjonalne wyszukiwanie i sortowanie kolumn świadome liczb.
-* Trzy presety stylu.
+* Trzy presety stylu, z jasnym i ciemnym schematem kolorów.
+* Wykrywanie kolumn liczbowych z wyrównaniem do prawej i cyframi tabelarycznymi.
+* Sterowanie układem — przypięcie prezentacji tabelarycznej lub kartowej.
 * Parser CSV zgodny z RFC 4180: cudzysłowy, przecinki i znaki nowej linii wewnątrz pól, UTF-8 z BOM i bez.
 * Pełna internacjonalizacja, z dołączonym tłumaczeniem polskim.

@@ -66,6 +66,7 @@ class LSTAB_Block {
 				'showUpdated' => true,
 				'stylePreset' => '',
 				'caption'     => '',
+				'layout'      => 'auto',
 			)
 		);
 
@@ -77,6 +78,7 @@ class LSTAB_Block {
 				'show_meta' => ! empty( $attributes['showUpdated'] ),
 				'style'     => sanitize_key( (string) $attributes['stylePreset'] ),
 				'caption'   => sanitize_text_field( (string) $attributes['caption'] ),
+				'layout'    => sanitize_key( (string) $attributes['layout'] ),
 			)
 		);
 

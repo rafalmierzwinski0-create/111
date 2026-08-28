@@ -248,6 +248,40 @@ lstab_assert( substr_count( $html, '<tr' ) === 8, 'One header row plus seven bod
 lstab_assert( false !== strpos( $html, 'Dostępność' ), 'Header text present with diacritics' );
 lstab_assert( false !== strpos( $html, 'data-label="Produkt"' ), 'Cells carry data-label for the stacked layout' );
 lstab_assert( false !== strpos( $html, 'lstab-cell-label' ), 'Stacked-layout labels rendered server side' );
+lstab_assert( false !== strpos( $html, 'lstab-container' ), 'Sizing container wraps the table' );
+lstab_assert( false !== strpos( $html, 'lstab-cols-5' ), 'Column count is exposed so CSS can pick a breakpoint' );
+lstab_assert( false === strpos( $html, 'lstab-layout-' ), 'Layout defaults to automatic (no override class)' );
+
+$forced_table = do_shortcode( '[sheet_table id="' . $source_id . '" layout="table"]' );
+lstab_assert( false !== strpos( $forced_table, 'lstab-layout-table' ), 'layout="table" pins the table layout' );
+
+$forced_cards = do_shortcode( '[sheet_table id="' . $source_id . '" layout="cards"]' );
+lstab_assert( false !== strpos( $forced_cards, 'lstab-layout-cards' ), 'layout="cards" pins the card layout' );
+
+$bogus_layout = do_shortcode( '[sheet_table id="' . $source_id . '" layout="nonsense"]' );
+lstab_assert( false === strpos( $bogus_layout, 'lstab-layout-' ), 'An unknown layout falls back to automatic' );
+
+$block_layout = lstab()->block->render(
+	array(
+		'sourceId' => $source_id,
+		'layout'   => 'table',
+	)
+);
+lstab_assert( false !== strpos( $block_layout, 'lstab-layout-table' ), 'The block passes the layout through too' );
+
+// The numeric price column should be right-aligned; the product name should not.
+lstab_assert(
+	(bool) preg_match( '#<th[^>]*data-lstab-col="1"[^>]*data-lstab-align="end"#', $html ),
+	'Numeric column is detected and right-aligned'
+);
+lstab_assert(
+	(bool) preg_match( '#<th[^>]*data-lstab-col="0"[^>]*data-lstab-align="start"#', $html ),
+	'Text column stays left-aligned'
+);
+lstab_assert(
+	(bool) preg_match( '#<th[^>]*data-lstab-col="4"[^>]*data-lstab-align="start"#', $html ),
+	'A date column is not mistaken for a number'
+);
 lstab_assert( false !== strpos( $html, 'Updated' ), 'Freshness label rendered' );
 lstab_assert( false !== strpos( $html, 'lstab-search-input' ), 'Search control rendered' );
 lstab_assert( false !== strpos( $html, 'class="lstab-sort"' ), 'Sortable column buttons rendered' );
@@ -290,6 +324,39 @@ lstab_assert(
 	substr_count( $block_html, '<td' ) === substr_count( $html, '<td' ),
 	'Block and shortcode render the same cell count'
 );
+
+// Alignment heuristic, exercised directly across the formats spreadsheets produce.
+$alignment_cases = array(
+	'plain integers'          => array( array( '1', '2', '30' ), 'end' ),
+	'comma decimals'          => array( array( '349,00', '1 215,50' ), 'end' ),
+	'dot decimals'            => array( array( '349.00', '1,215.50' ), 'end' ),
+	'currency suffix'         => array( array( '12,00 zł', '9,50 zł' ), 'end' ),
+	'percentages'             => array( array( '12%', '-4.5%' ), 'end' ),
+	'negative numbers'        => array( array( '-5', '+12' ), 'end' ),
+	'plain text'              => array( array( 'W magazynie', 'Brak' ), 'start' ),
+	'ISO dates'               => array( array( '2026-08-20', '2026-08-21' ), 'start' ),
+	'mostly text with a number' => array( array( 'Kask', 'Lampka', 'Bidon', '12' ), 'start' ),
+	'blank column'            => array( array( '', '' ), 'start' ),
+);
+
+foreach ( $alignment_cases as $label => $case ) {
+	$rows_for_case = array();
+	foreach ( $case[0] as $value ) {
+		$rows_for_case[] = array( $value );
+	}
+	$rendered = LSTAB_Renderer::render_preview(
+		array(
+			'headers' => array( 'Test' ),
+			'rows'    => $rows_for_case,
+		)
+	);
+	$expected = 'data-lstab-align="' . $case[1] . '"';
+	lstab_assert(
+		false !== strpos( $rendered, '<th scope="col" role="columnheader"' ) && false !== strpos( $rendered, $expected ),
+		"Alignment: {$label} → {$case[1]}",
+		$expected
+	);
+}
 
 // ---------------------------------------------------------------------------
 
@@ -374,6 +441,9 @@ $wpdb->update(
 	array( '%s' ),
 	array( '%d' )
 );
+// This writes straight to the table, so the cached row has to be dropped by
+// hand — the same contract any code bypassing LSTAB_Storage has to honour.
+LSTAB_Storage::flush_cache( $source_id );
 lstab_assert( LSTAB_Sync::is_due( LSTAB_Storage::get( $source_id ) ), 'A source past its interval is due' );
 
 lstab_set_mock( 'ok' );
@@ -384,8 +454,45 @@ lstab_assert( isset( $due_results[ $source_id ] ) && 'ok' === $due_results[ $sou
 
 lstab_section( '10. Free tier limits and Pro extension points' );
 
-lstab_assert( 1 === LSTAB_Limits::max_sources(), 'Free tier allows one source', (string) LSTAB_Limits::max_sources() );
-lstab_assert( ! LSTAB_Limits::can_add_source(), 'Second source is blocked while one exists' );
+lstab_assert( 3 === LSTAB_Limits::max_sources(), 'Free tier allows three sources', (string) LSTAB_Limits::max_sources() );
+lstab_assert( LSTAB_Limits::can_add_source(), 'A second source is allowed while only one exists' );
+
+// Fill the tier up and confirm the fourth is refused.
+$filler = array();
+for ( $i = 2; $i <= 3; $i++ ) {
+	$filler[] = LSTAB_Storage::insert(
+		array(
+			'title'     => 'Filler ' . $i,
+			'sheet_url' => 'https://docs.google.com/spreadsheets/d/FILLER' . $i . '00000000000000000000000000/edit',
+			'sheet_id'  => 'FILLER' . $i . '00000000000000000000000000',
+		)
+	);
+}
+lstab_assert( 3 === LSTAB_Storage::count_sources(), 'Three sources stored', (string) LSTAB_Storage::count_sources() );
+lstab_assert( ! LSTAB_Limits::can_add_source(), 'A fourth source is blocked' );
+
+// Listing sources must not drag every snapshot out of the database.
+$listed = LSTAB_Storage::get_all();
+lstab_assert( ! array_key_exists( 'data', $listed[0] ), 'Listing sources skips the snapshot payload' );
+lstab_assert( isset( $listed[0]['row_count'], $listed[0]['last_status'] ), 'Listing still carries the metadata the dashboard needs' );
+
+$with_data = LSTAB_Storage::get_all( true );
+$found     = null;
+foreach ( $with_data as $candidate ) {
+	if ( (int) $candidate['id'] === (int) $source_id ) {
+		$found = $candidate;
+	}
+}
+lstab_assert( is_array( $found ) && isset( $found['data']['rows'] ), 'Asking for the payload still returns it' );
+
+// The dashboard status must still know a last good copy exists.
+$status = LSTAB_Admin::status_for( LSTAB_Storage::get_all()[0] );
+lstab_assert( in_array( $status['state'], array( 'ok', 'stale', 'error', 'never' ), true ), 'Status resolves from metadata alone', $status['state'] );
+
+foreach ( $filler as $filler_id ) {
+	LSTAB_Storage::delete( $filler_id );
+}
+
 lstab_assert( 900 === LSTAB_Limits::min_interval(), 'Free tier floor is 15 minutes', (string) LSTAB_Limits::min_interval() );
 lstab_assert( ! isset( LSTAB_Limits::intervals()[60] ), 'One minute interval hidden in free' );
 lstab_assert( 900 === LSTAB_Limits::clamp_interval( 60 ), 'A too-fast interval is clamped up', (string) LSTAB_Limits::clamp_interval( 60 ) );
@@ -509,7 +616,56 @@ lstab_assert( is_callable( $block_type->render_callback ), 'Block has a server-s
 
 // ---------------------------------------------------------------------------
 
-lstab_section( '14. Translations' );
+lstab_section( '14. Object cache invalidation' );
+
+// A stale cache here would mean the front end kept serving old data after a
+// sync, or kept a deleted source alive — worth proving, not assuming.
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
+
+$before = LSTAB_Storage::get( $source_id );
+lstab_assert( 7 === $before['row_count'], 'Baseline row count cached', (string) $before['row_count'] );
+
+lstab_set_mock( 'ok', 'second' );
+LSTAB_Sync::run( $source_id );
+$after_sync = LSTAB_Storage::get( $source_id );
+lstab_assert( 3 === $after_sync['row_count'], 'A successful sync invalidates the cache', (string) $after_sync['row_count'] );
+
+lstab_set_mock( 'http_403' );
+LSTAB_Sync::run( $source_id );
+$after_failure = LSTAB_Storage::get( $source_id );
+lstab_assert( 'error' === $after_failure['last_status'], 'A failed sync invalidates the cache', $after_failure['last_status'] );
+lstab_assert( 3 === $after_failure['row_count'], 'The cached snapshot still holds the last good copy', (string) $after_failure['row_count'] );
+
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
+
+LSTAB_Storage::update( $source_id, array( 'title' => 'Renamed via cache test' ) );
+lstab_assert(
+	'Renamed via cache test' === LSTAB_Storage::get( $source_id )['title'],
+	'An edit invalidates the cache',
+	LSTAB_Storage::get( $source_id )['title']
+);
+LSTAB_Storage::update( $source_id, array( 'title' => 'Cennik rowerowy' ) );
+
+$doomed = LSTAB_Storage::insert(
+	array(
+		'title'     => 'To be deleted',
+		'sheet_url' => 'https://docs.google.com/spreadsheets/d/DOOMEDSHEET0000000000000000000000/edit',
+		'sheet_id'  => 'DOOMEDSHEET0000000000000000000000',
+	)
+);
+lstab_assert( is_array( LSTAB_Storage::get( $doomed ) ), 'New source is readable' );
+LSTAB_Storage::delete( $doomed );
+lstab_assert( null === LSTAB_Storage::get( $doomed ), 'Deletion invalidates the cache' );
+
+// A miss is cached too; it must not resurrect as an array.
+lstab_assert( null === LSTAB_Storage::get( 987654 ), 'A missing source stays missing' );
+lstab_assert( null === LSTAB_Storage::get( 987654 ), 'A cached miss is still a miss on the second read' );
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '15. Translations' );
 
 $languages = LSTAB_PATH . 'languages/';
 lstab_assert( file_exists( $languages . 'live-sheets-table.pot' ), 'POT catalogue shipped' );

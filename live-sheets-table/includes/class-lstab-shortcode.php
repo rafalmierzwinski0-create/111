@@ -43,6 +43,7 @@ class LSTAB_Shortcode {
 				'style'   => '',
 				'caption' => '',
 				'class'   => '',
+				'layout'  => 'auto',
 			),
 			$atts,
 			self::TAG
@@ -57,6 +58,7 @@ class LSTAB_Shortcode {
 				'style'     => sanitize_key( $atts['style'] ),
 				'caption'   => sanitize_text_field( $atts['caption'] ),
 				'class'     => sanitize_html_class( $atts['class'] ),
+				'layout'    => sanitize_key( $atts['layout'] ),
 			)
 		);
 	}

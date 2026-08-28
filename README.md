@@ -16,7 +16,7 @@ this niche, rather than adding features for their own sake.
 | --- | --- |
 | Tables hang on "loading" or never appear | Data is fetched by WP-Cron in the background and stored locally. Pages render that copy in PHP and never wait on Google. |
 | Tables sometimes render as raw code | Rendering is server-side and produces an escaped, well-formed `<table>`. A test asserts the output parses as valid HTML and that cell tags balance. |
-| The free version caps rows at 30 | No row cap anywhere. A test renders a 5 000-row table and counts every row. |
+| The free version caps rows at 30 | No row cap anywhere. A test renders a 5 000-row table and counts every row. Three sources, against the incumbent's one. |
 | Conflicts break the whole site | No global JavaScript, no bundled libraries, everything prefixed `lstab_` / `LSTAB_`, assets enqueued only on pages that actually contain a table. |
 | Basic configuration is confusing | One three-step screen, a parsed preview before anything is saved, and a tab picker for multi-tab spreadsheets. |
 
@@ -26,7 +26,27 @@ turning private, a timeout, a 403 or a Google sign-in page all leave the last
 good copy on the page. The failure is reported in the dashboard, where someone
 can act on it, and never to visitors.
 
-## Layout
+## How the table decides to be a table
+
+A table stays a table while it fits and reflows into one labelled card per row
+when it does not. The threshold scales with the column count — five columns
+need far more room than two — because a fixed breakpoint leaves a wide table
+clipped inside a typical 650px theme column, hiding the last columns behind an
+invisible scrollbar.
+
+Authors who want to override the decision can set the block's Layout control,
+or `layout="table"` / `layout="cards"` on the shortcode. A table pinned to
+`table` scrolls sideways instead, with a shaded edge so a clipped column always
+announces itself. Giving the block a wide or full alignment is usually the
+better answer, since it hands the table the room it needs.
+
+Columns whose values are overwhelmingly numeric are detected and right-aligned
+with tabular figures, so decimal points line up. The heuristic tolerates
+thousands separators, comma decimals, currency symbols and suffixes, and
+percentages, and requires a clear majority so a stray number cannot flip a text
+column.
+
+## Repository layout
 
 ```
 live-sheets-table/          The plugin — this is what ships
@@ -140,10 +160,11 @@ forking the free plugin. The suite exercises these by simulating Pro.
 | Hook | Purpose |
 | --- | --- |
 | `lstab_is_pro` | Flips the tier |
-| `lstab_max_sources` | Number of saved sources (free: 1) |
+| `lstab_max_sources` | Number of saved sources (free: 3) |
 | `lstab_min_sync_interval` | Fastest sync in seconds (free: 900) |
 | `lstab_style_presets` | Register presets, or unlock the Pro-marked ones |
 | `lstab_render_cell` | Replace a cell's HTML — conditional formatting |
+| `lstab_column_alignments` | Override which columns are treated as numeric |
 | `lstab_cell_attributes` | Add attributes to a cell |
 | `lstab_render_rows` | Filter the rows rendered — pagination |
 | `lstab_fetch_url` / `lstab_fetch_args` | Route fetches elsewhere — private sheets |
