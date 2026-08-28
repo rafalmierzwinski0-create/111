@@ -1,0 +1,9 @@
+﻿Produkt,Cena netto,Dostępność,Opis,Zaktualizowano
+"Rower górski ""Trek""","4 199,99",W magazynie,"Rama aluminiowa, widelec 120 mm",2026-08-20
+Kask Lazer,"349,00",W magazynie,"Rozmiary: S, M, L",2026-08-21
+"Lampka <script>alert('xss')</script>","89,00",Brak,"Test escapowania & encji <b>bold</b>",2026-08-22
+Bidon 750 ml,"29,00",W magazynie,"Wielolinijkowy opis:
+druga linia opisu",2026-08-23
+"Rękawiczki „Pro”","159,00",Na zamówienie,"Cytat wewnątrz: ""najlepsze w teście""",2026-08-24
+Zamek szyfrowy,"1 215,50",W magazynie,,2026-08-25
+Bagażnik tylny,"87,00",W magazynie,Montaż na sztycę,2026-08-26

@@ -1,0 +1,470 @@
+/**
+ * Live Sheets Table — front-end styles.
+ *
+ * Layout strategy: the table stays a real <table> on wide containers and
+ * re-flows into one card per row on narrow ones. The switch is driven by a
+ * container query, so a table inside a narrow sidebar stacks even on a wide
+ * screen; a media query covers browsers without container query support.
+ */
+
+.lstab {
+	--lstab-font: inherit;
+	--lstab-fg: #1f2328;
+	--lstab-fg-muted: #57606a;
+	--lstab-bg: transparent;
+	--lstab-head-bg: transparent;
+	--lstab-head-fg: #1f2328;
+	--lstab-border: #d8dee4;
+	--lstab-border-strong: #b9c0c8;
+	--lstab-stripe: #f6f8fa;
+	--lstab-hover: #f0f4f8;
+	--lstab-accent: #2563eb;
+	--lstab-radius: 8px;
+	--lstab-pad-y: 0.7em;
+	--lstab-pad-x: 0.85em;
+	--lstab-font-size: 0.95em;
+
+	container-type: inline-size;
+	container-name: lstab;
+	color: var(--lstab-fg);
+	font-family: var(--lstab-font);
+	margin-block: 1.25em;
+}
+
+.lstab *,
+.lstab *::before,
+.lstab *::after {
+	box-sizing: border-box;
+}
+
+/* ---------------------------------------------------------------- controls */
+
+.lstab-controls {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.75em;
+	margin-bottom: 0.85em;
+}
+
+.lstab-search {
+	position: relative;
+	flex: 1 1 14em;
+	max-width: 22em;
+	display: block;
+}
+
+.lstab-search-input {
+	width: 100%;
+	padding: 0.55em 0.8em 0.55em 2.2em;
+	font: inherit;
+	font-size: var(--lstab-font-size);
+	color: var(--lstab-fg);
+	background-color: #fff;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2357606a' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: 0.6em center;
+	background-size: 1.05em;
+	border: 1px solid var(--lstab-border);
+	border-radius: var(--lstab-radius);
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.lstab-search-input:focus {
+	outline: none;
+	border-color: var(--lstab-accent);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--lstab-accent) 22%, transparent);
+}
+
+.lstab-count {
+	font-size: 0.85em;
+	color: var(--lstab-fg-muted);
+}
+
+/* ------------------------------------------------------------------- table */
+
+.lstab-scroll {
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+.lstab-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: var(--lstab-font-size);
+	background-color: var(--lstab-bg);
+}
+
+.lstab-caption {
+	caption-side: top;
+	text-align: left;
+	font-weight: 600;
+	padding-bottom: 0.6em;
+	color: var(--lstab-fg);
+}
+
+.lstab-table th,
+.lstab-table td {
+	padding: var(--lstab-pad-y) var(--lstab-pad-x);
+	text-align: left;
+	vertical-align: top;
+	line-height: 1.45;
+	border: 0;
+}
+
+.lstab-table thead th {
+	color: var(--lstab-head-fg);
+	background-color: var(--lstab-head-bg);
+	font-weight: 600;
+	white-space: nowrap;
+	border-bottom: 2px solid var(--lstab-border-strong);
+}
+
+.lstab-table tbody tr {
+	border-bottom: 1px solid var(--lstab-border);
+}
+
+.lstab-table tbody tr:hover {
+	background-color: var(--lstab-hover);
+}
+
+.lstab-table tbody tr[hidden] {
+	display: none;
+}
+
+/* Column labels are only for the stacked layout. */
+.lstab-cell-label {
+	display: none;
+}
+
+/* ------------------------------------------------------------------ sorting */
+
+.lstab-sort {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35em;
+	padding: 0;
+	margin: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	font-weight: 600;
+	color: inherit;
+	cursor: pointer;
+	text-align: left;
+	border-radius: 3px;
+}
+
+.lstab-sort:hover .lstab-sort-label {
+	text-decoration: underline;
+}
+
+.lstab-sort:focus-visible {
+	outline: 2px solid var(--lstab-accent);
+	outline-offset: 2px;
+}
+
+.lstab-sort-icon {
+	width: 0.7em;
+	height: 0.7em;
+	flex: none;
+	opacity: 0.3;
+	background-color: currentColor;
+	-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1l4 5H4zM8 15l-4-5h8z'/%3E%3C/svg%3E") center / contain no-repeat;
+	mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1l4 5H4zM8 15l-4-5h8z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.lstab-table th[aria-sort="ascending"] .lstab-sort-icon {
+	opacity: 1;
+	-webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 3l5 7H3z'/%3E%3C/svg%3E");
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 3l5 7H3z'/%3E%3C/svg%3E");
+}
+
+.lstab-table th[aria-sort="descending"] .lstab-sort-icon {
+	opacity: 1;
+	-webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 13L3 6h10z'/%3E%3C/svg%3E");
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 13L3 6h10z'/%3E%3C/svg%3E");
+}
+
+/* -------------------------------------------------------------- meta / misc */
+
+.lstab-meta,
+.lstab-no-results {
+	margin: 0.8em 0 0;
+	font-size: 0.82em;
+	color: var(--lstab-fg-muted);
+}
+
+.lstab-no-results {
+	padding: 1.2em;
+	text-align: center;
+	border: 1px dashed var(--lstab-border);
+	border-radius: var(--lstab-radius);
+}
+
+.lstab-notice {
+	padding: 0.9em 1.1em;
+	border-left: 4px solid #d97706;
+	background: #fffbeb;
+	color: #7c2d12;
+	border-radius: 4px;
+	font-size: 0.9em;
+}
+
+.lstab-notice p {
+	margin: 0;
+}
+
+.screen-reader-text {
+	position: absolute !important;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* ---------------------------------------------------------------- presets */
+
+.lstab-style-clean .lstab-table thead th {
+	border-bottom-color: var(--lstab-fg);
+}
+
+.lstab-style-striped .lstab-table tbody tr:nth-child(odd) {
+	background-color: var(--lstab-stripe);
+}
+
+.lstab-style-striped .lstab-table tbody tr:hover {
+	background-color: var(--lstab-hover);
+}
+
+.lstab-style-bordered {
+	--lstab-head-bg: #f6f8fa;
+}
+
+.lstab-style-bordered .lstab-scroll {
+	border: 1px solid var(--lstab-border);
+	border-radius: var(--lstab-radius);
+}
+
+.lstab-style-bordered .lstab-table th,
+.lstab-style-bordered .lstab-table td {
+	border-right: 1px solid var(--lstab-border);
+}
+
+.lstab-style-bordered .lstab-table th:last-child,
+.lstab-style-bordered .lstab-table td:last-child {
+	border-right: 0;
+}
+
+.lstab-style-bordered .lstab-table tbody tr:last-child {
+	border-bottom: 0;
+}
+
+.lstab-style-midnight {
+	--lstab-fg: #e6edf3;
+	--lstab-fg-muted: #9aa7b4;
+	--lstab-bg: #0d1117;
+	--lstab-head-bg: #161b22;
+	--lstab-head-fg: #e6edf3;
+	--lstab-border: #263041;
+	--lstab-border-strong: #3a465c;
+	--lstab-stripe: #11161f;
+	--lstab-hover: #172033;
+	--lstab-accent: #58a6ff;
+}
+
+.lstab-style-midnight .lstab-scroll {
+	background: var(--lstab-bg);
+	border-radius: var(--lstab-radius);
+}
+
+.lstab-style-editorial {
+	--lstab-border: #cfc9be;
+	--lstab-border-strong: #2b2620;
+	--lstab-fg: #2b2620;
+	--lstab-font-size: 1em;
+}
+
+.lstab-style-editorial .lstab-table thead th {
+	font-family: Georgia, "Times New Roman", serif;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+	font-size: 0.8em;
+}
+
+/* --------------------------------------------------- stacked "card" layout */
+
+@container lstab (max-width: 620px) {
+	.lstab-table,
+	.lstab-table thead,
+	.lstab-table tbody,
+	.lstab-table tr,
+	.lstab-table th,
+	.lstab-table td {
+		display: block;
+	}
+
+	/* A table-caption box shrink-wraps once the table itself is display:block. */
+	.lstab-caption {
+		display: block;
+		width: 100%;
+	}
+
+	.lstab-scroll {
+		overflow-x: visible;
+	}
+
+	.lstab-table thead {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+	}
+
+	.lstab-table tbody tr {
+		margin-bottom: 0.85em;
+		padding: 0.25em 0;
+		border: 1px solid var(--lstab-border);
+		border-radius: var(--lstab-radius);
+		background-color: var(--lstab-bg);
+		overflow: hidden;
+	}
+
+	.lstab-table tbody td {
+		display: grid;
+		grid-template-columns: minmax(6em, 40%) 1fr;
+		gap: 0.25em 0.9em;
+		padding: 0.55em var(--lstab-pad-x);
+		border-bottom: 1px solid color-mix(in srgb, var(--lstab-border) 60%, transparent);
+	}
+
+	.lstab-table tbody td:last-child {
+		border-bottom: 0;
+	}
+
+	.lstab-cell-label {
+		display: block;
+		font-size: 0.78em;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.03em;
+		color: var(--lstab-fg-muted);
+		padding-top: 0.15em;
+		overflow-wrap: break-word;
+	}
+
+	.lstab-cell-value {
+		overflow-wrap: break-word;
+	}
+
+	.lstab-style-striped .lstab-table tbody tr:nth-child(odd) {
+		background-color: var(--lstab-stripe);
+	}
+
+	.lstab-style-bordered .lstab-scroll {
+		border: 0;
+	}
+}
+
+/*
+ * Narrower still: a 40% label column cannot hold a word like "Zaktualizowano"
+ * without breaking it mid-word, so put the label on its own line.
+ */
+@container lstab (max-width: 440px) {
+	.lstab-table tbody td {
+		display: block;
+		padding: 0.6em var(--lstab-pad-x);
+	}
+
+	.lstab-cell-label {
+		margin-bottom: 0.15em;
+		padding-top: 0;
+	}
+}
+
+/* Fallback for browsers without container queries. */
+@supports not (container-type: inline-size) {
+	@media (max-width: 620px) {
+		.lstab-table,
+		.lstab-table thead,
+		.lstab-table tbody,
+		.lstab-table tr,
+		.lstab-table th,
+		.lstab-table td {
+			display: block;
+		}
+
+		.lstab-caption {
+			display: block;
+			width: 100%;
+		}
+
+		.lstab-scroll {
+			overflow-x: visible;
+		}
+
+		.lstab-table thead {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip: rect(0, 0, 0, 0);
+			white-space: nowrap;
+		}
+
+		.lstab-table tbody tr {
+			margin-bottom: 0.85em;
+			padding: 0.25em 0;
+			border: 1px solid var(--lstab-border);
+			border-radius: var(--lstab-radius);
+			overflow: hidden;
+		}
+
+		.lstab-table tbody td {
+			display: grid;
+			grid-template-columns: minmax(6em, 40%) 1fr;
+			gap: 0.25em 0.9em;
+			padding: 0.55em var(--lstab-pad-x);
+			border-bottom: 1px solid var(--lstab-border);
+		}
+
+		.lstab-table tbody td:last-child {
+			border-bottom: 0;
+		}
+
+		.lstab-cell-label {
+			display: block;
+			font-size: 0.78em;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.03em;
+			color: var(--lstab-fg-muted);
+			overflow-wrap: break-word;
+		}
+	}
+
+	@media (max-width: 440px) {
+		.lstab-table tbody td {
+			display: block;
+			padding: 0.6em var(--lstab-pad-x);
+		}
+
+		.lstab-cell-label {
+			margin-bottom: 0.15em;
+			padding-top: 0;
+		}
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.lstab-search-input {
+		transition: none;
+	}
+}

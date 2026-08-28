@@ -1,0 +1,284 @@
+<?php
+/**
+ * RFC 4180 CSV parser.
+ *
+ * Written by hand rather than leaning on str_getcsv() because Google exports
+ * routinely contain quoted fields with embedded commas, quotes and newlines,
+ * and str_getcsv() cannot see past a single line.
+ *
+ * @package LiveSheetsTable
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * CSV parser.
+ */
+class LSTAB_CSV_Parser {
+
+	/**
+	 * Parse a CSV payload into a header row plus body rows.
+	 *
+	 * @param string $csv              Raw CSV text.
+	 * @param bool   $first_row_header Treat the first row as column labels.
+	 * @return array{headers:array<int,string>,rows:array<int,array<int,string>>}|WP_Error
+	 */
+	public static function parse( $csv, $first_row_header = true ) {
+		$csv = self::normalise_encoding( (string) $csv );
+
+		if ( '' === trim( $csv ) ) {
+			return new WP_Error(
+				'lstab_empty_csv',
+				__( 'The sheet returned no data. Check that the tab you picked actually contains rows.', 'live-sheets-table' )
+			);
+		}
+
+		$grid = self::to_grid( $csv );
+		$grid = self::trim_empty_rows( $grid );
+
+		if ( ! $grid ) {
+			return new WP_Error(
+				'lstab_empty_csv',
+				__( 'The sheet returned no data. Check that the tab you picked actually contains rows.', 'live-sheets-table' )
+			);
+		}
+
+		$columns = 0;
+		foreach ( $grid as $row ) {
+			$columns = max( $columns, count( $row ) );
+		}
+
+		if ( $first_row_header ) {
+			$headers = self::normalise_headers( array_shift( $grid ), $columns );
+		} else {
+			$headers = self::generated_headers( $columns );
+		}
+
+		$rows = array();
+		foreach ( $grid as $row ) {
+			$rows[] = self::pad_row( $row, $columns );
+		}
+
+		return array(
+			'headers' => $headers,
+			'rows'    => array_values( $rows ),
+		);
+	}
+
+	/**
+	 * Strip a UTF-8 BOM and coerce the payload to valid UTF-8.
+	 *
+	 * @param string $csv Raw payload.
+	 * @return string
+	 */
+	public static function normalise_encoding( $csv ) {
+		// UTF-8 BOM.
+		if ( 0 === strncmp( $csv, "\xEF\xBB\xBF", 3 ) ) {
+			$csv = substr( $csv, 3 );
+		}
+
+		// UTF-16 BOMs: convert rather than mangle.
+		if ( 0 === strncmp( $csv, "\xFF\xFE", 2 ) || 0 === strncmp( $csv, "\xFE\xFF", 2 ) ) {
+			$from = ( "\xFF\xFE" === substr( $csv, 0, 2 ) ) ? 'UTF-16LE' : 'UTF-16BE';
+			if ( function_exists( 'mb_convert_encoding' ) ) {
+				$converted = mb_convert_encoding( substr( $csv, 2 ), 'UTF-8', $from );
+				if ( false !== $converted ) {
+					$csv = $converted;
+				}
+			}
+		}
+
+		if ( ! self::is_valid_utf8( $csv ) ) {
+			// Google always serves UTF-8; this only guards hand-edited or proxied payloads.
+			$converted = function_exists( 'mb_convert_encoding' )
+				? mb_convert_encoding( $csv, 'UTF-8', 'Windows-1252' )
+				: false;
+			$csv = ( false !== $converted && null !== $converted ) ? $converted : wp_check_invalid_utf8( $csv, true );
+		}
+
+		// Normalise line endings so the scanner only has to deal with "\n".
+		$csv = str_replace( array( "\r\n", "\r" ), "\n", $csv );
+
+		return $csv;
+	}
+
+	/**
+	 * UTF-8 validity check that works across supported WordPress versions.
+	 *
+	 * seems_utf8() was deprecated in WordPress 6.9 in favour of
+	 * wp_is_valid_utf8(); the plugin still supports 6.0, so pick whichever
+	 * exists rather than emitting a deprecation notice on new installs.
+	 *
+	 * @param string $text Text to check.
+	 * @return bool
+	 */
+	protected static function is_valid_utf8( $text ) {
+		if ( function_exists( 'wp_is_valid_utf8' ) ) {
+			return (bool) wp_is_valid_utf8( $text );
+		}
+
+		return (bool) seems_utf8( $text );
+	}
+
+	/**
+	 * Scan CSV text into a two dimensional array.
+	 *
+	 * @param string $csv Normalised CSV text.
+	 * @return array<int,array<int,string>>
+	 */
+	protected static function to_grid( $csv ) {
+		$rows    = array();
+		$row     = array();
+		$field   = '';
+		$quoted  = false;
+		$length  = strlen( $csv );
+
+		for ( $i = 0; $i < $length; $i++ ) {
+			$char = $csv[ $i ];
+
+			if ( $quoted ) {
+				if ( '"' === $char ) {
+					// A doubled quote inside a quoted field is a literal quote.
+					if ( $i + 1 < $length && '"' === $csv[ $i + 1 ] ) {
+						$field .= '"';
+						$i++;
+					} else {
+						$quoted = false;
+					}
+				} else {
+					$field .= $char;
+				}
+				continue;
+			}
+
+			if ( '"' === $char ) {
+				$quoted = true;
+				continue;
+			}
+
+			if ( ',' === $char ) {
+				$row[] = $field;
+				$field = '';
+				continue;
+			}
+
+			if ( "\n" === $char ) {
+				$row[] = $field;
+				$rows[] = $row;
+				$row    = array();
+				$field  = '';
+				continue;
+			}
+
+			$field .= $char;
+		}
+
+		// Flush whatever is still buffered when the payload has no trailing newline.
+		if ( '' !== $field || $row ) {
+			$row[]  = $field;
+			$rows[] = $row;
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * Drop trailing rows that are entirely empty.
+	 *
+	 * @param array<int,array<int,string>> $grid Parsed grid.
+	 * @return array<int,array<int,string>>
+	 */
+	protected static function trim_empty_rows( $grid ) {
+		$filtered = array();
+
+		foreach ( $grid as $row ) {
+			$has_value = false;
+			foreach ( $row as $cell ) {
+				if ( '' !== trim( (string) $cell ) ) {
+					$has_value = true;
+					break;
+				}
+			}
+			$filtered[] = array(
+				'row'   => $row,
+				'empty' => ! $has_value,
+			);
+		}
+
+		// Trim empties from both ends but keep blank separator rows in the middle.
+		while ( $filtered && $filtered[0]['empty'] ) {
+			array_shift( $filtered );
+		}
+		while ( $filtered && end( $filtered )['empty'] ) {
+			array_pop( $filtered );
+		}
+
+		return array_values( wp_list_pluck( $filtered, 'row' ) );
+	}
+
+	/**
+	 * Clean up header labels, filling in blanks and de-duplicating.
+	 *
+	 * @param array<int,string> $raw     Raw header row.
+	 * @param int               $columns Column count.
+	 * @return array<int,string>
+	 */
+	protected static function normalise_headers( $raw, $columns ) {
+		$raw     = self::pad_row( (array) $raw, $columns );
+		$headers = array();
+		$seen    = array();
+
+		foreach ( $raw as $index => $label ) {
+			$label = trim( (string) $label );
+
+			if ( '' === $label ) {
+				/* translators: %d: column number. */
+				$label = sprintf( __( 'Column %d', 'live-sheets-table' ), $index + 1 );
+			}
+
+			$base    = $label;
+			$counter = 2;
+			while ( isset( $seen[ strtolower( $label ) ] ) ) {
+				$label = $base . ' (' . $counter . ')';
+				$counter++;
+			}
+
+			$seen[ strtolower( $label ) ] = true;
+			$headers[]                    = $label;
+		}
+
+		return $headers;
+	}
+
+	/**
+	 * Placeholder headers for sheets whose first row is data.
+	 *
+	 * @param int $columns Column count.
+	 * @return array<int,string>
+	 */
+	protected static function generated_headers( $columns ) {
+		$headers = array();
+		for ( $i = 0; $i < $columns; $i++ ) {
+			/* translators: %d: column number. */
+			$headers[] = sprintf( __( 'Column %d', 'live-sheets-table' ), $i + 1 );
+		}
+		return $headers;
+	}
+
+	/**
+	 * Pad or truncate a row so every row has the same width.
+	 *
+	 * @param array<int,string> $row     Row values.
+	 * @param int               $columns Target width.
+	 * @return array<int,string>
+	 */
+	protected static function pad_row( $row, $columns ) {
+		$row = array_values( array_map( 'strval', (array) $row ) );
+
+		if ( count( $row ) > $columns ) {
+			$row = array_slice( $row, 0, $columns );
+		}
+
+		return array_pad( $row, $columns, '' );
+	}
+}

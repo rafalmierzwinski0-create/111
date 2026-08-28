@@ -1,0 +1,574 @@
+<?php
+/**
+ * End-to-end test for Live Sheets Table.
+ *
+ * Boots a real WordPress install, activates the plugin, drives the full
+ * lifecycle (add source → sync → render → fail → fall back → recover) and
+ * asserts on the real rendered output.
+ *
+ * Usage: php tests/e2e-test.php /absolute/path/to/wp
+ *
+ * @package LiveSheetsTable\Tests
+ */
+
+// phpcs:disable WordPress.Security.EscapeOutput, WordPress.PHP.DevelopmentFunctions
+
+$wp_root = isset( $argv[1] ) ? rtrim( $argv[1], '/' ) : '';
+
+if ( ! $wp_root || ! file_exists( $wp_root . '/wp-load.php' ) ) {
+	fwrite( STDERR, "Usage: php tests/e2e-test.php /path/to/wordpress\n" );
+	exit( 1 );
+}
+
+$_SERVER['HTTP_HOST']      = '127.0.0.1:8088';
+$_SERVER['REQUEST_URI']    = '/';
+$_SERVER['REQUEST_METHOD'] = 'GET';
+
+require_once $wp_root . '/wp-load.php';
+require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+$GLOBALS['lstab_passed'] = 0;
+$GLOBALS['lstab_failed'] = 0;
+
+/**
+ * Assert helper.
+ *
+ * @param bool   $condition Condition.
+ * @param string $label     Test name.
+ * @param string $detail    Extra context printed on failure.
+ * @return bool
+ */
+function lstab_assert( $condition, $label, $detail = '' ) {
+	if ( $condition ) {
+		$GLOBALS['lstab_passed']++;
+		echo "  \033[32mPASS\033[0m  {$label}\n";
+		return true;
+	}
+
+	$GLOBALS['lstab_failed']++;
+	echo "  \033[31mFAIL\033[0m  {$label}\n";
+	if ( '' !== $detail ) {
+		echo "        {$detail}\n";
+	}
+	return false;
+}
+
+/**
+ * Section header.
+ *
+ * @param string $title Title.
+ * @return void
+ */
+function lstab_section( $title ) {
+	echo "\n\033[1m{$title}\033[0m\n";
+}
+
+/**
+ * Point the mock at a given failure mode.
+ *
+ * @param string $mode Mode name.
+ * @param string $tab  Fixture tab.
+ * @return void
+ */
+function lstab_set_mock( $mode, $tab = 'main' ) {
+	file_put_contents(
+		WP_CONTENT_DIR . '/lstab-mock-state.json',
+		wp_json_encode(
+			array(
+				'mode' => $mode,
+				'tab'  => $tab,
+			)
+		)
+	);
+}
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '0. Environment' );
+
+lstab_assert( function_exists( 'lstab' ), 'Plugin bootstrap loaded' );
+lstab_assert( defined( 'LSTAB_MOCK_FIXTURES' ), 'Google mock harness active' );
+lstab_set_mock( 'ok' );
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '1. Schema and activation' );
+
+LSTAB_Plugin::on_activate();
+
+global $wpdb;
+$table  = LSTAB_Storage::table();
+$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
+lstab_assert( $exists === $table, "Custom table {$table} created", "got: " . var_export( $exists, true ) );
+lstab_assert( (bool) wp_next_scheduled( LSTAB_Cron::TICK_HOOK ), 'Cron tick scheduled on activation' );
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '2. URL parsing' );
+
+$cases = array(
+	'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=1734829105'
+		=> array( '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789', 'doc', '1734829105' ),
+	'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit?usp=sharing'
+		=> array( '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789', 'doc', '0' ),
+	'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxYzAbCdEf/pubhtml?gid=42&single=true'
+		=> array( '2PACX-1vQxYzAbCdEf', 'pub', '42' ),
+	'1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789'
+		=> array( '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789', 'doc', '0' ),
+);
+
+foreach ( $cases as $input => $expected ) {
+	$parsed = LSTAB_Url::parse( $input );
+	$label  = 'Parses ' . substr( $input, 0, 62 ) . ( strlen( $input ) > 62 ? '…' : '' );
+	lstab_assert(
+		! is_wp_error( $parsed )
+			&& $parsed['sheet_id'] === $expected[0]
+			&& $parsed['sheet_kind'] === $expected[1]
+			&& $parsed['gid'] === $expected[2],
+		$label,
+		is_wp_error( $parsed ) ? $parsed->get_error_message() : wp_json_encode( $parsed )
+	);
+}
+
+$rejected = array(
+	'https://evil.example.com/spreadsheets/d/abc/edit' => 'lstab_bad_host',
+	'https://docs.google.com/document/d/abc/edit'      => 'lstab_no_sheet_id',
+	''                                                 => 'lstab_empty_url',
+);
+
+foreach ( $rejected as $input => $code ) {
+	$parsed = LSTAB_Url::parse( $input );
+	lstab_assert(
+		is_wp_error( $parsed ) && $parsed->get_error_code() === $code,
+		'Rejects ' . ( '' === $input ? '(empty input)' : $input ),
+		is_wp_error( $parsed ) ? $parsed->get_error_code() : 'accepted'
+	);
+}
+
+$endpoint = LSTAB_Url::csv_endpoint( 'SHEETID', '1734829105' );
+lstab_assert(
+	false !== strpos( $endpoint, '/gviz/tq' ) && false !== strpos( $endpoint, 'tqx=out:csv' ) && false !== strpos( $endpoint, 'gid=1734829105' ),
+	'Builds the gviz CSV endpoint',
+	$endpoint
+);
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '3. CSV parsing' );
+
+$csv    = file_get_contents( LSTAB_MOCK_FIXTURES . '/sheet-main.csv' );
+$parsed = LSTAB_CSV_Parser::parse( $csv, true );
+
+lstab_assert( ! is_wp_error( $parsed ), 'Parses the fixture', is_wp_error( $parsed ) ? $parsed->get_error_message() : '' );
+lstab_assert( "\xEF\xBB\xBF" !== substr( $parsed['headers'][0], 0, 3 ), 'Strips the UTF-8 BOM', bin2hex( substr( $parsed['headers'][0], 0, 6 ) ) );
+lstab_assert( 'Produkt' === $parsed['headers'][0], 'First header is "Produkt"', $parsed['headers'][0] );
+lstab_assert( 5 === count( $parsed['headers'] ), 'Five columns detected', (string) count( $parsed['headers'] ) );
+lstab_assert( 7 === count( $parsed['rows'] ), 'Seven data rows detected', (string) count( $parsed['rows'] ) );
+lstab_assert( 'Dostępność' === $parsed['headers'][2], 'UTF-8 diacritics survive', $parsed['headers'][2] );
+lstab_assert( 'Rower górski "Trek"' === $parsed['rows'][0][0], 'Doubled quotes become a literal quote', $parsed['rows'][0][0] );
+lstab_assert( 'Rama aluminiowa, widelec 120 mm' === $parsed['rows'][0][3], 'Comma inside a quoted field is preserved', $parsed['rows'][0][3] );
+lstab_assert( false !== strpos( $parsed['rows'][3][3], "\n" ), 'Newline inside a quoted field is preserved', wp_json_encode( $parsed['rows'][3][3] ) );
+lstab_assert( 'Cytat wewnątrz: "najlepsze w teście"' === $parsed['rows'][4][3], 'Escaped quotes inside a quoted field', $parsed['rows'][4][3] );
+lstab_assert( '' === $parsed['rows'][5][3], 'Empty trailing-ish cell stays empty', wp_json_encode( $parsed['rows'][5][3] ) );
+
+$every_row_full = true;
+foreach ( $parsed['rows'] as $row ) {
+	if ( 5 !== count( $row ) ) {
+		$every_row_full = false;
+	}
+}
+lstab_assert( $every_row_full, 'Every row is padded to the column count' );
+
+$no_header = LSTAB_CSV_Parser::parse( $csv, false );
+lstab_assert( 8 === count( $no_header['rows'] ), 'first_row_header=false keeps the header row as data', (string) count( $no_header['rows'] ) );
+
+$dupes = LSTAB_CSV_Parser::parse( "Name,Name,\nA,B,C\n", true );
+lstab_assert(
+	'Name' === $dupes['headers'][0] && 'Name (2)' === $dupes['headers'][1] && 'Column 3' === $dupes['headers'][2],
+	'Duplicate and blank headers are disambiguated',
+	wp_json_encode( $dupes['headers'] )
+);
+
+lstab_assert( is_wp_error( LSTAB_CSV_Parser::parse( '   ', true ) ), 'Empty payload is an error, not an empty table' );
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '4. Tab discovery' );
+
+$tabs = LSTAB_Fetcher::parse_tabs( file_get_contents( LSTAB_MOCK_FIXTURES . '/sheet-htmlview.html' ) );
+lstab_assert( 3 === count( $tabs ), 'Three tabs discovered', wp_json_encode( $tabs ) );
+lstab_assert( 'Cennik' === $tabs[0]['name'] && '0' === $tabs[0]['gid'], 'First tab name and gid', wp_json_encode( $tabs[0] ) );
+lstab_assert( 'Punkty odbioru' === $tabs[1]['name'] && '1734829105' === $tabs[1]['gid'], 'Second tab name and gid', wp_json_encode( $tabs[1] ) );
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '5. Creating a source and the first sync' );
+
+foreach ( LSTAB_Storage::get_all() as $existing ) {
+	LSTAB_Storage::delete( $existing['id'] );
+}
+
+$source_id = LSTAB_Storage::insert(
+	array(
+		'title'         => 'Cennik rowerowy',
+		'sheet_url'     => 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0',
+		'sheet_id'      => '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789',
+		'sheet_kind'    => 'doc',
+		'gid'           => '0',
+		'tab_name'      => 'Cennik',
+		'sync_interval' => 900,
+		'style_preset'  => 'striped',
+	)
+);
+
+lstab_assert( is_int( $source_id ) && $source_id > 0, 'Source inserted', var_export( $source_id, true ) );
+
+$sync = LSTAB_Sync::run( $source_id );
+lstab_assert( true === $sync, 'First sync succeeds', is_wp_error( $sync ) ? $sync->get_error_message() : '' );
+
+$source = LSTAB_Storage::get( $source_id );
+lstab_assert( 'ok' === $source['last_status'], 'Status recorded as ok', $source['last_status'] );
+lstab_assert( 7 === $source['row_count'], 'Seven rows stored', (string) $source['row_count'] );
+lstab_assert( 5 === $source['col_count'], 'Five columns stored', (string) $source['col_count'] );
+lstab_assert( ! empty( $source['last_success_gmt'] ), 'Last success timestamp set' );
+lstab_assert( null === $source['last_error'], 'No error recorded', var_export( $source['last_error'], true ) );
+
+$good_hash = $source['snapshot_hash'];
+lstab_assert( 32 === strlen( $good_hash ), 'Snapshot hash stored' );
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '6. Front-end rendering' );
+
+$html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+
+lstab_assert( false !== strpos( $html, '<table' ), 'Renders a real <table> element' );
+lstab_assert( false !== strpos( $html, 'lstab-style-striped' ), 'Applies the chosen style preset' );
+lstab_assert( substr_count( $html, '<tr' ) === 8, 'One header row plus seven body rows', (string) substr_count( $html, '<tr' ) );
+lstab_assert( false !== strpos( $html, 'Dostępność' ), 'Header text present with diacritics' );
+lstab_assert( false !== strpos( $html, 'data-label="Produkt"' ), 'Cells carry data-label for the stacked layout' );
+lstab_assert( false !== strpos( $html, 'lstab-cell-label' ), 'Stacked-layout labels rendered server side' );
+lstab_assert( false !== strpos( $html, 'Updated' ), 'Freshness label rendered' );
+lstab_assert( false !== strpos( $html, 'lstab-search-input' ), 'Search control rendered' );
+lstab_assert( false !== strpos( $html, 'class="lstab-sort"' ), 'Sortable column buttons rendered' );
+
+// Injection safety: the fixture contains a <script> tag and raw HTML in cells.
+lstab_assert( false === strpos( $html, "<script>alert('xss')</script>" ), 'Script tag from the sheet is NOT emitted raw' );
+lstab_assert( false !== strpos( $html, '&lt;script&gt;alert(&#039;xss&#039;)&lt;/script&gt;' ), 'Script tag is escaped for display' );
+lstab_assert( false === strpos( $html, '<b>bold</b>' ), 'Raw HTML from a cell is NOT emitted' );
+lstab_assert( false !== strpos( $html, '&lt;b&gt;bold&lt;/b&gt;' ), 'Raw HTML from a cell is escaped' );
+
+// No unbalanced markup: the "renders as raw code" competitor bug.
+$open_td  = substr_count( $html, '<td' );
+$close_td = substr_count( $html, '</td>' );
+lstab_assert( $open_td === $close_td && $open_td === 35, 'Cell tags balanced (35 cells)', "{$open_td} open / {$close_td} close" );
+
+$doc = new DOMDocument();
+libxml_use_internal_errors( true );
+$loaded = $doc->loadHTML( '<?xml encoding="UTF-8">' . $html );
+$errors = libxml_get_errors();
+libxml_clear_errors();
+lstab_assert( $loaded && ! $errors, 'Output parses as well-formed HTML', $errors ? $errors[0]->message : '' );
+
+// Shortcode option handling.
+$plain = do_shortcode( '[sheet_table id="' . $source_id . '" search="no" sort="no" meta="no"]' );
+lstab_assert( false === strpos( $plain, 'lstab-search-input' ), 'search="no" removes the search box' );
+lstab_assert( false === strpos( $plain, 'class="lstab-sort"' ), 'sort="no" removes sort buttons' );
+lstab_assert( false === strpos( $plain, 'lstab-meta' ), 'meta="no" removes the freshness label' );
+
+// The block must produce the same table as the shortcode.
+$block_html = lstab()->block->render(
+	array(
+		'sourceId'    => $source_id,
+		'showSearch'  => true,
+		'showSort'    => true,
+		'showUpdated' => true,
+	)
+);
+lstab_assert( false !== strpos( $block_html, '<table' ), 'Block render callback produces a table' );
+lstab_assert(
+	substr_count( $block_html, '<td' ) === substr_count( $html, '<td' ),
+	'Block and shortcode render the same cell count'
+);
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '7. Fetch failure → last good copy survives' );
+
+$failure_modes = array(
+	'http_403'   => 'HTTP 403 (sheet made private)',
+	'timeout'    => 'Network timeout',
+	'html_login' => 'Google returns a sign-in page instead of CSV',
+	'empty'      => 'Empty response body',
+);
+
+foreach ( $failure_modes as $mode => $description ) {
+	lstab_set_mock( $mode );
+
+	$result = LSTAB_Sync::run( $source_id );
+	lstab_assert( is_wp_error( $result ), "{$description}: sync reports an error" );
+
+	$after = LSTAB_Storage::get( $source_id );
+	lstab_assert( 'error' === $after['last_status'], "{$description}: status flipped to error", $after['last_status'] );
+	lstab_assert( ! empty( $after['last_error'] ), "{$description}: error message stored for the admin" );
+	lstab_assert( $good_hash === $after['snapshot_hash'], "{$description}: stored snapshot untouched", $after['snapshot_hash'] );
+	lstab_assert( 7 === $after['row_count'], "{$description}: row count unchanged", (string) $after['row_count'] );
+
+	$fallback_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+	lstab_assert( false !== strpos( $fallback_html, '<table' ), "{$description}: page still renders a table" );
+	lstab_assert( false !== strpos( $fallback_html, 'Rower górski' ), "{$description}: last good data still on the page" );
+	lstab_assert( substr_count( $fallback_html, '<tr' ) === 8, "{$description}: all seven rows still rendered" );
+	lstab_assert(
+		false === strpos( $fallback_html, $after['last_error'] ),
+		"{$description}: the error is NOT leaked to visitors"
+	);
+	lstab_assert(
+		false === stripos( $fallback_html, 'lstab-notice' ),
+		"{$description}: no admin notice on the front end"
+	);
+}
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '8. Recovery' );
+
+lstab_set_mock( 'ok' );
+$recovered = LSTAB_Sync::run( $source_id );
+lstab_assert( true === $recovered, 'Sync succeeds again once Google recovers' );
+
+$after = LSTAB_Storage::get( $source_id );
+lstab_assert( 'ok' === $after['last_status'], 'Status back to ok', $after['last_status'] );
+lstab_assert( null === $after['last_error'], 'Error message cleared', var_export( $after['last_error'], true ) );
+
+// Data changes are picked up.
+lstab_set_mock( 'ok', 'second' );
+LSTAB_Sync::run( $source_id );
+$switched = LSTAB_Storage::get( $source_id );
+lstab_assert( 3 === $switched['row_count'], 'New sheet content replaces the snapshot', (string) $switched['row_count'] );
+lstab_assert( $good_hash !== $switched['snapshot_hash'], 'Snapshot hash changed with the data' );
+
+$switched_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false !== strpos( $switched_html, 'Bike Centrum' ), 'Page shows the new data' );
+lstab_assert( false === strpos( $switched_html, 'Rower górski' ), 'Old data is gone' );
+
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '9. Cron scheduling' );
+
+lstab_assert( (bool) wp_next_scheduled( LSTAB_Cron::TICK_HOOK ), 'Tick still scheduled' );
+lstab_assert( 'lstab_15min' === LSTAB_Cron::required_schedule(), 'Tick recurrence matches the 15 minute source', LSTAB_Cron::required_schedule() );
+
+$schedules = wp_get_schedules();
+lstab_assert( isset( $schedules['lstab_15min'] ) && 900 === $schedules['lstab_15min']['interval'], 'Custom 15 minute schedule registered' );
+
+$source = LSTAB_Storage::get( $source_id );
+lstab_assert( ! LSTAB_Sync::is_due( $source ), 'A just-synced source is not due again' );
+
+$wpdb->update(
+	LSTAB_Storage::table(),
+	array( 'last_attempt_gmt' => gmdate( 'Y-m-d H:i:s', time() - 1000 ) ),
+	array( 'id' => $source_id ),
+	array( '%s' ),
+	array( '%d' )
+);
+lstab_assert( LSTAB_Sync::is_due( LSTAB_Storage::get( $source_id ) ), 'A source past its interval is due' );
+
+lstab_set_mock( 'ok' );
+$due_results = LSTAB_Sync::run_due();
+lstab_assert( isset( $due_results[ $source_id ] ) && 'ok' === $due_results[ $source_id ], 'Cron tick syncs the due source', wp_json_encode( $due_results ) );
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '10. Free tier limits and Pro extension points' );
+
+lstab_assert( 1 === LSTAB_Limits::max_sources(), 'Free tier allows one source', (string) LSTAB_Limits::max_sources() );
+lstab_assert( ! LSTAB_Limits::can_add_source(), 'Second source is blocked while one exists' );
+lstab_assert( 900 === LSTAB_Limits::min_interval(), 'Free tier floor is 15 minutes', (string) LSTAB_Limits::min_interval() );
+lstab_assert( ! isset( LSTAB_Limits::intervals()[60] ), 'One minute interval hidden in free' );
+lstab_assert( 900 === LSTAB_Limits::clamp_interval( 60 ), 'A too-fast interval is clamped up', (string) LSTAB_Limits::clamp_interval( 60 ) );
+lstab_assert( 3 === count( LSTAB_Styles::available() ), 'Three free presets available', (string) count( LSTAB_Styles::available() ) );
+lstab_assert( 'clean' === LSTAB_Styles::sanitize( 'midnight' ), 'Pro preset falls back to a free one in free', LSTAB_Styles::sanitize( 'midnight' ) );
+
+// There is no row cap anywhere: prove it with a large sheet.
+$big_rows = array();
+for ( $i = 0; $i < 5000; $i++ ) {
+	$big_rows[] = array( 'Row ' . $i, (string) $i, 'value' );
+}
+$big_html = LSTAB_Renderer::render_preview(
+	array(
+		'headers' => array( 'A', 'B', 'C' ),
+		'rows'    => $big_rows,
+	)
+);
+lstab_assert( 5001 === substr_count( $big_html, '<tr' ), 'A 5000 row table renders in full — no row cap', (string) substr_count( $big_html, '<tr' ) );
+
+// Pro simulation: the add-on lifts every limit through filters alone.
+add_filter( 'lstab_is_pro', '__return_true' );
+add_filter( 'lstab_max_sources', function () { return 25; } );
+add_filter( 'lstab_min_sync_interval', function () { return 60; } );
+
+lstab_assert( LSTAB_Limits::is_pro(), 'lstab_is_pro filter flips the tier' );
+lstab_assert( 25 === LSTAB_Limits::max_sources(), 'lstab_max_sources filter lifts the source cap' );
+lstab_assert( LSTAB_Limits::can_add_source(), 'More sources allowed under Pro' );
+lstab_assert( isset( LSTAB_Limits::intervals()[60] ), 'One minute interval unlocked under Pro' );
+lstab_assert( 5 === count( LSTAB_Styles::available() ), 'Premium presets unlocked under Pro', (string) count( LSTAB_Styles::available() ) );
+lstab_assert( 'lstab_1min' === LSTAB_Cron::required_schedule() || 'lstab_15min' === LSTAB_Cron::required_schedule(), 'Cron recurrence follows the fastest source' );
+
+// Conditional formatting hook (a Pro feature) can colour a cell.
+add_filter(
+	'lstab_render_cell',
+	function ( $html, $value, $col ) {
+		if ( 1 === $col && false !== strpos( $value, '4 199' ) ) {
+			return '<span class="lstab-flag-high">' . esc_html( $value ) . '</span>';
+		}
+		return $html;
+	},
+	10,
+	3
+);
+
+$formatted = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false !== strpos( $formatted, 'lstab-flag-high' ), 'lstab_render_cell can style a cell (Pro conditional formatting)' );
+
+remove_all_filters( 'lstab_render_cell' );
+remove_all_filters( 'lstab_is_pro' );
+remove_all_filters( 'lstab_max_sources' );
+remove_all_filters( 'lstab_min_sync_interval' );
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '11. Missing and broken sources' );
+
+$missing = do_shortcode( '[sheet_table id="99999"]' );
+lstab_assert( '' === $missing, 'An unknown ID renders nothing for visitors', $missing );
+
+$no_id = do_shortcode( '[sheet_table]' );
+lstab_assert( '' === $no_id, 'A shortcode without an ID renders nothing for visitors', $no_id );
+
+wp_set_current_user( 1 );
+$missing_admin = do_shortcode( '[sheet_table id="99999"]' );
+lstab_assert( false !== strpos( $missing_admin, 'lstab-notice' ), 'Administrators do get an explanatory notice' );
+wp_set_current_user( 0 );
+
+// A source that has never synced must not render a broken table.
+$never_id = LSTAB_Storage::insert(
+	array(
+		'title'     => 'Never synced',
+		'sheet_url' => 'https://docs.google.com/spreadsheets/d/NEVERSYNCEDSHEETID000000000000000000/edit',
+		'sheet_id'  => 'NEVERSYNCEDSHEETID000000000000000000',
+	)
+);
+lstab_assert( '' === do_shortcode( '[sheet_table id="' . $never_id . '"]' ), 'A never-synced source renders nothing for visitors' );
+LSTAB_Storage::delete( $never_id );
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '12. REST surface' );
+
+$server = rest_get_server();
+$routes = $server->get_routes();
+
+lstab_assert( isset( $routes['/live-sheets-table/v1/preview'] ), 'Preview route registered' );
+lstab_assert( isset( $routes['/live-sheets-table/v1/sources'] ), 'Sources route registered' );
+
+$request  = new WP_REST_Request( 'POST', '/live-sheets-table/v1/preview' );
+$request->set_param( 'url', 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit' );
+$response = $server->dispatch( $request );
+lstab_assert( 401 === $response->get_status() || 403 === $response->get_status(), 'Preview refuses anonymous callers', (string) $response->get_status() );
+
+wp_set_current_user( 1 );
+$response = $server->dispatch( $request );
+$data     = $response->get_data();
+lstab_assert( 200 === $response->get_status(), 'Preview works for an administrator', (string) $response->get_status() );
+lstab_assert( isset( $data['headers'] ) && 5 === count( $data['headers'] ), 'Preview returns parsed headers', wp_json_encode( $data['headers'] ?? null ) );
+lstab_assert( isset( $data['tabs'] ) && 3 === count( $data['tabs'] ), 'Preview returns the tab list' );
+lstab_assert( isset( $data['html'] ) && false !== strpos( $data['html'], '<table' ), 'Preview returns rendered HTML' );
+
+$bad = new WP_REST_Request( 'POST', '/live-sheets-table/v1/preview' );
+$bad->set_param( 'url', 'https://evil.example.com/spreadsheets/d/x/edit' );
+$bad_response = $server->dispatch( $bad );
+lstab_assert( 400 === $bad_response->get_status(), 'Preview rejects a non-Google host', (string) $bad_response->get_status() );
+
+$refresh  = new WP_REST_Request( 'POST', '/live-sheets-table/v1/sources/' . $source_id . '/refresh' );
+$refresh_response = $server->dispatch( $refresh );
+lstab_assert( 200 === $refresh_response->get_status(), 'Manual refresh endpoint works', (string) $refresh_response->get_status() );
+wp_set_current_user( 0 );
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '13. Block registration' );
+
+$registry = WP_Block_Type_Registry::get_instance();
+lstab_assert( $registry->is_registered( 'live-sheets-table/sheet-table' ), 'Block type registered' );
+
+$block_type = $registry->get_registered( 'live-sheets-table/sheet-table' );
+lstab_assert( is_callable( $block_type->render_callback ), 'Block has a server-side render callback' );
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '14. Translations' );
+
+$languages = LSTAB_PATH . 'languages/';
+lstab_assert( file_exists( $languages . 'live-sheets-table.pot' ), 'POT catalogue shipped' );
+lstab_assert( file_exists( $languages . 'live-sheets-table-pl_PL.po' ), 'Polish PO shipped' );
+lstab_assert( file_exists( $languages . 'live-sheets-table-pl_PL.mo' ), 'Compiled Polish MO shipped' );
+
+unload_textdomain( 'live-sheets-table' );
+$loaded = load_textdomain( 'live-sheets-table', $languages . 'live-sheets-table-pl_PL.mo' );
+lstab_assert( $loaded, 'Polish MO loads into WordPress' );
+
+lstab_assert(
+	'Odśwież teraz' === __( 'Refresh now', 'live-sheets-table' ),
+	'A simple string translates',
+	__( 'Refresh now', 'live-sheets-table' )
+);
+lstab_assert(
+	'Zaktualizowano %s temu' === __( 'Updated %s ago', 'live-sheets-table' ),
+	'A string with a placeholder translates',
+	__( 'Updated %s ago', 'live-sheets-table' )
+);
+
+// Polish has three plural forms; check the 1 / 2 / 5 cases pick different ones.
+$plural_one  = sprintf( _n( 'The free version keeps %d sheet source', 'The free version keeps %d sheet sources', 1, 'live-sheets-table' ), 1 );
+$plural_few  = sprintf( _n( 'The free version keeps %d sheet source', 'The free version keeps %d sheet sources', 2, 'live-sheets-table' ), 2 );
+$plural_many = sprintf( _n( 'The free version keeps %d sheet source', 'The free version keeps %d sheet sources', 5, 'live-sheets-table' ), 5 );
+
+lstab_assert( 'Wersja darmowa przechowuje 1 źródło arkusza' === $plural_one, 'Polish singular form', $plural_one );
+lstab_assert( 'Wersja darmowa przechowuje 2 źródła arkuszy' === $plural_few, 'Polish "few" plural form', $plural_few );
+lstab_assert( 'Wersja darmowa przechowuje 5 źródeł arkuszy' === $plural_many, 'Polish "many" plural form', $plural_many );
+
+// The rendered front end must pick the translations up too.
+$translated_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false !== strpos( $translated_html, 'Szukaj…' ), 'Front-end search box is translated' );
+lstab_assert( false !== strpos( $translated_html, 'Sortuj według' ), 'Front-end sort labels are translated' );
+lstab_assert( false !== strpos( $translated_html, 'Zaktualizowano' ), 'Front-end freshness label is translated' );
+
+unload_textdomain( 'live-sheets-table' );
+lstab_assert( 'Refresh now' === __( 'Refresh now', 'live-sheets-table' ), 'Unloading restores the English source strings' );
+
+// Every user-facing string must actually be translatable.
+$untranslated = array();
+foreach ( glob( LSTAB_PATH . 'includes/views/*.php' ) as $view ) {
+	$source_code = (string) file_get_contents( $view );
+	// Look for echoed literals that never went through a gettext call.
+	if ( preg_match_all( '#esc_html\(\s*[\x27"][A-Z][^\x27"]{4,}[\x27"]#', $source_code, $matches ) ) {
+		$untranslated = array_merge( $untranslated, $matches[0] );
+	}
+}
+lstab_assert( ! $untranslated, 'No hard-coded literals echoed from the views', implode( ', ', $untranslated ) );
+
+// ---------------------------------------------------------------------------
+
+echo "\n";
+echo str_repeat( '─', 60 ) . "\n";
+printf(
+	"  \033[32m%d passed\033[0m, %s\n",
+	$GLOBALS['lstab_passed'],
+	$GLOBALS['lstab_failed'] ? "\033[31m{$GLOBALS['lstab_failed']} failed\033[0m" : '0 failed'
+);
+echo str_repeat( '─', 60 ) . "\n";
+
+exit( $GLOBALS['lstab_failed'] > 0 ? 1 : 0 );

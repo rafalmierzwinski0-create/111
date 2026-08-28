@@ -1,0 +1,290 @@
+/**
+ * Live Sheets Table — dashboard styles.
+ */
+
+.lstab-admin .lstab-card {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 1.1rem 1.3rem 1.3rem;
+	margin-bottom: 1rem;
+	box-shadow: 0 1px 1px rgba( 0, 0, 0, 0.04 );
+}
+
+.lstab-admin .lstab-card-title {
+	margin: 0 0 0.6rem;
+	font-size: 1.02rem;
+	line-height: 1.4;
+}
+
+.lstab-admin .lstab-help {
+	display: block;
+	margin-top: 0.35rem;
+	color: #646970;
+	font-size: 0.86rem;
+	max-width: 62ch;
+}
+
+.lstab-admin label > strong {
+	display: block;
+	margin-bottom: 0.25rem;
+}
+
+.lstab-editor-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 1.4rem;
+	align-items: start;
+}
+
+@media screen and (min-width: 1100px) {
+	.lstab-editor-grid {
+		grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+	}
+
+	.lstab-preview-pane {
+		position: sticky;
+		top: 46px;
+	}
+}
+
+.lstab-preview-pane h2 {
+	margin-top: 0;
+}
+
+.lstab-preview {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 1rem 1.2rem;
+	min-height: 12rem;
+	max-height: 60vh;
+	overflow: auto;
+}
+
+.lstab-placeholder {
+	color: #8c8f94;
+	margin: 0;
+}
+
+.lstab-preview-status {
+	margin-bottom: 0.6rem;
+	font-size: 0.88rem;
+	min-height: 1.4em;
+}
+
+.lstab-preview-status.is-error {
+	color: #b32d2e;
+	font-weight: 600;
+}
+
+.lstab-preview-status.is-ok {
+	color: #1a7f37;
+}
+
+.lstab-spinner.is-active {
+	visibility: visible;
+	float: none;
+	margin: 0 0 0 6px;
+	vertical-align: middle;
+}
+
+/* Presets */
+
+.lstab-presets {
+	display: grid;
+	grid-template-columns: repeat( auto-fit, minmax( 13rem, 1fr ) );
+	gap: 0.7rem;
+}
+
+.lstab-preset {
+	display: flex;
+	gap: 0.55rem;
+	align-items: flex-start;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 0.7rem 0.8rem;
+	cursor: pointer;
+	transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+
+.lstab-preset:hover {
+	border-color: #2271b1;
+	background: #f6f7f7;
+}
+
+.lstab-preset:has( input:checked ) {
+	border-color: #2271b1;
+	box-shadow: inset 0 0 0 1px #2271b1;
+	background: #f0f6fc;
+}
+
+.lstab-preset.is-locked {
+	opacity: 0.62;
+	cursor: not-allowed;
+}
+
+.lstab-preset-name {
+	display: block;
+	font-weight: 600;
+}
+
+.lstab-preset-desc {
+	display: block;
+	margin-top: 0.15rem;
+	color: #646970;
+	font-size: 0.82rem;
+	line-height: 1.4;
+}
+
+.lstab-pro-badge {
+	display: inline-block;
+	margin-left: 0.35rem;
+	padding: 0.05rem 0.4rem;
+	border-radius: 999px;
+	background: #8b5cf6;
+	color: #fff;
+	font-size: 0.68rem;
+	font-weight: 700;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
+	vertical-align: 0.1em;
+}
+
+/* Source list */
+
+.lstab-sources .lstab-status {
+	display: inline-flex;
+	gap: 0.35rem;
+	align-items: baseline;
+	font-weight: 600;
+}
+
+.lstab-status--ok {
+	color: #1a7f37;
+}
+
+.lstab-status--stale,
+.lstab-status--never {
+	color: #bf6a02;
+}
+
+.lstab-status--error {
+	color: #b32d2e;
+}
+
+.lstab-status-detail {
+	margin-top: 0.25rem;
+	color: #646970;
+	font-size: 0.82rem;
+	max-width: 42ch;
+}
+
+.lstab-shortcode {
+	user-select: all;
+	font-size: 0.82rem;
+	white-space: nowrap;
+}
+
+.lstab-sources .lstab-col-shortcode {
+	width: 14%;
+}
+
+.lstab-inline-form {
+	display: inline-block;
+	margin: 0;
+}
+
+.lstab-row-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	align-items: center;
+}
+
+.lstab-muted {
+	color: #646970;
+	font-size: 0.85rem;
+}
+
+/* Empty state and upsell */
+
+.lstab-empty-state {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 2.5rem 2rem;
+	text-align: center;
+	margin-top: 1rem;
+}
+
+.lstab-empty-state h2 {
+	margin-top: 0;
+}
+
+.lstab-empty-state p {
+	max-width: 54ch;
+	margin: 0.5rem auto 1.4rem;
+	color: #50575e;
+}
+
+.lstab-upsell {
+	margin-top: 1.4rem;
+	padding: 1.1rem 1.3rem;
+	border: 1px solid #d7c9f5;
+	border-left: 4px solid #8b5cf6;
+	border-radius: 6px;
+	background: #faf7ff;
+	max-width: 62ch;
+}
+
+.lstab-upsell h2,
+.lstab-upsell h3 {
+	margin-top: 0;
+}
+
+.lstab-upsell--large {
+	max-width: 70ch;
+	padding: 2rem;
+}
+
+.lstab-tabs {
+	margin: 0.9rem 0;
+}
+
+.lstab-tabs label {
+	display: block;
+	margin-bottom: 0.25rem;
+}
+
+.lstab-checkbox label {
+	display: inline-flex;
+	gap: 0.4rem;
+	align-items: center;
+}
+
+.lstab-submit {
+	display: flex;
+	gap: 0.6rem;
+	align-items: center;
+}
+
+.lstab-usage {
+	max-width: 62ch;
+}
+
+.lstab-sources .lstab-col-status {
+	width: 28%;
+}
+
+.lstab-sources .lstab-status .dashicons {
+	font-size: 1.05rem;
+	width: 1.05rem;
+	height: 1.05rem;
+	line-height: 1.2;
+	flex: none;
+}
+
+.lstab-sources .lstab-status {
+	align-items: center;
+}

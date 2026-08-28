@@ -1,0 +1,48 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "live-sheets-table/sheet-table",
+	"title": "Google Sheets Table",
+	"category": "widgets",
+	"icon": "editor-table",
+	"description": "Show a saved Google Sheet as a responsive, auto-refreshing table.",
+	"keywords": [ "google", "sheets", "table", "csv", "spreadsheet" ],
+	"textdomain": "live-sheets-table",
+	"supports": {
+		"html": false,
+		"align": [ "wide", "full" ],
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
+	},
+	"attributes": {
+		"sourceId": {
+			"type": "number",
+			"default": 0
+		},
+		"showSearch": {
+			"type": "boolean",
+			"default": true
+		},
+		"showSort": {
+			"type": "boolean",
+			"default": true
+		},
+		"showUpdated": {
+			"type": "boolean",
+			"default": true
+		},
+		"stylePreset": {
+			"type": "string",
+			"default": ""
+		},
+		"caption": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./editor.css",
+	"style": "lstab-table"
+}
