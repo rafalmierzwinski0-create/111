@@ -96,6 +96,82 @@ check( await page.evaluate( () => ! window.__lstabXss ), 'No script from the she
 
 await page.screenshot( { path: `${ SHOTS }/01-add-source-preview.png`, fullPage: true } );
 
+// ---------------------------------------------------- preview width switcher
+section( '3a. Preview width switcher' );
+
+// At a laptop width the side-by-side pane used to be ~620px, so a five-column
+// table previewed as cards while the published page rendered a table.
+const previewTableDisplay = await page.locator( '.lstab-preview .lstab-table' ).evaluate( ( el ) => ( {
+	display: getComputedStyle( el ).display,
+	container: Math.round( el.closest( '.lstab-container' ).getBoundingClientRect().width ),
+} ) );
+check(
+	previewTableDisplay.display === 'table',
+	'A five-column preview shows as a table at full width',
+	JSON.stringify( previewTableDisplay )
+);
+
+await page.locator( '.lstab-width-button[data-lstab-width="390"]' ).click();
+await page.waitForTimeout( 350 );
+const phonePreview = await page.locator( '.lstab-preview .lstab-table' ).evaluate( ( el ) => ( {
+	display: getComputedStyle( el ).display,
+	container: Math.round( el.closest( '.lstab-container' ).getBoundingClientRect().width ),
+} ) );
+check( phonePreview.container <= 392, 'Phone width constrains the preview stage', String( phonePreview.container ) );
+check( phonePreview.display === 'block', 'Phone width previews the card layout', phonePreview.display );
+
+await page.locator( '.lstab-width-button[data-lstab-width="650"]' ).click();
+await page.waitForTimeout( 350 );
+const narrowPreview = await page.locator( '.lstab-preview .lstab-container' ).evaluate( ( el ) =>
+	Math.round( el.getBoundingClientRect().width )
+);
+check( narrowPreview <= 652 && narrowPreview > 392, 'Narrow-column width sits between the two', String( narrowPreview ) );
+
+const pressed = await page.locator( '.lstab-width-button[data-lstab-width="650"]' ).getAttribute( 'aria-pressed' );
+check( pressed === 'true', 'The active width button reports itself as pressed', String( pressed ) );
+
+await page.locator( '.lstab-width-button[data-lstab-width=""]' ).click();
+await page.waitForTimeout( 350 );
+
+// --------------------------------------------------------- style presets
+section( '3b. Style presets change the preview' );
+
+// The preview is what the author checks before saving, so a preset that does
+// not visibly apply there makes the control look broken.
+const presetProbe = async ( slug ) => {
+	await page.locator( `input[name="style_preset"][value="${ slug }"]` ).check();
+	await page.waitForTimeout( 150 );
+	return page.locator( '.lstab-preview .lstab' ).evaluate( ( el ) => ( {
+		classes: el.className,
+		stripe: getComputedStyle( el.querySelector( 'tbody tr:nth-child(2)' ) ).backgroundColor,
+		frame: getComputedStyle( el.querySelector( '.lstab-scroll' ) ).borderRightWidth,
+		cellBorder: getComputedStyle( el.querySelector( 'tbody td' ) ).borderRightWidth,
+	} ) );
+};
+
+const clean = await presetProbe( 'clean' );
+check( clean.classes.includes( 'lstab-style-clean' ), 'Clean preset applies its class', clean.classes );
+
+const striped = await presetProbe( 'striped' );
+check( striped.classes.includes( 'lstab-style-striped' ), 'Striped preset applies its class', striped.classes );
+check( striped.stripe !== clean.stripe, 'Striped preset actually tints alternate rows', `${ clean.stripe } → ${ striped.stripe }` );
+
+const bordered = await presetProbe( 'bordered' );
+check( bordered.classes.includes( 'lstab-style-bordered' ), 'Bordered preset applies its class', bordered.classes );
+check( bordered.cellBorder !== clean.cellBorder, 'Bordered preset actually draws cell borders', `${ clean.cellBorder } → ${ bordered.cellBorder }` );
+
+// Only one preset class may be present, or the last one would not win.
+const presetClassCount = ( bordered.classes.match( /lstab-style-/g ) || [] ).length;
+check( presetClassCount === 1, 'Exactly one preset class is applied at a time', bordered.classes );
+
+// Reloading the preview must keep the chosen preset rather than reverting.
+await page.locator( '#lstab-preview-button' ).click();
+await page.waitForTimeout( 1200 );
+const afterReload = await page.locator( '.lstab-preview .lstab' ).getAttribute( 'class' );
+check( afterReload.includes( 'lstab-style-bordered' ), 'A reloaded preview keeps the chosen preset', afterReload );
+
+await page.locator( 'input[name="style_preset"][value="striped"]' ).check();
+
 // Switching tab re-fetches the preview.
 section( '4. Switching sheet tab' );
 await page.selectOption( '#lstab-tabs', '1734829105' );

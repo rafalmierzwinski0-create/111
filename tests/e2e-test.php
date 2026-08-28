@@ -594,6 +594,35 @@ lstab_assert( isset( $data['headers'] ) && 5 === count( $data['headers'] ), 'Pre
 lstab_assert( isset( $data['tabs'] ) && 3 === count( $data['tabs'] ), 'Preview returns the tab list' );
 lstab_assert( isset( $data['html'] ) && false !== strpos( $data['html'], '<table' ), 'Preview returns rendered HTML' );
 
+// The preview must honour the requested preset; without this the admin screen
+// always rendered "clean" no matter which preset was selected or saved.
+$styled = new WP_REST_Request( 'POST', '/live-sheets-table/v1/preview' );
+$styled->set_param( 'url', 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit' );
+$styled->set_param( 'style', 'striped' );
+$styled_data = $server->dispatch( $styled )->get_data();
+lstab_assert(
+	false !== strpos( $styled_data['html'], 'lstab-style-striped' ),
+	'Preview renders the requested style preset',
+	'no striped class in preview HTML'
+);
+
+$unstyled = new WP_REST_Request( 'POST', '/live-sheets-table/v1/preview' );
+$unstyled->set_param( 'url', 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit' );
+$unstyled_data = $server->dispatch( $unstyled )->get_data();
+lstab_assert(
+	false !== strpos( $unstyled_data['html'], 'lstab-style-clean' ),
+	'Preview falls back to the default preset when none is asked for'
+);
+
+$pro_styled = new WP_REST_Request( 'POST', '/live-sheets-table/v1/preview' );
+$pro_styled->set_param( 'url', 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit' );
+$pro_styled->set_param( 'style', 'midnight' );
+$pro_data = $server->dispatch( $pro_styled )->get_data();
+lstab_assert(
+	false !== strpos( $pro_data['html'], 'lstab-style-clean' ),
+	'Preview will not render a Pro-only preset on the free tier'
+);
+
 $bad = new WP_REST_Request( 'POST', '/live-sheets-table/v1/preview' );
 $bad->set_param( 'url', 'https://evil.example.com/spreadsheets/d/x/edit' );
 $bad_response = $server->dispatch( $bad );

@@ -152,8 +152,34 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 				<?php esc_html_e( 'This is exactly what the parser sees. Check the headings and a few rows before you save — wrong tab, merged cells or a shifted header row show up here, not on your live page.', 'live-sheets-table' ); ?>
 			</p>
 			<div id="lstab-preview-status" class="lstab-preview-status" role="status" aria-live="polite"></div>
+
+			<div class="lstab-widths" role="group" aria-label="<?php esc_attr_e( 'Preview width', 'live-sheets-table' ); ?>">
+				<span class="lstab-widths-label"><?php esc_html_e( 'Width:', 'live-sheets-table' ); ?></span>
+				<?php
+				$lstab_widths = array(
+					''    => __( 'Full width', 'live-sheets-table' ),
+					'650' => __( 'Narrow column', 'live-sheets-table' ),
+					'390' => __( 'Phone', 'live-sheets-table' ),
+				);
+				foreach ( $lstab_widths as $lstab_width => $lstab_width_label ) :
+					?>
+					<button type="button"
+						class="button lstab-width-button<?php echo '' === $lstab_width ? ' is-active' : ''; ?>"
+						data-lstab-width="<?php echo esc_attr( $lstab_width ); ?>"
+						aria-pressed="<?php echo '' === $lstab_width ? 'true' : 'false'; ?>">
+						<?php echo esc_html( $lstab_width_label ); ?>
+					</button>
+				<?php endforeach; ?>
+			</div>
+
+			<p class="lstab-help">
+				<?php esc_html_e( 'A wide table becomes one card per row once its column gets too narrow. Use these to check both before you publish.', 'live-sheets-table' ); ?>
+			</p>
+
 			<div id="lstab-preview" class="lstab-preview">
-				<p class="lstab-placeholder"><?php esc_html_e( 'Paste a link and choose “Load preview”.', 'live-sheets-table' ); ?></p>
+				<div id="lstab-preview-stage" class="lstab-preview-stage">
+					<p class="lstab-placeholder"><?php esc_html_e( 'Paste a link and choose “Load preview”.', 'live-sheets-table' ); ?></p>
+				</div>
 			</div>
 		</div>
 	</div>

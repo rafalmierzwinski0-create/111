@@ -20,12 +20,15 @@
 	var spinner = document.getElementById( 'lstab-spinner' );
 	var status = document.getElementById( 'lstab-preview-status' );
 	var preview = document.getElementById( 'lstab-preview' );
+	var stage = document.getElementById( 'lstab-preview-stage' ) || preview;
+	var widthButtons = document.querySelectorAll( '.lstab-width-button' );
 	var tabsWrap = document.getElementById( 'lstab-tabs-wrap' );
 	var tabsSelect = document.getElementById( 'lstab-tabs' );
 	var gidField = document.getElementById( 'lstab-gid' );
 	var tabNameField = document.getElementById( 'lstab-tab-name' );
 	var titleField = document.getElementById( 'lstab-title' );
 	var firstRowHeader = document.getElementById( 'lstab-first-row-header' );
+	var presetInputs = form.querySelectorAll( 'input[name="style_preset"]' );
 
 	var inFlight = false;
 
@@ -34,6 +37,40 @@
 			var value = values[ Number( index ) - 1 ];
 			return undefined === value ? match : String( value );
 		} );
+	}
+
+	/**
+	 * The preset the author currently has selected.
+	 *
+	 * @return {string} Preset slug, or '' when nothing is checked.
+	 */
+	function selectedPreset() {
+		for ( var i = 0; i < presetInputs.length; i++ ) {
+			if ( presetInputs[ i ].checked ) {
+				return presetInputs[ i ].value;
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * Restyle the preview that is already on screen.
+	 *
+	 * A preset is presentation only, so swapping the class beats refetching the
+	 * sheet from Google just to render the same rows in a different skin.
+	 *
+	 * @param {string} preset Preset slug.
+	 */
+	function applyPreset( preset ) {
+		var table = stage.querySelector( '.lstab' );
+		if ( ! table || ! preset ) {
+			return;
+		}
+
+		( settings.presets || [] ).forEach( function ( slug ) {
+			table.classList.remove( 'lstab-style-' + slug );
+		} );
+		table.classList.add( 'lstab-style-' + preset );
 	}
 
 	function setStatus( message, state ) {
@@ -90,12 +127,13 @@
 			data: {
 				url: url,
 				gid: undefined === gid ? '' : String( gid ),
-				firstRowHeader: firstRowHeader ? firstRowHeader.checked : true
+				firstRowHeader: firstRowHeader ? firstRowHeader.checked : true,
+				style: selectedPreset()
 			}
 		} ).then( function ( response ) {
 			setBusy( false );
 
-			preview.innerHTML = response.html || '';
+			stage.innerHTML = response.html || '';
 			if ( window.lstabInit ) {
 				window.lstabInit();
 			}
@@ -120,7 +158,7 @@
 			}
 		} ).catch( function ( error ) {
 			setBusy( false );
-			preview.innerHTML = '';
+			stage.innerHTML = '';
 			setStatus( ( error && error.message ) || i18n.failed, 'error' );
 			tabsWrap.hidden = true;
 		} );
@@ -140,9 +178,31 @@
 		loadPreview( tabsSelect.value );
 	} );
 
+	// Constrain the stage so the author can see the table and the card layout
+	// without resizing the browser. The container query does the rest.
+	Array.prototype.forEach.call( widthButtons, function ( widthButton ) {
+		widthButton.addEventListener( 'click', function () {
+			var width = widthButton.getAttribute( 'data-lstab-width' );
+
+			stage.style.maxWidth = width ? width + 'px' : '';
+
+			Array.prototype.forEach.call( widthButtons, function ( other ) {
+				var active = other === widthButton;
+				other.classList.toggle( 'is-active', active );
+				other.setAttribute( 'aria-pressed', active ? 'true' : 'false' );
+			} );
+		} );
+	} );
+
+	Array.prototype.forEach.call( presetInputs, function ( input ) {
+		input.addEventListener( 'change', function () {
+			applyPreset( input.value );
+		} );
+	} );
+
 	if ( firstRowHeader ) {
 		firstRowHeader.addEventListener( 'change', function () {
-			if ( preview.querySelector( '.lstab-table' ) ) {
+			if ( stage.querySelector( '.lstab-table' ) ) {
 				loadPreview( gidField.value );
 			}
 		} );

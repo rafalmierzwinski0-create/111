@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-08-28 14:51+0000\n"
+"POT-Creation-Date: 2026-08-28 15:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,6 +31,10 @@ msgstr ""
 
 #: includes/views/edit-page.php:110
 msgid "3. Pick a look"
+msgstr ""
+
+#: includes/views/edit-page.php:176
+msgid "A wide table becomes one card per row once its column gets too narrow. Use these to check both before you publish."
 msgstr ""
 
 #: includes/views/list-page.php:46
@@ -121,11 +125,11 @@ msgstr ""
 msgid "Could not read the tab list for this spreadsheet."
 msgstr ""
 
-#: includes/class-lstab-admin.php:123
+#: includes/class-lstab-admin.php:126
 msgid "Could not read the tab list — the tab from your link will be used."
 msgstr ""
 
-#: includes/class-lstab-storage.php:140
+#: includes/class-lstab-storage.php:141
 msgid "Could not save the sheet source."
 msgstr ""
 
@@ -179,16 +183,20 @@ msgid "Every minute"
 msgstr ""
 
 #. translators: %s: human readable time difference.
-#: includes/class-lstab-admin.php:399
+#: includes/class-lstab-admin.php:402
 msgid "Failing since the last good sync %s ago"
 msgstr ""
 
-#: includes/class-lstab-admin.php:120
+#: includes/class-lstab-admin.php:123
 msgid "Found %1$s rows across %2$s columns."
 msgstr ""
 
 #: includes/class-lstab-styles.php:34
 msgid "Full grid with a shaded header. Good for dense numeric data."
+msgstr ""
+
+#: includes/views/edit-page.php:160
+msgid "Full width"
 msgstr ""
 
 #: blocks/sheet-table/index.js:175 blocks/sheet-table/index.js:181
@@ -238,7 +246,7 @@ msgid "In Google Sheets choose Share → General access → “Anyone with the l
 msgstr ""
 
 #. translators: %s: human readable time difference.
-#: includes/class-lstab-admin.php:388
+#: includes/class-lstab-admin.php:391
 msgid "Last sync OK (%s ago)"
 msgstr ""
 
@@ -263,7 +271,7 @@ msgstr ""
 msgid "Load preview"
 msgstr ""
 
-#: includes/class-lstab-admin.php:118
+#: includes/class-lstab-admin.php:121
 msgid "Loading preview…"
 msgstr ""
 
@@ -275,6 +283,10 @@ msgstr ""
 msgid "Midnight"
 msgstr ""
 
+#: includes/views/edit-page.php:161
+msgid "Narrow column"
+msgstr ""
+
 #: blocks/sheet-table/index.js:146
 msgid "Narrow theme columns cannot fit a wide table. \"Automatic\" turns each row into a labelled card rather than hiding columns."
 msgstr ""
@@ -283,7 +295,7 @@ msgstr ""
 msgid "Need more than one sheet?"
 msgstr ""
 
-#: includes/class-lstab-admin.php:402
+#: includes/class-lstab-admin.php:405
 msgid "Never synced successfully"
 msgstr ""
 
@@ -303,7 +315,7 @@ msgstr ""
 msgid "No spreadsheet ID found in that link. Use the address of the sheet itself, for example https://docs.google.com/spreadsheets/d/ABC123/edit."
 msgstr ""
 
-#: includes/class-lstab-admin.php:417
+#: includes/class-lstab-admin.php:420
 msgid "Not synced yet"
 msgstr ""
 
@@ -319,7 +331,7 @@ msgstr ""
 msgid "Open in Google Sheets"
 msgstr ""
 
-#: includes/views/edit-page.php:169
+#: includes/views/edit-page.php:195
 msgid "Optional attributes: search=\"no\", sort=\"no\", meta=\"no\", style=\"striped\", caption=\"My table\"."
 msgstr ""
 
@@ -327,11 +339,11 @@ msgstr ""
 msgid "Pages always render from the local copy, so visitors never wait for Google. Pro syncs as often as every minute."
 msgstr ""
 
-#: includes/class-lstab-admin.php:124
+#: includes/class-lstab-admin.php:127
 msgid "Paste a Google Sheets link first."
 msgstr ""
 
-#: includes/views/edit-page.php:156
+#: includes/views/edit-page.php:181
 msgid "Paste a link and choose “Load preview”."
 msgstr ""
 
@@ -339,7 +351,11 @@ msgstr ""
 msgid "Paste the link to your Google Sheet first."
 msgstr ""
 
-#: includes/class-lstab-admin.php:122
+#: includes/views/edit-page.php:162
+msgid "Phone"
+msgstr ""
+
+#: includes/class-lstab-admin.php:125
 msgid "Pick the tab you want to publish:"
 msgstr ""
 
@@ -347,8 +363,12 @@ msgstr ""
 msgid "Preview"
 msgstr ""
 
-#: includes/class-lstab-admin.php:119
+#: includes/class-lstab-admin.php:122
 msgid "Preview failed"
+msgstr ""
+
+#: includes/views/edit-page.php:156
+msgid "Preview width"
 msgstr ""
 
 #: includes/views/edit-page.php:87
@@ -367,12 +387,12 @@ msgstr ""
 msgid "Publish your first Google Sheet"
 msgstr ""
 
-#: includes/views/edit-page.php:163
+#: includes/views/edit-page.php:189
 msgid "Put it on a page"
 msgstr ""
 
 #. translators: %s: error message.
-#: includes/class-lstab-admin.php:281
+#: includes/class-lstab-admin.php:284
 msgid "Refresh failed: %s"
 msgstr ""
 
@@ -397,7 +417,7 @@ msgid "Saved source"
 msgstr ""
 
 #. translators: %s: error message.
-#: includes/class-lstab-admin.php:238
+#: includes/class-lstab-admin.php:241
 msgid "Saved, but the first sync failed: %s"
 msgstr ""
 
@@ -433,7 +453,7 @@ msgstr ""
 msgid "Share a sheet as “Anyone with the link – Viewer”, paste the link, and check the preview before you save. No API key, no Google Cloud project."
 msgstr ""
 
-#: includes/class-lstab-admin.php:288
+#: includes/class-lstab-admin.php:291
 msgid "Sheet refreshed from Google."
 msgstr ""
 
@@ -441,11 +461,11 @@ msgstr ""
 msgid "Sheet source"
 msgstr ""
 
-#: includes/class-lstab-admin.php:261
+#: includes/class-lstab-admin.php:264
 msgid "Sheet source deleted."
 msgstr ""
 
-#: includes/class-lstab-admin.php:244
+#: includes/class-lstab-admin.php:247
 msgid "Sheet source saved and synced."
 msgstr ""
 
@@ -469,7 +489,7 @@ msgstr ""
 msgid "Show “updated … ago”"
 msgstr ""
 
-#: includes/class-lstab-admin.php:121
+#: includes/class-lstab-admin.php:124
 msgid "Showing the first 25 rows."
 msgstr ""
 
@@ -498,11 +518,11 @@ msgstr ""
 msgid "Style preset"
 msgstr ""
 
-#: includes/class-lstab-admin.php:409
+#: includes/class-lstab-admin.php:412
 msgid "Sync error — nothing to show yet"
 msgstr ""
 
-#: includes/class-lstab-admin.php:408
+#: includes/class-lstab-admin.php:411
 msgid "Sync error — visitors still see the last good copy"
 msgstr ""
 
@@ -539,7 +559,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of sources allowed.
-#: includes/class-lstab-admin.php:188
+#: includes/class-lstab-admin.php:191
 msgid "The free version stores %d sheet source. Remove the existing one, or upgrade to add more."
 msgid_plural "The free version stores %d sheet sources. Remove one, or upgrade to add more."
 msgstr[0] ""
@@ -562,7 +582,7 @@ msgstr ""
 msgid "Title"
 msgstr ""
 
-#: includes/class-lstab-admin.php:215
+#: includes/class-lstab-admin.php:218
 msgid "Untitled sheet"
 msgstr ""
 
@@ -575,16 +595,20 @@ msgstr ""
 msgid "Use the source default"
 msgstr ""
 
-#: includes/views/edit-page.php:165
+#: includes/views/edit-page.php:191
 msgid "Use the “Google Sheets Table” block, or paste this shortcode into any editor, widget or page builder:"
 msgstr ""
 
-#: includes/class-lstab-rest.php:112
+#: includes/views/edit-page.php:157
+msgid "Width:"
+msgstr ""
+
+#: includes/class-lstab-rest.php:116
 msgid "You are not allowed to list sheet sources."
 msgstr ""
 
-#: includes/class-lstab-rest.php:95 includes/class-lstab-admin.php:137
-#: includes/class-lstab-admin.php:151 includes/class-lstab-admin.php:300
+#: includes/class-lstab-rest.php:99 includes/class-lstab-admin.php:140
+#: includes/class-lstab-admin.php:154 includes/class-lstab-admin.php:303
 msgid "You are not allowed to manage sheet sources."
 msgstr ""
 

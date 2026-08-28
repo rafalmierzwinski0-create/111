@@ -49,6 +49,10 @@ class LSTAB_Rest {
 						'type'    => 'boolean',
 						'default' => true,
 					),
+					'style'          => array(
+						'type'    => 'string',
+						'default' => '',
+					),
 				),
 			)
 		);
@@ -177,7 +181,8 @@ class LSTAB_Rest {
 					array(
 						'headers' => $table['headers'],
 						'rows'    => $preview,
-					)
+					),
+					array( 'style' => LSTAB_Styles::sanitize( (string) $request->get_param( 'style' ) ) )
 				),
 			)
 		);

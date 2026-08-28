@@ -85,6 +85,13 @@ return array(
 
 	// Preview pane.
 	'Preview'                                    => 'Podgląd',
+	'Preview width'                              => 'Szerokość podglądu',
+	'Width:'                                     => 'Szerokość:',
+	'Full width'                                 => 'Pełna szerokość',
+	'Narrow column'                              => 'Wąska kolumna',
+	'Phone'                                      => 'Telefon',
+	'A wide table becomes one card per row once its column gets too narrow. Use these to check both before you publish.'
+		=> 'Szeroka tabela zamienia się w jedną kartę na wiersz, gdy jej kolumna staje się zbyt wąska. Sprawdź oba warianty, zanim opublikujesz.',
 	'This is exactly what the parser sees. Check the headings and a few rows before you save — wrong tab, merged cells or a shifted header row show up here, not on your live page.'
 		=> 'Dokładnie to widzi parser. Sprawdź nagłówki i kilka wierszy przed zapisaniem — zła zakładka, scalone komórki czy przesunięty wiersz nagłówka widać tutaj, a nie na działającej stronie.',
 	'Paste a link and choose “Load preview”.'    => 'Wklej link i wybierz „Wczytaj podgląd”.',

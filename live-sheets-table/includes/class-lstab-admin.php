@@ -114,6 +114,9 @@ class LSTAB_Admin {
 			array(
 				'previewUrl' => rest_url( LSTAB_Rest::NAMESPACE_V1 . '/preview' ),
 				'nonce'      => wp_create_nonce( 'wp_rest' ),
+				// Needed so the script can clear whichever preset class is on
+				// the preview before applying the newly chosen one.
+				'presets'    => array_keys( LSTAB_Styles::all() ),
 				'i18n'       => array(
 					'loading'     => __( 'Loading preview…', 'live-sheets-table' ),
 					'failed'      => __( 'Preview failed', 'live-sheets-table' ),
