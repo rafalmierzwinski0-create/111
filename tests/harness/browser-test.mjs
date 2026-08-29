@@ -874,6 +874,60 @@ await columnRows.nth( 0 ).locator( 'input[type=text]' ).fill( '' );
 await page.locator( '.lstab-submit button[type=submit]' ).click();
 await page.waitForLoadState( 'networkidle' );
 
+// ------------------------------------------------- malformed sheet, and links
+section( '9c. A sheet that arrives malformed' );
+
+// The fetch succeeds, so nothing else in the plugin notices. Only someone who
+// can fix it is told, and the public page carries on as normal.
+setMock( 'ragged' );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+await page.locator( 'button:has-text("Refresh now")' ).first().click();
+await page.waitForLoadState( 'networkidle' );
+
+const raggedNotice = await page.locator( '.lstab-status-ragged' ).count();
+check( raggedNotice === 1, 'The sources list flags the malformed row', String( raggedNotice ) );
+const raggedText = raggedNotice ? await page.locator( '.lstab-status-ragged' ).first().innerText() : '';
+check( /\d/.test( raggedText ), 'It names a row number to look at', raggedText );
+check( ! /error/i.test( await page.locator( '.lstab-status' ).first().innerText() ), 'It is not reported as a failed sync' );
+await page.screenshot( { path: `${ SHOTS }/18-ragged-warning.png`, fullPage: false } );
+
+await apage.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
+const publicBody = await apage.locator( 'body' ).innerText();
+check( await apage.locator( '.lstab-table' ).count() > 0, 'The public page still renders a table' );
+check( ! /quotation mark|cudzysłów/i.test( publicBody ), 'The visitor is told nothing about it' );
+
+// Back to a clean sheet; the warning must clear itself rather than linger.
+setMock( 'ok' );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+await page.locator( 'button:has-text("Refresh now")' ).first().click();
+await page.waitForLoadState( 'networkidle' );
+check( await page.locator( '.lstab-status-ragged' ).count() === 0, 'A clean sync clears the warning' );
+
+section( '9d. Links in cells' );
+
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+const linkToggle = page.locator( 'input[name="link_cells"]' );
+check( await linkToggle.count() === 1, 'The source screen offers the setting' );
+check( await linkToggle.isChecked(), 'It is on for a new source' );
+
+await linkToggle.uncheck();
+await page.locator( '.lstab-submit button[type=submit]' ).click();
+await page.waitForLoadState( 'networkidle' );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+check( ! ( await page.locator( 'input[name="link_cells"]' ).isChecked() ), 'Turning it off sticks' );
+
+await page.locator( 'input[name="link_cells"]' ).check();
+await page.locator( '.lstab-submit button[type=submit]' ).click();
+await page.waitForLoadState( 'networkidle' );
+
+// Without the add-on there is nothing listening for a filter, so the field is
+// not offered — a control that accepts text and changes nothing is worse than
+// no control.
+check(
+	! ( await page.evaluate( () => !! ( window.lstabBlock && window.lstabBlock.isPro ) ) ),
+	'The free build does not claim to be Pro'
+);
+
 // -------------------------------------------------------------- block editor
 section( '10. Block editor' );
 setMock( 'ok' );

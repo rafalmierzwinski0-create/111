@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-08-29 20:17+0000\n"
-"PO-Revision-Date: 2026-08-29 20:17+0000\n"
+"POT-Creation-Date: 2026-08-29 20:24+0000\n"
+"PO-Revision-Date: 2026-08-29 20:24+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +22,7 @@ msgstr[0] "%1$d wiersz nie ma %2$d komórek tak jak reszta (wiersz %3$s). Sprawd
 msgstr[1] "%1$d wiersze nie mają %2$d komórek tak jak reszta (wiersze %3$s). Sprawdź te wiersze w Google — najczęściej to niesparowany cudzysłów."
 msgstr[2] "%1$d wierszy nie ma %2$d komórek tak jak reszta (wiersze %3$s). Sprawdź te wiersze w Google — najczęściej to niesparowany cudzysłów."
 
-#: includes/class-lstab-renderer.php:252
+#: includes/class-lstab-renderer.php:254
 msgid "%1$s of %2$s rows"
 msgstr "%1$s z %2$s wierszy"
 
@@ -400,7 +400,7 @@ msgstr "Potrzebujesz więcej niż jednego arkusza?"
 msgid "Never synced successfully"
 msgstr "Nigdy nie zsynchronizowano poprawnie"
 
-#: includes/class-lstab-renderer.php:375
+#: includes/class-lstab-renderer.php:377
 msgid "No rows match your search."
 msgstr "Żaden wiersz nie pasuje do wyszukiwania."
 
@@ -575,7 +575,7 @@ msgstr "Harmonogram"
 msgid "Scheduled syncing is switched off on this site."
 msgstr "Zaplanowana synchronizacja jest na tej stronie wyłączona."
 
-#: includes/class-lstab-renderer.php:367
+#: includes/class-lstab-renderer.php:369
 msgid "Scroll the table sideways"
 msgstr "Przewiń tabelę w bok"
 
@@ -583,11 +583,11 @@ msgstr "Przewiń tabelę w bok"
 msgid "Search box"
 msgstr "Pole wyszukiwania"
 
-#: includes/class-lstab-renderer.php:245
+#: includes/class-lstab-renderer.php:247
 msgid "Search this table"
 msgstr "Przeszukaj tabelę"
 
-#: includes/class-lstab-renderer.php:248
+#: includes/class-lstab-renderer.php:250
 msgid "Search…"
 msgstr "Szukaj…"
 
@@ -677,7 +677,7 @@ msgid "Small"
 msgstr "Mała"
 
 #. translators: %s: column name.
-#: includes/class-lstab-renderer.php:280
+#: includes/class-lstab-renderer.php:282
 msgid "Sort by %s"
 msgstr "Sortuj według: %s"
 
@@ -734,7 +734,7 @@ msgstr "Opcje tabeli"
 msgid "Table with a slider"
 msgstr "Tabela z suwakiem"
 
-#: includes/class-lstab-renderer.php:263
+#: includes/class-lstab-renderer.php:265
 msgid "Table, scrollable sideways"
 msgstr "Tabela, przewijana w bok"
 
@@ -820,7 +820,7 @@ msgid "Untitled sheet"
 msgstr "Arkusz bez tytułu"
 
 #. translators: %s: human readable time difference, e.g. "5 mins".
-#: includes/class-lstab-renderer.php:387
+#: includes/class-lstab-renderer.php:389
 msgid "Updated %s ago"
 msgstr "Zaktualizowano %s temu"
 
@@ -856,11 +856,11 @@ msgstr "Szerokość:"
 msgid "WordPress runs scheduled work when someone visits the site, so a quiet site can fall behind. On a site that should be busy this usually means WP-Cron is blocked — by a security plugin, a page cache serving every request, or a host that disables it. Your tables are still showing their last good copy."
 msgstr "WordPress wykonuje zaplanowane zadania, gdy ktoś odwiedza stronę, więc mało odwiedzana witryna może się opóźniać. Na stronie, która powinna mieć ruch, zwykle oznacza to zablokowany WP-Cron — przez wtyczkę bezpieczeństwa, cache serwujący każde żądanie albo hosting, który go wyłącza. Twoje tabele nadal pokazują ostatnią poprawną kopię."
 
-#: includes/class-lstab-rest.php:126
+#: includes/class-lstab-rest.php:132
 msgid "You are not allowed to list sheet sources."
 msgstr "Nie masz uprawnień do przeglądania źródeł arkuszy."
 
-#: includes/class-lstab-rest.php:109 includes/class-lstab-admin.php:148
+#: includes/class-lstab-rest.php:115 includes/class-lstab-admin.php:148
 #: includes/class-lstab-admin.php:162 includes/class-lstab-admin.php:321
 msgid "You are not allowed to manage sheet sources."
 msgstr "Nie masz uprawnień do zarządzania źródłami arkuszy."

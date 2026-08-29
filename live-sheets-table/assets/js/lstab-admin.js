@@ -112,6 +112,7 @@
 		}
 	}
 
+	var sourceIdField = form.querySelector( 'input[name="source_id"]' );
 	var columnRows = document.querySelectorAll( '.lstab-column-list tbody tr' );
 
 	/**
@@ -164,7 +165,8 @@
 				firstRowHeader: firstRowHeader ? firstRowHeader.checked : true,
 				style: selectedPreset(),
 				layout: layoutSelect ? layoutSelect.value : 'table',
-				columns: columnSettings()
+				columns: columnSettings(),
+				sourceId: sourceIdField ? parseInt( sourceIdField.value, 10 ) || 0 : 0
 			}
 		} ).then( function ( response ) {
 			setBusy( false );

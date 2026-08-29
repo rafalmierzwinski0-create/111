@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-08-29 20:17+0000\n"
+"POT-Creation-Date: 2026-08-29 20:24+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,7 +20,7 @@ msgid_plural "%1$d rows do not hold %2$d cells like the rest (rows %3$s). Check 
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-lstab-renderer.php:252
+#: includes/class-lstab-renderer.php:254
 msgid "%1$s of %2$s rows"
 msgstr ""
 
@@ -398,7 +398,7 @@ msgstr ""
 msgid "Never synced successfully"
 msgstr ""
 
-#: includes/class-lstab-renderer.php:375
+#: includes/class-lstab-renderer.php:377
 msgid "No rows match your search."
 msgstr ""
 
@@ -573,7 +573,7 @@ msgstr ""
 msgid "Scheduled syncing is switched off on this site."
 msgstr ""
 
-#: includes/class-lstab-renderer.php:367
+#: includes/class-lstab-renderer.php:369
 msgid "Scroll the table sideways"
 msgstr ""
 
@@ -581,11 +581,11 @@ msgstr ""
 msgid "Search box"
 msgstr ""
 
-#: includes/class-lstab-renderer.php:245
+#: includes/class-lstab-renderer.php:247
 msgid "Search this table"
 msgstr ""
 
-#: includes/class-lstab-renderer.php:248
+#: includes/class-lstab-renderer.php:250
 msgid "Search…"
 msgstr ""
 
@@ -675,7 +675,7 @@ msgid "Small"
 msgstr ""
 
 #. translators: %s: column name.
-#: includes/class-lstab-renderer.php:280
+#: includes/class-lstab-renderer.php:282
 msgid "Sort by %s"
 msgstr ""
 
@@ -732,7 +732,7 @@ msgstr ""
 msgid "Table with a slider"
 msgstr ""
 
-#: includes/class-lstab-renderer.php:263
+#: includes/class-lstab-renderer.php:265
 msgid "Table, scrollable sideways"
 msgstr ""
 
@@ -816,7 +816,7 @@ msgid "Untitled sheet"
 msgstr ""
 
 #. translators: %s: human readable time difference, e.g. "5 mins".
-#: includes/class-lstab-renderer.php:387
+#: includes/class-lstab-renderer.php:389
 msgid "Updated %s ago"
 msgstr ""
 
@@ -852,11 +852,11 @@ msgstr ""
 msgid "WordPress runs scheduled work when someone visits the site, so a quiet site can fall behind. On a site that should be busy this usually means WP-Cron is blocked — by a security plugin, a page cache serving every request, or a host that disables it. Your tables are still showing their last good copy."
 msgstr ""
 
-#: includes/class-lstab-rest.php:126
+#: includes/class-lstab-rest.php:132
 msgid "You are not allowed to list sheet sources."
 msgstr ""
 
-#: includes/class-lstab-rest.php:109 includes/class-lstab-admin.php:148
+#: includes/class-lstab-rest.php:115 includes/class-lstab-admin.php:148
 #: includes/class-lstab-admin.php:162 includes/class-lstab-admin.php:321
 msgid "You are not allowed to manage sheet sources."
 msgstr ""

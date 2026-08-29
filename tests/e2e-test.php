@@ -741,6 +741,16 @@ wp_set_current_user( 0 );
 
 // ---------------------------------------------------------------------------
 
+// The preview endpoint has to be told which source is being edited, or nothing
+// configured per source outside the free plugin's own table can reach it.
+$preview_route = rest_get_server()->get_routes();
+lstab_assert(
+	isset( $preview_route['/live-sheets-table/v1/preview'][0]['args']['sourceId'] ),
+	'The preview endpoint accepts the source being edited'
+);
+
+// ---------------------------------------------------------------------------
+
 lstab_section( '13. Block registration' );
 
 $registry = WP_Block_Type_Registry::get_instance();

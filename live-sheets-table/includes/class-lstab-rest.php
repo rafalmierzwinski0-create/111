@@ -63,6 +63,12 @@ class LSTAB_Rest {
 						'type'    => 'array',
 						'default' => array(),
 					),
+					// Which source is being edited, so anything configured per
+					// source — an add-on's colour rules, say — shows here too.
+					'sourceId'       => array(
+						'type'    => 'integer',
+						'default' => 0,
+					),
 				),
 			)
 		);
@@ -196,8 +202,9 @@ class LSTAB_Rest {
 						LSTAB_Columns::sanitize( (array) $request->get_param( 'columns' ) )
 					),
 					array(
-						'style'  => LSTAB_Styles::sanitize( (string) $request->get_param( 'style' ) ),
-						'layout' => (string) $request->get_param( 'layout' ),
+						'style'     => LSTAB_Styles::sanitize( (string) $request->get_param( 'style' ) ),
+						'layout'    => (string) $request->get_param( 'layout' ),
+						'source_id' => absint( $request->get_param( 'sourceId' ) ),
 					)
 				),
 			)

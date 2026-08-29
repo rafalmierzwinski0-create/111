@@ -454,6 +454,25 @@ lstabp_assert( ! empty( LSTABP_Rules::for_source( $throwaway ) ), 'The throwaway
 LSTAB_Storage::delete( $throwaway );
 lstabp_assert( array() === LSTABP_Rules::for_source( $throwaway ), 'Deleting a source deletes its rules' );
 
+// The preview on the source screen has to show what a visitor will see, or the
+// person setting up the rules is checking their work against the wrong table.
+$previewed = LSTAB_Renderer::render_preview(
+	array(
+		'headers' => array( 'Produkt', 'Dostępność' ),
+		'rows'    => array( array( 'Kask', 'Brak' ) ),
+	),
+	array( 'source_id' => $source_id )
+);
+lstabp_assert( false !== strpos( $previewed, 'background-color:#fdecec' ), 'The admin preview applies the colour rules' );
+
+$anonymous = LSTAB_Renderer::render_preview(
+	array(
+		'headers' => array( 'Produkt', 'Dostępność' ),
+		'rows'    => array( array( 'Kask', 'Brak' ) ),
+	)
+);
+lstabp_assert( false === strpos( $anonymous, 'background-color:#fdecec' ), 'A preview of no particular source has no rules to apply' );
+
 // A save from a screen that never showed the card must leave the rules alone.
 // The card is disabled until a sheet has been read, and its fields then submit
 // nothing at all — which is indistinguishable from "every rule was removed"

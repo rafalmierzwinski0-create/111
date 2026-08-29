@@ -344,6 +344,21 @@ class LSTABP_Rules {
 			array(),
 			LSTABP_VERSION
 		);
+
+		wp_enqueue_script(
+			'lstabp-admin',
+			LSTABP_URL . 'assets/js/lstabp-admin.js',
+			array(),
+			LSTABP_VERSION,
+			true
+		);
+
+		$swatches = array();
+		foreach ( self::styles() as $key => $style ) {
+			$swatches[ $key ] = $style['css'];
+		}
+
+		wp_localize_script( 'lstabp-admin', 'lstabpRules', array( 'styles' => $swatches ) );
 	}
 
 	/**

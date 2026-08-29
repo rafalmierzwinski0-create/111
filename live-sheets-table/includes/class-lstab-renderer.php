@@ -95,7 +95,9 @@ class LSTAB_Renderer {
 		);
 
 		$source = array(
-			'id'               => 0,
+			// Named when the preview is of a saved source, so per-source
+			// settings an add-on holds elsewhere apply here too.
+			'id'               => isset( $args['source_id'] ) ? absint( $args['source_id'] ) : 0,
 			'title'            => isset( $args['caption'] ) ? (string) $args['caption'] : '',
 			'style_preset'     => LSTAB_Styles::sanitize( $args['style'] ),
 			'data'             => $data,
