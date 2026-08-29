@@ -500,9 +500,22 @@ lstab_assert(
 	'A failed fetch leaves the finding alone, as it leaves the snapshot alone'
 );
 
+// The dashboard-wide warning reads an autoloaded option rather than querying
+// on every admin page, so that index has to track the column exactly.
+lstab_set_mock( 'ragged' );
+LSTAB_Sync::run( $source_id );
+$ragged_index = (array) get_option( LSTAB_Storage::RAGGED_OPT, array() );
+lstab_assert( isset( $ragged_index[ $source_id ] ), 'The malformed sheet is listed for the dashboard-wide warning', wp_json_encode( $ragged_index ) );
+
+// Dismissing silences this fault, and only this fault.
+update_option( LSTAB_Storage::DISMISSED_OPT, array_values( $ragged_index ), true );
+lstab_assert( ! array_diff( $ragged_index, (array) get_option( LSTAB_Storage::DISMISSED_OPT, array() ) ), 'Dismissing covers what is currently listed' );
+
 lstab_set_mock( 'ok', 'main' );
 LSTAB_Sync::run( $source_id );
 lstab_assert( null === LSTAB_Storage::get( $source_id )['last_ragged'], 'A clean sync clears it' );
+lstab_assert( ! isset( ( (array) get_option( LSTAB_Storage::RAGGED_OPT, array() ) )[ $source_id ] ), 'And takes the source off the list' );
+lstab_assert( array() === (array) get_option( LSTAB_Storage::DISMISSED_OPT, array() ), 'A dismissal of a fault that is gone is forgotten, so the next one is heard' );
 
 // ---------------------------------------------------------------------------
 
@@ -913,11 +926,31 @@ lstab_assert(
 $block_json = json_decode( (string) file_get_contents( LSTAB_PATH . 'blocks/sheet-table/block.json' ), true );
 lstab_assert( isset( $block_json['attributes']['filter'] ), 'The block declares a filter attribute' );
 
+lstab_assert( ! LSTAB_Limits::is_pro(), 'The free suite really is running without Pro' );
+
+/*
+ * An add-on can be deactivated by an expired licence, a conflict or a tidy-up.
+ * A page built to show one category would then publish the whole sheet —
+ * working rows included — and nobody would notice. Showing nothing is a
+ * visible gap someone will fix; showing everything is a disclosure that is
+ * already indexed by the time anyone spots it.
+ */
 $block_free = new LSTAB_Block();
 $unfiltered = substr_count( $block_free->render( array( 'sourceId' => $source_id ) ), '<tr role="row" class="lstab-row"' );
 $attempted  = substr_count( $block_free->render( array( 'sourceId' => $source_id, 'filter' => 'Dostępność is Brak' ) ), '<tr role="row" class="lstab-row"' );
-lstab_assert( $unfiltered === $attempted, 'Without the add-on a filter changes nothing rather than failing', "{$attempted} of {$unfiltered}" );
-lstab_assert( ! LSTAB_Limits::is_pro(), 'The free suite really is running without Pro' );
+lstab_assert( $unfiltered > 0, 'The unfiltered block still renders its rows', (string) $unfiltered );
+lstab_assert( 0 === $attempted, 'A filter nothing can honour shows no rows rather than every row', (string) $attempted );
+
+$shortcode_attempt = do_shortcode( '[sheet_table id="' . $source_id . '" filter="Dostępność is Brak"]' );
+lstab_assert( 0 === substr_count( $shortcode_attempt, '<tr role="row" class="lstab-row"' ), 'The shortcode is held to the same rule' );
+
+wp_set_current_user( 1 );
+$owner_sees = do_shortcode( '[sheet_table id="' . $source_id . '" filter="Dostępność is Brak"]' );
+lstab_assert( false !== strpos( $owner_sees, 'not active' ), 'Someone who can fix it is told why the table is empty' );
+wp_set_current_user( 0 );
+
+$visitor_sees = do_shortcode( '[sheet_table id="' . $source_id . '" filter="Dostępność is Brak"]' );
+lstab_assert( '' === trim( $visitor_sees ), 'A visitor is shown nothing at all, not an explanation', substr( $visitor_sees, 0, 80 ) );
 
 // ---------------------------------------------------------------------------
 

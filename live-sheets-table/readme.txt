@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.7.0
+Stable tag: 1.8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -153,6 +153,11 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 
 == Changelog ==
 
+= 1.8.0 =
+* Added: a table set to show only some of its rows now shows none of them when nothing is available to do the filtering, instead of falling back to every row. An add-on can be deactivated by an expired licence, a conflict or a tidy-up, and a page built to show one category would otherwise publish the whole sheet — working rows included — with nobody the wiser. An empty table is a gap someone fixes; a full one is a disclosure nobody notices.
+* Added: the message after a save or a manual refresh now says when the sheet arrived malformed, rather than reporting a plain success. The fetch working and the sheet arriving intact are two different things.
+* Added: that warning is now raised anywhere in the dashboard, not only on the plugin's own screens, with a link to the source and one to hide it. Hiding covers the fault that was found; a different one is raised again.
+
 = 1.7.0 =
 * Added: web and e-mail addresses in cells can be made clickable, per table. A link in a cell was otherwise plain text a visitor had to select and copy, which on a phone is close to impossible. Only http, https and e-mail become links, and they carry rel="nofollow ugc" because the sheet is not necessarily yours.
 * Added: the dashboard now says when a sheet fetched correctly but arrived malformed. Google gives every row the same number of cells, so a row that disagrees is a fault worth naming — with the row number to look at. Visitors see the table as usual; only someone who can fix it is told.
@@ -216,6 +221,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 1.8.0 =
+A filtered table now shows nothing rather than every row when filtering is unavailable, and a malformed sheet is reported across the dashboard.
 
 = 1.7.0 =
 Adds clickable links in cells and a warning when a sheet arrives malformed. Fixes filtering on a hidden column.

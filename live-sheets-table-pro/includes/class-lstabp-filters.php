@@ -38,19 +38,10 @@ class LSTABP_Filters {
 		// hides — a page showing one category should not have to repeat that
 		// category in every row.
 		add_filter( 'lstab_source_rows', array( $this, 'filter_rows' ), 10, 4 );
-		add_filter( 'lstab_shortcode_atts', array( $this, 'allow_attribute' ) );
-	}
-
-	/**
-	 * Let the shortcode carry a filter.
-	 *
-	 * @param array<string,string> $atts Default attributes.
-	 * @return array<string,string>
-	 */
-	public function allow_attribute( $atts ) {
-		$atts['filter'] = '';
-
-		return $atts;
+		// The free plugin declares the attribute itself, so that it can tell a
+		// filter was asked for even with this add-on gone. This says the ask
+		// can now be honoured.
+		add_filter( 'lstab_filter_supported', '__return_true' );
 	}
 
 	/**

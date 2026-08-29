@@ -53,6 +53,7 @@ class LSTAB_Shortcode {
 				'caption' => '',
 				'class'   => '',
 				'layout'  => 'inherit',
+				'filter'  => '',
 			)
 		);
 
@@ -77,6 +78,7 @@ class LSTAB_Shortcode {
 				'caption'   => sanitize_text_field( $atts['caption'] ),
 				'class'     => sanitize_html_class( $atts['class'] ),
 				'layout'    => sanitize_key( $atts['layout'] ),
+				'filter'    => sanitize_text_field( $atts['filter'] ),
 			)
 		) );
 	}
@@ -96,6 +98,11 @@ class LSTAB_Shortcode {
 			'caption' => '',
 			'class'   => '',
 			'layout'  => 'inherit',
+			// Declared here, though nothing in the free plugin acts on it: the
+			// plugin has to be able to see that a page asked for only some
+			// rows, so it can refuse to show all of them when the add-on that
+			// does the filtering is gone.
+			'filter'  => '',
 		);
 	}
 

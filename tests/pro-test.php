@@ -333,6 +333,16 @@ LSTAB_Storage::update( $source_id, array( 'columns_config' => array() ) );
 
 // ---------------------------------------------------------------------------
 
+// The free plugin refuses to render a filtered table when nothing can honour
+// the filter, rather than falling back to every row. This add-on is what says
+// the ask can be met.
+lstabp_assert( apply_filters( 'lstab_filter_supported', false ), 'The add-on announces that filtering is available' );
+$honoured = do_shortcode( '[sheet_table id="' . $source_id . '" filter="Dostępność=Brak"]' );
+lstabp_assert( 1 === substr_count( $honoured, '<tr role="row" class="lstab-row"' ), 'And the table renders its matching rows', (string) substr_count( $honoured, '<tr role="row" class="lstab-row"' ) );
+lstabp_assert( false === strpos( $honoured, 'not active' ), 'With the add-on there is nothing to warn about' );
+
+// ---------------------------------------------------------------------------
+
 lstabp_section( '5b. Separating conditions' );
 
 // Both "and" and a comma separate conditions, but either can just as easily be

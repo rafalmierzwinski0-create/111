@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-08-29 20:24+0000\n"
-"PO-Revision-Date: 2026-08-29 20:24+0000\n"
+"POT-Creation-Date: 2026-08-29 20:47+0000\n"
+"PO-Revision-Date: 2026-08-29 20:47+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -15,14 +15,14 @@ msgstr ""
 
 #. translators: 1: number of rows, 2: expected column count, 3: list of row
 #. numbers.
-#: includes/class-lstab-admin.php:399
+#: includes/class-lstab-admin.php:529
 msgid "%1$d row does not hold %2$d cells like the rest (row %3$s). Check that row in Google for a stray quotation mark."
 msgid_plural "%1$d rows do not hold %2$d cells like the rest (rows %3$s). Check those rows in Google for a stray quotation mark."
 msgstr[0] "%1$d wiersz nie ma %2$d komórek tak jak reszta (wiersz %3$s). Sprawdź ten wiersz w Google — najczęściej to niesparowany cudzysłów."
 msgstr[1] "%1$d wiersze nie mają %2$d komórek tak jak reszta (wiersze %3$s). Sprawdź te wiersze w Google — najczęściej to niesparowany cudzysłów."
 msgstr[2] "%1$d wierszy nie ma %2$d komórek tak jak reszta (wiersze %3$s). Sprawdź te wiersze w Google — najczęściej to niesparowany cudzysłów."
 
-#: includes/class-lstab-renderer.php:254
+#: includes/class-lstab-renderer.php:269
 msgid "%1$s of %2$s rows"
 msgstr "%1$s z %2$s wierszy"
 
@@ -75,20 +75,20 @@ msgstr "Akcje"
 msgid "Add a sheet source"
 msgstr "Dodaj źródło arkusza"
 
-#: includes/views/list-page.php:19 includes/class-lstab-admin.php:62
+#: includes/views/list-page.php:19 includes/class-lstab-admin.php:64
 msgid "Add new"
 msgstr "Dodaj nowe"
 
 #: includes/views/edit-page.php:26 includes/views/limit-reached.php:11
-#: includes/class-lstab-admin.php:61
+#: includes/class-lstab-admin.php:63
 msgid "Add new sheet source"
 msgstr "Dodaj nowe źródło arkusza"
 
-#: includes/class-lstab-admin.php:52
+#: includes/class-lstab-admin.php:54
 msgid "All sheet sources"
 msgstr "Wszystkie źródła arkuszy"
 
-#: includes/class-lstab-admin.php:53
+#: includes/class-lstab-admin.php:55
 msgid "All sources"
 msgstr "Wszystkie źródła"
 
@@ -177,11 +177,11 @@ msgstr "Nie udało się połączyć z Google: %s"
 msgid "Could not read the tab list for this spreadsheet."
 msgstr "Nie udało się odczytać listy zakładek tego arkusza."
 
-#: includes/class-lstab-admin.php:134
+#: includes/class-lstab-admin.php:136
 msgid "Could not read the tab list — the tab from your link will be used."
 msgstr "Nie udało się odczytać listy zakładek — zostanie użyta zakładka z Twojego linku."
 
-#: includes/class-lstab-storage.php:158
+#: includes/class-lstab-storage.php:173
 msgid "Could not save the sheet source."
 msgstr "Nie udało się zapisać źródła arkusza."
 
@@ -239,7 +239,7 @@ msgid "Every minute"
 msgstr "Co minutę"
 
 #. translators: %s: human readable time difference.
-#: includes/class-lstab-admin.php:499
+#: includes/class-lstab-admin.php:629
 msgid "Failing since the last good sync %s ago"
 msgstr "Błąd od ostatniej udanej synchronizacji %s temu"
 
@@ -247,7 +247,7 @@ msgstr "Błąd od ostatniej udanej synchronizacji %s temu"
 msgid "Filter"
 msgstr "Filtr"
 
-#: includes/class-lstab-admin.php:131
+#: includes/class-lstab-admin.php:133
 msgid "Found %1$s rows across %2$s columns."
 msgstr "Znaleziono %1$s wierszy w %2$s kolumnach."
 
@@ -301,6 +301,10 @@ msgstr "Tło nagłówka"
 msgid "Header text"
 msgstr "Tekst nagłówka"
 
+#: includes/class-lstab-admin.php:421
+msgid "Hide this until it happens again"
+msgstr "Ukryj do następnego razu"
+
 #: includes/class-lstab-styles.php:39
 msgid "High-contrast dark preset."
 msgstr "Ciemny preset o wysokim kontraście."
@@ -309,7 +313,7 @@ msgstr "Ciemny preset o wysokim kontraście."
 msgid "Hourly"
 msgstr "Co godzinę"
 
-#: includes/class-lstab-admin.php:432
+#: includes/class-lstab-admin.php:562
 msgid "How to run WordPress schedules from a system cron"
 msgstr "Jak uruchamiać harmonogramy WordPressa z systemowego crona"
 
@@ -338,7 +342,7 @@ msgid "Large"
 msgstr "Duża"
 
 #. translators: %s: human readable time difference.
-#: includes/class-lstab-admin.php:488
+#: includes/class-lstab-admin.php:618
 msgid "Last sync OK (%s ago)"
 msgstr "Ostatnia synchronizacja OK (%s temu)"
 
@@ -354,9 +358,13 @@ msgstr "Delikatne linie między wierszami, sporo przestrzeni. Dziedziczy kroje p
 msgid "Lines"
 msgstr "Linie"
 
-#: includes/class-lstab-admin.php:41
+#: includes/class-lstab-admin.php:43
 msgid "Live Sheets Table"
 msgstr "Live Sheets Table"
+
+#: includes/class-lstab-admin.php:409
+msgid "Live Sheets Table: a sheet did not come back cleanly."
+msgstr "Live Sheets Table: arkusz wrócił uszkodzony."
 
 #. translators: %s: human readable duration, e.g. "15 minutes".
 #: includes/class-lstab-cron.php:51
@@ -367,7 +375,7 @@ msgstr "Live Sheets Table: co %s"
 msgid "Load preview"
 msgstr "Wczytaj podgląd"
 
-#: includes/class-lstab-admin.php:129
+#: includes/class-lstab-admin.php:131
 msgid "Loading preview…"
 msgstr "Wczytywanie podglądu…"
 
@@ -380,7 +388,7 @@ msgid "Manage sheet sources"
 msgstr "Zarządzaj źródłami arkuszy"
 
 #. translators: %s: link to the WordPress cron documentation.
-#: includes/class-lstab-admin.php:430
+#: includes/class-lstab-admin.php:560
 msgid "Meanwhile you can update any sheet by hand with “Refresh now”. %s"
 msgstr "W międzyczasie możesz zaktualizować dowolny arkusz ręcznie przyciskiem „Odśwież teraz”. %s"
 
@@ -396,15 +404,15 @@ msgstr "Wąska kolumna"
 msgid "Need more than one sheet?"
 msgstr "Potrzebujesz więcej niż jednego arkusza?"
 
-#: includes/class-lstab-admin.php:502
+#: includes/class-lstab-admin.php:632
 msgid "Never synced successfully"
 msgstr "Nigdy nie zsynchronizowano poprawnie"
 
-#: includes/class-lstab-renderer.php:377
+#: includes/class-lstab-renderer.php:392
 msgid "No rows match your search."
 msgstr "Żaden wiersz nie pasuje do wyszukiwania."
 
-#: includes/class-lstab-renderer.php:51
+#: includes/class-lstab-renderer.php:52
 msgid "No sheet selected yet."
 msgstr "Nie wybrano jeszcze arkusza."
 
@@ -421,7 +429,7 @@ msgstr "Nie znaleziono identyfikatora arkusza w tym linku. Użyj adresu samego a
 msgid "Normal"
 msgstr "Normalna"
 
-#: includes/class-lstab-admin.php:517
+#: includes/class-lstab-admin.php:647
 msgid "Not synced yet"
 msgstr "Jeszcze nie zsynchronizowano"
 
@@ -453,7 +461,7 @@ msgstr "Opcjonalne. Wszystko, czego nie ruszysz, podąża za presetem powyżej, 
 msgid "Pages always render from the local copy, so visitors never wait for Google. Pro syncs as often as every minute."
 msgstr "Strony zawsze renderują się z lokalnej kopii, więc odwiedzający nigdy nie czekają na Google. Pro synchronizuje nawet co minutę."
 
-#: includes/class-lstab-admin.php:135
+#: includes/class-lstab-admin.php:137
 msgid "Paste a Google Sheets link first."
 msgstr "Najpierw wklej link do arkusza Google."
 
@@ -469,7 +477,7 @@ msgstr "Najpierw wklej link do swojego arkusza Google."
 msgid "Phone"
 msgstr "Telefon"
 
-#: includes/class-lstab-admin.php:133
+#: includes/class-lstab-admin.php:135
 msgid "Pick the tab you want to publish:"
 msgstr "Wybierz zakładkę, którą chcesz opublikować:"
 
@@ -477,7 +485,7 @@ msgstr "Wybierz zakładkę, którą chcesz opublikować:"
 msgid "Preview"
 msgstr "Podgląd"
 
-#: includes/class-lstab-admin.php:130
+#: includes/class-lstab-admin.php:132
 msgid "Preview failed"
 msgstr "Podgląd nie powiódł się"
 
@@ -506,7 +514,7 @@ msgid "Put it on a page"
 msgstr "Umieść na stronie"
 
 #. translators: %s: error message.
-#: includes/class-lstab-admin.php:302
+#: includes/class-lstab-admin.php:305
 msgid "Refresh failed: %s"
 msgstr "Odświeżanie nie powiodło się: %s"
 
@@ -563,7 +571,7 @@ msgid "Saved source"
 msgstr "Zapisane źródło"
 
 #. translators: %s: error message.
-#: includes/class-lstab-admin.php:259
+#: includes/class-lstab-admin.php:261
 msgid "Saved, but the first sync failed: %s"
 msgstr "Zapisano, ale pierwsza synchronizacja nie powiodła się: %s"
 
@@ -575,7 +583,7 @@ msgstr "Harmonogram"
 msgid "Scheduled syncing is switched off on this site."
 msgstr "Zaplanowana synchronizacja jest na tej stronie wyłączona."
 
-#: includes/class-lstab-renderer.php:369
+#: includes/class-lstab-renderer.php:384
 msgid "Scroll the table sideways"
 msgstr "Przewiń tabelę w bok"
 
@@ -583,11 +591,11 @@ msgstr "Przewiń tabelę w bok"
 msgid "Search box"
 msgstr "Pole wyszukiwania"
 
-#: includes/class-lstab-renderer.php:247
+#: includes/class-lstab-renderer.php:262
 msgid "Search this table"
 msgstr "Przeszukaj tabelę"
 
-#: includes/class-lstab-renderer.php:250
+#: includes/class-lstab-renderer.php:265
 msgid "Search…"
 msgstr "Szukaj…"
 
@@ -611,7 +619,7 @@ msgstr "Ustawienia poniżej dopasowują się po pozycji, więc kolumna dodana lu
 msgid "Share a sheet as “Anyone with the link – Viewer”, paste the link, and check the preview before you save. No API key, no Google Cloud project."
 msgstr "Udostępnij arkusz jako „Każdy, kto ma link – Przeglądający”, wklej link i sprawdź podgląd przed zapisaniem. Bez klucza API i bez projektu Google Cloud."
 
-#: includes/class-lstab-admin.php:309
+#: includes/class-lstab-admin.php:312
 msgid "Sheet refreshed from Google."
 msgstr "Arkusz odświeżony z Google."
 
@@ -619,15 +627,15 @@ msgstr "Arkusz odświeżony z Google."
 msgid "Sheet source"
 msgstr "Źródło arkusza"
 
-#: includes/class-lstab-admin.php:282
+#: includes/class-lstab-admin.php:285
 msgid "Sheet source deleted."
 msgstr "Źródło arkusza usunięte."
 
-#: includes/class-lstab-admin.php:265
+#: includes/class-lstab-admin.php:267
 msgid "Sheet source saved and synced."
 msgstr "Źródło arkusza zapisane i zsynchronizowane."
 
-#: includes/views/list-page.php:15 includes/class-lstab-admin.php:78
+#: includes/views/list-page.php:15 includes/class-lstab-admin.php:80
 msgid "Sheet sources"
 msgstr "Źródła arkuszy"
 
@@ -635,7 +643,7 @@ msgstr "Źródła arkuszy"
 msgid "Sheet tab"
 msgstr "Zakładka arkusza"
 
-#: includes/class-lstab-admin.php:42
+#: includes/class-lstab-admin.php:44
 msgid "Sheets Tables"
 msgstr "Tabele z arkuszy"
 
@@ -660,7 +668,7 @@ msgstr "Pokaż tę kolumnę"
 msgid "Show “updated … ago”"
 msgstr "Pokaż „zaktualizowano … temu”"
 
-#: includes/class-lstab-admin.php:132
+#: includes/class-lstab-admin.php:134
 msgid "Showing the first 25 rows."
 msgstr "Pokazano pierwsze 25 wierszy."
 
@@ -677,7 +685,7 @@ msgid "Small"
 msgstr "Mała"
 
 #. translators: %s: column name.
-#: includes/class-lstab-renderer.php:282
+#: includes/class-lstab-renderer.php:297
 msgid "Sort by %s"
 msgstr "Sortuj według: %s"
 
@@ -709,11 +717,11 @@ msgstr "Naprzemienne wiersze"
 msgid "Style preset"
 msgstr "Preset stylu"
 
-#: includes/class-lstab-admin.php:509
+#: includes/class-lstab-admin.php:639
 msgid "Sync error — nothing to show yet"
 msgstr "Błąd synchronizacji — nie ma jeszcze czego pokazać"
 
-#: includes/class-lstab-admin.php:508
+#: includes/class-lstab-admin.php:638
 msgid "Sync error — visitors still see the last good copy"
 msgstr "Błąd synchronizacji — odwiedzający wciąż widzą ostatnią poprawną kopię"
 
@@ -734,7 +742,7 @@ msgstr "Opcje tabeli"
 msgid "Table with a slider"
 msgstr "Tabela z suwakiem"
 
-#: includes/class-lstab-renderer.php:265
+#: includes/class-lstab-renderer.php:280
 msgid "Table, scrollable sideways"
 msgstr "Tabela, przewijana w bok"
 
@@ -771,7 +779,7 @@ msgstr[1] "Wersja darmowa przechowuje %d źródła arkuszy"
 msgstr[2] "Wersja darmowa przechowuje %d źródeł arkuszy"
 
 #. translators: %d: number of sources allowed.
-#: includes/class-lstab-admin.php:199
+#: includes/class-lstab-admin.php:201
 msgid "The free version stores %d sheet source. Remove the existing one, or upgrade to add more."
 msgid_plural "The free version stores %d sheet sources. Remove one, or upgrade to add more."
 msgstr[0] "Wersja darmowa przechowuje %d źródło arkusza. Usuń istniejące albo przejdź na Pro, aby dodać więcej."
@@ -803,9 +811,13 @@ msgstr "Dokładnie to widzi parser. Sprawdź nagłówki i kilka wierszy przed za
 msgid "This sheet did not come back cleanly."
 msgstr "Ten arkusz wrócił uszkodzony."
 
-#: includes/class-lstab-renderer.php:57
+#: includes/class-lstab-renderer.php:58
 msgid "This sheet source no longer exists."
 msgstr "To źródło arkusza już nie istnieje."
+
+#: includes/class-lstab-renderer.php:71
+msgid "This table is set to show only some of its rows, but the add-on that does the filtering is not active. Nothing is shown rather than every row, which is not what this page asked for. Activate the add-on, or remove the filter from the block or shortcode."
+msgstr "Ta tabela ma pokazywać tylko część wierszy, ale dodatek odpowiedzialny za filtrowanie nie jest aktywny. Zamiast wszystkich wierszy nie pokazujemy żadnego — bo to nie jest to, o co prosiła ta strona. Włącz dodatek albo usuń filtr z bloku lub shortcode’u."
 
 #: includes/views/edit-page.php:99
 msgid "Title"
@@ -815,12 +827,12 @@ msgstr "Tytuł"
 msgid "Turn each row into a labelled card"
 msgstr "Zamień każdy wiersz w kartę z etykietami"
 
-#: includes/class-lstab-admin.php:236
+#: includes/class-lstab-admin.php:238
 msgid "Untitled sheet"
 msgstr "Arkusz bez tytułu"
 
 #. translators: %s: human readable time difference, e.g. "5 mins".
-#: includes/class-lstab-renderer.php:389
+#: includes/class-lstab-renderer.php:404
 msgid "Updated %s ago"
 msgstr "Zaktualizowano %s temu"
 
@@ -860,8 +872,8 @@ msgstr "WordPress wykonuje zaplanowane zadania, gdy ktoś odwiedza stronę, wię
 msgid "You are not allowed to list sheet sources."
 msgstr "Nie masz uprawnień do przeglądania źródeł arkuszy."
 
-#: includes/class-lstab-rest.php:115 includes/class-lstab-admin.php:148
-#: includes/class-lstab-admin.php:162 includes/class-lstab-admin.php:321
+#: includes/class-lstab-rest.php:115 includes/class-lstab-admin.php:150
+#: includes/class-lstab-admin.php:164 includes/class-lstab-admin.php:451
 msgid "You are not allowed to manage sheet sources."
 msgstr "Nie masz uprawnień do zarządzania źródłami arkuszy."
 
@@ -870,6 +882,6 @@ msgid "rows"
 msgstr "wierszy"
 
 #. translators: %s: source title.
-#: includes/class-lstab-renderer.php:65
+#: includes/class-lstab-renderer.php:80
 msgid "“%s” has not synced yet. Open Live Sheets Table in the dashboard and choose “Refresh now”."
 msgstr "„%s” nie zostało jeszcze zsynchronizowane. Otwórz Tabele z arkuszy w kokpicie i wybierz „Odśwież teraz”."

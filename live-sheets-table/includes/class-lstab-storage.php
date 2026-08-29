@@ -14,6 +14,21 @@ class LSTAB_Storage {
 
 	const DB_VERSION     = '1.4.0';
 	const DB_VERSION_OPT = 'lstab_db_version';
+
+	/**
+	 * Which sources last came back malformed, and what the fault looked like.
+	 *
+	 * A derived index of the last_ragged column, kept so the dashboard-wide
+	 * warning costs an autoloaded option read rather than a query on every
+	 * single admin page. It is rewritten by every sync, so it cannot drift for
+	 * long, and the column remains the truth.
+	 */
+	const RAGGED_OPT = 'lstab_ragged_sources';
+
+	/**
+	 * Signatures of malformed-sheet warnings the site owner has dismissed.
+	 */
+	const DISMISSED_OPT = 'lstab_ragged_dismissed';
 	const CACHE_GROUP    = 'lstab_sources';
 
 	/**
@@ -264,8 +279,51 @@ class LSTAB_Storage {
 		);
 
 		self::flush_cache( $id );
+		self::index_ragged( (int) $id, isset( $data['ragged'] ) ? $data['ragged'] : null );
 
 		return $updated;
+	}
+
+	/**
+	 * Record, or clear, one source's place in the malformed-sheet index.
+	 *
+	 * @param int        $id     Source ID.
+	 * @param array|null $ragged The finding, or null when the sheet was clean.
+	 * @return void
+	 */
+	protected static function index_ragged( $id, $ragged ) {
+		$index = (array) get_option( self::RAGGED_OPT, array() );
+		$had   = isset( $index[ $id ] );
+
+		if ( $ragged ) {
+			$index[ $id ] = self::ragged_signature( $id, $ragged );
+		} elseif ( $had ) {
+			unset( $index[ $id ] );
+		} else {
+			return;
+		}
+
+		update_option( self::RAGGED_OPT, $index, true );
+
+		// A dismissal is of one particular fault, so anything no longer in the
+		// index has nothing left to suppress.
+		$dismissed = array_values( array_intersect( (array) get_option( self::DISMISSED_OPT, array() ), $index ) );
+		update_option( self::DISMISSED_OPT, $dismissed, true );
+	}
+
+	/**
+	 * A stable name for one particular fault.
+	 *
+	 * Dismissing a warning has to silence that fault and not the next one, so
+	 * the signature covers what was found rather than just which source found
+	 * it.
+	 *
+	 * @param int   $id     Source ID.
+	 * @param array $ragged The finding.
+	 * @return string
+	 */
+	public static function ragged_signature( $id, $ragged ) {
+		return md5( (int) $id . '|' . (string) wp_json_encode( $ragged ) );
 	}
 
 	/**
@@ -410,6 +468,7 @@ class LSTAB_Storage {
 		$deleted = $wpdb->delete( self::table(), array( 'id' => (int) $id ), array( '%d' ) );
 
 		self::flush_cache( $id );
+		self::index_ragged( (int) $id, null );
 
 		if ( $deleted ) {
 			do_action( 'lstab_source_deleted', (int) $id );

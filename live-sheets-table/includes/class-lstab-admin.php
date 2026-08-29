@@ -26,6 +26,8 @@ class LSTAB_Admin {
 		add_action( 'admin_post_lstab_save_source', array( $this, 'handle_save' ) );
 		add_action( 'admin_post_lstab_delete_source', array( $this, 'handle_delete' ) );
 		add_action( 'admin_post_lstab_refresh_source', array( $this, 'handle_refresh' ) );
+		add_action( 'admin_post_lstab_dismiss_ragged', array( $this, 'handle_dismiss_ragged' ) );
+		add_action( 'admin_notices', array( $this, 'print_global_notice' ) );
 		add_filter( 'plugin_action_links_' . LSTAB_BASENAME, array( $this, 'action_links' ) );
 	}
 
@@ -262,7 +264,8 @@ class LSTAB_Admin {
 			);
 		}
 
-		$this->redirect_with_notice( $source_id, 'success', __( 'Sheet source saved and synced.', 'live-sheets-table' ), true );
+		list( $lstab_type, $lstab_message ) = $this->sync_outcome( $source_id, __( 'Sheet source saved and synced.', 'live-sheets-table' ) );
+		$this->redirect_with_notice( $source_id, $lstab_type, $lstab_message, true );
 	}
 
 	/**
@@ -306,7 +309,134 @@ class LSTAB_Admin {
 			);
 		}
 
-		$this->redirect_with_notice( 0, 'success', __( 'Sheet refreshed from Google.', 'live-sheets-table' ), true );
+		list( $lstab_type, $lstab_message ) = $this->sync_outcome( $source_id, __( 'Sheet refreshed from Google.', 'live-sheets-table' ) );
+		$this->redirect_with_notice( 0, $lstab_type, $lstab_message, true );
+	}
+
+	/**
+	 * What to say after a sync that worked.
+	 *
+	 * The fetch succeeding and the sheet arriving intact are two different
+	 * things, and a plain "saved and synced" after a malformed sheet would say
+	 * the second when it only knows the first.
+	 *
+	 * @param int    $source_id Source that was synced.
+	 * @param string $success   Message for a clean result.
+	 * @return array{0:string,1:string} Notice type and message.
+	 */
+	protected function sync_outcome( $source_id, $success ) {
+		$source = $source_id ? LSTAB_Storage::get( $source_id ) : null;
+
+		if ( ! $source || empty( $source['last_ragged'] ) ) {
+			return array( 'success', $success );
+		}
+
+		return array(
+			'warning',
+			$success . ' ' . self::ragged_summary( $source['last_ragged'] ),
+		);
+	}
+
+	/**
+	 * Warn anywhere in the dashboard when a sheet came back malformed.
+	 *
+	 * The plugin's own screens say it inline, so this is for everywhere else:
+	 * a table quietly showing shifted values is not something to find out about
+	 * only on the day you happen to open the plugin.
+	 *
+	 * @return void
+	 */
+	public function print_global_notice() {
+		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
+			return;
+		}
+
+		// The plugin's screens carry the warning beside the source it belongs
+		// to, which says more than a summary would.
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( $screen && false !== strpos( (string) $screen->id, self::MENU_SLUG ) ) {
+			return;
+		}
+
+		// An autoloaded option, so a clean site pays nothing for this.
+		$index = (array) get_option( LSTAB_Storage::RAGGED_OPT, array() );
+
+		if ( ! $index ) {
+			return;
+		}
+
+		$dismissed = (array) get_option( LSTAB_Storage::DISMISSED_OPT, array() );
+		$pending   = array_diff( $index, $dismissed );
+
+		if ( ! $pending ) {
+			return;
+		}
+
+		$links = array();
+		foreach ( array_keys( $pending ) as $source_id ) {
+			$source = LSTAB_Storage::get( (int) $source_id );
+
+			if ( ! $source || empty( $source['last_ragged'] ) ) {
+				continue;
+			}
+
+			$links[] = sprintf(
+				'<a href="%1$s">%2$s</a> — %3$s',
+				esc_url(
+					add_query_arg(
+						array(
+							'page'   => self::EDIT_SLUG,
+							'source' => (int) $source_id,
+						),
+						admin_url( 'admin.php' )
+					)
+				),
+				esc_html( $source['title'] ),
+				esc_html( self::ragged_summary( $source['last_ragged'] ) )
+			);
+		}
+
+		if ( ! $links ) {
+			return;
+		}
+
+		$dismiss = wp_nonce_url(
+			add_query_arg( 'action', 'lstab_dismiss_ragged', admin_url( 'admin-post.php' ) ),
+			'lstab_dismiss_ragged'
+		);
+
+		echo '<div class="notice notice-warning"><p><strong>';
+		echo esc_html__( 'Live Sheets Table: a sheet did not come back cleanly.', 'live-sheets-table' );
+		echo '</strong></p><ul style="margin:0.4em 0 0.8em 1.4em;list-style:disc;">';
+
+		foreach ( $links as $line ) {
+			// Built from escaped parts just above.
+			echo '<li>' . wp_kses_post( $line ) . '</li>';
+		}
+
+		echo '</ul><p>';
+		printf(
+			'<a href="%1$s">%2$s</a>',
+			esc_url( $dismiss ),
+			esc_html__( 'Hide this until it happens again', 'live-sheets-table' )
+		);
+		echo '</p></div>';
+	}
+
+	/**
+	 * Silence the current findings, and only the current findings.
+	 *
+	 * @return void
+	 */
+	public function handle_dismiss_ragged() {
+		$this->guard( 'lstab_dismiss_ragged' );
+
+		$index = (array) get_option( LSTAB_Storage::RAGGED_OPT, array() );
+		update_option( LSTAB_Storage::DISMISSED_OPT, array_values( $index ), true );
+
+		$back = wp_get_referer();
+		wp_safe_redirect( $back ? $back : admin_url() );
+		exit;
 	}
 
 	/**

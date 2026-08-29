@@ -34,6 +34,7 @@ class LSTAB_Renderer {
 			'style_vars'  => array(),
 			'columns'     => null,
 			'sticky'      => null,
+			'filter'      => '',
 		);
 	}
 
@@ -55,6 +56,20 @@ class LSTAB_Renderer {
 
 		if ( ! $source ) {
 			return self::notice( __( 'This sheet source no longer exists.', 'live-sheets-table' ) );
+		}
+
+		/*
+		 * A page that asks for some rows must never be answered with all of
+		 * them. Filtering lives in an add-on, and an add-on can be deactivated
+		 * by an expired licence, a conflict or a tidy-up — at which point a
+		 * page built to show one category would quietly publish the whole
+		 * sheet, working rows included. Showing nothing is a visible gap
+		 * someone will fix; showing everything is a disclosure nobody notices.
+		 */
+		if ( '' !== trim( (string) $args['filter'] ) && ! apply_filters( 'lstab_filter_supported', false ) ) {
+			return self::notice(
+				__( 'This table is set to show only some of its rows, but the add-on that does the filtering is not active. Nothing is shown rather than every row, which is not what this page asked for. Activate the add-on, or remove the filter from the block or shortcode.', 'live-sheets-table' )
+			);
 		}
 
 		if ( empty( $source['data']['headers'] ) && empty( $source['data']['rows'] ) ) {

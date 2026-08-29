@@ -903,6 +903,52 @@ await page.locator( 'button:has-text("Refresh now")' ).first().click();
 await page.waitForLoadState( 'networkidle' );
 check( await page.locator( '.lstab-status-ragged' ).count() === 0, 'A clean sync clears the warning' );
 
+// The message straight after the action, and everywhere else in the dashboard.
+setMock( 'ragged' );
+await page.locator( 'button:has-text("Refresh now")' ).first().click();
+await page.waitForLoadState( 'networkidle' );
+const syncNotice = page.locator( '.notice.is-dismissible' ).first();
+const syncText = await syncNotice.innerText();
+check( /notice-warning/.test( await syncNotice.getAttribute( 'class' ) ), 'The message after a sync is a warning, not a plain success', await syncNotice.getAttribute( 'class' ) );
+check( /\d/.test( syncText ) && syncText.length > 40, 'It says what was wrong, not just that it synced', syncText.replace( /\s+/g, ' ' ).slice( 0, 90 ) );
+await syncNotice.screenshot( { path: `${ SHOTS }/24-after-sync-notice.png` } );
+
+await page.goto( `${ BASE }/wp-admin/index.php`, { waitUntil: 'networkidle' } );
+const elsewhere = page.locator( '.notice-warning:has-text("Live Sheets Table")' );
+check( await elsewhere.count() === 1, 'The warning follows you around the dashboard, not only the plugin screens' );
+check( /row 3/.test( await elsewhere.first().innerText() ), 'And still names the row', ( await elsewhere.first().innerText() ).replace( /\s+/g, ' ' ).slice( 0, 90 ) );
+await elsewhere.first().screenshot( { path: `${ SHOTS }/23-global-notice.png` } );
+
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+check(
+	await page.locator( '.notice-warning:has-text("Live Sheets Table:")' ).count() === 0,
+	'It is not repeated on the screen that already shows it beside the source'
+);
+
+// Dismissing silences this fault; a fault that comes back is heard again.
+await page.goto( `${ BASE }/wp-admin/index.php`, { waitUntil: 'networkidle' } );
+await page.locator( 'a:has-text("Hide this")' ).first().click();
+await page.waitForLoadState( 'networkidle' );
+check( await page.locator( '.notice-warning:has-text("Live Sheets Table")' ).count() === 0, 'Dismissing it works' );
+
+setMock( 'ok' );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+await page.locator( 'button:has-text("Refresh now")' ).first().click();
+await page.waitForLoadState( 'networkidle' );
+setMock( 'ragged' );
+await page.locator( 'button:has-text("Refresh now")' ).first().click();
+await page.waitForLoadState( 'networkidle' );
+await page.goto( `${ BASE }/wp-admin/index.php`, { waitUntil: 'networkidle' } );
+check(
+	await page.locator( '.notice-warning:has-text("Live Sheets Table")' ).count() === 1,
+	'A fault that returns after being dismissed is raised again'
+);
+
+setMock( 'ok' );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+await page.locator( 'button:has-text("Refresh now")' ).first().click();
+await page.waitForLoadState( 'networkidle' );
+
 section( '9d. Links in cells' );
 
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
