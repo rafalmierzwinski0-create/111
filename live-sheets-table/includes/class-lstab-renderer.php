@@ -551,6 +551,12 @@ class LSTAB_Renderer {
 			return '';
 		}
 
+		// Every path that ends in a notice ends here without having rendered a
+		// table, so the stylesheet has not been asked for yet. Without this the
+		// message arrives as a bare paragraph and reads like broken content
+		// rather than something addressed to whoever can fix it.
+		self::enqueue_assets();
+
 		return '<div class="lstab-notice"><p>' . esc_html( $message ) . '</p></div>';
 	}
 }

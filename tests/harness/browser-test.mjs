@@ -916,7 +916,7 @@ await syncNotice.screenshot( { path: `${ SHOTS }/24-after-sync-notice.png` } );
 await page.goto( `${ BASE }/wp-admin/index.php`, { waitUntil: 'networkidle' } );
 const elsewhere = page.locator( '.notice-warning:has-text("Live Sheets Table")' );
 check( await elsewhere.count() === 1, 'The warning follows you around the dashboard, not only the plugin screens' );
-check( /row 3/.test( await elsewhere.first().innerText() ), 'And still names the row', ( await elsewhere.first().innerText() ).replace( /\s+/g, ' ' ).slice( 0, 90 ) );
+check( /\brow 3\b/i.test( await elsewhere.first().innerText() ), 'And still names the row', ( await elsewhere.first().innerText() ).replace( /\s+/g, ' ' ).slice( 0, 90 ) );
 await elsewhere.first().screenshot( { path: `${ SHOTS }/23-global-notice.png` } );
 
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );

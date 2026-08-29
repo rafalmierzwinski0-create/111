@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.8.0
+Stable tag: 1.8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -153,6 +153,10 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 
 == Changelog ==
 
+= 1.8.1 =
+* Changed: the malformed-sheet warning no longer names one cause. A row can come back short for several reasons, and pointing at only one sends people looking for the wrong thing; it now says what is wrong and what it means for the table, with the likely causes listed on the source screen where there is room for them.
+* Fixed: a table that ends in a message for the site owner — not synced yet, source gone, filtering unavailable — did not load the stylesheet, so the message arrived as a bare paragraph that read like broken page content.
+
 = 1.8.0 =
 * Added: a table set to show only some of its rows now shows none of them when nothing is available to do the filtering, instead of falling back to every row. An add-on can be deactivated by an expired licence, a conflict or a tidy-up, and a page built to show one category would otherwise publish the whole sheet — working rows included — with nobody the wiser. An empty table is a gap someone fixes; a full one is a disclosure nobody notices.
 * Added: the message after a save or a manual refresh now says when the sheet arrived malformed, rather than reporting a plain success. The fetch working and the sheet arriving intact are two different things.
@@ -221,6 +225,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 1.8.1 =
+Clearer wording for the malformed-sheet warning, and admin-only messages now carry their own styling.
 
 = 1.8.0 =
 A filtered table now shows nothing rather than every row when filtering is unavailable, and a malformed sheet is reported across the dashboard.

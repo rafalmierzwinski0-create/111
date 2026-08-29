@@ -183,6 +183,26 @@ $inch = LSTAB_CSV_Parser::parse( "Produkt,Cena\nRower 26\" koła,\"4 199,99\"\nK
 lstab_assert( 2 === count( $inch['rows'] ), 'An inch mark in an unquoted value does not open a field', (string) count( $inch['rows'] ) );
 lstab_assert( 'Rower 26" koła' === $inch['rows'][0][0], 'The inch mark is kept verbatim', $inch['rows'][0][0] );
 
+/*
+ * The case a user hit: a Polish price list, where every price holds a comma as
+ * its decimal separator and one product name holds an inch mark. The parser
+ * this replaced split "4 199,99" into "4 199" and "99" and ran the whole sheet
+ * into a single row, so the prices simply were not on the page.
+ */
+$price_list = LSTAB_CSV_Parser::parse(
+	"Produkt,Cena netto,Dostępność\n"
+	. "Rower górski 26\" koła,\"4 199,99\",W magazynie\n"
+	. "Zamek szyfrowy,\"1 215,50\",W magazynie\n"
+	. "Bagażnik tylny,\"87,00\",W magazynie\n",
+	true
+);
+lstab_assert( 3 === count( $price_list['rows'] ), 'A price list with commas and an inch mark keeps its rows', (string) count( $price_list['rows'] ) );
+lstab_assert( 3 === count( $price_list['headers'] ), 'And invents no extra columns', (string) count( $price_list['headers'] ) );
+lstab_assert( '4 199,99' === $price_list['rows'][0][1], 'A decimal comma does not split the price', $price_list['rows'][0][1] );
+lstab_assert( '1 215,50' === $price_list['rows'][1][1], 'Nor does a thousands space', $price_list['rows'][1][1] );
+lstab_assert( 'Rower górski 26" koła' === $price_list['rows'][0][0], 'The inch mark stays in the name', $price_list['rows'][0][0] );
+lstab_assert( ! isset( $price_list['ragged'] ), 'And nothing is reported as malformed' );
+
 $multiline = LSTAB_CSV_Parser::parse( "Produkt,Opis\nBidon,\"linia 1\nlinia 2\"\nKask,krótki\n", true );
 lstab_assert( 2 === count( $multiline['rows'] ), 'A genuine multi-line cell still spans its rows', (string) count( $multiline['rows'] ) );
 lstab_assert( "linia 1\nlinia 2" === $multiline['rows'][0][1], 'Its line break is preserved', $multiline['rows'][0][1] );
@@ -485,6 +505,17 @@ lstab_assert( 3 === (int) $ragged_source['last_ragged']['rows'][0]['row'], 'It n
 $summary = LSTAB_Admin::ragged_summary( $ragged_source['last_ragged'] );
 lstab_assert( '' !== $summary, 'The dashboard has something to say about it' );
 lstab_assert( false !== strpos( $summary, '3' ), 'The message names the row number', $summary );
+
+// A row can arrive short for several reasons — a lone quotation mark, an
+// unquoted comma, a hand-edited export. The summary names the symptom and what
+// it means for the table; guessing at one cause would send people looking for
+// the wrong thing.
+lstab_assert( false === stripos( $summary, 'quotation' ), 'The summary does not commit to a single cause', $summary );
+lstab_assert(
+	false !== stripos( $summary, 'missing' ) || false !== stripos( $summary, 'wrong column' ),
+	'It says what the fault means for the table',
+	$summary
+);
 
 // The visitor sees a table, not a warning: the data that did arrive is still
 // worth showing, and the fault is the site owner's to fix.
@@ -951,6 +982,17 @@ wp_set_current_user( 0 );
 
 $visitor_sees = do_shortcode( '[sheet_table id="' . $source_id . '" filter="Dostępność is Brak"]' );
 lstab_assert( '' === trim( $visitor_sees ), 'A visitor is shown nothing at all, not an explanation', substr( $visitor_sees, 0, 80 ) );
+
+/*
+ * A page whose only table ends in a notice has never asked for the stylesheet,
+ * so the message used to arrive as a bare paragraph and read like broken page
+ * content rather than something addressed to whoever can fix it.
+ */
+wp_dequeue_style( 'lstab-table' );
+wp_set_current_user( 1 );
+do_shortcode( '[sheet_table id="' . $source_id . '" filter="Dostępność is Brak"]' );
+lstab_assert( wp_style_is( 'lstab-table', 'enqueued' ), 'A notice brings the stylesheet with it, so it looks like a notice' );
+wp_set_current_user( 0 );
 
 // ---------------------------------------------------------------------------
 

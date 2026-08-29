@@ -293,8 +293,10 @@ return array(
 	'A link in a cell is otherwise plain text a visitor has to select and copy, which on a phone is close to impossible. Only http, https and e-mail addresses are linked.'
 		=> 'Bez tego link w komórce jest zwykłym tekstem, który odwiedzający musi zaznaczyć i skopiować — na telefonie to praktycznie niewykonalne. Linkowane są wyłącznie adresy http, https i e-mail.',
 	'This sheet did not come back cleanly.'      => 'Ten arkusz wrócił uszkodzony.',
-	'The table below still renders from the copy that arrived, so nothing on your site is broken. Fix the row in Google and choose “Save changes and sync”.'
-		=> 'Tabela poniżej nadal renderuje się z kopii, która dotarła, więc nic na Twojej stronie nie jest zepsute. Popraw ten wiersz w Google i kliknij „Zapisz zmiany i zsynchronizuj”.',
+	'The table below still renders from the copy that arrived, so nothing on your site is broken. Fix the rows in Google and choose “Save changes and sync”.'
+		=> 'Tabela poniżej nadal renderuje się z kopii, która dotarła, więc nic na Twojej stronie nie jest zepsute. Popraw te wiersze w Google i kliknij „Zapisz zmiany i zsynchronizuj”.',
+	'The usual cause is a value that runs two cells together — a lone quotation mark, or a comma inside a value that was not quoted. It can also be a cell holding a line break, or a copy of the sheet edited by hand rather than exported by Google. Open those rows in your sheet and compare them against the ones around them.'
+		=> 'Najczęstsza przyczyna to wartość, która skleiła dwie komórki w jedną — pojedynczy cudzysłów albo przecinek w wartości, która nie została ujęta w cudzysłów. Bywa też, że komórka zawiera znak nowej linii, albo że arkusz był edytowany ręcznie zamiast wyeksportowany przez Google. Otwórz te wiersze w arkuszu i porównaj je z sąsiednimi.',
 	'Filter'                                     => 'Filtr',
 	'Which rows'                                 => 'Które wiersze',
 	'Show only matching rows, for example: Kategoria is Rowery. Join conditions with “and”. Operators: is, is not, has, gt, gte, lt, lte.'
@@ -310,10 +312,10 @@ return array(
 		'Wersja darmowa przechowuje %d źródła arkuszy',
 		'Wersja darmowa przechowuje %d źródeł arkuszy',
 	),
-	'%1$d row does not hold %2$d cells like the rest (row %3$s). Check that row in Google for a stray quotation mark.' => array(
-		'%1$d wiersz nie ma %2$d komórek tak jak reszta (wiersz %3$s). Sprawdź ten wiersz w Google — najczęściej to niesparowany cudzysłów.',
-		'%1$d wiersze nie mają %2$d komórek tak jak reszta (wiersze %3$s). Sprawdź te wiersze w Google — najczęściej to niesparowany cudzysłów.',
-		'%1$d wierszy nie ma %2$d komórek tak jak reszta (wiersze %3$s). Sprawdź te wiersze w Google — najczęściej to niesparowany cudzysłów.',
+	'Row %3$s came back with a different number of cells than the other rows (%2$d), so a value in it may be missing or sitting in the wrong column.' => array(
+		'Wiersz %3$s wrócił z inną liczbą komórek niż pozostałe (%2$d), więc jakaś wartość może być pominięta albo trafić do złej kolumny.',
+		'%1$d wiersze wróciły z inną liczbą komórek niż reszta (%2$d), więc jakieś wartości mogą być pominięte albo trafić do złych kolumn. Wiersze: %3$s.',
+		'%1$d wierszy wróciło z inną liczbą komórek niż reszta (%2$d), więc jakieś wartości mogą być pominięte albo trafić do złych kolumn. Wiersze: %3$s.',
 	),
 	'The free version stores %d sheet source. Remove the existing one, or upgrade to add more.' => array(
 		'Wersja darmowa przechowuje %d źródło arkusza. Usuń istniejące albo przejdź na Pro, aby dodać więcej.',

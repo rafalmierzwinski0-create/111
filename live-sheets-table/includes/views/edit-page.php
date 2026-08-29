@@ -34,7 +34,10 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 		<div class="notice notice-warning inline lstab-ragged-notice">
 			<p><strong><?php esc_html_e( 'This sheet did not come back cleanly.', 'live-sheets-table' ); ?></strong></p>
 			<p><?php echo esc_html( LSTAB_Admin::ragged_summary( $source['last_ragged'] ) ); ?></p>
-			<p><?php esc_html_e( 'The table below still renders from the copy that arrived, so nothing on your site is broken. Fix the row in Google and choose “Save changes and sync”.', 'live-sheets-table' ); ?></p>
+			<p>
+				<?php esc_html_e( 'The usual cause is a value that runs two cells together — a lone quotation mark, or a comma inside a value that was not quoted. It can also be a cell holding a line break, or a copy of the sheet edited by hand rather than exported by Google. Open those rows in your sheet and compare them against the ones around them.', 'live-sheets-table' ); ?>
+			</p>
+			<p><?php esc_html_e( 'The table below still renders from the copy that arrived, so nothing on your site is broken. Fix the rows in Google and choose “Save changes and sync”.', 'live-sheets-table' ); ?></p>
 		</div>
 	<?php endif; ?>
 

@@ -89,6 +89,11 @@ echo
 echo "=============================================="
 echo " Browser suite + screenshots — WordPress 7.1"
 echo "=============================================="
+# The suite runs from the scratch directory, where node_modules lives, so the
+# copy there has to be refreshed or an edited test silently runs its old self —
+# which is worse than no test, because it reports a pass.
+cp "$REPO/tests/harness/browser-test.mjs" "$SCRATCH/browser-test.mjs"
+
 cd "$SCRATCH" && LSTAB_SCRATCH="$SCRATCH" LSTAB_SHOTS="$REPO/screenshots" node browser-test.mjs
 
 echo
