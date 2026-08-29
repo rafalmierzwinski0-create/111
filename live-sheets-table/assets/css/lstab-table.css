@@ -935,6 +935,29 @@
 	}
 }
 
+/* ----------------------------------------------------------- linked values */
+
+/*
+ * A link that reads as body text is not obviously a link, and the whole point
+ * of making these clickable was that a visitor should not have to work it out.
+ * The accent colour follows the appearance editor, so a table keeps one voice.
+ */
+.lstab-cell-value a {
+	color: var(--lstab-accent);
+	text-underline-offset: 0.15em;
+}
+
+.lstab-cell-value a:hover,
+.lstab-cell-value a:focus-visible {
+	text-decoration-thickness: 2px;
+}
+
+/* A cell holding a rule's colour sets its own text colour, and a link inside
+   it has to follow, or the two fight each other. */
+.lstab-ruled .lstab-cell-value a {
+	color: inherit;
+}
+
 /* ------------------------------------------------------ even column widths */
 
 /*

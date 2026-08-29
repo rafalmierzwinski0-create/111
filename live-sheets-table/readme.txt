@@ -156,6 +156,7 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 = 1.7.0 =
 * Added: web and e-mail addresses in cells can be made clickable, per table. A link in a cell was otherwise plain text a visitor had to select and copy, which on a phone is close to impossible. Only http, https and e-mail become links, and they carry rel="nofollow ugc" because the sheet is not necessarily yours.
 * Added: the dashboard now says when a sheet fetched correctly but arrived malformed. Google gives every row the same number of cells, so a row that disagrees is a fault worth naming — with the row number to look at. Visitors see the table as usual; only someone who can fix it is told.
+* Added: linked addresses take the table's accent colour, so they read as links rather than as underlined body text.
 * Added: an lstab_edit_page_settings hook, so an add-on can put its own fields on the source screen and have them saved with everything else.
 * Fixed: row filtering ran after columns were hidden, so a filter naming a hidden column matched nothing and quietly returned every row. Filtering now runs first, which is also what makes "show one category, hide the category column" work.
 

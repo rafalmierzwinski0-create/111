@@ -920,6 +920,19 @@ await page.locator( 'input[name="link_cells"]' ).check();
 await page.locator( '.lstab-submit button[type=submit]' ).click();
 await page.waitForLoadState( 'networkidle' );
 
+// A link that reads as body text is not obviously a link, which defeats the
+// point of making them clickable.
+await apage.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
+await apage.waitForTimeout( 300 );
+const linkStyle = await apage.evaluate( () => {
+	const table = document.querySelector( '.lstab' );
+	const cell = table ? table.querySelector( '.lstab-cell-value' ) : null;
+	if ( ! cell ) { return null; }
+	const accent = getComputedStyle( table ).getPropertyValue( '--lstab-accent' ).trim();
+	return { accent, body: getComputedStyle( cell ).color };
+} );
+check( linkStyle && linkStyle.accent !== '', 'The table exposes an accent colour for links to use', JSON.stringify( linkStyle ) );
+
 // Without the add-on there is nothing listening for a filter, so the field is
 // not offered — a control that accepts text and changes nothing is worse than
 // no control.
