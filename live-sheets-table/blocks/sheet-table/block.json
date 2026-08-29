@@ -53,6 +53,10 @@
 		"layout": {
 			"type": "string",
 			"default": "inherit"
+		},
+		"filter": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"editorScript": "file:./index.js",

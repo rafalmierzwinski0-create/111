@@ -8,7 +8,7 @@
  * exactly as it would in production — only the network hop is faked.
  *
  * Control it by writing a JSON state file:
- *   { "mode": "ok" | "http_403" | "timeout" | "html_login" | "empty",
+ *   { "mode": "ok" | "http_403" | "timeout" | "html_login" | "empty" | "ragged",
  *     "tab": "main" | "second" }
  *
  * @package LiveSheetsTable\Tests
@@ -162,6 +162,12 @@ add_filter(
 		}
 
 		// The gid decides which tab is served, mirroring Google's behaviour.
+		if ( 'ragged' === $state['mode'] ) {
+			// A sheet that fetches fine and comes back with one row short of a
+			// cell, which is what a stray quotation mark leaves behind.
+			return lstab_mock_response( 200, (string) file_get_contents( LSTAB_MOCK_FIXTURES . '/sheet-ragged.csv' ) );
+		}
+
 		$fixture = 'second' === $state['tab'] ? 'sheet-second-tab.csv' : 'sheet-main.csv';
 		if ( false !== strpos( $url, 'gid=1734829105' ) ) {
 			$fixture = 'sheet-second-tab.csv';

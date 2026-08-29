@@ -46,6 +46,9 @@ class LSTAB_Block {
 			array(
 				'manageUrl' => admin_url( 'admin.php?page=' . LSTAB_Admin::MENU_SLUG ),
 				'addUrl'    => admin_url( 'admin.php?page=' . LSTAB_Admin::EDIT_SLUG ),
+				// The filter field is only worth showing where something is
+				// listening for it; without the add-on it would do nothing.
+				'isPro'     => LSTAB_Limits::is_pro(),
 			)
 		);
 	}
@@ -67,6 +70,7 @@ class LSTAB_Block {
 				'stylePreset' => '',
 				'caption'     => '',
 				'layout'      => 'inherit',
+				'filter'      => '',
 			)
 		);
 
@@ -79,6 +83,9 @@ class LSTAB_Block {
 				'style'     => sanitize_key( (string) $attributes['stylePreset'] ),
 				'caption'   => sanitize_text_field( (string) $attributes['caption'] ),
 				'layout'    => sanitize_key( (string) $attributes['layout'] ),
+				// Inert on its own: the add-on that reads it is what makes it
+				// mean anything, exactly as with the shortcode attribute.
+				'filter'    => sanitize_text_field( (string) $attributes['filter'] ),
 			)
 		);
 

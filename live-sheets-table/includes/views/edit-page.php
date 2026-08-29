@@ -30,6 +30,14 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 	<?php LSTAB_Admin::print_cron_notice(); ?>
 	<?php LSTAB_Admin::print_notice(); ?>
 
+	<?php if ( $lstab_is_edit && ! empty( $source['last_ragged'] ) ) : ?>
+		<div class="notice notice-warning inline lstab-ragged-notice">
+			<p><strong><?php esc_html_e( 'This sheet did not come back cleanly.', 'live-sheets-table' ); ?></strong></p>
+			<p><?php echo esc_html( LSTAB_Admin::ragged_summary( $source['last_ragged'] ) ); ?></p>
+			<p><?php esc_html_e( 'The table below still renders from the copy that arrived, so nothing on your site is broken. Fix the row in Google and choose “Save changes and sync”.', 'live-sheets-table' ); ?></p>
+		</div>
+	<?php endif; ?>
+
 	<?php
 	/*
 	 * The form wraps the whole editor, not just the left column, so that the
@@ -148,6 +156,17 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 					</label>
 					<span class="lstab-help">
 						<?php esc_html_e( 'Useful when the first column names the row — a product, a person, a date. Turn it off if your first column is long text, where pinning it would take up most of a phone screen.', 'live-sheets-table' ); ?>
+					</span>
+				</p>
+
+				<p class="lstab-checkbox">
+					<label>
+						<input type="checkbox" name="link_cells" value="1"
+							<?php checked( ! $lstab_is_edit || ! empty( $source['link_cells'] ) ); ?>>
+						<?php esc_html_e( 'Make web and e-mail addresses in cells clickable', 'live-sheets-table' ); ?>
+					</label>
+					<span class="lstab-help">
+						<?php esc_html_e( 'A link in a cell is otherwise plain text a visitor has to select and copy, which on a phone is close to impossible. Only http, https and e-mail addresses are linked.', 'live-sheets-table' ); ?>
 					</span>
 				</p>
 
@@ -381,6 +400,20 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 				</tbody>
 			</table>
 		</div>
+
+	<?php
+	/**
+	 * Fires inside the source form, below the column settings.
+	 *
+	 * An add-on printing fields here has them submitted with everything else,
+	 * and can read them back on 'lstab_source_saved' — which only fires after
+	 * the capability and nonce checks have passed.
+	 *
+	 * @param array|null $source  Source row, or null while adding.
+	 * @param bool       $is_edit Whether an existing source is being edited.
+	 */
+	do_action( 'lstab_edit_page_settings', $lstab_is_edit ? $source : null, $lstab_is_edit );
+	?>
 
 	<p class="lstab-submit">
 		<button type="submit" class="button button-primary button-large">

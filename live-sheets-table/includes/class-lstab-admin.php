@@ -229,6 +229,7 @@ class LSTAB_Admin {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Sanitised field by field in LSTAB_Columns.
 			'columns_config'   => isset( $_POST['columns'] ) ? LSTAB_Columns::sanitize( wp_unslash( $_POST['columns'] ) ) : array(),
 			'sticky_first'     => empty( $_POST['sticky_first'] ) ? 0 : 1,
+			'link_cells'       => empty( $_POST['link_cells'] ) ? 0 : 1,
 		);
 
 		if ( '' === $data['title'] ) {
@@ -364,6 +365,49 @@ class LSTAB_Admin {
 	 *
 	 * @return void
 	 */
+	/**
+	 * One line describing a sheet that came back with ragged rows.
+	 *
+	 * Google gives every row the same number of cells, so a row that disagrees
+	 * means the payload did not survive intact — nearly always an unmatched
+	 * quotation mark, which runs two rows together. The table still renders;
+	 * this only says where to look, and only to someone who can fix it.
+	 *
+	 * @param array<string,mixed> $ragged Stored finding.
+	 * @return string
+	 */
+	public static function ragged_summary( $ragged ) {
+		if ( empty( $ragged['total'] ) ) {
+			return '';
+		}
+
+		$numbers = array();
+		foreach ( (array) $ragged['rows'] as $entry ) {
+			if ( isset( $entry['row'] ) ) {
+				$numbers[] = number_format_i18n( (int) $entry['row'] );
+			}
+		}
+
+		$listed = implode( ', ', $numbers );
+
+		if ( (int) $ragged['total'] > count( $numbers ) ) {
+			$listed .= ' …';
+		}
+
+		return sprintf(
+			/* translators: 1: number of rows, 2: expected column count, 3: list of row numbers. */
+			_n(
+				'%1$d row does not hold %2$d cells like the rest (row %3$s). Check that row in Google for a stray quotation mark.',
+				'%1$d rows do not hold %2$d cells like the rest (rows %3$s). Check those rows in Google for a stray quotation mark.',
+				(int) $ragged['total'],
+				'live-sheets-table'
+			),
+			(int) $ragged['total'],
+			(int) $ragged['expected'],
+			$listed
+		);
+	}
+
 	public static function print_cron_notice() {
 		$health = LSTAB_Cron::health();
 

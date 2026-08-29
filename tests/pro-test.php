@@ -321,7 +321,160 @@ LSTAB_Storage::update(
 $hidden_filter = do_shortcode( '[sheet_table id="' . $source_id . '" filter="Dostępność=Brak"]' );
 lstabp_assert( false === strpos( $hidden_filter, 'Dostępność' ), 'The hidden column is not shown' );
 
+// Asserting only that the column is absent is what let this break: filtering
+// ran after the column had been removed, so the condition matched nothing and
+// every row came through. The row count is the assertion that matters.
+$hidden_rows = substr_count( $hidden_filter, '<tr role="row" class="lstab-row"' );
+$all_rows    = substr_count( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), '<tr role="row" class="lstab-row"' );
+lstabp_assert( 1 === $hidden_rows, 'A filter still selects rows by a column the table hides', (string) $hidden_rows );
+lstabp_assert( $hidden_rows < $all_rows, 'Filtering on a hidden column is not a no-op', "{$hidden_rows} of {$all_rows}" );
+
 LSTAB_Storage::update( $source_id, array( 'columns_config' => array() ) );
+
+// ---------------------------------------------------------------------------
+
+lstabp_section( '5b. Separating conditions' );
+
+// Both "and" and a comma separate conditions, but either can just as easily be
+// part of a value. A separator only separates when every piece it produces
+// reads as a condition on its own.
+$worded = LSTABP_Filters::parse( 'Kategoria is Rowery and Cena gt 2000' );
+lstabp_assert( 2 === count( $worded ), '"and" separates two conditions', (string) count( $worded ) );
+lstabp_assert( '>' === $worded[1]['operator'], 'The second condition keeps its operator', $worded[1]['operator'] );
+
+$comma = LSTABP_Filters::parse( 'Kategoria is Rowery, Cena gt 2000' );
+lstabp_assert( 2 === count( $comma ), 'A comma still separates where both halves read as conditions', (string) count( $comma ) );
+
+$in_value = LSTABP_Filters::parse( 'Opis is Rama, widelec 120 mm' );
+lstabp_assert( 1 === count( $in_value ), 'A comma inside a value does not split it', (string) count( $in_value ) );
+lstabp_assert( 'Rama, widelec 120 mm' === $in_value[0]['value'], 'The comma is kept in the value', $in_value[0]['value'] );
+
+$and_in_value = LSTABP_Filters::parse( 'Produkt is Rower and Kask' );
+lstabp_assert( 1 === count( $and_in_value ), '"and" inside a value does not split it', (string) count( $and_in_value ) );
+lstabp_assert( 'Rower and Kask' === $and_in_value[0]['value'], 'The word is kept in the value', $and_in_value[0]['value'] );
+
+$negated = LSTABP_Filters::parse( 'Dostępność is not Brak' );
+lstabp_assert( '!=' === $negated[0]['operator'], '"is not" reads as a negation', $negated[0]['operator'] );
+lstabp_assert( 'Brak' === $negated[0]['value'], 'The negation does not swallow "not" into the value', $negated[0]['value'] );
+
+// The block has the same reach as the shortcode; whoever builds pages with
+// blocks should not have to drop to a raw shortcode to filter.
+$block       = new LSTAB_Block();
+$block_all   = substr_count( $block->render( array( 'sourceId' => $source_id ) ), '<tr role="row" class="lstab-row"' );
+$block_some  = substr_count( $block->render( array( 'sourceId' => $source_id, 'filter' => 'Dostępność is Brak' ) ), '<tr role="row" class="lstab-row"' );
+lstabp_assert( $block_some < $block_all, 'The block filters rows too', "{$block_some} of {$block_all}" );
+lstabp_assert( 1 === $block_some, 'The block filter selects the same rows as the shortcode', (string) $block_some );
+
+// ---------------------------------------------------------------------------
+
+lstabp_section( '5c. Colour rules' );
+
+// A rule set is stored per source, outside the free plugin's table.
+update_option(
+	LSTABP_Rules::OPTION,
+	array(
+		$source_id => array(
+			array(
+				'column'   => 'Dostępność',
+				'operator' => '=',
+				'value'    => 'Brak',
+				'style'    => 'red',
+				'scope'    => 'cell',
+			),
+			array(
+				'column'   => 'Cena netto',
+				'operator' => '>',
+				'value'    => '1000',
+				'style'    => 'bold',
+				'scope'    => 'row',
+			),
+		),
+	),
+	false
+);
+
+$ruled = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstabp_assert( false !== strpos( $ruled, 'background-color:#fdecec' ), 'A cell rule colours its cell' );
+lstabp_assert( false !== strpos( $ruled, 'lstab-ruled' ), 'Styled cells are marked with a class as well' );
+
+// The one "Brak" row, and only it.
+lstabp_assert( 1 === substr_count( $ruled, 'background-color:#fdecec' ), 'Only matching cells are coloured', (string) substr_count( $ruled, 'background-color:#fdecec' ) );
+
+// Two rows are over 1000, five columns each.
+lstabp_assert( 10 === substr_count( $ruled, 'font-weight:700' ), 'A row rule reaches every cell in the row', (string) substr_count( $ruled, 'font-weight:700' ) );
+
+// Colours belong in the HTML the visitor receives, not in a script that runs
+// afterwards — the same promise the rest of the plugin makes.
+lstabp_assert( false === strpos( $ruled, 'lstabp-rules.js' ), 'No script is needed to colour a table' );
+
+// A rule reads the sheet, so hiding a column changes what is on screen but not
+// what the rule can see.
+LSTAB_Storage::update( $source_id, array( 'columns_config' => array( 2 => array( 'hidden' => true ) ) ) );
+$ruled_hidden = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstabp_assert( false === strpos( $ruled_hidden, 'Dostępność' ), 'The column really is hidden' );
+lstabp_assert( 8 === substr_count( $ruled_hidden, 'font-weight:700' ), 'A row rule still fires with a column hidden', (string) substr_count( $ruled_hidden, 'font-weight:700' ) );
+LSTAB_Storage::update( $source_id, array( 'columns_config' => array() ) );
+
+// Sanitising.
+$dirty = LSTABP_Rules::sanitize(
+	array(
+		array( 'column' => '', 'operator' => '=', 'value' => 'x', 'style' => 'red' ),
+		array( 'column' => 'Produkt', 'operator' => 'DROP TABLE', 'value' => 'x', 'style' => 'rainbow', 'scope' => 'planet' ),
+	)
+);
+lstabp_assert( 1 === count( $dirty ), 'A row with no column chosen is not a rule', (string) count( $dirty ) );
+lstabp_assert( '=' === $dirty[0]['operator'], 'An unknown comparison falls back to equality', $dirty[0]['operator'] );
+lstabp_assert( 'red' === $dirty[0]['style'], 'An unknown look falls back to a known one', $dirty[0]['style'] );
+lstabp_assert( 'cell' === $dirty[0]['scope'], 'An unknown scope falls back to the cell', $dirty[0]['scope'] );
+
+$flood = LSTABP_Rules::sanitize( array_fill( 0, 50, array( 'column' => 'Produkt', 'value' => 'x' ) ) );
+lstabp_assert( LSTABP_Rules::MAX_RULES === count( $flood ), 'The number of rules is capped', (string) count( $flood ) );
+
+// Every look has to render as CSS the browser will accept, or a typo here
+// would silently colour nothing.
+foreach ( LSTABP_Rules::styles() as $lstabp_key => $lstabp_style ) {
+	lstabp_assert( '' !== $lstabp_style['label'], "Style {$lstabp_key} is named" );
+	lstabp_assert( (bool) preg_match( '~^[a-z-]+:[^;]+;$~', str_replace( ' ', '', $lstabp_style['css'] ) ) || substr_count( $lstabp_style['css'], ';' ) > 1, "Style {$lstabp_key} is a declaration list", $lstabp_style['css'] );
+	lstabp_assert( false === strpos( $lstabp_style['css'], '"' ), "Style {$lstabp_key} cannot break out of the attribute" );
+}
+
+// Deleting a source takes its rules with it, rather than leaving them to be
+// inherited by whatever is created next.
+$throwaway = LSTAB_Storage::insert(
+	array(
+		'title'     => 'Do usunięcia',
+		'sheet_url' => 'https://docs.google.com/spreadsheets/d/ZZZ/edit#gid=0',
+		'sheet_id'  => 'ZZZ',
+	)
+);
+$stored                = LSTABP_Rules::all();
+$stored[ $throwaway ]  = array( array( 'column' => 'Produkt', 'operator' => '=', 'value' => 'x', 'style' => 'red', 'scope' => 'cell' ) );
+update_option( LSTABP_Rules::OPTION, $stored, false );
+lstabp_assert( ! empty( LSTABP_Rules::for_source( $throwaway ) ), 'The throwaway source has a rule to lose' );
+LSTAB_Storage::delete( $throwaway );
+lstabp_assert( array() === LSTABP_Rules::for_source( $throwaway ), 'Deleting a source deletes its rules' );
+
+// A save from a screen that never showed the card must leave the rules alone.
+// The card is disabled until a sheet has been read, and its fields then submit
+// nothing at all — which is indistinguishable from "every rule was removed"
+// unless the form says so explicitly.
+update_option(
+	LSTABP_Rules::OPTION,
+	array( $source_id => array( array( 'column' => 'Produkt', 'operator' => '=', 'value' => 'x', 'style' => 'red', 'scope' => 'cell' ) ) ),
+	false
+);
+$lstabp_rules_saver = new LSTABP_Rules();
+unset( $_POST['_lstabp_rules_present'], $_POST['lstabp_rules'] );
+$lstabp_rules_saver->save( $source_id );
+lstabp_assert( 1 === count( LSTABP_Rules::for_source( $source_id ) ), 'A save without the card leaves the rules alone', (string) count( LSTABP_Rules::for_source( $source_id ) ) );
+
+$_POST['_lstabp_rules_present'] = '1';
+$_POST['lstabp_rules']          = array();
+$lstabp_rules_saver->save( $source_id );
+lstabp_assert( array() === LSTABP_Rules::for_source( $source_id ), 'A save from the card clears rules the user removed' );
+unset( $_POST['_lstabp_rules_present'], $_POST['lstabp_rules'] );
+
+delete_option( LSTABP_Rules::OPTION );
 
 // ---------------------------------------------------------------------------
 

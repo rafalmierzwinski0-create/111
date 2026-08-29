@@ -465,6 +465,47 @@ LSTAB_Sync::run( $source_id );
 
 // ---------------------------------------------------------------------------
 
+lstab_section( '8a. A sheet that syncs but arrives malformed' );
+
+/*
+ * Google gives every row the same number of cells. A row that disagrees means
+ * the payload did not survive the trip — nearly always an unmatched quotation
+ * mark. The fetch itself succeeds, so nothing else in the plugin notices, and
+ * this is the kind of fault nobody sees until a customer does.
+ */
+lstab_set_mock( 'ragged' );
+lstab_assert( true === LSTAB_Sync::run( $source_id ), 'A malformed sheet still syncs rather than failing' );
+
+$ragged_source = LSTAB_Storage::get( $source_id );
+lstab_assert( 'ok' === $ragged_source['last_status'], 'It is not reported as a fetch error', $ragged_source['last_status'] );
+lstab_assert( is_array( $ragged_source['last_ragged'] ), 'The malformed row is recorded' );
+lstab_assert( 1 === (int) $ragged_source['last_ragged']['total'], 'One row is flagged', wp_json_encode( $ragged_source['last_ragged'] ) );
+lstab_assert( 3 === (int) $ragged_source['last_ragged']['rows'][0]['row'], 'It names the row as numbered in Google', wp_json_encode( $ragged_source['last_ragged']['rows'][0] ) );
+
+$summary = LSTAB_Admin::ragged_summary( $ragged_source['last_ragged'] );
+lstab_assert( '' !== $summary, 'The dashboard has something to say about it' );
+lstab_assert( false !== strpos( $summary, '3' ), 'The message names the row number', $summary );
+
+// The visitor sees a table, not a warning: the data that did arrive is still
+// worth showing, and the fault is the site owner's to fix.
+$ragged_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false !== strpos( $ragged_html, 'lstab-table' ), 'The table still renders' );
+lstab_assert( false === strpos( $ragged_html, 'stray quotation' ), 'No warning leaks to the visitor' );
+
+// The finding describes the stored copy, so a later failure must not clear it.
+lstab_set_mock( 'http_403' );
+LSTAB_Sync::run( $source_id );
+lstab_assert(
+	is_array( LSTAB_Storage::get( $source_id )['last_ragged'] ),
+	'A failed fetch leaves the finding alone, as it leaves the snapshot alone'
+);
+
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
+lstab_assert( null === LSTAB_Storage::get( $source_id )['last_ragged'], 'A clean sync clears it' );
+
+// ---------------------------------------------------------------------------
+
 lstab_section( '9. Cron scheduling' );
 
 lstab_assert( (bool) wp_next_scheduled( LSTAB_Cron::TICK_HOOK ), 'Tick still scheduled' );
@@ -567,22 +608,45 @@ lstab_assert( 5 === count( LSTAB_Styles::available() ), 'Premium presets unlocke
 lstab_assert( 'lstab_1min' === LSTAB_Cron::required_schedule() || 'lstab_15min' === LSTAB_Cron::required_schedule(), 'Cron recurrence follows the fastest source' );
 
 // Conditional formatting hook (a Pro feature) can colour a cell.
-add_filter(
-	'lstab_render_cell',
-	function ( $html, $value, $col ) {
-		if ( 1 === $col && false !== strpos( $value, '4 199' ) ) {
-			return '<span class="lstab-flag-high">' . esc_html( $value ) . '</span>';
-		}
-		return $html;
-	},
-	10,
-	3
-);
+$lstab_cell_probe = function ( $html, $value, $col ) {
+	if ( 1 === $col && false !== strpos( $value, '4 199' ) ) {
+		return '<span class="lstab-flag-high">' . esc_html( $value ) . '</span>';
+	}
+	return $html;
+};
+add_filter( 'lstab_render_cell', $lstab_cell_probe, 10, 3 );
 
 $formatted = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
 lstab_assert( false !== strpos( $formatted, 'lstab-flag-high' ), 'lstab_render_cell can style a cell (Pro conditional formatting)' );
 
-remove_all_filters( 'lstab_render_cell' );
+// Only this probe: the plugin has its own callback on this hook for linking
+// addresses, and clearing the whole thing would quietly disable it for every
+// section that follows.
+remove_filter( 'lstab_render_cell', $lstab_cell_probe, 10 );
+lstab_assert( has_filter( 'lstab_render_cell' ), 'Removing a probe leaves the plugin\'s own cell filter in place' );
+
+// An add-on has to be able to put its own fields on the source screen and read
+// them back after the save, without the free plugin knowing what they are.
+$lstab_settings_hook = false;
+add_action(
+	'lstab_edit_page_settings',
+	function ( $source, $is_edit ) use ( &$lstab_settings_hook ) {
+		$lstab_settings_hook = array( 'edit' => $is_edit, 'source' => is_array( $source ) );
+	},
+	10,
+	2
+);
+wp_set_current_user( 1 );
+$_GET['source'] = $source_id;
+ob_start();
+( new LSTAB_Admin() )->render_edit_page();
+ob_get_clean();
+unset( $_GET['source'] );
+wp_set_current_user( 0 );
+remove_all_filters( 'lstab_edit_page_settings' );
+lstab_assert( is_array( $lstab_settings_hook ), 'The hook fires while the source screen renders' );
+lstab_assert( ! empty( $lstab_settings_hook['edit'] ) && ! empty( $lstab_settings_hook['source'] ), 'It is handed the source it is being shown for', wp_json_encode( $lstab_settings_hook ) );
+
 remove_all_filters( 'lstab_is_pro' );
 remove_all_filters( 'lstab_max_sources' );
 remove_all_filters( 'lstab_min_sync_interval' );
@@ -832,6 +896,81 @@ lstab_assert(
 		|| false !== strpos( $waiting_html, 'disabled' ),
 	'Its placeholder rows are disabled, so they cannot be saved as real columns'
 );
+
+// The block carries a filter attribute the free plugin never reads. It is the
+// add-on that gives it meaning, so on its own it must be inert rather than an
+// error — the same arrangement as the shortcode attribute.
+$block_json = json_decode( (string) file_get_contents( LSTAB_PATH . 'blocks/sheet-table/block.json' ), true );
+lstab_assert( isset( $block_json['attributes']['filter'] ), 'The block declares a filter attribute' );
+
+$block_free = new LSTAB_Block();
+$unfiltered = substr_count( $block_free->render( array( 'sourceId' => $source_id ) ), '<tr role="row" class="lstab-row"' );
+$attempted  = substr_count( $block_free->render( array( 'sourceId' => $source_id, 'filter' => 'Dostępność is Brak' ) ), '<tr role="row" class="lstab-row"' );
+lstab_assert( $unfiltered === $attempted, 'Without the add-on a filter changes nothing rather than failing', "{$attempted} of {$unfiltered}" );
+lstab_assert( ! LSTAB_Limits::is_pro(), 'The free suite really is running without Pro' );
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '12d. Links in cells' );
+
+// A published sheet is very often a directory or a catalogue, and those hold
+// addresses. Plain text a visitor has to select and copy reads as broken.
+lstab_assert( null === LSTAB_Links::linkify( 'Rama aluminiowa, widelec 120 mm' ), 'Ordinary text is left alone' );
+lstab_assert(
+	false !== strpos( (string) LSTAB_Links::linkify( 'https://sklep.pl/rower' ), 'href="https://sklep.pl/rower"' ),
+	'A web address becomes a link',
+	(string) LSTAB_Links::linkify( 'https://sklep.pl/rower' )
+);
+lstab_assert(
+	false !== strpos( (string) LSTAB_Links::linkify( 'biuro@firma.pl' ), 'href="mailto:biuro@firma.pl"' ),
+	'An e-mail address becomes a mailto link'
+);
+lstab_assert(
+	false !== strpos( (string) LSTAB_Links::linkify( 'www.sklep.pl' ), 'href="https://www.sklep.pl"' ),
+	'A bare host gets a scheme rather than a broken relative link'
+);
+
+// The values come from a sheet the site owner may not control, so nothing here
+// may become a scheme they did not write.
+lstab_assert( null === LSTAB_Links::linkify( 'javascript:alert(1)' ), 'A script scheme is never linked' );
+lstab_assert( null === LSTAB_Links::linkify( 'data:text/html;base64,PHNjcmlwdD4=' ), 'A data URI is never linked' );
+
+$mixed = (string) LSTAB_Links::linkify( '<script>alert(1)</script> i mail@x.pl' );
+lstab_assert( false === strpos( $mixed, '<script>' ), 'Markup around a link is still escaped', $mixed );
+lstab_assert( false !== strpos( $mixed, 'mailto:mail@x.pl' ), 'And the link is still made' );
+
+// Escaping first and hunting for links afterwards would corrupt this: the "&"
+// would already have become "&amp;" and the address would be wrong.
+$query = (string) LSTAB_Links::linkify( 'https://sklep.pl/a?x=1&y=2' );
+lstab_assert( false !== strpos( $query, 'x=1&#038;y=2"' ), 'A query string survives intact in the address', $query );
+
+// Sentences end in punctuation; addresses do not.
+$trailing = (string) LSTAB_Links::linkify( 'Zobacz https://sklep.pl/a.' );
+lstab_assert( false !== strpos( $trailing, 'href="https://sklep.pl/a"' ), 'A trailing full stop is not part of the address', $trailing );
+lstab_assert( false !== strpos( $trailing, '</a>.' ), 'It is kept as text after the link' );
+
+// End to end, and switchable per source.
+LSTAB_Storage::record_success(
+	$source_id,
+	array(
+		'headers' => array( 'Sklep', 'Kontakt' ),
+		'rows'    => array( array( 'Rowery', 'biuro@rowery.pl' ) ),
+	)
+);
+
+LSTAB_Storage::update( $source_id, array( 'link_cells' => 1 ) );
+$linked_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false !== strpos( $linked_html, 'href="mailto:biuro@rowery.pl"' ), 'The rendered table carries the link' );
+lstab_assert( false !== strpos( $linked_html, 'rel="nofollow ugc"' ), 'Links from a sheet are marked as not the site\'s own' );
+
+LSTAB_Storage::update( $source_id, array( 'link_cells' => 0 ) );
+$plain_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false === strpos( $plain_html, 'href="mailto:' ), 'Switching it off stops the linking' );
+lstab_assert( false !== strpos( $plain_html, 'biuro@rowery.pl' ), 'The address is still shown as text' );
+
+LSTAB_Storage::update( $source_id, array( 'link_cells' => 1 ) );
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
 
 // ---------------------------------------------------------------------------
 

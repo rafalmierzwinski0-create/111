@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class LSTAB_Storage {
 
-	const DB_VERSION     = '1.3.0';
+	const DB_VERSION     = '1.4.0';
 	const DB_VERSION_OPT = 'lstab_db_version';
 	const CACHE_GROUP    = 'lstab_sources';
 
@@ -50,6 +50,7 @@ class LSTAB_Storage {
 			style_preset varchar(50) NOT NULL DEFAULT 'clean',
 			layout varchar(20) NOT NULL DEFAULT 'table',
 			sticky_first tinyint(1) NOT NULL DEFAULT 1,
+			link_cells tinyint(1) NOT NULL DEFAULT 1,
 			columns_config text NULL,
 			style_vars text NULL,
 			snapshot longtext NULL,
@@ -58,6 +59,7 @@ class LSTAB_Storage {
 			col_count int(10) unsigned NOT NULL DEFAULT 0,
 			last_status varchar(20) NOT NULL DEFAULT 'never',
 			last_error text NULL,
+			last_ragged text NULL,
 			last_attempt_gmt datetime NULL DEFAULT NULL,
 			last_success_gmt datetime NULL DEFAULT NULL,
 			created_gmt datetime NOT NULL,
@@ -101,6 +103,7 @@ class LSTAB_Storage {
 			'style_preset'     => 'clean',
 			'layout'           => 'table',
 			'sticky_first'     => 1,
+			'link_cells'       => 1,
 			'columns_config'   => array(),
 			'style_vars'       => LSTAB_Customizer::defaults(),
 		);
@@ -130,6 +133,7 @@ class LSTAB_Storage {
 			'style_preset'     => (string) $data['style_preset'],
 			'layout'           => (string) $data['layout'],
 			'sticky_first'     => empty( $data['sticky_first'] ) ? 0 : 1,
+			'link_cells'       => empty( $data['link_cells'] ) ? 0 : 1,
 			'columns_config'   => wp_json_encode( LSTAB_Columns::sanitize( $data['columns_config'] ) ),
 			'style_vars'       => wp_json_encode( LSTAB_Customizer::sanitize( $data['style_vars'] ) ),
 			'snapshot'         => null,
@@ -138,13 +142,14 @@ class LSTAB_Storage {
 			'col_count'        => 0,
 			'last_status'      => 'never',
 			'last_error'       => null,
+			'last_ragged'      => null,
 			'last_attempt_gmt' => null,
 			'last_success_gmt' => null,
 			'created_gmt'      => $now,
 			'updated_gmt'      => $now,
 		);
 
-		$formats = array( '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%d', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s' );
+		$formats = array( '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s' );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Custom table, no core API available.
 		$inserted = $wpdb->insert( self::table(), $row, $formats );
@@ -178,6 +183,7 @@ class LSTAB_Storage {
 			'style_preset'     => '%s',
 			'layout'           => '%s',
 			'sticky_first'     => '%d',
+			'link_cells'       => '%d',
 			'columns_config'   => '%s',
 			'style_vars'       => '%s',
 		);
@@ -245,12 +251,15 @@ class LSTAB_Storage {
 				'col_count'        => count( $headers ),
 				'last_status'      => 'ok',
 				'last_error'       => null,
+				// Describes the copy just stored, so it is written here and
+				// left alone by a failure, exactly like the snapshot itself.
+				'last_ragged'      => isset( $data['ragged'] ) ? wp_json_encode( $data['ragged'] ) : null,
 				'last_attempt_gmt' => $now,
 				'last_success_gmt' => $now,
 				'updated_gmt'      => $now,
 			),
 			array( 'id' => (int) $id ),
-			array( '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s' ),
+			array( '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s' ),
 			array( '%d' )
 		);
 
@@ -369,9 +378,9 @@ class LSTAB_Storage {
 	 */
 	protected static function meta_columns() {
 		return 'id, title, sheet_url, sheet_id, sheet_kind, gid, tab_name, sync_interval, '
-			. 'first_row_header, style_preset, layout, sticky_first, columns_config, style_vars, '
+			. 'first_row_header, style_preset, layout, sticky_first, link_cells, columns_config, style_vars, '
 			. 'snapshot_hash, row_count, col_count, '
-			. 'last_status, last_error, last_attempt_gmt, last_success_gmt, created_gmt, updated_gmt';
+			. 'last_status, last_error, last_ragged, last_attempt_gmt, last_success_gmt, created_gmt, updated_gmt';
 	}
 
 	/**
@@ -423,6 +432,18 @@ class LSTAB_Storage {
 		$row['col_count']        = (int) $row['col_count'];
 
 		$row['sticky_first'] = ! isset( $row['sticky_first'] ) || (bool) $row['sticky_first'];
+		$row['link_cells']   = ! isset( $row['link_cells'] ) || (bool) $row['link_cells'];
+
+		// Decoded here so every screen reads a structure rather than JSON.
+		if ( array_key_exists( 'last_ragged', $row ) ) {
+			$ragged = ( null === $row['last_ragged'] || '' === $row['last_ragged'] )
+				? null
+				: json_decode( (string) $row['last_ragged'], true );
+
+			$row['last_ragged'] = ( is_array( $ragged ) && isset( $ragged['expected'], $ragged['total'] ) )
+				? $ragged
+				: null;
+		}
 
 		$row['columns_config'] = LSTAB_Columns::sanitize(
 			isset( $row['columns_config'] ) ? json_decode( (string) $row['columns_config'], true ) : array()

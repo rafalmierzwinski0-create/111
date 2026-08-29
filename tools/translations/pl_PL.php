@@ -289,12 +289,27 @@ return array(
 		=> 'Czekamy na pierwsze odczytanie arkusza. Kliknij „Odśwież teraz” na liście źródeł, a pojawią się tutaj Twoje prawdziwe kolumny.',
 	'Save this source first. It is read straight away, and your real columns appear here.'
 		=> 'Najpierw zapisz to źródło. Arkusz zostanie od razu odczytany, a Twoje prawdziwe kolumny pojawią się tutaj.',
+	'Make web and e-mail addresses in cells clickable' => 'Zamieniaj adresy WWW i e-mail w komórkach na klikalne linki',
+	'A link in a cell is otherwise plain text a visitor has to select and copy, which on a phone is close to impossible. Only http, https and e-mail addresses are linked.'
+		=> 'Bez tego link w komórce jest zwykłym tekstem, który odwiedzający musi zaznaczyć i skopiować — na telefonie to praktycznie niewykonalne. Linkowane są wyłącznie adresy http, https i e-mail.',
+	'This sheet did not come back cleanly.'      => 'Ten arkusz wrócił uszkodzony.',
+	'The table below still renders from the copy that arrived, so nothing on your site is broken. Fix the row in Google and choose “Save changes and sync”.'
+		=> 'Tabela poniżej nadal renderuje się z kopii, która dotarła, więc nic na Twojej stronie nie jest zepsute. Popraw ten wiersz w Google i kliknij „Zapisz zmiany i zsynchronizuj”.',
+	'Filter'                                     => 'Filtr',
+	'Which rows'                                 => 'Które wiersze',
+	'Show only matching rows, for example: Kategoria is Rowery. Join conditions with “and”. Operators: is, is not, has, gt, gte, lt, lte.'
+		=> 'Pokaż tylko pasujące wiersze, na przykład: Kategoria is Rowery. Warunki łącz słowem „and”. Operatory: is, is not, has, gt, gte, lt, lte.',
 
 	// Plurals: Polish has three forms.
 	'The free version keeps %d sheet source'     => array(
 		'Wersja darmowa przechowuje %d źródło arkusza',
 		'Wersja darmowa przechowuje %d źródła arkuszy',
 		'Wersja darmowa przechowuje %d źródeł arkuszy',
+	),
+	'%1$d row does not hold %2$d cells like the rest (row %3$s). Check that row in Google for a stray quotation mark.' => array(
+		'%1$d wiersz nie ma %2$d komórek tak jak reszta (wiersz %3$s). Sprawdź ten wiersz w Google — najczęściej to niesparowany cudzysłów.',
+		'%1$d wiersze nie mają %2$d komórek tak jak reszta (wiersze %3$s). Sprawdź te wiersze w Google — najczęściej to niesparowany cudzysłów.',
+		'%1$d wierszy nie ma %2$d komórek tak jak reszta (wiersze %3$s). Sprawdź te wiersze w Google — najczęściej to niesparowany cudzysłów.',
 	),
 	'The free version stores %d sheet source. Remove the existing one, or upgrade to add more.' => array(
 		'Wersja darmowa przechowuje %d źródło arkusza. Usuń istniejące albo przejdź na Pro, aby dodać więcej.',

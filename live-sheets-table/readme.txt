@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.6.0
+Stable tag: 1.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -153,6 +153,12 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 
 == Changelog ==
 
+= 1.7.0 =
+* Added: web and e-mail addresses in cells can be made clickable, per table. A link in a cell was otherwise plain text a visitor had to select and copy, which on a phone is close to impossible. Only http, https and e-mail become links, and they carry rel="nofollow ugc" because the sheet is not necessarily yours.
+* Added: the dashboard now says when a sheet fetched correctly but arrived malformed. Google gives every row the same number of cells, so a row that disagrees is a fault worth naming — with the row number to look at. Visitors see the table as usual; only someone who can fix it is told.
+* Added: an lstab_edit_page_settings hook, so an add-on can put its own fields on the source screen and have them saved with everything else.
+* Fixed: row filtering ran after columns were hidden, so a filter naming a hidden column matched nothing and quietly returned every row. Filtering now runs first, which is also what makes "show one category, hide the category column" work.
+
 = 1.6.0 =
 * Fixed: one stray quotation mark anywhere in a sheet used to consume everything after it, collapsing a whole table into a single cell of run-together text. A quote now opens a field only at the start of one and closes it only where a real closing quote can appear, so a stray mark costs one character instead of every row.
 * Fixed: the column settings sat outside the form, so renaming or hiding a column looked like it worked and then reverted on save. Nothing typed there was ever submitted.
@@ -209,6 +215,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 1.7.0 =
+Adds clickable links in cells and a warning when a sheet arrives malformed. Fixes filtering on a hidden column.
 
 = 1.6.0 =
 Fixes column renaming and hiding, which never saved, and evens out column widths on tables with room to spare.

@@ -48,6 +48,13 @@ class LSTAB_Plugin {
 	public $shortcode;
 
 	/**
+	 * Cell auto-linking.
+	 *
+	 * @var LSTAB_Links
+	 */
+	public $links;
+
+	/**
 	 * Register everything.
 	 *
 	 * @return void
@@ -58,6 +65,7 @@ class LSTAB_Plugin {
 		$this->block     = new LSTAB_Block();
 		$this->rest      = new LSTAB_Rest();
 		$this->shortcode = new LSTAB_Shortcode();
+		$this->links     = new LSTAB_Links();
 
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 		add_action( 'init', array( $this, 'register_assets' ) );
@@ -67,6 +75,7 @@ class LSTAB_Plugin {
 		$this->block->register();
 		$this->rest->register();
 		$this->shortcode->register();
+		$this->links->register();
 
 		if ( is_admin() ) {
 			$this->admin->register();

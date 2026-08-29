@@ -119,6 +119,22 @@ class LSTAB_Renderer {
 		$headers = isset( $source['data']['headers'] ) ? (array) $source['data']['headers'] : array();
 		$rows    = isset( $source['data']['rows'] ) ? (array) $source['data']['rows'] : array();
 
+		/**
+		 * Filters the rows before any column setting is applied.
+		 *
+		 * Row filtering belongs here rather than after: a condition can then
+		 * name a column the table hides, which is the ordinary case — a page
+		 * showing one category has no reason to repeat that category in every
+		 * row. Positions in $rows still match $headers exactly as the sheet
+		 * returned them.
+		 *
+		 * @param array $rows    Body rows.
+		 * @param array $headers Sheet headings, before renaming or hiding.
+		 * @param array $source  Source row.
+		 * @param array $args    Rendering options.
+		 */
+		$rows = (array) apply_filters( 'lstab_source_rows', $rows, $headers, $source, $args );
+
 		// Renaming and hiding happen here rather than at sync time, so the
 		// stored snapshot always holds exactly what the sheet said and a
 		// settings change needs no refetch.
@@ -137,9 +153,11 @@ class LSTAB_Renderer {
 		}
 
 		/**
-		 * Filters the rows about to be rendered.
+		 * Filters the rows about to be rendered, after column settings.
 		 *
-		 * The Pro add-on hooks this to paginate large tables.
+		 * Positions here are those of the rendered table, so a hidden column
+		 * is already gone. Anything that has to see every column belongs on
+		 * 'lstab_source_rows' instead.
 		 *
 		 * @param array $rows   Body rows.
 		 * @param array $source Source row.

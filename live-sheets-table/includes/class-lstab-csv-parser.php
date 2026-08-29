@@ -34,7 +34,12 @@ class LSTAB_CSV_Parser {
 		}
 
 		$grid = self::to_grid( $csv );
-		$grid = self::trim_empty_rows( $grid );
+
+		// Row numbers are reported back to the site owner, so they have to be
+		// the numbers they see in Google. Blank rows are trimmed off the top
+		// below, which would otherwise shift every one of them.
+		$offset = self::leading_blank_rows( $grid );
+		$grid   = self::trim_empty_rows( $grid );
 
 		if ( ! $grid ) {
 			return new WP_Error(
@@ -48,6 +53,8 @@ class LSTAB_CSV_Parser {
 			$columns = max( $columns, count( $row ) );
 		}
 
+		$ragged = self::ragged_rows( $grid, $columns, $offset );
+
 		if ( $first_row_header ) {
 			$headers = self::normalise_headers( array_shift( $grid ), $columns );
 		} else {
@@ -59,9 +66,85 @@ class LSTAB_CSV_Parser {
 			$rows[] = self::pad_row( $row, $columns );
 		}
 
-		return array(
+		$parsed = array(
 			'headers' => $headers,
 			'rows'    => array_values( $rows ),
+		);
+
+		// Carried with the data rather than reported separately, so it travels
+		// into the stored copy and is replaced the moment a clean sync lands.
+		if ( $ragged ) {
+			$parsed['ragged'] = $ragged;
+		}
+
+		return $parsed;
+	}
+
+	/**
+	 * Count blank rows at the top of a grid.
+	 *
+	 * @param array<int,array<int,string>> $grid Parsed grid.
+	 * @return int
+	 */
+	protected static function leading_blank_rows( $grid ) {
+		$blank = 0;
+
+		foreach ( $grid as $row ) {
+			foreach ( $row as $cell ) {
+				if ( '' !== trim( (string) $cell ) ) {
+					return $blank;
+				}
+			}
+
+			$blank++;
+		}
+
+		return $blank;
+	}
+
+	/**
+	 * Find rows holding a different number of cells from the rest.
+	 *
+	 * Google gives every row the same number of cells, always. A row that
+	 * disagrees means the payload did not survive the trip intact — most often
+	 * an unmatched quotation mark, which runs two rows together. Nothing is
+	 * corrected here: the table still renders, and the site owner is told where
+	 * to look.
+	 *
+	 * @param array<int,array<int,string>> $grid    Parsed grid.
+	 * @param int                          $columns Cells the widest row holds.
+	 * @param int                          $offset  Blank rows trimmed off the top.
+	 * @return array{expected:int,total:int,rows:array<int,array{row:int,found:int}>}|null
+	 */
+	protected static function ragged_rows( $grid, $columns, $offset ) {
+		$found = array();
+		$total = 0;
+
+		foreach ( $grid as $index => $row ) {
+			if ( count( $row ) === $columns ) {
+				continue;
+			}
+
+			$total++;
+
+			// A handful is enough to find the problem; a list of two hundred
+			// is just a wall.
+			if ( count( $found ) < 5 ) {
+				$found[] = array(
+					'row'   => $offset + $index + 1,
+					'found' => count( $row ),
+				);
+			}
+		}
+
+		if ( ! $total ) {
+			return null;
+		}
+
+		return array(
+			'expected' => $columns,
+			'total'    => $total,
+			'rows'     => $found,
 		);
 	}
 

@@ -167,7 +167,22 @@
 						},
 						__nextHasNoMarginBottom: true
 					} )
-				)
+				),
+				// Only where an add-on is listening for it. On its own the
+				// field would accept text and change nothing.
+				lstabBlock.isPro ? el(
+					PanelBody,
+					{ title: __( 'Which rows', 'live-sheets-table' ), initialOpen: false },
+					el( TextControl, {
+						label: __( 'Filter', 'live-sheets-table' ),
+						help: __( 'Show only matching rows, for example: Kategoria is Rowery. Join conditions with “and”. Operators: is, is not, has, gt, gte, lt, lte.', 'live-sheets-table' ),
+						value: attributes.filter,
+						onChange: function ( value ) {
+							setAttributes( { filter: value } );
+						},
+						__nextHasNoMarginBottom: true
+					} )
+				) : null
 			);
 
 			var body;

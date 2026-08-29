@@ -83,6 +83,21 @@ $lstab_can_add = LSTAB_Limits::can_add_source();
 							<?php if ( $lstab_status['detail'] ) : ?>
 								<div class="lstab-status-detail"><?php echo esc_html( $lstab_status['detail'] ); ?></div>
 							<?php endif; ?>
+							<?php
+							/*
+							 * A sheet can sync perfectly and still come back
+							 * malformed. Nothing here stops the table from
+							 * rendering — it just says where to look, because
+							 * this is the kind of fault nobody notices until a
+							 * customer does.
+							 */
+							if ( ! empty( $lstab_source['last_ragged'] ) ) :
+								?>
+								<div class="lstab-status-detail lstab-status-ragged">
+									<span class="dashicons dashicons-warning" aria-hidden="true"></span>
+									<?php echo esc_html( LSTAB_Admin::ragged_summary( $lstab_source['last_ragged'] ) ); ?>
+								</div>
+							<?php endif; ?>
 						</td>
 						<td>
 							<?php

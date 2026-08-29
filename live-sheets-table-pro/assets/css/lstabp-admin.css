@@ -1,0 +1,31 @@
+/*
+ * Pro's own admin styling. Everything else on the source screen comes from the
+ * free plugin's stylesheet, so this only covers what Pro adds.
+ */
+
+.lstabp-rule-list select {
+	max-width: 100%;
+}
+
+.lstabp-rule-list td {
+	vertical-align: middle;
+}
+
+.lstabp-rule-list input[type="text"] {
+	width: 100%;
+	min-width: 8rem;
+}
+
+/* Shows the chosen look rather than describing it. */
+.lstabp-swatch {
+	display: inline-block;
+	margin-left: 0.45rem;
+	padding: 0.1rem 0.4rem;
+	border-radius: 4px;
+	font-size: 0.8rem;
+	vertical-align: middle;
+}
+
+.lstabp-rules-card.is-waiting .lstabp-rule-list {
+	opacity: 0.55;
+}
