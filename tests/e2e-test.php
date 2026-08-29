@@ -506,14 +506,21 @@ $summary = LSTAB_Admin::ragged_summary( $ragged_source['last_ragged'] );
 lstab_assert( '' !== $summary, 'The dashboard has something to say about it' );
 lstab_assert( false !== strpos( $summary, '3' ), 'The message names the row number', $summary );
 
-// A row can arrive short for several reasons — a lone quotation mark, an
-// unquoted comma, a hand-edited export. The summary names the symptom and what
-// it means for the table; guessing at one cause would send people looking for
-// the wrong thing.
-lstab_assert( false === stripos( $summary, 'quotation' ), 'The summary does not commit to a single cause', $summary );
+/*
+ * A row can arrive short for several reasons, so the message offers the likely
+ * cause without asserting it: a reader who goes looking for a quotation mark
+ * and finds none must not conclude the warning is wrong. It says what came
+ * back, what that means for the table, and where to start.
+ */
 lstab_assert(
 	false !== stripos( $summary, 'missing' ) || false !== stripos( $summary, 'wrong column' ),
 	'It says what the fault means for the table',
+	$summary
+);
+lstab_assert( false !== stripos( $summary, 'most often' ), 'It offers a cause as likely, not as certain', $summary );
+lstab_assert(
+	false !== stripos( $summary, 'quotation' ) && false !== stripos( $summary, 'comma' ),
+	'And offers more than one thing to look for',
 	$summary
 );
 
