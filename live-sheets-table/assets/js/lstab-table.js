@@ -100,10 +100,59 @@
 		}
 
 		/**
+		 * Ask every column for an equal share of the width, or stop asking.
+		 *
+		 * Left alone, auto table layout hands the surplus out in proportion to
+		 * how wide each column's content already is, so a table of short values
+		 * ends up with one sprawling column beside several pinched ones. An
+		 * equal share evens that out, and a column whose content genuinely
+		 * needs more still takes it from the rest.
+		 *
+		 * It is only safe once the table fits. On a table that has to scroll,
+		 * the browser satisfies the percentages by inflating the table rather
+		 * than by clipping it — in testing an 811px table became 1826px.
+		 *
+		 * @param {number} scrollable Overflow measured at natural widths.
+		 * @return {number} Overflow once the decision has been applied.
+		 */
+		function applyEvenColumns( scrollable ) {
+			var table = scroller.querySelector( '.lstab-table' );
+			var count = table ? table.querySelectorAll( 'thead th' ).length : 0;
+
+			// In the stacked card layout the cells are grids rather than table
+			// columns, and a width would only distort them.
+			if ( scrollable > 2 || count < 2 || 'table' !== window.getComputedStyle( table ).display ) {
+				root.classList.remove( 'lstab-even' );
+				return scrollable;
+			}
+
+			root.style.setProperty( '--lstab-col-basis', 'calc(100% / ' + count + ')' );
+			root.classList.add( 'lstab-even' );
+
+			// Lifting the per-cell width cap widens what the columns ask for,
+			// which on a table that only just fitted is enough to push it into
+			// scrolling. Equal shares must never be the reason a table starts
+			// to scroll, so a table that no longer fits gets its own widths
+			// back.
+			scrollable = overflow();
+
+			if ( scrollable > 2 ) {
+				root.classList.remove( 'lstab-even' );
+				scrollable = overflow();
+			}
+
+			return scrollable;
+		}
+
+		/**
 		 * Size and place the thumb from the current scroll position.
 		 */
 		function sync() {
 			var scrollable = overflow();
+
+			// After the measurement above, so column sizing can never colour
+			// the reading that decides whether to apply it.
+			scrollable = applyEvenColumns( scrollable );
 
 			// Sub-pixel layout leaves a stray pixel or two on tables that
 			// actually fit; treat that as "no overflow" rather than showing a
@@ -230,24 +279,34 @@
 			}
 		} );
 
+		/**
+		 * Re-measure from scratch, dropping any column sizing already applied
+		 * so the table is read at its natural widths.
+		 */
+		function measure() {
+			root.classList.remove( 'lstab-even' );
+			sync();
+		}
+
+		// Scrolling cannot change what fits, so it only moves the thumb.
 		scroller.addEventListener( 'scroll', sync, { passive: true } );
 
 		if ( window.ResizeObserver ) {
-			var observer = new window.ResizeObserver( sync );
+			var observer = new window.ResizeObserver( measure );
 			observer.observe( scroller );
 			observer.observe( root );
 		} else {
-			window.addEventListener( 'resize', sync );
+			window.addEventListener( 'resize', measure );
 		}
 
 		// Column widths settle after fonts load, which changes the overflow.
 		if ( document.fonts && document.fonts.ready ) {
-			document.fonts.ready.then( sync ).catch( function () {} );
+			document.fonts.ready.then( measure ).catch( function () {} );
 		}
 
-		root.addEventListener( 'lstab:resize', sync );
+		root.addEventListener( 'lstab:resize', measure );
 
-		sync();
+		measure();
 	}
 
 	/**

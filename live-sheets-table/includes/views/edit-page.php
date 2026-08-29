@@ -30,8 +30,16 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 	<?php LSTAB_Admin::print_cron_notice(); ?>
 	<?php LSTAB_Admin::print_notice(); ?>
 
+	<?php
+	/*
+	 * The form wraps the whole editor, not just the left column, so that the
+	 * column settings below the grid are part of it and the save button sits
+	 * under everything it saves.
+	 */
+	?>
+	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="lstab-source-form">
 	<div class="lstab-editor-grid">
-		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="lstab-form" id="lstab-source-form">
+		<div class="lstab-form">
 			<?php wp_nonce_field( 'lstab_save_source' ); ?>
 			<input type="hidden" name="action" value="lstab_save_source">
 			<input type="hidden" name="source_id" value="<?php echo esc_attr( (string) ( $lstab_is_edit ? $source['id'] : 0 ) ); ?>">
@@ -233,19 +241,7 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 				</div>
 			<?php endif; ?>
 
-			<p class="lstab-submit">
-				<button type="submit" class="button button-primary button-large">
-					<?php
-					echo $lstab_is_edit
-						? esc_html__( 'Save changes and sync', 'live-sheets-table' )
-						: esc_html__( 'Save source and sync', 'live-sheets-table' );
-					?>
-				</button>
-				<a class="button button-link" href="<?php echo esc_url( admin_url( 'admin.php?page=' . LSTAB_Admin::MENU_SLUG ) ); ?>">
-					<?php esc_html_e( 'Cancel', 'live-sheets-table' ); ?>
-				</a>
-			</p>
-		</form>
+		</div>
 
 		<div class="lstab-preview-pane">
 			<h2><?php esc_html_e( 'Preview', 'live-sheets-table' ); ?></h2>
@@ -286,17 +282,39 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 	</div>
 
 	<?php
-	$lstab_columns = $lstab_is_edit && ! empty( $source['columns_config'] ) ? $source['columns_config'] : array();
+	$lstab_columns = ! empty( $source['columns_config'] ) ? $source['columns_config'] : array();
 	$lstab_drift   = $lstab_columns && ! empty( $source['data']['headers'] )
 		? LSTAB_Columns::drift( $lstab_columns, $source['data']['headers'] )
 		: array();
+
+	/*
+	 * Until a sheet has been read once there are no columns to list. The card
+	 * still appears, spelling out what it is waiting for: a control that
+	 * materialises later is harder to find than one that was always in view,
+	 * and people went looking for this in the wrong places.
+	 */
+	$lstab_waiting = ! $lstab_columns;
+	$lstab_rows    = $lstab_waiting
+		? array_fill( 0, 3, array( 'source' => '', 'label' => '', 'hidden' => false ) )
+		: $lstab_columns;
 	?>
-	<?php if ( $lstab_is_edit && $lstab_columns ) : ?>
-		<div class="lstab-card lstab-columns-card">
+		<div class="lstab-card lstab-columns-card<?php echo $lstab_waiting ? ' is-waiting' : ''; ?>">
 			<h2 class="lstab-card-title"><?php esc_html_e( 'Columns', 'live-sheets-table' ); ?></h2>
 			<p class="lstab-help">
 				<?php esc_html_e( 'Rename a column for your visitors, or leave it out of the table entirely. Nothing here is written back to Google — your spreadsheet keeps its own headings, including working names nobody should see.', 'live-sheets-table' ); ?>
 			</p>
+
+			<?php if ( $lstab_waiting ) : ?>
+				<p class="lstab-columns-waiting">
+					<?php
+					echo esc_html(
+						$lstab_is_edit
+							? __( 'Waiting for a first look at the sheet. Choose “Refresh now” on the sources list, and your real columns will appear here.', 'live-sheets-table' )
+							: __( 'Save this source first. It is read straight away, and your real columns appear here.', 'live-sheets-table' )
+					);
+					?>
+				</p>
+			<?php endif; ?>
 
 			<?php if ( $lstab_drift ) : ?>
 				<div class="notice notice-warning inline lstab-drift">
@@ -331,22 +349,28 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 					</tr>
 				</thead>
 				<tbody>
-					<?php foreach ( $lstab_columns as $lstab_index => $lstab_column ) : ?>
+					<?php foreach ( $lstab_rows as $lstab_index => $lstab_column ) : ?>
 						<tr>
 							<td>
 								<code><?php echo esc_html( '' === $lstab_column['source'] ? sprintf( /* translators: %d: column number. */ __( 'Column %d', 'live-sheets-table' ), (int) $lstab_index + 1 ) : $lstab_column['source'] ); ?></code>
-								<input type="hidden" name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][source]"
+								<input type="hidden" <?php disabled( $lstab_waiting ); ?>
+									name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][source]"
 									value="<?php echo esc_attr( $lstab_column['source'] ); ?>">
 							</td>
 							<td>
 								<input type="text" class="regular-text"
+									<?php disabled( $lstab_waiting ); ?>
 									name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][label]"
 									value="<?php echo esc_attr( $lstab_column['label'] ); ?>"
 									placeholder="<?php echo esc_attr( $lstab_column['source'] ); ?>">
 							</td>
 							<td>
 								<label>
+									<?php /* An unchecked box sends nothing, which would read as "no answer" and leave the column visible. The companion below makes "off" an answer of its own. */ ?>
+									<input type="hidden" <?php disabled( $lstab_waiting ); ?>
+										name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][visible]" value="0">
 									<input type="checkbox"
+										<?php disabled( $lstab_waiting ); ?>
 										name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][visible]"
 										value="1" <?php checked( empty( $lstab_column['hidden'] ) ); ?>>
 									<span class="screen-reader-text"><?php esc_html_e( 'Show this column', 'live-sheets-table' ); ?></span>
@@ -357,7 +381,20 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 				</tbody>
 			</table>
 		</div>
-	<?php endif; ?>
+
+	<p class="lstab-submit">
+		<button type="submit" class="button button-primary button-large">
+			<?php
+			echo $lstab_is_edit
+				? esc_html__( 'Save changes and sync', 'live-sheets-table' )
+				: esc_html__( 'Save source and sync', 'live-sheets-table' );
+			?>
+		</button>
+		<a class="button button-link" href="<?php echo esc_url( admin_url( 'admin.php?page=' . LSTAB_Admin::MENU_SLUG ) ); ?>">
+			<?php esc_html_e( 'Cancel', 'live-sheets-table' ); ?>
+		</a>
+	</p>
+	</form>
 
 	<?php if ( $lstab_is_edit ) : ?>
 		<div class="lstab-card lstab-usage">

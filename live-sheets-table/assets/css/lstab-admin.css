@@ -267,6 +267,9 @@
 	display: flex;
 	gap: 0.6rem;
 	align-items: center;
+	/* It now sits below the grid and the column settings rather than inside
+	   the left column, so it needs its own breathing room. */
+	margin-top: 1.4rem;
 }
 
 .lstab-usage {
@@ -464,6 +467,25 @@
 .lstab-column-list code {
 	font-size: 0.82rem;
 	background: #f6f7f7;
+}
+
+/*
+ * Before the first sync the card shows what it will hold rather than nothing
+ * at all. Greying the placeholder keeps it clearly out of reach without
+ * hiding where the setting lives.
+ */
+.lstab-columns-waiting {
+	margin: 0 0 0.2rem;
+	color: #646970;
+	font-style: italic;
+}
+
+.lstab-columns-card.is-waiting .lstab-column-list {
+	opacity: 0.55;
+}
+
+.lstab-columns-card.is-waiting .lstab-column-list code {
+	color: #8c8f94;
 }
 
 .lstab-drift {

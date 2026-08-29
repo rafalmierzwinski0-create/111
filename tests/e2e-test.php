@@ -710,6 +710,12 @@ lstab_assert( false === $from_form[1]['hidden'], 'An absent setting means visibl
 $unticked = LSTAB_Columns::sanitize( array( 0 => array( 'label' => 'x' ) ) );
 lstab_assert( false === $unticked[0]['hidden'], 'Renaming alone never hides a column' );
 
+// An unticked checkbox submits nothing at all, which is indistinguishable from
+// "this form had no opinion". The form pairs every box with a hidden field
+// carrying the "off" answer, and this is that contract.
+$switched_off = LSTAB_Columns::sanitize( array( 0 => array( 'visible' => '0' ) ) );
+lstab_assert( true === $switched_off[0]['hidden'], 'An explicit "off" hides the column' );
+
 // Hiding everything is a mistake, not an instruction.
 $all_hidden = LSTAB_Columns::apply(
 	array(
@@ -764,7 +770,48 @@ lstab_assert( 'Cena brutto' === $after_sync['columns_config'][1]['label'], 'A sy
 lstab_assert( true === $after_sync['columns_config'][3]['hidden'], 'A sync keeps the visibility' );
 lstab_assert( 'Cena netto' === $after_sync['columns_config'][1]['source'], 'A sync refreshes the remembered heading' );
 
+// The whole card once sat outside the form element, so nothing in it was ever
+// submitted: renaming and hiding looked like they worked and then silently
+// reverted on save. These assertions are about the wiring, not the styling.
+wp_set_current_user( 1 );
+$_GET['source'] = $source_id;
+$lstab_admin_screen = new LSTAB_Admin();
+ob_start();
+$lstab_admin_screen->render_edit_page();
+$edit_html = (string) ob_get_clean();
+unset( $_GET['source'] );
+
+$form_open  = strpos( $edit_html, '<form' );
+$form_close = strpos( $edit_html, '</form>' );
+$card_at    = strpos( $edit_html, 'lstab-columns-card' );
+$submit_at  = strpos( $edit_html, 'lstab-submit' );
+
+lstab_assert( false !== $card_at, 'The edit screen shows the columns card' );
+lstab_assert( $card_at > $form_open && $card_at < $form_close, 'The columns card is inside the form, so its fields are submitted' );
+lstab_assert( $submit_at > $card_at && $submit_at < $form_close, 'The save button sits below the columns it saves' );
+lstab_assert(
+	false !== strpos( $edit_html, 'name="columns[0][visible]" value="0"' ),
+	'Every include box is paired with an explicit "off" field'
+);
+
+// Before the first sync there is nothing to list, but the card still appears —
+// people went looking for this setting and found an empty page where it should
+// have been.
 LSTAB_Storage::update( $source_id, array( 'columns_config' => array() ) );
+$_GET['source'] = $source_id;
+ob_start();
+$lstab_admin_screen->render_edit_page();
+$waiting_html = (string) ob_get_clean();
+unset( $_GET['source'] );
+wp_set_current_user( 0 );
+
+lstab_assert( false !== strpos( $waiting_html, 'lstab-columns-card is-waiting' ), 'The card is still shown before the first sync' );
+lstab_assert( false !== strpos( $waiting_html, 'lstab-columns-waiting' ), 'It says what it is waiting for' );
+lstab_assert(
+	false === strpos( $waiting_html, 'name="columns[0][source]" value=""' )
+		|| false !== strpos( $waiting_html, 'disabled' ),
+	'Its placeholder rows are disabled, so they cannot be saved as real columns'
+);
 
 // ---------------------------------------------------------------------------
 

@@ -57,6 +57,12 @@ class LSTAB_Rest {
 						'type'    => 'string',
 						'default' => 'table',
 					),
+					// Renames and hidden columns, so the preview shows what a
+					// visitor would see rather than the raw sheet.
+					'columns'        => array(
+						'type'    => 'array',
+						'default' => array(),
+					),
 				),
 			)
 		);
@@ -182,9 +188,12 @@ class LSTAB_Rest {
 				'colCount'  => count( $table['headers'] ),
 				'truncated' => count( $rows ) > count( $preview ),
 				'html'      => LSTAB_Renderer::render_preview(
-					array(
-						'headers' => $table['headers'],
-						'rows'    => $preview,
+					LSTAB_Columns::apply(
+						array(
+							'headers' => $table['headers'],
+							'rows'    => $preview,
+						),
+						LSTAB_Columns::sanitize( (array) $request->get_param( 'columns' ) )
 					),
 					array(
 						'style'  => LSTAB_Styles::sanitize( (string) $request->get_param( 'style' ) ),

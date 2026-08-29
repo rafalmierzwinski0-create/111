@@ -112,6 +112,38 @@
 		}
 	}
 
+	var columnRows = document.querySelectorAll( '.lstab-column-list tbody tr' );
+
+	/**
+	 * Read the column settings out of the form.
+	 *
+	 * Position is the key, so the array order is the column order. Before the
+	 * first sync the rows are placeholders with their controls disabled, and
+	 * an empty list leaves the preview showing every column.
+	 *
+	 * @return {Array} One entry per column.
+	 */
+	function columnSettings() {
+		var settings = [];
+
+		Array.prototype.forEach.call( columnRows, function ( row ) {
+			var label = row.querySelector( 'input[type="text"]' );
+			var visible = row.querySelector( 'input[type="checkbox"]' );
+
+			if ( ! label || ! visible || label.disabled ) {
+				return;
+			}
+
+			settings.push( {
+				source: label.placeholder || '',
+				label: label.value,
+				visible: visible.checked
+			} );
+		} );
+
+		return settings;
+	}
+
 	function loadPreview( gid ) {
 		var url = ( urlInput.value || '' ).trim();
 
@@ -131,7 +163,8 @@
 				gid: undefined === gid ? '' : String( gid ),
 				firstRowHeader: firstRowHeader ? firstRowHeader.checked : true,
 				style: selectedPreset(),
-				layout: layoutSelect ? layoutSelect.value : 'table'
+				layout: layoutSelect ? layoutSelect.value : 'table',
+				columns: columnSettings()
 			}
 		} ).then( function ( response ) {
 			setBusy( false );
@@ -314,6 +347,17 @@
 			table.dispatchEvent( new CustomEvent( 'lstab:resize' ) );
 		} );
 	}
+
+	// Hiding or renaming changes the markup itself, so the preview is rebuilt
+	// rather than restyled. A text field only fires this on blur, so a rename
+	// costs one round trip, not one per keystroke.
+	Array.prototype.forEach.call( columnRows, function ( row ) {
+		row.addEventListener( 'change', function () {
+			if ( stage.querySelector( '.lstab-table' ) ) {
+				loadPreview( gidField.value );
+			}
+		} );
+	} );
 
 	if ( firstRowHeader ) {
 		firstRowHeader.addEventListener( 'change', function () {

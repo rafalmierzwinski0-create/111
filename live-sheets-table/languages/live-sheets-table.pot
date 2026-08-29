@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-08-29 09:43+0000\n"
+"POT-Creation-Date: 2026-08-29 15:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,27 +21,27 @@ msgstr ""
 msgid "%1$s rows × %2$s cols"
 msgstr ""
 
-#: includes/views/edit-page.php:316
+#: includes/views/edit-page.php:334
 msgid "(no longer there)"
 msgstr ""
 
-#: includes/views/edit-page.php:42
+#: includes/views/edit-page.php:50
 msgid "1. Point at your sheet"
 msgstr ""
 
-#: includes/views/edit-page.php:80
+#: includes/views/edit-page.php:88
 msgid "2. Name it and set the schedule"
 msgstr ""
 
-#: includes/views/edit-page.php:111
+#: includes/views/edit-page.php:119
 msgid "3. Pick a look"
 msgstr ""
 
-#: includes/views/edit-page.php:176
+#: includes/views/edit-page.php:184
 msgid "4. Fine-tune the look"
 msgstr ""
 
-#: includes/views/edit-page.php:277
+#: includes/views/edit-page.php:273
 msgid "A wide table becomes one card per row once its column gets too narrow. Use these to check both before you publish."
 msgstr ""
 
@@ -86,7 +86,7 @@ msgstr ""
 msgid "Always cards"
 msgstr ""
 
-#: includes/views/edit-page.php:120
+#: includes/views/edit-page.php:128
 msgid "Always use cards, at every width"
 msgstr ""
 
@@ -106,7 +106,7 @@ msgstr ""
 msgid "Bordered"
 msgstr ""
 
-#: includes/views/edit-page.php:245
+#: includes/views/edit-page.php:394
 msgid "Cancel"
 msgstr ""
 
@@ -114,7 +114,7 @@ msgstr ""
 msgid "Caption"
 msgstr ""
 
-#: includes/views/edit-page.php:94
+#: includes/views/edit-page.php:102
 msgid "Check Google for changes"
 msgstr ""
 
@@ -128,17 +128,17 @@ msgstr ""
 
 #. translators: 1: column number, 2: heading that used to be there, 3: heading
 #. there now.
-#: includes/views/edit-page.php:313
+#: includes/views/edit-page.php:331
 msgid "Column %1$d was “%2$s”, now “%3$s”"
 msgstr ""
 
 #. translators: %d: column number.
-#: includes/views/edit-page.php:337 includes/class-lstab-csv-parser.php:236
+#: includes/views/edit-page.php:355 includes/class-lstab-csv-parser.php:236
 #: includes/class-lstab-csv-parser.php:263
 msgid "Column %d"
 msgstr ""
 
-#: includes/views/edit-page.php:296
+#: includes/views/edit-page.php:302
 msgid "Columns"
 msgstr ""
 
@@ -237,7 +237,7 @@ msgstr ""
 msgid "Full grid with a shaded header. Good for dense numeric data."
 msgstr ""
 
-#: includes/views/edit-page.php:261
+#: includes/views/edit-page.php:257
 msgid "Full width"
 msgstr ""
 
@@ -246,7 +246,7 @@ msgstr ""
 msgid "Google Sheets Table"
 msgstr ""
 
-#: includes/views/edit-page.php:49
+#: includes/views/edit-page.php:57
 msgid "Google Sheets link"
 msgstr ""
 
@@ -295,23 +295,23 @@ msgstr ""
 msgid "How to run WordPress schedules from a system cron"
 msgstr ""
 
-#: includes/views/edit-page.php:45
+#: includes/views/edit-page.php:53
 msgid "In Google Sheets choose Share → General access → “Anyone with the link”, role “Viewer”, then copy the link from your browser. No API key or Google Cloud project is needed."
 msgstr ""
 
-#: includes/views/edit-page.php:328
+#: includes/views/edit-page.php:346
 msgid "In your sheet"
 msgstr ""
 
-#: includes/views/edit-page.php:330
+#: includes/views/edit-page.php:348
 msgid "Include"
 msgstr ""
 
-#: includes/views/edit-page.php:139
+#: includes/views/edit-page.php:147
 msgid "Keep the first column in view while the table scrolls sideways"
 msgstr ""
 
-#: includes/views/edit-page.php:118
+#: includes/views/edit-page.php:126
 msgid "Keep the table and add a slider to scroll it sideways"
 msgstr ""
 
@@ -345,7 +345,7 @@ msgstr ""
 msgid "Live Sheets Table: every %s"
 msgstr ""
 
-#: includes/views/edit-page.php:61
+#: includes/views/edit-page.php:69
 msgid "Load preview"
 msgstr ""
 
@@ -366,7 +366,7 @@ msgstr ""
 msgid "Midnight"
 msgstr ""
 
-#: includes/views/edit-page.php:262
+#: includes/views/edit-page.php:258
 msgid "Narrow column"
 msgstr ""
 
@@ -403,7 +403,7 @@ msgstr ""
 msgid "Not synced yet"
 msgstr ""
 
-#: includes/views/edit-page.php:114
+#: includes/views/edit-page.php:122
 msgid "On screens too narrow for the whole table"
 msgstr ""
 
@@ -411,7 +411,7 @@ msgstr ""
 msgid "Only Google Sheets links are supported. The address must start with https://docs.google.com/spreadsheets/."
 msgstr ""
 
-#: includes/views/edit-page.php:90
+#: includes/views/edit-page.php:98
 msgid "Only shown in the dashboard, to tell sources apart."
 msgstr ""
 
@@ -419,15 +419,15 @@ msgstr ""
 msgid "Open in Google Sheets"
 msgstr ""
 
-#: includes/views/edit-page.php:370
+#: includes/views/edit-page.php:407
 msgid "Optional attributes: search=\"no\", sort=\"no\", meta=\"no\", style=\"striped\", caption=\"My table\"."
 msgstr ""
 
-#: includes/views/edit-page.php:178
+#: includes/views/edit-page.php:186
 msgid "Optional. Anything you leave untouched follows the preset above, so you can change one colour without redefining the rest. The preview updates as you go."
 msgstr ""
 
-#: includes/views/edit-page.php:104
+#: includes/views/edit-page.php:112
 msgid "Pages always render from the local copy, so visitors never wait for Google. Pro syncs as often as every minute."
 msgstr ""
 
@@ -435,7 +435,7 @@ msgstr ""
 msgid "Paste a Google Sheets link first."
 msgstr ""
 
-#: includes/views/edit-page.php:282
+#: includes/views/edit-page.php:278
 msgid "Paste a link and choose “Load preview”."
 msgstr ""
 
@@ -443,7 +443,7 @@ msgstr ""
 msgid "Paste the link to your Google Sheet first."
 msgstr ""
 
-#: includes/views/edit-page.php:263
+#: includes/views/edit-page.php:259
 msgid "Phone"
 msgstr ""
 
@@ -451,7 +451,7 @@ msgstr ""
 msgid "Pick the tab you want to publish:"
 msgstr ""
 
-#: includes/views/edit-page.php:251
+#: includes/views/edit-page.php:247
 msgid "Preview"
 msgstr ""
 
@@ -459,15 +459,15 @@ msgstr ""
 msgid "Preview failed"
 msgstr ""
 
-#: includes/views/edit-page.php:257
+#: includes/views/edit-page.php:253
 msgid "Preview width"
 msgstr ""
 
-#: includes/views/edit-page.php:88
+#: includes/views/edit-page.php:96
 msgid "Price list"
 msgstr ""
 
-#: includes/views/edit-page.php:159
+#: includes/views/edit-page.php:167
 msgid "Pro"
 msgstr ""
 
@@ -479,7 +479,7 @@ msgstr ""
 msgid "Publish your first Google Sheet"
 msgstr ""
 
-#: includes/views/edit-page.php:364
+#: includes/views/edit-page.php:401
 msgid "Put it on a page"
 msgstr ""
 
@@ -492,15 +492,15 @@ msgstr ""
 msgid "Refresh now"
 msgstr ""
 
-#: includes/views/edit-page.php:298
+#: includes/views/edit-page.php:304
 msgid "Rename a column for your visitors, or leave it out of the table entirely. Nothing here is written back to Google — your spreadsheet keeps its own headings, including working names nobody should see."
 msgstr ""
 
-#: includes/views/edit-page.php:200
+#: includes/views/edit-page.php:208
 msgid "Reset"
 msgstr ""
 
-#: includes/views/edit-page.php:230
+#: includes/views/edit-page.php:238
 msgid "Reset everything to the preset"
 msgstr ""
 
@@ -524,12 +524,16 @@ msgstr ""
 msgid "Rows are never limited — a source can hold as many rows as your sheet does. To publish several different sheets at once, upgrade to Pro."
 msgstr ""
 
-#: includes/views/edit-page.php:240
+#: includes/views/edit-page.php:389
 msgid "Save changes and sync"
 msgstr ""
 
-#: includes/views/edit-page.php:241
+#: includes/views/edit-page.php:390
 msgid "Save source and sync"
+msgstr ""
+
+#: includes/views/edit-page.php:313
+msgid "Save this source first. It is read straight away, and your real columns appear here."
 msgstr ""
 
 #: blocks/sheet-table/index.js:98
@@ -577,7 +581,7 @@ msgstr ""
 msgid "Serif headings and hairline rules, styled after print tables."
 msgstr ""
 
-#: includes/views/edit-page.php:305
+#: includes/views/edit-page.php:323
 msgid "Settings below are matched by position, so a column added or removed in Google shifts them. Check that each row still points at the right column:"
 msgstr ""
 
@@ -605,7 +609,7 @@ msgstr ""
 msgid "Sheet sources"
 msgstr ""
 
-#: includes/views/edit-page.php:67
+#: includes/views/edit-page.php:75
 msgid "Sheet tab"
 msgstr ""
 
@@ -622,7 +626,7 @@ msgstr ""
 msgid "Shortcode"
 msgstr ""
 
-#: includes/views/edit-page.php:352
+#: includes/views/edit-page.php:376
 msgid "Show this column"
 msgstr ""
 
@@ -634,7 +638,7 @@ msgstr ""
 msgid "Showing the first 25 rows."
 msgstr ""
 
-#: includes/views/edit-page.php:329
+#: includes/views/edit-page.php:347
 msgid "Shown as"
 msgstr ""
 
@@ -724,11 +728,11 @@ msgstr ""
 msgid "That sheet source no longer exists."
 msgstr ""
 
-#: includes/views/edit-page.php:303
+#: includes/views/edit-page.php:321
 msgid "The columns in your sheet have moved."
 msgstr ""
 
-#: includes/views/edit-page.php:74
+#: includes/views/edit-page.php:82
 msgid "The first row contains column headings"
 msgstr ""
 
@@ -751,7 +755,7 @@ msgstr[1] ""
 msgid "The sheet returned no data. Check that the tab you picked actually contains rows."
 msgstr ""
 
-#: includes/views/edit-page.php:131
+#: includes/views/edit-page.php:139
 msgid "The slider is always visible while there is more table to see, unlike the browser's own scrollbar. Use the width buttons beside the preview to check it."
 msgstr ""
 
@@ -759,7 +763,7 @@ msgstr ""
 msgid "The sync schedule is missing."
 msgstr ""
 
-#: includes/views/edit-page.php:253
+#: includes/views/edit-page.php:249
 msgid "This is exactly what the parser sees. Check the headings and a few rows before you save — wrong tab, merged cells or a shifted header row show up here, not on your live page."
 msgstr ""
 
@@ -767,11 +771,11 @@ msgstr ""
 msgid "This sheet source no longer exists."
 msgstr ""
 
-#: includes/views/edit-page.php:83
+#: includes/views/edit-page.php:91
 msgid "Title"
 msgstr ""
 
-#: includes/views/edit-page.php:119
+#: includes/views/edit-page.php:127
 msgid "Turn each row into a labelled card"
 msgstr ""
 
@@ -788,11 +792,11 @@ msgstr ""
 msgid "Use the source default"
 msgstr ""
 
-#: includes/views/edit-page.php:366
+#: includes/views/edit-page.php:403
 msgid "Use the “Google Sheets Table” block, or paste this shortcode into any editor, widget or page builder:"
 msgstr ""
 
-#: includes/views/edit-page.php:142
+#: includes/views/edit-page.php:150
 msgid "Useful when the first column names the row — a product, a person, a date. Turn it off if your first column is long text, where pinning it would take up most of a phone screen."
 msgstr ""
 
@@ -800,7 +804,11 @@ msgstr ""
 msgid "Very rounded"
 msgstr ""
 
-#: includes/views/edit-page.php:258
+#: includes/views/edit-page.php:312
+msgid "Waiting for a first look at the sheet. Choose “Refresh now” on the sources list, and your real columns will appear here."
+msgstr ""
+
+#: includes/views/edit-page.php:254
 msgid "Width:"
 msgstr ""
 
@@ -808,11 +816,11 @@ msgstr ""
 msgid "WordPress runs scheduled work when someone visits the site, so a quiet site can fall behind. On a site that should be busy this usually means WP-Cron is blocked — by a security plugin, a page cache serving every request, or a host that disables it. Your tables are still showing their last good copy."
 msgstr ""
 
-#: includes/class-lstab-rest.php:120
+#: includes/class-lstab-rest.php:126
 msgid "You are not allowed to list sheet sources."
 msgstr ""
 
-#: includes/class-lstab-rest.php:103 includes/class-lstab-admin.php:148
+#: includes/class-lstab-rest.php:109 includes/class-lstab-admin.php:148
 #: includes/class-lstab-admin.php:162 includes/class-lstab-admin.php:320
 msgid "You are not allowed to manage sheet sources."
 msgstr ""

@@ -285,6 +285,10 @@ return array(
 	'Pro'                                        => 'Pro',
 	'Rows are never limited — a source can hold as many rows as your sheet does. To publish several different sheets at once, upgrade to Pro.'
 		=> 'Liczba wierszy nigdy nie jest ograniczona — źródło pomieści tyle wierszy, ile ma Twój arkusz. Aby publikować kilka różnych arkuszy naraz, przejdź na Pro.',
+	'Waiting for a first look at the sheet. Choose “Refresh now” on the sources list, and your real columns will appear here.'
+		=> 'Czekamy na pierwsze odczytanie arkusza. Kliknij „Odśwież teraz” na liście źródeł, a pojawią się tutaj Twoje prawdziwe kolumny.',
+	'Save this source first. It is read straight away, and your real columns appear here.'
+		=> 'Najpierw zapisz to źródło. Arkusz zostanie od razu odczytany, a Twoje prawdziwe kolumny pojawią się tutaj.',
 
 	// Plurals: Polish has three forms.
 	'The free version keeps %d sheet source'     => array(

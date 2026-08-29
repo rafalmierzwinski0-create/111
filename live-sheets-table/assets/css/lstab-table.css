@@ -686,8 +686,6 @@
 		--lstab-table-min: 0;
 		--lstab-sticky: static;
 		--lstab-sticky-max: none;
-	--lstab-sticky: static;
-	--lstab-sticky-max: none;
 		--lstab-frame-border: 0;
 		--lstab-frame-shadow: none;
 	}
@@ -714,8 +712,6 @@
 		--lstab-table-min: 0;
 		--lstab-sticky: static;
 		--lstab-sticky-max: none;
-	--lstab-sticky: static;
-	--lstab-sticky-max: none;
 		--lstab-frame-border: 0;
 		--lstab-frame-shadow: none;
 	}
@@ -742,8 +738,6 @@
 		--lstab-table-min: 0;
 		--lstab-sticky: static;
 		--lstab-sticky-max: none;
-	--lstab-sticky: static;
-	--lstab-sticky-max: none;
 		--lstab-frame-border: 0;
 		--lstab-frame-shadow: none;
 	}
@@ -770,8 +764,6 @@
 		--lstab-table-min: 0;
 		--lstab-sticky: static;
 		--lstab-sticky-max: none;
-	--lstab-sticky: static;
-	--lstab-sticky-max: none;
 		--lstab-frame-border: 0;
 		--lstab-frame-shadow: none;
 	}
@@ -798,8 +790,6 @@
 		--lstab-table-min: 0;
 		--lstab-sticky: static;
 		--lstab-sticky-max: none;
-	--lstab-sticky: static;
-	--lstab-sticky-max: none;
 		--lstab-frame-border: 0;
 		--lstab-frame-shadow: none;
 	}
@@ -924,10 +914,6 @@
 			--lstab-table-min: 0;
 			--lstab-sticky: static;
 			--lstab-sticky-max: none;
-		--lstab-sticky: static;
-		--lstab-sticky-max: none;
-	--lstab-sticky: static;
-	--lstab-sticky-max: none;
 			--lstab-frame-border: 0;
 			--lstab-frame-shadow: none;
 		}
@@ -947,4 +933,32 @@
 	.lstab-table tbody tr {
 		transition: none;
 	}
+}
+
+/* ------------------------------------------------------ even column widths */
+
+/*
+ * Set by the script once it has measured that the table fits its container,
+ * never before: on a table that has to scroll, the browser would satisfy
+ * these percentages by inflating the table rather than by clipping it.
+ *
+ * These rules sit last so they win the specificity tie against the explicit
+ * layout overrides above.
+ */
+.lstab-even .lstab-table > thead > tr > th,
+.lstab-even .lstab-table > tbody > tr > td {
+	width: var( --lstab-col-basis, auto );
+}
+
+/*
+ * A table asking for equal shares reports a wider max-content than the same
+ * table left alone, because each column's contribution becomes the larger of
+ * its natural width and its share. Left in place, the max-content floor would
+ * then stretch the table past its container and start it scrolling — which is
+ * the one thing even columns must never cause. The floor exists to stop a
+ * table that cannot fit from collapsing to its narrowest, and this class is
+ * only ever set on a table that already fits, so it has no work to do here.
+ */
+.lstab-even {
+	--lstab-table-min: 0;
 }

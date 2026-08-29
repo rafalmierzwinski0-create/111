@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.5.0
+Stable tag: 1.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -153,6 +153,13 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 
 == Changelog ==
 
+= 1.6.0 =
+* Fixed: the column settings sat outside the form, so renaming or hiding a column looked like it worked and then reverted on save. Nothing typed there was ever submitted.
+* Fixed: an unticked "include" box was read as "no answer" rather than as "hide this column", so a column switched off came back visible.
+* Changed: the column settings now appear from the start, greyed out and saying what they are waiting for, instead of materialising only after a sheet has been read once.
+* Changed: the preview now shows renamed and hidden columns, so it matches the published page rather than the raw sheet.
+* Changed: a table with room to spare now shares that room out equally between its columns instead of in proportion to what each already holds, which left one column sprawling beside several pinched ones. A column whose content genuinely needs more still takes it, and a table that has to scroll keeps its natural widths.
+
 = 1.5.0 =
 * Added: rename a column for your visitors, or leave it out of the table. Nothing is written back to Google, so a spreadsheet keeps its own headings — including working columns nobody should see.
 * Added: because columns are matched by position, a column added or removed in Google is now reported in the dashboard rather than quietly shifting every label along.
@@ -201,6 +208,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 1.6.0 =
+Fixes column renaming and hiding, which never saved, and evens out column widths on tables with room to spare.
 
 = 1.5.0 =
 Adds column renaming and hiding, and makes the pinned first column optional.

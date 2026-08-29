@@ -769,6 +769,111 @@ const bodyText = await apage.locator( 'body' ).innerText();
 check( ! /403|Sync error|lstab-notice/i.test( bodyText ), 'No error text leaked to the visitor' );
 await apage.screenshot( { path: `${ SHOTS }/09-frontend-during-outage.png`, fullPage: true } );
 
+// ------------------------------------------------------- columns and widths
+section( '9a. Column settings' );
+setMock( 'ok' );
+
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.waitForSelector( '.lstab-preview .lstab-table', { timeout: 20000 } );
+
+// The card once sat outside the form, so nothing typed into it was ever sent.
+check(
+	await page.locator( '#lstab-source-form .lstab-column-list' ).count() === 1,
+	'Columns card is inside the form'
+);
+check(
+	await page.locator( '#lstab-source-form .lstab-submit button[type=submit]' ).count() === 1,
+	'Save button is inside the form'
+);
+
+const columnRows = page.locator( '.lstab-column-list tbody tr' );
+check( await columnRows.count() === 5, 'One row per column in the sheet', String( await columnRows.count() ) );
+
+// Hiding and renaming must show up in the preview, not only after publishing.
+await columnRows.nth( 4 ).locator( 'input[type=checkbox]' ).uncheck();
+await page.waitForFunction( () => document.querySelectorAll( '.lstab-preview thead th' ).length === 4, null, { timeout: 20000 } ).catch( () => {} );
+check(
+	( await page.locator( '.lstab-preview thead th' ).allInnerTexts() ).length === 4,
+	'Unchecking a column updates the preview'
+);
+
+const labelField = columnRows.nth( 0 ).locator( 'input[type=text]' );
+await labelField.fill( 'Nazwa produktu' );
+await labelField.blur();
+await page.waitForFunction( () => {
+	const th = document.querySelector( '.lstab-preview thead th' );
+	return th && /NAZWA PRODUKTU/i.test( th.innerText );
+}, null, { timeout: 20000 } ).catch( () => {} );
+check(
+	/NAZWA PRODUKTU/i.test( await page.locator( '.lstab-preview thead th' ).first().innerText() ),
+	'Renaming a column updates the preview'
+);
+
+await page.locator( '.lstab-submit button[type=submit]' ).click();
+await page.waitForLoadState( 'networkidle' );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+
+check(
+	await columnRows.nth( 0 ).locator( 'input[type=text]' ).inputValue() === 'Nazwa produktu',
+	'The new name survives the save'
+);
+const savedBoxes = await page.locator( '.lstab-column-list tbody tr input[type=checkbox]' ).evaluateAll( ( els ) => els.map( ( e ) => e.checked ) );
+check(
+	JSON.stringify( savedBoxes ) === JSON.stringify( [ true, true, true, true, false ] ),
+	'The hidden column survives the save',
+	JSON.stringify( savedBoxes )
+);
+await page.locator( '.lstab-columns-card' ).screenshot( { path: `${ SHOTS }/13-columns-card.png` } );
+
+await apage.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
+await apage.waitForTimeout( 400 );
+const publishedHeads = await apage.locator( '.lstab' ).first().locator( 'thead th' ).allInnerTexts();
+check( publishedHeads.length === 4, 'The published page hides the same column', String( publishedHeads.length ) );
+check( /NAZWA PRODUKTU/i.test( publishedHeads[ 0 ] ), 'The published page uses the new name', publishedHeads[ 0 ] );
+check(
+	! ( await apage.locator( 'body' ).innerText() ).includes( '2026-08-20' ),
+	'A hidden column\'s values never reach the page at all'
+);
+
+section( '9b. Even column widths' );
+
+const widthReport = await apage.locator( '.lstab' ).evaluateAll( ( els ) => els.map( ( el ) => {
+	const scroll = el.querySelector( '.lstab-scroll' );
+	const table = el.querySelector( '.lstab-table' );
+	const cols = [ ...table.querySelectorAll( 'thead th' ) ].map( ( e ) => Math.round( e.getBoundingClientRect().width ) );
+	return {
+		even: el.classList.contains( 'lstab-even' ),
+		overflow: scroll.scrollWidth - scroll.clientWidth,
+		spread: cols.length ? Math.max( ...cols ) - Math.min( ...cols ) : 0,
+		cols
+	};
+} ) );
+
+// The invariant that matters: asking for equal shares must never be the reason
+// a table starts to scroll. Percentage widths make a table report a wider
+// max-content, and left unchecked that turned an 811px table into 1826px.
+check(
+	widthReport.every( ( r ) => ! r.even || r.overflow <= 2 ),
+	'Even columns never push a table into scrolling',
+	JSON.stringify( widthReport )
+);
+check(
+	widthReport.some( ( r ) => r.even ),
+	'A table with room to spare gets even columns',
+	JSON.stringify( widthReport )
+);
+widthReport.filter( ( r ) => r.even ).forEach( ( r, i ) => {
+	check( r.spread <= 4, `Evened table ${ i + 1 } really has equal columns`, r.cols.join( '/' ) );
+} );
+await apage.locator( '.lstab' ).first().screenshot( { path: `${ SHOTS }/14-even-columns.png` } );
+
+// Put the source back the way the rest of the run expects to find it.
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await columnRows.nth( 4 ).locator( 'input[type=checkbox]' ).check();
+await columnRows.nth( 0 ).locator( 'input[type=text]' ).fill( '' );
+await page.locator( '.lstab-submit button[type=submit]' ).click();
+await page.waitForLoadState( 'networkidle' );
+
 // -------------------------------------------------------------- block editor
 section( '10. Block editor' );
 setMock( 'ok' );
