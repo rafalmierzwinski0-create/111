@@ -64,6 +64,15 @@ class LSTAB_Sync {
 		 */
 		$table = (array) apply_filters( 'lstab_parsed_table', $table, $source );
 
+		// Remember which heading each position actually carried, so a column
+		// inserted in the sheet can be reported rather than silently shifting
+		// every configured label one place along.
+		$columns = LSTAB_Columns::reconcile(
+			isset( $source['columns_config'] ) ? $source['columns_config'] : array(),
+			isset( $table['headers'] ) ? $table['headers'] : array()
+		);
+
+		LSTAB_Storage::update( $id, array( 'columns_config' => $columns ) );
 		LSTAB_Storage::record_success( $id, $table );
 
 		/**

@@ -379,18 +379,18 @@
  *   to transparent, so a pinned header cell is opaque too.
  */
 
-.lstab-table tbody td:first-child,
-.lstab-table thead th:first-child {
+.lstab-sticky-first .lstab-table tbody td:first-child,
+.lstab-sticky-first .lstab-table thead th:first-child {
 	position: var(--lstab-sticky, sticky);
 	left: 0;
 	z-index: 1;
 }
 
-.lstab-table tbody td:first-child {
+.lstab-sticky-first .lstab-table tbody td:first-child {
 	background-color: inherit;
 }
 
-.lstab-table thead th:first-child {
+.lstab-sticky-first .lstab-table thead th:first-child {
 	z-index: 2;
 }
 
@@ -400,14 +400,14 @@
  * measure the table's own column, not the viewport, so this holds inside a
  * narrow sidebar too.
  */
-.lstab-table tbody td:first-child .lstab-cell-value,
-.lstab-table thead th:first-child {
+.lstab-sticky-first .lstab-table tbody td:first-child .lstab-cell-value,
+.lstab-sticky-first .lstab-table thead th:first-child {
 	max-width: var(--lstab-sticky-max, min( 38cqi, 22rem ));
 }
 
 /* The divider only earns its place once there is something hidden behind it. */
-.lstab-is-scrolled .lstab-table tbody td:first-child,
-.lstab-is-scrolled .lstab-table thead th:first-child {
+.lstab-sticky-first.lstab-is-scrolled .lstab-table tbody td:first-child,
+.lstab-sticky-first.lstab-is-scrolled .lstab-table thead th:first-child {
 	box-shadow: 1px 0 0 var(--lstab-border), 6px 0 8px -6px rgba( 16, 24, 40, 0.22 );
 }
 

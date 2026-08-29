@@ -34,7 +34,16 @@ class LSTAB_Shortcode {
 	 * @return string
 	 */
 	public function render( $atts ) {
-		$atts = shortcode_atts(
+		/**
+		 * Filters the attributes the shortcode understands.
+		 *
+		 * An add-on registering a name here also receives it in the render
+		 * arguments, so a feature can be added without editing this file.
+		 *
+		 * @param array $defaults Attribute names mapped to default values.
+		 */
+		$defaults = (array) apply_filters(
+			'lstab_shortcode_atts',
 			array(
 				'id'      => 0,
 				'search'  => 'yes',
@@ -44,12 +53,21 @@ class LSTAB_Shortcode {
 				'caption' => '',
 				'class'   => '',
 				'layout'  => 'inherit',
-			),
-			$atts,
-			self::TAG
+			)
 		);
 
-		return LSTAB_Renderer::render(
+		$atts = shortcode_atts( $defaults, $atts, self::TAG );
+
+		// Anything an add-on registered rides along to the renderer untouched
+		// beyond a light sanitise, since only that add-on knows its shape.
+		$extra = array();
+		foreach ( $atts as $name => $value ) {
+			if ( ! array_key_exists( $name, self::core_atts() ) ) {
+				$extra[ $name ] = is_scalar( $value ) ? sanitize_text_field( (string) $value ) : '';
+			}
+		}
+
+		return LSTAB_Renderer::render( array_merge( $extra,
 			array(
 				'source_id' => absint( $atts['id'] ),
 				'search'    => self::boolish( $atts['search'] ),
@@ -60,6 +78,24 @@ class LSTAB_Shortcode {
 				'class'     => sanitize_html_class( $atts['class'] ),
 				'layout'    => sanitize_key( $atts['layout'] ),
 			)
+		) );
+	}
+
+	/**
+	 * The attributes this plugin owns.
+	 *
+	 * @return array<string,mixed>
+	 */
+	protected static function core_atts() {
+		return array(
+			'id'      => 0,
+			'search'  => 'yes',
+			'sort'    => 'yes',
+			'meta'    => 'yes',
+			'style'   => '',
+			'caption' => '',
+			'class'   => '',
+			'layout'  => 'inherit',
 		);
 	}
 

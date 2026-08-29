@@ -430,3 +430,47 @@
 	box-shadow: none;
 	color: inherit;
 }
+
+/* Column list */
+
+.lstab-column-list {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 0.6rem;
+}
+
+.lstab-column-list th {
+	text-align: left;
+	font-size: 0.82rem;
+	font-weight: 600;
+	color: #646970;
+	padding: 0 0.6rem 0.4rem 0;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.lstab-column-list td {
+	padding: 0.45rem 0.6rem 0.45rem 0;
+	border-bottom: 1px solid #f0f0f1;
+	vertical-align: middle;
+}
+
+.lstab-column-list th:last-child,
+.lstab-column-list td:last-child {
+	width: 5rem;
+	text-align: center;
+	padding-right: 0;
+}
+
+.lstab-column-list code {
+	font-size: 0.82rem;
+	background: #f6f7f7;
+}
+
+.lstab-drift {
+	margin: 0 0 1rem;
+}
+
+.lstab-drift ul {
+	margin: 0.4rem 0 0.6rem 1.2rem;
+	list-style: disc;
+}

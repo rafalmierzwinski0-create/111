@@ -28,8 +28,9 @@ define( 'LSTAB_MOCK_LOG', WP_CONTENT_DIR . '/lstab-mock-log.txt' );
  */
 function lstab_mock_state() {
 	$defaults = array(
-		'mode' => 'ok',
-		'tab'  => 'main',
+		'mode'  => 'ok',
+		'tab'   => 'main',
+		'oauth' => 'ok',
 	);
 
 	if ( ! file_exists( LSTAB_MOCK_STATE ) ) {
@@ -65,11 +66,51 @@ function lstab_mock_response( $code, $body, $type = 'text/csv; charset=UTF-8' ) 
 add_filter(
 	'pre_http_request',
 	function ( $preempt, $args, $url ) {
+		$state = lstab_mock_state();
+
+		// Google's OAuth token endpoint, for the Pro add-on.
+		if ( false !== strpos( $url, 'oauth2.googleapis.com/token' ) ) {
+			file_put_contents( LSTAB_MOCK_LOG, gmdate( 'c' ) . " oauth={$state['oauth']} url={$url}\n", FILE_APPEND );
+
+			if ( 'down' === $state['oauth'] ) {
+				return new WP_Error( 'http_request_failed', 'Mocked network failure reaching Google.' );
+			}
+
+			if ( 'reject' === $state['oauth'] ) {
+				return lstab_mock_response(
+					400,
+					wp_json_encode(
+						array(
+							'error'             => 'invalid_grant',
+							'error_description' => 'Token has been expired or revoked.',
+						)
+					),
+					'application/json'
+				);
+			}
+
+			$body = isset( $args['body'] ) ? (array) $args['body'] : array();
+			$is_refresh = isset( $body['grant_type'] ) && 'refresh_token' === $body['grant_type'];
+
+			$payload = array(
+				'access_token' => 'mock-access-' . wp_generate_password( 8, false ),
+				'expires_in'   => 3600,
+				'scope'        => 'https://www.googleapis.com/auth/spreadsheets.readonly',
+				'token_type'   => 'Bearer',
+			);
+
+			// Google returns a refresh token only on the first exchange, never
+			// on a refresh. Reproducing that is the point of this branch.
+			if ( ! $is_refresh ) {
+				$payload['refresh_token'] = 'mock-refresh-token';
+			}
+
+			return lstab_mock_response( 200, wp_json_encode( $payload ), 'application/json' );
+		}
+
 		if ( false === strpos( $url, 'docs.google.com' ) ) {
 			return $preempt;
 		}
-
-		$state = lstab_mock_state();
 
 		file_put_contents(
 			LSTAB_MOCK_LOG,
@@ -87,6 +128,19 @@ add_filter(
 				(string) file_get_contents( LSTAB_MOCK_FIXTURES . '/sheet-htmlview.html' ),
 				'text/html; charset=UTF-8'
 			);
+		}
+
+		// A sheet that is not shared publicly: only an authenticated request
+		// gets data, which is what the Pro private-sheet path must produce.
+		if ( 'private_only' === $state['mode'] ) {
+			$authorised = isset( $args['headers']['Authorization'] )
+				&& 0 === strpos( (string) $args['headers']['Authorization'], 'Bearer ' );
+
+			if ( ! $authorised ) {
+				return lstab_mock_response( 403, 'Sorry, unable to open the file at this time.', 'text/html; charset=UTF-8' );
+			}
+
+			return lstab_mock_response( 200, (string) file_get_contents( LSTAB_MOCK_FIXTURES . '/sheet-main.csv' ) );
 		}
 
 		switch ( $state['mode'] ) {

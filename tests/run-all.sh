@@ -47,6 +47,7 @@ echo "=============================================="
 echo " Packaging"
 echo "=============================================="
 bash "$REPO/tools/build-zip.sh"
+bash "$REPO/tools/build-zip.sh" live-sheets-table-pro
 
 echo
 echo "=============================================="
@@ -58,6 +59,25 @@ echo "  Installed $( find "$SCRATCH/wpzip/wp-content/plugins/live-sheets-table" 
 php "$REPO/tests/harness/activate.php" "$SCRATCH/wpzip" 8090
 
 run_suite wpzip "clean install from the built zip"
+
+echo
+echo "=============================================="
+echo " Pro add-on suite — WordPress 7.1"
+echo "=============================================="
+php "$REPO/tests/harness/activate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php
+rm -f "$SCRATCH/wp71/wp-content/debug.log"
+php "$REPO/tests/pro-test.php" "$SCRATCH/wp71"
+
+if [ -f "$SCRATCH/wp71/wp-content/debug.log" ] && grep -v "$NOISE" "$SCRATCH/wp71/wp-content/debug.log" | grep -q .; then
+	echo
+	echo "  PHP notices raised by the Pro add-on:"
+	grep -v "$NOISE" "$SCRATCH/wp71/wp-content/debug.log" | sed 's/^/    /'
+	exit 1
+fi
+echo "  PHP notices raised by the Pro add-on: none"
+
+# The free plugin's own suite asserts the free tier, so Pro must be off for it.
+php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php
 
 echo
 echo "=============================================="

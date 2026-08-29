@@ -32,6 +32,8 @@ class LSTAB_Renderer {
 			'class'       => '',
 			'layout'      => 'inherit',
 			'style_vars'  => array(),
+			'columns'     => null,
+			'sticky'      => null,
 		);
 	}
 
@@ -117,6 +119,23 @@ class LSTAB_Renderer {
 		$headers = isset( $source['data']['headers'] ) ? (array) $source['data']['headers'] : array();
 		$rows    = isset( $source['data']['rows'] ) ? (array) $source['data']['rows'] : array();
 
+		// Renaming and hiding happen here rather than at sync time, so the
+		// stored snapshot always holds exactly what the sheet said and a
+		// settings change needs no refetch.
+		$columns = null !== $args['columns'] ? $args['columns'] : ( isset( $source['columns_config'] ) ? $source['columns_config'] : array() );
+
+		if ( $columns ) {
+			$configured = LSTAB_Columns::apply(
+				array(
+					'headers' => $headers,
+					'rows'    => $rows,
+				),
+				$columns
+			);
+			$headers = $configured['headers'];
+			$rows    = $configured['rows'];
+		}
+
 		/**
 		 * Filters the rows about to be rendered.
 		 *
@@ -147,6 +166,14 @@ class LSTAB_Renderer {
 		$alignments = self::detect_alignments( $headers, $rows );
 
 		$classes = array( 'lstab', 'lstab-style-' . $style, 'lstab-cols-' . $bucket );
+
+		$sticky = null !== $args['sticky']
+			? (bool) $args['sticky']
+			: ( ! isset( $source['sticky_first'] ) || (bool) $source['sticky_first'] );
+
+		if ( $sticky ) {
+			$classes[] = 'lstab-sticky-first';
+		}
 
 		// 'auto' lets the breakpoints decide; the other two pin the layout for
 		// authors who know their table and their theme's column width.

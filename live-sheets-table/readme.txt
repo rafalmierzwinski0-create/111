@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.0
+Stable tag: 1.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,7 +51,8 @@ Paste your link and the parser shows you exactly what it read — headings, rows
 * Three polished style presets, each following the reader's light or dark colour scheme.
 * A visual appearance editor: set colours, text size, row height and corners per table, with the preview updating as you go.
 * A visible, draggable slider under any table too wide for its column, so nothing is ever hidden behind an invisible scrollbar.
-* The first column stays pinned while the rest scrolls, so a price never stops belonging to a product.
+* The first column stays pinned while the rest scrolls, so a price never stops belonging to a product — and can be switched off per table.
+* Rename columns for your visitors, or leave a column out of the table entirely, without touching the spreadsheet.
 * A layout control per source: scroll the table sideways, or stack each row into a card.
 * An "updated N minutes ago" label you can switch off.
 * Full translation support.
@@ -109,6 +110,14 @@ The slider is drawn by the plugin rather than left to the browser, because macOS
 
 By default the table keeps its shape and gains a slider you can drag, so the text stays full size and nothing is hidden. To stack rows into cards instead, change "On screens too narrow for the whole table" on the source screen, or pass `layout="cards"` to the shortcode. Giving the block a wide or full alignment is often better still, since it hands the table the room it needs.
 
+= Can I hide a column, or give it a different name? =
+
+Yes, on the source screen. Renaming is display only: the plugin never writes to your spreadsheet, so a column can be called `cena_netto_bez_rabatu` in Google and simply "Price" on your page, and your formulas carry on working.
+
+Hiding removes the column from the headings and from every row, so a working column is not just visually gone — its values never reach the page at all.
+
+Columns are matched by position, so inserting one in Google shifts the settings. The plugin remembers which heading each position held and tells you when they no longer line up, instead of silently mislabelling data.
+
 = Can I change how the table looks? =
 
 Pick one of three presets, then fine-tune it: the source screen has colour pickers for text, background, headings, lines, striped rows, hover and accent, plus text size, row height and corner rounding. Anything you leave alone keeps following the preset, so changing one colour does not mean defining all of them.
@@ -143,6 +152,11 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 1.5.0 =
+* Added: rename a column for your visitors, or leave it out of the table. Nothing is written back to Google, so a spreadsheet keeps its own headings — including working columns nobody should see.
+* Added: because columns are matched by position, a column added or removed in Google is now reported in the dashboard rather than quietly shifting every label along.
+* Added: pinning the first column can be switched off per table, for sheets whose first column is long text.
 
 = 1.4.0 =
 * Added: the first column stays pinned while a wide table scrolls sideways, so every row keeps its label. It is capped so it can never take up the whole screen, and shows a divider only once something is hidden behind it.
@@ -187,6 +201,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 1.5.0 =
+Adds column renaming and hiding, and makes the pinned first column optional.
 
 = 1.4.0 =
 Pins the first column of a scrolling table, and warns when scheduled syncing has stopped.

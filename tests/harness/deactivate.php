@@ -1,8 +1,8 @@
 <?php
 /**
- * Activates the plugin on a test site.
+ * Deactivates a plugin on a test site.
  *
- * Usage: php tests/harness/activate.php /path/to/site 8089
+ * Usage: php tests/harness/deactivate.php /path/to/site 8089
  *
  * @package LiveSheetsTable\Tests
  */
@@ -14,7 +14,7 @@ $port   = isset( $argv[2] ) ? (int) $argv[2] : 8089;
 $target = isset( $argv[3] ) ? $argv[3] : 'live-sheets-table/live-sheets-table.php';
 
 if ( ! $site || ! file_exists( $site . '/wp-load.php' ) ) {
-	fwrite( STDERR, "Usage: php activate.php /path/to/site PORT\n" );
+	fwrite( STDERR, "Usage: php deactivate.php /path/to/site PORT\n" );
 	exit( 1 );
 }
 
@@ -25,11 +25,6 @@ $_SERVER['REQUEST_METHOD'] = 'GET';
 require_once $site . '/wp-load.php';
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-$result = activate_plugin( $target );
+deactivate_plugins( array( $target ) );
 
-if ( is_wp_error( $result ) ) {
-	fwrite( STDERR, '  activation failed: ' . $result->get_error_message() . "\n" );
-	exit( 1 );
-}
-
-echo "  activated {$target}\n";
+echo "  deactivated {$target}\n";

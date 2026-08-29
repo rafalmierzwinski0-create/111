@@ -132,6 +132,17 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 					</span>
 				</p>
 
+				<p class="lstab-checkbox">
+					<label>
+						<input type="checkbox" name="sticky_first" value="1"
+							<?php checked( ! $lstab_is_edit || ! empty( $source['sticky_first'] ) ); ?>>
+						<?php esc_html_e( 'Keep the first column in view while the table scrolls sideways', 'live-sheets-table' ); ?>
+					</label>
+					<span class="lstab-help">
+						<?php esc_html_e( 'Useful when the first column names the row — a product, a person, a date. Turn it off if your first column is long text, where pinning it would take up most of a phone screen.', 'live-sheets-table' ); ?>
+					</span>
+				</p>
+
 				<div class="lstab-presets">
 					<?php foreach ( $lstab_presets as $lstab_slug => $lstab_preset ) : ?>
 						<?php $lstab_locked = ! empty( $lstab_preset['pro'] ) && ! $lstab_is_pro; ?>
@@ -273,6 +284,80 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 			</div>
 		</div>
 	</div>
+
+	<?php
+	$lstab_columns = $lstab_is_edit && ! empty( $source['columns_config'] ) ? $source['columns_config'] : array();
+	$lstab_drift   = $lstab_columns && ! empty( $source['data']['headers'] )
+		? LSTAB_Columns::drift( $lstab_columns, $source['data']['headers'] )
+		: array();
+	?>
+	<?php if ( $lstab_is_edit && $lstab_columns ) : ?>
+		<div class="lstab-card lstab-columns-card">
+			<h2 class="lstab-card-title"><?php esc_html_e( 'Columns', 'live-sheets-table' ); ?></h2>
+			<p class="lstab-help">
+				<?php esc_html_e( 'Rename a column for your visitors, or leave it out of the table entirely. Nothing here is written back to Google — your spreadsheet keeps its own headings, including working names nobody should see.', 'live-sheets-table' ); ?>
+			</p>
+
+			<?php if ( $lstab_drift ) : ?>
+				<div class="notice notice-warning inline lstab-drift">
+					<p><strong><?php esc_html_e( 'The columns in your sheet have moved.', 'live-sheets-table' ); ?></strong></p>
+					<p>
+						<?php esc_html_e( 'Settings below are matched by position, so a column added or removed in Google shifts them. Check that each row still points at the right column:', 'live-sheets-table' ); ?>
+					</p>
+					<ul>
+						<?php foreach ( $lstab_drift as $lstab_moved ) : ?>
+							<li>
+								<?php
+								printf(
+									/* translators: 1: column number, 2: heading that used to be there, 3: heading there now. */
+									esc_html__( 'Column %1$d was “%2$s”, now “%3$s”', 'live-sheets-table' ),
+									(int) $lstab_moved['index'] + 1,
+									esc_html( $lstab_moved['was'] ),
+									esc_html( '' === $lstab_moved['now'] ? __( '(no longer there)', 'live-sheets-table' ) : $lstab_moved['now'] )
+								);
+								?>
+							</li>
+						<?php endforeach; ?>
+					</ul>
+				</div>
+			<?php endif; ?>
+
+			<table class="lstab-column-list">
+				<thead>
+					<tr>
+						<th scope="col"><?php esc_html_e( 'In your sheet', 'live-sheets-table' ); ?></th>
+						<th scope="col"><?php esc_html_e( 'Shown as', 'live-sheets-table' ); ?></th>
+						<th scope="col"><?php esc_html_e( 'Include', 'live-sheets-table' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ( $lstab_columns as $lstab_index => $lstab_column ) : ?>
+						<tr>
+							<td>
+								<code><?php echo esc_html( '' === $lstab_column['source'] ? sprintf( /* translators: %d: column number. */ __( 'Column %d', 'live-sheets-table' ), (int) $lstab_index + 1 ) : $lstab_column['source'] ); ?></code>
+								<input type="hidden" name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][source]"
+									value="<?php echo esc_attr( $lstab_column['source'] ); ?>">
+							</td>
+							<td>
+								<input type="text" class="regular-text"
+									name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][label]"
+									value="<?php echo esc_attr( $lstab_column['label'] ); ?>"
+									placeholder="<?php echo esc_attr( $lstab_column['source'] ); ?>">
+							</td>
+							<td>
+								<label>
+									<input type="checkbox"
+										name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][visible]"
+										value="1" <?php checked( empty( $lstab_column['hidden'] ) ); ?>>
+									<span class="screen-reader-text"><?php esc_html_e( 'Show this column', 'live-sheets-table' ); ?></span>
+								</label>
+							</td>
+						</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		</div>
+	<?php endif; ?>
 
 	<?php if ( $lstab_is_edit ) : ?>
 		<div class="lstab-card lstab-usage">

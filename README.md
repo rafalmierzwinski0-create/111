@@ -76,6 +76,7 @@ live-sheets-table/          The plugin — this is what ships
     class-lstab-admin.php     Dashboard screens and admin-post handlers
     class-lstab-limits.php    Every free/Pro boundary, behind filters
     class-lstab-customizer.php Editable appearance tokens and their sanitising
+    class-lstab-columns.php   Display labels, visibility, and drift detection
     views/                    Admin templates
   blocks/sheet-table/       block.json + plain-ES5 editor script (no build step)
   assets/                   Front-end and admin CSS/JS
@@ -84,7 +85,8 @@ live-sheets-table/          The plugin — this is what ships
   readme-pl.txt             Polish translation of the readme
 
 tests/                      Verification
-  e2e-test.php              155-assertion suite against a real WordPress
+  e2e-test.php              Free plugin suite against a real WordPress
+  pro-test.php              Pro add-on suite, with Google's OAuth mocked
   harness/browser-test.mjs  38-assertion Playwright suite + screenshot capture
   harness/                  Site templates, install/activate/seed helpers
   mock-google-mu-plugin.php Answers docs.google.com from local fixtures
@@ -92,8 +94,12 @@ tests/                      Verification
   setup-env.sh              Builds three WordPress sites from scratch
   run-all.sh                Runs everything
 
-dev/
-  live-sheets-table-pro-preview.php  Unlocks the Pro tier for local review
+live-sheets-table-pro/      The paid add-on — a separate plugin
+  includes/
+    class-lstabp-google-auth.php    OAuth client, token storage and refresh
+    class-lstabp-private-sheets.php Authenticated fetch for private sheets
+    class-lstabp-filters.php        Row filtering for one-sheet-many-pages
+    class-lstabp-settings.php       Connection and per-sheet settings
 
 tools/
   make-pot.php              String extractor and PO/MO compiler
@@ -167,18 +173,44 @@ Refuses to produce an archive if `readme.txt` is missing, if its stable tag
 disagrees with the plugin header version, if the compiled catalogues are
 absent, or if any PHP file fails a syntax check.
 
-## Reviewing the Pro tier locally
+## The Pro add-on
 
-`dev/live-sheets-table-pro-preview.php` unlocks the Pro presets and limits for
-evaluation. It contains nothing but filter calls — the same surface the real
-add-on would use — so if it works, the extension points work.
+`live-sheets-table-pro/` is a separate plugin, deliberately: WordPress.org
+allows neither paid code inside a free plugin nor a free plugin that downloads
+its paid half at runtime. It reaches the free plugin only through published
+hooks, and the free plugin has no idea it exists — a claim the Pro suite
+asserts by checking that no column and no credential ends up in the free
+schema.
 
-Copy it into `wp-content/mu-plugins/`, or into `wp-content/plugins/` and
-activate it. It prints a warning on the plugin's screens so an unlocked site is
-never mistaken for a licensed one. The automated suite deliberately runs
-*without* it, since that suite asserts the free tier's limits; pass
-`LSTAB_PRO_PREVIEW=1` to `tests/setup-env.sh` to install it into the test sites
-for manual review.
+It adds:
+
+- **Private sheets.** The free plugin reads a sheet's public CSV export, which
+  needs the sheet shared as "anyone with the link" — fine for a price list,
+  useless for buying prices, stock or client data. Pro connects a Google
+  account and reads through the Sheets API instead, so the spreadsheet can stay
+  entirely private. The OAuth client is the site owner's own, from their own
+  Google Cloud project: routing every customer's sheets through one shared
+  client would make this plugin a data processor for all of them. Only
+  `spreadsheets.readonly` is requested.
+- **Filtered views.** One saved sheet feeds as many pages as you like:
+  `[sheet_table id="1" filter="Kategoria is Rowery"]`. Filtering happens at
+  render time on the stored copy, so it costs no extra request to Google.
+- Higher limits, one-minute syncing and the premium presets.
+
+**Untested against live Google.** This environment cannot reach
+`accounts.google.com`, so the token exchange, refresh and authenticated fetch
+are exercised against a mock that reproduces Google's behaviour — including the
+detail that a refresh response omits the refresh token. The consent screen
+itself has never run for real and should be walked through once before release.
+
+### Why the filter syntax uses words
+
+`filter="Cena lt 100"` rather than `filter="Cena<100"` because WordPress blanks
+any shortcode attribute containing an unclosed `<` as an XSS precaution, so the
+symbol form silently arrives empty. Symbols still work where they survive
+(`=`, `>`, and an entity-encoded `&lt;`); the words work everywhere, which is
+why they are what the settings screen documents. The suite asserts both forms,
+and asserts that WordPress really does blank the raw `<`.
 
 ## Appearance overrides
 
@@ -211,6 +243,7 @@ forking the free plugin. The suite exercises these by simulating Pro.
 | `lstab_column_alignments` | Override which columns are treated as numeric |
 | `lstab_customizer_enabled` | Turn the visual appearance editor on or off |
 | `lstab_customizer_colors` / `lstab_customizer_metrics` | Add or remove editable tokens |
+| `lstab_shortcode_atts` | Register a shortcode attribute, which then reaches the renderer |
 | `lstab_cell_attributes` | Add attributes to a cell |
 | `lstab_render_rows` | Filter the rows rendered — pagination |
 | `lstab_fetch_url` / `lstab_fetch_args` | Route fetches elsewhere — private sheets |

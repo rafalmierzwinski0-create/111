@@ -4,7 +4,7 @@ Tags: arkusze google, tabela, arkusz kalkulacyjny, csv, tabela danych
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.0
+Stable tag: 1.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,7 +51,8 @@ Wklejasz link, a parser pokazuje dokładnie to, co odczytał — nagłówki, wie
 * Trzy dopracowane presety stylu, każdy podąża za jasnym lub ciemnym schematem kolorów czytelnika.
 * Wizualny edytor wyglądu: kolory, wielkość tekstu, wysokość wiersza i zaokrąglenie narożników per tabela, z podglądem aktualizowanym na bieżąco.
 * Widoczny, przeciągany suwak pod każdą tabelą szerszą od swojej kolumny, więc nic nigdy nie chowa się za niewidocznym paskiem przewijania.
-* Pierwsza kolumna zostaje przyklejona, gdy reszta się przewija, więc cena nigdy nie przestaje należeć do produktu.
+* Pierwsza kolumna zostaje przyklejona, gdy reszta się przewija, więc cena nigdy nie przestaje należeć do produktu — i można to wyłączyć per tabela.
+* Zmiana nazw kolumn dla odwiedzających albo całkowite pominięcie kolumny, bez ruszania arkusza.
 * Sterowanie układem per źródło: przewijaj tabelę w bok albo układaj każdy wiersz jako kartę.
 * Etykietę „zaktualizowano N minut temu”, którą można wyłączyć.
 * Pełne wsparcie tłumaczeń, z polskim w komplecie.
@@ -109,6 +110,14 @@ Suwak rysuje wtyczka, a nie przeglądarka, bo macOS, iOS i Android chowają pozi
 
 Domyślnie tabela zachowuje swój kształt i zyskuje suwak, który można przeciągać, więc tekst zostaje w pełnym rozmiarze i nic się nie chowa. Aby zamiast tego układać wiersze jako karty, zmień „Na ekranach zbyt wąskich dla całej tabeli" na ekranie źródła albo przekaż `layout="cards"` do shortcode. Często jeszcze lepiej jest nadać blokowi szerokie lub pełne wyrównanie, bo daje tabeli miejsce, którego potrzebuje.
 
+= Czy mogę ukryć kolumnę albo nadać jej inną nazwę? =
+
+Tak, na ekranie źródła. Zmiana nazwy dotyczy wyłącznie wyświetlania: wtyczka nigdy nie zapisuje do Twojego arkusza, więc kolumna może nazywać się `cena_netto_bez_rabatu` w Google i po prostu „Cena” na Twojej stronie, a formuły działają dalej.
+
+Ukrycie usuwa kolumnę z nagłówków i z każdego wiersza, więc kolumna robocza nie znika tylko wizualnie — jej wartości w ogóle nie trafiają na stronę.
+
+Kolumny dopasowują się po pozycji, więc wstawienie jednej w Google przesuwa ustawienia. Wtyczka pamięta, jaki nagłówek miała każda pozycja, i informuje, gdy przestają się zgadzać, zamiast po cichu podpisać dane nie tą etykietą.
+
 = Czy mogę zmienić wygląd tabeli? =
 
 Wybierz jeden z trzech presetów, a potem dopracuj go: ekran źródła ma próbniki kolorów dla tekstu, tła, nagłówków, linii, naprzemiennych wierszy, podświetlenia i akcentu, a także wielkość tekstu, wysokość wiersza i zaokrąglenie narożników. To, czego nie ruszysz, nadal podąża za presetem, więc zmiana jednego koloru nie oznacza definiowania wszystkich.
@@ -128,6 +137,11 @@ Wersja darmowa przechowuje trzy źródła arkuszy. Pro znosi ten limit.
 Tak. Wszystko z arkusza jest escapowane przy wyjściu, więc komórka zawierająca HTML albo znacznik `<script>` pokazuje się jako tekst i nie może niczego wstrzyknąć na Twoją stronę.
 
 == Changelog ==
+
+= 1.5.0 =
+* Nowość: zmiana nazwy kolumny dla odwiedzających albo pominięcie jej w tabeli. Nic nie jest zapisywane do Google, więc arkusz zachowuje własne nagłówki — także kolumny robocze, których nikt nie powinien widzieć.
+* Nowość: ponieważ kolumny dopasowują się po pozycji, kolumna dodana lub usunięta w Google jest teraz zgłaszana w kokpicie, zamiast po cichu przesuwać wszystkie etykiety.
+* Nowość: przyklejanie pierwszej kolumny można wyłączyć per tabela, dla arkuszy, w których pierwsza kolumna to długi tekst.
 
 = 1.4.0 =
 * Nowość: pierwsza kolumna zostaje przyklejona, gdy szeroka tabela przewija się w bok, więc każdy wiersz zachowuje swoją etykietę. Jest ograniczona, żeby nigdy nie zajęła całego ekranu, i pokazuje linię oddzielającą dopiero wtedy, gdy coś się za nią chowa.

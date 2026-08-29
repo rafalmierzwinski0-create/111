@@ -104,6 +104,24 @@ return array(
 		=> 'Nie udało się odczytać listy zakładek — zostanie użyta zakładka z Twojego linku.',
 	'Paste a Google Sheets link first.'          => 'Najpierw wklej link do arkusza Google.',
 
+	// Columns and the pinned first column.
+	'Columns'                                    => 'Kolumny',
+	'Rename a column for your visitors, or leave it out of the table entirely. Nothing here is written back to Google — your spreadsheet keeps its own headings, including working names nobody should see.'
+		=> 'Zmień nazwę kolumny dla odwiedzających albo w ogóle pomiń ją w tabeli. Nic z tego nie jest zapisywane do Google — Twój arkusz zachowuje własne nagłówki, także robocze nazwy, których nikt nie powinien widzieć.',
+	'In your sheet'                              => 'W Twoim arkuszu',
+	'Shown as'                                   => 'Wyświetlane jako',
+	'Include'                                    => 'Pokaż',
+	'Show this column'                           => 'Pokaż tę kolumnę',
+	'The columns in your sheet have moved.'      => 'Kolumny w Twoim arkuszu się przesunęły.',
+	'Settings below are matched by position, so a column added or removed in Google shifts them. Check that each row still points at the right column:'
+		=> 'Ustawienia poniżej dopasowują się po pozycji, więc kolumna dodana lub usunięta w Google je przesuwa. Sprawdź, czy każdy wiersz nadal wskazuje właściwą kolumnę:',
+	'Column %1$d was “%2$s”, now “%3$s”'         => 'Kolumna %1$d była „%2$s”, teraz jest „%3$s”',
+	'(no longer there)'                          => '(już jej nie ma)',
+	'Keep the first column in view while the table scrolls sideways'
+		=> 'Zachowaj pierwszą kolumnę w widoku, gdy tabela przewija się w bok',
+	'Useful when the first column names the row — a product, a person, a date. Turn it off if your first column is long text, where pinning it would take up most of a phone screen.'
+		=> 'Przydatne, gdy pierwsza kolumna nazywa wiersz — produkt, osobę, datę. Wyłącz, jeśli pierwsza kolumna to długi tekst, bo przyklejona zajęłaby większość ekranu telefonu.',
+
 	// Scheduler health.
 	'Scheduled syncing is switched off on this site.'
 		=> 'Zaplanowana synchronizacja jest na tej stronie wyłączona.',

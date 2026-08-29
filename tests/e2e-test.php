@@ -667,6 +667,119 @@ lstab_assert( is_callable( $block_type->render_callback ), 'Block has a server-s
 
 // ---------------------------------------------------------------------------
 
+lstab_section( '12a. Column labels and visibility' );
+
+$sheet_headers = array( 'Produkt', 'Cena netto', 'Dostępność', 'Opis', 'Zaktualizowano' );
+
+// Renaming is display only. The spreadsheet is never written to, so a heading
+// in Google can say anything — including a working name nobody should read.
+$renamed = LSTAB_Columns::apply(
+	array(
+		'headers' => $sheet_headers,
+		'rows'    => array( array( 'Kask', '349,00', 'W magazynie', 'Rozmiary', '2026-08-21' ) ),
+	),
+	array(
+		0 => array( 'label' => 'Towar' ),
+		1 => array( 'label' => 'Cena' ),
+	)
+);
+lstab_assert( 'Towar' === $renamed['headers'][0], 'A column can be renamed for visitors', $renamed['headers'][0] );
+lstab_assert( 'Cena' === $renamed['headers'][1], 'A second rename applies too', $renamed['headers'][1] );
+lstab_assert( 'Dostępność' === $renamed['headers'][2], 'Columns left alone keep the sheet heading', $renamed['headers'][2] );
+lstab_assert( 5 === count( $renamed['rows'][0] ), 'Renaming changes no data', (string) count( $renamed['rows'][0] ) );
+
+// Hiding removes the column from both the headings and every row, so a working
+// column cannot leak through the data even though the heading is gone.
+$hidden = LSTAB_Columns::apply(
+	array(
+		'headers' => $sheet_headers,
+		'rows'    => array( array( 'Kask', '349,00', 'W magazynie', 'sekret', '2026-08-21' ) ),
+	),
+	array( 3 => array( 'hidden' => true ) )
+);
+lstab_assert( 4 === count( $hidden['headers'] ), 'Hiding removes the heading', (string) count( $hidden['headers'] ) );
+lstab_assert( ! in_array( 'Opis', $hidden['headers'], true ), 'The hidden heading is gone' );
+lstab_assert( ! in_array( 'sekret', $hidden['rows'][0], true ), 'The hidden column\'s data is gone from every row', wp_json_encode( $hidden['rows'][0] ) );
+lstab_assert( 'Zaktualizowano' === $hidden['headers'][3], 'Later columns close the gap', $hidden['headers'][3] );
+
+// The form asks "include?"; storage keeps "hidden". An absent key must mean
+// visible, or a column would vanish the moment anything else was saved.
+$from_form = LSTAB_Columns::sanitize( array( 0 => array( 'visible' => '1' ), 1 => array() ) );
+lstab_assert( false === $from_form[0]['hidden'], 'A ticked include box means visible' );
+lstab_assert( false === $from_form[1]['hidden'], 'An absent setting means visible, not hidden' );
+$unticked = LSTAB_Columns::sanitize( array( 0 => array( 'label' => 'x' ) ) );
+lstab_assert( false === $unticked[0]['hidden'], 'Renaming alone never hides a column' );
+
+// Hiding everything is a mistake, not an instruction.
+$all_hidden = LSTAB_Columns::apply(
+	array(
+		'headers' => array( 'A', 'B' ),
+		'rows'    => array( array( '1', '2' ) ),
+	),
+	array(
+		0 => array( 'hidden' => true ),
+		1 => array( 'hidden' => true ),
+	)
+);
+lstab_assert( 2 === count( $all_hidden['headers'] ), 'Hiding every column falls back to showing the table' );
+
+// Positions are the key, so a column inserted in Google shifts the settings.
+// That has to be reported rather than silently mislabelling data.
+$config = LSTAB_Columns::reconcile(
+	array( 1 => array( 'label' => 'Cena' ) ),
+	$sheet_headers
+);
+lstab_assert( 'Cena netto' === $config[1]['source'], 'The sheet heading is remembered next to the label', $config[1]['source'] );
+lstab_assert( 'Cena' === $config[1]['label'], 'Reconciling keeps the label' );
+
+$shifted = array( 'Produkt', 'SKU', 'Cena netto', 'Dostępność', 'Opis' );
+$drifted = LSTAB_Columns::drift( $config, $shifted );
+lstab_assert( 1 === count( $drifted ), 'An inserted column is detected', wp_json_encode( $drifted ) );
+lstab_assert( 'Cena netto' === $drifted[0]['was'] && 'SKU' === $drifted[0]['now'], 'The report says what moved', wp_json_encode( $drifted[0] ) );
+lstab_assert( ! LSTAB_Columns::drift( $config, $sheet_headers ), 'No drift is reported when nothing moved' );
+
+$untouched = LSTAB_Columns::reconcile( array(), $sheet_headers );
+lstab_assert( ! LSTAB_Columns::drift( $untouched, $shifted ), 'Columns nobody configured cannot drift' );
+
+// End to end: settings reach the rendered page.
+LSTAB_Storage::update(
+	$source_id,
+	array(
+		'columns_config' => array(
+			1 => array( 'label' => 'Cena brutto' ),
+			3 => array( 'hidden' => true ),
+		),
+	)
+);
+$configured_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false !== strpos( $configured_html, 'Cena brutto' ), 'The renamed heading reaches the page' );
+lstab_assert( false === strpos( $configured_html, 'Rama aluminiowa' ), 'The hidden column\'s data never reaches the page' );
+lstab_assert( 4 === substr_count( $configured_html, '<th scope="col"' ), 'Four columns are rendered', (string) substr_count( $configured_html, '<th scope="col"' ) );
+
+// A sync must not discard the settings.
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
+$after_sync = LSTAB_Storage::get( $source_id );
+lstab_assert( 'Cena brutto' === $after_sync['columns_config'][1]['label'], 'A sync keeps the labels', wp_json_encode( $after_sync['columns_config'][1] ) );
+lstab_assert( true === $after_sync['columns_config'][3]['hidden'], 'A sync keeps the visibility' );
+lstab_assert( 'Cena netto' === $after_sync['columns_config'][1]['source'], 'A sync refreshes the remembered heading' );
+
+LSTAB_Storage::update( $source_id, array( 'columns_config' => array() ) );
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '12c. Pinned column setting' );
+
+lstab_assert( false !== strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'lstab-sticky-first' ), 'Pinning is on by default' );
+
+LSTAB_Storage::update( $source_id, array( 'sticky_first' => 0 ) );
+lstab_assert( false === strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'lstab-sticky-first' ), 'Pinning can be switched off per source' );
+lstab_assert( false !== strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'lstab-scrollbar' ), 'Switching it off leaves the slider alone' );
+
+LSTAB_Storage::update( $source_id, array( 'sticky_first' => 1 ) );
+
+// ---------------------------------------------------------------------------
+
 lstab_section( '12b. Scheduler health' );
 
 // A broken WP-Cron does not break the site — pages keep rendering the stored

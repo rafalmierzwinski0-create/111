@@ -6,11 +6,16 @@
 set -euo pipefail
 
 REPO="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
-SLUG="live-sheets-table"
+SLUG="${1:-live-sheets-table}"
 BUILD="$REPO/build"
 STAGE="$BUILD/$SLUG"
 
 VERSION="$( grep -m1 "^ \* Version:" "$REPO/$SLUG/$SLUG.php" | sed 's/.*Version:[[:space:]]*//' )"
+
+if [ ! -d "$REPO/$SLUG" ]; then
+	echo "ERROR: no such plugin directory: $SLUG"
+	exit 1
+fi
 
 rm -rf "$STAGE" "$BUILD/$SLUG.zip"
 mkdir -p "$STAGE"
@@ -22,19 +27,21 @@ find "$STAGE" \( -name '.git*' -o -name 'node_modules' -o -name '*.map' -o -name
 # Sanity checks before we seal the archive.
 fail=0
 
-if [ ! -f "$STAGE/readme.txt" ]; then
+if [ "$SLUG" = "live-sheets-table" ] && [ ! -f "$STAGE/readme.txt" ]; then
 	echo "ERROR: readme.txt missing"; fail=1
 fi
-if [ ! -f "$STAGE/languages/$SLUG.pot" ]; then
-	echo "ERROR: POT catalogue missing"; fail=1
-fi
-if [ ! -f "$STAGE/languages/$SLUG-pl_PL.mo" ]; then
-	echo "ERROR: compiled Polish catalogue missing"; fail=1
-fi
+if [ "$SLUG" = "live-sheets-table" ]; then
+	if [ ! -f "$STAGE/languages/$SLUG.pot" ]; then
+		echo "ERROR: POT catalogue missing"; fail=1
+	fi
+	if [ ! -f "$STAGE/languages/$SLUG-pl_PL.mo" ]; then
+		echo "ERROR: compiled Polish catalogue missing"; fail=1
+	fi
 
-readme_version="$( grep -m1 '^Stable tag:' "$STAGE/readme.txt" | sed 's/.*Stable tag:[[:space:]]*//' )"
-if [ "$readme_version" != "$VERSION" ]; then
-	echo "ERROR: readme.txt stable tag ($readme_version) does not match plugin version ($VERSION)"; fail=1
+	readme_version="$( grep -m1 '^Stable tag:' "$STAGE/readme.txt" | sed 's/.*Stable tag:[[:space:]]*//' )"
+	if [ "$readme_version" != "$VERSION" ]; then
+		echo "ERROR: readme.txt stable tag ($readme_version) does not match plugin version ($VERSION)"; fail=1
+	fi
 fi
 
 while IFS= read -r php_file; do

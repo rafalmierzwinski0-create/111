@@ -226,6 +226,9 @@ class LSTAB_Admin {
 			// LSTAB_Customizer::sanitize() drops anything it does not recognise
 			// and hex-checks every colour, so the raw array is safe to hand over.
 			'style_vars'       => isset( $_POST['style_vars'] ) ? LSTAB_Customizer::sanitize( wp_unslash( $_POST['style_vars'] ) ) : LSTAB_Customizer::defaults(), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Sanitised field by field in LSTAB_Columns.
+			'columns_config'   => isset( $_POST['columns'] ) ? LSTAB_Columns::sanitize( wp_unslash( $_POST['columns'] ) ) : array(),
+			'sticky_first'     => empty( $_POST['sticky_first'] ) ? 0 : 1,
 		);
 
 		if ( '' === $data['title'] ) {
