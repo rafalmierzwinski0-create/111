@@ -142,8 +142,23 @@ class LSTAB_CSV_Parser {
 					if ( $i + 1 < $length && '"' === $csv[ $i + 1 ] ) {
 						$field .= '"';
 						$i++;
-					} else {
+						continue;
+					}
+
+					/*
+					 * A real closing quote is followed by a comma, a line
+					 * break, or nothing at all. Anything else means the sheet
+					 * holds a stray quotation mark, and ending the field here
+					 * would swallow every remaining row into this one cell —
+					 * a single stray quote could turn a seven-row table into
+					 * one row of run-together text. Keep it as a character.
+					 */
+					$next = $i + 1 < $length ? $csv[ $i + 1 ] : '';
+
+					if ( '' === $next || ',' === $next || "\n" === $next || "\r" === $next ) {
 						$quoted = false;
+					} else {
+						$field .= '"';
 					}
 				} else {
 					$field .= $char;
@@ -151,7 +166,9 @@ class LSTAB_CSV_Parser {
 				continue;
 			}
 
-			if ( '"' === $char ) {
+			// A quote only opens a quoted field at the start of one. Halfway
+			// through, it is just a character the sheet happens to contain.
+			if ( '"' === $char && '' === $field ) {
 				$quoted = true;
 				continue;
 			}

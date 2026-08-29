@@ -166,6 +166,26 @@ lstab_assert( 5 === count( $parsed['headers'] ), 'Five columns detected', (strin
 lstab_assert( 7 === count( $parsed['rows'] ), 'Seven data rows detected', (string) count( $parsed['rows'] ) );
 lstab_assert( 'Dostępność' === $parsed['headers'][2], 'UTF-8 diacritics survive', $parsed['headers'][2] );
 lstab_assert( 'Rower górski "Trek"' === $parsed['rows'][0][0], 'Doubled quotes become a literal quote', $parsed['rows'][0][0] );
+
+/*
+ * One stray quotation mark used to consume the whole payload: the field never
+ * closed, so every remaining row ran together inside a single cell and the
+ * table lost all but one row. A quote only opens a field at the start of one,
+ * and only closes one when a comma, a line break or the end of the payload
+ * follows; anywhere else it is a character the sheet happens to contain.
+ */
+$stray = LSTAB_CSV_Parser::parse( "Produkt,Cena\n\"Rower \"Trek\",\"4 199,99\"\nKask,\"349,00\"\nBidon,\"29,00\"\n", true );
+lstab_assert( 3 === count( $stray['rows'] ), 'A stray quote costs one character, not every row', (string) count( $stray['rows'] ) );
+lstab_assert( 'Kask' === $stray['rows'][1][0], 'Rows after a stray quote are still their own rows', $stray['rows'][1][0] );
+lstab_assert( 2 === count( $stray['headers'] ), 'A stray quote invents no extra columns', (string) count( $stray['headers'] ) );
+
+$inch = LSTAB_CSV_Parser::parse( "Produkt,Cena\nRower 26\" koła,\"4 199,99\"\nKask,\"349,00\"\n", true );
+lstab_assert( 2 === count( $inch['rows'] ), 'An inch mark in an unquoted value does not open a field', (string) count( $inch['rows'] ) );
+lstab_assert( 'Rower 26" koła' === $inch['rows'][0][0], 'The inch mark is kept verbatim', $inch['rows'][0][0] );
+
+$multiline = LSTAB_CSV_Parser::parse( "Produkt,Opis\nBidon,\"linia 1\nlinia 2\"\nKask,krótki\n", true );
+lstab_assert( 2 === count( $multiline['rows'] ), 'A genuine multi-line cell still spans its rows', (string) count( $multiline['rows'] ) );
+lstab_assert( "linia 1\nlinia 2" === $multiline['rows'][0][1], 'Its line break is preserved', $multiline['rows'][0][1] );
 lstab_assert( 'Rama aluminiowa, widelec 120 mm' === $parsed['rows'][0][3], 'Comma inside a quoted field is preserved', $parsed['rows'][0][3] );
 lstab_assert( false !== strpos( $parsed['rows'][3][3], "\n" ), 'Newline inside a quoted field is preserved', wp_json_encode( $parsed['rows'][3][3] ) );
 lstab_assert( 'Cytat wewnątrz: "najlepsze w teście"' === $parsed['rows'][4][3], 'Escaped quotes inside a quoted field', $parsed['rows'][4][3] );

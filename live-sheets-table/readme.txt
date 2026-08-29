@@ -154,6 +154,7 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 == Changelog ==
 
 = 1.6.0 =
+* Fixed: one stray quotation mark anywhere in a sheet used to consume everything after it, collapsing a whole table into a single cell of run-together text. A quote now opens a field only at the start of one and closes it only where a real closing quote can appear, so a stray mark costs one character instead of every row.
 * Fixed: the column settings sat outside the form, so renaming or hiding a column looked like it worked and then reverted on save. Nothing typed there was ever submitted.
 * Fixed: an unticked "include" box was read as "no answer" rather than as "hide this column", so a column switched off came back visible.
 * Changed: the column settings now appear from the start, greyed out and saying what they are waiting for, instead of materialising only after a sheet has been read once.
