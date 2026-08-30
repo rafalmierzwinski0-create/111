@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.0.0
+Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -43,7 +43,7 @@ Paste your link and the parser shows you exactly what it read — headings, rows
 = What you get =
 
 * Unlimited rows.
-* Three saved sheet sources.
+* Six saved sheet sources.
 * A "Google Sheets Table" block plus a `[sheet_table id="123"]` shortcode, both driven by the same renderer.
 * Background sync every 15 minutes, plus a "Refresh now" button.
 * Optional search box and sortable columns (numeric-aware, so 1 215,50 sorts above 349,00).
@@ -132,7 +132,7 @@ You do not have to keep an eye on it: if the schedule stops running, the plugin 
 
 = Can I show several different sheets? =
 
-The free version stores three sheet sources. Pro removes the limit.
+The free version stores six sheet sources. Pro removes the limit.
 
 = Is the sheet content safe to display? =
 
@@ -152,6 +152,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 2.1.0 =
+* Changed: the free version now keeps six sheet sources instead of three. Three turned people away at the third page they wanted to publish, which is not what the paid tier is for — rows are, and those have never been capped.
 
 = 2.0.0 =
 * Fixed: sheet data is now downloaded from Google's CSV export endpoint instead of the query endpoint. The query endpoint decides a single type for each column and blanks every cell that disagrees with it, and it guesses how many leading rows are headings and runs them together into one label. A price list holding "1 215,50" as text among plain numbers lost that price and gained a two-row heading — and the payload arrived that way, before the plugin read a byte of it. Re-sync any table that looked wrong.
@@ -238,6 +241,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 2.1.0 =
+The free version now keeps six sheet sources instead of three.
 
 = 2.0.0 =
 Fixes values being blanked and heading rows being merged by Google's query endpoint. Re-sync any table that looked wrong.

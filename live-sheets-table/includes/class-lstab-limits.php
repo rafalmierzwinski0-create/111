@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class LSTAB_Limits {
 
-	const DEFAULT_MAX_SOURCES  = 3;
+	const DEFAULT_MAX_SOURCES  = 6;
 	const DEFAULT_MIN_INTERVAL = 900;
 
 	/**

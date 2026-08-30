@@ -661,12 +661,16 @@ lstab_assert( isset( $due_results[ $source_id ] ) && 'ok' === $due_results[ $sou
 
 lstab_section( '10. Free tier limits and Pro extension points' );
 
-lstab_assert( 3 === LSTAB_Limits::max_sources(), 'Free tier allows three sources', (string) LSTAB_Limits::max_sources() );
+// Six, because the nearest free competitor allows ten tables: capping at three
+// turned the free version away at the third page someone wanted to publish,
+// and rows — not table count — are what the paid tier is for.
+$free_cap = LSTAB_Limits::max_sources();
+lstab_assert( 6 === $free_cap, 'Free tier allows six sources', (string) $free_cap );
 lstab_assert( LSTAB_Limits::can_add_source(), 'A second source is allowed while only one exists' );
 
-// Fill the tier up and confirm the fourth is refused.
+// Fill the tier up and confirm the next one is refused.
 $filler = array();
-for ( $i = 2; $i <= 3; $i++ ) {
+for ( $i = 2; $i <= $free_cap; $i++ ) {
 	$filler[] = LSTAB_Storage::insert(
 		array(
 			'title'     => 'Filler ' . $i,
@@ -675,8 +679,12 @@ for ( $i = 2; $i <= 3; $i++ ) {
 		)
 	);
 }
-lstab_assert( 3 === LSTAB_Storage::count_sources(), 'Three sources stored', (string) LSTAB_Storage::count_sources() );
-lstab_assert( ! LSTAB_Limits::can_add_source(), 'A fourth source is blocked' );
+lstab_assert( $free_cap === LSTAB_Storage::count_sources(), 'The tier fills up', (string) LSTAB_Storage::count_sources() );
+lstab_assert( ! LSTAB_Limits::can_add_source(), 'One past the cap is blocked' );
+
+// Rows are never capped: that is the whole difference from the plugins this
+// one is meant to replace.
+lstab_assert( 7 === count( LSTAB_Storage::get( $source_id )['data']['rows'] ), 'And rows are still not capped at all', (string) count( LSTAB_Storage::get( $source_id )['data']['rows'] ) );
 
 // Listing sources must not drag every snapshot out of the database.
 $listed = LSTAB_Storage::get_all();
