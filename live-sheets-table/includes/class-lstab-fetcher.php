@@ -23,8 +23,38 @@ class LSTAB_Fetcher {
 	 * @return string|WP_Error CSV body.
 	 */
 	public static function fetch_csv( $sheet_id, $gid = '0', $sheet_kind = 'doc' ) {
-		$url = LSTAB_Url::csv_endpoint( $sheet_id, $gid, $sheet_kind );
+		$result = self::fetch_from( LSTAB_Url::csv_endpoint( $sheet_id, $gid, $sheet_kind ) );
 
+		if ( ! is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		/*
+		 * Sharing settings decide which endpoints answer: a sheet published to
+		 * the web but not shared by link refuses the export and answers the
+		 * query endpoint. That one damages values, so it is only worth trying
+		 * once the good one has said no.
+		 */
+		$fallback = LSTAB_Url::csv_fallback_endpoint( $sheet_id, $gid, $sheet_kind );
+
+		if ( '' === $fallback ) {
+			return $result;
+		}
+
+		$second = self::fetch_from( $fallback );
+
+		// The first refusal is the one worth reporting: it explains what to
+		// change in the sheet's sharing settings.
+		return is_wp_error( $second ) ? $result : $second;
+	}
+
+	/**
+	 * Download one endpoint and check that it really answered with data.
+	 *
+	 * @param string $url Endpoint.
+	 * @return string|WP_Error CSV body.
+	 */
+	protected static function fetch_from( $url ) {
 		$response = self::request( $url );
 		if ( is_wp_error( $response ) ) {
 			return $response;

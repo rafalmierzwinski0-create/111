@@ -8,7 +8,8 @@
  * exactly as it would in production — only the network hop is faked.
  *
  * Control it by writing a JSON state file:
- *   { "mode": "ok" | "http_403" | "timeout" | "html_login" | "empty" | "ragged",
+ *   { "mode": "ok" | "http_403" | "timeout" | "html_login" | "empty" | "ragged"
+ *             | "endpoints",
  *     "tab": "main" | "second" }
  *
  * @package LiveSheetsTable\Tests
@@ -159,6 +160,31 @@ add_filter(
 
 			case 'empty':
 				return lstab_mock_response( 200, '' );
+		}
+
+		/*
+		 * The two endpoints do not answer alike. /export hands back the cells
+		 * as they are; gviz/tq infers one type per column, blanks whatever
+		 * disagrees, and runs leading rows together into one heading. This
+		 * mode serves each its own payload, so a test can tell which one the
+		 * plugin actually asked for.
+		 */
+		if ( 'endpoints' === $state['mode'] ) {
+			$fixture = ( false !== strpos( $url, '/export' ) )
+				? 'sheet-export-intact.csv'
+				: 'sheet-gviz-damaged.csv';
+
+			return lstab_mock_response( 200, (string) file_get_contents( LSTAB_MOCK_FIXTURES . '/' . $fixture ) );
+		}
+
+		// A sheet whose sharing settings let the query endpoint answer while
+		// the export refuses, which is what "published to the web" produces.
+		if ( 'export_denied' === $state['mode'] ) {
+			if ( false !== strpos( $url, '/export' ) ) {
+				return lstab_mock_response( 403, 'Sorry, unable to open the file at this time.', 'text/html; charset=UTF-8' );
+			}
+
+			return lstab_mock_response( 200, (string) file_get_contents( LSTAB_MOCK_FIXTURES . '/sheet-main.csv' ) );
 		}
 
 		// The gid decides which tab is served, mirroring Google's behaviour.

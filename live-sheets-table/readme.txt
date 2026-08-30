@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.9.1
+Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -153,6 +153,10 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 
 == Changelog ==
 
+= 2.0.0 =
+* Fixed: sheet data is now downloaded from Google's CSV export endpoint instead of the query endpoint. The query endpoint decides a single type for each column and blanks every cell that disagrees with it, and it guesses how many leading rows are headings and runs them together into one label. A price list holding "1 215,50" as text among plain numbers lost that price and gained a two-row heading — and the payload arrived that way, before the plugin read a byte of it. Re-sync any table that looked wrong.
+* Added: the query endpoint is kept as a fallback for sheets whose sharing settings refuse the export, and is asked not to guess at headings when it is used.
+
 = 1.9.1 =
 * Fixed: a value ending in a quotation mark of its own — a product called Rower górski „Trek" — lost the rest of the sheet when the export failed to double that quote. The two characters sit exactly where the field ends, and reading them as an escaped quote swallowed every following row into one cell. A delimiter straight after the pair now settles it. Both spellings of such a sheet are covered by tests taken from a real one.
 
@@ -234,6 +238,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 2.0.0 =
+Fixes values being blanked and heading rows being merged by Google's query endpoint. Re-sync any table that looked wrong.
 
 = 1.9.1 =
 Fixes a sheet losing its rows when a value ends in a quotation mark.

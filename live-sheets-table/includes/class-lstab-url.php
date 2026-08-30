@@ -159,12 +159,21 @@ class LSTAB_Url {
 				'https://docs.google.com/spreadsheets/d/e/' . rawurlencode( $sheet_id ) . '/pub'
 			);
 		} else {
+			/*
+			 * The export endpoint hands back the cells as they are. The query
+			 * endpoint (gviz/tq) does not: it infers one type per column and
+			 * blanks every cell that disagrees with it, and it guesses how many
+			 * leading rows are headings, running them together into one label.
+			 * A price list holding "1 215,50" as text among plain numbers loses
+			 * that price and gains a two-row heading — the sheet arrives
+			 * damaged before the plugin has read a byte of it.
+			 */
 			$url = add_query_arg(
 				array(
-					'tqx' => 'out:csv',
-					'gid' => $gid,
+					'format' => 'csv',
+					'gid'    => $gid,
 				),
-				'https://docs.google.com/spreadsheets/d/' . rawurlencode( $sheet_id ) . '/gviz/tq'
+				'https://docs.google.com/spreadsheets/d/' . rawurlencode( $sheet_id ) . '/export'
 			);
 		}
 
@@ -180,6 +189,45 @@ class LSTAB_Url {
 		 * @param string $sheet_kind Document kind.
 		 */
 		return (string) apply_filters( 'lstab_fetch_url', $url, $sheet_id, $gid, $sheet_kind );
+	}
+
+	/**
+	 * Where to look when the export endpoint will not answer.
+	 *
+	 * Not every sheet is reachable both ways: one shared with "anyone with the
+	 * link" exports fine, while one only "published to the web" may answer the
+	 * query endpoint and refuse the export. That endpoint mangles values, so it
+	 * is a last resort rather than the first choice — and headers=1 at least
+	 * stops it running the first rows together into one heading.
+	 *
+	 * @param string $sheet_id   Spreadsheet ID.
+	 * @param string $gid        Tab ID.
+	 * @param string $sheet_kind Either 'doc' or 'pub'.
+	 * @return string Empty when there is nothing else to try.
+	 */
+	public static function csv_fallback_endpoint( $sheet_id, $gid = '0', $sheet_kind = 'doc' ) {
+		if ( 'pub' === $sheet_kind ) {
+			return '';
+		}
+
+		$url = add_query_arg(
+			array(
+				'tqx'     => 'out:csv',
+				'headers' => '1',
+				'gid'     => self::sanitize_gid( $gid ),
+			),
+			'https://docs.google.com/spreadsheets/d/' . rawurlencode( $sheet_id ) . '/gviz/tq'
+		);
+
+		/**
+		 * Filters the endpoint tried when the main one will not answer.
+		 *
+		 * @param string $url        Download URL.
+		 * @param string $sheet_id   Spreadsheet ID.
+		 * @param string $gid        Tab ID.
+		 * @param string $sheet_kind Document kind.
+		 */
+		return (string) apply_filters( 'lstab_fetch_fallback_url', $url, $sheet_id, $gid, $sheet_kind );
 	}
 
 	/**

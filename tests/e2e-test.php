@@ -147,8 +147,8 @@ foreach ( $rejected as $input => $code ) {
 
 $endpoint = LSTAB_Url::csv_endpoint( 'SHEETID', '1734829105' );
 lstab_assert(
-	false !== strpos( $endpoint, '/gviz/tq' ) && false !== strpos( $endpoint, 'tqx=out:csv' ) && false !== strpos( $endpoint, 'gid=1734829105' ),
-	'Builds the gviz CSV endpoint',
+	false !== strpos( $endpoint, '/export' ) && false !== strpos( $endpoint, 'format=csv' ) && false !== strpos( $endpoint, 'gid=1734829105' ),
+	'Builds the CSV export endpoint for the chosen tab',
 	$endpoint
 );
 
@@ -304,6 +304,52 @@ $good_hash = $source['snapshot_hash'];
 lstab_assert( 32 === strlen( $good_hash ), 'Snapshot hash stored' );
 
 // ---------------------------------------------------------------------------
+
+lstab_section( '3a. Which endpoint the data is asked for' );
+
+/*
+ * A user's price list came back with its first two rows run together into one
+ * heading and one price missing — and the payload was already like that before
+ * the plugin read it. The query endpoint (gviz/tq) infers a single type per
+ * column, blanks every cell that disagrees, and guesses how many leading rows
+ * are headings. The export endpoint hands back the cells as they are.
+ */
+$endpoint = LSTAB_Url::csv_endpoint( 'ABC123', '0' );
+lstab_assert( false !== strpos( $endpoint, '/export' ), 'Data is asked for from the export endpoint', $endpoint );
+lstab_assert( false !== strpos( $endpoint, 'format=csv' ), 'As CSV', $endpoint );
+lstab_assert( false === strpos( $endpoint, 'gviz' ), 'Not from the one that rewrites values', $endpoint );
+
+$fallback = LSTAB_Url::csv_fallback_endpoint( 'ABC123', '0' );
+lstab_assert( false !== strpos( $fallback, 'gviz' ), 'The query endpoint is kept as a fallback', $fallback );
+lstab_assert( false !== strpos( $fallback, 'headers=1' ), 'Told not to guess how many heading rows there are', $fallback );
+lstab_assert( '' === LSTAB_Url::csv_fallback_endpoint( 'ABC123', '0', 'pub' ), 'A published-to-web sheet has nothing else to try' );
+
+// What that endpoint actually did to this sheet, kept so the reason for
+// leaving it is not lost.
+$damaged = LSTAB_CSV_Parser::parse( (string) file_get_contents( LSTAB_MOCK_FIXTURES . '/sheet-gviz-damaged.csv' ), true );
+lstab_assert( false !== strpos( $damaged['headers'][0], 'Rower' ), 'The old endpoint really did fold a data row into the heading', $damaged['headers'][0] );
+lstab_assert( '' === $damaged['rows'][4][1], 'And really did blank a price that did not match the column type', wp_json_encode( $damaged['rows'][4] ) );
+
+// Both endpoints answer here, each with its own payload, so the assertions
+// below are about which one the plugin chose.
+lstab_set_mock( 'endpoints' );
+lstab_assert( true === LSTAB_Sync::run( $source_id ), 'The sheet syncs' );
+$chosen = LSTAB_Storage::get( $source_id );
+
+lstab_assert( 3 === count( $chosen['data']['headers'] ), 'Three headings, not a merged one', wp_json_encode( $chosen['data']['headers'] ) );
+lstab_assert( 'Produkt' === $chosen['data']['headers'][0], 'The heading is the heading alone', $chosen['data']['headers'][0] );
+lstab_assert( 7 === count( $chosen['data']['rows'] ), 'Every row arrives', (string) count( $chosen['data']['rows'] ) );
+lstab_assert( 'Rower górski „Trek"' === $chosen['data']['rows'][0][0], 'Including the one the old endpoint ate', $chosen['data']['rows'][0][0] );
+lstab_assert( '1 215.50' === $chosen['data']['rows'][5][1], 'And the price it blanked', $chosen['data']['rows'][5][1] );
+
+// Sharing settings decide which endpoints answer at all: a sheet published to
+// the web but not shared by link refuses the export.
+lstab_set_mock( 'export_denied' );
+lstab_assert( true === LSTAB_Sync::run( $source_id ), 'A sheet that only answers the query endpoint still syncs' );
+lstab_assert( 7 === count( LSTAB_Storage::get( $source_id )['data']['rows'] ), 'And still gets its rows' );
+
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
 
 lstab_section( '6. Front-end rendering' );
 

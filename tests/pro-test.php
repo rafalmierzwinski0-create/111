@@ -187,10 +187,15 @@ $source_id = LSTAB_Storage::insert(
 
 lstabp_assert( ! LSTABP_Private_Sheets::is_private( $source_id ), 'Sources are public unless marked otherwise' );
 
-// A public source must keep using the public export, untouched.
+/*
+ * Both paths now go to the same export endpoint, so the URL no longer tells
+ * them apart. What separates them is the credential: a public sheet must be
+ * fetched as the public does, with nothing attached.
+ */
 LSTABP_Private_Sheets::remember_source( array( 'id' => $source_id ) );
-$public_url = LSTAB_Url::csv_endpoint( 'SHEET', '0' );
-lstabp_assert( false !== strpos( $public_url, 'gviz' ), 'A public source still uses the public export', $public_url );
+$public_url  = LSTAB_Url::csv_endpoint( 'SHEET', '0' );
+$public_args = apply_filters( 'lstab_fetch_args', array( 'timeout' => 20 ), $public_url );
+lstabp_assert( ! isset( $public_args['headers']['Authorization'] ), 'A public source is fetched without a token', wp_json_encode( $public_args ) );
 
 LSTABP_Private_Sheets::set_private( $source_id, true );
 lstabp_assert( LSTABP_Private_Sheets::is_private( $source_id ), 'A source can be marked private' );
