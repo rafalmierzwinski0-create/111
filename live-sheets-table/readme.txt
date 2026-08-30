@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.9.0
+Stable tag: 1.9.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -153,6 +153,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 
 == Changelog ==
 
+= 1.9.1 =
+* Fixed: a value ending in a quotation mark of its own — a product called Rower górski „Trek" — lost the rest of the sheet when the export failed to double that quote. The two characters sit exactly where the field ends, and reading them as an escaped quote swallowed every following row into one cell. A delimiter straight after the pair now settles it. Both spellings of such a sheet are covered by tests taken from a real one.
+
 = 1.9.0 =
 * Added: "What Google actually sent" on the source screen — the exported text exactly as it arrived, before the plugin reads it. When a table comes out wrong the first question is whether the sheet or the plugin is at fault, and nothing else answers it. A row that came back with the wrong number of cells is pointed at by number, so nobody has to count lines.
 
@@ -231,6 +234,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 1.9.1 =
+Fixes a sheet losing its rows when a value ends in a quotation mark.
 
 = 1.9.0 =
 Adds a view of the raw text Google sent, for working out whether a wrong-looking table is the sheet's fault or the plugin's.

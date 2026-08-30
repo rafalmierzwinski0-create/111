@@ -203,6 +203,33 @@ lstab_assert( '1 215,50' === $price_list['rows'][1][1], 'Nor does a thousands sp
 lstab_assert( 'Rower górski 26" koła' === $price_list['rows'][0][0], 'The inch mark stays in the name', $price_list['rows'][0][0] );
 lstab_assert( ! isset( $price_list['ragged'] ), 'And nothing is reported as malformed' );
 
+/*
+ * A real sheet from a user, whose product names end in a quotation mark of
+ * their own: Rower górski „Trek". That is the shape most likely to be written
+ * badly, so both spellings are covered — the correct one, where the value's
+ * quote is doubled, and the one a writer produces when it forgets to.
+ */
+$user_rows = "Kask Lazer,349,W magazynie\nLampka,89,Brak\nBidon 750 ml,29,W magazynie\nZamek szyfrowy,1 215.50,W magazynie\nBagażnik tylny,87,W magazynie\n";
+$user_head = "Produkt,Cena netto,Dostępność\n";
+
+$correct = LSTAB_CSV_Parser::parse( $user_head . '"Rower górski „Trek""",4 199.99,W magazynie' . "\n" . $user_rows, true );
+lstab_assert( 6 === count( $correct['rows'] ), 'A value ending in a quote keeps every row', (string) count( $correct['rows'] ) );
+lstab_assert( 'Rower górski „Trek"' === $correct['rows'][0][0], 'And keeps its own quotation mark', $correct['rows'][0][0] );
+lstab_assert( '1 215.50' === $correct['rows'][4][1], 'A price further down the sheet still arrives', $correct['rows'][4][1] );
+lstab_assert( ! isset( $correct['ragged'] ), 'Nothing is reported as malformed' );
+
+/*
+ * The same sheet written without doubling that trailing quote. Reading the two
+ * quotes as an escape swallows every row after it into one cell — which is
+ * worse than what the parser did before this rule existed. A delimiter after
+ * the pair settles it: the field ended there.
+ */
+$undoubled = LSTAB_CSV_Parser::parse( $user_head . '"Rower górski „Trek"",4 199.99,W magazynie' . "\n" . $user_rows, true );
+lstab_assert( 6 === count( $undoubled['rows'] ), 'An undoubled trailing quote costs no rows either', (string) count( $undoubled['rows'] ) );
+lstab_assert( 'Rower górski „Trek"' === $undoubled['rows'][0][0], 'The value survives it intact', $undoubled['rows'][0][0] );
+lstab_assert( '4 199.99' === $undoubled['rows'][0][1], 'And the next column is still the next column', $undoubled['rows'][0][1] );
+lstab_assert( 'Zamek szyfrowy' === $undoubled['rows'][4][0], 'Rows further down are untouched', $undoubled['rows'][4][0] );
+
 $multiline = LSTAB_CSV_Parser::parse( "Produkt,Opis\nBidon,\"linia 1\nlinia 2\"\nKask,krótki\n", true );
 lstab_assert( 2 === count( $multiline['rows'] ), 'A genuine multi-line cell still spans its rows', (string) count( $multiline['rows'] ) );
 lstab_assert( "linia 1\nlinia 2" === $multiline['rows'][0][1], 'Its line break is preserved', $multiline['rows'][0][1] );

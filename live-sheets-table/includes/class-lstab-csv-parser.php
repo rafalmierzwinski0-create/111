@@ -225,6 +225,24 @@ class LSTAB_CSV_Parser {
 					if ( $i + 1 < $length && '"' === $csv[ $i + 1 ] ) {
 						$field .= '"';
 						$i++;
+
+						/*
+						 * Normally the field carries on after an escaped
+						 * quote. But a value that ends in a quote of its own —
+						 * Rower górski „Trek" — written by something that
+						 * forgot to double it leaves these same two characters
+						 * exactly where the field ends. Reading them as an
+						 * escape then swallows every remaining row into this
+						 * one cell. A delimiter straight afterwards settles
+						 * it: the pair was the value's quote and the field's
+						 * closing one.
+						 */
+						$after = $i + 1 < $length ? $csv[ $i + 1 ] : '';
+
+						if ( '' === $after || ',' === $after || "\n" === $after || "\r" === $after ) {
+							$quoted = false;
+						}
+
 						continue;
 					}
 
