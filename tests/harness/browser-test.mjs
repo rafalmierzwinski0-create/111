@@ -874,6 +874,17 @@ await columnRows.nth( 0 ).locator( 'input[type=text]' ).fill( '' );
 await page.locator( '.lstab-submit button[type=submit]' ).click();
 await page.waitForLoadState( 'networkidle' );
 
+// The panel that settles "is it the sheet or the plugin?".
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.waitForSelector( '.lstab-preview .lstab-table', { timeout: 20000 } );
+await page.waitForTimeout( 400 );
+const rawPanel = page.locator( '#lstab-raw-wrap' );
+check( await rawPanel.count() === 1 && ! ( await rawPanel.isHidden() ), 'The source screen can show what Google sent' );
+await page.locator( '#lstab-raw-wrap summary' ).click();
+const rawValue = await page.locator( '#lstab-raw' ).inputValue();
+check( /Produkt,Cena netto/.test( rawValue ), 'It shows the text as it arrived, not the parsed table', rawValue.slice( 0, 50 ) );
+check( /\n/.test( rawValue ), 'Line breaks are kept, since that is what it is for' );
+
 // ------------------------------------------------- malformed sheet, and links
 section( '9c. A sheet that arrives malformed' );
 

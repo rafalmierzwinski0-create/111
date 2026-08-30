@@ -113,6 +113,9 @@
 	}
 
 	var sourceIdField = form.querySelector( 'input[name="source_id"]' );
+	var rawWrap = document.getElementById( 'lstab-raw-wrap' );
+	var rawText = document.getElementById( 'lstab-raw' );
+	var rawMeta = document.getElementById( 'lstab-raw-meta' );
 	var columnRows = document.querySelectorAll( '.lstab-column-list tbody tr' );
 
 	/**
@@ -178,6 +181,28 @@
 			}
 
 			gidField.value = response.gid;
+
+			// Only offered once there is something to show. A row that came
+			// back with the wrong number of cells is named here too, since
+			// this is where you would go looking for it.
+			if ( rawWrap && rawText ) {
+				rawWrap.hidden = ! response.raw;
+				rawText.value = response.raw || '';
+
+				if ( rawMeta ) {
+					var parts = [];
+					if ( response.rawBytes ) {
+						parts.push( sprintf( i18n.rawBytes, [ response.rawBytes ] ) );
+					}
+					if ( response.ragged && response.ragged.rows ) {
+						var numbers = response.ragged.rows.map( function ( entry ) {
+							return entry.row;
+						} ).join( ', ' );
+						parts.push( sprintf( i18n.rawRagged, [ numbers ] ) );
+					}
+					rawMeta.textContent = parts.join( ' ' );
+				}
+			}
 
 			var message = sprintf( i18n.rowsFound, [ response.rowCount, response.colCount ] );
 			if ( response.truncated ) {

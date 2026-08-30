@@ -517,3 +517,30 @@
 .lstab-ragged-notice {
 	margin: 0 0 1.2rem;
 }
+
+/* The raw payload, for when a table comes out wrong. */
+
+.lstab-raw {
+	margin-top: 1rem;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 0.6rem 0.9rem;
+	background: #fff;
+}
+
+.lstab-raw summary {
+	cursor: pointer;
+	font-weight: 600;
+}
+
+.lstab-raw-text {
+	width: 100%;
+	font-family: Consolas, Monaco, monospace;
+	font-size: 0.78rem;
+	line-height: 1.5;
+	/* Wrapping would hide exactly what this is here to show: where one line
+	   ends and the next begins. */
+	white-space: pre;
+	overflow-wrap: normal;
+	overflow-x: auto;
+}

@@ -300,6 +300,23 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 					<p class="lstab-placeholder"><?php esc_html_e( 'Paste a link and choose “Load preview”.', 'live-sheets-table' ); ?></p>
 				</div>
 			</div>
+
+			<?php
+			/*
+			 * When a table comes out wrong the first question is whether the
+			 * sheet or the plugin is at fault, and nothing else answers it.
+			 * Kept closed, because it is only ever needed when something is
+			 * already wrong.
+			 */
+			?>
+			<details id="lstab-raw-wrap" class="lstab-raw" hidden>
+				<summary><?php esc_html_e( 'What Google actually sent', 'live-sheets-table' ); ?></summary>
+				<p class="lstab-help">
+					<?php esc_html_e( 'The exported text, exactly as it arrived, before the plugin read it. If a value looks wrong in the table above, find it here: if it is already wrong here, the sheet is where to fix it. Copy this if you need to send it to support.', 'live-sheets-table' ); ?>
+				</p>
+				<p id="lstab-raw-meta" class="lstab-help"></p>
+				<textarea id="lstab-raw" class="lstab-raw-text" rows="12" readonly spellcheck="false"></textarea>
+			</details>
 		</div>
 	</div>
 

@@ -792,6 +792,30 @@ wp_set_current_user( 0 );
 
 // ---------------------------------------------------------------------------
 
+/*
+ * When a table comes out wrong the first question is whether the sheet or the
+ * plugin is at fault, and only the bytes Google actually sent answer it. The
+ * preview carries them so nobody has to take anyone's word for it.
+ */
+wp_set_current_user( 1 );
+lstab_set_mock( 'ragged' );
+$raw_request = new WP_REST_Request( 'POST', '/live-sheets-table/v1/preview' );
+$raw_request->set_param( 'url', 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0' );
+$raw_response = rest_get_server()->dispatch( $raw_request );
+$raw_data     = $raw_response->get_data();
+wp_set_current_user( 0 );
+
+lstab_assert( 200 === $raw_response->get_status(), 'The preview answers', (string) $raw_response->get_status() );
+lstab_assert( isset( $raw_data['raw'] ), 'The preview carries the payload Google sent' );
+lstab_assert( false !== strpos( (string) $raw_data['raw'], 'Produkt,Cena netto' ), 'It is the text as it arrived, not the parsed table', substr( (string) $raw_data['raw'], 0, 60 ) );
+lstab_assert( isset( $raw_data['rawBytes'] ) && $raw_data['rawBytes'] > 0, 'And says how much of it there was' );
+lstab_assert(
+	isset( $raw_data['ragged']['rows'][0]['row'] ) && 3 === (int) $raw_data['ragged']['rows'][0]['row'],
+	'A row that came back short is pointed at, so nobody has to count lines',
+	wp_json_encode( isset( $raw_data['ragged'] ) ? $raw_data['ragged'] : null )
+);
+lstab_set_mock( 'ok', 'main' );
+
 // The preview endpoint has to be told which source is being edited, or nothing
 // configured per source outside the free plugin's own table can reach it.
 $preview_route = rest_get_server()->get_routes();

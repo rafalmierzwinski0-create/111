@@ -305,6 +305,12 @@ return array(
 	'Hide this until it happens again'           => 'Ukryj do następnego razu',
 	'This table is set to show only some of its rows, but the add-on that does the filtering is not active. Nothing is shown rather than every row, which is not what this page asked for. Activate the add-on, or remove the filter from the block or shortcode.'
 		=> 'Ta tabela ma pokazywać tylko część wierszy, ale dodatek odpowiedzialny za filtrowanie nie jest aktywny. Zamiast wszystkich wierszy nie pokazujemy żadnego — bo to nie jest to, o co prosiła ta strona. Włącz dodatek albo usuń filtr z bloku lub shortcode’u.',
+	'What Google actually sent'                  => 'Co dokładnie przysłał Google',
+	'The exported text, exactly as it arrived, before the plugin read it. If a value looks wrong in the table above, find it here: if it is already wrong here, the sheet is where to fix it. Copy this if you need to send it to support.'
+		=> 'Wyeksportowany tekst dokładnie w takiej postaci, w jakiej dotarł — zanim wtyczka go odczytała. Jeśli jakaś wartość wygląda źle w tabeli powyżej, znajdź ją tutaj: jeśli już tu jest zła, to arkusz jest miejscem do poprawki. Skopiuj to, jeśli musisz wysłać do wsparcia.',
+	'%1$s characters received.'                  => 'Odebrano %1$s znaków.',
+	'Look at row %1$s: it came back with a different number of cells than the rest.'
+		=> 'Zobacz wiersz %1$s: wrócił z inną liczbą komórek niż reszta.',
 
 	// Plurals: Polish has three forms.
 	'The free version keeps %d sheet source'     => array(

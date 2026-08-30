@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-08-29 22:09+0000\n"
-"PO-Revision-Date: 2026-08-29 22:09+0000\n"
+"POT-Creation-Date: 2026-08-30 06:55+0000\n"
+"PO-Revision-Date: 2026-08-30 06:55+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -12,6 +12,10 @@ msgstr ""
 "X-Domain: live-sheets-table\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 "Language: pl_PL\n"
+
+#: includes/class-lstab-admin.php:138
+msgid "%1$s characters received."
+msgstr "Odebrano %1$s znaków."
 
 #: includes/class-lstab-renderer.php:269
 msgid "%1$s of %2$s rows"
@@ -22,7 +26,7 @@ msgstr "%1$s z %2$s wierszy"
 msgid "%1$s rows × %2$s cols"
 msgstr "%1$s wierszy × %2$s kol."
 
-#: includes/views/edit-page.php:356
+#: includes/views/edit-page.php:373
 msgid "(no longer there)"
 msgstr "(już jej nie ma)"
 
@@ -111,7 +115,7 @@ msgstr "Tło"
 msgid "Bordered"
 msgstr "Ramki"
 
-#: includes/views/edit-page.php:430
+#: includes/views/edit-page.php:447
 msgid "Cancel"
 msgstr "Anuluj"
 
@@ -133,17 +137,17 @@ msgstr "Czysty"
 
 #. translators: 1: column number, 2: heading that used to be there, 3: heading
 #. there now.
-#: includes/views/edit-page.php:353
+#: includes/views/edit-page.php:370
 msgid "Column %1$d was “%2$s”, now “%3$s”"
 msgstr "Kolumna %1$d była „%2$s”, teraz jest „%3$s”"
 
 #. translators: %d: column number.
-#: includes/views/edit-page.php:377 includes/class-lstab-csv-parser.php:336
+#: includes/views/edit-page.php:394 includes/class-lstab-csv-parser.php:336
 #: includes/class-lstab-csv-parser.php:363
 msgid "Column %d"
 msgstr "Kolumna %d"
 
-#: includes/views/edit-page.php:324
+#: includes/views/edit-page.php:341
 msgid "Columns"
 msgstr "Kolumny"
 
@@ -230,7 +234,7 @@ msgid "Every minute"
 msgstr "Co minutę"
 
 #. translators: %s: human readable time difference.
-#: includes/class-lstab-admin.php:629
+#: includes/class-lstab-admin.php:631
 msgid "Failing since the last good sync %s ago"
 msgstr "Błąd od ostatniej udanej synchronizacji %s temu"
 
@@ -292,7 +296,7 @@ msgstr "Tło nagłówka"
 msgid "Header text"
 msgstr "Tekst nagłówka"
 
-#: includes/class-lstab-admin.php:421
+#: includes/class-lstab-admin.php:423
 msgid "Hide this until it happens again"
 msgstr "Ukryj do następnego razu"
 
@@ -304,7 +308,7 @@ msgstr "Ciemny preset o wysokim kontraście."
 msgid "Hourly"
 msgstr "Co godzinę"
 
-#: includes/class-lstab-admin.php:562
+#: includes/class-lstab-admin.php:564
 msgid "How to run WordPress schedules from a system cron"
 msgstr "Jak uruchamiać harmonogramy WordPressa z systemowego crona"
 
@@ -312,11 +316,11 @@ msgstr "Jak uruchamiać harmonogramy WordPressa z systemowego crona"
 msgid "In Google Sheets choose Share → General access → “Anyone with the link”, role “Viewer”, then copy the link from your browser. No API key or Google Cloud project is needed."
 msgstr "W Arkuszach Google wybierz Udostępnij → Dostęp ogólny → „Każdy, kto ma link”, rola „Przeglądający”, a następnie skopiuj adres z przeglądarki. Klucz API ani projekt Google Cloud nie są potrzebne."
 
-#: includes/views/edit-page.php:368
+#: includes/views/edit-page.php:385
 msgid "In your sheet"
 msgstr "W Twoim arkuszu"
 
-#: includes/views/edit-page.php:370
+#: includes/views/edit-page.php:387
 msgid "Include"
 msgstr "Pokaż"
 
@@ -333,7 +337,7 @@ msgid "Large"
 msgstr "Duża"
 
 #. translators: %s: human readable time difference.
-#: includes/class-lstab-admin.php:618
+#: includes/class-lstab-admin.php:620
 msgid "Last sync OK (%s ago)"
 msgstr "Ostatnia synchronizacja OK (%s temu)"
 
@@ -353,7 +357,7 @@ msgstr "Linie"
 msgid "Live Sheets Table"
 msgstr "Live Sheets Table"
 
-#: includes/class-lstab-admin.php:409
+#: includes/class-lstab-admin.php:411
 msgid "Live Sheets Table: a sheet did not come back cleanly."
 msgstr "Live Sheets Table: arkusz wrócił uszkodzony."
 
@@ -370,6 +374,10 @@ msgstr "Wczytaj podgląd"
 msgid "Loading preview…"
 msgstr "Wczytywanie podglądu…"
 
+#: includes/class-lstab-admin.php:139
+msgid "Look at row %1$s: it came back with a different number of cells than the rest."
+msgstr "Zobacz wiersz %1$s: wrócił z inną liczbą komórek niż reszta."
+
 #: includes/views/edit-page.php:169
 msgid "Make web and e-mail addresses in cells clickable"
 msgstr "Zamieniaj adresy WWW i e-mail w komórkach na klikalne linki"
@@ -379,7 +387,7 @@ msgid "Manage sheet sources"
 msgstr "Zarządzaj źródłami arkuszy"
 
 #. translators: %s: link to the WordPress cron documentation.
-#: includes/class-lstab-admin.php:560
+#: includes/class-lstab-admin.php:562
 msgid "Meanwhile you can update any sheet by hand with “Refresh now”. %s"
 msgstr "W międzyczasie możesz zaktualizować dowolny arkusz ręcznie przyciskiem „Odśwież teraz”. %s"
 
@@ -395,7 +403,7 @@ msgstr "Wąska kolumna"
 msgid "Need more than one sheet?"
 msgstr "Potrzebujesz więcej niż jednego arkusza?"
 
-#: includes/class-lstab-admin.php:632
+#: includes/class-lstab-admin.php:634
 msgid "Never synced successfully"
 msgstr "Nigdy nie zsynchronizowano poprawnie"
 
@@ -420,7 +428,7 @@ msgstr "Nie znaleziono identyfikatora arkusza w tym linku. Użyj adresu samego a
 msgid "Normal"
 msgstr "Normalna"
 
-#: includes/class-lstab-admin.php:647
+#: includes/class-lstab-admin.php:649
 msgid "Not synced yet"
 msgstr "Jeszcze nie zsynchronizowano"
 
@@ -440,7 +448,7 @@ msgstr "Widoczne tylko w kokpicie, żeby odróżnić źródła."
 msgid "Open in Google Sheets"
 msgstr "Otwórz w Arkuszach Google"
 
-#: includes/views/edit-page.php:443
+#: includes/views/edit-page.php:460
 msgid "Optional attributes: search=\"no\", sort=\"no\", meta=\"no\", style=\"striped\", caption=\"My table\"."
 msgstr "Opcjonalne atrybuty: search=\"no\", sort=\"no\", meta=\"no\", style=\"striped\", caption=\"Moja tabela\"."
 
@@ -500,12 +508,12 @@ msgstr "Pro dodaje nielimitowaną liczbę źródeł, synchronizację co minutę,
 msgid "Publish your first Google Sheet"
 msgstr "Opublikuj swój pierwszy arkusz Google"
 
-#: includes/views/edit-page.php:437
+#: includes/views/edit-page.php:454
 msgid "Put it on a page"
 msgstr "Umieść na stronie"
 
 #. translators: %s: error message.
-#: includes/class-lstab-admin.php:305
+#: includes/class-lstab-admin.php:307
 msgid "Refresh failed: %s"
 msgstr "Odświeżanie nie powiodło się: %s"
 
@@ -513,7 +521,7 @@ msgstr "Odświeżanie nie powiodło się: %s"
 msgid "Refresh now"
 msgstr "Odśwież teraz"
 
-#: includes/views/edit-page.php:326
+#: includes/views/edit-page.php:343
 msgid "Rename a column for your visitors, or leave it out of the table entirely. Nothing here is written back to Google — your spreadsheet keeps its own headings, including working names nobody should see."
 msgstr "Zmień nazwę kolumny dla odwiedzających albo w ogóle pomiń ją w tabeli. Nic z tego nie jest zapisywane do Google — Twój arkusz zachowuje własne nagłówki, także robocze nazwy, których nikt nie powinien widzieć."
 
@@ -535,7 +543,7 @@ msgstr "Zaokrąglone"
 
 #. translators: 1: number of rows, 2: expected column count, 3: list of row
 #. numbers.
-#: includes/class-lstab-admin.php:529
+#: includes/class-lstab-admin.php:531
 msgid "Row %3$s came back with a different number of cells than the other rows (%2$d), so a value in it may be missing or sitting in the wrong column. Most often a lone quotation mark or a comma inside a value has run two cells into one."
 msgid_plural "%1$d rows came back with a different number of cells than the rest (%2$d), so values in them may be missing or sitting in the wrong column. Most often a lone quotation mark or a comma inside a value has run two cells into one. Rows: %3$s."
 msgstr[0] "Wiersz %3$s wrócił z inną liczbą komórek niż pozostałe (%2$d), więc jakaś wartość może być pominięta albo trafić do złej kolumny. Najczęściej odpowiada za to pojedynczy cudzysłów albo przecinek w wartości, który skleił dwie komórki w jedną."
@@ -554,15 +562,15 @@ msgstr "Wiersz pod kursorem"
 msgid "Rows are never limited — a source can hold as many rows as your sheet does. To publish several different sheets at once, upgrade to Pro."
 msgstr "Liczba wierszy nigdy nie jest ograniczona — źródło pomieści tyle wierszy, ile ma Twój arkusz. Aby publikować kilka różnych arkuszy naraz, przejdź na Pro."
 
-#: includes/views/edit-page.php:425
+#: includes/views/edit-page.php:442
 msgid "Save changes and sync"
 msgstr "Zapisz zmiany i zsynchronizuj"
 
-#: includes/views/edit-page.php:426
+#: includes/views/edit-page.php:443
 msgid "Save source and sync"
 msgstr "Zapisz źródło i zsynchronizuj"
 
-#: includes/views/edit-page.php:335
+#: includes/views/edit-page.php:352
 msgid "Save this source first. It is read straight away, and your real columns appear here."
 msgstr "Najpierw zapisz to źródło. Arkusz zostanie od razu odczytany, a Twoje prawdziwe kolumny pojawią się tutaj."
 
@@ -571,7 +579,7 @@ msgid "Saved source"
 msgstr "Zapisane źródło"
 
 #. translators: %s: error message.
-#: includes/class-lstab-admin.php:261
+#: includes/class-lstab-admin.php:263
 msgid "Saved, but the first sync failed: %s"
 msgstr "Zapisano, ale pierwsza synchronizacja nie powiodła się: %s"
 
@@ -611,7 +619,7 @@ msgstr "Wybierz arkusz…"
 msgid "Serif headings and hairline rules, styled after print tables."
 msgstr "Szeryfowe nagłówki i włosowe linie, stylizowane na tabele drukowane."
 
-#: includes/views/edit-page.php:345
+#: includes/views/edit-page.php:362
 msgid "Settings below are matched by position, so a column added or removed in Google shifts them. Check that each row still points at the right column:"
 msgstr "Ustawienia poniżej dopasowują się po pozycji, więc kolumna dodana lub usunięta w Google je przesuwa. Sprawdź, czy każdy wiersz nadal wskazuje właściwą kolumnę:"
 
@@ -619,7 +627,7 @@ msgstr "Ustawienia poniżej dopasowują się po pozycji, więc kolumna dodana lu
 msgid "Share a sheet as “Anyone with the link – Viewer”, paste the link, and check the preview before you save. No API key, no Google Cloud project."
 msgstr "Udostępnij arkusz jako „Każdy, kto ma link – Przeglądający”, wklej link i sprawdź podgląd przed zapisaniem. Bez klucza API i bez projektu Google Cloud."
 
-#: includes/class-lstab-admin.php:312
+#: includes/class-lstab-admin.php:314
 msgid "Sheet refreshed from Google."
 msgstr "Arkusz odświeżony z Google."
 
@@ -627,11 +635,11 @@ msgstr "Arkusz odświeżony z Google."
 msgid "Sheet source"
 msgstr "Źródło arkusza"
 
-#: includes/class-lstab-admin.php:285
+#: includes/class-lstab-admin.php:287
 msgid "Sheet source deleted."
 msgstr "Źródło arkusza usunięte."
 
-#: includes/class-lstab-admin.php:267
+#: includes/class-lstab-admin.php:269
 msgid "Sheet source saved and synced."
 msgstr "Źródło arkusza zapisane i zsynchronizowane."
 
@@ -660,7 +668,7 @@ msgstr "Shortcode"
 msgid "Show only matching rows, for example: Kategoria is Rowery. Join conditions with “and”. Operators: is, is not, has, gt, gte, lt, lte."
 msgstr "Pokaż tylko pasujące wiersze, na przykład: Kategoria is Rowery. Warunki łącz słowem „and”. Operatory: is, is not, has, gt, gte, lt, lte."
 
-#: includes/views/edit-page.php:398
+#: includes/views/edit-page.php:415
 msgid "Show this column"
 msgstr "Pokaż tę kolumnę"
 
@@ -672,7 +680,7 @@ msgstr "Pokaż „zaktualizowano … temu”"
 msgid "Showing the first 25 rows."
 msgstr "Pokazano pierwsze 25 wierszy."
 
-#: includes/views/edit-page.php:369
+#: includes/views/edit-page.php:386
 msgid "Shown as"
 msgstr "Wyświetlane jako"
 
@@ -717,11 +725,11 @@ msgstr "Naprzemienne wiersze"
 msgid "Style preset"
 msgstr "Preset stylu"
 
-#: includes/class-lstab-admin.php:639
+#: includes/class-lstab-admin.php:641
 msgid "Sync error — nothing to show yet"
 msgstr "Błąd synchronizacji — nie ma jeszcze czego pokazać"
 
-#: includes/class-lstab-admin.php:638
+#: includes/class-lstab-admin.php:640
 msgid "Sync error — visitors still see the last good copy"
 msgstr "Błąd synchronizacji — odwiedzający wciąż widzą ostatnią poprawną kopię"
 
@@ -762,9 +770,13 @@ msgstr "To nie wygląda na poprawny link. Skopiuj adres bezpośrednio z przeglą
 msgid "That sheet source no longer exists."
 msgstr "To źródło arkusza już nie istnieje."
 
-#: includes/views/edit-page.php:343
+#: includes/views/edit-page.php:360
 msgid "The columns in your sheet have moved."
 msgstr "Kolumny w Twoim arkuszu się przesunęły."
+
+#: includes/views/edit-page.php:315
+msgid "The exported text, exactly as it arrived, before the plugin read it. If a value looks wrong in the table above, find it here: if it is already wrong here, the sheet is where to fix it. Copy this if you need to send it to support."
+msgstr "Wyeksportowany tekst dokładnie w takiej postaci, w jakiej dotarł — zanim wtyczka go odczytała. Jeśli jakaś wartość wygląda źle w tabeli powyżej, znajdź ją tutaj: jeśli już tu jest zła, to arkusz jest miejscem do poprawki. Skopiuj to, jeśli musisz wysłać do wsparcia."
 
 #: includes/views/edit-page.php:93
 msgid "The first row contains column headings"
@@ -779,7 +791,7 @@ msgstr[1] "Wersja darmowa przechowuje %d źródła arkuszy"
 msgstr[2] "Wersja darmowa przechowuje %d źródeł arkuszy"
 
 #. translators: %d: number of sources allowed.
-#: includes/class-lstab-admin.php:201
+#: includes/class-lstab-admin.php:203
 msgid "The free version stores %d sheet source. Remove the existing one, or upgrade to add more."
 msgid_plural "The free version stores %d sheet sources. Remove one, or upgrade to add more."
 msgstr[0] "Wersja darmowa przechowuje %d źródło arkusza. Usuń istniejące albo przejdź na Pro, aby dodać więcej."
@@ -831,7 +843,7 @@ msgstr "Tytuł"
 msgid "Turn each row into a labelled card"
 msgstr "Zamień każdy wiersz w kartę z etykietami"
 
-#: includes/class-lstab-admin.php:238
+#: includes/class-lstab-admin.php:240
 msgid "Untitled sheet"
 msgstr "Arkusz bez tytułu"
 
@@ -844,7 +856,7 @@ msgstr "Zaktualizowano %s temu"
 msgid "Use the source default"
 msgstr "Użyj domyślnego dla źródła"
 
-#: includes/views/edit-page.php:439
+#: includes/views/edit-page.php:456
 msgid "Use the “Google Sheets Table” block, or paste this shortcode into any editor, widget or page builder:"
 msgstr "Użyj bloku „Tabela z Arkuszy Google” albo wklej ten shortcode w dowolnym edytorze, widżecie lub kreatorze stron:"
 
@@ -856,9 +868,13 @@ msgstr "Przydatne, gdy pierwsza kolumna nazywa wiersz — produkt, osobę, datę
 msgid "Very rounded"
 msgstr "Mocno zaokrąglone"
 
-#: includes/views/edit-page.php:334
+#: includes/views/edit-page.php:351
 msgid "Waiting for a first look at the sheet. Choose “Refresh now” on the sources list, and your real columns will appear here."
 msgstr "Czekamy na pierwsze odczytanie arkusza. Kliknij „Odśwież teraz” na liście źródeł, a pojawią się tutaj Twoje prawdziwe kolumny."
+
+#: includes/views/edit-page.php:313
+msgid "What Google actually sent"
+msgstr "Co dokładnie przysłał Google"
 
 #: blocks/sheet-table/index.js:175
 msgid "Which rows"
@@ -876,8 +892,8 @@ msgstr "WordPress wykonuje zaplanowane zadania, gdy ktoś odwiedza stronę, wię
 msgid "You are not allowed to list sheet sources."
 msgstr "Nie masz uprawnień do przeglądania źródeł arkuszy."
 
-#: includes/class-lstab-rest.php:115 includes/class-lstab-admin.php:150
-#: includes/class-lstab-admin.php:164 includes/class-lstab-admin.php:451
+#: includes/class-lstab-rest.php:115 includes/class-lstab-admin.php:152
+#: includes/class-lstab-admin.php:166 includes/class-lstab-admin.php:453
 msgid "You are not allowed to manage sheet sources."
 msgstr "Nie masz uprawnień do zarządzania źródłami arkuszy."
 

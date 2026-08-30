@@ -158,12 +158,27 @@ class LSTAB_Rest {
 
 		$first_row_header = (bool) $request->get_param( 'firstRowHeader' );
 
-		$table = LSTAB_Fetcher::fetch_table(
+		/*
+		 * Fetched and parsed in two steps rather than through fetch_table(), so
+		 * the raw payload can be handed back as well. When a table comes out
+		 * wrong the first question is always whether the sheet or the plugin is
+		 * at fault, and only the bytes Google actually sent answer it.
+		 */
+		$csv = LSTAB_Fetcher::fetch_csv(
 			$reference['sheet_id'],
 			$reference['gid'],
-			$reference['sheet_kind'],
-			$first_row_header
+			$reference['sheet_kind']
 		);
+
+		if ( is_wp_error( $csv ) ) {
+			return new WP_Error(
+				$csv->get_error_code(),
+				$csv->get_error_message(),
+				array( 'status' => 502 )
+			);
+		}
+
+		$table = LSTAB_CSV_Parser::parse( $csv, $first_row_header );
 
 		if ( is_wp_error( $table ) ) {
 			return new WP_Error(
@@ -193,6 +208,11 @@ class LSTAB_Rest {
 				'rowCount'  => count( $rows ),
 				'colCount'  => count( $table['headers'] ),
 				'truncated' => count( $rows ) > count( $preview ),
+				// Enough to see the header row and the first few data rows,
+				// which is where a malformed export shows itself.
+				'raw'       => self::sample( $csv ),
+				'rawBytes'  => strlen( $csv ),
+				'ragged'    => isset( $table['ragged'] ) ? $table['ragged'] : null,
 				'html'      => LSTAB_Renderer::render_preview(
 					LSTAB_Columns::apply(
 						array(
@@ -209,6 +229,25 @@ class LSTAB_Rest {
 				),
 			)
 		);
+	}
+
+	/**
+	 * The opening of a payload, cut on a line boundary.
+	 *
+	 * @param string $csv Raw payload.
+	 * @return string
+	 */
+	protected static function sample( $csv ) {
+		$limit = 4000;
+
+		if ( strlen( $csv ) <= $limit ) {
+			return $csv;
+		}
+
+		$cut  = substr( $csv, 0, $limit );
+		$last = strrpos( $cut, "\n" );
+
+		return ( false === $last ? $cut : substr( $cut, 0, $last ) ) . "\n…";
 	}
 
 	/**

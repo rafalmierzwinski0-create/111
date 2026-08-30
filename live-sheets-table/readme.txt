@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.8.2
+Stable tag: 1.9.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -153,6 +153,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 
 == Changelog ==
 
+= 1.9.0 =
+* Added: "What Google actually sent" on the source screen — the exported text exactly as it arrived, before the plugin reads it. When a table comes out wrong the first question is whether the sheet or the plugin is at fault, and nothing else answers it. A row that came back with the wrong number of cells is pointed at by number, so nobody has to count lines.
+
 = 1.8.2 =
 * Changed: the malformed-sheet warning ends with the likely cause again — a lone quotation mark or a comma inside a value — but offered as likely rather than asserted, so a reader who looks and finds neither does not conclude the warning is wrong. Saying only what was wrong turned out to leave people with nowhere to start.
 
@@ -228,6 +231,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 1.9.0 =
+Adds a view of the raw text Google sent, for working out whether a wrong-looking table is the sheet's fault or the plugin's.
 
 = 1.8.2 =
 The malformed-sheet warning again suggests where to start looking.

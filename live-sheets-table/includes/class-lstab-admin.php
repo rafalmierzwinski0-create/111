@@ -135,6 +135,8 @@ class LSTAB_Admin {
 					'pickTab'     => __( 'Pick the tab you want to publish:', 'live-sheets-table' ),
 					'noTabs'      => __( 'Could not read the tab list — the tab from your link will be used.', 'live-sheets-table' ),
 					'emptyUrl'    => __( 'Paste a Google Sheets link first.', 'live-sheets-table' ),
+					'rawBytes'    => __( '%1$s characters received.', 'live-sheets-table' ),
+					'rawRagged'   => __( 'Look at row %1$s: it came back with a different number of cells than the rest.', 'live-sheets-table' ),
 				),
 			)
 		);
