@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class LSTAB_Storage {
 
-	const DB_VERSION     = '1.7.0';
+	const DB_VERSION     = '1.8.0';
 	const DB_VERSION_OPT = 'lstab_db_version';
 
 	/**
@@ -68,6 +68,7 @@ class LSTAB_Storage {
 			link_cells tinyint(1) NOT NULL DEFAULT 1,
 			per_page int(10) unsigned NOT NULL DEFAULT 0,
 			columns_config text NULL,
+			hidden_rows text NULL,
 			style_vars text NULL,
 			snapshot longtext NULL,
 			snapshot_hash varchar(32) NOT NULL DEFAULT '',
@@ -135,6 +136,7 @@ class LSTAB_Storage {
 			'link_cells'       => 1,
 			'per_page'         => 0,
 			'columns_config'   => array(),
+			'hidden_rows'      => array(),
 			'style_vars'       => LSTAB_Customizer::defaults(),
 		);
 	}
@@ -166,6 +168,7 @@ class LSTAB_Storage {
 			'link_cells'       => empty( $data['link_cells'] ) ? 0 : 1,
 			'per_page'         => max( 0, (int) $data['per_page'] ),
 			'columns_config'   => wp_json_encode( LSTAB_Columns::sanitize( $data['columns_config'] ) ),
+			'hidden_rows'      => wp_json_encode( LSTAB_Hidden_Rows::sanitize( isset( $data['hidden_rows'] ) ? $data['hidden_rows'] : array() ) ),
 			'style_vars'       => wp_json_encode( LSTAB_Customizer::sanitize( $data['style_vars'] ) ),
 			'snapshot'         => null,
 			'snapshot_hash'    => '',
@@ -217,6 +220,7 @@ class LSTAB_Storage {
 			'link_cells'       => '%d',
 			'per_page'         => '%d',
 			'columns_config'   => '%s',
+			'hidden_rows'      => '%s',
 			'style_vars'       => '%s',
 		);
 
@@ -229,6 +233,8 @@ class LSTAB_Storage {
 
 			if ( 'style_vars' === $column ) {
 				$row[ $column ] = wp_json_encode( LSTAB_Customizer::sanitize( $data[ $column ] ) );
+			} elseif ( 'hidden_rows' === $column ) {
+				$row[ $column ] = wp_json_encode( LSTAB_Hidden_Rows::sanitize( $data[ $column ] ) );
 			} elseif ( 'columns_config' === $column ) {
 				$row[ $column ] = wp_json_encode( LSTAB_Columns::sanitize( $data[ $column ] ) );
 			} elseif ( '%d' === $format ) {
@@ -487,7 +493,7 @@ class LSTAB_Storage {
 	 */
 	protected static function meta_columns() {
 		return 'id, title, sheet_url, sheet_id, sheet_kind, gid, tab_name, sync_interval, '
-			. 'first_row_header, style_preset, layout, sticky_first, link_cells, per_page, columns_config, style_vars, '
+			. 'first_row_header, style_preset, layout, sticky_first, link_cells, per_page, columns_config, hidden_rows, style_vars, '
 			. 'snapshot_hash, row_count, col_count, '
 			. 'last_status, last_error, last_ragged, last_attempt_gmt, last_success_gmt, created_gmt, updated_gmt';
 	}
@@ -555,6 +561,10 @@ class LSTAB_Storage {
 				? $ragged
 				: null;
 		}
+
+		$row['hidden_rows'] = LSTAB_Hidden_Rows::sanitize(
+			isset( $row['hidden_rows'] ) ? json_decode( (string) $row['hidden_rows'], true ) : array()
+		);
 
 		$row['columns_config'] = LSTAB_Columns::sanitize(
 			isset( $row['columns_config'] ) ? json_decode( (string) $row['columns_config'], true ) : array()

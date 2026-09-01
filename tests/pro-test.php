@@ -540,6 +540,17 @@ $export_hidden = LSTAB_Renderer::prepare( LSTAB_Storage::get( $source_id ), arra
 lstabp_assert( ! in_array( 'Dostępność', $export_hidden['headers'], true ), 'A hidden column is not in the file', wp_json_encode( $export_hidden['headers'] ) );
 LSTAB_Storage::update( $source_id, array( 'columns_config' => array() ) );
 
+// A row taken out of the table is out of the file too. The competitor this
+// plugin exists to improve on has this exact complaint on its support forum:
+// hidden things reappearing in the download.
+$hidden_key = LSTAB_Hidden_Rows::key_for( LSTAB_Storage::get( $source_id )['data']['rows'][0] );
+LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array( $hidden_key ) ) );
+$export_rows = LSTAB_Renderer::prepare( LSTAB_Storage::get( $source_id ), array() );
+$exported    = wp_json_encode( $export_rows['rows'] );
+lstabp_assert( false === strpos( (string) $exported, $hidden_key ), 'A hidden row is not in the file either', (string) $exported );
+lstabp_assert( count( $export_rows['rows'] ) === count( $export_all['rows'] ) - 1, 'And the file is exactly one row shorter' );
+LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array() ) );
+
 // The link is signed, or the filter could be edited out in the address bar.
 $signed = LSTABP_Export::signature( $source_id, 'Dostępność is Brak' );
 lstabp_assert( '' !== $signed, 'Download links carry a signature' );

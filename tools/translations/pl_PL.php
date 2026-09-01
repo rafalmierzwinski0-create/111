@@ -93,6 +93,14 @@ return array(
 		=> 'WordPress nie ma własnego zegara — jego harmonogram uruchamia się dopiero wtedy, gdy ktoś poprosi o stronę, więc witryna bez ruchu nie sprawdza niczego. Daj mu prawdziwy zegar po stronie hostingu. Większość paneli hostingowych ma ekran „Cron jobs”; wklej tam tę linię:',
 	'No shell access? A free uptime monitor pointed at your home page does the same job, because every visit it makes runs the schedule. %s'
 		=> 'Nie masz dostępu do powłoki? Darmowy monitor dostępności wycelowany w stronę główną zrobi to samo, bo każde jego odwiedziny uruchamiają harmonogram. %s',
+	'Hide columns and rows'                      => 'Ukryj kolumny i wiersze',
+	'Click a heading to drop that column, or a row to drop that row. Click again to bring it back. Nothing is written to Google — your spreadsheet keeps everything, the table just stops showing it.'
+		=> 'Kliknij nagłówek, żeby usunąć kolumnę, albo wiersz, żeby usunąć wiersz. Kliknij ponownie, żeby przywrócić. Nic nie jest zapisywane do Google — Twój arkusz zachowuje wszystko, tabela po prostu przestaje to pokazywać.',
+	'Row'                                        => 'Wiersz',
+	'No rows hidden.'                            => 'Nie ukryto żadnych wierszy.',
+	'Show this row again'                        => 'Pokaż ten wiersz ponownie',
+	'Showing the first %1$d of %2$d rows. Hiding rows one at a time past that point is not really the tool for the job — a filter is, and Pro has one.'
+		=> 'Pokazujemy pierwsze %1$d z %2$d wierszy. Ukrywanie wierszy pojedynczo powyżej tej liczby to nie jest właściwe narzędzie — właściwym jest filtr, a ten jest w Pro.',
 	'Save changes and sync'                      => 'Zapisz zmiany i zsynchronizuj',
 	'Save source and sync'                       => 'Zapisz źródło i zsynchronizuj',
 

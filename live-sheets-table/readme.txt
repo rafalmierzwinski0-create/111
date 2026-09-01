@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.6.0
+Stable tag: 2.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -55,7 +55,7 @@ Paste your link and the parser shows you exactly what it read — headings, rows
 * A visual appearance editor: set colours, text size, row height and corners per table, with the preview updating as you go.
 * A visible, draggable slider under any table too wide for its column, so nothing is ever hidden behind an invisible scrollbar.
 * The first column stays pinned while the rest scrolls, so a price never stops belonging to a product — and can be switched off per table.
-* Rename columns for your visitors, or leave a column out of the table entirely, without touching the spreadsheet.
+* Click a heading or a row in your own sheet to leave it out of the table. Rename columns for your visitors too. Nothing is written back to the spreadsheet.
 * A layout control per source: scroll the table sideways, or stack each row into a card.
 * An "updated N minutes ago" label you can switch off.
 * Full translation support.
@@ -155,6 +155,12 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 2.7.0 =
+* Added: point at what you want gone. The edit screen now shows your sheet as a table you can click: a heading drops that column, a row drops that row, and a second click brings it back. The checkbox list is still there and the two stay in step, so whichever one you reach for, the other agrees.
+* Added: hiding individual rows, which was not possible at all before — a row could only be excluded by a Pro filter, written as text.
+* A hidden row is remembered by what it says, not by where it sits. Remembering the row number is the obvious approach and it is wrong: the sheet is a live document, and someone inserting a line at the top would then silently hide a different row. Rows can be added, removed and reordered in Google without disturbing anything.
+* Hidden rows and columns stay hidden everywhere: they are not counted, cannot be found by searching, do not take up a place on a page, and are not in the file when a Pro table is downloaded.
 
 = 2.6.0 =
 * Changed: the dashboard no longer warns about DISABLE_WP_CRON. That line in wp-config.php is the normal setup on any host running a real system cron, so the warning fired on perfectly healthy sites — and a warning that appears when nothing is wrong teaches people to ignore warnings. What matters is whether the tables are current, and that can simply be measured: the dashboard now says nothing at all unless a sheet has actually fallen well behind its own interval, and then it names which one and for how long.
@@ -270,6 +276,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 2.7.0 =
+Click a heading or a row in your sheet to hide it. Rows can now be hidden at all, and are remembered by what they say rather than where they sit.
 
 = 2.6.0 =
 Stops warning about a healthy configuration, and fixes sorting a column that mixes numbers and words.

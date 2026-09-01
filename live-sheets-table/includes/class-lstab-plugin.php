@@ -62,6 +62,13 @@ class LSTAB_Plugin {
 	public $paging;
 
 	/**
+	 * Rows the author has taken out of the table.
+	 *
+	 * @var LSTAB_Hidden_Rows
+	 */
+	public $hidden_rows;
+
+	/**
 	 * Elementor widget registration.
 	 *
 	 * @var LSTAB_Elementor
@@ -81,6 +88,7 @@ class LSTAB_Plugin {
 		$this->shortcode = new LSTAB_Shortcode();
 		$this->links     = new LSTAB_Links();
 		$this->paging    = new LSTAB_Paging();
+		$this->hidden_rows = new LSTAB_Hidden_Rows();
 		$this->elementor = new LSTAB_Elementor();
 
 		add_action( 'init', array( $this, 'load_textdomain' ) );
@@ -93,6 +101,7 @@ class LSTAB_Plugin {
 		$this->shortcode->register();
 		$this->links->register();
 		$this->paging->register();
+		$this->hidden_rows->register();
 		$this->elementor->register();
 
 		if ( is_admin() ) {

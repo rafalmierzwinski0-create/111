@@ -1483,6 +1483,88 @@ wp_set_current_user( 0 );
 
 // ---------------------------------------------------------------------------
 
+lstab_section( '12e. Hiding rows by pointing at them' );
+
+/*
+ * The obvious way to remember "hide this row" is to remember its number, and
+ * it is wrong: someone inserting a line at the top of the sheet would then
+ * silently hide a different row. Nothing looks broken — a table just stops
+ * showing one product and starts showing another that was meant to be gone.
+ */
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
+$sheet = LSTAB_Storage::get( $source_id );
+$rows  = $sheet['data']['rows'];
+
+lstab_assert( 'Kask Lazer' === LSTAB_Hidden_Rows::key_for( $rows[1] ), 'A row is identified by its first filled cell', LSTAB_Hidden_Rows::key_for( $rows[1] ) );
+lstab_assert( 'Wartość' === LSTAB_Hidden_Rows::key_for( array( '', '  ', 'Wartość', 'x' ) ), 'Leading empty cells are skipped' );
+lstab_assert( '' === LSTAB_Hidden_Rows::key_for( array( '', ' ', '' ) ), 'A row with nothing in it has no identity' );
+lstab_assert( 'a b' === LSTAB_Hidden_Rows::key_for( array( "  a\n  b " ) ), 'Runs of whitespace do not make two different rows' );
+
+$cleaned = LSTAB_Hidden_Rows::sanitize( array( ' Kask ', 'Kask', '', array( 'x' ), 'Inny' ) );
+lstab_assert( array( 'Kask', 'Inny' ) === $cleaned, 'Keys are trimmed, deduplicated, and rubbish is dropped', wp_json_encode( $cleaned ) );
+lstab_assert( count( LSTAB_Hidden_Rows::sanitize( array_map( 'strval', range( 1, 900 ) ) ) ) === LSTAB_Hidden_Rows::MAX_ROWS, 'And capped' );
+
+LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array( 'Kask Lazer' ) ) );
+$hidden_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false === strpos( $hidden_html, 'Kask Lazer' ), 'A hidden row is not on the page' );
+lstab_assert( false !== strpos( $hidden_html, 'Rower górski' ), 'The rest of the table is untouched' );
+lstab_assert( substr_count( $hidden_html, '<tr' ) === 7, 'And the table is one row shorter', (string) substr_count( $hidden_html, '<tr' ) );
+
+// It must not be findable either: a row taken out of the table is out of it.
+$_GET = array( LSTAB_Paging::arg( $source_id, 'q' ) => 'Kask' );
+LSTAB_Storage::update( $source_id, array( 'per_page' => 10 ) );
+$searched = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$_GET     = array();
+LSTAB_Storage::update( $source_id, array( 'per_page' => 0 ) );
+lstab_assert( false === strpos( $searched, 'Kask Lazer' ), 'A hidden row cannot be found by searching for it' );
+
+// The whole point: the sheet may move underneath it.
+$moved = $rows;
+array_unshift( $moved, array( 'Nowy produkt', '1,00', 'W magazynie', '', '2026-01-01' ) );
+LSTAB_Storage::record_success( $source_id, array( 'headers' => $sheet['data']['headers'], 'rows' => $moved ) );
+$after_insert = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false === strpos( $after_insert, 'Kask Lazer' ), 'A row inserted above does not shift what is hidden' );
+lstab_assert( false !== strpos( $after_insert, 'Nowy produkt' ), 'And the new row is shown' );
+
+// A price change must not bring a hidden row back; a rename may.
+$repriced    = $moved;
+$repriced[2] = array( 'Kask Lazer', '999,00', 'Brak', '', '2026-01-02' );
+LSTAB_Storage::record_success( $source_id, array( 'headers' => $sheet['data']['headers'], 'rows' => $repriced ) );
+lstab_assert(
+	false === strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), '999,00' ),
+	'Editing a hidden row does not bring it back'
+);
+
+// Hiding everything is allowed, and says so rather than breaking.
+$keys = array();
+foreach ( $repriced as $row ) {
+	$keys[] = LSTAB_Hidden_Rows::key_for( $row );
+}
+LSTAB_Storage::update( $source_id, array( 'hidden_rows' => $keys ) );
+$all_gone = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false === stripos( $all_gone, 'fatal' ), 'Hiding every row does not break the page' );
+lstab_assert( false !== strpos( $all_gone, '<table' ) || false !== stripos( $all_gone, 'lstab' ), 'And still answers with something' );
+
+LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array() ) );
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
+lstab_assert( 7 === count( LSTAB_Storage::get( $source_id )['data']['rows'] ), 'Clearing the list brings every row back' );
+
+// The picker is the same choice as the Columns card, so the edit screen has to
+// carry it and submit it.
+$_GET['source'] = $source_id;
+ob_start();
+include LSTAB_PATH . 'includes/views/edit-page.php';
+$screen = (string) ob_get_clean();
+unset( $_GET['source'] );
+lstab_assert( false !== strpos( $screen, 'lstab-picker' ), 'The edit screen shows the picker' );
+lstab_assert( false !== strpos( $screen, 'data-lstab-row=' ), 'Every row is clickable' );
+lstab_assert( false !== strpos( $screen, 'data-lstab-column=' ), 'So is every heading' );
+lstab_assert( false !== strpos( $screen, 'name="hidden_rows[]"' ) || false !== strpos( $screen, 'lstab-hidden-rows-fields' ), 'And what it collects is inside the form' );
+
+// ---------------------------------------------------------------------------
+
 lstab_section( '12d. Links in cells' );
 
 // A published sheet is very often a directory or a catalogue, and those hold
