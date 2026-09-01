@@ -137,7 +137,6 @@ class LSTAB_Admin {
 					'emptyUrl'    => __( 'Paste a Google Sheets link first.', 'live-sheets-table' ),
 					'rawBytes'    => __( '%1$s characters received.', 'live-sheets-table' ),
 					'rawRagged'   => __( 'Look at row %1$s: it came back with a different number of cells than the rest.', 'live-sheets-table' ),
-					'showRowAgain' => __( 'Show this row again', 'live-sheets-table' ),
 				),
 			)
 		);
@@ -233,12 +232,21 @@ class LSTAB_Admin {
 			'style_vars'       => isset( $_POST['style_vars'] ) ? LSTAB_Customizer::sanitize( wp_unslash( $_POST['style_vars'] ) ) : LSTAB_Customizer::defaults(), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Sanitised field by field in LSTAB_Columns.
 			'columns_config'   => isset( $_POST['columns'] ) ? LSTAB_Columns::sanitize( wp_unslash( $_POST['columns'] ) ) : array(),
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Sanitised key by key in LSTAB_Hidden_Rows.
-			'hidden_rows'      => isset( $_POST['hidden_rows'] ) ? LSTAB_Hidden_Rows::sanitize( wp_unslash( $_POST['hidden_rows'] ) ) : array(),
 			'sticky_first'     => empty( $_POST['sticky_first'] ) ? 0 : 1,
 			'link_cells'       => empty( $_POST['link_cells'] ) ? 0 : 1,
 			'per_page'         => isset( $_POST['per_page'] ) ? min( LSTAB_Paging::MAX_PER_PAGE, absint( wp_unslash( $_POST['per_page'] ) ) ) : 0,
 		);
+
+		/*
+		 * Only when the control that edits this was actually on the screen. An
+		 * empty list means "nothing hidden" when the picker submitted it, and
+		 * means nothing at all when the picker was not there — and treating the
+		 * second as the first would quietly publish rows someone hid.
+		 */
+		if ( isset( $_POST['_lstab_hidden_rows_present'] ) ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Sanitised key by key in LSTAB_Hidden_Rows.
+			$data['hidden_rows'] = isset( $_POST['hidden_rows'] ) ? LSTAB_Hidden_Rows::sanitize( wp_unslash( $_POST['hidden_rows'] ) ) : array();
+		}
 
 		if ( '' === $data['title'] ) {
 			$data['title'] = $data['tab_name'] ? $data['tab_name'] : __( 'Untitled sheet', 'live-sheets-table' );

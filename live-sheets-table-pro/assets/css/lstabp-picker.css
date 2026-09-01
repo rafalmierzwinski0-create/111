@@ -1,0 +1,194 @@
+/**
+ * Live Sheets Table Pro — the sheet as a control.
+ *
+ * What is dropped is drawn dropped — faded and struck through — rather than
+ * merely absent, so it reads as a choice someone made and not as a fault.
+ */
+
+.lstabp-picker-scroll {
+	overflow: auto;
+	max-height: 460px;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	background: #fff;
+}
+
+.lstabp-picker {
+	border-collapse: collapse;
+	width: 100%;
+	font-size: 0.85rem;
+}
+
+.lstabp-picker th,
+.lstabp-picker td {
+	border-bottom: 1px solid #f0f0f1;
+	border-right: 1px solid #f0f0f1;
+	padding: 0;
+	text-align: left;
+	vertical-align: top;
+	max-width: 22ch;
+}
+
+.lstabp-picker td {
+	padding: 6px 10px;
+	overflow-wrap: anywhere;
+}
+
+.lstabp-picker thead th {
+	position: sticky;
+	top: 0;
+	z-index: 2;
+	background: #f6f7f7;
+}
+
+.lstabp-picker-corner {
+	width: 3.5rem;
+	background: #f6f7f7;
+}
+
+.lstabp-picker-toggle {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 6px;
+	width: 100%;
+	padding: 8px 10px;
+	border: 0;
+	background: none;
+	font: inherit;
+	font-weight: 600;
+	color: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.lstabp-picker-toggle:hover,
+.lstabp-picker-toggle:focus-visible {
+	background: #f0f6fc;
+	color: #043959;
+}
+
+.lstabp-picker-toggle[disabled] {
+	cursor: default;
+	opacity: 0.5;
+}
+
+.lstabp-picker-handle .lstabp-picker-toggle {
+	font-weight: 400;
+	color: #787c82;
+	justify-content: center;
+	gap: 3px;
+}
+
+/* Rows that say the same thing are one choice, and say so before you click. */
+.lstabp-picker-shared {
+	font-size: 0.75em;
+	font-weight: 600;
+	color: #b26200;
+}
+
+.lstabp-picker-mark::before {
+	content: "×";
+	font-size: 1.1em;
+	line-height: 1;
+	opacity: 0;
+}
+
+.lstabp-picker-toggle:hover .lstabp-picker-mark::before,
+.lstabp-picker-toggle:focus-visible .lstabp-picker-mark::before {
+	opacity: 0.55;
+}
+
+.lstabp-picker th.is-hidden .lstabp-picker-mark::before,
+.lstabp-picker tr.is-hidden .lstabp-picker-mark::before {
+	content: "↺";
+	opacity: 0.75;
+}
+
+.lstabp-picker th.is-hidden .lstabp-picker-name,
+.lstabp-picker td.is-hidden,
+.lstabp-picker tr.is-hidden td,
+.lstabp-picker tr.is-hidden .lstabp-picker-number {
+	opacity: 0.4;
+	text-decoration: line-through;
+}
+
+.lstabp-picker tr.is-hidden {
+	background: repeating-linear-gradient(
+		45deg,
+		#fafafa,
+		#fafafa 6px,
+		#f2f2f2 6px,
+		#f2f2f2 12px
+	);
+}
+
+.lstabp-picker-summary {
+	margin-top: 12px;
+}
+
+.lstabp-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.lstabp-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	max-width: 34ch;
+	padding: 3px 4px 3px 10px;
+	border: 1px solid #dcdcde;
+	border-radius: 999px;
+	background: #f6f7f7;
+	font-size: 0.82rem;
+}
+
+.lstabp-chip > span {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.lstabp-chip-note {
+	font-size: 0.85em;
+	font-style: normal;
+	color: #b26200;
+	white-space: nowrap;
+}
+
+/* A choice the sheet no longer has a row for: kept, but shown as dormant. */
+.lstabp-chip.is-orphan {
+	border-style: dashed;
+	opacity: 0.75;
+}
+
+.lstabp-chip.is-orphan .lstabp-chip-note {
+	color: #787c82;
+}
+
+.lstabp-chip-remove {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: none;
+	font-size: 1rem;
+	line-height: 1;
+	color: #50575e;
+	cursor: pointer;
+}
+
+.lstabp-chip-remove:hover,
+.lstabp-chip-remove:focus-visible {
+	background: #d63638;
+	color: #fff;
+}

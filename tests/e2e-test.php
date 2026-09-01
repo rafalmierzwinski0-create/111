@@ -1551,17 +1551,30 @@ lstab_set_mock( 'ok', 'main' );
 LSTAB_Sync::run( $source_id );
 lstab_assert( 7 === count( LSTAB_Storage::get( $source_id )['data']['rows'] ), 'Clearing the list brings every row back' );
 
-// The picker is the same choice as the Columns card, so the edit screen has to
-// carry it and submit it.
-$_GET['source'] = $source_id;
-ob_start();
-include LSTAB_PATH . 'includes/views/edit-page.php';
-$screen = (string) ob_get_clean();
-unset( $_GET['source'] );
-lstab_assert( false !== strpos( $screen, 'lstab-picker' ), 'The edit screen shows the picker' );
-lstab_assert( false !== strpos( $screen, 'data-lstab-row=' ), 'Every row is clickable' );
-lstab_assert( false !== strpos( $screen, 'data-lstab-column=' ), 'So is every heading' );
-lstab_assert( false !== strpos( $screen, 'name="hidden_rows[]"' ) || false !== strpos( $screen, 'lstab-hidden-rows-fields' ), 'And what it collects is inside the form' );
+// Choosing rows by pointing at them is the add-on's; keeping them hidden is
+// not. A licence that lapses must not put rows someone hid back on a public
+// page — hiding is subtractive, so honouring it can never disclose anything,
+// and forgetting it could.
+LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array( 'Kask Lazer' ) ) );
+lstab_assert(
+	false === strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'Kask Lazer' ),
+	'Hidden rows stay hidden with no add-on active at all'
+);
+
+// And a save made on a screen without the picker must leave them alone, rather
+// than read "no fields submitted" as "nothing is hidden".
+$_POST = array(
+	'title'         => 'Cennik rowerowy',
+	'sheet_url'     => LSTAB_Storage::get( $source_id )['sheet_url'],
+	'sync_interval' => 900,
+);
+$kept = isset( $_POST['_lstab_hidden_rows_present'] )
+	? array()
+	: LSTAB_Storage::get( $source_id )['hidden_rows'];
+$_POST = array();
+lstab_assert( array( 'Kask Lazer' ) === $kept, 'A form without the picker leaves the stored list untouched', wp_json_encode( $kept ) );
+
+LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array() ) );
 
 // ---------------------------------------------------------------------------
 

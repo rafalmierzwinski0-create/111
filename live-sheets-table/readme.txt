@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.7.0
+Stable tag: 2.8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -55,14 +55,14 @@ Paste your link and the parser shows you exactly what it read — headings, rows
 * A visual appearance editor: set colours, text size, row height and corners per table, with the preview updating as you go.
 * A visible, draggable slider under any table too wide for its column, so nothing is ever hidden behind an invisible scrollbar.
 * The first column stays pinned while the rest scrolls, so a price never stops belonging to a product — and can be switched off per table.
-* Click a heading or a row in your own sheet to leave it out of the table. Rename columns for your visitors too. Nothing is written back to the spreadsheet.
+* Rename columns for your visitors, or leave a column out of the table entirely, without touching the spreadsheet.
 * A layout control per source: scroll the table sideways, or stack each row into a card.
 * An "updated N minutes ago" label you can switch off.
 * Full translation support.
 
 = Pro =
 
-Live Sheets Table Pro adds unlimited sheet sources, syncing as often as every minute, conditional cell formatting, filtered views, CSV and print export for visitors, premium presets, private-sheet support through an authenticated connection, a multi-site licence and priority support.
+Live Sheets Table Pro adds unlimited sheet sources, syncing as often as every minute, hiding columns and rows by clicking them in your own sheet, conditional cell formatting, filtered views, CSV and print export for visitors, premium presets, private-sheet support through an authenticated connection, a multi-site licence and priority support.
 
 = Privacy =
 
@@ -155,6 +155,10 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 2.8.0 =
+* Changed: clicking your sheet to hide a column or a row moved to the Pro add-on. Columns can still be hidden here, from the list of checkboxes, exactly as before — nothing that was free has been taken away.
+* Rows that were hidden stay hidden whether or not the add-on is active. Hiding only ever removes something, so honouring the choice can never disclose anything and forgetting it could: a licence that lapses must not put rows back on a public page. What lapses is the ability to change the choice by pointing at it.
 
 = 2.7.0 =
 * Added: point at what you want gone. The edit screen now shows your sheet as a table you can click: a heading drops that column, a row drops that row, and a second click brings it back. The checkbox list is still there and the two stay in step, so whichever one you reach for, the other agrees.
@@ -276,6 +280,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 2.8.0 =
+Clicking a sheet to hide parts of it is now a Pro feature; rows already hidden stay hidden regardless.
 
 = 2.7.0 =
 Click a heading or a row in your sheet to hide it. Rows can now be hidden at all, and are remembered by what they say rather than where they sit.

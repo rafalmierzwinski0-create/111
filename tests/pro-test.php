@@ -571,6 +571,67 @@ lstabp_assert( ! LSTABP_Export::is_enabled( $export_throwaway ), 'Deleting a sou
 
 delete_option( LSTABP_Export::OPTION );
 
+lstabp_section( '5e. Pointing at what you want gone' );
+
+$picker_source = LSTAB_Storage::get( $source_id );
+$picker        = new LSTABP_Picker();
+
+ob_start();
+$picker->render_card( $picker_source, true );
+$card = (string) ob_get_clean();
+
+lstabp_assert( false !== strpos( $card, 'lstabp-picker' ), 'The add-on prints the picker on the source screen' );
+lstabp_assert( false !== strpos( $card, 'data-lstabp-row=' ), 'Every row is clickable' );
+lstabp_assert( false !== strpos( $card, 'data-lstabp-column=' ), 'So is every heading' );
+lstabp_assert( false !== strpos( $card, 'name="hidden_rows[]"' ) || false !== strpos( $card, 'lstabp-hidden-rows-fields' ), 'What it collects is inside the form' );
+lstabp_assert( false !== strpos( $card, '_lstab_hidden_rows_present' ), 'And it says it was there, so a save elsewhere cannot wipe the list' );
+
+// Adding a source has nothing to point at yet.
+ob_start();
+$picker->render_card( null, false );
+lstabp_assert( '' === trim( (string) ob_get_clean() ), 'Nothing is printed while a source is being added' );
+
+/*
+ * A row is remembered by what it says, so rows that say the same thing are one
+ * choice rather than two. That is usually what someone means and occasionally a
+ * surprise — and a surprise is only a problem while it is invisible, so the
+ * screen counts them before anything is clicked.
+ */
+$twins = array(
+	array( 'Kask', '100', 'W magazynie' ),
+	array( 'Kask', '120', 'Brak' ),
+	array( 'Rower', '4000', 'W magazynie' ),
+);
+$counts = LSTABP_Picker::key_counts( $twins );
+lstabp_assert( 2 === $counts['Kask'], 'Rows saying the same thing are counted together', wp_json_encode( $counts ) );
+lstabp_assert( 1 === $counts['Rower'], 'And ones that do not, are not' );
+
+$twin_source            = $picker_source;
+$twin_source['data']    = array( 'headers' => array( 'Produkt', 'Cena', 'Stan' ), 'rows' => $twins );
+$twin_source['hidden_rows'] = array();
+
+ob_start();
+$picker->render_card( $twin_source, true );
+$twin_card = (string) ob_get_clean();
+lstabp_assert( false !== strpos( $twin_card, 'data-lstabp-shared="2"' ), 'The screen marks a row that speaks for two' );
+lstabp_assert( false !== strpos( $twin_card, '×2' ), 'And shows the count before anything is clicked', 'no count shown' );
+
+// Hiding it hides both, which is what the screen said it would do.
+$twin_source['hidden_rows'] = array( 'Kask' );
+$left = LSTAB_Hidden_Rows::filter_rows( $twins, $twin_source['data']['headers'], $twin_source, array() );
+lstabp_assert( 1 === count( $left ), 'Hiding a shared identity hides every row that shares it', (string) count( $left ) );
+lstabp_assert( 'Rower' === $left[0][0], 'And leaves the rest' );
+
+// A choice whose row has since been renamed is kept, and shown as dormant.
+$orphan_source                = $picker_source;
+$orphan_source['hidden_rows'] = array( 'Coś, czego już nie ma' );
+ob_start();
+$picker->render_card( $orphan_source, true );
+$orphan_card = (string) ob_get_clean();
+lstabp_assert( false !== strpos( $orphan_card, 'data-lstabp-present="0"' ), 'A key with no row left is marked as such rather than dropped' );
+
+// ---------------------------------------------------------------------------
+
 lstabp_section( '6. The free plugin is untouched' );
 
 // Pro must reach the free plugin only through published hooks: no edits to its
