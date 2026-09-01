@@ -512,6 +512,54 @@ delete_option( LSTABP_Rules::OPTION );
 
 // ---------------------------------------------------------------------------
 
+lstabp_section( '5d. Taking the table away' );
+
+update_option( LSTABP_Export::OPTION, array( $source_id => true ), true );
+
+$with_buttons = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstabp_assert( false !== strpos( $with_buttons, 'lstabp-export-button' ), 'A table can offer a download and a print button' );
+lstabp_assert( false !== strpos( $with_buttons, 'lstabp_export' ), 'The download is an ordinary link' );
+
+update_option( LSTABP_Export::OPTION, array(), true );
+lstabp_assert( false === strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'lstabp-export-button' ), 'And does not when it is switched off' );
+update_option( LSTABP_Export::OPTION, array( $source_id => true ), true );
+
+/*
+ * The file has to hold what the page held. An export that reached past the
+ * filter would turn a page built to show one category into a way of reading
+ * the whole sheet.
+ */
+$export_all      = LSTAB_Renderer::prepare( LSTAB_Storage::get( $source_id ), array() );
+$export_filtered = LSTAB_Renderer::prepare( LSTAB_Storage::get( $source_id ), array( 'filter' => 'Dostępność is Brak' ) );
+lstabp_assert( count( $export_filtered['rows'] ) < count( $export_all['rows'] ), 'A filtered table exports only its own rows', count( $export_filtered['rows'] ) . ' of ' . count( $export_all['rows'] ) );
+lstabp_assert( 1 === count( $export_filtered['rows'] ), 'Exactly the rows the page showed', (string) count( $export_filtered['rows'] ) );
+
+// A column left out of the table is left out of the file too.
+LSTAB_Storage::update( $source_id, array( 'columns_config' => array( 2 => array( 'hidden' => true ) ) ) );
+$export_hidden = LSTAB_Renderer::prepare( LSTAB_Storage::get( $source_id ), array() );
+lstabp_assert( ! in_array( 'Dostępność', $export_hidden['headers'], true ), 'A hidden column is not in the file', wp_json_encode( $export_hidden['headers'] ) );
+LSTAB_Storage::update( $source_id, array( 'columns_config' => array() ) );
+
+// The link is signed, or the filter could be edited out in the address bar.
+$signed = LSTABP_Export::signature( $source_id, 'Dostępność is Brak' );
+lstabp_assert( '' !== $signed, 'Download links carry a signature' );
+lstabp_assert( ! hash_equals( $signed, LSTABP_Export::signature( $source_id, '' ) ), 'Changing the filter invalidates it' );
+lstabp_assert( ! hash_equals( $signed, LSTABP_Export::signature( $source_id + 1, 'Dostępność is Brak' ) ), 'So does changing the source' );
+
+// Deleting a source takes the setting with it.
+$export_throwaway = LSTAB_Storage::insert(
+	array(
+		'title'     => 'Do usunięcia',
+		'sheet_url' => 'https://docs.google.com/spreadsheets/d/YYY/edit#gid=0',
+		'sheet_id'  => 'YYY',
+	)
+);
+update_option( LSTABP_Export::OPTION, array( $source_id => true, $export_throwaway => true ), true );
+LSTAB_Storage::delete( $export_throwaway );
+lstabp_assert( ! LSTABP_Export::is_enabled( $export_throwaway ), 'Deleting a source forgets its export setting' );
+
+delete_option( LSTABP_Export::OPTION );
+
 lstabp_section( '6. The free plugin is untouched' );
 
 // Pro must reach the free plugin only through published hooks: no edits to its

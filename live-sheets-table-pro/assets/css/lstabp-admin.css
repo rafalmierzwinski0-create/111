@@ -29,3 +29,7 @@
 .lstabp-rules-card.is-waiting .lstabp-rule-list {
 	opacity: 0.55;
 }
+
+.lstabp-export-card {
+	margin-top: 1rem;
+}

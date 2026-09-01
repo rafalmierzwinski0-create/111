@@ -1060,3 +1060,59 @@
 	text-decoration: none;
 	color: inherit;
 }
+
+/* ------------------------------------------------------------- export, print */
+
+.lstabp-export {
+	display: flex;
+	gap: 0.5em;
+	margin: 0.9em 0 0;
+}
+
+.lstabp-export-button {
+	padding: 0.4em 0.9em;
+	border: 1px solid var(--lstab-border-strong);
+	border-radius: 8px;
+	background: var(--lstab-bg);
+	color: var(--lstab-fg);
+	font: inherit;
+	font-size: 0.9em;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.lstabp-export-button:hover {
+	border-color: var(--lstab-accent);
+	color: var(--lstab-accent);
+}
+
+/*
+ * Printing: the table is the point, so everything built for a screen — the
+ * search box, the slider, the pager, the buttons themselves — is left out, and
+ * the table is allowed to break across pages with its heading repeated.
+ */
+@media print {
+	.lstab-controls,
+	.lstab-scrollbar,
+	.lstab-pager,
+	.lstabp-export {
+		display: none !important;
+	}
+
+	.lstab {
+		--lstab-table-min: 0;
+		--lstab-sticky: static;
+	}
+
+	.lstab-scroll {
+		overflow: visible !important;
+	}
+
+	.lstab-table thead {
+		display: table-header-group;
+	}
+
+	.lstab-row {
+		break-inside: avoid;
+	}
+}

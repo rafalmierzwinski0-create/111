@@ -60,7 +60,7 @@ Paste your link and the parser shows you exactly what it read — headings, rows
 
 = Pro =
 
-Live Sheets Table Pro adds unlimited sheet sources, syncing as often as every minute, conditional cell formatting, filtered views, premium presets, private-sheet support through an authenticated connection, a multi-site licence and priority support.
+Live Sheets Table Pro adds unlimited sheet sources, syncing as often as every minute, conditional cell formatting, filtered views, CSV and print export for visitors, premium presets, private-sheet support through an authenticated connection, a multi-site licence and priority support.
 
 = Privacy =
 

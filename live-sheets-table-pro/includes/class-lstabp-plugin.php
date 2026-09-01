@@ -33,6 +33,7 @@ class LSTABP_Plugin {
 		( new LSTABP_Private_Sheets() )->register();
 		( new LSTABP_Filters() )->register();
 		( new LSTABP_Rules() )->register();
+		( new LSTABP_Export() )->register();
 		( new LSTABP_Settings() )->register();
 
 		add_action( 'init', array( $this, 'load_textdomain' ) );

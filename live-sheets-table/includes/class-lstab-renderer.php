@@ -127,13 +127,18 @@ class LSTAB_Renderer {
 	}
 
 	/**
-	 * Build the table markup.
+	 * The headings and rows a visitor would be shown, after every setting.
 	 *
-	 * @param array<string,mixed> $source Source row (or preview stand-in).
+	 * Rendering and exporting have to agree exactly: an export that ignored a
+	 * filter or a hidden column would be a way to read what the page was built
+	 * not to show. Both go through here.
+	 *
+	 * @param array<string,mixed> $source Source row.
 	 * @param array<string,mixed> $args   Rendering options.
-	 * @return string HTML.
+	 * @return array{headers:array<int,string>,rows:array<int,array<int,string>>}
 	 */
-	protected static function render_table( $source, $args ) {
+	public static function prepare( $source, $args ) {
+		$args    = wp_parse_args( $args, self::defaults() );
 		$headers = isset( $source['data']['headers'] ) ? (array) $source['data']['headers'] : array();
 		$rows    = isset( $source['data']['rows'] ) ? (array) $source['data']['rows'] : array();
 
@@ -182,6 +187,24 @@ class LSTAB_Renderer {
 		 * @param array $args   Rendering options.
 		 */
 		$rows = (array) apply_filters( 'lstab_render_rows', $rows, $source, $args );
+
+		return array(
+			'headers' => $headers,
+			'rows'    => $rows,
+		);
+	}
+
+	/**
+	 * Build the table markup.
+	 *
+	 * @param array<string,mixed> $source Source row (or preview stand-in).
+	 * @param array<string,mixed> $args   Rendering options.
+	 * @return string HTML.
+	 */
+	protected static function render_table( $source, $args ) {
+		$prepared = self::prepare( $source, $args );
+		$headers  = $prepared['headers'];
+		$rows     = $prepared['rows'];
 
 		$style     = $args['style'] ? LSTAB_Styles::sanitize( $args['style'] ) : LSTAB_Styles::sanitize( $source['style_preset'] );
 		$source_id = (int) $source['id'];

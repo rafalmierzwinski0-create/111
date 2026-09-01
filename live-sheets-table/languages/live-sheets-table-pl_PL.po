@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-01 07:37+0000\n"
-"PO-Revision-Date: 2026-09-01 07:37+0000\n"
+"POT-Creation-Date: 2026-09-01 07:42+0000\n"
+"PO-Revision-Date: 2026-09-01 07:42+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -18,7 +18,7 @@ msgid "%1$s characters received."
 msgstr "Odebrano %1$s znaków."
 
 #. translators: 1: rows matching, 2: rows in the sheet.
-#: includes/class-lstab-renderer.php:302 includes/class-lstab-renderer.php:320
+#: includes/class-lstab-renderer.php:325 includes/class-lstab-renderer.php:343
 msgid "%1$s of %2$s rows"
 msgstr "%1$s z %2$s wierszy"
 
@@ -136,7 +136,7 @@ msgstr "Wybierz, który zapisany arkusz pokazać."
 msgid "Clean"
 msgstr "Czysty"
 
-#: includes/class-lstab-renderer.php:293
+#: includes/class-lstab-renderer.php:316
 msgid "Clear"
 msgstr "Wyczyść"
 
@@ -416,11 +416,11 @@ msgstr "Potrzebujesz więcej niż jednego arkusza?"
 msgid "Never synced successfully"
 msgstr "Nigdy nie zsynchronizowano poprawnie"
 
-#: includes/class-lstab-renderer.php:487 includes/class-lstab-renderer.php:490
+#: includes/class-lstab-renderer.php:510 includes/class-lstab-renderer.php:513
 msgid "Next"
 msgstr "Następna"
 
-#: includes/class-lstab-renderer.php:496 includes/class-lstab-renderer.php:498
+#: includes/class-lstab-renderer.php:519 includes/class-lstab-renderer.php:521
 msgid "No rows match your search."
 msgstr "Żaden wiersz nie pasuje do wyszukiwania."
 
@@ -470,7 +470,7 @@ msgid "Optional. Anything you leave untouched follows the preset above, so you c
 msgstr "Opcjonalne. Wszystko, czego nie ruszysz, podąża za presetem powyżej, więc możesz zmienić jeden kolor bez definiowania reszty. Podgląd aktualizuje się na bieżąco."
 
 #. translators: 1: current page, 2: number of pages.
-#: includes/class-lstab-renderer.php:477
+#: includes/class-lstab-renderer.php:500
 msgid "Page %1$s of %2$s"
 msgstr "Strona %1$s z %2$s"
 
@@ -510,7 +510,7 @@ msgstr "Podgląd nie powiódł się"
 msgid "Preview width"
 msgstr "Szerokość podglądu"
 
-#: includes/class-lstab-renderer.php:466 includes/class-lstab-renderer.php:469
+#: includes/class-lstab-renderer.php:489 includes/class-lstab-renderer.php:492
 msgid "Previous"
 msgstr "Poprzednia"
 
@@ -617,11 +617,11 @@ msgstr "Harmonogram"
 msgid "Scheduled syncing is switched off on this site."
 msgstr "Zaplanowana synchronizacja jest na tej stronie wyłączona."
 
-#: includes/class-lstab-renderer.php:455
+#: includes/class-lstab-renderer.php:478
 msgid "Scroll the table sideways"
 msgstr "Przewiń tabelę w bok"
 
-#: includes/class-lstab-renderer.php:290
+#: includes/class-lstab-renderer.php:313
 msgid "Search"
 msgstr "Szukaj"
 
@@ -629,15 +629,15 @@ msgstr "Szukaj"
 msgid "Search box"
 msgstr "Pole wyszukiwania"
 
-#: includes/class-lstab-renderer.php:287
+#: includes/class-lstab-renderer.php:310
 msgid "Search the whole sheet…"
 msgstr "Szukaj w całym arkuszu…"
 
-#: includes/class-lstab-renderer.php:282 includes/class-lstab-renderer.php:313
+#: includes/class-lstab-renderer.php:305 includes/class-lstab-renderer.php:336
 msgid "Search this table"
 msgstr "Przeszukaj tabelę"
 
-#: includes/class-lstab-renderer.php:316
+#: includes/class-lstab-renderer.php:339
 msgid "Search…"
 msgstr "Szukaj…"
 
@@ -727,7 +727,7 @@ msgid "Small"
 msgstr "Mała"
 
 #. translators: %s: column name.
-#: includes/class-lstab-renderer.php:368
+#: includes/class-lstab-renderer.php:391
 msgid "Sort by %s"
 msgstr "Sortuj według: %s"
 
@@ -780,7 +780,7 @@ msgstr "Zakładka: %s"
 msgid "Table options"
 msgstr "Opcje tabeli"
 
-#: includes/class-lstab-renderer.php:463
+#: includes/class-lstab-renderer.php:486
 msgid "Table pages"
 msgstr "Strony tabeli"
 
@@ -788,7 +788,7 @@ msgstr "Strony tabeli"
 msgid "Table with a slider"
 msgstr "Tabela z suwakiem"
 
-#: includes/class-lstab-renderer.php:331
+#: includes/class-lstab-renderer.php:354
 msgid "Table, scrollable sideways"
 msgstr "Tabela, przewijana w bok"
 
@@ -886,7 +886,7 @@ msgid "Untitled sheet"
 msgstr "Arkusz bez tytułu"
 
 #. translators: %s: human readable time difference, e.g. "5 mins".
-#: includes/class-lstab-renderer.php:510
+#: includes/class-lstab-renderer.php:533
 msgid "Updated %s ago"
 msgstr "Zaktualizowano %s temu"
 
