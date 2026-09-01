@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.4.0
+Stable tag: 2.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,7 +24,7 @@ Most sheet plugins fetch from Google while your visitor waits, which is why tabl
 
 * A scheduled job fetches the sheet in the background and stores it in your database.
 * Pages render that local copy in PHP, as a real `<table>` element.
-* Tables that need to be right to the minute can check for changes before the page is drawn, with a hard four-second cap and the stored copy as the fallback.
+* A table older than its interval is checked before the page is drawn, with a hard four-second cap and the stored copy as the fallback — so a site nobody visits, or a host that blocks WordPress schedules, does not quietly publish last week's prices.
 * Nothing depends on JavaScript to draw the table, so it is readable to search engines and to browsers where a script has failed.
 
 = It keeps working when the sheet does not =
@@ -48,7 +48,7 @@ Paste your link and the parser shows you exactly what it read — headings, rows
 * Optional paging for long sheets, with searching and sorting that still cover every row.
 * A "Google Sheets Table" block, an Elementor widget, and a `[sheet_table id="123"]` shortcode for everything else — all three driven by the same renderer.
 * Background sync every 15 minutes, plus a "Refresh now" button.
-* An option, per table, to check for changes before the page is drawn when the local copy has gone stale — capped at four seconds, and falling back to the copy you already have.
+* A guarantee that whoever opens the page sees data no older than the interval you set — if the schedule has not run, the check happens as the page is drawn, capped at four seconds and falling back to the copy you already have.
 * Optional search box and sortable columns (numeric-aware, so 1 215,50 sorts above 349,00).
 * Numeric columns detected and right-aligned with tabular figures, so decimals line up.
 * Three polished style presets, each following the reader's light or dark colour scheme.
@@ -156,6 +156,10 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 
 == Changelog ==
 
+= 2.5.0 =
+* Changed: checking a stale table before the page is drawn is no longer a setting — it is simply how the plugin works. Asking a site owner whether their prices should be current has one answer, and a checkbox that is only ever ticked is a question not worth putting on the screen. The schedule is now the only thing to configure: whoever opens the page sees data no older than the interval you chose, whether or not the schedule managed to run. On a site where it is running this costs nothing, because there is never anything to do.
+* Removed: the per-table “also check when someone opens the page” checkbox, and the database column behind it. A site that would rather serve a day-old table than ever make one visitor wait has the lstab_refresh_on_view filter.
+
 = 2.4.0 =
 * Added: a per-table option to check Google before the page is drawn, when the local copy is older than that table's schedule. WordPress has no clock of its own — the schedule runs on a visit, in a request of its own, after the page has already been sent — so the visitor who triggers a check is the one who sees the old copy. Prices and stock levels can now be right for the visitor who waited. One request checks at a time, the wait is capped at four seconds, and a sheet that is slow, down or newly failing leaves the copy you already have on the page.
 * Added: the dashboard now hands you the exact cron line for your own host, built from your address and your own interval, whenever the schedule is switched off or has fallen behind. WordPress has no clock — its schedule only runs when a page is requested, so a site nobody visits checks nothing, and no plugin can fix that from inside PHP. Telling someone to “set up a system cron” and leaving them to work out what to type is most of that problem.
@@ -258,6 +262,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 2.5.0 =
+One setting instead of two: tables are kept current for whoever opens the page, with nothing to switch on.
 
 = 2.4.0 =
 Tables can now be checked for changes before the page is drawn, so the visitor who waited sees the new data.

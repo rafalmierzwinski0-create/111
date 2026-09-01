@@ -235,7 +235,6 @@ class LSTAB_Admin {
 			'sticky_first'     => empty( $_POST['sticky_first'] ) ? 0 : 1,
 			'link_cells'       => empty( $_POST['link_cells'] ) ? 0 : 1,
 			'per_page'         => isset( $_POST['per_page'] ) ? min( LSTAB_Paging::MAX_PER_PAGE, absint( wp_unslash( $_POST['per_page'] ) ) ) : 0,
-			'refresh_on_view'  => empty( $_POST['refresh_on_view'] ) ? 0 : 1,
 		);
 
 		if ( '' === $data['title'] ) {

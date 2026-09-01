@@ -175,7 +175,7 @@ class LSTAB_Cron {
 			return array(
 				'state'   => 'disabled',
 				'message' => __( 'Scheduled syncing is switched off on this site.', 'live-sheets-table' ),
-				'detail'  => __( 'DISABLE_WP_CRON is set in wp-config.php, which is normal on hosts that run a real system cron. If yours does, your sheets are refreshing on that schedule and nothing is wrong. If it does not, your tables will keep showing the copy they already have until someone presses “Refresh now”.', 'live-sheets-table' ),
+				'detail'  => __( 'DISABLE_WP_CRON is set in wp-config.php, which is normal on hosts that run a real system cron. Your tables are still kept up to date either way: a table older than its interval is checked as the page is drawn. Background checking is simply the tidier way to do it, because then nobody waits.', 'live-sheets-table' ),
 			);
 		}
 
@@ -213,7 +213,7 @@ class LSTAB_Cron {
 					__( 'Sheets have not been checked for %s.', 'live-sheets-table' ),
 					human_time_diff( $last ? $last : time() - $overdue, time() )
 				),
-				'detail'  => __( 'WordPress runs scheduled work when someone visits the site, so a quiet site can fall behind. On a site that should be busy this usually means WP-Cron is blocked — by a security plugin, a page cache serving every request, or a host that disables it. Your tables are still showing their last good copy.', 'live-sheets-table' ),
+				'detail'  => __( 'WordPress runs scheduled work when someone visits the site, so a quiet site can fall behind. On a site that should be busy this usually means WP-Cron is blocked — by a security plugin, a page cache serving every request, or a host that disables it. Your tables are not out of date because of it: one is checked as the page is drawn whenever it is older than its interval. It just means a visitor occasionally does the waiting that the schedule should have done for them.', 'live-sheets-table' ),
 			);
 		}
 

@@ -256,7 +256,7 @@ forking the free plugin. The suite exercises these by simulating Pro.
 | Hook | Purpose |
 | --- | --- |
 | `lstab_is_pro` | Flips the tier |
-| `lstab_max_sources` | Number of saved sources (free: 3) |
+| `lstab_max_sources` | Number of saved sources (free: 6) |
 | `lstab_min_sync_interval` | Fastest sync in seconds (free: 900) |
 | `lstab_style_presets` | Register presets, or unlock the Pro-marked ones |
 | `lstab_render_cell` | Replace a cell's HTML — conditional formatting |
@@ -267,6 +267,7 @@ forking the free plugin. The suite exercises these by simulating Pro.
 | `lstab_cell_attributes` | Add attributes to a cell |
 | `lstab_render_rows` | Filter the rows rendered — pagination |
 | `lstab_fetch_url` / `lstab_fetch_args` | Route fetches elsewhere — private sheets |
+| `lstab_refresh_on_view` | Return false to never check a stale table while a visitor waits |
 | `lstab_parsed_table` | Transform the parsed table before it is stored |
 | `lstab_rendered_table`, `lstab_wrapper_classes` | Adjust the output |
 | `lstab_before_sync`, `lstab_after_sync`, `lstab_sync_failed` | Sync lifecycle |

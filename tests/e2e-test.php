@@ -102,6 +102,11 @@ $exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
 lstab_assert( $exists === $table, "Custom table {$table} created", "got: " . var_export( $exists, true ) );
 lstab_assert( (bool) wp_next_scheduled( LSTAB_Cron::TICK_HOOK ), 'Cron tick scheduled on activation' );
 
+// dbDelta adds columns and never removes them, so a setting the plugin has
+// retired would sit in the schema for good unless it is dropped by hand.
+$retired = $wpdb->get_var( $wpdb->prepare( "SHOW COLUMNS FROM {$table} LIKE %s", 'refresh_on_view' ) );
+lstab_assert( null === $retired, 'The retired refresh_on_view column is gone from the schema', var_export( $retired, true ) );
+
 // ---------------------------------------------------------------------------
 
 lstab_section( '2. URL parsing' );
@@ -764,20 +769,28 @@ lstab_set_mock( 'ok', 'main' );
 LSTAB_Sync::run( $source_id );
 delete_transient( 'lstab_view_refresh_' . $source_id );
 
-// Off by default, and off means off: a changed sheet is not fetched by a view.
-lstab_assert( empty( LSTAB_Storage::get( $source_id )['refresh_on_view'] ), 'Refresh on view is off unless asked for' );
+// Stale: the visitor who waits is the one who sees the new data. No setting
+// turns this on, because a site owner asked whether their prices should be
+// current has only one answer.
 lstab_age_source( $source_id, 86400 );
 lstab_set_mock( 'ok', 'second' );
-$off_html = lstab_view( '[sheet_table id="' . $source_id . '"]' );
-lstab_assert( false !== strpos( $off_html, 'Rower górski' ), 'With it off, a stale copy is served as it always was' );
-lstab_assert( false === strpos( $off_html, 'Bike Centrum' ), 'And the changed sheet is not fetched' );
-
-// On, and stale: the visitor who waits is the one who sees the new data.
-LSTAB_Storage::update( $source_id, array( 'refresh_on_view' => 1 ) );
-lstab_age_source( $source_id, 86400 );
 $on_html = lstab_view( '[sheet_table id="' . $source_id . '"]' );
-lstab_assert( false !== strpos( $on_html, 'Bike Centrum' ), 'With it on, the page that triggered the check already shows the new data' );
+lstab_assert( false !== strpos( $on_html, 'Bike Centrum' ), 'A stale table is brought up to date on the page that asked for it' );
 lstab_assert( false === strpos( $on_html, 'Rower górski' ), 'The old copy is gone from that same page' );
+
+// The rare site that would rather serve a day-old table than ever make one
+// visitor wait has a filter, not a checkbox.
+lstab_set_mock( 'ok', 'main' );
+lstab_age_source( $source_id, 86400 );
+add_filter( 'lstab_refresh_on_view', '__return_false' );
+$off_html = lstab_view( '[sheet_table id="' . $source_id . '"]' );
+remove_filter( 'lstab_refresh_on_view', '__return_false' );
+lstab_assert( false !== strpos( $off_html, 'Bike Centrum' ), 'Switched off by filter, the stale copy is served as it always was' );
+lstab_assert( false === strpos( $off_html, 'Rower górski' ), 'And nothing is fetched' );
+
+// A fresh copy of the changed sheet, for the checks that follow.
+lstab_set_mock( 'ok', 'second' );
+LSTAB_Sync::run( $source_id );
 
 // A copy younger than the schedule is left alone, so a busy page does not
 // become a stream of requests to Google.
@@ -878,13 +891,11 @@ $second_id = LSTAB_Storage::insert(
 		'sheet_kind'      => 'doc',
 		'gid'             => '0',
 		'sync_interval'   => 900,
-		'refresh_on_view' => 1,
 	)
 );
 lstab_assert( ! is_wp_error( $second_id ), 'A second source for the two-table page', is_wp_error( $second_id ) ? $second_id->get_error_message() : '' );
 LSTAB_Sync::run( (int) $second_id );
 
-LSTAB_Storage::update( $source_id, array( 'refresh_on_view' => 1 ) );
 lstab_age_source( $source_id, 86400 );
 lstab_age_source( (int) $second_id, 86400 );
 delete_transient( 'lstab_view_refresh_' . $source_id );
@@ -908,7 +919,6 @@ lstab_assert( LSTAB_Sync::is_due( LSTAB_Storage::get( (int) $second_id ) ), 'The
 LSTAB_Storage::delete( (int) $second_id );
 
 // Back to a clean, unattended source for the sections that follow.
-LSTAB_Storage::update( $source_id, array( 'refresh_on_view' => 0 ) );
 delete_transient( 'lstab_view_refresh_' . $source_id );
 lstab_set_mock( 'ok', 'main' );
 LSTAB_Sync::run( $source_id );

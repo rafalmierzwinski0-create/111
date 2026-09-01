@@ -60,9 +60,14 @@ class LSTAB_Sync {
 	 * WordPress has no clock of its own: WP-Cron runs on visits, and it runs
 	 * *after* the page has been sent. So the visitor whose arrival triggers a
 	 * sync is the one who does not benefit from it, and on a quiet site nobody
-	 * triggers one at all. This closes that gap for sources that ask for it —
-	 * the refresh happens before the page is drawn, so the person who waited
-	 * for it is the person who sees it.
+	 * triggers one at all. This closes that gap for every table — the check
+	 * happens before the page is drawn, so the person who waited for it is the
+	 * person who sees it.
+	 *
+	 * It costs nothing on a site where the schedule is working, because there
+	 * is never anything to do: the copy is younger than the interval and this
+	 * returns immediately. It only ever fetches when the schedule has failed to
+	 * keep up, which is exactly when someone needs it to.
 	 *
 	 * Four things keep it from becoming the problem it solves. Only one request
 	 * fetches at a time, so ten simultaneous visitors do not become ten requests
@@ -76,7 +81,23 @@ class LSTAB_Sync {
 	 * @return array<string,mixed> The source, refreshed if it was worth it.
 	 */
 	public static function refresh_for_view( $source ) {
-		if ( empty( $source['refresh_on_view'] ) || empty( $source['id'] ) ) {
+		if ( empty( $source['id'] ) ) {
+			return $source;
+		}
+
+		/**
+		 * Whether a stale table may be checked before the page is drawn.
+		 *
+		 * There is no setting for this, on purpose: a site owner asked whether
+		 * their prices should be current has only one answer, and a checkbox
+		 * that only ever gets ticked is a question not worth asking. The filter
+		 * is here for the rare site that would rather serve a day-old table
+		 * than ever make one visitor wait.
+		 *
+		 * @param bool  $allowed Whether to check.
+		 * @param array $source  Source row.
+		 */
+		if ( ! apply_filters( 'lstab_refresh_on_view', true, $source ) ) {
 			return $source;
 		}
 

@@ -79,6 +79,8 @@ return array(
 		=> 'Widoczne tylko w kokpicie, żeby odróżnić źródła.',
 	'Check Google for changes'                   => 'Sprawdzaj zmiany w Google',
 	'Pro syncs as often as every minute.'        => 'Pro synchronizuje nawet co minutę.',
+	'Whoever opens the page sees data no older than this. Checking normally happens in the background; if it has not run — a quiet site, or a host that blocks WordPress schedules — the check happens as the page is drawn instead, waits at most %d seconds, and falls back to the copy you already have.'
+		=> 'Kto otworzy stronę, zobaczy dane nie starsze niż tyle. Sprawdzanie zwykle odbywa się w tle; jeśli się nie wykonało — witryna bez ruchu albo hosting blokujący harmonogramy WordPressa — sprawdzenie następuje w trakcie rysowania strony, czeka najwyżej %d sekund i wraca do kopii, którą już masz.',
 	'Meanwhile you can update any sheet by hand with “Refresh now”.'
 		=> 'W międzyczasie każdy arkusz zaktualizujesz ręcznie przyciskiem „Odśwież teraz”.',
 	'To check sheets even when nobody visits'
@@ -87,10 +89,6 @@ return array(
 		=> 'WordPress nie ma własnego zegara — jego harmonogram uruchamia się dopiero wtedy, gdy ktoś poprosi o stronę, więc witryna bez ruchu nie sprawdza niczego. Daj mu prawdziwy zegar po stronie hostingu. Większość paneli hostingowych ma ekran „Cron jobs”; wklej tam tę linię:',
 	'No shell access? A free uptime monitor pointed at your home page does the same job, because every visit it makes runs the schedule. %s'
 		=> 'Nie masz dostępu do powłoki? Darmowy monitor dostępności wycelowany w stronę główną zrobi to samo, bo każde jego odwiedziny uruchamiają harmonogram. %s',
-	'Also check when someone opens the page, if the copy is older than the schedule above'
-		=> 'Sprawdzaj też, gdy ktoś otworzy stronę, jeśli kopia jest starsza niż powyższy harmonogram',
-	'Without this, the schedule only runs when someone visits your site, and it runs after that page has already been sent — so the visitor who triggers a check sees the old copy and the next one sees the new. With it, the check happens before the table is drawn. One visitor at a time does the checking, the wait is capped at %d seconds, and if Google is slow or down the page shows the copy you already have. Turn it on for prices and stock, leave it off for a sheet that changes once a week.'
-		=> 'Bez tego harmonogram działa tylko wtedy, gdy ktoś odwiedzi Twoją stronę, i to już po wysłaniu tej strony — więc odwiedzający, który uruchamia sprawdzenie, widzi starą kopię, a nową zobaczy dopiero następny. Z tym sprawdzenie odbywa się przed narysowaniem tabeli. Sprawdza jeden odwiedzający naraz, czekanie jest ograniczone do %d sekund, a jeśli Google jest wolne lub niedostępne, strona pokaże kopię, którą już masz. Włącz to dla cen i stanów magazynowych, zostaw wyłączone dla arkusza zmienianego raz w tygodniu.',
 	'Save changes and sync'                      => 'Zapisz zmiany i zsynchronizuj',
 	'Save source and sync'                       => 'Zapisz źródło i zsynchronizuj',
 
@@ -136,13 +134,13 @@ return array(
 	// Scheduler health.
 	'Scheduled syncing is switched off on this site.'
 		=> 'Zaplanowana synchronizacja jest na tej stronie wyłączona.',
-	'DISABLE_WP_CRON is set in wp-config.php, which is normal on hosts that run a real system cron. If yours does, your sheets are refreshing on that schedule and nothing is wrong. If it does not, your tables will keep showing the copy they already have until someone presses “Refresh now”.'
+	'DISABLE_WP_CRON is set in wp-config.php, which is normal on hosts that run a real system cron. Your tables are still kept up to date either way: a table older than its interval is checked as the page is drawn. Background checking is simply the tidier way to do it, because then nobody waits.'
 		=> 'W pliku wp-config.php ustawiono DISABLE_WP_CRON, co jest normalne na hostingach z prawdziwym systemowym cronem. Jeśli Twój go ma, arkusze odświeżają się według tamtego harmonogramu i wszystko jest w porządku. Jeśli nie ma, tabele będą pokazywać kopię, którą już mają, dopóki ktoś nie naciśnie „Odśwież teraz”.',
 	'The sync schedule is missing.'              => 'Brakuje harmonogramu synchronizacji.',
 	'Another plugin or a maintenance tool may have cleared it. Saving any sheet source restores it.'
 		=> 'Mogła go wyczyścić inna wtyczka albo narzędzie serwisowe. Zapisanie dowolnego źródła arkusza przywraca go.',
 	'Sheets have not been checked for %s.'       => 'Arkusze nie były sprawdzane od %s.',
-	'WordPress runs scheduled work when someone visits the site, so a quiet site can fall behind. On a site that should be busy this usually means WP-Cron is blocked — by a security plugin, a page cache serving every request, or a host that disables it. Your tables are still showing their last good copy.'
+	'WordPress runs scheduled work when someone visits the site, so a quiet site can fall behind. On a site that should be busy this usually means WP-Cron is blocked — by a security plugin, a page cache serving every request, or a host that disables it. Your tables are not out of date because of it: one is checked as the page is drawn whenever it is older than its interval. It just means a visitor occasionally does the waiting that the schedule should have done for them.'
 		=> 'WordPress wykonuje zaplanowane zadania, gdy ktoś odwiedza stronę, więc mało odwiedzana witryna może się opóźniać. Na stronie, która powinna mieć ruch, zwykle oznacza to zablokowany WP-Cron — przez wtyczkę bezpieczeństwa, cache serwujący każde żądanie albo hosting, który go wyłącza. Twoje tabele nadal pokazują ostatnią poprawną kopię.',
 	'Meanwhile you can update any sheet by hand with “Refresh now”. %s'
 		=> 'W międzyczasie możesz zaktualizować dowolny arkusz ręcznie przyciskiem „Odśwież teraz”. %s',
