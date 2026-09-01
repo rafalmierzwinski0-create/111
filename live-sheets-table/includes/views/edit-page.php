@@ -120,9 +120,26 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 					</select>
 					<?php if ( ! $lstab_is_pro ) : ?>
 						<span class="lstab-help">
-							<?php esc_html_e( 'Pages always render from the local copy, so visitors never wait for Google. Pro syncs as often as every minute.', 'live-sheets-table' ); ?>
+							<?php esc_html_e( 'Pro syncs as often as every minute.', 'live-sheets-table' ); ?>
 						</span>
 					<?php endif; ?>
+				</p>
+
+				<p class="lstab-checkbox">
+					<label>
+						<input type="checkbox" name="refresh_on_view" value="1"
+							<?php checked( $lstab_is_edit && ! empty( $source['refresh_on_view'] ) ); ?>>
+						<?php esc_html_e( 'Also check when someone opens the page, if the copy is older than the schedule above', 'live-sheets-table' ); ?>
+					</label>
+					<span class="lstab-help">
+						<?php
+						printf(
+							/* translators: %d: how many seconds a visitor may be made to wait. */
+							esc_html__( 'Without this, the schedule only runs when someone visits your site, and it runs after that page has already been sent — so the visitor who triggers a check sees the old copy and the next one sees the new. With it, the check happens before the table is drawn. One visitor at a time does the checking, the wait is capped at %d seconds, and if Google is slow or down the page shows the copy you already have. Turn it on for prices and stock, leave it off for a sheet that changes once a week.', 'live-sheets-table' ),
+							(int) LSTAB_Sync::VIEW_TIMEOUT
+						);
+						?>
+					</span>
 				</p>
 			</div>
 

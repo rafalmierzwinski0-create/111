@@ -13,6 +13,90 @@ defined( 'ABSPATH' ) || exit;
 class LSTAB_Sync {
 
 	/**
+	 * How long one visitor is made to wait for a sheet, in seconds.
+	 *
+	 * Short on purpose. A stale table is a small problem; a page that hangs
+	 * because Google is slow is the fault this plugin exists to avoid, and it
+	 * would be a strange way to acquire it.
+	 */
+	const VIEW_TIMEOUT = 4;
+
+	/**
+	 * How long one attempt keeps others from trying, in seconds.
+	 */
+	const VIEW_LOCK = 30;
+
+	/**
+	 * Bring a sheet up to date while someone is looking at it.
+	 *
+	 * WordPress has no clock of its own: WP-Cron runs on visits, and it runs
+	 * *after* the page has been sent. So the visitor whose arrival triggers a
+	 * sync is the one who does not benefit from it, and on a quiet site nobody
+	 * triggers one at all. This closes that gap for sources that ask for it —
+	 * the refresh happens before the page is drawn, so the person who waited
+	 * for it is the person who sees it.
+	 *
+	 * Three things keep it from becoming the problem it solves. Only one
+	 * request fetches at a time, so ten simultaneous visitors do not become ten
+	 * requests to Google. The wait is capped, and a sheet that does not answer
+	 * in time leaves the stored copy on the page. And a source that has just
+	 * failed is not retried until its interval has passed, so a broken sheet
+	 * costs one slow page rather than every page.
+	 *
+	 * @param array<string,mixed> $source Source row.
+	 * @return array<string,mixed> The source, refreshed if it was worth it.
+	 */
+	public static function refresh_for_view( $source ) {
+		if ( empty( $source['refresh_on_view'] ) || empty( $source['id'] ) ) {
+			return $source;
+		}
+
+		// Cron already has its own turn at this, and nobody is waiting there.
+		if ( wp_doing_cron() ) {
+			return $source;
+		}
+
+		// Never while another request is already doing it.
+		$lock = 'lstab_view_refresh_' . (int) $source['id'];
+
+		if ( get_transient( $lock ) ) {
+			return $source;
+		}
+
+		$interval = max( 60, (int) $source['sync_interval'] );
+		$attempt  = empty( $source['last_attempt_gmt'] ) ? 0 : strtotime( $source['last_attempt_gmt'] . ' UTC' );
+
+		// Measured from the last attempt rather than the last success, so a
+		// sheet that keeps failing is not fetched again on every page view.
+		if ( $attempt && ( time() - $attempt ) < $interval ) {
+			return $source;
+		}
+
+		set_transient( $lock, 1, self::VIEW_LOCK );
+
+		$shorten = function ( $args ) {
+			$args['timeout'] = self::VIEW_TIMEOUT;
+
+			return $args;
+		};
+
+		add_filter( 'lstab_fetch_args', $shorten, 99 );
+		$result = self::run( (int) $source['id'] );
+		remove_filter( 'lstab_fetch_args', $shorten, 99 );
+
+		delete_transient( $lock );
+
+		if ( is_wp_error( $result ) ) {
+			// The stored copy is still on the page, which is the whole promise.
+			return $source;
+		}
+
+		$fresh = LSTAB_Storage::get( (int) $source['id'] );
+
+		return $fresh ? $fresh : $source;
+	}
+
+	/**
 	 * Sync a single source.
 	 *
 	 * On failure the stored snapshot is deliberately left alone, so the front

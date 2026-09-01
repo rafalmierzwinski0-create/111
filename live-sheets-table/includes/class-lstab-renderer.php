@@ -73,6 +73,15 @@ class LSTAB_Renderer {
 			);
 		}
 
+		/*
+		 * Sources set to refresh on view get their chance here, before a single
+		 * row is drawn, so the person who waited for the fetch is the person who
+		 * sees the result. It returns the stored copy unchanged when the sheet
+		 * is fresh enough, when another request is already fetching, or when
+		 * Google does not answer in time.
+		 */
+		$source = LSTAB_Sync::refresh_for_view( $source );
+
 		if ( empty( $source['data']['headers'] ) && empty( $source['data']['rows'] ) ) {
 			// Nothing has ever synced. Admins get a hint; visitors get nothing.
 			return self::notice(

@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.3.0
+Stable tag: 2.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,6 +24,7 @@ Most sheet plugins fetch from Google while your visitor waits, which is why tabl
 
 * A scheduled job fetches the sheet in the background and stores it in your database.
 * Pages render that local copy in PHP, as a real `<table>` element.
+* Tables that need to be right to the minute can check for changes before the page is drawn, with a hard four-second cap and the stored copy as the fallback.
 * Nothing depends on JavaScript to draw the table, so it is readable to search engines and to browsers where a script has failed.
 
 = It keeps working when the sheet does not =
@@ -47,6 +48,7 @@ Paste your link and the parser shows you exactly what it read — headings, rows
 * Optional paging for long sheets, with searching and sorting that still cover every row.
 * A "Google Sheets Table" block, an Elementor widget, and a `[sheet_table id="123"]` shortcode for everything else — all three driven by the same renderer.
 * Background sync every 15 minutes, plus a "Refresh now" button.
+* An option, per table, to check for changes before the page is drawn when the local copy has gone stale — capped at four seconds, and falling back to the copy you already have.
 * Optional search box and sortable columns (numeric-aware, so 1 215,50 sorts above 349,00).
 * Numeric columns detected and right-aligned with tabular figures, so decimals line up.
 * Three polished style presets, each following the reader's light or dark colour scheme.
@@ -154,6 +156,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 
 == Changelog ==
 
+= 2.4.0 =
+* Added: a per-table option to check Google before the page is drawn, when the local copy is older than that table's schedule. WordPress has no clock of its own — the schedule runs on a visit, in a request of its own, after the page has already been sent — so the visitor who triggers a check is the one who sees the old copy. Prices and stock levels can now be right for the visitor who waited. One request checks at a time, the wait is capped at four seconds, and a sheet that is slow, down or newly failing leaves the copy you already have on the page.
+
 = 2.3.0 =
 * Added: an Elementor widget, in a "Google Sheets" category of its own. Elementor keeps its own catalogue, so a plugin that is not in it is not there at all — its users had to paste a shortcode into a text widget and lose the live preview. The widget hands its settings to the same renderer the block and the shortcode use, so all three agree.
 
@@ -250,6 +255,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 2.4.0 =
+Tables can now be checked for changes before the page is drawn, so the visitor who waited sees the new data.
 
 = 2.3.0 =
 Adds an Elementor widget.

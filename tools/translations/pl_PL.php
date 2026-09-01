@@ -78,8 +78,11 @@ return array(
 	'Only shown in the dashboard, to tell sources apart.'
 		=> 'Widoczne tylko w kokpicie, żeby odróżnić źródła.',
 	'Check Google for changes'                   => 'Sprawdzaj zmiany w Google',
-	'Pages always render from the local copy, so visitors never wait for Google. Pro syncs as often as every minute.'
-		=> 'Strony zawsze renderują się z lokalnej kopii, więc odwiedzający nigdy nie czekają na Google. Pro synchronizuje nawet co minutę.',
+	'Pro syncs as often as every minute.'        => 'Pro synchronizuje nawet co minutę.',
+	'Also check when someone opens the page, if the copy is older than the schedule above'
+		=> 'Sprawdzaj też, gdy ktoś otworzy stronę, jeśli kopia jest starsza niż powyższy harmonogram',
+	'Without this, the schedule only runs when someone visits your site, and it runs after that page has already been sent — so the visitor who triggers a check sees the old copy and the next one sees the new. With it, the check happens before the table is drawn. One visitor at a time does the checking, the wait is capped at %d seconds, and if Google is slow or down the page shows the copy you already have. Turn it on for prices and stock, leave it off for a sheet that changes once a week.'
+		=> 'Bez tego harmonogram działa tylko wtedy, gdy ktoś odwiedzi Twoją stronę, i to już po wysłaniu tej strony — więc odwiedzający, który uruchamia sprawdzenie, widzi starą kopię, a nową zobaczy dopiero następny. Z tym sprawdzenie odbywa się przed narysowaniem tabeli. Sprawdza jeden odwiedzający naraz, czekanie jest ograniczone do %d sekund, a jeśli Google jest wolne lub niedostępne, strona pokaże kopię, którą już masz. Włącz to dla cen i stanów magazynowych, zostaw wyłączone dla arkusza zmienianego raz w tygodniu.',
 	'Save changes and sync'                      => 'Zapisz zmiany i zsynchronizuj',
 	'Save source and sync'                       => 'Zapisz źródło i zsynchronizuj',
 

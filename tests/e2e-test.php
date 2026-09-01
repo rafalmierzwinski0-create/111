@@ -716,6 +716,117 @@ lstab_assert( array() === (array) get_option( LSTAB_Storage::DISMISSED_OPT, arra
 
 // ---------------------------------------------------------------------------
 
+lstab_section( '8b. Refreshing while the page is being drawn' );
+
+/*
+ * WP-Cron has no clock: it runs on a visit, in a request of its own, after the
+ * page has been sent. The visitor who triggers a sync is therefore the one who
+ * does not benefit from it. Sources may opt into being refreshed before the
+ * table is drawn instead — but only if that can never cost the page.
+ */
+
+/**
+ * Backdate a source's last attempt so it counts as stale.
+ *
+ * @param int $id      Source ID.
+ * @param int $seconds How far back.
+ * @return void
+ */
+function lstab_age_source( $id, $seconds ) {
+	global $wpdb;
+
+	$wpdb->update(
+		LSTAB_Storage::table(),
+		array( 'last_attempt_gmt' => gmdate( 'Y-m-d H:i:s', time() - $seconds ) ),
+		array( 'id' => (int) $id ),
+		array( '%s' ),
+		array( '%d' )
+	);
+
+	LSTAB_Storage::flush_cache( (int) $id );
+}
+
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
+delete_transient( 'lstab_view_refresh_' . $source_id );
+
+// Off by default, and off means off: a changed sheet is not fetched by a view.
+lstab_assert( empty( LSTAB_Storage::get( $source_id )['refresh_on_view'] ), 'Refresh on view is off unless asked for' );
+lstab_age_source( $source_id, 86400 );
+lstab_set_mock( 'ok', 'second' );
+$off_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false !== strpos( $off_html, 'Rower górski' ), 'With it off, a stale copy is served as it always was' );
+lstab_assert( false === strpos( $off_html, 'Bike Centrum' ), 'And the changed sheet is not fetched' );
+
+// On, and stale: the visitor who waits is the one who sees the new data.
+LSTAB_Storage::update( $source_id, array( 'refresh_on_view' => 1 ) );
+lstab_age_source( $source_id, 86400 );
+$on_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false !== strpos( $on_html, 'Bike Centrum' ), 'With it on, the page that triggered the check already shows the new data' );
+lstab_assert( false === strpos( $on_html, 'Rower górski' ), 'The old copy is gone from that same page' );
+
+// A copy younger than the schedule is left alone, so a busy page does not
+// become a stream of requests to Google.
+lstab_set_mock( 'ok', 'main' );
+$fresh_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false !== strpos( $fresh_html, 'Bike Centrum' ), 'A copy younger than the schedule is not fetched again' );
+
+// One request at a time. The lock is what keeps ten simultaneous visitors from
+// becoming ten fetches.
+lstab_age_source( $source_id, 86400 );
+set_transient( 'lstab_view_refresh_' . $source_id, 1, LSTAB_Sync::VIEW_LOCK );
+$locked_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false === strpos( $locked_html, 'Rower górski' ), 'While another request is fetching, this one serves the stored copy' );
+delete_transient( 'lstab_view_refresh_' . $source_id );
+
+// The wait is capped, whatever the source's own settings say.
+$lstab_seen_timeout = null;
+$lstab_spy          = function ( $args ) use ( &$lstab_seen_timeout ) {
+	$lstab_seen_timeout = isset( $args['timeout'] ) ? $args['timeout'] : null;
+	return $args;
+};
+add_filter( 'lstab_fetch_args', $lstab_spy, 100 );
+lstab_age_source( $source_id, 86400 );
+do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+remove_filter( 'lstab_fetch_args', $lstab_spy, 100 );
+lstab_assert(
+	LSTAB_Sync::VIEW_TIMEOUT === $lstab_seen_timeout,
+	'A visitor waits at most ' . LSTAB_Sync::VIEW_TIMEOUT . ' seconds for Google',
+	var_export( $lstab_seen_timeout, true )
+);
+
+// And the whole point: when Google will not answer, the page is unchanged.
+lstab_age_source( $source_id, 86400 );
+delete_transient( 'lstab_view_refresh_' . $source_id );
+lstab_set_mock( 'http_403' );
+$failed_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false !== strpos( $failed_html, '<table' ), 'A failed refresh still renders a table' );
+lstab_assert( false !== strpos( $failed_html, 'Rower górski' ), 'It is the last good copy, not an empty one' );
+lstab_assert( false === stripos( $failed_html, 'lstab-notice' ), 'And the visitor is told nothing about it' );
+
+// A source that keeps failing is retried on the schedule, not on every view.
+$failed_state = LSTAB_Storage::get( $source_id );
+lstab_assert( 'error' === $failed_state['last_status'], 'The failure is recorded for the admin', $failed_state['last_status'] );
+$lstab_attempts = 0;
+$lstab_counter  = function ( $args ) use ( &$lstab_attempts ) {
+	$lstab_attempts++;
+	return $args;
+};
+add_filter( 'lstab_fetch_args', $lstab_counter, 100 );
+delete_transient( 'lstab_view_refresh_' . $source_id );
+do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+remove_filter( 'lstab_fetch_args', $lstab_counter, 100 );
+lstab_assert( 0 === $lstab_attempts, 'A sheet that just failed is not retried on every page view', (string) $lstab_attempts );
+
+// Back to a clean, unattended source for the sections that follow.
+LSTAB_Storage::update( $source_id, array( 'refresh_on_view' => 0 ) );
+delete_transient( 'lstab_view_refresh_' . $source_id );
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
+
+// ---------------------------------------------------------------------------
+
 lstab_section( '9. Cron scheduling' );
 
 lstab_assert( (bool) wp_next_scheduled( LSTAB_Cron::TICK_HOOK ), 'Tick still scheduled' );

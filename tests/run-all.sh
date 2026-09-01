@@ -39,6 +39,11 @@ run_suite() {
 	echo "  PHP notices raised by the plugin: none"
 }
 
+# The free plugin's suite asserts the free tier, so Pro must be off before it —
+# not merely off by the end of the previous run. A site left with Pro active by
+# hand would otherwise fail six free-tier assertions for no reason of the code's.
+php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null
+
 run_suite wp    "WordPress 6.8 (minimum supported)"
 run_suite wp71  "WordPress 7.1 (current)"
 
