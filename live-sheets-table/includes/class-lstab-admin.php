@@ -234,6 +234,7 @@ class LSTAB_Admin {
 			'columns_config'   => isset( $_POST['columns'] ) ? LSTAB_Columns::sanitize( wp_unslash( $_POST['columns'] ) ) : array(),
 			'sticky_first'     => empty( $_POST['sticky_first'] ) ? 0 : 1,
 			'link_cells'       => empty( $_POST['link_cells'] ) ? 0 : 1,
+			'per_page'         => isset( $_POST['per_page'] ) ? min( LSTAB_Paging::MAX_PER_PAGE, absint( wp_unslash( $_POST['per_page'] ) ) ) : 0,
 		);
 
 		if ( '' === $data['title'] ) {

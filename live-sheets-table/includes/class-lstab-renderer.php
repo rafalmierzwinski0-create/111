@@ -35,6 +35,7 @@ class LSTAB_Renderer {
 			'columns'     => null,
 			'sticky'      => null,
 			'filter'      => '',
+			'per_page'    => null,
 		);
 	}
 
@@ -245,6 +246,14 @@ class LSTAB_Renderer {
 			? LSTAB_Customizer::inline_style( $overrides )
 			: '';
 
+		// Set by the paging filter while the rows above were being prepared.
+		$paging = LSTAB_Paging::state( $source_id );
+		$paged  = is_array( $paging );
+
+		if ( $paged ) {
+			$classes[] = 'lstab-paged';
+		}
+
 		self::enqueue_assets();
 
 		ob_start();
@@ -256,7 +265,49 @@ class LSTAB_Renderer {
 				style="<?php echo esc_attr( $inline_style ); ?>"
 			<?php endif; ?>>
 
-			<?php if ( $searchable ) : ?>
+			<?php if ( $searchable && $paged ) : ?>
+				<?php
+				/*
+				 * A paged table holds one page of rows, so searching in the
+				 * browser would search that page and call it the table. This
+				 * goes to the server and looks at the whole sheet.
+				 */
+				?>
+				<div class="lstab-controls">
+					<form class="lstab-search-form" method="get" action="">
+						<?php foreach ( LSTAB_Paging::carried_fields( $source_id ) as $lstab_field => $lstab_value ) : ?>
+							<input type="hidden" name="<?php echo esc_attr( $lstab_field ); ?>" value="<?php echo esc_attr( $lstab_value ); ?>">
+						<?php endforeach; ?>
+						<label class="lstab-search">
+							<span class="screen-reader-text"><?php esc_html_e( 'Search this table', 'live-sheets-table' ); ?></span>
+							<input type="search"
+								class="lstab-search-input"
+								name="<?php echo esc_attr( LSTAB_Paging::arg( $source_id, 'q' ) ); ?>"
+								value="<?php echo esc_attr( $paging['request']['q'] ); ?>"
+								placeholder="<?php esc_attr_e( 'Search the whole sheet…', 'live-sheets-table' ); ?>"
+								autocomplete="off">
+						</label>
+						<button type="submit" class="lstab-search-go"><?php esc_html_e( 'Search', 'live-sheets-table' ); ?></button>
+						<?php if ( '' !== $paging['request']['q'] ) : ?>
+							<a class="lstab-search-clear" href="<?php echo esc_url( LSTAB_Paging::url( $source_id, array( 'q' => null, 'page' => null ) ) ); ?>">
+								<?php esc_html_e( 'Clear', 'live-sheets-table' ); ?>
+							</a>
+						<?php endif; ?>
+					</form>
+					<span class="lstab-count">
+						<?php
+						echo esc_html(
+							sprintf(
+								/* translators: 1: rows matching, 2: rows in the sheet. */
+								__( '%1$s of %2$s rows', 'live-sheets-table' ),
+								number_format_i18n( $paging['matched'] ),
+								number_format_i18n( $paging['total'] )
+							)
+						);
+						?>
+					</span>
+				</div>
+			<?php elseif ( $searchable ) : ?>
 				<div class="lstab-controls">
 					<label class="lstab-search">
 						<span class="screen-reader-text"><?php esc_html_e( 'Search this table', 'live-sheets-table' ); ?></span>
@@ -288,7 +339,27 @@ class LSTAB_Renderer {
 								<th scope="col" role="columnheader"
 									data-lstab-col="<?php echo esc_attr( (string) $index ); ?>"
 									data-lstab-align="<?php echo esc_attr( isset( $alignments[ $index ] ) ? $alignments[ $index ] : 'start' ); ?>">
-									<?php if ( $sortable ) : ?>
+									<?php if ( $sortable && $paged ) : ?>
+										<?php
+										/*
+										 * Sorting one page of a long table
+										 * would order the rows that happen to
+										 * be on screen and leave the rest
+										 * where they were, so this goes to the
+										 * server like the search does.
+										 */
+										$lstab_active = (int) $paging['request']['sort'] === (int) $index;
+										$lstab_next   = ( $lstab_active && 'asc' === $paging['request']['dir'] ) ? 'desc' : 'asc';
+										?>
+										<a class="lstab-sort<?php echo $lstab_active ? ' is-sorted is-' . esc_attr( $paging['request']['dir'] ) : ''; ?>"
+											href="<?php echo esc_url( LSTAB_Paging::url( $source_id, array( 'sort' => $index, 'dir' => $lstab_next, 'page' => null ) ) ); ?>"
+											<?php if ( $lstab_active ) : ?>
+												aria-sort="<?php echo 'asc' === $paging['request']['dir'] ? 'ascending' : 'descending'; ?>"
+											<?php endif; ?>>
+											<span class="lstab-sort-label"><?php echo esc_html( (string) $header ); ?></span>
+											<span class="lstab-sort-icon" aria-hidden="true"></span>
+										</a>
+									<?php elseif ( $sortable ) : ?>
 										<button type="button" class="lstab-sort" aria-label="
 											<?php
 											echo esc_attr(
@@ -388,7 +459,42 @@ class LSTAB_Renderer {
 				</div>
 			</div>
 
-			<?php if ( $searchable ) : ?>
+			<?php if ( $paged && $paging['pages'] > 1 ) : ?>
+				<nav class="lstab-pager" aria-label="<?php esc_attr_e( 'Table pages', 'live-sheets-table' ); ?>">
+					<?php if ( $paging['page'] > 1 ) : ?>
+						<a class="lstab-page-link" rel="prev" href="<?php echo esc_url( LSTAB_Paging::url( $source_id, array( 'page' => $paging['page'] - 1 ) ) ); ?>">
+							<?php esc_html_e( 'Previous', 'live-sheets-table' ); ?>
+						</a>
+					<?php else : ?>
+						<span class="lstab-page-link is-disabled"><?php esc_html_e( 'Previous', 'live-sheets-table' ); ?></span>
+					<?php endif; ?>
+
+					<span class="lstab-page-of">
+						<?php
+						echo esc_html(
+							sprintf(
+								/* translators: 1: current page, 2: number of pages. */
+								__( 'Page %1$s of %2$s', 'live-sheets-table' ),
+								number_format_i18n( $paging['page'] ),
+								number_format_i18n( $paging['pages'] )
+							)
+						);
+						?>
+					</span>
+
+					<?php if ( $paging['page'] < $paging['pages'] ) : ?>
+						<a class="lstab-page-link" rel="next" href="<?php echo esc_url( LSTAB_Paging::url( $source_id, array( 'page' => $paging['page'] + 1 ) ) ); ?>">
+							<?php esc_html_e( 'Next', 'live-sheets-table' ); ?>
+						</a>
+					<?php else : ?>
+						<span class="lstab-page-link is-disabled"><?php esc_html_e( 'Next', 'live-sheets-table' ); ?></span>
+					<?php endif; ?>
+				</nav>
+			<?php endif; ?>
+
+			<?php if ( $paged && 0 === $paging['matched'] ) : ?>
+				<p class="lstab-no-results"><?php esc_html_e( 'No rows match your search.', 'live-sheets-table' ); ?></p>
+			<?php elseif ( $searchable ) : ?>
 				<p class="lstab-no-results" hidden><?php esc_html_e( 'No rows match your search.', 'live-sheets-table' ); ?></p>
 			<?php endif; ?>
 
@@ -478,6 +584,54 @@ class LSTAB_Renderer {
 	 * @param string $value Raw cell value.
 	 * @return bool
 	 */
+	/**
+	 * Whether a value reads as a number, for anything outside this class.
+	 *
+	 * Server-side sorting has to answer exactly the question the alignment
+	 * detection already answers, and two answers would eventually disagree.
+	 *
+	 * @param string $value Cell value.
+	 * @return bool
+	 */
+	public static function looks_numeric( $value ) {
+		return self::is_numeric_value( (string) $value );
+	}
+
+	/**
+	 * A spreadsheet-formatted number as a float.
+	 *
+	 * Handles a space or a full stop as the thousands separator and a comma or
+	 * a full stop as the decimal one, which is the difference between 1 215,50
+	 * sorting above 349,00 and below it.
+	 *
+	 * @param string $value Cell value.
+	 * @return float
+	 */
+	public static function to_number( $value ) {
+		$cleaned = preg_replace( '/[\p{Sc}%\s\x{00A0}\x{202F}\x{2009}]/u', '', (string) $value );
+		$cleaned = preg_replace( '/(?<=[0-9])\p{L}{1,3}$/u', '', (string) $cleaned );
+
+		if ( null === $cleaned || '' === $cleaned ) {
+			return 0.0;
+		}
+
+		$last_comma = strrpos( $cleaned, ',' );
+		$last_dot   = strrpos( $cleaned, '.' );
+
+		if ( false !== $last_comma && false !== $last_dot ) {
+			// Whichever comes last is the decimal separator.
+			$cleaned = $last_comma > $last_dot
+				? str_replace( array( '.', ',' ), array( '', '.' ), $cleaned )
+				: str_replace( ',', '', $cleaned );
+		} elseif ( false !== $last_comma ) {
+			$cleaned = substr_count( $cleaned, ',' ) > 1
+				? str_replace( ',', '', $cleaned )
+				: str_replace( ',', '.', $cleaned );
+		}
+
+		return is_numeric( $cleaned ) ? (float) $cleaned : 0.0;
+	}
+
 	protected static function is_numeric_value( $value ) {
 		// Strip currency symbols, percent signs and every flavour of space.
 		$cleaned = preg_replace( '/[\p{Sc}%\s\x{00A0}\x{202F}\x{2009}]/u', '', $value );

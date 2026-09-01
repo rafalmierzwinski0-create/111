@@ -168,7 +168,7 @@ $lstab_can_add = LSTAB_Limits::can_add_source();
 			<div class="lstab-upsell">
 				<h3><?php esc_html_e( 'Need more than one sheet?', 'live-sheets-table' ); ?></h3>
 				<p>
-					<?php esc_html_e( 'Pro adds unlimited sources, one-minute syncing, conditional cell formatting, pagination, premium presets and private-sheet support.', 'live-sheets-table' ); ?>
+					<?php esc_html_e( 'Pro adds unlimited sources, one-minute syncing, conditional cell formatting, filtered views, premium presets and private-sheet support.', 'live-sheets-table' ); ?>
 				</p>
 				<a class="button button-secondary" href="<?php echo esc_url( LSTAB_Limits::upgrade_url() ); ?>" target="_blank" rel="noopener noreferrer">
 					<?php esc_html_e( 'Compare Free and Pro', 'live-sheets-table' ); ?>

@@ -55,6 +55,13 @@ class LSTAB_Plugin {
 	public $links;
 
 	/**
+	 * Server-side paging.
+	 *
+	 * @var LSTAB_Paging
+	 */
+	public $paging;
+
+	/**
 	 * Register everything.
 	 *
 	 * @return void
@@ -66,6 +73,7 @@ class LSTAB_Plugin {
 		$this->rest      = new LSTAB_Rest();
 		$this->shortcode = new LSTAB_Shortcode();
 		$this->links     = new LSTAB_Links();
+		$this->paging    = new LSTAB_Paging();
 
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 		add_action( 'init', array( $this, 'register_assets' ) );
@@ -76,6 +84,7 @@ class LSTAB_Plugin {
 		$this->rest->register();
 		$this->shortcode->register();
 		$this->links->register();
+		$this->paging->register();
 
 		if ( is_admin() ) {
 			$this->admin->register();

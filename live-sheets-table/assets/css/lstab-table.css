@@ -985,3 +985,78 @@
 .lstab-even {
 	--lstab-table-min: 0;
 }
+
+/* ------------------------------------------------------------------- pager */
+
+/*
+ * A paged table does its searching and sorting on the server, so these are
+ * links and a form rather than script-driven controls. They are styled to
+ * match the ones they replace.
+ */
+.lstab-search-form {
+	display: flex;
+	gap: 0.4em;
+	align-items: center;
+	flex: 1 1 auto;
+	min-width: 0;
+	margin: 0;
+}
+
+.lstab-search-go {
+	flex: none;
+	padding: 0.45em 0.9em;
+	border: 1px solid var(--lstab-border-strong);
+	border-radius: 8px;
+	background: var(--lstab-bg);
+	color: var(--lstab-fg);
+	font: inherit;
+	cursor: pointer;
+}
+
+.lstab-search-go:hover {
+	border-color: var(--lstab-accent);
+}
+
+.lstab-search-clear {
+	flex: none;
+	color: var(--lstab-fg-faint);
+	font-size: 0.9em;
+}
+
+.lstab-pager {
+	display: flex;
+	gap: 0.9em;
+	align-items: center;
+	justify-content: center;
+	margin-top: 0.9em;
+	font-size: 0.92em;
+}
+
+.lstab-page-link {
+	padding: 0.35em 0.8em;
+	border: 1px solid var(--lstab-border);
+	border-radius: 8px;
+	color: var(--lstab-accent);
+	text-decoration: none;
+}
+
+.lstab-page-link:hover {
+	border-color: var(--lstab-accent);
+}
+
+/* Kept in the flow rather than removed, so the row does not jump about as a
+   visitor reaches the first or last page. */
+.lstab-page-link.is-disabled {
+	color: var(--lstab-fg-faint);
+	border-color: transparent;
+}
+
+.lstab-page-of {
+	color: var(--lstab-fg-faint);
+}
+
+/* The sort control is a link here, not a button, and has to look the same. */
+.lstab-table thead th a.lstab-sort {
+	text-decoration: none;
+	color: inherit;
+}

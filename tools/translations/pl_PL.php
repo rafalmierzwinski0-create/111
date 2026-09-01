@@ -278,8 +278,8 @@ return array(
 
 	// Upsell.
 	'Need more than one sheet?'                  => 'Potrzebujesz więcej niż jednego arkusza?',
-	'Pro adds unlimited sources, one-minute syncing, conditional cell formatting, pagination, premium presets and private-sheet support.'
-		=> 'Pro dodaje nielimitowaną liczbę źródeł, synchronizację co minutę, formatowanie warunkowe komórek, paginację, presety premium i obsługę arkuszy prywatnych.',
+	'Pro adds unlimited sources, one-minute syncing, conditional cell formatting, filtered views, premium presets and private-sheet support.'
+		=> 'Pro dodaje nielimitowaną liczbę źródeł, synchronizację co minutę, formatowanie warunkowe komórek, widoki filtrowane, presety premium i obsługę arkuszy prywatnych.',
 	'Compare Free and Pro'                       => 'Porównaj wersję darmową i Pro',
 	'See what Pro adds'                          => 'Zobacz, co daje Pro',
 	'Pro'                                        => 'Pro',
@@ -311,6 +311,16 @@ return array(
 	'%1$s characters received.'                  => 'Odebrano %1$s znaków.',
 	'Look at row %1$s: it came back with a different number of cells than the rest.'
 		=> 'Zobacz wiersz %1$s: wrócił z inną liczbą komórek niż reszta.',
+	'Rows per page'                              => 'Wierszy na stronę',
+	'Leave at 0 to put the whole sheet on the page. Any other number splits it, and searching and sorting then happen on the server across the whole sheet rather than on the page in front of you — so a search still finds a row on page nine.'
+		=> 'Zostaw 0, aby cały arkusz był na jednej stronie. Każda inna liczba dzieli go na strony, a wyszukiwanie i sortowanie przenoszą się wtedy na serwer i obejmują cały arkusz, a nie tylko stronę, którą masz przed sobą — więc wyszukiwarka nadal znajdzie wiersz ze strony dziewiątej.',
+	'Search the whole sheet…'                    => 'Szukaj w całym arkuszu…',
+	'Search'                                     => 'Szukaj',
+	'Clear'                                      => 'Wyczyść',
+	'Table pages'                                => 'Strony tabeli',
+	'Previous'                                   => 'Poprzednia',
+	'Next'                                       => 'Następna',
+	'Page %1$s of %2$s'                          => 'Strona %1$s z %2$s',
 
 	// Plurals: Polish has three forms.
 	'The free version keeps %d sheet source'     => array(

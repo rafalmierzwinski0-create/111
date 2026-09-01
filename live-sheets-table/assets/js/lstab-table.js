@@ -320,6 +320,16 @@
 		}
 		root.dataset.lstabReady = '1';
 
+		/*
+		 * A paged table holds one page of the sheet. Searching or sorting it
+		 * here would work on that page and present the result as the whole
+		 * table, so both are done on the server and the controls are ordinary
+		 * links and a form. The slider still applies: it is about width.
+		 */
+		if ( root.classList.contains( 'lstab-paged' ) ) {
+			return;
+		}
+
 		initSlider( root );
 
 		var table = root.querySelector( '.lstab-table' );

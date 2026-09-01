@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.1.0
+Stable tag: 2.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,6 +44,7 @@ Paste your link and the parser shows you exactly what it read — headings, rows
 
 * Unlimited rows.
 * Six saved sheet sources.
+* Optional paging for long sheets, with searching and sorting that still cover every row.
 * A "Google Sheets Table" block plus a `[sheet_table id="123"]` shortcode, both driven by the same renderer.
 * Background sync every 15 minutes, plus a "Refresh now" button.
 * Optional search box and sortable columns (numeric-aware, so 1 215,50 sorts above 349,00).
@@ -59,7 +60,7 @@ Paste your link and the parser shows you exactly what it read — headings, rows
 
 = Pro =
 
-Live Sheets Table Pro adds unlimited sheet sources, syncing as often as every minute, conditional cell formatting, pagination for large tables, premium presets and custom CSS, private-sheet support through an authenticated connection, a multi-site licence and priority support.
+Live Sheets Table Pro adds unlimited sheet sources, syncing as often as every minute, conditional cell formatting, filtered views, premium presets, private-sheet support through an authenticated connection, a multi-site licence and priority support.
 
 = Privacy =
 
@@ -122,7 +123,7 @@ Columns are matched by position, so inserting one in Google shifts the settings.
 
 Pick one of three presets, then fine-tune it: the source screen has colour pickers for text, background, headings, lines, striped rows, hover and accent, plus text size, row height and corner rounding. Anything you leave alone keeps following the preset, so changing one colour does not mean defining all of them.
 
-Every value is a CSS custom property on `.lstab`, so a theme stylesheet can override the same things. Extra presets and a free-form custom CSS field are Pro features.
+Every value is a CSS custom property on `.lstab`, so a theme stylesheet can override the same things. Extra presets are a Pro feature.
 
 = Does WP-Cron have to be working? =
 
@@ -152,6 +153,11 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 2.2.0 =
+* Added: paging, set per table as a number of rows per page. A sheet with no row limit eventually makes a page nobody wants to download; this splits it without capping anything.
+* Added: with paging on, searching and sorting move to the server and work across the whole sheet. Searching the rows that happen to be on screen and calling the result the table would be worse than not offering it — a search from page one still finds a row on page nine. Every control is an ordinary link or form, so each page has its own address and needs no JavaScript.
+* Changed: a column left out of the table can no longer be reached by searching for its contents.
 
 = 2.1.0 =
 * Changed: the free version now keeps six sheet sources instead of three. Three turned people away at the third page they wanted to publish, which is not what the paid tier is for — rows are, and those have never been capped.
@@ -241,6 +247,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 2.2.0 =
+Adds paging, with searching and sorting that still cover the whole sheet.
 
 = 2.1.0 =
 The free version now keeps six sheet sources instead of three.

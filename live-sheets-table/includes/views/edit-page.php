@@ -162,6 +162,16 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 					</span>
 				</p>
 
+				<p class="lstab-field">
+					<label for="lstab-per-page"><?php esc_html_e( 'Rows per page', 'live-sheets-table' ); ?></label>
+					<input type="number" id="lstab-per-page" name="per_page" min="0" max="500" step="1"
+						class="small-text"
+						value="<?php echo esc_attr( (string) ( $lstab_is_edit && isset( $source['per_page'] ) ? (int) $source['per_page'] : 0 ) ); ?>">
+					<span class="lstab-help">
+						<?php esc_html_e( 'Leave at 0 to put the whole sheet on the page. Any other number splits it, and searching and sorting then happen on the server across the whole sheet rather than on the page in front of you — so a search still finds a row on page nine.', 'live-sheets-table' ); ?>
+					</span>
+				</p>
+
 				<p class="lstab-checkbox">
 					<label>
 						<input type="checkbox" name="link_cells" value="1"

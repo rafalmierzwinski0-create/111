@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-08-30 06:55+0000\n"
+"POT-Creation-Date: 2026-09-01 07:37+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,8 @@ msgstr ""
 msgid "%1$s characters received."
 msgstr ""
 
-#: includes/class-lstab-renderer.php:269
+#. translators: 1: rows matching, 2: rows in the sheet.
+#: includes/class-lstab-renderer.php:302 includes/class-lstab-renderer.php:320
 msgid "%1$s of %2$s rows"
 msgstr ""
 
@@ -25,7 +26,7 @@ msgstr ""
 msgid "%1$s rows × %2$s cols"
 msgstr ""
 
-#: includes/views/edit-page.php:373
+#: includes/views/edit-page.php:383
 msgid "(no longer there)"
 msgstr ""
 
@@ -41,15 +42,15 @@ msgstr ""
 msgid "3. Pick a look"
 msgstr ""
 
-#: includes/views/edit-page.php:206
+#: includes/views/edit-page.php:216
 msgid "4. Fine-tune the look"
 msgstr ""
 
-#: includes/views/edit-page.php:172
+#: includes/views/edit-page.php:182
 msgid "A link in a cell is otherwise plain text a visitor has to select and copy, which on a phone is close to impossible. Only http, https and e-mail addresses are linked."
 msgstr ""
 
-#: includes/views/edit-page.php:295
+#: includes/views/edit-page.php:305
 msgid "A wide table becomes one card per row once its column gets too narrow. Use these to check both before you publish."
 msgstr ""
 
@@ -114,7 +115,7 @@ msgstr ""
 msgid "Bordered"
 msgstr ""
 
-#: includes/views/edit-page.php:447
+#: includes/views/edit-page.php:457
 msgid "Cancel"
 msgstr ""
 
@@ -134,19 +135,23 @@ msgstr ""
 msgid "Clean"
 msgstr ""
 
+#: includes/class-lstab-renderer.php:293
+msgid "Clear"
+msgstr ""
+
 #. translators: 1: column number, 2: heading that used to be there, 3: heading
 #. there now.
-#: includes/views/edit-page.php:370
+#: includes/views/edit-page.php:380
 msgid "Column %1$d was “%2$s”, now “%3$s”"
 msgstr ""
 
 #. translators: %d: column number.
-#: includes/views/edit-page.php:394 includes/class-lstab-csv-parser.php:336
-#: includes/class-lstab-csv-parser.php:363
+#: includes/views/edit-page.php:404 includes/class-lstab-csv-parser.php:354
+#: includes/class-lstab-csv-parser.php:381
 msgid "Column %d"
 msgstr ""
 
-#: includes/views/edit-page.php:341
+#: includes/views/edit-page.php:351
 msgid "Columns"
 msgstr ""
 
@@ -163,11 +168,11 @@ msgid "Corners"
 msgstr ""
 
 #. translators: %s: underlying transport error.
-#: includes/class-lstab-fetcher.php:193
+#: includes/class-lstab-fetcher.php:223
 msgid "Could not reach Google: %s"
 msgstr ""
 
-#: includes/class-lstab-fetcher.php:95
+#: includes/class-lstab-fetcher.php:125
 msgid "Could not read the tab list for this spreadsheet."
 msgstr ""
 
@@ -175,7 +180,7 @@ msgstr ""
 msgid "Could not read the tab list — the tab from your link will be used."
 msgstr ""
 
-#: includes/class-lstab-storage.php:173
+#: includes/class-lstab-storage.php:176
 msgid "Could not save the sheet source."
 msgstr ""
 
@@ -233,7 +238,7 @@ msgid "Every minute"
 msgstr ""
 
 #. translators: %s: human readable time difference.
-#: includes/class-lstab-admin.php:631
+#: includes/class-lstab-admin.php:632
 msgid "Failing since the last good sync %s ago"
 msgstr ""
 
@@ -249,7 +254,7 @@ msgstr ""
 msgid "Full grid with a shaded header. Good for dense numeric data."
 msgstr ""
 
-#: includes/views/edit-page.php:279
+#: includes/views/edit-page.php:289
 msgid "Full width"
 msgstr ""
 
@@ -262,28 +267,28 @@ msgstr ""
 msgid "Google Sheets link"
 msgstr ""
 
-#: includes/class-lstab-fetcher.php:220
+#: includes/class-lstab-fetcher.php:250
 msgid "Google could not find this spreadsheet (HTTP 404). Check that the link is correct and the file has not been deleted."
 msgstr ""
 
-#: includes/class-lstab-fetcher.php:222
+#: includes/class-lstab-fetcher.php:252
 msgid "Google is rate limiting requests (HTTP 429). The next scheduled sync will try again."
 msgstr ""
 
-#: includes/class-lstab-fetcher.php:218
+#: includes/class-lstab-fetcher.php:248
 msgid "Google refused access to this sheet (HTTP 403). Open the sheet, choose Share, and set access to \"Anyone with the link – Viewer\"."
 msgstr ""
 
 #. translators: %d: HTTP status code.
-#: includes/class-lstab-fetcher.php:226
+#: includes/class-lstab-fetcher.php:256
 msgid "Google responded with HTTP %d."
 msgstr ""
 
-#: includes/class-lstab-fetcher.php:40
+#: includes/class-lstab-fetcher.php:70
 msgid "Google returned a sign-in page instead of data. Open the sheet, choose Share, and set access to \"Anyone with the link – Viewer\"."
 msgstr ""
 
-#: includes/class-lstab-fetcher.php:47
+#: includes/class-lstab-fetcher.php:77
 msgid "Google returned an empty response for this tab."
 msgstr ""
 
@@ -295,7 +300,7 @@ msgstr ""
 msgid "Header text"
 msgstr ""
 
-#: includes/class-lstab-admin.php:423
+#: includes/class-lstab-admin.php:424
 msgid "Hide this until it happens again"
 msgstr ""
 
@@ -307,7 +312,7 @@ msgstr ""
 msgid "Hourly"
 msgstr ""
 
-#: includes/class-lstab-admin.php:564
+#: includes/class-lstab-admin.php:565
 msgid "How to run WordPress schedules from a system cron"
 msgstr ""
 
@@ -315,11 +320,11 @@ msgstr ""
 msgid "In Google Sheets choose Share → General access → “Anyone with the link”, role “Viewer”, then copy the link from your browser. No API key or Google Cloud project is needed."
 msgstr ""
 
-#: includes/views/edit-page.php:385
+#: includes/views/edit-page.php:395
 msgid "In your sheet"
 msgstr ""
 
-#: includes/views/edit-page.php:387
+#: includes/views/edit-page.php:397
 msgid "Include"
 msgstr ""
 
@@ -336,12 +341,16 @@ msgid "Large"
 msgstr ""
 
 #. translators: %s: human readable time difference.
-#: includes/class-lstab-admin.php:620
+#: includes/class-lstab-admin.php:621
 msgid "Last sync OK (%s ago)"
 msgstr ""
 
 #: blocks/sheet-table/index.js:144
 msgid "Layout"
+msgstr ""
+
+#: includes/views/edit-page.php:171
+msgid "Leave at 0 to put the whole sheet on the page. Any other number splits it, and searching and sorting then happen on the server across the whole sheet rather than on the page in front of you — so a search still finds a row on page nine."
 msgstr ""
 
 #: includes/class-lstab-styles.php:24
@@ -356,7 +365,7 @@ msgstr ""
 msgid "Live Sheets Table"
 msgstr ""
 
-#: includes/class-lstab-admin.php:411
+#: includes/class-lstab-admin.php:412
 msgid "Live Sheets Table: a sheet did not come back cleanly."
 msgstr ""
 
@@ -377,7 +386,7 @@ msgstr ""
 msgid "Look at row %1$s: it came back with a different number of cells than the rest."
 msgstr ""
 
-#: includes/views/edit-page.php:169
+#: includes/views/edit-page.php:179
 msgid "Make web and e-mail addresses in cells clickable"
 msgstr ""
 
@@ -386,7 +395,7 @@ msgid "Manage sheet sources"
 msgstr ""
 
 #. translators: %s: link to the WordPress cron documentation.
-#: includes/class-lstab-admin.php:562
+#: includes/class-lstab-admin.php:563
 msgid "Meanwhile you can update any sheet by hand with “Refresh now”. %s"
 msgstr ""
 
@@ -394,7 +403,7 @@ msgstr ""
 msgid "Midnight"
 msgstr ""
 
-#: includes/views/edit-page.php:280
+#: includes/views/edit-page.php:290
 msgid "Narrow column"
 msgstr ""
 
@@ -402,15 +411,19 @@ msgstr ""
 msgid "Need more than one sheet?"
 msgstr ""
 
-#: includes/class-lstab-admin.php:634
+#: includes/class-lstab-admin.php:635
 msgid "Never synced successfully"
 msgstr ""
 
-#: includes/class-lstab-renderer.php:392
+#: includes/class-lstab-renderer.php:487 includes/class-lstab-renderer.php:490
+msgid "Next"
+msgstr ""
+
+#: includes/class-lstab-renderer.php:496 includes/class-lstab-renderer.php:498
 msgid "No rows match your search."
 msgstr ""
 
-#: includes/class-lstab-renderer.php:52
+#: includes/class-lstab-renderer.php:53
 msgid "No sheet selected yet."
 msgstr ""
 
@@ -427,7 +440,7 @@ msgstr ""
 msgid "Normal"
 msgstr ""
 
-#: includes/class-lstab-admin.php:649
+#: includes/class-lstab-admin.php:650
 msgid "Not synced yet"
 msgstr ""
 
@@ -447,12 +460,17 @@ msgstr ""
 msgid "Open in Google Sheets"
 msgstr ""
 
-#: includes/views/edit-page.php:460
+#: includes/views/edit-page.php:470
 msgid "Optional attributes: search=\"no\", sort=\"no\", meta=\"no\", style=\"striped\", caption=\"My table\"."
 msgstr ""
 
-#: includes/views/edit-page.php:208
+#: includes/views/edit-page.php:218
 msgid "Optional. Anything you leave untouched follows the preset above, so you can change one colour without redefining the rest. The preview updates as you go."
+msgstr ""
+
+#. translators: 1: current page, 2: number of pages.
+#: includes/class-lstab-renderer.php:477
+msgid "Page %1$s of %2$s"
 msgstr ""
 
 #: includes/views/edit-page.php:123
@@ -463,7 +481,7 @@ msgstr ""
 msgid "Paste a Google Sheets link first."
 msgstr ""
 
-#: includes/views/edit-page.php:300
+#: includes/views/edit-page.php:310
 msgid "Paste a link and choose “Load preview”."
 msgstr ""
 
@@ -471,7 +489,7 @@ msgstr ""
 msgid "Paste the link to your Google Sheet first."
 msgstr ""
 
-#: includes/views/edit-page.php:281
+#: includes/views/edit-page.php:291
 msgid "Phone"
 msgstr ""
 
@@ -479,7 +497,7 @@ msgstr ""
 msgid "Pick the tab you want to publish:"
 msgstr ""
 
-#: includes/views/edit-page.php:269
+#: includes/views/edit-page.php:279
 msgid "Preview"
 msgstr ""
 
@@ -487,32 +505,36 @@ msgstr ""
 msgid "Preview failed"
 msgstr ""
 
-#: includes/views/edit-page.php:275
+#: includes/views/edit-page.php:285
 msgid "Preview width"
+msgstr ""
+
+#: includes/class-lstab-renderer.php:466 includes/class-lstab-renderer.php:469
+msgid "Previous"
 msgstr ""
 
 #: includes/views/edit-page.php:107
 msgid "Price list"
 msgstr ""
 
-#: includes/views/edit-page.php:189
+#: includes/views/edit-page.php:199
 msgid "Pro"
 msgstr ""
 
 #: includes/views/list-page.php:171
-msgid "Pro adds unlimited sources, one-minute syncing, conditional cell formatting, pagination, premium presets and private-sheet support."
+msgid "Pro adds unlimited sources, one-minute syncing, conditional cell formatting, filtered views, premium presets and private-sheet support."
 msgstr ""
 
 #: includes/views/list-page.php:30
 msgid "Publish your first Google Sheet"
 msgstr ""
 
-#: includes/views/edit-page.php:454
+#: includes/views/edit-page.php:464
 msgid "Put it on a page"
 msgstr ""
 
 #. translators: %s: error message.
-#: includes/class-lstab-admin.php:307
+#: includes/class-lstab-admin.php:308
 msgid "Refresh failed: %s"
 msgstr ""
 
@@ -520,15 +542,15 @@ msgstr ""
 msgid "Refresh now"
 msgstr ""
 
-#: includes/views/edit-page.php:343
+#: includes/views/edit-page.php:353
 msgid "Rename a column for your visitors, or leave it out of the table entirely. Nothing here is written back to Google — your spreadsheet keeps its own headings, including working names nobody should see."
 msgstr ""
 
-#: includes/views/edit-page.php:230
+#: includes/views/edit-page.php:240
 msgid "Reset"
 msgstr ""
 
-#: includes/views/edit-page.php:260
+#: includes/views/edit-page.php:270
 msgid "Reset everything to the preset"
 msgstr ""
 
@@ -542,7 +564,7 @@ msgstr ""
 
 #. translators: 1: number of rows, 2: expected column count, 3: list of row
 #. numbers.
-#: includes/class-lstab-admin.php:531
+#: includes/class-lstab-admin.php:532
 msgid "Row %3$s came back with a different number of cells than the other rows (%2$d), so a value in it may be missing or sitting in the wrong column. Most often a lone quotation mark or a comma inside a value has run two cells into one."
 msgid_plural "%1$d rows came back with a different number of cells than the rest (%2$d), so values in them may be missing or sitting in the wrong column. Most often a lone quotation mark or a comma inside a value has run two cells into one. Rows: %3$s."
 msgstr[0] ""
@@ -560,15 +582,19 @@ msgstr ""
 msgid "Rows are never limited — a source can hold as many rows as your sheet does. To publish several different sheets at once, upgrade to Pro."
 msgstr ""
 
-#: includes/views/edit-page.php:442
+#: includes/views/edit-page.php:166
+msgid "Rows per page"
+msgstr ""
+
+#: includes/views/edit-page.php:452
 msgid "Save changes and sync"
 msgstr ""
 
-#: includes/views/edit-page.php:443
+#: includes/views/edit-page.php:453
 msgid "Save source and sync"
 msgstr ""
 
-#: includes/views/edit-page.php:352
+#: includes/views/edit-page.php:362
 msgid "Save this source first. It is read straight away, and your real columns appear here."
 msgstr ""
 
@@ -577,7 +603,7 @@ msgid "Saved source"
 msgstr ""
 
 #. translators: %s: error message.
-#: includes/class-lstab-admin.php:263
+#: includes/class-lstab-admin.php:264
 msgid "Saved, but the first sync failed: %s"
 msgstr ""
 
@@ -589,19 +615,27 @@ msgstr ""
 msgid "Scheduled syncing is switched off on this site."
 msgstr ""
 
-#: includes/class-lstab-renderer.php:384
+#: includes/class-lstab-renderer.php:455
 msgid "Scroll the table sideways"
+msgstr ""
+
+#: includes/class-lstab-renderer.php:290
+msgid "Search"
 msgstr ""
 
 #: blocks/sheet-table/index.js:120
 msgid "Search box"
 msgstr ""
 
-#: includes/class-lstab-renderer.php:262
+#: includes/class-lstab-renderer.php:287
+msgid "Search the whole sheet…"
+msgstr ""
+
+#: includes/class-lstab-renderer.php:282 includes/class-lstab-renderer.php:313
 msgid "Search this table"
 msgstr ""
 
-#: includes/class-lstab-renderer.php:265
+#: includes/class-lstab-renderer.php:316
 msgid "Search…"
 msgstr ""
 
@@ -617,7 +651,7 @@ msgstr ""
 msgid "Serif headings and hairline rules, styled after print tables."
 msgstr ""
 
-#: includes/views/edit-page.php:362
+#: includes/views/edit-page.php:372
 msgid "Settings below are matched by position, so a column added or removed in Google shifts them. Check that each row still points at the right column:"
 msgstr ""
 
@@ -625,7 +659,7 @@ msgstr ""
 msgid "Share a sheet as “Anyone with the link – Viewer”, paste the link, and check the preview before you save. No API key, no Google Cloud project."
 msgstr ""
 
-#: includes/class-lstab-admin.php:314
+#: includes/class-lstab-admin.php:315
 msgid "Sheet refreshed from Google."
 msgstr ""
 
@@ -633,11 +667,11 @@ msgstr ""
 msgid "Sheet source"
 msgstr ""
 
-#: includes/class-lstab-admin.php:287
+#: includes/class-lstab-admin.php:288
 msgid "Sheet source deleted."
 msgstr ""
 
-#: includes/class-lstab-admin.php:269
+#: includes/class-lstab-admin.php:270
 msgid "Sheet source saved and synced."
 msgstr ""
 
@@ -666,7 +700,7 @@ msgstr ""
 msgid "Show only matching rows, for example: Kategoria is Rowery. Join conditions with “and”. Operators: is, is not, has, gt, gte, lt, lte."
 msgstr ""
 
-#: includes/views/edit-page.php:415
+#: includes/views/edit-page.php:425
 msgid "Show this column"
 msgstr ""
 
@@ -678,7 +712,7 @@ msgstr ""
 msgid "Showing the first 25 rows."
 msgstr ""
 
-#: includes/views/edit-page.php:386
+#: includes/views/edit-page.php:396
 msgid "Shown as"
 msgstr ""
 
@@ -691,7 +725,7 @@ msgid "Small"
 msgstr ""
 
 #. translators: %s: column name.
-#: includes/class-lstab-renderer.php:297
+#: includes/class-lstab-renderer.php:368
 msgid "Sort by %s"
 msgstr ""
 
@@ -723,11 +757,11 @@ msgstr ""
 msgid "Style preset"
 msgstr ""
 
-#: includes/class-lstab-admin.php:641
+#: includes/class-lstab-admin.php:642
 msgid "Sync error — nothing to show yet"
 msgstr ""
 
-#: includes/class-lstab-admin.php:640
+#: includes/class-lstab-admin.php:641
 msgid "Sync error — visitors still see the last good copy"
 msgstr ""
 
@@ -744,11 +778,15 @@ msgstr ""
 msgid "Table options"
 msgstr ""
 
+#: includes/class-lstab-renderer.php:463
+msgid "Table pages"
+msgstr ""
+
 #: blocks/sheet-table/index.js:30
 msgid "Table with a slider"
 msgstr ""
 
-#: includes/class-lstab-renderer.php:280
+#: includes/class-lstab-renderer.php:331
 msgid "Table, scrollable sideways"
 msgstr ""
 
@@ -768,11 +806,11 @@ msgstr ""
 msgid "That sheet source no longer exists."
 msgstr ""
 
-#: includes/views/edit-page.php:360
+#: includes/views/edit-page.php:370
 msgid "The columns in your sheet have moved."
 msgstr ""
 
-#: includes/views/edit-page.php:315
+#: includes/views/edit-page.php:325
 msgid "The exported text, exactly as it arrived, before the plugin read it. If a value looks wrong in the table above, find it here: if it is already wrong here, the sheet is where to fix it. Copy this if you need to send it to support."
 msgstr ""
 
@@ -815,7 +853,7 @@ msgstr ""
 msgid "The usual cause is a value that runs two cells together — a lone quotation mark, or a comma inside a value that was not quoted. It can also be a cell holding a line break, or a copy of the sheet edited by hand rather than exported by Google. Open those rows in your sheet and compare them against the ones around them."
 msgstr ""
 
-#: includes/views/edit-page.php:271
+#: includes/views/edit-page.php:281
 msgid "This is exactly what the parser sees. Check the headings and a few rows before you save — wrong tab, merged cells or a shifted header row show up here, not on your live page."
 msgstr ""
 
@@ -823,11 +861,11 @@ msgstr ""
 msgid "This sheet did not come back cleanly."
 msgstr ""
 
-#: includes/class-lstab-renderer.php:58
+#: includes/class-lstab-renderer.php:59
 msgid "This sheet source no longer exists."
 msgstr ""
 
-#: includes/class-lstab-renderer.php:71
+#: includes/class-lstab-renderer.php:72
 msgid "This table is set to show only some of its rows, but the add-on that does the filtering is not active. Nothing is shown rather than every row, which is not what this page asked for. Activate the add-on, or remove the filter from the block or shortcode."
 msgstr ""
 
@@ -839,12 +877,12 @@ msgstr ""
 msgid "Turn each row into a labelled card"
 msgstr ""
 
-#: includes/class-lstab-admin.php:240
+#: includes/class-lstab-admin.php:241
 msgid "Untitled sheet"
 msgstr ""
 
 #. translators: %s: human readable time difference, e.g. "5 mins".
-#: includes/class-lstab-renderer.php:404
+#: includes/class-lstab-renderer.php:510
 msgid "Updated %s ago"
 msgstr ""
 
@@ -852,7 +890,7 @@ msgstr ""
 msgid "Use the source default"
 msgstr ""
 
-#: includes/views/edit-page.php:456
+#: includes/views/edit-page.php:466
 msgid "Use the “Google Sheets Table” block, or paste this shortcode into any editor, widget or page builder:"
 msgstr ""
 
@@ -864,11 +902,11 @@ msgstr ""
 msgid "Very rounded"
 msgstr ""
 
-#: includes/views/edit-page.php:351
+#: includes/views/edit-page.php:361
 msgid "Waiting for a first look at the sheet. Choose “Refresh now” on the sources list, and your real columns will appear here."
 msgstr ""
 
-#: includes/views/edit-page.php:313
+#: includes/views/edit-page.php:323
 msgid "What Google actually sent"
 msgstr ""
 
@@ -876,7 +914,7 @@ msgstr ""
 msgid "Which rows"
 msgstr ""
 
-#: includes/views/edit-page.php:276
+#: includes/views/edit-page.php:286
 msgid "Width:"
 msgstr ""
 
@@ -889,7 +927,7 @@ msgid "You are not allowed to list sheet sources."
 msgstr ""
 
 #: includes/class-lstab-rest.php:115 includes/class-lstab-admin.php:152
-#: includes/class-lstab-admin.php:166 includes/class-lstab-admin.php:453
+#: includes/class-lstab-admin.php:166 includes/class-lstab-admin.php:454
 msgid "You are not allowed to manage sheet sources."
 msgstr ""
 
@@ -898,6 +936,6 @@ msgid "rows"
 msgstr ""
 
 #. translators: %s: source title.
-#: includes/class-lstab-renderer.php:80
+#: includes/class-lstab-renderer.php:81
 msgid "“%s” has not synced yet. Open Live Sheets Table in the dashboard and choose “Refresh now”."
 msgstr ""

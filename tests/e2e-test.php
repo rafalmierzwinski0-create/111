@@ -495,6 +495,92 @@ foreach ( $alignment_cases as $label => $case ) {
 
 // ---------------------------------------------------------------------------
 
+lstab_section( '6a. Paging, and searching the whole sheet from a page of it' );
+
+/*
+ * A sheet with no row limit eventually produces a page nobody wants to
+ * download. Paging cuts it up — but searching or sorting the rows that
+ * happen to be on screen and presenting the result as the table would be
+ * worse than not offering them, so both happen on the server across every
+ * row before the page is cut.
+ */
+$paged_rows = array();
+for ( $lstab_i = 1; $lstab_i <= 23; $lstab_i++ ) {
+	$paged_rows[] = array( 'Produkt ' . $lstab_i, (string) ( $lstab_i * 10 ), 0 === $lstab_i % 3 ? 'Brak' : 'W magazynie' );
+}
+
+LSTAB_Storage::record_success(
+	$source_id,
+	array(
+		'headers' => array( 'Produkt', 'Cena', 'Stan' ),
+		'rows'    => $paged_rows,
+	)
+);
+LSTAB_Storage::update( $source_id, array( 'per_page' => 10, 'columns_config' => array() ) );
+
+$lstab_shortcode = '[sheet_table id="' . $source_id . '"]';
+$lstab_rows_in   = function ( $html ) {
+	return substr_count( $html, '<tr role="row" class="lstab-row"' );
+};
+
+$_GET      = array();
+$page_one  = do_shortcode( $lstab_shortcode );
+lstab_assert( 10 === $lstab_rows_in( $page_one ), 'A page holds the number of rows asked for', (string) $lstab_rows_in( $page_one ) );
+lstab_assert( false !== strpos( $page_one, 'lstab-pager' ), 'And carries a pager' );
+lstab_assert( false !== strpos( $page_one, 'lstab-paged' ), 'The table says it is paged, so the script leaves its controls alone' );
+
+$_GET       = array( LSTAB_Paging::arg( $source_id, 'page' ) => '3' );
+$page_three = do_shortcode( $lstab_shortcode );
+lstab_assert( 3 === $lstab_rows_in( $page_three ), 'The last page holds the remainder', (string) $lstab_rows_in( $page_three ) );
+lstab_assert( false !== strpos( $page_three, 'Produkt 21' ), 'And the rows belonging to it' );
+lstab_assert( false === strpos( $page_three, 'Produkt 1<' ), 'Not the ones belonging to another page' );
+
+// The point of the whole exercise: a row on page three is findable from page
+// one. A search that only looked at the rows already on screen would miss it.
+$_GET       = array( LSTAB_Paging::arg( $source_id, 'q' ) => 'Produkt 22' );
+$found      = do_shortcode( $lstab_shortcode );
+lstab_assert( 1 === $lstab_rows_in( $found ), 'Searching reaches rows that are not on this page', (string) $lstab_rows_in( $found ) );
+lstab_assert( false !== strpos( $found, 'Produkt 22' ), 'And returns the one it was asked for' );
+
+$_GET  = array( LSTAB_Paging::arg( $source_id, 'q' ) => 'nie ma takiego wiersza' );
+$empty = do_shortcode( $lstab_shortcode );
+lstab_assert( 0 === $lstab_rows_in( $empty ), 'A search that matches nothing shows nothing' );
+lstab_assert( false !== strpos( $empty, 'lstab-no-results' ), 'And says so' );
+
+// Sorting has the same problem and the same answer.
+$_GET   = array( LSTAB_Paging::arg( $source_id, 'sort' ) => '1', LSTAB_Paging::arg( $source_id, 'dir' ) => 'desc' );
+$sorted = do_shortcode( $lstab_shortcode );
+preg_match_all( '~lstab-cell-value">\s*([^<]*)~', $sorted, $lstab_sorted_cells );
+$lstab_first = trim( $lstab_sorted_cells[1][0] );
+lstab_assert( 'Produkt 23' === $lstab_first, 'Sorting orders the whole sheet, not the page', $lstab_first );
+
+// Numbers sort as numbers here too, or 90 would come after 230.
+$_GET       = array( LSTAB_Paging::arg( $source_id, 'sort' ) => '1', LSTAB_Paging::arg( $source_id, 'dir' ) => 'asc' );
+$ascending  = do_shortcode( $lstab_shortcode );
+preg_match_all( '~lstab-cell-value">\s*([^<]*)~', $ascending, $lstab_asc_cells );
+lstab_assert( 'Produkt 1' === trim( $lstab_asc_cells[1][0] ), 'Ascending starts at the smallest number', trim( $lstab_asc_cells[1][0] ) );
+
+// A hidden column must not become searchable: guessing at its contents would
+// be a way to read what the author took out of the table.
+LSTAB_Storage::update( $source_id, array( 'columns_config' => array( 2 => array( 'hidden' => true ) ) ) );
+$_GET   = array( LSTAB_Paging::arg( $source_id, 'q' ) => 'Brak' );
+$hidden = do_shortcode( $lstab_shortcode );
+lstab_assert( 0 === $lstab_rows_in( $hidden ), 'A hidden column cannot be searched', (string) $lstab_rows_in( $hidden ) );
+LSTAB_Storage::update( $source_id, array( 'columns_config' => array() ) );
+
+// Each table answers to its own arguments, so paging one leaves the other be.
+lstab_assert( 'lstab-page-' . $source_id === LSTAB_Paging::arg( $source_id, 'page' ), 'Query arguments are scoped to one table', LSTAB_Paging::arg( $source_id, 'page' ) );
+
+$_GET     = array();
+LSTAB_Storage::update( $source_id, array( 'per_page' => 0 ) );
+$whole    = do_shortcode( $lstab_shortcode );
+lstab_assert( 23 === $lstab_rows_in( $whole ), 'Switched off, the whole sheet is on the page again', (string) $lstab_rows_in( $whole ) );
+lstab_assert( false === strpos( $whole, 'lstab-pager' ), 'And there is no pager' );
+lstab_assert( false === strpos( $whole, 'lstab-paged' ), 'And the script handles the controls again' );
+
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
+
 lstab_section( '7. Fetch failure → last good copy survives' );
 
 $failure_modes = array(
