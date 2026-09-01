@@ -186,6 +186,16 @@
 	white-space: nowrap;
 }
 
+/* One click selects the whole line, since it is meant to be pasted verbatim. */
+.lstab-cron-line {
+	display: block;
+	user-select: all;
+	overflow-x: auto;
+	padding: 6px 8px;
+	font-size: 0.82rem;
+	white-space: nowrap;
+}
+
 .lstab-sources .lstab-col-shortcode {
 	width: 14%;
 }

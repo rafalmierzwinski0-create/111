@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-01 13:52+0000\n"
-"PO-Revision-Date: 2026-09-01 13:52+0000\n"
+"POT-Creation-Date: 2026-09-01 18:08+0000\n"
+"PO-Revision-Date: 2026-09-01 18:08+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -254,7 +254,7 @@ msgid "Every minute"
 msgstr "Co minutę"
 
 #. translators: %s: human readable time difference.
-#: includes/class-lstab-admin.php:633
+#: includes/class-lstab-admin.php:644
 msgid "Failing since the last good sync %s ago"
 msgstr "Błąd od ostatniej udanej synchronizacji %s temu"
 
@@ -334,7 +334,7 @@ msgstr "Ciemny preset o wysokim kontraście."
 msgid "Hourly"
 msgstr "Co godzinę"
 
-#: includes/class-lstab-admin.php:566
+#: includes/class-lstab-admin.php:578
 msgid "How to run WordPress schedules from a system cron"
 msgstr "Jak uruchamiać harmonogramy WordPressa z systemowego crona"
 
@@ -363,7 +363,7 @@ msgid "Large"
 msgstr "Duża"
 
 #. translators: %s: human readable time difference.
-#: includes/class-lstab-admin.php:622
+#: includes/class-lstab-admin.php:633
 msgid "Last sync OK (%s ago)"
 msgstr "Ostatnia synchronizacja OK (%s temu)"
 
@@ -417,10 +417,9 @@ msgstr "Zamieniaj adresy WWW i e-mail w komórkach na klikalne linki"
 msgid "Manage sheet sources"
 msgstr "Zarządzaj źródłami arkuszy"
 
-#. translators: %s: link to the WordPress cron documentation.
-#: includes/class-lstab-admin.php:564
-msgid "Meanwhile you can update any sheet by hand with “Refresh now”. %s"
-msgstr "W międzyczasie możesz zaktualizować dowolny arkusz ręcznie przyciskiem „Odśwież teraz”. %s"
+#: includes/class-lstab-admin.php:561
+msgid "Meanwhile you can update any sheet by hand with “Refresh now”."
+msgstr "W międzyczasie każdy arkusz zaktualizujesz ręcznie przyciskiem „Odśwież teraz”."
 
 #: includes/class-lstab-styles.php:38
 msgid "Midnight"
@@ -434,7 +433,7 @@ msgstr "Wąska kolumna"
 msgid "Need more than one sheet?"
 msgstr "Potrzebujesz więcej niż jednego arkusza?"
 
-#: includes/class-lstab-admin.php:636
+#: includes/class-lstab-admin.php:647
 msgid "Never synced successfully"
 msgstr "Nigdy nie zsynchronizowano poprawnie"
 
@@ -454,6 +453,11 @@ msgstr "Nie wybrano jeszcze arkusza."
 msgid "No sheet sources yet. Add one in the dashboard, then pick it here."
 msgstr "Nie ma jeszcze żadnych źródeł arkuszy. Dodaj jedno w kokpicie, a potem wybierz je tutaj."
 
+#. translators: %s: link to the WordPress cron documentation.
+#: includes/class-lstab-admin.php:576
+msgid "No shell access? A free uptime monitor pointed at your home page does the same job, because every visit it makes runs the schedule. %s"
+msgstr "Nie masz dostępu do powłoki? Darmowy monitor dostępności wycelowany w stronę główną zrobi to samo, bo każde jego odwiedziny uruchamiają harmonogram. %s"
+
 #: includes/class-lstab-url.php:91
 msgid "No spreadsheet ID found in that link. Use the address of the sheet itself, for example https://docs.google.com/spreadsheets/d/ABC123/edit."
 msgstr "Nie znaleziono identyfikatora arkusza w tym linku. Użyj adresu samego arkusza, na przykład https://docs.google.com/spreadsheets/d/ABC123/edit."
@@ -463,7 +467,7 @@ msgstr "Nie znaleziono identyfikatora arkusza w tym linku. Użyj adresu samego a
 msgid "Normal"
 msgstr "Normalna"
 
-#: includes/class-lstab-admin.php:651
+#: includes/class-lstab-admin.php:662
 msgid "Not synced yet"
 msgstr "Jeszcze nie zsynchronizowano"
 
@@ -798,11 +802,11 @@ msgstr "Naprzemienne wiersze"
 msgid "Style preset"
 msgstr "Preset stylu"
 
-#: includes/class-lstab-admin.php:643
+#: includes/class-lstab-admin.php:654
 msgid "Sync error — nothing to show yet"
 msgstr "Błąd synchronizacji — nie ma jeszcze czego pokazać"
 
-#: includes/class-lstab-admin.php:642
+#: includes/class-lstab-admin.php:653
 msgid "Sync error — visitors still see the last good copy"
 msgstr "Błąd synchronizacji — odwiedzający wciąż widzą ostatnią poprawną kopię"
 
@@ -844,7 +848,7 @@ msgstr "Wielkość tekstu"
 msgid "That does not look like a valid link. Copy the address straight from your browser."
 msgstr "To nie wygląda na poprawny link. Skopiuj adres bezpośrednio z przeglądarki."
 
-#: includes/class-lstab-sync.php:112
+#: includes/class-lstab-sync.php:163
 msgid "That sheet source no longer exists."
 msgstr "To źródło arkusza już nie istnieje."
 
@@ -917,6 +921,10 @@ msgstr "Ta tabela ma pokazywać tylko część wierszy, ale dodatek odpowiedzial
 msgid "Title"
 msgstr "Tytuł"
 
+#: includes/class-lstab-admin.php:566
+msgid "To check sheets even when nobody visits"
+msgstr "Aby sprawdzać arkusze nawet wtedy, gdy nikt nie wchodzi na stronę"
+
 #: includes/views/edit-page.php:155
 msgid "Turn each row into a labelled card"
 msgstr "Zamień każdy wiersz w kartę z etykietami"
@@ -969,6 +977,10 @@ msgstr "Szerokość:"
 #: includes/views/edit-page.php:138
 msgid "Without this, the schedule only runs when someone visits your site, and it runs after that page has already been sent — so the visitor who triggers a check sees the old copy and the next one sees the new. With it, the check happens before the table is drawn. One visitor at a time does the checking, the wait is capped at %d seconds, and if Google is slow or down the page shows the copy you already have. Turn it on for prices and stock, leave it off for a sheet that changes once a week."
 msgstr "Bez tego harmonogram działa tylko wtedy, gdy ktoś odwiedzi Twoją stronę, i to już po wysłaniu tej strony — więc odwiedzający, który uruchamia sprawdzenie, widzi starą kopię, a nową zobaczy dopiero następny. Z tym sprawdzenie odbywa się przed narysowaniem tabeli. Sprawdza jeden odwiedzający naraz, czekanie jest ograniczone do %d sekund, a jeśli Google jest wolne lub niedostępne, strona pokaże kopię, którą już masz. Włącz to dla cen i stanów magazynowych, zostaw wyłączone dla arkusza zmienianego raz w tygodniu."
+
+#: includes/class-lstab-admin.php:567
+msgid "WordPress has no clock of its own — its schedule only runs when a page is requested, so a quiet site checks nothing. Give your host a real clock instead. Most hosting panels have a “Cron jobs” screen; paste this line into it:"
+msgstr "WordPress nie ma własnego zegara — jego harmonogram uruchamia się dopiero wtedy, gdy ktoś poprosi o stronę, więc witryna bez ruchu nie sprawdza niczego. Daj mu prawdziwy zegar po stronie hostingu. Większość paneli hostingowych ma ekran „Cron jobs”; wklej tam tę linię:"
 
 #: includes/class-lstab-cron.php:216
 msgid "WordPress runs scheduled work when someone visits the site, so a quiet site can fall behind. On a site that should be busy this usually means WP-Cron is blocked — by a security plugin, a page cache serving every request, or a host that disables it. Your tables are still showing their last good copy."

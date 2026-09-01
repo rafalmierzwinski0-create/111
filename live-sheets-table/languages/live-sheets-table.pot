@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-01 13:52+0000\n"
+"POT-Creation-Date: 2026-09-01 18:08+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -253,7 +253,7 @@ msgid "Every minute"
 msgstr ""
 
 #. translators: %s: human readable time difference.
-#: includes/class-lstab-admin.php:633
+#: includes/class-lstab-admin.php:644
 msgid "Failing since the last good sync %s ago"
 msgstr ""
 
@@ -333,7 +333,7 @@ msgstr ""
 msgid "Hourly"
 msgstr ""
 
-#: includes/class-lstab-admin.php:566
+#: includes/class-lstab-admin.php:578
 msgid "How to run WordPress schedules from a system cron"
 msgstr ""
 
@@ -362,7 +362,7 @@ msgid "Large"
 msgstr ""
 
 #. translators: %s: human readable time difference.
-#: includes/class-lstab-admin.php:622
+#: includes/class-lstab-admin.php:633
 msgid "Last sync OK (%s ago)"
 msgstr ""
 
@@ -416,9 +416,8 @@ msgstr ""
 msgid "Manage sheet sources"
 msgstr ""
 
-#. translators: %s: link to the WordPress cron documentation.
-#: includes/class-lstab-admin.php:564
-msgid "Meanwhile you can update any sheet by hand with “Refresh now”. %s"
+#: includes/class-lstab-admin.php:561
+msgid "Meanwhile you can update any sheet by hand with “Refresh now”."
 msgstr ""
 
 #: includes/class-lstab-styles.php:38
@@ -433,7 +432,7 @@ msgstr ""
 msgid "Need more than one sheet?"
 msgstr ""
 
-#: includes/class-lstab-admin.php:636
+#: includes/class-lstab-admin.php:647
 msgid "Never synced successfully"
 msgstr ""
 
@@ -453,6 +452,11 @@ msgstr ""
 msgid "No sheet sources yet. Add one in the dashboard, then pick it here."
 msgstr ""
 
+#. translators: %s: link to the WordPress cron documentation.
+#: includes/class-lstab-admin.php:576
+msgid "No shell access? A free uptime monitor pointed at your home page does the same job, because every visit it makes runs the schedule. %s"
+msgstr ""
+
 #: includes/class-lstab-url.php:91
 msgid "No spreadsheet ID found in that link. Use the address of the sheet itself, for example https://docs.google.com/spreadsheets/d/ABC123/edit."
 msgstr ""
@@ -462,7 +466,7 @@ msgstr ""
 msgid "Normal"
 msgstr ""
 
-#: includes/class-lstab-admin.php:651
+#: includes/class-lstab-admin.php:662
 msgid "Not synced yet"
 msgstr ""
 
@@ -796,11 +800,11 @@ msgstr ""
 msgid "Style preset"
 msgstr ""
 
-#: includes/class-lstab-admin.php:643
+#: includes/class-lstab-admin.php:654
 msgid "Sync error — nothing to show yet"
 msgstr ""
 
-#: includes/class-lstab-admin.php:642
+#: includes/class-lstab-admin.php:653
 msgid "Sync error — visitors still see the last good copy"
 msgstr ""
 
@@ -842,7 +846,7 @@ msgstr ""
 msgid "That does not look like a valid link. Copy the address straight from your browser."
 msgstr ""
 
-#: includes/class-lstab-sync.php:112
+#: includes/class-lstab-sync.php:163
 msgid "That sheet source no longer exists."
 msgstr ""
 
@@ -913,6 +917,10 @@ msgstr ""
 msgid "Title"
 msgstr ""
 
+#: includes/class-lstab-admin.php:566
+msgid "To check sheets even when nobody visits"
+msgstr ""
+
 #: includes/views/edit-page.php:155
 msgid "Turn each row into a labelled card"
 msgstr ""
@@ -964,6 +972,10 @@ msgstr ""
 #. translators: %d: how many seconds a visitor may be made to wait.
 #: includes/views/edit-page.php:138
 msgid "Without this, the schedule only runs when someone visits your site, and it runs after that page has already been sent — so the visitor who triggers a check sees the old copy and the next one sees the new. With it, the check happens before the table is drawn. One visitor at a time does the checking, the wait is capped at %d seconds, and if Google is slow or down the page shows the copy you already have. Turn it on for prices and stock, leave it off for a sheet that changes once a week."
+msgstr ""
+
+#: includes/class-lstab-admin.php:567
+msgid "WordPress has no clock of its own — its schedule only runs when a page is requested, so a quiet site checks nothing. Give your host a real clock instead. Most hosting panels have a “Cron jobs” screen; paste this line into it:"
 msgstr ""
 
 #: includes/class-lstab-cron.php:216

@@ -726,6 +726,20 @@ lstab_section( '8b. Refreshing while the page is being drawn' );
  */
 
 /**
+ * Render a shortcode as though a fresh page load asked for it.
+ *
+ * @param string $shortcode Shortcode text.
+ * @return string HTML.
+ */
+function lstab_view( $shortcode ) {
+	// Each call stands in for one page load, and the refresh budget is spent
+	// per page load. A single PHP process rendering many pages has to say so.
+	LSTAB_Sync::reset_view_budget();
+
+	return do_shortcode( $shortcode );
+}
+
+/**
  * Backdate a source's last attempt so it counts as stale.
  *
  * @param int $id      Source ID.
@@ -754,28 +768,28 @@ delete_transient( 'lstab_view_refresh_' . $source_id );
 lstab_assert( empty( LSTAB_Storage::get( $source_id )['refresh_on_view'] ), 'Refresh on view is off unless asked for' );
 lstab_age_source( $source_id, 86400 );
 lstab_set_mock( 'ok', 'second' );
-$off_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$off_html = lstab_view( '[sheet_table id="' . $source_id . '"]' );
 lstab_assert( false !== strpos( $off_html, 'Rower górski' ), 'With it off, a stale copy is served as it always was' );
 lstab_assert( false === strpos( $off_html, 'Bike Centrum' ), 'And the changed sheet is not fetched' );
 
 // On, and stale: the visitor who waits is the one who sees the new data.
 LSTAB_Storage::update( $source_id, array( 'refresh_on_view' => 1 ) );
 lstab_age_source( $source_id, 86400 );
-$on_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$on_html = lstab_view( '[sheet_table id="' . $source_id . '"]' );
 lstab_assert( false !== strpos( $on_html, 'Bike Centrum' ), 'With it on, the page that triggered the check already shows the new data' );
 lstab_assert( false === strpos( $on_html, 'Rower górski' ), 'The old copy is gone from that same page' );
 
 // A copy younger than the schedule is left alone, so a busy page does not
 // become a stream of requests to Google.
 lstab_set_mock( 'ok', 'main' );
-$fresh_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$fresh_html = lstab_view( '[sheet_table id="' . $source_id . '"]' );
 lstab_assert( false !== strpos( $fresh_html, 'Bike Centrum' ), 'A copy younger than the schedule is not fetched again' );
 
 // One request at a time. The lock is what keeps ten simultaneous visitors from
 // becoming ten fetches.
 lstab_age_source( $source_id, 86400 );
 set_transient( 'lstab_view_refresh_' . $source_id, 1, LSTAB_Sync::VIEW_LOCK );
-$locked_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$locked_html = lstab_view( '[sheet_table id="' . $source_id . '"]' );
 lstab_assert( false === strpos( $locked_html, 'Rower górski' ), 'While another request is fetching, this one serves the stored copy' );
 delete_transient( 'lstab_view_refresh_' . $source_id );
 
@@ -787,7 +801,7 @@ $lstab_spy          = function ( $args ) use ( &$lstab_seen_timeout ) {
 };
 add_filter( 'lstab_fetch_args', $lstab_spy, 100 );
 lstab_age_source( $source_id, 86400 );
-do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_view( '[sheet_table id="' . $source_id . '"]' );
 remove_filter( 'lstab_fetch_args', $lstab_spy, 100 );
 lstab_assert(
 	LSTAB_Sync::VIEW_TIMEOUT === $lstab_seen_timeout,
@@ -799,7 +813,7 @@ lstab_assert(
 lstab_age_source( $source_id, 86400 );
 delete_transient( 'lstab_view_refresh_' . $source_id );
 lstab_set_mock( 'http_403' );
-$failed_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$failed_html = lstab_view( '[sheet_table id="' . $source_id . '"]' );
 lstab_assert( false !== strpos( $failed_html, '<table' ), 'A failed refresh still renders a table' );
 lstab_assert( false !== strpos( $failed_html, 'Rower górski' ), 'It is the last good copy, not an empty one' );
 lstab_assert( false === stripos( $failed_html, 'lstab-notice' ), 'And the visitor is told nothing about it' );
@@ -817,7 +831,7 @@ LSTAB_Sync::run( $source_id );
 lstab_age_source( $source_id, 86400 );
 delete_transient( 'lstab_view_refresh_' . $source_id );
 lstab_set_mock( 'timeout' );
-$slow_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$slow_html = lstab_view( '[sheet_table id="' . $source_id . '"]' );
 $slow_state = LSTAB_Storage::get( $source_id );
 lstab_assert( false !== strpos( $slow_html, 'Rower górski' ), 'A refresh that runs out of time still shows the stored copy' );
 lstab_assert( 'ok' === $slow_state['last_status'], 'And does not report the sheet as broken over our own four-second cap', $slow_state['last_status'] );
@@ -835,7 +849,7 @@ LSTAB_Sync::run( $source_id );
 lstab_age_source( $source_id, 86400 );
 delete_transient( 'lstab_view_refresh_' . $source_id );
 lstab_set_mock( 'http_403' );
-do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_view( '[sheet_table id="' . $source_id . '"]' );
 lstab_assert( 'error' === LSTAB_Storage::get( $source_id )['last_status'], 'A sheet made private is still reported from a view refresh' );
 
 $lstab_attempts = 0;
@@ -845,10 +859,53 @@ $lstab_counter  = function ( $args ) use ( &$lstab_attempts ) {
 };
 add_filter( 'lstab_fetch_args', $lstab_counter, 100 );
 delete_transient( 'lstab_view_refresh_' . $source_id );
-do_shortcode( '[sheet_table id="' . $source_id . '"]' );
-do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_view( '[sheet_table id="' . $source_id . '"]' );
+lstab_view( '[sheet_table id="' . $source_id . '"]' );
 remove_filter( 'lstab_fetch_args', $lstab_counter, 100 );
 lstab_assert( 0 === $lstab_attempts, 'A sheet that just failed is not retried on every page view', (string) $lstab_attempts );
+
+// One page load buys one refresh, however many tables the page holds. Four
+// tables that all wanted checking would otherwise be four four-second caps in
+// a row, and sixteen seconds of waiting is the fault this whole feature exists
+// to avoid.
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
+$second_id = LSTAB_Storage::insert(
+	array(
+		'title'           => 'Second table on the same page',
+		'sheet_url'       => 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0',
+		'sheet_id'        => '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789',
+		'sheet_kind'      => 'doc',
+		'gid'             => '0',
+		'sync_interval'   => 900,
+		'refresh_on_view' => 1,
+	)
+);
+lstab_assert( ! is_wp_error( $second_id ), 'A second source for the two-table page', is_wp_error( $second_id ) ? $second_id->get_error_message() : '' );
+LSTAB_Sync::run( (int) $second_id );
+
+LSTAB_Storage::update( $source_id, array( 'refresh_on_view' => 1 ) );
+lstab_age_source( $source_id, 86400 );
+lstab_age_source( (int) $second_id, 86400 );
+delete_transient( 'lstab_view_refresh_' . $source_id );
+delete_transient( 'lstab_view_refresh_' . (int) $second_id );
+
+$lstab_fetches = 0;
+$lstab_count   = function ( $args ) use ( &$lstab_fetches ) {
+	$lstab_fetches++;
+	return $args;
+};
+add_filter( 'lstab_fetch_args', $lstab_count, 100 );
+LSTAB_Sync::reset_view_budget();
+// Both tables drawn inside one page load, so no reset between them.
+do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+do_shortcode( '[sheet_table id="' . (int) $second_id . '"]' );
+remove_filter( 'lstab_fetch_args', $lstab_count, 100 );
+lstab_assert( 1 === $lstab_fetches, 'Two stale tables on one page cost one fetch, not two', (string) $lstab_fetches );
+
+// The table that missed its turn gets it on the next page load.
+lstab_assert( LSTAB_Sync::is_due( LSTAB_Storage::get( (int) $second_id ) ), 'The table that missed its turn is still due' );
+LSTAB_Storage::delete( (int) $second_id );
 
 // Back to a clean, unattended source for the sections that follow.
 LSTAB_Storage::update( $source_id, array( 'refresh_on_view' => 0 ) );
@@ -1421,6 +1478,15 @@ lstab_assert( isset( $health['state'], $health['message'], $health['detail'] ), 
 // The test sites define DISABLE_WP_CRON, which is a legitimate setup, not a fault.
 lstab_assert( 'disabled' === $health['state'], 'DISABLE_WP_CRON is reported, and as information rather than an error', $health['state'] );
 lstab_assert( '' !== $health['detail'], 'The notice explains what it means for the site owner' );
+
+// A site nobody visits runs no schedule at all, and no plugin can fix that
+// from inside PHP. What it can do is stop making the owner work out what to
+// type: the line is built from their own address and their own interval.
+LSTAB_Cron::ensure_scheduled();
+$cron_line = LSTAB_Cron::system_cron_line();
+lstab_assert( false !== strpos( $cron_line, site_url( 'wp-cron.php?doing_wp_cron' ) ), 'The cron line points at this site', $cron_line );
+lstab_assert( 0 === strpos( $cron_line, '*/15 * * * * ' ), 'And fires at the interval the schedule actually uses', $cron_line );
+lstab_assert( false !== strpos( $cron_line, 'curl -s ' ), 'It is a line a hosting panel will accept as it stands', $cron_line );
 
 // With no sources there is nothing to warn about.
 $saved_sources = LSTAB_Storage::get_all();

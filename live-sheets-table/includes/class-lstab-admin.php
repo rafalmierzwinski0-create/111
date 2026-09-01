@@ -558,17 +558,28 @@ class LSTAB_Admin {
 			<p><?php echo esc_html( $health['detail'] ); ?></p>
 			<?php if ( 'disabled' !== $health['state'] ) : ?>
 				<p>
-					<?php
-					printf(
-						/* translators: %s: link to the WordPress cron documentation. */
-						esc_html__( 'Meanwhile you can update any sheet by hand with “Refresh now”. %s', 'live-sheets-table' ),
-						'<a href="https://developer.wordpress.org/plugins/cron/hooking-wp-cron-into-the-system-task-scheduler/" target="_blank" rel="noopener noreferrer">'
-							. esc_html__( 'How to run WordPress schedules from a system cron', 'live-sheets-table' )
-							. '</a>'
-					);
-					?>
+					<?php esc_html_e( 'Meanwhile you can update any sheet by hand with “Refresh now”.', 'live-sheets-table' ); ?>
 				</p>
 			<?php endif; ?>
+
+			<p>
+				<strong><?php esc_html_e( 'To check sheets even when nobody visits', 'live-sheets-table' ); ?></strong><br>
+				<?php esc_html_e( 'WordPress has no clock of its own — its schedule only runs when a page is requested, so a quiet site checks nothing. Give your host a real clock instead. Most hosting panels have a “Cron jobs” screen; paste this line into it:', 'live-sheets-table' ); ?>
+			</p>
+			<p>
+				<code class="lstab-cron-line"><?php echo esc_html( LSTAB_Cron::system_cron_line() ); ?></code>
+			</p>
+			<p class="description">
+				<?php
+				printf(
+					/* translators: %s: link to the WordPress cron documentation. */
+					esc_html__( 'No shell access? A free uptime monitor pointed at your home page does the same job, because every visit it makes runs the schedule. %s', 'live-sheets-table' ),
+					'<a href="https://developer.wordpress.org/plugins/cron/hooking-wp-cron-into-the-system-task-scheduler/" target="_blank" rel="noopener noreferrer">'
+						. esc_html__( 'How to run WordPress schedules from a system cron', 'live-sheets-table' )
+						. '</a>'
+				);
+				?>
+			</p>
 		</div>
 		<?php
 	}

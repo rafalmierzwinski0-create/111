@@ -27,6 +27,34 @@ class LSTAB_Sync {
 	const VIEW_LOCK = 30;
 
 	/**
+	 * Whether this request has already spent its refresh.
+	 *
+	 * The cap is per visitor, not per table. A page holding four tables that
+	 * all wanted checking would otherwise be four caps in a row, and the
+	 * visitor would wait sixteen seconds for a plugin whose entire argument is
+	 * that nobody should wait for Google. One table is brought up to date and
+	 * the rest are served from store; on the next visit it is another one's
+	 * turn, and the scheduler covers them all regardless.
+	 *
+	 * @var bool
+	 */
+	protected static $view_spent = false;
+
+	/**
+	 * Start the refresh budget over.
+	 *
+	 * The budget is per page load, and a page load is one PHP request, so it
+	 * normally resets by itself. Anything that renders many pages inside a
+	 * single process — WP-CLI, a test harness — has to say when one page ends
+	 * and the next begins, because PHP gives it no way to notice.
+	 *
+	 * @return void
+	 */
+	public static function reset_view_budget() {
+		self::$view_spent = false;
+	}
+
+	/**
 	 * Bring a sheet up to date while someone is looking at it.
 	 *
 	 * WordPress has no clock of its own: WP-Cron runs on visits, and it runs
@@ -36,12 +64,13 @@ class LSTAB_Sync {
 	 * the refresh happens before the page is drawn, so the person who waited
 	 * for it is the person who sees it.
 	 *
-	 * Three things keep it from becoming the problem it solves. Only one
-	 * request fetches at a time, so ten simultaneous visitors do not become ten
-	 * requests to Google. The wait is capped, and a sheet that does not answer
-	 * in time leaves the stored copy on the page. And a source that has just
-	 * failed is not retried until its interval has passed, so a broken sheet
-	 * costs one slow page rather than every page.
+	 * Four things keep it from becoming the problem it solves. Only one request
+	 * fetches at a time, so ten simultaneous visitors do not become ten requests
+	 * to Google. One page load buys one refresh, so a page of four tables is
+	 * still one wait rather than four. The wait itself is capped, and a sheet
+	 * that does not answer in time leaves the stored copy on the page. And a
+	 * source that has just failed is not retried until its interval has passed,
+	 * so a broken sheet costs one slow page rather than every page.
 	 *
 	 * @param array<string,mixed> $source Source row.
 	 * @return array<string,mixed> The source, refreshed if it was worth it.
@@ -53,6 +82,11 @@ class LSTAB_Sync {
 
 		// Cron already has its own turn at this, and nobody is waiting there.
 		if ( wp_doing_cron() ) {
+			return $source;
+		}
+
+		// One table's worth of waiting per page, however many tables it holds.
+		if ( self::$view_spent ) {
 			return $source;
 		}
 
@@ -72,6 +106,7 @@ class LSTAB_Sync {
 			return $source;
 		}
 
+		self::$view_spent = true;
 		set_transient( $lock, 1, self::VIEW_LOCK );
 
 		$shorten = function ( $args ) {

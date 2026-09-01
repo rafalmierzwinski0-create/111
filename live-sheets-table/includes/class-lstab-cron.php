@@ -225,11 +225,40 @@ class LSTAB_Cron {
 	}
 
 	/**
+	 * The system-cron line that would drive this site's schedule.
+	 *
+	 * WordPress has no clock. Its schedule runs when someone visits, which
+	 * means a site nobody visits never checks anything — no plugin can fix
+	 * that from inside PHP, because no PHP runs. What can be fixed is the
+	 * asking: a site owner told to "set up a system cron" has to go and work
+	 * out what to type, while a line built from their own address can be
+	 * pasted into a hosting panel as it stands.
+	 *
+	 * @return string
+	 */
+	public static function system_cron_line() {
+		$expressions = array(
+			60    => '* * * * *',
+			300   => '*/5 * * * *',
+			900   => '*/15 * * * *',
+			1800  => '*/30 * * * *',
+			3600  => '0 * * * *',
+			21600 => '0 */6 * * *',
+		);
+
+		$interval   = self::current_interval();
+		$expression = isset( $expressions[ $interval ] ) ? $expressions[ $interval ] : '0 3 * * *';
+		$url        = site_url( 'wp-cron.php?doing_wp_cron' );
+
+		return $expression . ' curl -s ' . $url . ' >/dev/null 2>&1';
+	}
+
+	/**
 	 * Length of the currently scheduled tick, in seconds.
 	 *
 	 * @return int
 	 */
-	protected static function current_interval() {
+	public static function current_interval() {
 		$slug      = (string) get_option( self::TICK_OPTION );
 		$schedules = self::schedule_map();
 

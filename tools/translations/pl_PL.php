@@ -79,6 +79,14 @@ return array(
 		=> 'Widoczne tylko w kokpicie, żeby odróżnić źródła.',
 	'Check Google for changes'                   => 'Sprawdzaj zmiany w Google',
 	'Pro syncs as often as every minute.'        => 'Pro synchronizuje nawet co minutę.',
+	'Meanwhile you can update any sheet by hand with “Refresh now”.'
+		=> 'W międzyczasie każdy arkusz zaktualizujesz ręcznie przyciskiem „Odśwież teraz”.',
+	'To check sheets even when nobody visits'
+		=> 'Aby sprawdzać arkusze nawet wtedy, gdy nikt nie wchodzi na stronę',
+	'WordPress has no clock of its own — its schedule only runs when a page is requested, so a quiet site checks nothing. Give your host a real clock instead. Most hosting panels have a “Cron jobs” screen; paste this line into it:'
+		=> 'WordPress nie ma własnego zegara — jego harmonogram uruchamia się dopiero wtedy, gdy ktoś poprosi o stronę, więc witryna bez ruchu nie sprawdza niczego. Daj mu prawdziwy zegar po stronie hostingu. Większość paneli hostingowych ma ekran „Cron jobs”; wklej tam tę linię:',
+	'No shell access? A free uptime monitor pointed at your home page does the same job, because every visit it makes runs the schedule. %s'
+		=> 'Nie masz dostępu do powłoki? Darmowy monitor dostępności wycelowany w stronę główną zrobi to samo, bo każde jego odwiedziny uruchamiają harmonogram. %s',
 	'Also check when someone opens the page, if the copy is older than the schedule above'
 		=> 'Sprawdzaj też, gdy ktoś otworzy stronę, jeśli kopia jest starsza niż powyższy harmonogram',
 	'Without this, the schedule only runs when someone visits your site, and it runs after that page has already been sent — so the visitor who triggers a check sees the old copy and the next one sees the new. With it, the check happens before the table is drawn. One visitor at a time does the checking, the wait is capped at %d seconds, and if Google is slow or down the page shows the copy you already have. Turn it on for prices and stock, leave it off for a sheet that changes once a week.'
