@@ -135,6 +135,26 @@ and activates it on the clean site, runs the PHP suite again against that
 *packaged* copy, and finally runs the browser suite and captures the
 screenshots. It fails if the plugin raises a single PHP notice.
 
+### Elementor
+
+The widget's own suite (`tests/elementor-test.php`) runs against a checkout of
+Elementor placed at `$LSTAB_SCRATCH/wp71/wp-content/plugins/elementor`, and is
+skipped with a note when that is missing. A plain `git clone` is enough for the
+PHP suite and for rendering the widget on the front end, but **not** for opening
+Elementor's editor: the editor's JavaScript is not committed to their
+repository. To photograph the editor panel, build it once —
+
+```bash
+git clone --depth 1 https://github.com/elementor/elementor.git "$LSTAB_SCRATCH/elementor"
+cd "$LSTAB_SCRATCH/elementor" && npm install --ignore-scripts && npm run build
+cp -r build "$LSTAB_SCRATCH/wp71/wp-content/plugins/elementor"
+```
+
+Copy it rather than symlinking: `plugins_url()` resolves a symlinked plugin
+directory to its real path, and Elementor then asks the browser for its assets
+under a URL that does not exist. PHP's realpath cache means the web server has
+to be restarted after the swap, too.
+
 ### How Google is faked
 
 `tests/mock-google-mu-plugin.php` hooks WordPress's own `pre_http_request`
