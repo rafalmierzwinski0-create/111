@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.2.0
+Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -45,7 +45,7 @@ Paste your link and the parser shows you exactly what it read — headings, rows
 * Unlimited rows.
 * Six saved sheet sources.
 * Optional paging for long sheets, with searching and sorting that still cover every row.
-* A "Google Sheets Table" block plus a `[sheet_table id="123"]` shortcode, both driven by the same renderer.
+* A "Google Sheets Table" block, an Elementor widget, and a `[sheet_table id="123"]` shortcode for everything else — all three driven by the same renderer.
 * Background sync every 15 minutes, plus a "Refresh now" button.
 * Optional search box and sortable columns (numeric-aware, so 1 215,50 sorts above 349,00).
 * Numeric columns detected and right-aligned with tabular figures, so decimals line up.
@@ -154,6 +154,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 
 == Changelog ==
 
+= 2.3.0 =
+* Added: an Elementor widget, in a "Google Sheets" category of its own. Elementor keeps its own catalogue, so a plugin that is not in it is not there at all — its users had to paste a shortcode into a text widget and lose the live preview. The widget hands its settings to the same renderer the block and the shortcode use, so all three agree.
+
 = 2.2.0 =
 * Added: paging, set per table as a number of rows per page. A sheet with no row limit eventually makes a page nobody wants to download; this splits it without capping anything.
 * Added: with paging on, searching and sorting move to the server and work across the whole sheet. Searching the rows that happen to be on screen and calling the result the table would be worse than not offering it — a search from page one still finds a row on page nine. Every control is an ordinary link or form, so each page has its own address and needs no JavaScript.
@@ -247,6 +250,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 2.3.0 =
+Adds an Elementor widget.
 
 = 2.2.0 =
 Adds paging, with searching and sorting that still cover the whole sheet.

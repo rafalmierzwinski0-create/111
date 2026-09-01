@@ -321,6 +321,11 @@ return array(
 	'Previous'                                   => 'Poprzednia',
 	'Next'                                       => 'Następna',
 	'Page %1$s of %2$s'                          => 'Strona %1$s z %2$s',
+	'Google Sheets'                              => 'Arkusze Google',
+	'Sheet'                                      => 'Arkusz',
+	'Display'                                    => 'Wygląd',
+	'%1$s (%2$s rows)'                           => '%1$s (%2$s wierszy)',
+	'Sheets are added and refreshed in %s.'      => 'Arkusze dodaje się i odświeża w %s.',
 
 	// Plurals: Polish has three forms.
 	'The free version keeps %d sheet source'     => array(

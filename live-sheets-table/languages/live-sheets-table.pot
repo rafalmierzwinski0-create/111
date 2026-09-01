@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-01 07:42+0000\n"
+"POT-Creation-Date: 2026-09-01 07:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11,6 +11,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Domain: live-sheets-table\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. translators: 1: source title, 2: row count.
+#: includes/class-lstab-elementor.php:84
+msgid "%1$s (%2$s rows)"
+msgstr ""
 
 #: includes/class-lstab-admin.php:138
 msgid "%1$s characters received."
@@ -91,6 +96,7 @@ msgstr ""
 msgid "Alternating row tint for scanning long lists."
 msgstr ""
 
+#: includes/elementor/class-lstab-elementor-widget.php:158
 #: blocks/sheet-table/index.js:32
 msgid "Always cards"
 msgstr ""
@@ -119,6 +125,7 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
+#: includes/elementor/class-lstab-elementor-widget.php:176
 #: blocks/sheet-table/index.js:163
 msgid "Caption"
 msgstr ""
@@ -200,6 +207,10 @@ msgstr ""
 msgid "Delete this sheet source? Tables using it will stop rendering."
 msgstr ""
 
+#: includes/elementor/class-lstab-elementor-widget.php:118
+msgid "Display"
+msgstr ""
+
 #: includes/views/list-page.php:141
 msgid "Edit"
 msgstr ""
@@ -242,6 +253,7 @@ msgstr ""
 msgid "Failing since the last good sync %s ago"
 msgstr ""
 
+#: includes/elementor/class-lstab-elementor-widget.php:194
 #: blocks/sheet-table/index.js:177
 msgid "Filter"
 msgstr ""
@@ -258,6 +270,11 @@ msgstr ""
 msgid "Full width"
 msgstr ""
 
+#: includes/class-lstab-elementor.php:49
+msgid "Google Sheets"
+msgstr ""
+
+#: includes/elementor/class-lstab-elementor-widget.php:32
 #: blocks/sheet-table/index.js:191 blocks/sheet-table/index.js:197
 #: blocks/sheet-table/index.js:207
 msgid "Google Sheets Table"
@@ -345,6 +362,7 @@ msgstr ""
 msgid "Last sync OK (%s ago)"
 msgstr ""
 
+#: includes/elementor/class-lstab-elementor-widget.php:151
 #: blocks/sheet-table/index.js:144
 msgid "Layout"
 msgstr ""
@@ -598,6 +616,7 @@ msgstr ""
 msgid "Save this source first. It is read straight away, and your real columns appear here."
 msgstr ""
 
+#: includes/elementor/class-lstab-elementor-widget.php:94
 #: blocks/sheet-table/index.js:98
 msgid "Saved source"
 msgstr ""
@@ -623,6 +642,7 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
+#: includes/elementor/class-lstab-elementor-widget.php:124
 #: blocks/sheet-table/index.js:120
 msgid "Search box"
 msgstr ""
@@ -643,7 +663,7 @@ msgstr ""
 msgid "See what Pro adds"
 msgstr ""
 
-#: blocks/sheet-table/index.js:82
+#: includes/class-lstab-elementor.php:79 blocks/sheet-table/index.js:82
 msgid "Select a sheet…"
 msgstr ""
 
@@ -657,6 +677,10 @@ msgstr ""
 
 #: includes/views/list-page.php:32
 msgid "Share a sheet as “Anyone with the link – Viewer”, paste the link, and check the preview before you save. No API key, no Google Cloud project."
+msgstr ""
+
+#: includes/elementor/class-lstab-elementor-widget.php:88
+msgid "Sheet"
 msgstr ""
 
 #: includes/class-lstab-admin.php:315
@@ -684,7 +708,13 @@ msgid "Sheet tab"
 msgstr ""
 
 #: includes/class-lstab-admin.php:44
+#: includes/elementor/class-lstab-elementor-widget.php:108
 msgid "Sheets Tables"
+msgstr ""
+
+#. translators: %s: link to the plugin's own screen.
+#: includes/elementor/class-lstab-elementor-widget.php:107
+msgid "Sheets are added and refreshed in %s."
 msgstr ""
 
 #. translators: %s: human readable time difference, e.g. "2 hours".
@@ -696,6 +726,7 @@ msgstr ""
 msgid "Shortcode"
 msgstr ""
 
+#: includes/elementor/class-lstab-elementor-widget.php:196
 #: blocks/sheet-table/index.js:178
 msgid "Show only matching rows, for example: Kategoria is Rowery. Join conditions with “and”. Operators: is, is not, has, gt, gte, lt, lte."
 msgstr ""
@@ -704,6 +735,7 @@ msgstr ""
 msgid "Show this column"
 msgstr ""
 
+#: includes/elementor/class-lstab-elementor-widget.php:142
 #: blocks/sheet-table/index.js:136
 msgid "Show “updated … ago”"
 msgstr ""
@@ -729,6 +761,7 @@ msgstr ""
 msgid "Sort by %s"
 msgstr ""
 
+#: includes/elementor/class-lstab-elementor-widget.php:133
 #: blocks/sheet-table/index.js:128
 msgid "Sortable columns"
 msgstr ""
@@ -741,6 +774,7 @@ msgstr ""
 msgid "Square"
 msgstr ""
 
+#: includes/elementor/class-lstab-elementor-widget.php:157
 #: blocks/sheet-table/index.js:31
 msgid "Stack into cards when narrow"
 msgstr ""
@@ -753,6 +787,7 @@ msgstr ""
 msgid "Striped rows"
 msgstr ""
 
+#: includes/elementor/class-lstab-elementor-widget.php:166
 #: blocks/sheet-table/index.js:154
 msgid "Style preset"
 msgstr ""
@@ -782,6 +817,7 @@ msgstr ""
 msgid "Table pages"
 msgstr ""
 
+#: includes/elementor/class-lstab-elementor-widget.php:156
 #: blocks/sheet-table/index.js:30
 msgid "Table with a slider"
 msgstr ""
@@ -886,6 +922,8 @@ msgstr ""
 msgid "Updated %s ago"
 msgstr ""
 
+#: includes/elementor/class-lstab-elementor-widget.php:155
+#: includes/elementor/class-lstab-elementor-widget.php:210
 #: blocks/sheet-table/index.js:29 blocks/sheet-table/index.js:36
 msgid "Use the source default"
 msgstr ""
@@ -910,6 +948,7 @@ msgstr ""
 msgid "What Google actually sent"
 msgstr ""
 
+#: includes/elementor/class-lstab-elementor-widget.php:188
 #: blocks/sheet-table/index.js:175
 msgid "Which rows"
 msgstr ""

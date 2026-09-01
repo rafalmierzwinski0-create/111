@@ -81,6 +81,24 @@ php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 live-sheets-table-
 
 echo
 echo "=============================================="
+echo " Elementor widget — WordPress 7.1"
+echo "=============================================="
+if [ -f "$SCRATCH/wp71/wp-content/plugins/elementor/elementor.php" ]; then
+	php "$REPO/tests/harness/activate.php" "$SCRATCH/wp71" 8089 elementor/elementor.php > /dev/null
+	php "$REPO/tests/elementor-test.php" "$SCRATCH/wp71"
+	# Elementor raises deprecations of its own on PHP 8, which would otherwise
+	# be read as this plugin's, and it changes what the browser run sees.
+	php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 elementor/elementor.php > /dev/null
+	rm -f "$SCRATCH/wp71/wp-content/debug.log"
+else
+	echo "  Elementor is not installed in the scratch site — skipped."
+	echo "  git clone --depth 1 https://github.com/elementor/elementor.git \\"
+	echo "    \"$SCRATCH/elementor\" && ln -s \"$SCRATCH/elementor\" \\"
+	echo "    \"$SCRATCH/wp71/wp-content/plugins/elementor\""
+fi
+
+echo
+echo "=============================================="
 echo " Re-seeding the demo page for the browser run"
 echo "=============================================="
 php "$SCRATCH/seed71.php"

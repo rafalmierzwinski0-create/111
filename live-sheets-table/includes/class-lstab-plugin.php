@@ -62,6 +62,13 @@ class LSTAB_Plugin {
 	public $paging;
 
 	/**
+	 * Elementor widget registration.
+	 *
+	 * @var LSTAB_Elementor
+	 */
+	public $elementor;
+
+	/**
 	 * Register everything.
 	 *
 	 * @return void
@@ -74,6 +81,7 @@ class LSTAB_Plugin {
 		$this->shortcode = new LSTAB_Shortcode();
 		$this->links     = new LSTAB_Links();
 		$this->paging    = new LSTAB_Paging();
+		$this->elementor = new LSTAB_Elementor();
 
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 		add_action( 'init', array( $this, 'register_assets' ) );
@@ -85,6 +93,7 @@ class LSTAB_Plugin {
 		$this->shortcode->register();
 		$this->links->register();
 		$this->paging->register();
+		$this->elementor->register();
 
 		if ( is_admin() ) {
 			$this->admin->register();
