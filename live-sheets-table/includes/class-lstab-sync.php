@@ -130,15 +130,31 @@ class LSTAB_Sync {
 		self::$view_spent = true;
 		set_transient( $lock, 1, self::VIEW_LOCK );
 
-		$shorten = function ( $args ) {
-			$args['timeout'] = self::VIEW_TIMEOUT;
+		/*
+		 * The cap is a deadline for the whole attempt, not a timeout per
+		 * request. A sheet whose sharing settings refuse the export endpoint is
+		 * tried twice, and four seconds each would be eight seconds of waiting
+		 * — in exactly the case where Google is already being slow. So each
+		 * request gets what is left of the four, and once nothing is left the
+		 * second endpoint is not tried at all.
+		 */
+		$deadline = microtime( true ) + self::VIEW_TIMEOUT;
+
+		$shorten = function ( $args ) use ( $deadline ) {
+			$args['timeout'] = max( 0.5, $deadline - microtime( true ) );
 
 			return $args;
 		};
 
+		$give_up = function ( $url ) use ( $deadline ) {
+			return microtime( true ) < $deadline ? $url : '';
+		};
+
 		add_filter( 'lstab_fetch_args', $shorten, 99 );
+		add_filter( 'lstab_fetch_fallback_url', $give_up, 99 );
 		$result = self::run( (int) $source['id'] );
 		remove_filter( 'lstab_fetch_args', $shorten, 99 );
+		remove_filter( 'lstab_fetch_fallback_url', $give_up, 99 );
 
 		delete_transient( $lock );
 

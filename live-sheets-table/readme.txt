@@ -158,6 +158,7 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 
 = 2.5.0 =
 * Changed: checking a stale table before the page is drawn is no longer a setting — it is simply how the plugin works. Asking a site owner whether their prices should be current has one answer, and a checkbox that is only ever ticked is a question not worth putting on the screen. The schedule is now the only thing to configure: whoever opens the page sees data no older than the interval you chose, whether or not the schedule managed to run. On a site where it is running this costs nothing, because there is never anything to do.
+* Fixed: the four-second cap now covers the whole check rather than each request inside it. A sheet whose sharing settings refuse the export endpoint is asked twice, and four seconds each would have been eight seconds of waiting — in exactly the case where Google is already being slow.
 * Removed: the per-table “also check when someone opens the page” checkbox, and the database column behind it. A site that would rather serve a day-old table than ever make one visitor wait has the lstab_refresh_on_view filter.
 
 = 2.4.0 =

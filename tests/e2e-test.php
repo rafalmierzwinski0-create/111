@@ -807,9 +807,9 @@ lstab_assert( false === strpos( $locked_html, 'Rower górski' ), 'While another 
 delete_transient( 'lstab_view_refresh_' . $source_id );
 
 // The wait is capped, whatever the source's own settings say.
-$lstab_seen_timeout = null;
-$lstab_spy          = function ( $args ) use ( &$lstab_seen_timeout ) {
-	$lstab_seen_timeout = isset( $args['timeout'] ) ? $args['timeout'] : null;
+$lstab_timeouts = array();
+$lstab_spy      = function ( $args ) use ( &$lstab_timeouts ) {
+	$lstab_timeouts[] = isset( $args['timeout'] ) ? $args['timeout'] : null;
 	return $args;
 };
 add_filter( 'lstab_fetch_args', $lstab_spy, 100 );
@@ -817,9 +817,31 @@ lstab_age_source( $source_id, 86400 );
 lstab_view( '[sheet_table id="' . $source_id . '"]' );
 remove_filter( 'lstab_fetch_args', $lstab_spy, 100 );
 lstab_assert(
-	LSTAB_Sync::VIEW_TIMEOUT === $lstab_seen_timeout,
+	1 === count( $lstab_timeouts ) && $lstab_timeouts[0] > 0 && $lstab_timeouts[0] <= LSTAB_Sync::VIEW_TIMEOUT,
 	'A visitor waits at most ' . LSTAB_Sync::VIEW_TIMEOUT . ' seconds for Google',
-	var_export( $lstab_seen_timeout, true )
+	wp_json_encode( $lstab_timeouts )
+);
+
+// A sheet whose sharing settings refuse the export endpoint is asked twice.
+// Four seconds each would be eight seconds of waiting, in precisely the case
+// where Google is already being difficult, so the cap covers the whole attempt.
+lstab_set_mock( 'export_denied' );
+lstab_age_source( $source_id, 86400 );
+delete_transient( 'lstab_view_refresh_' . $source_id );
+$lstab_timeouts = array();
+add_filter( 'lstab_fetch_args', $lstab_spy, 100 );
+lstab_view( '[sheet_table id="' . $source_id . '"]' );
+remove_filter( 'lstab_fetch_args', $lstab_spy, 100 );
+lstab_assert( 2 === count( $lstab_timeouts ), 'Both endpoints are still tried when the first refuses', wp_json_encode( $lstab_timeouts ) );
+lstab_assert(
+	array_sum( $lstab_timeouts ) <= LSTAB_Sync::VIEW_TIMEOUT * 2,
+	'Neither request is allowed more than the whole cap',
+	wp_json_encode( $lstab_timeouts )
+);
+lstab_assert(
+	$lstab_timeouts[1] < $lstab_timeouts[0],
+	'And the second only gets what the first left of it',
+	wp_json_encode( $lstab_timeouts )
 );
 
 // And the whole point: when Google will not answer, the page is unchanged.
