@@ -335,6 +335,40 @@ class LSTAB_Storage {
 	}
 
 	/**
+	 * Put a source's reported health back as it was.
+	 *
+	 * Used after an attempt that is not evidence about the sheet: a refresh
+	 * made while someone waited, cut off by this plugin's own four-second
+	 * deadline rather than by anything wrong at Google. The attempt time stays
+	 * as record_failure() left it, so the next visitor does not try again
+	 * immediately; only the verdict is withdrawn.
+	 *
+	 * @param int         $id     Source ID.
+	 * @param string      $status Status to restore.
+	 * @param string|null $error  Error message to restore, or null.
+	 * @return bool
+	 */
+	public static function restore_status( $id, $status, $error ) {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Custom table, no core API available.
+		$updated = false !== $wpdb->update(
+			self::table(),
+			array(
+				'last_status' => (string) $status,
+				'last_error'  => null === $error ? null : (string) $error,
+			),
+			array( 'id' => (int) $id ),
+			array( '%s', '%s' ),
+			array( '%d' )
+		);
+
+		self::flush_cache( $id );
+
+		return $updated;
+	}
+
+	/**
 	 * Store a failed sync attempt, leaving the last good snapshot untouched.
 	 *
 	 * @param int    $id      Source ID.

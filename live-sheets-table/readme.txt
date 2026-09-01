@@ -158,6 +158,7 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 
 = 2.4.0 =
 * Added: a per-table option to check Google before the page is drawn, when the local copy is older than that table's schedule. WordPress has no clock of its own — the schedule runs on a visit, in a request of its own, after the page has already been sent — so the visitor who triggers a check is the one who sees the old copy. Prices and stock levels can now be right for the visitor who waited. One request checks at a time, the wait is capped at four seconds, and a sheet that is slow, down or newly failing leaves the copy you already have on the page.
+* Changed: a check made while someone waits is never what reports a sheet as broken. It is given four seconds where the scheduler is given twenty, so a sheet that syncs perfectly well can miss the shorter deadline — and a red dashboard over a deadline of the plugin's own invention would be a fault it made up. Refusals, sign-in pages and empty replies mean the same thing at four seconds as at twenty, and are still reported.
 
 = 2.3.0 =
 * Added: an Elementor widget, in a "Google Sheets" category of its own. Elementor keeps its own catalogue, so a plugin that is not in it is not there at all — its users had to paste a shortcode into a text widget and lose the live preview. The widget hands its settings to the same renderer the block and the shortcode use, so all three agree.

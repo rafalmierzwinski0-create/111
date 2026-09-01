@@ -807,6 +807,37 @@ lstab_assert( false === stripos( $failed_html, 'lstab-notice' ), 'And the visito
 // A source that keeps failing is retried on the schedule, not on every view.
 $failed_state = LSTAB_Storage::get( $source_id );
 lstab_assert( 'error' === $failed_state['last_status'], 'The failure is recorded for the admin', $failed_state['last_status'] );
+
+// A deadline of our own invention must not be reported as the sheet's fault.
+// The scheduler gets twenty seconds; this refresh gets four. A sheet that
+// syncs perfectly well on the schedule can miss the shorter one, and turning
+// the dashboard red over that would be a fault the plugin made up.
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
+lstab_age_source( $source_id, 86400 );
+delete_transient( 'lstab_view_refresh_' . $source_id );
+lstab_set_mock( 'timeout' );
+$slow_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$slow_state = LSTAB_Storage::get( $source_id );
+lstab_assert( false !== strpos( $slow_html, 'Rower górski' ), 'A refresh that runs out of time still shows the stored copy' );
+lstab_assert( 'ok' === $slow_state['last_status'], 'And does not report the sheet as broken over our own four-second cap', $slow_state['last_status'] );
+lstab_assert( null === $slow_state['last_error'], 'No invented error message is left for the admin', var_export( $slow_state['last_error'], true ) );
+lstab_assert( ! empty( $slow_state['last_attempt_gmt'] ), 'The attempt is still recorded, so the next visitor does not repeat it' );
+
+// The scheduled run has the real timeout, so it is the honest test — and when
+// it fails, the failure is reported exactly as before.
+lstab_assert( is_wp_error( LSTAB_Sync::run( $source_id ) ), 'The scheduled run still reports a timeout as a failure' );
+lstab_assert( 'error' === LSTAB_Storage::get( $source_id )['last_status'], 'Which is what turns the dashboard red' );
+
+// A refusal means the same thing at four seconds as at twenty, so it stands.
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
+lstab_age_source( $source_id, 86400 );
+delete_transient( 'lstab_view_refresh_' . $source_id );
+lstab_set_mock( 'http_403' );
+do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( 'error' === LSTAB_Storage::get( $source_id )['last_status'], 'A sheet made private is still reported from a view refresh' );
+
 $lstab_attempts = 0;
 $lstab_counter  = function ( $args ) use ( &$lstab_attempts ) {
 	$lstab_attempts++;

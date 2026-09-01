@@ -87,7 +87,23 @@ class LSTAB_Sync {
 		delete_transient( $lock );
 
 		if ( is_wp_error( $result ) ) {
-			// The stored copy is still on the page, which is the whole promise.
+			/*
+			 * The stored copy is still on the page, which is the whole promise.
+			 *
+			 * A transport error here is not evidence about the sheet: this
+			 * refresh was given four seconds instead of the usual twenty, so a
+			 * sheet the scheduler fetches perfectly well can miss that deadline
+			 * and be reported as broken. Turning the dashboard red over a
+			 * deadline of our own invention would be a fault this plugin made
+			 * up. The verdict is withdrawn and left to the scheduled run, which
+			 * fetches under the real timeout and is the honest test. Failures
+			 * that mean the same thing at four seconds as at twenty — a 403, a
+			 * sign-in page, an empty body — are recorded as failures.
+			 */
+			if ( 'lstab_http_error' === $result->get_error_code() ) {
+				LSTAB_Storage::restore_status( (int) $source['id'], $source['last_status'], $source['last_error'] );
+			}
+
 			return $source;
 		}
 
