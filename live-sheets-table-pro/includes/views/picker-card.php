@@ -9,7 +9,9 @@
  * @var array<int,array<int,string>> $shown   The rows offered for clicking.
  * @var array<int,array>             $columns Column settings.
  * @var array<int,string>            $hidden  Keys of hidden rows.
- * @var array<string,int>            $counts  How many rows answer to each key.
+ * @var array<string,int>            $counts  How many rows carry each name.
+ * @var array<string,int>            $twins   How many rows are identical cell for cell.
+ * @var array<int,bool>              $dropped Positions currently hidden.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -54,20 +56,22 @@ defined( 'ABSPATH' ) || exit;
 				<?php foreach ( $shown as $lstabp_r => $lstabp_row ) : ?>
 					<?php
 					$lstabp_key    = LSTAB_Hidden_Rows::key_for( $lstabp_row );
-					$lstabp_off    = LSTAB_Hidden_Rows::is_hidden( $lstabp_row, $hidden );
-					$lstabp_shared = isset( $counts[ $lstabp_key ] ) ? (int) $counts[ $lstabp_key ] : 1;
+					$lstabp_sig    = LSTAB_Hidden_Rows::signature( $lstabp_row );
+					$lstabp_off    = isset( $dropped[ $lstabp_r ] );
+					$lstabp_shared = isset( $twins[ $lstabp_sig ] ) ? (int) $twins[ $lstabp_sig ] : 1;
 					?>
 					<tr class="lstabp-picker-row<?php echo $lstabp_off ? ' is-hidden' : ''; ?>"
 						data-lstabp-key="<?php echo esc_attr( $lstabp_key ); ?>"
+						data-lstabp-sig="<?php echo esc_attr( $lstabp_sig ); ?>"
 						data-lstabp-shared="<?php echo esc_attr( (string) $lstabp_shared ); ?>">
 						<th scope="row" class="lstabp-picker-handle">
 							<button type="button"
 								class="lstabp-picker-toggle"
-								data-lstabp-row="<?php echo esc_attr( $lstabp_key ); ?>"
+								data-lstabp-row="<?php echo esc_attr( $lstabp_sig ); ?>"
 								aria-pressed="<?php echo $lstabp_off ? 'true' : 'false'; ?>"
 								<?php disabled( '' === $lstabp_key ); ?>
 								<?php if ( $lstabp_shared > 1 ) : ?>
-									title="<?php echo esc_attr( sprintf( /* translators: %d: number of rows. */ __( '%d rows say this, and they are one choice: hiding it hides all of them.', 'live-sheets-table-pro' ), $lstabp_shared ) ); ?>"
+									title="<?php echo esc_attr( sprintf( /* translators: %d: number of rows. */ __( '%d rows are identical, cell for cell, so they are one choice: hiding it hides all of them.', 'live-sheets-table-pro' ), $lstabp_shared ) ); ?>"
 								<?php endif; ?>>
 								<span class="lstabp-picker-number"><?php echo esc_html( (string) ( $lstabp_r + 1 ) ); ?></span>
 								<?php if ( $lstabp_shared > 1 ) : ?>
@@ -127,10 +131,16 @@ defined( 'ABSPATH' ) || exit;
 	<input type="hidden" name="_lstab_hidden_rows_present" value="1">
 
 	<div id="lstabp-hidden-rows-fields" hidden>
-		<?php foreach ( $hidden as $lstabp_key ) : ?>
-			<input type="hidden" name="hidden_rows[]"
-				value="<?php echo esc_attr( $lstabp_key ); ?>"
-				data-lstabp-present="<?php echo isset( $counts[ $lstabp_key ] ) ? '1' : '0'; ?>">
+		<?php foreach ( $hidden as $lstabp_index => $lstabp_entry ) : ?>
+			<?php $lstabp_live = (bool) LSTAB_Hidden_Rows::matches( $lstabp_entry, $rows, $counts ); ?>
+			<input type="hidden"
+				name="hidden_rows[<?php echo esc_attr( (string) $lstabp_index ); ?>][name]"
+				value="<?php echo esc_attr( $lstabp_entry['name'] ); ?>">
+			<input type="hidden"
+				name="hidden_rows[<?php echo esc_attr( (string) $lstabp_index ); ?>][sig]"
+				value="<?php echo esc_attr( $lstabp_entry['sig'] ); ?>"
+				data-lstabp-present="<?php echo $lstabp_live ? '1' : '0'; ?>"
+				data-lstabp-name="<?php echo esc_attr( $lstabp_entry['name'] ); ?>">
 		<?php endforeach; ?>
 	</div>
 </div>

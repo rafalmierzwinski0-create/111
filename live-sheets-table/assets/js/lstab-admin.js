@@ -132,16 +132,19 @@
 
 		Array.prototype.forEach.call( columnRows, function ( row ) {
 			var label = row.querySelector( 'input[type="text"]' );
-			var visible = row.querySelector( 'input[type="checkbox"]' );
+			var state = row.querySelector( 'input[name$="[hidden]"]' );
 
-			if ( ! label || ! visible || label.disabled ) {
+			if ( ! label || label.disabled ) {
 				return;
 			}
 
 			settings.push( {
 				source: label.placeholder || '',
 				label: label.value,
-				visible: visible.checked
+				// The add-on writes into this field as you click, so reading it
+				// here keeps the preview honest whether the add-on is there or
+				// not, without the free plugin knowing anything about it.
+				visible: ! ( state && '1' === state.value )
 			} );
 		} );
 

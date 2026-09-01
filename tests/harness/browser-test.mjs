@@ -789,12 +789,15 @@ check(
 const columnRows = page.locator( '.lstab-column-list tbody tr' );
 check( await columnRows.count() === 5, 'One row per column in the sheet', String( await columnRows.count() ) );
 
-// Hiding and renaming must show up in the preview, not only after publishing.
-await columnRows.nth( 4 ).locator( 'input[type=checkbox]' ).uncheck();
-await page.waitForFunction( () => document.querySelectorAll( '.lstab-preview thead th' ).length === 4, null, { timeout: 20000 } ).catch( () => {} );
+// Whether a column is in the table is the add-on's to change; here it is only
+// reported, and carried back unchanged so that saving cannot alter it.
 check(
-	( await page.locator( '.lstab-preview thead th' ).allInnerTexts() ).length === 4,
-	'Unchecking a column updates the preview'
+	await page.locator( '.lstab-column-list tbody tr input[name$="[hidden]"]' ).count() === 5,
+	'Every column carries its state back with the form'
+);
+check(
+	await page.locator( '.lstab-column-list tbody tr input[type=checkbox]' ).count() === 0,
+	'And there is no control here for changing it'
 );
 
 const labelField = columnRows.nth( 0 ).locator( 'input[type=text]' );
@@ -817,23 +820,19 @@ check(
 	await columnRows.nth( 0 ).locator( 'input[type=text]' ).inputValue() === 'Nazwa produktu',
 	'The new name survives the save'
 );
-const savedBoxes = await page.locator( '.lstab-column-list tbody tr input[type=checkbox]' ).evaluateAll( ( els ) => els.map( ( e ) => e.checked ) );
+const savedStates = await page.locator( '.lstab-column-list tbody tr input[name$="[hidden]"]' ).evaluateAll( ( els ) => els.map( ( e ) => e.value ) );
 check(
-	JSON.stringify( savedBoxes ) === JSON.stringify( [ true, true, true, true, false ] ),
-	'The hidden column survives the save',
-	JSON.stringify( savedBoxes )
+	JSON.stringify( savedStates ) === JSON.stringify( [ '0', '0', '0', '0', '0' ] ),
+	'Saving from here leaves every column exactly as it was',
+	JSON.stringify( savedStates )
 );
 await page.locator( '.lstab-columns-card' ).screenshot( { path: `${ SHOTS }/13-columns-card.png` } );
 
 await apage.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
 await apage.waitForTimeout( 400 );
 const publishedHeads = await apage.locator( '.lstab' ).first().locator( 'thead th' ).allInnerTexts();
-check( publishedHeads.length === 4, 'The published page hides the same column', String( publishedHeads.length ) );
+check( publishedHeads.length === 5, 'The published page shows every column', String( publishedHeads.length ) );
 check( /NAZWA PRODUKTU/i.test( publishedHeads[ 0 ] ), 'The published page uses the new name', publishedHeads[ 0 ] );
-check(
-	! ( await apage.locator( 'body' ).innerText() ).includes( '2026-08-20' ),
-	'A hidden column\'s values never reach the page at all'
-);
 
 section( '9b. Even column widths' );
 
@@ -869,7 +868,6 @@ await apage.locator( '.lstab' ).first().screenshot( { path: `${ SHOTS }/14-even-
 
 // Put the source back the way the rest of the run expects to find it.
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
-await columnRows.nth( 4 ).locator( 'input[type=checkbox]' ).check();
 await columnRows.nth( 0 ).locator( 'input[type=text]' ).fill( '' );
 await page.locator( '.lstab-submit button[type=submit]' ).click();
 await page.waitForLoadState( 'networkidle' );

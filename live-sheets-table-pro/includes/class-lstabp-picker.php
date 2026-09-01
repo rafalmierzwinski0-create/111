@@ -75,35 +75,11 @@ class LSTABP_Picker {
 					/* translators: %d: how many rows say the same thing. */
 					'alsoMatches'  => __( '%d rows', 'live-sheets-table-pro' ),
 					'notInSheet'   => __( 'not in the sheet now', 'live-sheets-table-pro' ),
+					'shown'        => __( 'Shown', 'live-sheets-table-pro' ),
+					'hidden'       => __( 'Hidden', 'live-sheets-table-pro' ),
 				),
 			)
 		);
-	}
-
-	/**
-	 * How many rows of the sheet answer to each key.
-	 *
-	 * A row is remembered by what it says, so two rows saying the same thing
-	 * are one choice, not two. That is usually right and occasionally a
-	 * surprise, and a surprise is only a problem while it is invisible.
-	 *
-	 * @param array<int,array<int,string>> $rows Sheet rows.
-	 * @return array<string,int>
-	 */
-	public static function key_counts( $rows ) {
-		$counts = array();
-
-		foreach ( (array) $rows as $row ) {
-			$key = LSTAB_Hidden_Rows::key_for( $row );
-
-			if ( '' === $key ) {
-				continue;
-			}
-
-			$counts[ $key ] = isset( $counts[ $key ] ) ? $counts[ $key ] + 1 : 1;
-		}
-
-		return $counts;
 	}
 
 	/**
@@ -127,7 +103,9 @@ class LSTABP_Picker {
 
 		$columns = isset( $source['columns_config'] ) ? (array) $source['columns_config'] : array();
 		$hidden  = LSTAB_Hidden_Rows::sanitize( isset( $source['hidden_rows'] ) ? $source['hidden_rows'] : array() );
-		$counts  = self::key_counts( $rows );
+		$counts  = LSTAB_Hidden_Rows::name_counts( $rows );
+		$dropped = LSTAB_Hidden_Rows::positions( $hidden, $rows );
+		$twins   = LSTAB_Hidden_Rows::signature_counts( $rows );
 		$shown   = array_slice( $rows, 0, self::MAX_ROWS );
 
 		include LSTABP_PATH . 'includes/views/picker-card.php';

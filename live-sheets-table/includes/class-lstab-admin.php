@@ -21,6 +21,9 @@ class LSTAB_Admin {
 	 * @return void
 	 */
 	public function register() {
+		// Records that the add-on is running, so that if it later stops, the
+		// choices it made can be honoured for a while rather than dropped.
+		add_action( 'admin_init', array( 'LSTAB_Limits', 'note_pro_seen' ) );
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
 		add_action( 'admin_post_lstab_save_source', array( $this, 'handle_save' ) );
@@ -550,6 +553,48 @@ class LSTAB_Admin {
 			(int) $ragged['expected'],
 			$listed
 		);
+	}
+
+	/**
+	 * Say that hidden columns and rows are on borrowed time.
+	 *
+	 * The choices someone paid to make keep working for ten days after the
+	 * add-on stops, so a licence ending on a Tuesday does not rearrange a
+	 * public page on the Tuesday. Ten quiet days followed by a page silently
+	 * changing would be worse than no grace at all, so the countdown is said
+	 * out loud while it runs.
+	 *
+	 * @return void
+	 */
+	public static function print_grace_notice() {
+		if ( LSTAB_Limits::is_pro() ) {
+			return;
+		}
+
+		$left = LSTAB_Limits::grace_remaining();
+
+		if ( $left <= 0 ) {
+			return;
+		}
+
+		?>
+		<div class="notice notice-warning lstab-grace-notice">
+			<p>
+				<strong>
+					<?php
+					printf(
+						/* translators: %s: human readable time difference, e.g. "6 days". */
+						esc_html__( 'Columns and rows you hid will start showing again in %s.', 'live-sheets-table' ),
+						esc_html( human_time_diff( time(), time() + $left ) )
+					);
+					?>
+				</strong>
+			</p>
+			<p>
+				<?php esc_html_e( 'Choosing what to leave out of a table is part of Pro, and Pro is not active on this site. Your choices are still being honoured for now, so nothing on your pages has changed yet.', 'live-sheets-table' ); ?>
+			</p>
+		</div>
+		<?php
 	}
 
 	public static function print_cron_notice() {

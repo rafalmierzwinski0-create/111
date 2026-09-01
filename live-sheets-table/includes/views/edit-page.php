@@ -27,6 +27,7 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 		?>
 	</h1>
 
+	<?php LSTAB_Admin::print_grace_notice(); ?>
 	<?php LSTAB_Admin::print_cron_notice(); ?>
 	<?php LSTAB_Admin::print_notice(); ?>
 
@@ -358,7 +359,10 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 		<div class="lstab-card lstab-columns-card<?php echo $lstab_waiting ? ' is-waiting' : ''; ?>">
 			<h2 class="lstab-card-title"><?php esc_html_e( 'Columns', 'live-sheets-table' ); ?></h2>
 			<p class="lstab-help">
-				<?php esc_html_e( 'Rename a column for your visitors, or leave it out of the table entirely. Nothing here is written back to Google — your spreadsheet keeps its own headings, including working names nobody should see.', 'live-sheets-table' ); ?>
+				<?php esc_html_e( 'Rename a column for your visitors. Nothing here is written back to Google — your spreadsheet keeps its own headings, including working names nobody should see.', 'live-sheets-table' ); ?>
+				<?php if ( ! LSTAB_Limits::is_pro() ) : ?>
+					<?php esc_html_e( 'Leaving a column or a row out of the table is part of Pro, where you choose it by clicking your own sheet.', 'live-sheets-table' ); ?>
+				<?php endif; ?>
 			</p>
 
 			<?php if ( $lstab_waiting ) : ?>
@@ -402,7 +406,7 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 					<tr>
 						<th scope="col"><?php esc_html_e( 'In your sheet', 'live-sheets-table' ); ?></th>
 						<th scope="col"><?php esc_html_e( 'Shown as', 'live-sheets-table' ); ?></th>
-						<th scope="col"><?php esc_html_e( 'Include', 'live-sheets-table' ); ?></th>
+						<th scope="col"><?php esc_html_e( 'In the table', 'live-sheets-table' ); ?></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -421,17 +425,23 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 									value="<?php echo esc_attr( $lstab_column['label'] ); ?>"
 									placeholder="<?php echo esc_attr( $lstab_column['source'] ); ?>">
 							</td>
-							<td>
-								<label>
-									<?php /* An unchecked box sends nothing, which would read as "no answer" and leave the column visible. The companion below makes "off" an answer of its own. */ ?>
-									<input type="hidden" <?php disabled( $lstab_waiting ); ?>
-										name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][visible]" value="0">
-									<input type="checkbox"
-										<?php disabled( $lstab_waiting ); ?>
-										name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][visible]"
-										value="1" <?php checked( empty( $lstab_column['hidden'] ) ); ?>>
-									<span class="screen-reader-text"><?php esc_html_e( 'Show this column', 'live-sheets-table' ); ?></span>
-								</label>
+							<td class="lstab-column-state">
+								<?php
+								/*
+								 * Whether a column is left out is the add-on's to
+								 * change; this only reports it and carries it back
+								 * unchanged, so saving from here can never quietly
+								 * put a column back on a public page.
+								 */
+								?>
+								<input type="hidden" <?php disabled( $lstab_waiting ); ?>
+									name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][hidden]"
+									value="<?php echo empty( $lstab_column['hidden'] ) ? '0' : '1'; ?>">
+								<?php if ( empty( $lstab_column['hidden'] ) ) : ?>
+									<span class="lstab-state-shown"><?php esc_html_e( 'Shown', 'live-sheets-table' ); ?></span>
+								<?php else : ?>
+									<span class="lstab-state-hidden"><?php esc_html_e( 'Hidden', 'live-sheets-table' ); ?></span>
+								<?php endif; ?>
 							</td>
 						</tr>
 					<?php endforeach; ?>

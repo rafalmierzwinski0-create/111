@@ -93,6 +93,15 @@ return array(
 		=> 'WordPress nie ma własnego zegara — jego harmonogram uruchamia się dopiero wtedy, gdy ktoś poprosi o stronę, więc witryna bez ruchu nie sprawdza niczego. Daj mu prawdziwy zegar po stronie hostingu. Większość paneli hostingowych ma ekran „Cron jobs”; wklej tam tę linię:',
 	'No shell access? A free uptime monitor pointed at your home page does the same job, because every visit it makes runs the schedule. %s'
 		=> 'Nie masz dostępu do powłoki? Darmowy monitor dostępności wycelowany w stronę główną zrobi to samo, bo każde jego odwiedziny uruchamiają harmonogram. %s',
+	'In the table'                               => 'W tabeli',
+	'Shown'                                      => 'Widoczna',
+	'Hidden'                                     => 'Ukryta',
+	'Leaving a column or a row out of the table is part of Pro, where you choose it by clicking your own sheet.'
+		=> 'Pomijanie kolumny lub wiersza w tabeli jest częścią Pro — wybierasz je, klikając we własny arkusz.',
+	'Columns and rows you hid will start showing again in %s.'
+		=> 'Ukryte przez Ciebie kolumny i wiersze zaczną znów się pokazywać za %s.',
+	'Choosing what to leave out of a table is part of Pro, and Pro is not active on this site. Your choices are still being honoured for now, so nothing on your pages has changed yet.'
+		=> 'Wybieranie, co pominąć w tabeli, jest częścią Pro, a Pro nie jest aktywne na tej witrynie. Twoje wybory są na razie respektowane, więc na stronach nic się jeszcze nie zmieniło.',
 	'Save changes and sync'                      => 'Zapisz zmiany i zsynchronizuj',
 	'Save source and sync'                       => 'Zapisz źródło i zsynchronizuj',
 
@@ -119,7 +128,7 @@ return array(
 
 	// Columns and the pinned first column.
 	'Columns'                                    => 'Kolumny',
-	'Rename a column for your visitors, or leave it out of the table entirely. Nothing here is written back to Google — your spreadsheet keeps its own headings, including working names nobody should see.'
+	'Rename a column for your visitors. Nothing here is written back to Google — your spreadsheet keeps its own headings, including working names nobody should see.'
 		=> 'Zmień nazwę kolumny dla odwiedzających albo w ogóle pomiń ją w tabeli. Nic z tego nie jest zapisywane do Google — Twój arkusz zachowuje własne nagłówki, także robocze nazwy, których nikt nie powinien widzieć.',
 	'In your sheet'                              => 'W Twoim arkuszu',
 	'Shown as'                                   => 'Wyświetlane jako',

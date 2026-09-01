@@ -101,7 +101,35 @@ class LSTAB_Storage {
 			$wpdb->query( "ALTER TABLE {$table} DROP COLUMN refresh_on_view" );
 		}
 
+		/*
+		 * Leaving a column out used to be free, and is not any more. A site
+		 * that already has one hidden must not have it reappear on a public
+		 * page the moment it updates: the grace clock starts now instead, so
+		 * the owner gets the same ten days and the same notice as anyone whose
+		 * add-on has stopped.
+		 */
+		if ( ! get_option( LSTAB_Limits::SEEN_OPTION ) && ! LSTAB_Limits::is_pro() && self::any_column_hidden() ) {
+			update_option( LSTAB_Limits::SEEN_OPTION, time(), true );
+		}
+
 		update_option( self::DB_VERSION_OPT, self::DB_VERSION );
+	}
+
+	/**
+	 * Whether any source leaves a column out of its table.
+	 *
+	 * @return bool
+	 */
+	protected static function any_column_hidden() {
+		foreach ( self::get_all() as $source ) {
+			foreach ( (array) $source['columns_config'] as $column ) {
+				if ( ! empty( $column['hidden'] ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**

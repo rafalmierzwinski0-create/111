@@ -31,32 +31,64 @@
 	 * @return {Array} Keys.
 	 */
 	function orphanedKeys() {
-		var keys = [];
+		var found = [];
 
 		Array.prototype.forEach.call(
 			fields.querySelectorAll( 'input[data-lstabp-present="0"]' ),
 			function ( field ) {
-				if ( keys.indexOf( field.value ) === -1 ) {
-					keys.push( field.value );
-				}
+				found.push( {
+					name: field.getAttribute( 'data-lstabp-name' ) || '',
+					sig: field.value || ''
+				} );
 			}
 		);
 
-		return keys;
+		return found;
 	}
 
 	var orphans = orphanedKeys();
 
 	/**
-	 * The free plugin's checkbox governing one column.
+	 * The field in which the free plugin carries one column's state.
+	 *
+	 * The free plugin shows that state and submits it back unchanged; changing
+	 * it is what this add-on is for, so the picker writes into the same field
+	 * rather than inventing a second place for the same fact.
 	 *
 	 * @param {number} index Column position.
-	 * @return {HTMLInputElement|null} Checkbox.
+	 * @return {HTMLInputElement|null} Field.
 	 */
-	function columnBox( index ) {
+	function columnField( index ) {
 		return document.querySelector(
-			'input[type="checkbox"][name="columns[' + index + '][visible]"]'
+			'input[type="hidden"][name="columns[' + index + '][hidden]"]'
 		);
+	}
+
+	/**
+	 * Keep the free plugin's own wording in step with the picker.
+	 *
+	 * @param {number}  index  Column position.
+	 * @param {boolean} hidden Whether it is dropped.
+	 * @return {void}
+	 */
+	function paintState( index, hidden ) {
+		var field = columnField( index );
+		if ( ! field ) {
+			return;
+		}
+
+		var cell = field.closest( '.lstab-column-state' );
+		if ( ! cell ) {
+			return;
+		}
+
+		var label = cell.querySelector( 'span' );
+		if ( ! label ) {
+			return;
+		}
+
+		label.className = hidden ? 'lstab-state-hidden' : 'lstab-state-shown';
+		label.textContent = hidden ? ( i18n.hidden || 'Hidden' ) : ( i18n.shown || 'Shown' );
 	}
 
 	/**
@@ -91,19 +123,29 @@
 	 * @return {Array} Keys.
 	 */
 	function hiddenKeys() {
-		var keys = orphans.slice();
+		var entries = orphans.slice();
+		var seen = {};
+
+		entries.forEach( function ( entry ) {
+			seen[ entry.sig ] = true;
+		} );
 
 		Array.prototype.forEach.call(
-			picker.querySelectorAll( 'tr.is-hidden[data-lstabp-key]' ),
+			picker.querySelectorAll( 'tr.is-hidden[data-lstabp-sig]' ),
 			function ( row ) {
-				var key = row.getAttribute( 'data-lstabp-key' );
-				if ( key && keys.indexOf( key ) === -1 ) {
-					keys.push( key );
+				var sig = row.getAttribute( 'data-lstabp-sig' );
+
+				if ( sig && ! seen[ sig ] ) {
+					seen[ sig ] = true;
+					entries.push( {
+						name: row.getAttribute( 'data-lstabp-key' ) || '',
+						sig: sig
+					} );
 				}
 			}
 		);
 
-		return keys;
+		return entries;
 	}
 
 	/**
@@ -112,8 +154,8 @@
 	 * @param {string} key Row key.
 	 * @return {number} Count.
 	 */
-	function sharedBy( key ) {
-		var row = picker.querySelector( 'tr[data-lstabp-key="' + cssEscape( key ) + '"]' );
+	function sharedBy( sig ) {
+		var row = picker.querySelector( 'tr[data-lstabp-sig="' + cssEscape( sig ) + '"]' );
 
 		return row ? parseInt( row.getAttribute( 'data-lstabp-shared' ), 10 ) || 1 : 0;
 	}
@@ -143,14 +185,17 @@
 		fields.innerHTML = '';
 		chips.innerHTML = '';
 
-		keys.forEach( function ( key ) {
-			var field = document.createElement( 'input' );
-			field.type = 'hidden';
-			field.name = 'hidden_rows[]';
-			field.value = key;
-			fields.appendChild( field );
+		keys.forEach( function ( entry, position ) {
+			[ 'name', 'sig' ].forEach( function ( part ) {
+				var field = document.createElement( 'input' );
+				field.type = 'hidden';
+				field.name = 'hidden_rows[' + position + '][' + part + ']';
+				field.value = entry[ part ];
+				fields.appendChild( field );
+			} );
 
-			var shared = sharedBy( key );
+			var key = entry.name;
+			var shared = sharedBy( entry.sig );
 			var chip = document.createElement( 'li' );
 			chip.className = 'lstabp-chip' + ( 0 === shared ? ' is-orphan' : '' );
 
@@ -177,9 +222,9 @@
 			remove.textContent = '×';
 			remove.addEventListener( 'click', function () {
 				orphans = orphans.filter( function ( other ) {
-					return other !== key;
+					return other.sig !== entry.sig;
 				} );
-				setRow( key, false );
+				setRow( entry.sig, false );
 			} );
 			chip.appendChild( remove );
 
@@ -192,18 +237,19 @@
 	}
 
 	/**
-	 * Mark every row carrying one key as hidden or shown.
+	 * Mark the row with this signature as hidden or shown.
 	 *
-	 * Two rows can legitimately say the same thing, and hiding one while
-	 * leaving its twin would look like the click had failed.
+	 * Rows that differ anywhere have different signatures, so ten products all
+	 * called "Kask" are ten separate choices. Rows identical in every cell share
+	 * one, which is right: they are indistinguishable to a reader too.
 	 *
-	 * @param {string}  key    Row key.
+	 * @param {string}  sig    Row signature.
 	 * @param {boolean} hidden Whether to hide it.
 	 * @return {void}
 	 */
-	function setRow( key, hidden ) {
+	function setRow( sig, hidden ) {
 		Array.prototype.forEach.call(
-			picker.querySelectorAll( 'tr[data-lstabp-key="' + cssEscape( key ) + '"]' ),
+			picker.querySelectorAll( 'tr[data-lstabp-sig="' + cssEscape( sig ) + '"]' ),
 			function ( row ) {
 				row.classList.toggle( 'is-hidden', hidden );
 
@@ -226,14 +272,15 @@
 		var column = toggle.getAttribute( 'data-lstabp-column' );
 
 		if ( null !== column ) {
-			var box = columnBox( column );
+			var field = columnField( column );
 			var hidden = 'true' !== toggle.getAttribute( 'aria-pressed' );
 
-			if ( box ) {
-				box.checked = ! hidden;
+			if ( field ) {
+				field.value = hidden ? '1' : '0';
 			}
 
 			paintColumn( column, hidden );
+			paintState( column, hidden );
 			return;
 		}
 
@@ -242,19 +289,6 @@
 			setRow( key, 'true' !== toggle.getAttribute( 'aria-pressed' ) );
 		}
 	} );
-
-	// The checkbox list can still be used directly, and the picker follows it.
-	Array.prototype.forEach.call(
-		document.querySelectorAll( 'input[type="checkbox"][name^="columns["]' ),
-		function ( box ) {
-			box.addEventListener( 'change', function () {
-				var match = box.name.match( /columns\[(\d+)\]/ );
-				if ( match ) {
-					paintColumn( match[ 1 ], ! box.checked );
-				}
-			} );
-		}
-	);
 
 	syncRows();
 }() );

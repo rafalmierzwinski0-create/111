@@ -136,4 +136,16 @@ cp "$REPO/tests/harness/browser-test.mjs" "$SCRATCH/browser-test.mjs"
 cd "$SCRATCH" && LSTAB_SCRATCH="$SCRATCH" LSTAB_SHOTS="$REPO/screenshots" node browser-test.mjs
 
 echo
+echo "=============================================="
+echo " Pro picker in a browser — WordPress 7.1"
+echo "=============================================="
+# Clicking things is the whole point of the picker, and the only part of it PHP
+# cannot check. The add-on has to be running for the screen to exist at all.
+php "$REPO/tests/harness/activate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null
+php "$SCRATCH/seed71.php" > /dev/null
+cp "$REPO/tests/harness/picker-test.mjs" "$SCRATCH/picker-test.mjs"
+cd "$SCRATCH" && LSTAB_SHOTS="$REPO/screenshots" node picker-test.mjs
+php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null
+
+echo
 echo "All suites passed."

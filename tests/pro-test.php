@@ -543,8 +543,9 @@ LSTAB_Storage::update( $source_id, array( 'columns_config' => array() ) );
 // A row taken out of the table is out of the file too. The competitor this
 // plugin exists to improve on has this exact complaint on its support forum:
 // hidden things reappearing in the download.
-$hidden_key = LSTAB_Hidden_Rows::key_for( LSTAB_Storage::get( $source_id )['data']['rows'][0] );
-LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array( $hidden_key ) ) );
+$hidden_row = LSTAB_Storage::get( $source_id )['data']['rows'][0];
+$hidden_key = LSTAB_Hidden_Rows::key_for( $hidden_row );
+LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array( LSTAB_Hidden_Rows::entry_for( $hidden_row ) ) ) );
 $export_rows = LSTAB_Renderer::prepare( LSTAB_Storage::get( $source_id ), array() );
 $exported    = wp_json_encode( $export_rows['rows'] );
 lstabp_assert( false === strpos( (string) $exported, $hidden_key ), 'A hidden row is not in the file either', (string) $exported );
@@ -572,6 +573,14 @@ lstabp_assert( ! LSTABP_Export::is_enabled( $export_throwaway ), 'Deleting a sou
 delete_option( LSTABP_Export::OPTION );
 
 lstabp_section( '5e. Pointing at what you want gone' );
+
+// With the add-on running, hiding is honoured outright rather than on borrowed
+// time, and the countdown notice has nothing to count.
+lstabp_assert( LSTAB_Limits::pro_effective(), 'Choices are honoured while the add-on is running' );
+ob_start();
+LSTAB_Admin::print_grace_notice();
+lstabp_assert( '' === trim( (string) ob_get_clean() ), 'And no countdown is shown' );
+
 
 $picker_source = LSTAB_Storage::get( $source_id );
 $picker        = new LSTABP_Picker();
@@ -602,9 +611,12 @@ $twins = array(
 	array( 'Kask', '120', 'Brak' ),
 	array( 'Rower', '4000', 'W magazynie' ),
 );
-$counts = LSTABP_Picker::key_counts( $twins );
-lstabp_assert( 2 === $counts['Kask'], 'Rows saying the same thing are counted together', wp_json_encode( $counts ) );
-lstabp_assert( 1 === $counts['Rower'], 'And ones that do not, are not' );
+$counts = LSTAB_Hidden_Rows::signature_counts( $twins );
+lstabp_assert( 1 === $counts[ LSTAB_Hidden_Rows::signature( $twins[0] ) ], 'Two helmets at different prices are two rows, not one', wp_json_encode( array_values( $counts ) ) );
+
+$same   = array( array( 'Kask', '100', 'W magazynie' ), array( 'Kask', '100', 'W magazynie' ) );
+$shared = LSTAB_Hidden_Rows::signature_counts( $same );
+lstabp_assert( 2 === $shared[ LSTAB_Hidden_Rows::signature( $same[0] ) ], 'Rows identical in every cell are one choice, because a reader cannot tell them apart either' );
 
 $twin_source            = $picker_source;
 $twin_source['data']    = array( 'headers' => array( 'Produkt', 'Cena', 'Stan' ), 'rows' => $twins );
@@ -613,18 +625,26 @@ $twin_source['hidden_rows'] = array();
 ob_start();
 $picker->render_card( $twin_source, true );
 $twin_card = (string) ob_get_clean();
-lstabp_assert( false !== strpos( $twin_card, 'data-lstabp-shared="2"' ), 'The screen marks a row that speaks for two' );
-lstabp_assert( false !== strpos( $twin_card, '×2' ), 'And shows the count before anything is clicked', 'no count shown' );
+lstabp_assert( false === strpos( $twin_card, 'data-lstabp-shared="2"' ), 'Two helmets at different prices are not marked as one choice' );
 
-// Hiding it hides both, which is what the screen said it would do.
-$twin_source['hidden_rows'] = array( 'Kask' );
+// Only rows that are identical cell for cell get the warning.
+$same_source                = $twin_source;
+$same_source['data']['rows'] = $same;
+ob_start();
+$picker->render_card( $same_source, true );
+$same_card = (string) ob_get_clean();
+lstabp_assert( false !== strpos( $same_card, 'data-lstabp-shared="2"' ), 'Rows identical in every cell are marked as one choice' );
+lstabp_assert( false !== strpos( $same_card, '×2' ), 'And the count is shown before anything is clicked' );
+
+// Hiding one helmet leaves the other, which is the whole point.
+$twin_source['hidden_rows'] = array( LSTAB_Hidden_Rows::entry_for( $twins[0] ) );
 $left = LSTAB_Hidden_Rows::filter_rows( $twins, $twin_source['data']['headers'], $twin_source, array() );
-lstabp_assert( 1 === count( $left ), 'Hiding a shared identity hides every row that shares it', (string) count( $left ) );
-lstabp_assert( 'Rower' === $left[0][0], 'And leaves the rest' );
+lstabp_assert( 2 === count( $left ), 'One of two rows sharing a name can be hidden on its own', (string) count( $left ) );
+lstabp_assert( '120' === $left[0][1], 'And it is the right one', wp_json_encode( $left ) );
 
 // A choice whose row has since been renamed is kept, and shown as dormant.
 $orphan_source                = $picker_source;
-$orphan_source['hidden_rows'] = array( 'Coś, czego już nie ma' );
+$orphan_source['hidden_rows'] = array( array( 'name' => 'Coś, czego już nie ma', 'sig' => str_repeat( 'b', 32 ) ) );
 ob_start();
 $picker->render_card( $orphan_source, true );
 $orphan_card = (string) ob_get_clean();

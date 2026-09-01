@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.8.0
+Stable tag: 2.9.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -55,7 +55,7 @@ Paste your link and the parser shows you exactly what it read — headings, rows
 * A visual appearance editor: set colours, text size, row height and corners per table, with the preview updating as you go.
 * A visible, draggable slider under any table too wide for its column, so nothing is ever hidden behind an invisible scrollbar.
 * The first column stays pinned while the rest scrolls, so a price never stops belonging to a product — and can be switched off per table.
-* Rename columns for your visitors, or leave a column out of the table entirely, without touching the spreadsheet.
+* Rename columns for your visitors without touching the spreadsheet.
 * A layout control per source: scroll the table sideways, or stack each row into a card.
 * An "updated N minutes ago" label you can switch off.
 * Full translation support.
@@ -155,6 +155,11 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 2.9.0 =
+* Changed: leaving a column out of a table is part of Pro. The list of columns still shows which are in and which are out, and still renames them, but the choice itself is made in Pro by clicking your own sheet.
+* Changed: choices only Pro can make keep working for ten days after Pro stops. A licence ending on a Tuesday should not rearrange a public page on the Tuesday, and ten quiet days followed by a page changing by itself would be worse than no grace at all — so the dashboard says how long is left while the countdown runs. A site that already had a column hidden gets the same ten days when it updates.
+* Fixed: a hidden row is now recognised by everything it says, not only by its name. Ten products all called "Kask" are ten separate rows, and any one of them can be hidden on its own. If a hidden row is later edited it is found by name instead — but only while just one row carries that name; where a name has become ambiguous nothing is hidden and the screen says why, because a row that should be hidden and is not is a mistake you can see, and the wrong row disappearing is not.
 
 = 2.8.0 =
 * Changed: clicking your sheet to hide a column or a row moved to the Pro add-on. Columns can still be hidden here, from the list of checkboxes, exactly as before — nothing that was free has been taken away.
@@ -280,6 +285,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 2.9.0 =
+Hiding columns and rows is a Pro feature, with ten days of grace after Pro stops. A hidden row is now recognised by everything it says.
 
 = 2.8.0 =
 Clicking a sheet to hide parts of it is now a Pro feature; rows already hidden stay hidden regardless.

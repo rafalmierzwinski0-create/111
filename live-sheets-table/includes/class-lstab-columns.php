@@ -138,10 +138,15 @@ class LSTAB_Columns {
 		$keep    = array();
 		$labels  = array();
 
+		// Leaving a column out is the add-on's to decide, and is honoured for a
+		// grace period after it stops so that a lapsed licence does not
+		// rearrange a public page the same day. Renaming stays free.
+		$may_hide = LSTAB_Limits::pro_effective();
+
 		foreach ( $headers as $index => $heading ) {
 			$column = isset( $config[ $index ] ) ? $config[ $index ] : null;
 
-			if ( $column && $column['hidden'] ) {
+			if ( $column && $column['hidden'] && $may_hide ) {
 				continue;
 			}
 

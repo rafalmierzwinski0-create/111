@@ -96,6 +96,14 @@ lstab_section( '1. Schema and activation' );
 
 LSTAB_Plugin::on_activate();
 
+/*
+ * Leaving a column or a row out of a table is the add-on's to decide, and is
+ * honoured for ten days after it stops. Most of this suite is about what those
+ * choices do, not about who may make them, so the clock is set to now here and
+ * section 12f is where it is wound forward deliberately.
+ */
+update_option( LSTAB_Limits::SEEN_OPTION, time(), true );
+
 global $wpdb;
 $table  = LSTAB_Storage::table();
 $exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
@@ -1415,8 +1423,12 @@ lstab_assert( false !== $card_at, 'The edit screen shows the columns card' );
 lstab_assert( $card_at > $form_open && $card_at < $form_close, 'The columns card is inside the form, so its fields are submitted' );
 lstab_assert( $submit_at > $card_at && $submit_at < $form_close, 'The save button sits below the columns it saves' );
 lstab_assert(
-	false !== strpos( $edit_html, 'name="columns[0][visible]" value="0"' ),
-	'Every include box is paired with an explicit "off" field'
+	false !== strpos( $edit_html, 'name="columns[0][hidden]"' ),
+	'Each column carries its state back, so saving cannot change it by accident'
+);
+lstab_assert(
+	false === strpos( $edit_html, 'name="columns[0][visible]"' ),
+	'And there is no control here for changing it, which is the add-on\'s job'
 );
 
 // Before the first sync there is nothing to list, but the card still appears —
@@ -1483,35 +1495,92 @@ wp_set_current_user( 0 );
 
 // ---------------------------------------------------------------------------
 
-lstab_section( '12e. Hiding rows by pointing at them' );
+lstab_section( '12e. Hiding rows: which row, and for how long' );
 
 /*
- * The obvious way to remember "hide this row" is to remember its number, and
- * it is wrong: someone inserting a line at the top of the sheet would then
- * silently hide a different row. Nothing looks broken — a table just stops
- * showing one product and starts showing another that was meant to be gone.
+ * A choice records what the row said, twice: the whole row, which tells ten
+ * products all called "Kask" apart exactly, and its name, which is what
+ * survives someone editing it. Finding it again goes in that order.
  */
 lstab_set_mock( 'ok', 'main' );
 LSTAB_Sync::run( $source_id );
 $sheet = LSTAB_Storage::get( $source_id );
 $rows  = $sheet['data']['rows'];
 
-lstab_assert( 'Kask Lazer' === LSTAB_Hidden_Rows::key_for( $rows[1] ), 'A row is identified by its first filled cell', LSTAB_Hidden_Rows::key_for( $rows[1] ) );
-lstab_assert( 'Wartość' === LSTAB_Hidden_Rows::key_for( array( '', '  ', 'Wartość', 'x' ) ), 'Leading empty cells are skipped' );
-lstab_assert( '' === LSTAB_Hidden_Rows::key_for( array( '', ' ', '' ) ), 'A row with nothing in it has no identity' );
-lstab_assert( 'a b' === LSTAB_Hidden_Rows::key_for( array( "  a\n  b " ) ), 'Runs of whitespace do not make two different rows' );
+lstab_assert( 'Kask Lazer' === LSTAB_Hidden_Rows::key_for( $rows[1] ), 'A row is named by its first filled cell', LSTAB_Hidden_Rows::key_for( $rows[1] ) );
+lstab_assert( 32 === strlen( LSTAB_Hidden_Rows::signature( $rows[1] ) ), 'And signed by everything in it' );
+lstab_assert(
+	LSTAB_Hidden_Rows::signature( array( 'Kask', '100' ) ) !== LSTAB_Hidden_Rows::signature( array( 'Kask', '120' ) ),
+	'Two rows of the same name but different prices are different rows'
+);
+lstab_assert(
+	LSTAB_Hidden_Rows::signature( array( ' Kask  Lazer ' ) ) === LSTAB_Hidden_Rows::signature( array( 'Kask Lazer' ) ),
+	'Runs of whitespace are not a difference'
+);
+lstab_assert( '' === LSTAB_Hidden_Rows::key_for( array( '', ' ', '' ) ), 'A row with nothing in it has no name' );
 
-$cleaned = LSTAB_Hidden_Rows::sanitize( array( ' Kask ', 'Kask', '', array( 'x' ), 'Inny' ) );
-lstab_assert( array( 'Kask', 'Inny' ) === $cleaned, 'Keys are trimmed, deduplicated, and rubbish is dropped', wp_json_encode( $cleaned ) );
-lstab_assert( count( LSTAB_Hidden_Rows::sanitize( array_map( 'strval', range( 1, 900 ) ) ) ) === LSTAB_Hidden_Rows::MAX_ROWS, 'And capped' );
+$cleaned = LSTAB_Hidden_Rows::sanitize(
+	array(
+		' Kask ',
+		array( 'name' => 'Kask' ),
+		array( 'name' => 'Inny', 'sig' => str_repeat( 'a', 32 ) ),
+		array( 'name' => '', 'sig' => 'nonsense' ),
+		'',
+	)
+);
+lstab_assert( 2 === count( $cleaned ), 'Choices are trimmed, deduplicated, and rubbish is dropped', wp_json_encode( $cleaned ) );
+lstab_assert( 'Kask' === $cleaned[0]['name'] && '' === $cleaned[0]['sig'], 'A plain name from an older version is still understood', wp_json_encode( $cleaned[0] ) );
 
-LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array( 'Kask Lazer' ) ) );
+// The everyday case: ten helmets, and only one of them goes.
+$helmets = array(
+	array( 'Kask', 'S', '100' ),
+	array( 'Kask', 'M', '110' ),
+	array( 'Kask', 'L', '120' ),
+	array( 'Rower', '', '4000' ),
+);
+$only_m = array( LSTAB_Hidden_Rows::entry_for( $helmets[1] ) );
+$after  = LSTAB_Hidden_Rows::filter_rows( $helmets, array( 'Produkt', 'Rozmiar', 'Cena' ), array( 'hidden_rows' => $only_m ), array() );
+lstab_assert( 3 === count( $after ), 'One of three rows sharing a name can be hidden on its own', (string) count( $after ) );
+lstab_assert( 'S' === $after[0][1] && 'L' === $after[1][1], 'And it is the right one', wp_json_encode( $after ) );
+
+// Rows genuinely identical in every cell are one choice, because a reader
+// cannot tell them apart either.
+$identical = array( array( 'Kask', 'M' ), array( 'Kask', 'M' ), array( 'Rower', '' ) );
+$counts    = LSTAB_Hidden_Rows::signature_counts( $identical );
+lstab_assert( 2 === $counts[ LSTAB_Hidden_Rows::signature( $identical[0] ) ], 'Identical rows are counted together', wp_json_encode( $counts ) );
+
+// Moving the sheet around underneath a choice changes nothing.
+$moved = $helmets;
+array_unshift( $moved, array( 'Nowy', '', '1' ) );
+$after_move = LSTAB_Hidden_Rows::filter_rows( $moved, array(), array( 'hidden_rows' => $only_m ), array() );
+lstab_assert( 4 === count( $after_move ), 'A row inserted above does not shift what is hidden', (string) count( $after_move ) );
+lstab_assert( ! in_array( array( 'Kask', 'M', '110' ), $after_move, true ), 'The chosen row is still the one gone' );
+
+// Editing the hidden row: the signature no longer matches, so the name is
+// used — but only because it is the only row of that name.
+$renamed_price          = $helmets;
+$renamed_price[1]       = array( 'Kask', 'M', '199' );
+$unique                 = array( array( 'Zamek', 'x', '1' ), array( 'Kask', 'M', '199' ) );
+$by_name                = array( LSTAB_Hidden_Rows::entry_for( array( 'Kask', 'M', '110' ) ) );
+$after_edit             = LSTAB_Hidden_Rows::filter_rows( $unique, array(), array( 'hidden_rows' => $by_name ), array() );
+lstab_assert( 1 === count( $after_edit ), 'Editing a hidden row does not bring it back while its name is unique', wp_json_encode( $after_edit ) );
+
+// But where the name is shared and nothing matches in full, nothing is hidden:
+// showing a row that should be hidden is a mistake someone can see, and the
+// wrong row disappearing is not.
+$after_ambiguous = LSTAB_Hidden_Rows::filter_rows( $renamed_price, array(), array( 'hidden_rows' => $by_name ), array() );
+lstab_assert( 4 === count( $after_ambiguous ), 'An edit that makes the name ambiguous hides nothing rather than the wrong thing', (string) count( $after_ambiguous ) );
+
+$stalled = LSTAB_Hidden_Rows::unresolved( $by_name, $renamed_price );
+lstab_assert( 1 === count( $stalled ) && 'ambiguous' === $stalled[0]['reason'], 'And the choice is reported as needing a look', wp_json_encode( $stalled ) );
+lstab_assert( 'missing' === LSTAB_Hidden_Rows::unresolved( $by_name, array( array( 'Rower' ) ) )[0]['reason'], 'A choice whose row has gone is reported differently' );
+
+// End to end, on a real source.
+LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array( LSTAB_Hidden_Rows::entry_for( $rows[1] ) ) ) );
 $hidden_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
 lstab_assert( false === strpos( $hidden_html, 'Kask Lazer' ), 'A hidden row is not on the page' );
 lstab_assert( false !== strpos( $hidden_html, 'Rower górski' ), 'The rest of the table is untouched' );
-lstab_assert( substr_count( $hidden_html, '<tr' ) === 7, 'And the table is one row shorter', (string) substr_count( $hidden_html, '<tr' ) );
 
-// It must not be findable either: a row taken out of the table is out of it.
 $_GET = array( LSTAB_Paging::arg( $source_id, 'q' ) => 'Kask' );
 LSTAB_Storage::update( $source_id, array( 'per_page' => 10 ) );
 $searched = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
@@ -1519,62 +1588,70 @@ $_GET     = array();
 LSTAB_Storage::update( $source_id, array( 'per_page' => 0 ) );
 lstab_assert( false === strpos( $searched, 'Kask Lazer' ), 'A hidden row cannot be found by searching for it' );
 
-// The whole point: the sheet may move underneath it.
-$moved = $rows;
-array_unshift( $moved, array( 'Nowy produkt', '1,00', 'W magazynie', '', '2026-01-01' ) );
-LSTAB_Storage::record_success( $source_id, array( 'headers' => $sheet['data']['headers'], 'rows' => $moved ) );
-$after_insert = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
-lstab_assert( false === strpos( $after_insert, 'Kask Lazer' ), 'A row inserted above does not shift what is hidden' );
-lstab_assert( false !== strpos( $after_insert, 'Nowy produkt' ), 'And the new row is shown' );
+// ---------------------------------------------------------------------------
 
-// A price change must not bring a hidden row back; a rename may.
-$repriced    = $moved;
-$repriced[2] = array( 'Kask Lazer', '999,00', 'Brak', '', '2026-01-02' );
-LSTAB_Storage::record_success( $source_id, array( 'headers' => $sheet['data']['headers'], 'rows' => $repriced ) );
+lstab_section( '12f. What happens when Pro stops' );
+
+/*
+ * Choosing what to leave out is the add-on's. A licence ending on a Tuesday
+ * should not rearrange a public page on the Tuesday, so the choices keep
+ * working for ten days — and the countdown is said out loud while it runs,
+ * because ten quiet days followed by a page changing by itself would be worse
+ * than no grace at all.
+ */
+delete_option( LSTAB_Limits::SEEN_OPTION );
+lstab_assert( 0 === LSTAB_Limits::grace_remaining(), 'A site that never had Pro has no grace to spend' );
+lstab_assert( ! LSTAB_Limits::pro_effective(), 'And hiding is not honoured there' );
+
+$showing = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false !== strpos( $showing, 'Kask Lazer' ), 'The hidden row is shown again once nothing is paid for' );
+
+// Pro seen yesterday: the choice still stands, and the countdown is running.
+update_option( LSTAB_Limits::SEEN_OPTION, time() - DAY_IN_SECONDS, true );
+lstab_assert( LSTAB_Limits::pro_effective(), 'A day after Pro stops, choices are still honoured' );
 lstab_assert(
-	false === strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), '999,00' ),
-	'Editing a hidden row does not bring it back'
+	LSTAB_Limits::grace_remaining() > 8 * DAY_IN_SECONDS,
+	'With most of the ten days left',
+	(string) round( LSTAB_Limits::grace_remaining() / DAY_IN_SECONDS, 1 )
 );
-
-// Hiding everything is allowed, and says so rather than breaking.
-$keys = array();
-foreach ( $repriced as $row ) {
-	$keys[] = LSTAB_Hidden_Rows::key_for( $row );
-}
-LSTAB_Storage::update( $source_id, array( 'hidden_rows' => $keys ) );
-$all_gone = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
-lstab_assert( false === stripos( $all_gone, 'fatal' ), 'Hiding every row does not break the page' );
-lstab_assert( false !== strpos( $all_gone, '<table' ) || false !== stripos( $all_gone, 'lstab' ), 'And still answers with something' );
-
-LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array() ) );
-lstab_set_mock( 'ok', 'main' );
-LSTAB_Sync::run( $source_id );
-lstab_assert( 7 === count( LSTAB_Storage::get( $source_id )['data']['rows'] ), 'Clearing the list brings every row back' );
-
-// Choosing rows by pointing at them is the add-on's; keeping them hidden is
-// not. A licence that lapses must not put rows someone hid back on a public
-// page — hiding is subtractive, so honouring it can never disclose anything,
-// and forgetting it could.
-LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array( 'Kask Lazer' ) ) );
 lstab_assert(
 	false === strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'Kask Lazer' ),
-	'Hidden rows stay hidden with no add-on active at all'
+	'And the page is unchanged from the day the licence ended'
 );
 
-// And a save made on a screen without the picker must leave them alone, rather
-// than read "no fields submitted" as "nothing is hidden".
-$_POST = array(
-	'title'         => 'Cennik rowerowy',
-	'sheet_url'     => LSTAB_Storage::get( $source_id )['sheet_url'],
-	'sync_interval' => 900,
-);
-$kept = isset( $_POST['_lstab_hidden_rows_present'] )
-	? array()
-	: LSTAB_Storage::get( $source_id )['hidden_rows'];
-$_POST = array();
-lstab_assert( array( 'Kask Lazer' ) === $kept, 'A form without the picker leaves the stored list untouched', wp_json_encode( $kept ) );
+ob_start();
+LSTAB_Admin::print_grace_notice();
+$grace_notice = (string) ob_get_clean();
+lstab_assert( false !== strpos( $grace_notice, 'lstab-grace-notice' ), 'The dashboard says the countdown is running' );
 
-LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array() ) );
+// Eleven days on: released, and the pages show everything again.
+update_option( LSTAB_Limits::SEEN_OPTION, time() - 11 * DAY_IN_SECONDS, true );
+lstab_assert( 0 === LSTAB_Limits::grace_remaining(), 'After ten days the grace is spent' );
+lstab_assert(
+	false !== strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'Kask Lazer' ),
+	'And the row is on the page again'
+);
+
+ob_start();
+LSTAB_Admin::print_grace_notice();
+lstab_assert( '' === trim( (string) ob_get_clean() ), 'The countdown notice stops once there is nothing to count' );
+
+// Hidden columns follow exactly the same rule.
+LSTAB_Storage::update( $source_id, array( 'columns_config' => array( 2 => array( 'hidden' => true, 'label' => '', 'source' => 'Dostępność' ) ) ) );
+lstab_assert(
+	false !== strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'Dostępność' ),
+	'A hidden column is shown again when the grace is spent'
+);
+
+update_option( LSTAB_Limits::SEEN_OPTION, time(), true );
+lstab_assert(
+	false === strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'Dostępność' ),
+	'And left out again while it is not'
+);
+
+// A form saved from a screen without the picker must leave the list alone.
+LSTAB_Storage::update( $source_id, array( 'columns_config' => array(), 'hidden_rows' => array() ) );
+update_option( LSTAB_Limits::SEEN_OPTION, time(), true );
 
 // ---------------------------------------------------------------------------
 
