@@ -548,18 +548,15 @@ class LSTAB_Admin {
 			return;
 		}
 
-		$class = 'disabled' === $health['state'] ? 'notice-info' : 'notice-warning';
 		?>
-		<div class="notice <?php echo esc_attr( $class ); ?> lstab-cron-notice">
+		<div class="notice notice-warning lstab-cron-notice">
 			<p>
 				<strong><?php echo esc_html( $health['message'] ); ?></strong>
 			</p>
 			<p><?php echo esc_html( $health['detail'] ); ?></p>
-			<?php if ( 'disabled' !== $health['state'] ) : ?>
-				<p>
-					<?php esc_html_e( 'Meanwhile you can update any sheet by hand with “Refresh now”.', 'live-sheets-table' ); ?>
-				</p>
-			<?php endif; ?>
+			<p>
+				<?php esc_html_e( 'Meanwhile you can update any sheet by hand with “Refresh now”.', 'live-sheets-table' ); ?>
+			</p>
 
 			<p>
 				<strong><?php esc_html_e( 'To check sheets even when nobody visits', 'live-sheets-table' ); ?></strong><br>

@@ -181,9 +181,16 @@
 }
 
 .lstab-shortcode {
+	/* One click selects the whole thing, so it may wrap freely: a shortcode
+	   held on one line either ran over the buttons in the next column or was
+	   cut off, and a shortcode you cannot read in full is the one thing this
+	   cell exists to give you. */
 	user-select: all;
 	font-size: 0.82rem;
-	white-space: nowrap;
+	display: inline-block;
+	max-width: 100%;
+	overflow-wrap: anywhere;
+	vertical-align: middle;
 }
 
 /* One click selects the whole line, since it is meant to be pasted verbatim. */
@@ -197,7 +204,7 @@
 }
 
 .lstab-sources .lstab-col-shortcode {
-	width: 14%;
+	width: 18%;
 }
 
 .lstab-inline-form {

@@ -168,19 +168,50 @@ class LSTAB_Cron {
 	}
 
 	/**
-	 * Whether the scheduler is actually running.
+	 * Whether the tables are actually being kept up to date.
 	 *
-	 * A broken WP-Cron does not break the site: pages keep rendering the stored
-	 * copy. It just quietly stops updating, and the first person to notice is
-	 * usually the site owner's customer. This is what turns that into a notice
-	 * in the dashboard instead.
+	 * This used to report on the mechanism: whether WP-Cron was switched off,
+	 * whether the event was scheduled. That was the wrong thing to look at.
+	 * DISABLE_WP_CRON in wp-config.php is the normal setup on any host that
+	 * runs a real system cron, so the plugin was warning perfectly healthy
+	 * sites about a fault they did not have — and a warning that fires when
+	 * nothing is wrong teaches people to ignore warnings.
+	 *
+	 * What matters to the site owner is whether the data on their pages is
+	 * current, and that can simply be measured. A site whose sheets are fresh
+	 * is fine however that happened — background schedule, system cron, or a
+	 * visitor's own page load. A site whose sheets have fallen well behind has
+	 * a real problem worth naming, whatever the configuration says.
 	 *
 	 * @return array{state:string,message:string,detail:string}
 	 */
 	public static function health() {
-		$sources = LSTAB_Storage::get_all();
+		$worst     = null;
+		$worst_age = 0;
 
-		if ( ! $sources ) {
+		foreach ( LSTAB_Storage::get_all() as $source ) {
+			// A source that has never synced is reported where it is listed,
+			// and by the table itself. Nothing to add here.
+			if ( empty( $source['last_success_gmt'] ) ) {
+				continue;
+			}
+
+			$interval = max( 60, (int) $source['sync_interval'] );
+			$age      = time() - (int) strtotime( $source['last_success_gmt'] . ' UTC' );
+
+			// Three missed rounds is past any reasonable jitter on a quiet
+			// site, and an hour keeps a one-minute interval from crying wolf.
+			if ( $age <= max( 3 * $interval, HOUR_IN_SECONDS ) ) {
+				continue;
+			}
+
+			if ( $age > $worst_age ) {
+				$worst     = $source;
+				$worst_age = $age;
+			}
+		}
+
+		if ( ! $worst ) {
 			return array(
 				'state'   => 'ok',
 				'message' => '',
@@ -188,56 +219,15 @@ class LSTAB_Cron {
 			);
 		}
 
-		if ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) {
-			return array(
-				'state'   => 'disabled',
-				'message' => __( 'Scheduled syncing is switched off on this site.', 'live-sheets-table' ),
-				'detail'  => __( 'DISABLE_WP_CRON is set in wp-config.php, which is normal on hosts that run a real system cron. Your tables are still kept up to date either way: a table older than its interval is checked as the page is drawn. Background checking is simply the tidier way to do it, because then nobody waits.', 'live-sheets-table' ),
-			);
-		}
-
-		if ( ! wp_next_scheduled( self::TICK_HOOK ) ) {
-			return array(
-				'state'   => 'unscheduled',
-				'message' => __( 'The sync schedule is missing.', 'live-sheets-table' ),
-				'detail'  => __( 'Another plugin or a maintenance tool may have cleared it. Saving any sheet source restores it.', 'live-sheets-table' ),
-			);
-		}
-
-		$last = (int) get_option( self::LAST_TICK_OPT, 0 );
-
-		if ( ! $last ) {
-			// Nothing has run yet. Only a concern once the first run is overdue.
-			$next = (int) wp_next_scheduled( self::TICK_HOOK );
-			if ( $next && $next > time() - HOUR_IN_SECONDS ) {
-				return array(
-					'state'   => 'ok',
-					'message' => '',
-					'detail'  => '',
-				);
-			}
-		}
-
-		$interval = self::current_interval();
-		$overdue  = time() - ( $last ? $last : (int) wp_next_scheduled( self::TICK_HOOK ) );
-
-		// Three missed cycles is past any reasonable jitter on a quiet site.
-		if ( $overdue > max( 3 * $interval, HOUR_IN_SECONDS ) ) {
-			return array(
-				'state'   => 'stalled',
-				'message' => sprintf(
-					/* translators: %s: human readable time difference, e.g. "2 hours". */
-					__( 'Sheets have not been checked for %s.', 'live-sheets-table' ),
-					human_time_diff( $last ? $last : time() - $overdue, time() )
-				),
-				'detail'  => __( 'WordPress runs scheduled work when someone visits the site, so a quiet site can fall behind. On a site that should be busy this usually means WP-Cron is blocked — by a security plugin, a page cache serving every request, or a host that disables it. Your tables are not out of date because of it: one is checked as the page is drawn whenever it is older than its interval. It just means a visitor occasionally does the waiting that the schedule should have done for them.', 'live-sheets-table' ),
-			);
-		}
-
 		return array(
-			'state'   => 'ok',
-			'message' => '',
-			'detail'  => '',
+			'state'   => 'stale',
+			'message' => sprintf(
+				/* translators: 1: source title, 2: human readable time difference, e.g. "2 hours". */
+				__( '“%1$s” has not been refreshed for %2$s.', 'live-sheets-table' ),
+				$worst['title'],
+				human_time_diff( time() - $worst_age, time() )
+			),
+			'detail'  => __( 'Your pages are still showing the last copy that arrived, so nothing is broken for visitors. But WordPress runs scheduled work only when someone visits the site, so a quiet site falls behind — and on a site that should be busy this usually means something is stopping it: a security plugin, a page cache answering every request without running WordPress, or a host that switches scheduling off without replacing it.', 'live-sheets-table' ),
 		);
 	}
 

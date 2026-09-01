@@ -157,6 +157,7 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 == Changelog ==
 
 = 2.6.0 =
+* Changed: the dashboard no longer warns about DISABLE_WP_CRON. That line in wp-config.php is the normal setup on any host running a real system cron, so the warning fired on perfectly healthy sites — and a warning that appears when nothing is wrong teaches people to ignore warnings. What matters is whether the tables are current, and that can simply be measured: the dashboard now says nothing at all unless a sheet has actually fallen well behind its own interval, and then it names which one and for how long.
 * Fixed: sorting a column that holds both numbers and words no longer treats every value as text. A single “brak” or “n/a” in a price list used to do that, and text sorting puts 1 000 000 below 1 215 because “1” sorts below “2”. Numbers now compare as numbers wherever both values are numbers, blanks sink to the bottom whichever way the column is sorted, and a paged table sorts exactly like an unpaged one — a visitor cannot see which is which, so the two must not disagree.
 * Fixed: control characters in a cell — a null byte pasted into a spreadsheet, most often — are dropped when the sheet is read. They are invisible in Google and invisible in a browser, but they make a feed or an export invalid, which is the kind of fault that surfaces months later as an unexplained blank.
 
@@ -271,7 +272,7 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 == Upgrade Notice ==
 
 = 2.6.0 =
-Fixes sorting a column that mixes numbers and words, and strips control characters from cells.
+Stops warning about a healthy configuration, and fixes sorting a column that mixes numbers and words.
 
 = 2.5.0 =
 One setting instead of two: tables are kept current for whoever opens the page, with nothing to switch on.

@@ -81,6 +81,10 @@ return array(
 	'Pro syncs as often as every minute.'        => 'Pro synchronizuje nawet co minutę.',
 	'Whoever opens the page sees data no older than this. Checking normally happens in the background; if it has not run — a quiet site, or a host that blocks WordPress schedules — the check happens as the page is drawn instead, waits at most %d seconds, and falls back to the copy you already have.'
 		=> 'Kto otworzy stronę, zobaczy dane nie starsze niż tyle. Sprawdzanie zwykle odbywa się w tle; jeśli się nie wykonało — witryna bez ruchu albo hosting blokujący harmonogramy WordPressa — sprawdzenie następuje w trakcie rysowania strony, czeka najwyżej %d sekund i wraca do kopii, którą już masz.',
+	'“%1$s” has not been refreshed for %2$s.'
+		=> 'Arkusz „%1$s” nie był odświeżany od %2$s.',
+	'Your pages are still showing the last copy that arrived, so nothing is broken for visitors. But WordPress runs scheduled work only when someone visits the site, so a quiet site falls behind — and on a site that should be busy this usually means something is stopping it: a security plugin, a page cache answering every request without running WordPress, or a host that switches scheduling off without replacing it.'
+		=> 'Twoje strony nadal pokazują ostatnią kopię, która dotarła, więc dla odwiedzających nic nie jest zepsute. Ale WordPress wykonuje zaplanowane zadania tylko wtedy, gdy ktoś odwiedzi witrynę, więc strona bez ruchu zostaje w tyle — a na stronie, która powinna mieć ruch, zwykle oznacza to, że coś to blokuje: wtyczka bezpieczeństwa, cache stron odpowiadający na każde żądanie bez uruchamiania WordPressa albo hosting, który wyłącza harmonogram i nie daje nic w zamian.',
 	'Meanwhile you can update any sheet by hand with “Refresh now”.'
 		=> 'W międzyczasie każdy arkusz zaktualizujesz ręcznie przyciskiem „Odśwież teraz”.',
 	'To check sheets even when nobody visits'
@@ -132,16 +136,6 @@ return array(
 		=> 'Przydatne, gdy pierwsza kolumna nazywa wiersz — produkt, osobę, datę. Wyłącz, jeśli pierwsza kolumna to długi tekst, bo przyklejona zajęłaby większość ekranu telefonu.',
 
 	// Scheduler health.
-	'Scheduled syncing is switched off on this site.'
-		=> 'Zaplanowana synchronizacja jest na tej stronie wyłączona.',
-	'DISABLE_WP_CRON is set in wp-config.php, which is normal on hosts that run a real system cron. Your tables are still kept up to date either way: a table older than its interval is checked as the page is drawn. Background checking is simply the tidier way to do it, because then nobody waits.'
-		=> 'W pliku wp-config.php ustawiono DISABLE_WP_CRON, co jest normalne na hostingach z prawdziwym systemowym cronem. Jeśli Twój go ma, arkusze odświeżają się według tamtego harmonogramu i wszystko jest w porządku. Jeśli nie ma, tabele będą pokazywać kopię, którą już mają, dopóki ktoś nie naciśnie „Odśwież teraz”.',
-	'The sync schedule is missing.'              => 'Brakuje harmonogramu synchronizacji.',
-	'Another plugin or a maintenance tool may have cleared it. Saving any sheet source restores it.'
-		=> 'Mogła go wyczyścić inna wtyczka albo narzędzie serwisowe. Zapisanie dowolnego źródła arkusza przywraca go.',
-	'Sheets have not been checked for %s.'       => 'Arkusze nie były sprawdzane od %s.',
-	'WordPress runs scheduled work when someone visits the site, so a quiet site can fall behind. On a site that should be busy this usually means WP-Cron is blocked — by a security plugin, a page cache serving every request, or a host that disables it. Your tables are not out of date because of it: one is checked as the page is drawn whenever it is older than its interval. It just means a visitor occasionally does the waiting that the schedule should have done for them.'
-		=> 'WordPress wykonuje zaplanowane zadania, gdy ktoś odwiedza stronę, więc mało odwiedzana witryna może się opóźniać. Na stronie, która powinna mieć ruch, zwykle oznacza to zablokowany WP-Cron — przez wtyczkę bezpieczeństwa, cache serwujący każde żądanie albo hosting, który go wyłącza. Twoje tabele nadal pokazują ostatnią poprawną kopię.',
 	'Meanwhile you can update any sheet by hand with “Refresh now”. %s'
 		=> 'W międzyczasie możesz zaktualizować dowolny arkusz ręcznie przyciskiem „Odśwież teraz”. %s',
 	'How to run WordPress schedules from a system cron'

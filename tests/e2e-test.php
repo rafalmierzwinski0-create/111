@@ -1558,16 +1558,46 @@ LSTAB_Storage::update( $source_id, array( 'sticky_first' => 1 ) );
 
 // ---------------------------------------------------------------------------
 
-lstab_section( '12b. Scheduler health' );
+lstab_section( '12b. Is the data actually current?' );
 
-// A broken WP-Cron does not break the site — pages keep rendering the stored
-// copy — it just quietly stops updating. That silence is the thing to catch.
+/*
+ * The question worth answering is whether the tables are up to date, not
+ * whether a particular mechanism is running. DISABLE_WP_CRON is the normal
+ * setup on any host with a real system cron, and warning about it meant
+ * warning healthy sites about a fault they did not have.
+ */
 $health = LSTAB_Cron::health();
 lstab_assert( isset( $health['state'], $health['message'], $health['detail'] ), 'Health check returns a structured result' );
+lstab_assert( 'ok' === $health['state'], 'A site with fresh sheets is reported as fine, DISABLE_WP_CRON or not', $health['state'] );
 
-// The test sites define DISABLE_WP_CRON, which is a legitimate setup, not a fault.
-lstab_assert( 'disabled' === $health['state'], 'DISABLE_WP_CRON is reported, and as information rather than an error', $health['state'] );
-lstab_assert( '' !== $health['detail'], 'The notice explains what it means for the site owner' );
+// A sheet well past its interval is a real problem, and is named as one.
+$wpdb->update(
+	LSTAB_Storage::table(),
+	array( 'last_success_gmt' => gmdate( 'Y-m-d H:i:s', time() - 6 * HOUR_IN_SECONDS ) ),
+	array( 'id' => $source_id ),
+	array( '%s' ),
+	array( '%d' )
+);
+LSTAB_Storage::flush_cache( $source_id );
+
+$stale = LSTAB_Cron::health();
+lstab_assert( 'stale' === $stale['state'], 'A sheet six hours past a fifteen minute interval is reported', $stale['state'] );
+lstab_assert( false !== strpos( $stale['message'], LSTAB_Storage::get( $source_id )['title'] ), 'The notice names which sheet', $stale['message'] );
+lstab_assert( '' !== $stale['detail'], 'And explains what it means for the site owner' );
+
+// Just past the interval is not yet a problem: schedules jitter.
+$wpdb->update(
+	LSTAB_Storage::table(),
+	array( 'last_success_gmt' => gmdate( 'Y-m-d H:i:s', time() - 1200 ) ),
+	array( 'id' => $source_id ),
+	array( '%s' ),
+	array( '%d' )
+);
+LSTAB_Storage::flush_cache( $source_id );
+lstab_assert( 'ok' === LSTAB_Cron::health()['state'], 'A sheet only just past its interval does not raise anything' );
+
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
 
 // A site nobody visits runs no schedule at all, and no plugin can fix that
 // from inside PHP. What it can do is stop making the owner work out what to
@@ -1578,12 +1608,12 @@ lstab_assert( false !== strpos( $cron_line, site_url( 'wp-cron.php?doing_wp_cron
 lstab_assert( 0 === strpos( $cron_line, '*/15 * * * * ' ), 'And fires at the interval the schedule actually uses', $cron_line );
 lstab_assert( false !== strpos( $cron_line, 'curl -s ' ), 'It is a line a hosting panel will accept as it stands', $cron_line );
 
-// With no sources there is nothing to warn about.
+// With no sources there is nothing to report on at all.
 $saved_sources = LSTAB_Storage::get_all();
 foreach ( $saved_sources as $saved ) {
 	LSTAB_Storage::delete( $saved['id'] );
 }
-lstab_assert( 'ok' === LSTAB_Cron::health()['state'], 'No sources means no scheduler warning' );
+lstab_assert( 'ok' === LSTAB_Cron::health()['state'], 'No sources means no notice' );
 
 // Rebuild the source the later sections rely on.
 $source_id = LSTAB_Storage::insert(
@@ -1601,23 +1631,19 @@ $source_id = LSTAB_Storage::insert(
 lstab_set_mock( 'ok', 'main' );
 LSTAB_Sync::run( $source_id );
 
-// A stalled scheduler: pretend cron is enabled but has not run in a long time.
-$stall = static function () {
-	return array(
-		'lstab_15min' => 900,
-	);
-};
-
-update_option( LSTAB_Cron::LAST_TICK_OPT, time() - 6 * HOUR_IN_SECONDS );
-update_option( LSTAB_Cron::TICK_OPTION, 'lstab_15min' );
-wp_schedule_event( time() + 300, 'lstab_15min', LSTAB_Cron::TICK_HOOK );
-
-// health() short-circuits on DISABLE_WP_CRON, so check the staleness maths
-// directly by confirming the recorded tick is what drives it.
-lstab_assert(
-	(int) get_option( LSTAB_Cron::LAST_TICK_OPT ) < time() - HOUR_IN_SECONDS,
-	'A stale tick timestamp is recorded and readable'
+// A source that has never synced says so where it is listed and in the table
+// itself, so it is not also reported here as a stale one.
+$never = (int) LSTAB_Storage::insert(
+	array(
+		'title'      => 'Never synced',
+		'sheet_url'  => 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0',
+		'sheet_id'   => '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789',
+		'sheet_kind' => 'doc',
+		'gid'        => '0',
+	)
 );
+lstab_assert( 'ok' === LSTAB_Cron::health()['state'], 'A source that never synced is not reported as a stale one' );
+LSTAB_Storage::delete( $never );
 
 // The tick must record that it ran, whether or not anything was due.
 delete_option( LSTAB_Cron::LAST_TICK_OPT );
