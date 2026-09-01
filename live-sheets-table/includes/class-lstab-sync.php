@@ -27,6 +27,22 @@ class LSTAB_Sync {
 	const VIEW_LOCK = 30;
 
 	/**
+	 * How long a failed check waits before anyone may try again, in seconds.
+	 *
+	 * Doubles with each consecutive failure, up to the source's own interval.
+	 * A blip costs half a minute of staleness; a sheet that is genuinely broken
+	 * settles down to one attempt per interval within a few minutes, instead of
+	 * making every page slow for as long as it stays broken.
+	 */
+	const VIEW_RETRY = 30;
+
+	/** Transient prefix: a failed check's cooling-off period. */
+	const COOLDOWN_PREFIX = 'lstab_view_cooldown_';
+
+	/** Transient prefix: how many checks have failed in a row. */
+	const FAILS_PREFIX = 'lstab_view_fails_';
+
+	/**
 	 * Whether this request has already spent its refresh.
 	 *
 	 * The cap is per visitor, not per table. A page holding four tables that
@@ -39,6 +55,40 @@ class LSTAB_Sync {
 	 * @var bool
 	 */
 	protected static $view_spent = false;
+
+	/**
+	 * Hold off further checks after one has failed.
+	 *
+	 * Each consecutive failure doubles the wait, up to the source's own
+	 * interval. The first is short on purpose: most failures are a blip, and
+	 * making everyone wait a whole interval to find that out is the behaviour
+	 * this exists to avoid.
+	 *
+	 * @param int $id       Source ID.
+	 * @param int $interval The source's own interval, which caps the wait.
+	 * @return void
+	 */
+	protected static function start_cooldown( $id, $interval ) {
+		$fails = (int) get_transient( self::FAILS_PREFIX . $id ) + 1;
+		$wait  = min( $interval, self::VIEW_RETRY * pow( 2, $fails - 1 ) );
+
+		set_transient( self::COOLDOWN_PREFIX . $id, 1, (int) $wait );
+
+		// Outlives the wait it produced, so that consecutive failures are
+		// recognised as consecutive, and forgotten on a sheet left alone.
+		set_transient( self::FAILS_PREFIX . $id, $fails, (int) max( $interval, $wait * 4 ) );
+	}
+
+	/**
+	 * Forget that a source was ever failing.
+	 *
+	 * @param int $id Source ID.
+	 * @return void
+	 */
+	protected static function end_cooldown( $id ) {
+		delete_transient( self::COOLDOWN_PREFIX . $id );
+		delete_transient( self::FAILS_PREFIX . $id );
+	}
 
 	/**
 	 * Start the refresh budget over.
@@ -74,8 +124,10 @@ class LSTAB_Sync {
 	 * to Google. One page load buys one refresh, so a page of four tables is
 	 * still one wait rather than four. The wait itself is capped, and a sheet
 	 * that does not answer in time leaves the stored copy on the page. And a
-	 * source that has just failed is not retried until its interval has passed,
-	 * so a broken sheet costs one slow page rather than every page.
+	 * check that failed holds off the next one for half a minute, doubling
+	 * while it keeps failing, so a broken sheet costs a couple of slow pages
+	 * rather than every page — while a passing blip costs half a minute of
+	 * staleness rather than a whole interval of it.
 	 *
 	 * @param array<string,mixed> $source Source row.
 	 * @return array<string,mixed> The source, refreshed if it was worth it.
@@ -111,19 +163,33 @@ class LSTAB_Sync {
 			return $source;
 		}
 
+		$id = (int) $source['id'];
+
 		// Never while another request is already doing it.
-		$lock = 'lstab_view_refresh_' . (int) $source['id'];
+		$lock = 'lstab_view_refresh_' . $id;
 
 		if ( get_transient( $lock ) ) {
 			return $source;
 		}
 
-		$interval = max( 60, (int) $source['sync_interval'] );
-		$attempt  = empty( $source['last_attempt_gmt'] ) ? 0 : strtotime( $source['last_attempt_gmt'] . ' UTC' );
+		// Nor while a failed check is still serving its cooling-off period.
+		if ( get_transient( self::COOLDOWN_PREFIX . $id ) ) {
+			return $source;
+		}
 
-		// Measured from the last attempt rather than the last success, so a
-		// sheet that keeps failing is not fetched again on every page view.
-		if ( $attempt && ( time() - $attempt ) < $interval ) {
+		$interval = max( 60, (int) $source['sync_interval'] );
+		$success  = empty( $source['last_success_gmt'] ) ? 0 : strtotime( $source['last_success_gmt'] . ' UTC' );
+
+		/*
+		 * Measured from the last *success*, because that is what the interval
+		 * promises the visitor: data no older than this. An attempt that failed
+		 * refreshed nothing, so counting it would mean one four-second timeout
+		 * bought fifteen more minutes of stale data — the visitor after the one
+		 * who waited would be no better off for their waiting. What stops a
+		 * broken sheet from being retried on every page is the cooling-off
+		 * period above, which is a much shorter and much better targeted wait.
+		 */
+		if ( $success && ( time() - $success ) < $interval ) {
 			return $source;
 		}
 
@@ -159,6 +225,8 @@ class LSTAB_Sync {
 		delete_transient( $lock );
 
 		if ( is_wp_error( $result ) ) {
+			self::start_cooldown( $id, $interval );
+
 			/*
 			 * The stored copy is still on the page, which is the whole promise.
 			 *
@@ -173,7 +241,19 @@ class LSTAB_Sync {
 			 * sign-in page, an empty body — are recorded as failures.
 			 */
 			if ( 'lstab_http_error' === $result->get_error_code() ) {
-				LSTAB_Storage::restore_status( (int) $source['id'], $source['last_status'], $source['last_error'] );
+				LSTAB_Storage::restore_status( $id, $source['last_status'], $source['last_error'] );
+
+				/*
+				 * Four seconds is all a visitor can be asked for, and a large
+				 * sheet may simply need more than that. Rather than let such a
+				 * sheet be permanently beyond the reach of a visit, the same
+				 * fetch is queued to run in a request of its own, once this
+				 * page has gone — where the full twenty seconds is nobody's
+				 * wait. Whoever arrives next sees the result.
+				 */
+				if ( ! wp_next_scheduled( LSTAB_Cron::RETRY_HOOK, array( $id ) ) ) {
+					wp_schedule_single_event( time(), LSTAB_Cron::RETRY_HOOK, array( $id ) );
+				}
 			}
 
 			return $source;
@@ -246,6 +326,10 @@ class LSTAB_Sync {
 
 		LSTAB_Storage::update( $id, array( 'columns_config' => $columns ) );
 		LSTAB_Storage::record_success( $id, $table );
+
+		// Whoever managed it — a visitor, the scheduler, someone pressing
+		// "Refresh now" — the sheet answers, so there is nothing to hold off.
+		self::end_cooldown( $id );
 
 		/**
 		 * Fires after a source syncs successfully.

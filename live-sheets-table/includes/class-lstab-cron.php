@@ -18,6 +18,7 @@ defined( 'ABSPATH' ) || exit;
 class LSTAB_Cron {
 
 	const TICK_HOOK     = 'lstab_sync_tick';
+	const RETRY_HOOK    = 'lstab_sync_source';
 	const TICK_OPTION   = 'lstab_tick_schedule';
 	const LAST_TICK_OPT = 'lstab_last_tick';
 
@@ -29,6 +30,7 @@ class LSTAB_Cron {
 	public function register() {
 		add_filter( 'cron_schedules', array( $this, 'add_schedules' ) ); // phpcs:ignore WordPress.WP.CronInterval
 		add_action( self::TICK_HOOK, array( $this, 'run_tick' ) );
+		add_action( self::RETRY_HOOK, array( __CLASS__, 'run_source' ) );
 		add_action( 'lstab_source_saved', array( __CLASS__, 'ensure_scheduled' ) );
 		add_action( 'lstab_source_deleted', array( __CLASS__, 'ensure_scheduled' ) );
 	}
@@ -148,6 +150,21 @@ class LSTAB_Cron {
 		update_option( self::LAST_TICK_OPT, time(), false );
 
 		LSTAB_Sync::run_due();
+	}
+
+	/**
+	 * Sync one named source in the background.
+	 *
+	 * Queued when a check made while a visitor waited ran out of its four
+	 * seconds. This runs in a request of its own, after the page has gone, so
+	 * it has the full timeout — which is the difference between a large sheet
+	 * never being refreshed by a visit and being refreshed moments after one.
+	 *
+	 * @param int $id Source ID.
+	 * @return void
+	 */
+	public static function run_source( $id ) {
+		LSTAB_Sync::run( (int) $id );
 	}
 
 	/**

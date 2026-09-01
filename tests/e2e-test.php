@@ -754,11 +754,18 @@ function lstab_view( $shortcode ) {
 function lstab_age_source( $id, $seconds ) {
 	global $wpdb;
 
+	$when = gmdate( 'Y-m-d H:i:s', time() - $seconds );
+
+	// Both, because "last checked" is the attempt and "last refreshed" is the
+	// success, and a source aged by hand has to look consistent in each.
 	$wpdb->update(
 		LSTAB_Storage::table(),
-		array( 'last_attempt_gmt' => gmdate( 'Y-m-d H:i:s', time() - $seconds ) ),
+		array(
+			'last_attempt_gmt' => $when,
+			'last_success_gmt' => $when,
+		),
 		array( 'id' => (int) $id ),
-		array( '%s' ),
+		array( '%s', '%s' ),
 		array( '%d' )
 	);
 
@@ -871,7 +878,58 @@ $slow_state = LSTAB_Storage::get( $source_id );
 lstab_assert( false !== strpos( $slow_html, 'Rower górski' ), 'A refresh that runs out of time still shows the stored copy' );
 lstab_assert( 'ok' === $slow_state['last_status'], 'And does not report the sheet as broken over our own four-second cap', $slow_state['last_status'] );
 lstab_assert( null === $slow_state['last_error'], 'No invented error message is left for the admin', var_export( $slow_state['last_error'], true ) );
-lstab_assert( ! empty( $slow_state['last_attempt_gmt'] ), 'The attempt is still recorded, so the next visitor does not repeat it' );
+lstab_assert( (bool) get_transient( LSTAB_Sync::COOLDOWN_PREFIX . $source_id ), 'A cooling-off period keeps the next visitor from repeating it straight away' );
+
+// Four seconds is all a visitor can be asked for, and a large sheet may need
+// more. The same fetch is queued to run in a request of its own, where the
+// full timeout is nobody's wait, so such a sheet is not beyond a visit's reach.
+lstab_assert(
+	(bool) wp_next_scheduled( LSTAB_Cron::RETRY_HOOK, array( $source_id ) ),
+	'A check that ran out of time queues a background one with the full timeout'
+);
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Cron::run_source( $source_id );
+lstab_assert( 'ok' === LSTAB_Storage::get( $source_id )['last_status'], 'And that background run syncs the source' );
+wp_unschedule_event( (int) wp_next_scheduled( LSTAB_Cron::RETRY_HOOK, array( $source_id ) ), LSTAB_Cron::RETRY_HOOK, array( $source_id ) );
+
+// That background run left the source fresh; stale again for what follows.
+lstab_age_source( $source_id, 86400 );
+set_transient( LSTAB_Sync::COOLDOWN_PREFIX . $source_id, 1, LSTAB_Sync::VIEW_RETRY );
+
+// But it is half a minute, not the whole interval. A four-second timeout must
+// not buy fifteen more minutes of stale data: the visitor after the one who
+// waited has to be better off for that waiting, or the waiting was pointless.
+delete_transient( LSTAB_Sync::COOLDOWN_PREFIX . $source_id );
+lstab_set_mock( 'ok', 'second' );
+$after_timeout = lstab_view( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false !== strpos( $after_timeout, 'Bike Centrum' ), 'Once the cooling-off period is over, the next visitor gets the new data' );
+lstab_assert( ! get_transient( LSTAB_Sync::FAILS_PREFIX . $source_id ), 'A success forgets that the sheet was ever failing' );
+
+// A sheet that keeps failing backs off further each time, so it costs a couple
+// of slow pages rather than every page for as long as it stays broken.
+lstab_set_mock( 'timeout' );
+delete_transient( LSTAB_Sync::COOLDOWN_PREFIX . $source_id );
+delete_transient( LSTAB_Sync::FAILS_PREFIX . $source_id );
+lstab_age_source( $source_id, 86400 );
+$waits = array();
+for ( $attempt = 1; $attempt <= 3; $attempt++ ) {
+	// Still stale each round, so only the cooling-off period is under test.
+	lstab_age_source( $source_id, 86400 );
+
+	lstab_view( '[sheet_table id="' . $source_id . '"]' );
+	$waits[] = (int) ( get_option( '_transient_timeout_' . LSTAB_Sync::COOLDOWN_PREFIX . $source_id ) - time() );
+	delete_transient( LSTAB_Sync::COOLDOWN_PREFIX . $source_id );
+}
+lstab_assert( $waits[1] > $waits[0] && $waits[2] > $waits[1], 'Each further failure holds off the next check for longer', wp_json_encode( $waits ) );
+lstab_assert( max( $waits ) <= 900, 'And never for longer than the interval the site asked for', wp_json_encode( $waits ) );
+
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
+lstab_assert( ! get_transient( LSTAB_Sync::COOLDOWN_PREFIX . $source_id ), 'A scheduled sync that succeeds ends the cooling-off period too' );
+
+lstab_set_mock( 'timeout' );
+lstab_age_source( $source_id, 86400 );
+$slow_state = LSTAB_Storage::get( $source_id );
 
 // The scheduled run has the real timeout, so it is the honest test — and when
 // it fails, the failure is reported exactly as before.
@@ -897,7 +955,7 @@ delete_transient( 'lstab_view_refresh_' . $source_id );
 lstab_view( '[sheet_table id="' . $source_id . '"]' );
 lstab_view( '[sheet_table id="' . $source_id . '"]' );
 remove_filter( 'lstab_fetch_args', $lstab_counter, 100 );
-lstab_assert( 0 === $lstab_attempts, 'A sheet that just failed is not retried on every page view', (string) $lstab_attempts );
+lstab_assert( 0 === $lstab_attempts, 'A sheet that just failed is not retried on the very next page view', (string) $lstab_attempts );
 
 // One page load buys one refresh, however many tables the page holds. Four
 // tables that all wanted checking would otherwise be four four-second caps in
