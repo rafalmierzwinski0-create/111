@@ -264,24 +264,37 @@ class LSTAB_Paging {
 	 * @return array<int,array<int,string>>
 	 */
 	protected static function sort( $rows, $column, $dir ) {
-		$numeric = true;
+		$direction = 'desc' === $dir ? -1 : 1;
 
-		foreach ( $rows as $row ) {
-			$value = isset( $row[ $column ] ) ? (string) $row[ $column ] : '';
-
-			if ( '' !== trim( $value ) && ! LSTAB_Renderer::looks_numeric( $value ) ) {
-				$numeric = false;
-				break;
-			}
-		}
-
+		/*
+		 * Decided per pair, not per column, and deliberately the same rule the
+		 * browser applies to a table small enough to sort without reloading.
+		 * Judging the whole column first meant a single "brak" in a price list
+		 * turned every price into text, and 1 000 000 then sorted below 1 215
+		 * because "1" sorts below "2". A visitor cannot see which table is
+		 * paged, so the two must not disagree about what sorted means.
+		 */
 		usort(
 			$rows,
-			function ( $a, $b ) use ( $column, $numeric ) {
-				$left  = isset( $a[ $column ] ) ? (string) $a[ $column ] : '';
-				$right = isset( $b[ $column ] ) ? (string) $b[ $column ] : '';
+			function ( $a, $b ) use ( $column, $direction ) {
+				$left  = isset( $a[ $column ] ) ? trim( (string) $a[ $column ] ) : '';
+				$right = isset( $b[ $column ] ) ? trim( (string) $b[ $column ] ) : '';
 
-				if ( $numeric ) {
+				// Blanks sink to the bottom whichever way the column is sorted:
+				// they are missing data, not the smallest value.
+				if ( '' === $left && '' === $right ) {
+					return 0;
+				}
+
+				if ( '' === $left ) {
+					return 1;
+				}
+
+				if ( '' === $right ) {
+					return -1;
+				}
+
+				if ( LSTAB_Renderer::looks_numeric( $left ) && LSTAB_Renderer::looks_numeric( $right ) ) {
 					$ln = LSTAB_Renderer::to_number( $left );
 					$rn = LSTAB_Renderer::to_number( $right );
 
@@ -289,14 +302,14 @@ class LSTAB_Paging {
 						return 0;
 					}
 
-					return $ln < $rn ? -1 : 1;
+					return ( $ln < $rn ? -1 : 1 ) * $direction;
 				}
 
-				return strnatcasecmp( $left, $right );
+				return strnatcasecmp( $left, $right ) * $direction;
 			}
 		);
 
-		return 'desc' === $dir ? array_reverse( $rows ) : $rows;
+		return $rows;
 	}
 
 	/**

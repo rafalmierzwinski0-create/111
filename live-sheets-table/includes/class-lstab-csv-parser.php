@@ -182,7 +182,18 @@ class LSTAB_CSV_Parser {
 		// Normalise line endings so the scanner only has to deal with "\n".
 		$csv = str_replace( array( "\r\n", "\r" ), "\n", $csv );
 
-		return $csv;
+		/*
+		 * Control characters that mean nothing in a cell are dropped here, at
+		 * the edge, rather than left to travel through the parser, the
+		 * database, the page and any feed or export built from it. A null byte
+		 * pasted into a spreadsheet is invisible in Google and invisible in a
+		 * browser, but it truncates C strings, makes XML invalid, and is the
+		 * kind of thing that turns up months later as an unexplained blank.
+		 * Tab and newline are left alone: both are legitimate inside a cell.
+		 */
+		$csv = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $csv );
+
+		return (string) $csv;
 	}
 
 	/**

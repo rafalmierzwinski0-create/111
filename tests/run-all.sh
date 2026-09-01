@@ -6,7 +6,8 @@
 #   2. PHP end-to-end suite against WordPress 7.1 (current)
 #   3. Build the distributable zip
 #   4. PHP end-to-end suite against a clean site installed *from that zip*
-#   5. Browser suite on WordPress 7.1, which also captures the screenshots
+#   5. Exploratory suite: sheets and requests nobody would write on purpose
+#   6. Browser suite on WordPress 7.1, which also captures the screenshots
 #
 # The sites live outside the repo; see README.md for how they are built.
 #
@@ -46,6 +47,21 @@ php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 live-sheets-table-
 
 run_suite wp    "WordPress 6.8 (minimum supported)"
 run_suite wp71  "WordPress 7.1 (current)"
+
+echo
+echo "=============================================="
+echo " Exploratory suite — adversarial sheets and requests"
+echo "=============================================="
+rm -f "$SCRATCH/wp71/wp-content/debug.log"
+php "$REPO/tests/explore-test.php" "$SCRATCH/wp71"
+
+if [ -f "$SCRATCH/wp71/wp-content/debug.log" ] && grep -v "$NOISE" "$SCRATCH/wp71/wp-content/debug.log" | grep -q .; then
+	echo
+	echo "  PHP notices raised while being provoked:"
+	grep -v "$NOISE" "$SCRATCH/wp71/wp-content/debug.log" | sed 's/^/    /'
+	exit 1
+fi
+echo "  PHP notices raised while being provoked: none"
 
 echo
 echo "=============================================="

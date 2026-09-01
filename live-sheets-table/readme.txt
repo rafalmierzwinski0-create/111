@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.5.0
+Stable tag: 2.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -156,6 +156,10 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 
 == Changelog ==
 
+= 2.6.0 =
+* Fixed: sorting a column that holds both numbers and words no longer treats every value as text. A single “brak” or “n/a” in a price list used to do that, and text sorting puts 1 000 000 below 1 215 because “1” sorts below “2”. Numbers now compare as numbers wherever both values are numbers, blanks sink to the bottom whichever way the column is sorted, and a paged table sorts exactly like an unpaged one — a visitor cannot see which is which, so the two must not disagree.
+* Fixed: control characters in a cell — a null byte pasted into a spreadsheet, most often — are dropped when the sheet is read. They are invisible in Google and invisible in a browser, but they make a feed or an export invalid, which is the kind of fault that surfaces months later as an unexplained blank.
+
 = 2.5.0 =
 * Changed: checking a stale table before the page is drawn is no longer a setting — it is simply how the plugin works. Asking a site owner whether their prices should be current has one answer, and a checkbox that is only ever ticked is a question not worth putting on the screen. The schedule is now the only thing to configure: whoever opens the page sees data no older than the interval you chose, whether or not the schedule managed to run. On a site where it is running this costs nothing, because there is never anything to do.
 * Fixed: a check that ran out of time no longer costs a whole interval of stale data. Staleness is now measured from the last successful refresh rather than the last attempt, so a four-second timeout does not buy fifteen more minutes of the old copy — the visitor after the one who waited is better off for that waiting. A failed check instead holds off the next one for half a minute, doubling while it keeps failing, up to the interval.
@@ -265,6 +269,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 2.6.0 =
+Fixes sorting a column that mixes numbers and words, and strips control characters from cells.
 
 = 2.5.0 =
 One setting instead of two: tables are kept current for whoever opens the page, with nothing to switch on.

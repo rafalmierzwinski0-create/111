@@ -187,6 +187,18 @@ add_filter(
 			return lstab_mock_response( 200, (string) file_get_contents( LSTAB_MOCK_FIXTURES . '/sheet-main.csv' ) );
 		}
 
+		/*
+		 * Anything at all. Exploratory testing needs to be able to hand the
+		 * plugin a payload nobody thought to make a fixture of — an empty
+		 * sheet, fifty columns, a cell holding a formula error — without
+		 * adding a mode per idea.
+		 */
+		if ( 'custom' === $state['mode'] ) {
+			$custom = WP_CONTENT_DIR . '/lstab-mock-custom.csv';
+
+			return lstab_mock_response( 200, file_exists( $custom ) ? (string) file_get_contents( $custom ) : '' );
+		}
+
 		// The gid decides which tab is served, mirroring Google's behaviour.
 		if ( 'ragged' === $state['mode'] ) {
 			// A sheet that fetches fine and comes back with one row short of a
