@@ -551,4 +551,26 @@ return array(
 		=> 'Twój cennik na stronie w dziesięć sekund',
 	'“%s” has not synced yet. Open Live Sheets Table in the dashboard and choose “Refresh”.'
 		=> '„%s” nie zostało jeszcze zsynchronizowane. Otwórz Tabele z arkuszy w kokpicie i wybierz „Odśwież”.',
+
+	// The editor split into panes.
+	'Columns and rows'
+		=> 'Kolumny i wiersze',
+	'Fine-tune the look'
+		=> 'Dopracuj wygląd',
+	'General'
+		=> 'Ogólne',
+	'Appearance'
+		=> 'Wygląd',
+	'Save changes'
+		=> 'Zapisz zmiany',
+	'It lives inside the plugin, so there is no link to point at and nothing to fetch. Everything else works exactly as it does for a real sheet — change the look, rename a column, hide a row, put it on a page. Delete it whenever you like.'
+		=> 'Mieszka wewnątrz wtyczki, więc nie ma tu żadnego linku ani niczego do pobrania. Cała reszta działa dokładnie tak jak przy prawdziwym arkuszu — zmień wygląd, przemianuj kolumnę, ukryj wiersz, wstaw na stronę. Usuń go, kiedy zechcesz.',
+	'Name it and set the schedule'
+		=> 'Nazwij i ustaw harmonogram',
+	'Pick a look'
+		=> 'Wybierz wygląd',
+	'Point at your sheet'
+		=> 'Wskaż swój arkusz',
+	'This is the built-in example'
+		=> 'To jest wbudowany przykład',
 );

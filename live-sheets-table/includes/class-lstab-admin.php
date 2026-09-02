@@ -361,9 +361,26 @@ class LSTAB_Admin {
 		$source_id = isset( $_POST['source_id'] ) ? absint( wp_unslash( $_POST['source_id'] ) ) : 0;
 		$raw_url   = isset( $_POST['sheet_url'] ) ? sanitize_text_field( wp_unslash( $_POST['sheet_url'] ) ) : '';
 
-		$reference = LSTAB_Url::parse( $raw_url );
-		if ( is_wp_error( $reference ) ) {
-			$this->redirect_with_notice( $source_id, 'error', $reference->get_error_message() );
+		$existing = $source_id ? LSTAB_Storage::get( $source_id ) : null;
+
+		/*
+		 * The bundled example has no link and never will, so the screen does not
+		 * ask for one. Demanding it here would make the example the one table on
+		 * the site that cannot be saved — which is the opposite of what it is
+		 * for, since trying the settings on it is the whole point.
+		 */
+		if ( $existing && LSTAB_Example::is_example( $existing ) ) {
+			$reference = array(
+				'sheet_id'   => '',
+				'sheet_kind' => LSTAB_Example::KIND,
+				'gid'        => '0',
+			);
+		} else {
+			$reference = LSTAB_Url::parse( $raw_url );
+
+			if ( is_wp_error( $reference ) ) {
+				$this->redirect_with_notice( $source_id, 'error', $reference->get_error_message() );
+			}
 		}
 
 		if ( ! $source_id && ! LSTAB_Limits::can_add_source() ) {
@@ -391,7 +408,7 @@ class LSTAB_Admin {
 			'sheet_id'         => $reference['sheet_id'],
 			'sheet_kind'       => $reference['sheet_kind'],
 			'gid'              => $gid,
-			'tab_name'         => isset( $_POST['tab_name'] ) ? sanitize_text_field( wp_unslash( $_POST['tab_name'] ) ) : '',
+			'tab_name'         => isset( $_POST['tab_name'] ) ? sanitize_text_field( wp_unslash( $_POST['tab_name'] ) ) : (string) ( $existing ? $existing['tab_name'] : '' ),
 			'sync_interval'    => isset( $_POST['sync_interval'] ) ? LSTAB_Limits::clamp_interval( wp_unslash( $_POST['sync_interval'] ) ) : LSTAB_Limits::min_interval(),
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Presence check only; the value is never used.
 			'first_row_header' => empty( $_POST['first_row_header'] ) ? 0 : 1,

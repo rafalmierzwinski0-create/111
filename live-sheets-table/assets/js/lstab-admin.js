@@ -15,6 +15,94 @@
 		return;
 	}
 
+	/*
+	 * Panes. One form still, so the save button saves everything wherever you
+	 * were standing — these only decide what is on screen.
+	 *
+	 * The chosen pane goes in the address bar so that reloading, or coming
+	 * back from a save, lands you where you left off rather than throwing you
+	 * to the front of the form.
+	 */
+	( function panes() {
+		var nav = document.getElementById( 'lstab-panes' );
+
+		if ( ! nav ) {
+			return;
+		}
+
+		var tabs = nav.querySelectorAll( '[data-lstab-goto]' );
+
+		var show = function ( wanted ) {
+			Array.prototype.forEach.call( tabs, function ( tab ) {
+				var on = tab.getAttribute( 'data-lstab-goto' ) === wanted;
+				tab.classList.toggle( 'is-on', on );
+				tab.setAttribute( 'aria-selected', on ? 'true' : 'false' );
+			} );
+
+			Array.prototype.forEach.call(
+				document.querySelectorAll( '[data-lstab-pane]' ),
+				function ( pane ) {
+					pane.hidden = pane.getAttribute( 'data-lstab-pane' ) !== wanted;
+				}
+			);
+
+			// Blocks that belong to more than one pane — the preview, which is
+			// worth seeing while editing both the sheet and its appearance.
+			Array.prototype.forEach.call(
+				document.querySelectorAll( '[data-lstab-panes]' ),
+				function ( block ) {
+					var list = block.getAttribute( 'data-lstab-panes' ).split( /\s+/ );
+					block.hidden = list.indexOf( wanted ) === -1;
+				}
+			);
+		};
+
+		Array.prototype.forEach.call( tabs, function ( tab ) {
+			tab.addEventListener( 'click', function () {
+				var wanted = tab.getAttribute( 'data-lstab-goto' );
+
+				show( wanted );
+
+				if ( window.history && window.history.replaceState ) {
+					window.history.replaceState( null, '', '#' + wanted );
+				}
+			} );
+		} );
+
+		/*
+		 * Saving reloads the page, and a hash never reaches the server, so
+		 * without this every save threw you back to the first pane — three
+		 * clicks to carry on where you were. The browser remembers instead.
+		 */
+		var remember = function ( name ) {
+			try {
+				window.sessionStorage.setItem( 'lstabPane', name );
+			} catch ( error ) {
+				// Private windows and blocked storage: not worth a word.
+			}
+		};
+
+		var remembered = function () {
+			try {
+				return window.sessionStorage.getItem( 'lstabPane' ) || '';
+			} catch ( error ) {
+				return '';
+			}
+		};
+
+		Array.prototype.forEach.call( tabs, function ( tab ) {
+			tab.addEventListener( 'click', function () {
+				remember( tab.getAttribute( 'data-lstab-goto' ) );
+			} );
+		} );
+
+		var opening = ( window.location.hash || '' ).replace( '#', '' ) || remembered();
+
+		if ( opening && document.querySelector( '[data-lstab-pane="' + opening + '"]' ) ) {
+			show( opening );
+		}
+	}() );
+
 	var urlInput = document.getElementById( 'lstab-sheet-url' );
 	var button = document.getElementById( 'lstab-preview-button' );
 	var spinner = document.getElementById( 'lstab-spinner' );

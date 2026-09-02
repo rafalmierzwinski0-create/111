@@ -17,6 +17,7 @@ $lstab_intervals  = LSTAB_Limits::intervals();
 $lstab_presets    = LSTAB_Styles::all();
 $lstab_is_pro     = LSTAB_Limits::is_pro();
 $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
+$lstab_is_sample  = $lstab_is_edit && LSTAB_Example::is_example( $source );
 
 /*
  * A link pasted on the welcome screen arrives here in the address. Carrying it
@@ -63,7 +64,37 @@ if ( ! $lstab_is_edit ) {
 	 */
 	?>
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="lstab-source-form">
-	<div class="lstab-editor-grid">
+
+	<?php
+	/*
+	 * One form, three panes. Splitting it into three saved screens would mean
+	 * three chances to lose unsaved work and three round trips to change two
+	 * things; this way the save button still saves everything, wherever you
+	 * happened to be standing.
+	 */
+	?>
+	<nav class="lstab-panes" id="lstab-panes" role="tablist">
+		<?php
+		$lstab_panes = array(
+			'general' => array( 'sliders', __( 'General', 'live-sheets-table' ) ),
+			'look'    => array( 'brush', __( 'Appearance', 'live-sheets-table' ) ),
+			'hide'    => array( 'columns', __( 'Columns and rows', 'live-sheets-table' ) ),
+		);
+
+		foreach ( $lstab_panes as $lstab_pane => $lstab_meta ) :
+			?>
+			<button type="button"
+				class="lstab-pane-tab<?php echo 'general' === $lstab_pane ? ' is-on' : ''; ?>"
+				data-lstab-goto="<?php echo esc_attr( $lstab_pane ); ?>"
+				role="tab"
+				aria-selected="<?php echo 'general' === $lstab_pane ? 'true' : 'false'; ?>">
+				<?php echo LSTAB_Icons::icon( $lstab_meta[0] ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+				<?php echo esc_html( $lstab_meta[1] ); ?>
+			</button>
+		<?php endforeach; ?>
+	</nav>
+
+	<div class="lstab-editor-grid" data-lstab-panes="general look hide">
 		<div class="lstab-form">
 			<?php wp_nonce_field( 'lstab_save_source' ); ?>
 			<input type="hidden" name="action" value="lstab_save_source">
@@ -71,8 +102,18 @@ if ( ! $lstab_is_edit ) {
 			<input type="hidden" name="gid" id="lstab-gid" value="<?php echo esc_attr( (string) $lstab_values['gid'] ); ?>">
 			<input type="hidden" name="tab_name" id="lstab-tab-name" value="<?php echo esc_attr( (string) $lstab_values['tab_name'] ); ?>">
 
+			<div class="lstab-pane" data-lstab-pane="general">
+
+			<?php if ( $lstab_is_sample ) : ?>
+				<div class="lstab-card">
+					<h2 class="lstab-card-title"><?php esc_html_e( 'This is the built-in example', 'live-sheets-table' ); ?></h2>
+					<p class="lstab-help">
+						<?php esc_html_e( 'It lives inside the plugin, so there is no link to point at and nothing to fetch. Everything else works exactly as it does for a real sheet — change the look, rename a column, hide a row, put it on a page. Delete it whenever you like.', 'live-sheets-table' ); ?>
+					</p>
+				</div>
+			<?php else : ?>
 			<div class="lstab-card">
-				<h2 class="lstab-card-title"><?php esc_html_e( '1. Point at your sheet', 'live-sheets-table' ); ?></h2>
+				<h2 class="lstab-card-title"><?php esc_html_e( 'Point at your sheet', 'live-sheets-table' ); ?></h2>
 
 				<p class="lstab-help">
 					<?php esc_html_e( 'In Google Sheets choose Share → General access → “Anyone with the link”, role “Viewer”, then copy the link from your browser. No API key or Google Cloud project is needed.', 'live-sheets-table' ); ?>
@@ -90,7 +131,7 @@ if ( ! $lstab_is_edit ) {
 				</p>
 
 				<p>
-					<button type="button" class="button button-primary" id="lstab-preview-button">
+					<button type="button" class="lstab-btn" id="lstab-preview-button">
 						<?php esc_html_e( 'Load preview', 'live-sheets-table' ); ?>
 					</button>
 					<span class="spinner lstab-spinner" id="lstab-spinner"></span>
@@ -108,9 +149,10 @@ if ( ! $lstab_is_edit ) {
 					</label>
 				</p>
 			</div>
+			<?php endif; ?>
 
 			<div class="lstab-card">
-				<h2 class="lstab-card-title"><?php esc_html_e( '2. Name it and set the schedule', 'live-sheets-table' ); ?></h2>
+				<h2 class="lstab-card-title"><?php esc_html_e( 'Name it and set the schedule', 'live-sheets-table' ); ?></h2>
 
 				<p>
 					<label for="lstab-title"><strong><?php esc_html_e( 'Title', 'live-sheets-table' ); ?></strong></label>
@@ -123,6 +165,7 @@ if ( ! $lstab_is_edit ) {
 					<span class="lstab-help"><?php esc_html_e( 'Only shown in the dashboard, to tell sources apart.', 'live-sheets-table' ); ?></span>
 				</p>
 
+				<?php if ( ! $lstab_is_sample ) : ?>
 				<p>
 					<label for="lstab-interval"><strong><?php esc_html_e( 'Check Google for changes', 'live-sheets-table' ); ?></strong></label>
 					<select id="lstab-interval" name="sync_interval">
@@ -145,11 +188,35 @@ if ( ! $lstab_is_edit ) {
 						<?php endif; ?>
 					</span>
 				</p>
+				<?php endif; ?>
 
 			</div>
 
+			<?php if ( $lstab_is_edit ) : ?>
+				<?php $lstab_shortcode = '[sheet_table id="' . (int) $source['id'] . '"]'; ?>
+				<div class="lstab-card lstab-usage">
+					<h2 class="lstab-card-title"><?php esc_html_e( 'Put it on a page', 'live-sheets-table' ); ?></h2>
+					<p>
+						<?php esc_html_e( 'Use the “Google Sheets Table” block, or paste this shortcode into any editor, widget or page builder:', 'live-sheets-table' ); ?>
+					</p>
+					<p class="lstab-usage-code">
+						<code class="lstab-shortcode"><?php echo esc_html( $lstab_shortcode ); ?></code>
+						<button type="button" class="lstab-copy" data-lstab-copy="<?php echo esc_attr( $lstab_shortcode ); ?>">
+							<?php echo LSTAB_Icons::icon( 'copy' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+							<span class="lstab-copy-label"><?php esc_html_e( 'Copy', 'live-sheets-table' ); ?></span>
+						</button>
+					</p>
+					<p class="lstab-help">
+						<?php esc_html_e( 'Optional attributes: search="no", sort="no", meta="no", style="striped", caption="My table".', 'live-sheets-table' ); ?>
+					</p>
+				</div>
+			<?php endif; ?>
+
+			</div><!-- /pane general -->
+
+			<div class="lstab-pane" data-lstab-pane="look" hidden>
 			<div class="lstab-card">
-				<h2 class="lstab-card-title"><?php esc_html_e( '3. Pick a look', 'live-sheets-table' ); ?></h2>
+				<h2 class="lstab-card-title"><?php esc_html_e( 'Pick a look', 'live-sheets-table' ); ?></h2>
 
 				<p>
 					<label for="lstab-layout"><strong><?php esc_html_e( 'On screens too narrow for the whole table', 'live-sheets-table' ); ?></strong></label>
@@ -235,7 +302,7 @@ if ( ! $lstab_is_edit ) {
 					: LSTAB_Customizer::defaults();
 				?>
 				<div class="lstab-card lstab-appearance">
-					<h2 class="lstab-card-title"><?php esc_html_e( '4. Fine-tune the look', 'live-sheets-table' ); ?></h2>
+					<h2 class="lstab-card-title"><?php esc_html_e( 'Fine-tune the look', 'live-sheets-table' ); ?></h2>
 					<p class="lstab-help">
 						<?php esc_html_e( 'Optional. Anything you leave untouched follows the preset above, so you can change one colour without redefining the rest. The preview updates as you go.', 'live-sheets-table' ); ?>
 					</p>
@@ -288,12 +355,126 @@ if ( ! $lstab_is_edit ) {
 					</div>
 
 					<p>
-						<button type="button" class="button" id="lstab-reset-appearance">
+						<button type="button" class="lstab-mini" id="lstab-reset-appearance">
 							<?php esc_html_e( 'Reset everything to the preset', 'live-sheets-table' ); ?>
 						</button>
 					</p>
 				</div>
 			<?php endif; ?>
+			</div><!-- /pane look -->
+
+			<div class="lstab-pane" data-lstab-pane="hide" hidden>
+	<?php
+			$lstab_columns = ! empty( $source['columns_config'] ) ? $source['columns_config'] : array();
+			$lstab_drift   = $lstab_columns && ! empty( $source['data']['headers'] )
+				? LSTAB_Columns::drift( $lstab_columns, $source['data']['headers'] )
+				: array();
+
+			/*
+			 * Until a sheet has been read once there are no columns to list. The card
+			 * still appears, spelling out what it is waiting for: a control that
+			 * materialises later is harder to find than one that was always in view,
+			 * and people went looking for this in the wrong places.
+			 */
+			$lstab_waiting = ! $lstab_columns;
+			$lstab_rows    = $lstab_waiting
+				? array_fill( 0, 3, array( 'source' => '', 'label' => '', 'hidden' => false ) )
+				: $lstab_columns;
+			?>
+				<div class="lstab-card lstab-columns-card<?php echo $lstab_waiting ? ' is-waiting' : ''; ?>">
+					<h2 class="lstab-card-title"><?php esc_html_e( 'Columns', 'live-sheets-table' ); ?></h2>
+					<p class="lstab-help">
+						<?php esc_html_e( 'Rename a column for your visitors. Nothing here is written back to Google — your spreadsheet keeps its own headings, including working names nobody should see.', 'live-sheets-table' ); ?>
+						<?php if ( ! LSTAB_Limits::is_pro() ) : ?>
+							<?php esc_html_e( 'Leaving a column or a row out of the table is part of Pro, where you choose it by clicking your own sheet.', 'live-sheets-table' ); ?>
+						<?php endif; ?>
+					</p>
+
+					<?php if ( $lstab_waiting ) : ?>
+						<p class="lstab-columns-waiting">
+							<?php
+							echo esc_html(
+								$lstab_is_edit
+									? __( 'Waiting for a first look at the sheet. Choose “Refresh” on the sources list, and your real columns will appear here.', 'live-sheets-table' )
+									: __( 'Save this source first. It is read straight away, and your real columns appear here.', 'live-sheets-table' )
+							);
+							?>
+						</p>
+					<?php endif; ?>
+
+					<?php if ( $lstab_drift ) : ?>
+						<div class="notice notice-warning inline lstab-drift">
+							<p><strong><?php esc_html_e( 'The columns in your sheet have moved.', 'live-sheets-table' ); ?></strong></p>
+							<p>
+								<?php esc_html_e( 'Settings below are matched by position, so a column added or removed in Google shifts them. Check that each row still points at the right column:', 'live-sheets-table' ); ?>
+							</p>
+							<ul>
+								<?php foreach ( $lstab_drift as $lstab_moved ) : ?>
+									<li>
+										<?php
+										printf(
+											/* translators: 1: column number, 2: heading that used to be there, 3: heading there now. */
+											esc_html__( 'Column %1$d was “%2$s”, now “%3$s”', 'live-sheets-table' ),
+											(int) $lstab_moved['index'] + 1,
+											esc_html( $lstab_moved['was'] ),
+											esc_html( '' === $lstab_moved['now'] ? __( '(no longer there)', 'live-sheets-table' ) : $lstab_moved['now'] )
+										);
+										?>
+									</li>
+								<?php endforeach; ?>
+							</ul>
+						</div>
+					<?php endif; ?>
+
+					<table class="lstab-column-list">
+						<thead>
+							<tr>
+								<th scope="col"><?php esc_html_e( 'In your sheet', 'live-sheets-table' ); ?></th>
+								<th scope="col"><?php esc_html_e( 'Shown as', 'live-sheets-table' ); ?></th>
+								<th scope="col"><?php esc_html_e( 'In the table', 'live-sheets-table' ); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach ( $lstab_rows as $lstab_index => $lstab_column ) : ?>
+								<tr>
+									<td>
+										<code><?php echo esc_html( '' === $lstab_column['source'] ? sprintf( /* translators: %d: column number. */ __( 'Column %d', 'live-sheets-table' ), (int) $lstab_index + 1 ) : $lstab_column['source'] ); ?></code>
+										<input type="hidden" <?php disabled( $lstab_waiting ); ?>
+											name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][source]"
+											value="<?php echo esc_attr( $lstab_column['source'] ); ?>">
+									</td>
+									<td>
+										<input type="text" class="regular-text"
+											<?php disabled( $lstab_waiting ); ?>
+											name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][label]"
+											value="<?php echo esc_attr( $lstab_column['label'] ); ?>"
+											placeholder="<?php echo esc_attr( $lstab_column['source'] ); ?>">
+									</td>
+									<td class="lstab-column-state">
+										<?php
+										/*
+										 * Whether a column is left out is the add-on's to
+										 * change; this only reports it and carries it back
+										 * unchanged, so saving from here can never quietly
+										 * put a column back on a public page.
+										 */
+										?>
+										<input type="hidden" <?php disabled( $lstab_waiting ); ?>
+											name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][hidden]"
+											value="<?php echo empty( $lstab_column['hidden'] ) ? '0' : '1'; ?>">
+										<?php if ( empty( $lstab_column['hidden'] ) ) : ?>
+											<span class="lstab-state-shown"><?php esc_html_e( 'Shown', 'live-sheets-table' ); ?></span>
+										<?php else : ?>
+											<span class="lstab-state-hidden"><?php esc_html_e( 'Hidden', 'live-sheets-table' ); ?></span>
+										<?php endif; ?>
+									</td>
+								</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				</div>
+			</div><!-- /pane hide -->
+
 
 		</div>
 
@@ -315,7 +496,7 @@ if ( ! $lstab_is_edit ) {
 				foreach ( $lstab_widths as $lstab_width => $lstab_width_label ) :
 					?>
 					<button type="button"
-						class="button lstab-width-button<?php echo '' === $lstab_width ? ' is-active' : ''; ?>"
+						class="lstab-mini lstab-width-button<?php echo '' === $lstab_width ? ' is-active' : ''; ?>"
 						data-lstab-width="<?php echo esc_attr( $lstab_width ); ?>"
 						aria-pressed="<?php echo '' === $lstab_width ? 'true' : 'false'; ?>">
 						<?php echo esc_html( $lstab_width_label ); ?>
@@ -329,7 +510,30 @@ if ( ! $lstab_is_edit ) {
 
 			<div id="lstab-preview" class="lstab-preview">
 				<div id="lstab-preview-stage" class="lstab-preview-stage">
-					<p class="lstab-placeholder"><?php esc_html_e( 'Paste a link and choose “Load preview”.', 'live-sheets-table' ); ?></p>
+					<?php
+					/*
+					 * Drawn from the copy already stored, so the table is on
+					 * screen the moment the page is. Waiting for a round trip
+					 * to Google left this box empty for a second on every
+					 * visit — and permanently empty for the bundled example,
+					 * which has nothing to fetch and so never filled it in.
+					 */
+					if ( $lstab_is_edit && ! empty( $source['data']['rows'] ) ) {
+						echo LSTAB_Renderer::render_preview( // phpcs:ignore WordPress.Security.EscapeOutput -- Renderer escapes every cell.
+							$source['data'],
+							array(
+								'source_id'  => (int) $source['id'],
+								'style'      => (string) $source['style_preset'],
+								'style_vars' => $source['style_vars'],
+								'layout'     => (string) $source['layout'],
+							)
+						);
+					} else {
+						?>
+						<p class="lstab-placeholder"><?php esc_html_e( 'Paste a link and choose “Load preview”.', 'live-sheets-table' ); ?></p>
+						<?php
+					}
+					?>
 				</div>
 			</div>
 
@@ -352,115 +556,9 @@ if ( ! $lstab_is_edit ) {
 		</div>
 	</div>
 
-	<?php
-	$lstab_columns = ! empty( $source['columns_config'] ) ? $source['columns_config'] : array();
-	$lstab_drift   = $lstab_columns && ! empty( $source['data']['headers'] )
-		? LSTAB_Columns::drift( $lstab_columns, $source['data']['headers'] )
-		: array();
 
-	/*
-	 * Until a sheet has been read once there are no columns to list. The card
-	 * still appears, spelling out what it is waiting for: a control that
-	 * materialises later is harder to find than one that was always in view,
-	 * and people went looking for this in the wrong places.
-	 */
-	$lstab_waiting = ! $lstab_columns;
-	$lstab_rows    = $lstab_waiting
-		? array_fill( 0, 3, array( 'source' => '', 'label' => '', 'hidden' => false ) )
-		: $lstab_columns;
-	?>
-		<div class="lstab-card lstab-columns-card<?php echo $lstab_waiting ? ' is-waiting' : ''; ?>">
-			<h2 class="lstab-card-title"><?php esc_html_e( 'Columns', 'live-sheets-table' ); ?></h2>
-			<p class="lstab-help">
-				<?php esc_html_e( 'Rename a column for your visitors. Nothing here is written back to Google — your spreadsheet keeps its own headings, including working names nobody should see.', 'live-sheets-table' ); ?>
-				<?php if ( ! LSTAB_Limits::is_pro() ) : ?>
-					<?php esc_html_e( 'Leaving a column or a row out of the table is part of Pro, where you choose it by clicking your own sheet.', 'live-sheets-table' ); ?>
-				<?php endif; ?>
-			</p>
 
-			<?php if ( $lstab_waiting ) : ?>
-				<p class="lstab-columns-waiting">
-					<?php
-					echo esc_html(
-						$lstab_is_edit
-							? __( 'Waiting for a first look at the sheet. Choose “Refresh” on the sources list, and your real columns will appear here.', 'live-sheets-table' )
-							: __( 'Save this source first. It is read straight away, and your real columns appear here.', 'live-sheets-table' )
-					);
-					?>
-				</p>
-			<?php endif; ?>
-
-			<?php if ( $lstab_drift ) : ?>
-				<div class="notice notice-warning inline lstab-drift">
-					<p><strong><?php esc_html_e( 'The columns in your sheet have moved.', 'live-sheets-table' ); ?></strong></p>
-					<p>
-						<?php esc_html_e( 'Settings below are matched by position, so a column added or removed in Google shifts them. Check that each row still points at the right column:', 'live-sheets-table' ); ?>
-					</p>
-					<ul>
-						<?php foreach ( $lstab_drift as $lstab_moved ) : ?>
-							<li>
-								<?php
-								printf(
-									/* translators: 1: column number, 2: heading that used to be there, 3: heading there now. */
-									esc_html__( 'Column %1$d was “%2$s”, now “%3$s”', 'live-sheets-table' ),
-									(int) $lstab_moved['index'] + 1,
-									esc_html( $lstab_moved['was'] ),
-									esc_html( '' === $lstab_moved['now'] ? __( '(no longer there)', 'live-sheets-table' ) : $lstab_moved['now'] )
-								);
-								?>
-							</li>
-						<?php endforeach; ?>
-					</ul>
-				</div>
-			<?php endif; ?>
-
-			<table class="lstab-column-list">
-				<thead>
-					<tr>
-						<th scope="col"><?php esc_html_e( 'In your sheet', 'live-sheets-table' ); ?></th>
-						<th scope="col"><?php esc_html_e( 'Shown as', 'live-sheets-table' ); ?></th>
-						<th scope="col"><?php esc_html_e( 'In the table', 'live-sheets-table' ); ?></th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php foreach ( $lstab_rows as $lstab_index => $lstab_column ) : ?>
-						<tr>
-							<td>
-								<code><?php echo esc_html( '' === $lstab_column['source'] ? sprintf( /* translators: %d: column number. */ __( 'Column %d', 'live-sheets-table' ), (int) $lstab_index + 1 ) : $lstab_column['source'] ); ?></code>
-								<input type="hidden" <?php disabled( $lstab_waiting ); ?>
-									name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][source]"
-									value="<?php echo esc_attr( $lstab_column['source'] ); ?>">
-							</td>
-							<td>
-								<input type="text" class="regular-text"
-									<?php disabled( $lstab_waiting ); ?>
-									name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][label]"
-									value="<?php echo esc_attr( $lstab_column['label'] ); ?>"
-									placeholder="<?php echo esc_attr( $lstab_column['source'] ); ?>">
-							</td>
-							<td class="lstab-column-state">
-								<?php
-								/*
-								 * Whether a column is left out is the add-on's to
-								 * change; this only reports it and carries it back
-								 * unchanged, so saving from here can never quietly
-								 * put a column back on a public page.
-								 */
-								?>
-								<input type="hidden" <?php disabled( $lstab_waiting ); ?>
-									name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][hidden]"
-									value="<?php echo empty( $lstab_column['hidden'] ) ? '0' : '1'; ?>">
-								<?php if ( empty( $lstab_column['hidden'] ) ) : ?>
-									<span class="lstab-state-shown"><?php esc_html_e( 'Shown', 'live-sheets-table' ); ?></span>
-								<?php else : ?>
-									<span class="lstab-state-hidden"><?php esc_html_e( 'Hidden', 'live-sheets-table' ); ?></span>
-								<?php endif; ?>
-							</td>
-						</tr>
-					<?php endforeach; ?>
-				</tbody>
-			</table>
-		</div>
+	<div class="lstab-pane" data-lstab-pane="hide" hidden>
 
 	<?php
 	/**
@@ -476,30 +574,26 @@ if ( ! $lstab_is_edit ) {
 	do_action( 'lstab_edit_page_settings', $lstab_is_edit ? $source : null, $lstab_is_edit );
 	?>
 
+	</div><!-- /pane hide -->
+
 	<p class="lstab-submit">
-		<button type="submit" class="button button-primary button-large">
+		<button type="submit" class="lstab-btn">
 			<?php
-			echo $lstab_is_edit
-				? esc_html__( 'Save changes and sync', 'live-sheets-table' )
-				: esc_html__( 'Save source and sync', 'live-sheets-table' );
+			if ( $lstab_is_sample ) {
+				// Nothing to sync: promising a sync that cannot happen is the
+				// kind of small lie that makes people distrust the big claims.
+				esc_html_e( 'Save changes', 'live-sheets-table' );
+			} else {
+				echo $lstab_is_edit
+					? esc_html__( 'Save changes and sync', 'live-sheets-table' )
+					: esc_html__( 'Save source and sync', 'live-sheets-table' );
+			}
 			?>
 		</button>
-		<a class="button button-link" href="<?php echo esc_url( admin_url( 'admin.php?page=' . LSTAB_Admin::MENU_SLUG ) ); ?>">
+		<a class="lstab-quiet" href="<?php echo esc_url( admin_url( 'admin.php?page=' . LSTAB_Admin::MENU_SLUG ) ); ?>">
 			<?php esc_html_e( 'Cancel', 'live-sheets-table' ); ?>
 		</a>
 	</p>
 	</form>
 
-	<?php if ( $lstab_is_edit ) : ?>
-		<div class="lstab-card lstab-usage">
-			<h2 class="lstab-card-title"><?php esc_html_e( 'Put it on a page', 'live-sheets-table' ); ?></h2>
-			<p>
-				<?php esc_html_e( 'Use the “Google Sheets Table” block, or paste this shortcode into any editor, widget or page builder:', 'live-sheets-table' ); ?>
-			</p>
-			<p><code class="lstab-shortcode">[sheet_table id="<?php echo esc_attr( (string) $source['id'] ); ?>"]</code></p>
-			<p class="lstab-help">
-				<?php esc_html_e( 'Optional attributes: search="no", sort="no", meta="no", style="striped", caption="My table".', 'live-sheets-table' ); ?>
-			</p>
-		</div>
-	<?php endif; ?>
 </div>

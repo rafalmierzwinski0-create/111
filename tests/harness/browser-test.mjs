@@ -24,6 +24,20 @@ const check = ( ok, label, detail = '' ) => {
 };
 const section = ( t ) => console.log( `\n\x1b[1m${ t }\x1b[0m` );
 
+/*
+ * The editor is one form shown three panes at a time, so a control has to be
+ * on the visible pane before it can be clicked. Real people click the tab
+ * first; so does this.
+ */
+const pane = async ( name ) => {
+	const tab = page.locator( `[data-lstab-goto="${ name }"]` );
+
+	if ( await tab.count() ) {
+		await tab.click();
+		await page.waitForTimeout( 120 );
+	}
+};
+
 const browser = await chromium.launch( { executablePath: CHROMIUM, args: [ '--no-sandbox' ] } );
 const context = await browser.newContext( { viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 2, locale: 'pl-PL' } );
 
@@ -71,7 +85,7 @@ check( await page.locator( '.lstab-copy' ).first().isVisible(), 'And has a copy 
 // permission Chromium will not grant headlessly, so the check is that the
 // button reports success — the browser API itself is not ours to test.
 await page.locator( '.lstab-copy' ).first().click();
-await page.waitForTimeout( 250 );
+await page.locator( '.lstab-copy.is-done' ).first().waitFor( { timeout: 5000 } ).catch( () => {} );
 const copyLabel = await page.locator( '.lstab-copy .lstab-copy-label' ).first().innerText();
 check( /Copied/i.test( copyLabel ), 'Clicking it confirms the shortcode was copied', copyLabel );
 
@@ -172,6 +186,7 @@ await page.waitForTimeout( 350 );
 
 // --------------------------------------------------------- style presets
 section( '3b. Style presets change the preview' );
+await pane( 'look' );
 
 // The preview is what the author checks before saving, so a preset that does
 // not visibly apply there makes the control look broken.
@@ -202,8 +217,10 @@ const presetClassCount = ( bordered.classes.match( /lstab-style-/g ) || [] ).len
 check( presetClassCount === 1, 'Exactly one preset class is applied at a time', bordered.classes );
 
 // Reloading the preview must keep the chosen preset rather than reverting.
+await pane( 'general' );
 await page.locator( '#lstab-preview-button' ).click();
 await page.waitForTimeout( 1200 );
+await pane( 'look' );
 const afterReload = await page.locator( '.lstab-preview .lstab' ).getAttribute( 'class' );
 check( afterReload.includes( 'lstab-style-bordered' ), 'A reloaded preview keeps the chosen preset', afterReload );
 
@@ -211,6 +228,7 @@ await page.locator( 'input[name="style_preset"][value="striped"]' ).check();
 
 // ----------------------------------------------------- visual appearance
 section( '3c. Visual appearance editor' );
+await pane( 'look' );
 
 const tableStyle = () =>
 	page.locator( '.lstab-preview .lstab' ).evaluate( ( el ) => ( {
@@ -278,6 +296,7 @@ await page.addStyleTag( {
 } );
 
 for ( const [ token, target ] of Object.entries( colourTargets ) ) {
+	await pane( 'look' );
 	await page.locator( '#lstab-reset-appearance' ).click();
 	await page.waitForTimeout( 80 );
 
@@ -308,7 +327,7 @@ for ( const [ token, target ] of Object.entries( colourTargets ) ) {
 		const focused = await page.locator( '.lstab-preview .lstab-search-input' ).evaluate(
 			( el ) => getComputedStyle( el ).borderColor
 		);
-		await page.locator( '#lstab-title' ).focus();
+		await page.evaluate( () => document.activeElement && document.activeElement.blur() );
 
 		check( String( focused ).includes( probeRgb ), 'Accent survives the dashboard\'s own input styling', focused );
 		effective = icon;
@@ -321,6 +340,7 @@ for ( const [ token, target ] of Object.entries( colourTargets ) ) {
 	);
 }
 
+await pane( 'look' );
 await page.locator( '#lstab-reset-appearance' ).click();
 await page.waitForTimeout( 100 );
 await page.locator( '.lstab-swatch[data-lstab-token="accent"] .lstab-color-input' ).evaluate( ( el ) => {
@@ -341,8 +361,10 @@ check( afterClear.accent === '', 'Resetting one colour removes just that one', a
 check( afterClear.inline.includes( '--lstab-bg' ), 'The other colours survive that reset', afterClear.inline );
 
 // Reloading the preview must not discard what has been set.
+await pane( 'general' );
 await page.locator( '#lstab-preview-button' ).click();
 await page.waitForTimeout( 1400 );
+await pane( 'look' );
 const afterReloadStyle = await tableStyle();
 check(
 	afterReloadStyle.inline.includes( '--lstab-bg' ),
@@ -351,6 +373,7 @@ check(
 );
 
 // Reset everything, then save, so the rest of the run sees a clean table.
+await pane( 'look' );
 await page.locator( '#lstab-reset-appearance' ).click();
 await page.waitForTimeout( 150 );
 const afterResetAll = await tableStyle();
@@ -378,6 +401,7 @@ check( publishedStyle, 'A saved override reaches the published page' );
 const sourceEditUrl = `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`;
 await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
 await page.waitForSelector( '.lstab-preview .lstab-table', { timeout: 15000 } );
+await pane( 'look' );
 await page.locator( '#lstab-reset-appearance' ).click();
 await Promise.all( [
 	page.waitForURL( /page=live-sheets-table/ ),
@@ -388,6 +412,7 @@ await page.waitForSelector( '.lstab-preview .lstab-table', { timeout: 15000 } );
 
 // Switching tab re-fetches the preview.
 section( '4. Switching sheet tab' );
+await pane( 'general' );
 await page.selectOption( '#lstab-tabs', '1734829105' );
 await page.waitForFunction(
 	() => document.querySelectorAll( '.lstab-preview tbody tr' ).length === 3,
@@ -813,6 +838,32 @@ setMock( 'ok' );
 
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
 await page.waitForSelector( '.lstab-preview .lstab-table', { timeout: 20000 } );
+// The pane is chosen once the editor is on screen; asking for it on the list
+// screen, where the tabs do not exist, quietly does nothing.
+await pane( 'hide' );
+
+/*
+ * `hidden` is only a display rule, and the grid sets its own display, so it
+ * once stayed on screen while marked hidden — the preview hung beside an
+ * empty column. Checking what is painted, not what is marked.
+ */
+/*
+ * Renaming a column is worth watching happen, so the preview stays beside the
+ * column list. `hidden` is only a display rule and the grid sets its own
+ * display, so this checks what is painted rather than what is marked.
+ */
+check(
+	await page.locator( '.lstab-preview-pane' ).isVisible(),
+	'The preview stays beside the column settings'
+);
+check(
+	await page.locator( '.lstab-columns-card' ).isVisible(),
+	'And the column settings are on screen'
+);
+check(
+	! ( await page.locator( '[data-lstab-pane="look"]' ).isVisible() ),
+	'While the appearance pane is really gone, not merely marked hidden'
+);
 
 // The card once sat outside the form, so nothing typed into it was ever sent.
 check(
@@ -853,6 +904,14 @@ check(
 await page.locator( '.lstab-submit button[type=submit]' ).click();
 await page.waitForLoadState( 'networkidle' );
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+
+// Coming back should land on the pane you were working in, not throw you to
+// the front of the form. Stated here too, so the check does not depend on it.
+check(
+	await page.locator( '[data-lstab-goto="hide"]' ).evaluate( ( el ) => el.classList.contains( 'is-on' ) ),
+	'Reopening the editor returns to the pane you were on'
+);
+await pane( 'hide' );
 
 check(
 	await columnRows.nth( 0 ).locator( 'input[type=text]' ).inputValue() === 'Nazwa produktu',
@@ -1046,6 +1105,7 @@ await page.waitForLoadState( 'networkidle' );
 section( '9d. Links in cells' );
 
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await pane( 'look' );
 const linkToggle = page.locator( 'input[name="link_cells"]' );
 check( await linkToggle.count() === 1, 'The source screen offers the setting' );
 check( await linkToggle.isChecked(), 'It is on for a new source' );
@@ -1054,6 +1114,7 @@ await linkToggle.uncheck();
 await page.locator( '.lstab-submit button[type=submit]' ).click();
 await page.waitForLoadState( 'networkidle' );
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await pane( 'look' );
 check( ! ( await page.locator( 'input[name="link_cells"]' ).isChecked() ), 'Turning it off sticks' );
 
 await page.locator( 'input[name="link_cells"]' ).check();

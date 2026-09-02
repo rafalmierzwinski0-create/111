@@ -39,7 +39,12 @@ await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUn
 const editHref = await page.locator( '.lstab-src a:has-text("Edit")' ).first().getAttribute( 'href' );
 await page.goto( editHref, { waitUntil: 'networkidle' } );
 
+// The editor shows three panes; the picker lives on the third.
+await page.locator( '[data-lstab-goto="hide"]' ).click();
+await page.waitForTimeout( 150 );
+
 check( await page.locator( '#lstabp-picker' ).count() === 1, 'The picker is on the source screen' );
+check( await page.locator( '#lstabp-picker' ).isVisible(), 'And is on screen once its tab is chosen' );
 check( await page.locator( '#lstabp-picker thead button[data-lstabp-column]' ).count() > 0, 'Headings are buttons' );
 check( await page.locator( '#lstabp-picker tbody button[data-lstabp-row]' ).count() > 0, 'So are rows' );
 
@@ -109,6 +114,8 @@ check( shows( body, 'Rower górski' ), 'While the rest of the table is untouched
 section( '4. Clicking again brings it back' );
 
 await page.goto( editHref, { waitUntil: 'networkidle' } );
+await page.locator( '[data-lstab-goto="hide"]' ).click();
+await page.waitForTimeout( 150 );
 check(
 	await page.locator( '#lstabp-picker th.is-hidden' ).count() > 0,
 	'The choice is still shown as made after a reload'

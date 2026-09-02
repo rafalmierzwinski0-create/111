@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.4.0
+Stable tag: 3.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,12 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.5.0 =
+* Fixed: opening the built-in example showed an empty preview and could not be saved. The editor now draws its table from the copy already stored, so any sheet appears the moment the screen does — and the example no longer asks for a Google link it will never have.
+* Added: the editor is three tabs — General, Appearance, Columns and rows — instead of one long column. It is still one form and one save button, and reopening it returns you to the tab you were working in.
+* Added: a copy button beside the shortcode on the editor as well as the list.
+* Fixed: the plugin's own buttons no longer come out in WordPress blue on screens that are otherwise the plugin's colour.
 
 = 3.4.0 =
 * Added: a welcome screen for a site with no sheets yet — one field for the link, and the table appears before anything is saved.
@@ -327,6 +333,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.5.0 =
+Fixes the built-in example, which would not open, and splits the editor into three tabs.
 
 = 3.4.0 =
 A redesigned dashboard: a welcome screen, sheets as cards, one-click shortcode copying, and each sheet says which pages use it.
