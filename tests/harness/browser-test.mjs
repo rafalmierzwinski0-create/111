@@ -46,13 +46,47 @@ section( '2. Source list screen' );
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
 
 // Sync once so the run does not inherit a previous run's outage state.
-await page.locator( 'button:has-text("Refresh now")' ).first().click();
-await page.waitForLoadState( 'networkidle' );
+/*
+ * Waiting for the card to come back rather than for the network to go quiet:
+ * the quiet moment can be the page we are still standing on, and then every
+ * check below reads the screen from before the refresh.
+ */
+await page.locator( '.lstab-src button:has-text("Refresh")' ).first().click();
+await page.waitForSelector( '.lstab-src', { state: 'visible', timeout: 15000 } );
 
-const statusText = await page.locator( '.lstab-status' ).first().innerText();
-check( /Last sync OK/.test( statusText ), 'List shows a green "last sync OK" status', statusText );
+check( await page.locator( '.lstab-src' ).count() > 0, 'Each sheet is a card, not a table row' );
+
+const statusText = await page.locator( '.lstab-state' ).first().innerText();
+check( /Up to date/.test( statusText ), 'The card says the sheet is up to date', statusText );
+
+// Working normally must not be coloured: colour on every card all day is not
+// a signal, and a real fault then has nothing left to stand out against.
+const calmTone = await page.locator( '.lstab-state' ).first().evaluate( ( el ) => getComputedStyle( el ).color );
+check( calmTone === 'rgb(91, 109, 107)', 'A healthy sheet is stated in grey, not green', calmTone );
+
 check( await page.locator( '.lstab-shortcode' ).first().isVisible(), 'Shortcode is shown for copy/paste' );
-check( await page.locator( 'button:has-text("Refresh now")' ).first().isVisible(), '"Refresh now" button present' );
+check( await page.locator( '.lstab-copy' ).first().isVisible(), 'And has a copy button beside it' );
+
+// The single most repeated action in the plugin. Reading the clipboard needs a
+// permission Chromium will not grant headlessly, so the check is that the
+// button reports success — the browser API itself is not ours to test.
+await page.locator( '.lstab-copy' ).first().click();
+await page.waitForTimeout( 250 );
+const copyLabel = await page.locator( '.lstab-copy .lstab-copy-label' ).first().innerText();
+check( /Copied/i.test( copyLabel ), 'Clicking it confirms the shortcode was copied', copyLabel );
+
+check(
+	await page.locator( '.lstab-masthead h1' ).first().isVisible(),
+	'The plugin has its own heading rather than a bare WordPress title'
+);
+
+const usedText = await page.locator( '.lstab-used' ).first().innerText();
+check(
+	/Cennik|safe to delete/i.test( usedText ),
+	'The card says where the table is used, or that nothing uses it',
+	usedText
+);
+
 await page.screenshot( { path: `${ SHOTS }/02-source-list-ok.png`, fullPage: true } );
 
 // ------------------------------------------------------- add/edit + preview
@@ -747,13 +781,17 @@ setMock( 'http_403' );
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
 await Promise.all( [
 	page.waitForURL( /page=live-sheets-table/ ),
-	page.locator( 'button:has-text("Refresh now")' ).first().click(),
+	page.locator( '.lstab-src button:has-text("Refresh")' ).first().click(),
 ] );
 await page.waitForLoadState( 'networkidle' );
 
-const failedStatus = await page.locator( '.lstab-status' ).first().innerText();
-check( /Sync error/.test( failedStatus ), 'Dashboard shows the sync error', failedStatus );
-const detail = await page.locator( '.lstab-status-detail' ).first().innerText();
+const failedStatus = await page.locator( '.lstab-state' ).first().innerText();
+check( /Google did not answer/.test( failedStatus ), 'Dashboard shows the sync error', failedStatus );
+
+const detail = await page.locator( '.lstab-src-note' ).first().innerText();
+check( /last good copy/.test( detail ), 'Dashboard says the public page is unaffected', detail );
+// The reassurance must not cost the diagnosis: a fault with no stated cause is
+// how a sheet stays broken for a week.
 check( /403|Share/.test( detail ), 'Dashboard explains what to do about it', detail );
 await page.screenshot( { path: `${ SHOTS }/08-source-list-error.png`, fullPage: true } );
 
@@ -937,14 +975,14 @@ section( '9c. A sheet that arrives malformed' );
 // can fix it is told, and the public page carries on as normal.
 setMock( 'ragged' );
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
-await page.locator( 'button:has-text("Refresh now")' ).first().click();
+await page.locator( '.lstab-src button:has-text("Refresh")' ).first().click();
 await page.waitForLoadState( 'networkidle' );
 
-const raggedNotice = await page.locator( '.lstab-status-ragged' ).count();
+const raggedNotice = await page.locator( '.lstab-src-note--warn' ).count();
 check( raggedNotice === 1, 'The sources list flags the malformed row', String( raggedNotice ) );
-const raggedText = raggedNotice ? await page.locator( '.lstab-status-ragged' ).first().innerText() : '';
+const raggedText = raggedNotice ? await page.locator( '.lstab-src-note--warn' ).first().innerText() : '';
 check( /\d/.test( raggedText ), 'It names a row number to look at', raggedText );
-check( ! /error/i.test( await page.locator( '.lstab-status' ).first().innerText() ), 'It is not reported as a failed sync' );
+check( ! /error/i.test( await page.locator( '.lstab-state' ).first().innerText() ), 'It is not reported as a failed sync' );
 await page.screenshot( { path: `${ SHOTS }/18-ragged-warning.png`, fullPage: false } );
 
 await apage.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
@@ -955,13 +993,13 @@ check( ! /quotation mark|cudzysłów/i.test( publicBody ), 'The visitor is told 
 // Back to a clean sheet; the warning must clear itself rather than linger.
 setMock( 'ok' );
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
-await page.locator( 'button:has-text("Refresh now")' ).first().click();
+await page.locator( '.lstab-src button:has-text("Refresh")' ).first().click();
 await page.waitForLoadState( 'networkidle' );
-check( await page.locator( '.lstab-status-ragged' ).count() === 0, 'A clean sync clears the warning' );
+check( await page.locator( '.lstab-src-note--warn' ).count() === 0, 'A clean sync clears the warning' );
 
 // The message straight after the action, and everywhere else in the dashboard.
 setMock( 'ragged' );
-await page.locator( 'button:has-text("Refresh now")' ).first().click();
+await page.locator( '.lstab-src button:has-text("Refresh")' ).first().click();
 await page.waitForLoadState( 'networkidle' );
 const syncNotice = page.locator( '.notice.is-dismissible' ).first();
 const syncText = await syncNotice.innerText();
@@ -989,10 +1027,10 @@ check( await page.locator( '.notice-warning:has-text("Live Sheets Table")' ).cou
 
 setMock( 'ok' );
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
-await page.locator( 'button:has-text("Refresh now")' ).first().click();
+await page.locator( '.lstab-src button:has-text("Refresh")' ).first().click();
 await page.waitForLoadState( 'networkidle' );
 setMock( 'ragged' );
-await page.locator( 'button:has-text("Refresh now")' ).first().click();
+await page.locator( '.lstab-src button:has-text("Refresh")' ).first().click();
 await page.waitForLoadState( 'networkidle' );
 await page.goto( `${ BASE }/wp-admin/index.php`, { waitUntil: 'networkidle' } );
 check(
@@ -1002,7 +1040,7 @@ check(
 
 setMock( 'ok' );
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
-await page.locator( 'button:has-text("Refresh now")' ).first().click();
+await page.locator( '.lstab-src button:has-text("Refresh")' ).first().click();
 await page.waitForLoadState( 'networkidle' );
 
 section( '9d. Links in cells' );

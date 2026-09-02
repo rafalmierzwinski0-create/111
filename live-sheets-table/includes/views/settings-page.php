@@ -10,7 +10,7 @@
 defined( 'ABSPATH' ) || exit;
 ?>
 <div class="wrap lstab-admin lstab-settings">
-	<h1><?php esc_html_e( 'Live Sheets Table', 'live-sheets-table' ); ?></h1>
+	<?php LSTAB_Admin::render_masthead( esc_html__( 'Settings for the whole site', 'live-sheets-table' ) ); ?>
 
 	<?php LSTAB_Admin::render_tabs( LSTAB_Admin::SETTINGS_SLUG ); ?>
 

@@ -83,6 +83,20 @@ class LSTAB_Plugin {
 	public $hidden_alerts;
 
 	/**
+	 * Which pages actually use a table.
+	 *
+	 * @var LSTAB_Usage
+	 */
+	public $usage;
+
+	/**
+	 * The sample table somebody can try before they have a sheet.
+	 *
+	 * @var LSTAB_Example
+	 */
+	public $example;
+
+	/**
 	 * Elementor widget registration.
 	 *
 	 * @var LSTAB_Elementor
@@ -105,6 +119,8 @@ class LSTAB_Plugin {
 		$this->hidden_rows = new LSTAB_Hidden_Rows();
 		$this->settings    = new LSTAB_Settings();
 		$this->hidden_alerts = new LSTAB_Hidden_Alerts();
+		$this->usage         = new LSTAB_Usage();
+		$this->example       = new LSTAB_Example();
 		$this->elementor = new LSTAB_Elementor();
 
 		add_action( 'init', array( $this, 'load_textdomain' ) );
@@ -120,6 +136,8 @@ class LSTAB_Plugin {
 		$this->hidden_rows->register();
 		$this->settings->register();
 		$this->hidden_alerts->register();
+		$this->usage->register();
+		$this->example->register();
 		$this->elementor->register();
 
 		if ( is_admin() ) {

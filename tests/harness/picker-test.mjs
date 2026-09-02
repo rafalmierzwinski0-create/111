@@ -36,7 +36,7 @@ await page.fill( '#user_pass', 'admin123' );
 await Promise.all( [ page.waitForURL( /wp-admin/ ), page.click( '#wp-submit' ) ] );
 
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
-const editHref = await page.locator( 'a.button:has-text("Edit")' ).first().getAttribute( 'href' );
+const editHref = await page.locator( '.lstab-src a:has-text("Edit")' ).first().getAttribute( 'href' );
 await page.goto( editHref, { waitUntil: 'networkidle' } );
 
 check( await page.locator( '#lstabp-picker' ).count() === 1, 'The picker is on the source screen' );

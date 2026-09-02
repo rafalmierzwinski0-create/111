@@ -1,6 +1,703 @@
 /**
  * Live Sheets Table — dashboard styles.
+ *
+ * Every colour is named once here and used by name everywhere below. Changing
+ * the accent, or adding a second theme later, is then an edit to this block
+ * rather than a hunt through the file — which is how the front-end table has
+ * always worked, and why it can offer style presets at all.
  */
+
+.lstab-admin,
+.lstab-grace-notice,
+.lstab-hidden-alert,
+.lstab-ragged-notice {
+	/* Accent. One colour, and it means "you can act on this" — never a state. */
+	--lstab-a: #0e7c74;
+	--lstab-a-deep: #0a5a54;
+	--lstab-a-wash: #e2f1ef;
+	--lstab-a-glow: rgba( 14, 124, 116, 0.2 );
+
+	/* Ink and paper. */
+	--lstab-ink: #101d1b;
+	--lstab-ink-2: #556764;
+	--lstab-ink-3: #7b8a88;
+	--lstab-card: #fff;
+	--lstab-tint: #f9fcfb;
+	--lstab-ground: #eef3f2;
+	--lstab-line: #dbe5e3;
+	--lstab-line-soft: #eaf0ef;
+
+	/* State. Working normally has no colour on purpose: colour that shows on
+	   every card all day is not a signal any more, and a real fault has to be
+	   visible from across the room. */
+	--lstab-calm: #5b6d6b;
+	--lstab-calm-wash: #e9efee;
+	--lstab-ok: #0f7b3e;
+	--lstab-warn: #b4610a;
+	--lstab-warn-wash: #fcf1e1;
+	--lstab-err: #c1352a;
+	--lstab-err-wash: #fbeae8;
+
+	--lstab-radius: 9px;
+	--lstab-shadow: 0 1px 2px rgba( 16, 24, 24, 0.05 ), inset 0 1px 0 rgba( 255, 255, 255, 0.9 );
+}
+
+/* Icons take the colour of the text they sit in, so nothing has to be
+   restyled when the accent changes. */
+.lstab-icon {
+	inline-size: 1em;
+	block-size: 1em;
+	flex: none;
+	vertical-align: -0.14em;
+}
+
+/* ─────────────────────────────────────────────────── product masthead */
+
+.lstab-admin .wp-header-end {
+	visibility: hidden;
+	margin: 0;
+	border: 0;
+	block-size: 0;
+}
+
+.lstab-masthead {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin: 0.4rem 0 1rem;
+}
+
+.lstab-logo {
+	inline-size: 2.3rem;
+	block-size: 2.3rem;
+	border-radius: 9px;
+	display: grid;
+	place-items: center;
+	background: linear-gradient( 155deg, var( --lstab-a ) 0%, var( --lstab-a-deep ) 100% );
+	box-shadow: 0 4px 12px -4px var( --lstab-a-glow ), inset 0 1px 0 rgba( 255, 255, 255, 0.3 );
+	color: #fff;
+	flex: none;
+}
+
+.lstab-logo .lstab-icon {
+	inline-size: 1.25rem;
+	block-size: 1.25rem;
+}
+
+.lstab-masthead-text { min-inline-size: 0; }
+
+.lstab-admin .lstab-masthead h1 {
+	margin: 0;
+	padding: 0;
+	font-size: 1.35rem;
+	font-weight: 700;
+	line-height: 1.2;
+	letter-spacing: -0.02em;
+	color: var( --lstab-ink );
+}
+
+.lstab-masthead-sub {
+	display: block;
+	font-size: 0.8rem;
+	color: var( --lstab-ink-3 );
+	font-variant-numeric: tabular-nums;
+}
+
+.lstab-masthead-actions {
+	margin-left: auto;
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+}
+
+.lstab-pro-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	font-size: 0.62rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	color: var( --lstab-a-deep );
+	background: var( --lstab-a-wash );
+	border-radius: 999px;
+	padding: 0.14rem 0.45rem;
+	margin-left: 0.4rem;
+	vertical-align: 0.16em;
+}
+
+/* ─────────────────────────────────────────────────────────── buttons */
+
+.lstab-admin .lstab-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	font-size: 0.82rem;
+	font-weight: 600;
+	line-height: 1.2;
+	border: 0;
+	border-radius: 7px;
+	padding: 0.55rem 0.95rem;
+	background: linear-gradient( 180deg, var( --lstab-a ) 0%, var( --lstab-a-deep ) 165% );
+	color: #fff;
+	text-decoration: none;
+	cursor: pointer;
+	white-space: nowrap;
+	box-shadow: 0 1px 2px rgba( 8, 16, 15, 0.18 ), 0 6px 16px -8px var( --lstab-a-glow ), inset 0 1px 0 rgba( 255, 255, 255, 0.26 );
+}
+
+.lstab-admin .lstab-btn:hover,
+.lstab-admin .lstab-btn:focus {
+	color: #fff;
+	background: linear-gradient( 180deg, var( --lstab-a-deep ) 0%, var( --lstab-a-deep ) 100% );
+}
+
+.lstab-admin .lstab-btn:focus-visible {
+	outline: 2px solid var( --lstab-a-deep );
+	outline-offset: 2px;
+}
+
+.lstab-admin .lstab-btn--quiet {
+	background: none;
+	color: var( --lstab-a-deep );
+	border: 1px solid var( --lstab-a );
+	box-shadow: none;
+}
+
+.lstab-admin .lstab-btn--quiet:hover,
+.lstab-admin .lstab-btn--quiet:focus {
+	background: var( --lstab-a-wash );
+	color: var( --lstab-a-deep );
+}
+
+.lstab-admin .lstab-mini {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.32rem;
+	font-size: 0.78rem;
+	font-weight: 500;
+	line-height: 1.2;
+	color: var( --lstab-ink-2 );
+	border: 1px solid var( --lstab-line );
+	background: var( --lstab-tint );
+	border-radius: 6px;
+	padding: 0.32rem 0.6rem;
+	text-decoration: none;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.lstab-admin .lstab-mini:hover,
+.lstab-admin .lstab-mini:focus {
+	border-color: var( --lstab-a );
+	color: var( --lstab-a-deep );
+}
+
+.lstab-admin .lstab-mini--strong {
+	color: var( --lstab-a-deep );
+	border-color: var( --lstab-a );
+	font-weight: 600;
+	background: transparent;
+}
+
+.lstab-admin .lstab-mini--danger:hover,
+.lstab-admin .lstab-mini--danger:focus {
+	border-color: var( --lstab-err );
+	color: var( --lstab-err );
+}
+
+.lstab-admin .lstab-linkbutton {
+	background: none;
+	border: 0;
+	padding: 0;
+	font: inherit;
+	color: var( --lstab-a-deep );
+	font-weight: 600;
+	cursor: pointer;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+/* ───────────────────────────────────────────────────────────── the tabs */
+
+/* WordPress draws these as a row of manila folders. An underline reads as
+   navigation, takes the accent, and leaves room for an icon. */
+.lstab-admin .nav-tab-wrapper.lstab-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.5rem;
+	border: 0;
+	border-bottom: 1px solid var( --lstab-line );
+	padding: 0;
+	margin: 0.2rem 0 1.1rem;
+	background: none;
+}
+
+.lstab-admin .lstab-tabs .nav-tab {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.42rem;
+	margin: 0;
+	padding: 0 0 0.6rem;
+	border: 0;
+	border-bottom: 2px solid transparent;
+	background: none;
+	border-radius: 0;
+	font-size: 0.86rem;
+	font-weight: 500;
+	line-height: 1.4;
+	color: var( --lstab-ink-2 );
+	box-shadow: none;
+}
+
+.lstab-admin .lstab-tabs .nav-tab .lstab-icon { opacity: 0.7; }
+
+.lstab-admin .lstab-tabs .nav-tab:hover,
+.lstab-admin .lstab-tabs .nav-tab:focus {
+	color: var( --lstab-a-deep );
+	background: none;
+	box-shadow: none;
+}
+
+.lstab-admin .lstab-tabs .nav-tab-active,
+.lstab-admin .lstab-tabs .nav-tab-active:hover,
+.lstab-admin .lstab-tabs .nav-tab-active:focus {
+	color: var( --lstab-a-deep );
+	font-weight: 600;
+	border-bottom-color: var( --lstab-a );
+	background: none;
+}
+
+.lstab-admin .lstab-tabs .nav-tab-active .lstab-icon { opacity: 1; }
+
+/* ──────────────────────────────────────────────────── the source cards */
+
+.lstab-src-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.7rem;
+	margin-top: 1rem;
+}
+
+.lstab-src {
+	position: relative;
+	background: var( --lstab-card );
+	border: 1px solid var( --lstab-line );
+	border-radius: var( --lstab-radius );
+	overflow: hidden;
+	box-shadow: var( --lstab-shadow );
+	color: var( --lstab-ink );
+}
+
+/* A bar down the left edge, colourless until something wants doing. A card
+   that is fine says so quietly; a card that is not can be spotted from the
+   other side of the room without reading a word of it. */
+.lstab-src::before {
+	content: "";
+	position: absolute;
+	inset-block: 0;
+	inset-inline-start: 0;
+	inline-size: 3px;
+	background: transparent;
+}
+
+.lstab-src--warn::before { background: var( --lstab-warn ); }
+.lstab-src--error::before { background: var( --lstab-err ); }
+
+.lstab-src-body {
+	padding: 1rem 1.15rem 1.05rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+	min-inline-size: 0;
+}
+
+.lstab-src-top {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.5rem 0.75rem;
+}
+
+.lstab-admin .lstab-src-title {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin: 0;
+	padding: 0;
+	font-size: 1.08rem;
+	font-weight: 600;
+	letter-spacing: -0.015em;
+	line-height: 1.3;
+	color: var( --lstab-ink );
+}
+
+.lstab-src-title .lstab-icon { color: var( --lstab-ink-3 ); }
+
+/* The two things anybody came here to do, level with the name. */
+.lstab-src-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.4rem;
+	margin-inline-start: auto;
+}
+
+.lstab-src-actions .lstab-inline-form { display: inline-flex; margin: 0; }
+
+.lstab-state {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	font-size: 0.76rem;
+	font-weight: 600;
+	padding: 0.24rem 0.6rem;
+	border-radius: 999px;
+	background: var( --lstab-calm-wash );
+	color: var( --lstab-calm );
+	white-space: nowrap;
+}
+
+.lstab-state--calm .lstab-icon { color: var( --lstab-ok ); }
+.lstab-state--warn { background: var( --lstab-warn-wash ); color: var( --lstab-warn ); }
+.lstab-state--error { background: var( --lstab-err-wash ); color: var( --lstab-err ); }
+.lstab-state--idle { background: var( --lstab-line-soft ); color: var( --lstab-ink-3 ); }
+
+.lstab-src-facts {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.4rem 1.05rem;
+	font-size: 0.82rem;
+	color: var( --lstab-ink-2 );
+}
+
+.lstab-fact {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	white-space: nowrap;
+}
+
+.lstab-fact .lstab-icon { color: var( --lstab-ink-3 ); }
+.lstab-fact b { font-weight: 600; font-variant-numeric: tabular-nums; color: var( --lstab-ink ); }
+
+/* The last few checks. One red bar is an accident; three in a row is a
+   problem — and that difference is visible without reading anything. */
+.lstab-spark {
+	display: inline-flex;
+	align-items: flex-end;
+	gap: 2px;
+	block-size: 1rem;
+}
+
+.lstab-bar {
+	inline-size: 3px;
+	border-radius: 1px;
+	block-size: var( --lstab-bar-h, 60% );
+	background: var( --lstab-ok );
+	opacity: 0.42;
+}
+
+.lstab-bar:last-child { opacity: 1; inline-size: 4px; }
+.lstab-bar--error { background: var( --lstab-err ); }
+
+.lstab-admin .lstab-src-note {
+	margin: 0;
+	font-size: 0.81rem;
+	color: var( --lstab-ink-2 );
+	max-inline-size: 68ch;
+}
+
+.lstab-src-note--warn { color: var( --lstab-warn ); }
+
+.lstab-colchips { display: flex; flex-wrap: wrap; gap: 0.28rem; }
+
+.lstab-colchip {
+	font-size: 0.72rem;
+	color: var( --lstab-ink-2 );
+	background: var( --lstab-tint );
+	border: 1px solid var( --lstab-line );
+	border-radius: 4px;
+	padding: 0.1rem 0.4rem;
+	white-space: nowrap;
+}
+
+.lstab-colchip--more { color: var( --lstab-ink-3 ); border-style: dashed; }
+
+.lstab-admin .lstab-used {
+	margin: 0;
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	font-size: 0.79rem;
+	color: var( --lstab-ink-2 );
+}
+
+.lstab-used .lstab-icon { color: var( --lstab-ink-3 ); }
+.lstab-used a { color: var( --lstab-a-deep ); font-weight: 600; }
+.lstab-used-none { color: var( --lstab-ink-3 ); font-style: italic; }
+
+.lstab-src-use {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.4rem;
+	padding-top: 0.15rem;
+}
+
+.lstab-admin .lstab-src-use .lstab-shortcode {
+	font-size: 0.76rem;
+	background: var( --lstab-tint );
+	border: 1px solid var( --lstab-line );
+	border-radius: 6px;
+	padding: 0.32rem 0.55rem;
+	color: var( --lstab-ink );
+	white-space: nowrap;
+}
+
+.lstab-admin .lstab-copy {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.34rem;
+	font-size: 0.78rem;
+	font-weight: 600;
+	line-height: 1.2;
+	cursor: pointer;
+	border: 1px solid var( --lstab-a );
+	background: transparent;
+	color: var( --lstab-a-deep );
+	border-radius: 6px;
+	padding: 0.32rem 0.62rem;
+	transition: background 130ms ease, color 130ms ease;
+}
+
+.lstab-admin .lstab-copy:hover { background: var( --lstab-a-wash ); }
+
+.lstab-admin .lstab-copy:focus-visible {
+	outline: 2px solid var( --lstab-a );
+	outline-offset: 2px;
+}
+
+.lstab-admin .lstab-copy.is-done {
+	background: var( --lstab-a );
+	border-color: var( --lstab-a );
+	color: #fff;
+}
+
+.lstab-src-spare {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.15rem 0.6rem;
+	margin-inline-start: auto;
+}
+
+.lstab-src-spare .lstab-inline-form { display: inline-flex; margin: 0; }
+
+.lstab-admin .lstab-quiet {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	background: none;
+	border: 0;
+	padding: 0.2rem 0;
+	font-size: 0.76rem;
+	color: var( --lstab-ink-3 );
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.lstab-admin .lstab-quiet:hover,
+.lstab-admin .lstab-quiet:focus { color: var( --lstab-a-deep ); }
+.lstab-admin .lstab-quiet--danger:hover,
+.lstab-admin .lstab-quiet--danger:focus { color: var( --lstab-err ); }
+
+/* ───────────────────────────────────────────────── the welcome screen */
+
+.lstab-welcome {
+	position: relative;
+	background: var( --lstab-card );
+	background-image:
+		linear-gradient( rgba( 14, 124, 116, 0.05 ) 1px, transparent 1px ),
+		linear-gradient( 90deg, rgba( 14, 124, 116, 0.05 ) 1px, transparent 1px );
+	background-size: 26px 26px;
+	border: 1px solid var( --lstab-line );
+	border-radius: 12px;
+	padding: 2.4rem 2rem 1.9rem;
+	margin-top: 1rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.85rem;
+	text-align: center;
+	box-shadow: var( --lstab-shadow );
+}
+
+/* The little square a spreadsheet drags from. Everyone recognises it, and
+   nobody else uses it as a mark. */
+.lstab-handle {
+	position: absolute;
+	inset-inline-end: -5px;
+	inset-block-end: -5px;
+	inline-size: 10px;
+	block-size: 10px;
+	background: var( --lstab-a );
+	border: 2px solid var( --lstab-ground );
+	border-radius: 2px;
+}
+
+.lstab-art {
+	inline-size: 15rem;
+	max-inline-size: 100%;
+	block-size: 5.6rem;
+	color: var( --lstab-a );
+}
+
+.lstab-admin .lstab-welcome h2 {
+	margin: 0;
+	padding: 0;
+	font-size: 1.5rem;
+	font-weight: 700;
+	letter-spacing: -0.025em;
+	line-height: 1.15;
+	color: var( --lstab-ink );
+}
+
+.lstab-admin .lstab-welcome-lede {
+	margin: 0;
+	color: var( --lstab-ink-2 );
+	max-inline-size: 52ch;
+	font-size: 0.9rem;
+}
+
+.lstab-welcome-form {
+	display: flex;
+	gap: 0.5rem;
+	inline-size: min( 100%, 38rem );
+	margin-top: 0.4rem;
+}
+
+.lstab-field {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	background: var( --lstab-tint );
+	border: 1px solid var( --lstab-line );
+	border-radius: 8px;
+	padding: 0.2rem 0.75rem;
+	min-inline-size: 0;
+	box-shadow: inset 0 1px 2px rgba( 16, 24, 24, 0.05 );
+}
+
+.lstab-field .lstab-icon { color: var( --lstab-ink-3 ); }
+
+.lstab-admin .lstab-field input {
+	flex: 1;
+	border: 0;
+	background: none;
+	box-shadow: none;
+	padding: 0.42rem 0;
+	min-inline-size: 0;
+	font-size: 0.85rem;
+	color: var( --lstab-ink );
+}
+
+.lstab-admin .lstab-field input:focus { outline: 0; box-shadow: none; }
+
+.lstab-field:focus-within {
+	border-color: var( --lstab-a );
+	box-shadow: inset 0 1px 2px rgba( 16, 24, 24, 0.04 ), 0 0 0 3px var( --lstab-a-glow );
+}
+
+.lstab-sells {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.45rem 1.5rem;
+	margin-top: 0.55rem;
+}
+
+.lstab-sells span {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	font-size: 0.79rem;
+	color: var( --lstab-ink-2 );
+}
+
+.lstab-sells .lstab-icon { color: var( --lstab-a ); }
+
+.lstab-forks {
+	margin-top: 0.9rem;
+	padding-top: 1rem;
+	border-top: 1px solid var( --lstab-line );
+	inline-size: min( 100%, 42rem );
+	display: grid;
+	grid-template-columns: repeat( auto-fit, minmax( 15rem, 1fr ) );
+	gap: 0.7rem;
+	text-align: start;
+}
+
+.lstab-fork {
+	display: flex;
+	gap: 0.6rem;
+	background: var( --lstab-tint );
+	border: 1px solid var( --lstab-line );
+	border-radius: 8px;
+	padding: 0.75rem 0.85rem;
+}
+
+.lstab-fork > .lstab-icon {
+	inline-size: 1.1rem;
+	block-size: 1.1rem;
+	color: var( --lstab-a );
+	margin-top: 0.15rem;
+}
+
+.lstab-fork b { display: block; font-size: 0.83rem; font-weight: 600; margin-bottom: 0.12rem; }
+.lstab-fork span { font-size: 0.79rem; color: var( --lstab-ink-2 ); }
+
+.lstab-tagpro {
+	display: inline-flex;
+	align-items: center;
+	font-size: 0.6rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	color: var( --lstab-a-deep );
+	background: var( --lstab-a-wash );
+	border-radius: 999px;
+	padding: 0.1rem 0.4rem;
+	margin-left: 0.35rem;
+	vertical-align: 0.1em;
+}
+
+.lstab-hidden-form { display: none; }
+
+/* The same offer, smaller, once there is already something in the list. */
+.lstab-example-offer {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	margin-top: 0.9rem;
+	padding: 0.7rem 0.9rem;
+	background: var( --lstab-tint );
+	border: 1px dashed var( --lstab-line );
+	border-radius: 8px;
+	font-size: 0.82rem;
+	color: var( --lstab-ink-2 );
+}
+
+.lstab-example-offer > .lstab-icon { color: var( --lstab-a ); flex: none; }
+.lstab-example-offer button { margin-left: auto; }
+
+@media ( prefers-reduced-motion: reduce ) {
+	.lstab-admin * { transition-duration: 0.01ms !important; }
+}
+
+
+/* ══════════════════════════════════ screens carried over from before ══ */
 
 .lstab-admin .lstab-card {
 	background: #fff;

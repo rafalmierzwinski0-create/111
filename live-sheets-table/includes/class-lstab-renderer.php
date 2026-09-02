@@ -87,7 +87,7 @@ class LSTAB_Renderer {
 			return self::notice(
 				sprintf(
 					/* translators: %s: source title. */
-					__( '“%s” has not synced yet. Open Live Sheets Table in the dashboard and choose “Refresh now”.', 'live-sheets-table' ),
+					__( '“%s” has not synced yet. Open Live Sheets Table in the dashboard and choose “Refresh”.', 'live-sheets-table' ),
 					$source['title']
 				)
 			);

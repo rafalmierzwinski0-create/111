@@ -145,6 +145,8 @@ return array(
 	'I have read this'                           => 'Przeczytałem',
 	'You do not have permission to do that.'     => 'Nie masz do tego uprawnień.',
 	'Save changes and sync'                      => 'Zapisz zmiany i zsynchronizuj',
+	'Refresh'                                    => 'Odśwież',
+	'next check in %s'                           => 'następne sprawdzenie za %s',
 	'Save source and sync'                       => 'Zapisz źródło i zsynchronizuj',
 
 	// Preview pane.
@@ -397,4 +399,156 @@ return array(
 		'Wersja darmowa przechowuje %d źródła arkuszy. Usuń jedno albo przejdź na Pro, aby dodać więcej.',
 		'Wersja darmowa przechowuje %d źródeł arkuszy. Usuń jedno albo przejdź na Pro, aby dodać więcej.',
 	),
+
+	// The redesigned dashboard: welcome screen, cards and the bundled example.
+	' and %s more'
+		=> ' i jeszcze %s',
+	'%1$s rows × %2$s columns'
+		=> '%1$s wierszy × %2$s kolumn',
+	'%1$s sheet · %2$s rows'
+		=> array( '%1$s arkusz · %2$s wierszy', '%1$s arkusze · %2$s wierszy', '%1$s arkuszy · %2$s wierszy' ),
+	'%s and see the whole plugin working. One click removes it again.'
+		=> '%s i obejrzyj całą wtyczkę w działaniu. Usuniesz go jednym kliknięciem.',
+	'(no title)'
+		=> '(bez tytułu)',
+	'1 h'
+		=> '1 godz.',
+	'2 h'
+		=> '2 godz.',
+	'20 min'
+		=> '20 min',
+	'25 min'
+		=> '25 min',
+	'3 h'
+		=> '3 godz.',
+	'30 min'
+		=> '30 min',
+	'40 min'
+		=> '40 min',
+	'45 min'
+		=> '45 min',
+	'A change in the sheet reaches the page by itself'
+		=> 'Zmiana w arkuszu trafia na stronę sama',
+	'Add a sheet'
+		=> 'Dodaj arkusz',
+	'Add the example'
+		=> 'Dodaj przykład',
+	'Add the example price list'
+		=> 'Dodaj przykładowy cennik',
+	'Availability'
+		=> 'Dostępność',
+	'Basic service'
+		=> 'Przegląd podstawowy',
+	'Brake pads'
+		=> 'Wymiana klocków',
+	'Built into the plugin so you can try everything. Delete it whenever you like.'
+		=> 'Wbudowany we wtyczkę, żebyś mógł wszystko wypróbować. Usuń go, kiedy zechcesz.',
+	'Cables included, housing extra'
+		=> 'Linki w cenie, pancerze osobno',
+	'Chain replacement'
+		=> 'Wymiana łańcucha',
+	'Column %s'
+		=> 'Kolumna %s',
+	'Copied'
+		=> 'Skopiowane',
+	'Copy'
+		=> 'Kopiuj',
+	'Editing a sheet'
+		=> 'Edycja arkusza',
+	'Example'
+		=> 'Przykład',
+	'Example price list'
+		=> 'Przykładowy cennik',
+	'Example — not from Google'
+		=> 'Przykład — nie z Google',
+	'Full check, wash and lubrication'
+		=> 'Przegląd, mycie i smarowanie',
+	'Gear adjustment'
+		=> 'Regulacja przerzutek',
+	'Google Sheets link'
+		=> 'Link do arkusza Google',
+	'Google did not answer'
+		=> 'Google nie odpowiedział',
+	'In Google'
+		=> 'W Google',
+	'In stock'
+		=> 'Od ręki',
+	'Is the sheet private?'
+		=> 'Arkusz jest prywatny?',
+	'Loads instantly — the page reads a local copy'
+		=> 'Ładuje się natychmiast — strona czyta lokalną kopię',
+	'Meanwhile you can update any sheet by hand with “Refresh”.'
+		=> 'W międzyczasie możesz odświeżyć każdy arkusz ręcznie przyciskiem „Odśwież”.',
+	'No parts replaced'
+		=> 'Bez wymiany części',
+	'No sheets yet'
+		=> 'Nie ma jeszcze arkuszy',
+	'No spreadsheet yet?'
+		=> 'Nie masz jeszcze arkusza?',
+	'Not checked yet'
+		=> 'Jeszcze nie sprawdzony',
+	'Not on any page yet — safe to delete'
+		=> 'Nie ma go na żadnej stronie — można bezpiecznie usunąć',
+	'Notes'
+		=> 'Uwagi',
+	'Nothing to show yet'
+		=> 'Nie ma jeszcze czego pokazać',
+	'Open your sheet, copy the address from the browser bar, paste it here. You will see the table straight away — before anything is saved and before we ask you anything else.'
+		=> 'Otwórz arkusz, skopiuj adres z paska przeglądarki i wklej go tutaj. Tabelę zobaczysz od razu — zanim cokolwiek zapiszesz i zanim zapytamy Cię o cokolwiek innego.',
+	'Organic or metallic compound'
+		=> 'Okładziny organiczne lub metaliczne',
+	'Part on back order'
+		=> 'Część na zamówienie',
+	'Paste a link and see the table before you save'
+		=> 'Wklej link i zobacz tabelę, zanim zapiszesz',
+	'Press Ctrl+C'
+		=> 'Naciśnij Ctrl+C',
+	'Price'
+		=> 'Cena netto',
+	'Rack fitting'
+		=> 'Montaż bagażnika',
+	'Season preparation'
+		=> 'Przygotowanie do sezonu',
+	'Seatpost or frame mount'
+		=> 'Montaż na sztycę lub ramę',
+	'Service'
+		=> 'Usługa',
+	'Settings for the whole site'
+		=> 'Ustawienia dla całej witryny',
+	'Sharing by link is all the free version needs. Connecting a Google account, for sheets that cannot be shared at all, is part of Pro.'
+		=> 'Wersji darmowej wystarczy udostępnienie linkiem. Połączenie konta Google — dla arkuszy, których nie da się udostępnić w ogóle — jest częścią Pro.',
+	'Show me the table'
+		=> 'Pokaż tabelę',
+	'Suspension overhaul'
+		=> 'Serwis amortyzatora',
+	'The last few checks, oldest first'
+		=> 'Kilka ostatnich sprawdzeń, od najstarszego',
+	'This sheet has never been read successfully.'
+		=> 'Tego arkusza nie udało się jeszcze ani razu odczytać.',
+	'Time'
+		=> 'Czas',
+	'To order'
+		=> 'Na zamówienie',
+	'Unavailable'
+		=> 'Brak',
+	'Up to date — %s ago'
+		=> 'Aktualny — %s temu',
+	'Up to five working days'
+		=> 'Termin do 5 dni roboczych',
+	'Used on'
+		=> 'Użyty na',
+	'Visitors are seeing the last good copy, so nothing on your pages is broken. We will try again shortly.'
+		=> 'Odwiedzający widzą ostatnią dobrą kopię, więc nic na Twoich stronach nie jest zepsute. Spróbujemy ponownie za chwilę.',
+	'Waiting for a first look at the sheet. Choose “Refresh” on the sources list, and your real columns will appear here.'
+		=> 'Czekamy na pierwsze spojrzenie na arkusz. Wybierz „Odśwież” na liście źródeł, a pojawią się tu Twoje prawdziwe kolumny.',
+	'Want somewhere safe to try the settings? Add the built-in example price list — it never touches Google.'
+		=> 'Chcesz mieć gdzie bezpiecznie sprawdzić ustawienia? Dodaj wbudowany przykładowy cennik — nigdy nie sięga do Google.',
+	'We only ever read. Never write'
+		=> 'Tylko czytamy. Nigdy nie zapisujemy',
+	'Wheel truing'
+		=> 'Centrowanie koła',
+	'Your price list on the page in ten seconds'
+		=> 'Twój cennik na stronie w dziesięć sekund',
+	'“%s” has not synced yet. Open Live Sheets Table in the dashboard and choose “Refresh”.'
+		=> '„%s” nie zostało jeszcze zsynchronizowane. Otwórz Tabele z arkuszy w kokpicie i wybierz „Odśwież”.',
 );

@@ -280,6 +280,15 @@ class LSTAB_Sync {
 			return new WP_Error( 'lstab_unknown_source', __( 'That sheet source no longer exists.', 'live-sheets-table' ) );
 		}
 
+		/*
+		 * The bundled example has nothing to fetch: its rows live in the
+		 * plugin. Reporting that as a success rather than skipping quietly
+		 * keeps "Refresh now" from looking broken on it.
+		 */
+		if ( LSTAB_Example::is_example( $source ) ) {
+			return true;
+		}
+
 		/**
 		 * Fires before a source is synced.
 		 *
@@ -374,6 +383,11 @@ class LSTAB_Sync {
 	 * @return bool
 	 */
 	public static function is_due( $source ) {
+		// Nothing to be due for: the example is not a document anywhere.
+		if ( LSTAB_Example::is_example( $source ) ) {
+			return false;
+		}
+
 		if ( empty( $source['last_attempt_gmt'] ) ) {
 			return true;
 		}

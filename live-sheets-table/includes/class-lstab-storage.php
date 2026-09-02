@@ -75,6 +75,7 @@ class LSTAB_Storage {
 			row_count int(10) unsigned NOT NULL DEFAULT 0,
 			col_count int(10) unsigned NOT NULL DEFAULT 0,
 			last_status varchar(20) NOT NULL DEFAULT 'never',
+			sync_log varchar(64) NOT NULL DEFAULT '',
 			last_error text NULL,
 			last_ragged text NULL,
 			last_attempt_gmt datetime NULL DEFAULT NULL,
@@ -205,6 +206,7 @@ class LSTAB_Storage {
 			'row_count'        => 0,
 			'col_count'        => 0,
 			'last_status'      => 'never',
+			'sync_log'         => '',
 			'last_error'       => null,
 			'last_ragged'      => null,
 			'last_attempt_gmt' => null,
@@ -317,6 +319,7 @@ class LSTAB_Storage {
 				'snapshot_hash'    => md5( (string) $encoded ),
 				'row_count'        => count( $rows ),
 				'col_count'        => count( $headers ),
+				'sync_log'         => self::log_with( (int) $id, 'o' ),
 				'last_status'      => 'ok',
 				'last_error'       => null,
 				// Describes the copy just stored, so it is written here and
@@ -327,7 +330,7 @@ class LSTAB_Storage {
 				'updated_gmt'      => $now,
 			),
 			array( 'id' => (int) $id ),
-			array( '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s' ),
+			array( '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ),
 			array( '%d' )
 		);
 
@@ -431,17 +434,62 @@ class LSTAB_Storage {
 			array(
 				'last_status'      => 'error',
 				'last_error'       => (string) $message,
+				'sync_log'         => self::log_with( (int) $id, 'x' ),
 				'last_attempt_gmt' => $now,
 				'updated_gmt'      => $now,
 			),
 			array( 'id' => (int) $id ),
-			array( '%s', '%s', '%s', '%s' ),
+			array( '%s', '%s', '%s', '%s', '%s' ),
 			array( '%d' )
 		);
 
 		self::flush_cache( $id );
 
 		return $updated;
+	}
+
+	/**
+	 * How many checks the dashboard draws beside a source.
+	 *
+	 * Seven is enough to tell a single hiccup from a run of them, and short
+	 * enough to read without counting.
+	 */
+	const LOG_LENGTH = 7;
+
+	/**
+	 * One source's recent history with a new outcome added.
+	 *
+	 * Kept as a string of single characters — one per check, oldest first —
+	 * because it is drawn as seven little bars and never queried. A column of
+	 * dates would be a table of its own for something nobody will ever sort.
+	 *
+	 * @param int    $id      Source ID.
+	 * @param string $outcome 'o' for a good check, 'x' for a failed one.
+	 * @return string
+	 */
+	protected static function log_with( $id, $outcome ) {
+		$source = self::get( $id );
+		$log    = $source && isset( $source['sync_log'] ) ? (string) $source['sync_log'] : '';
+		$log    = preg_replace( '/[^ox]/', '', $log ) . $outcome;
+
+		return substr( $log, -self::LOG_LENGTH );
+	}
+
+	/**
+	 * One source's recent history, oldest first.
+	 *
+	 * @param array<string,mixed> $source Source row.
+	 * @return array<int,string> Each entry 'ok' or 'error'.
+	 */
+	public static function history( $source ) {
+		$log  = isset( $source['sync_log'] ) ? preg_replace( '/[^ox]/', '', (string) $source['sync_log'] ) : '';
+		$out  = array();
+
+		foreach ( str_split( (string) $log ) as $mark ) {
+			$out[] = 'x' === $mark ? 'error' : 'ok';
+		}
+
+		return $out;
 	}
 
 	/**
@@ -524,7 +572,7 @@ class LSTAB_Storage {
 	protected static function meta_columns() {
 		return 'id, title, sheet_url, sheet_id, sheet_kind, gid, tab_name, sync_interval, '
 			. 'first_row_header, style_preset, layout, sticky_first, link_cells, per_page, columns_config, hidden_rows, style_vars, '
-			. 'snapshot_hash, row_count, col_count, '
+			. 'snapshot_hash, row_count, col_count, sync_log, '
 			. 'last_status, last_error, last_ragged, last_attempt_gmt, last_success_gmt, created_gmt, updated_gmt';
 	}
 

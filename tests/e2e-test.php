@@ -2147,9 +2147,9 @@ $loaded = load_textdomain( 'live-sheets-table', $languages . 'live-sheets-table-
 lstab_assert( $loaded, 'Polish MO loads into WordPress' );
 
 lstab_assert(
-	'Odśwież teraz' === __( 'Refresh now', 'live-sheets-table' ),
+	'Odśwież' === __( 'Refresh', 'live-sheets-table' ),
 	'A simple string translates',
-	__( 'Refresh now', 'live-sheets-table' )
+	__( 'Refresh', 'live-sheets-table' )
 );
 lstab_assert(
 	'Zaktualizowano %s temu' === __( 'Updated %s ago', 'live-sheets-table' ),
@@ -2173,7 +2173,7 @@ lstab_assert( false !== strpos( $translated_html, 'Sortuj według' ), 'Front-end
 lstab_assert( false !== strpos( $translated_html, 'Zaktualizowano' ), 'Front-end freshness label is translated' );
 
 unload_textdomain( 'live-sheets-table' );
-lstab_assert( 'Refresh now' === __( 'Refresh now', 'live-sheets-table' ), 'Unloading restores the English source strings' );
+lstab_assert( 'Refresh' === __( 'Refresh', 'live-sheets-table' ), 'Unloading restores the English source strings' );
 
 // Every user-facing string must actually be translatable.
 $untranslated = array();

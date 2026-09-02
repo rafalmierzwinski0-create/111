@@ -142,18 +142,48 @@ class LSTAB_Admin {
 			return;
 		}
 
+		// The WordPress "nav-tab-wrapper" class is kept so anything hooking on
+		// it still works, but the boxed folder-tab look is dropped: an underline
+		// reads as navigation rather than as a stack of manila folders.
 		echo '<nav class="nav-tab-wrapper lstab-tabs">';
+
+		$icons = self::tab_icons();
 
 		foreach ( $tabs as $slug => $label ) {
 			printf(
-				'<a href="%1$s" class="nav-tab%2$s">%3$s</a>',
+				'<a href="%1$s" class="nav-tab%2$s">%3$s%4$s</a>',
 				esc_url( admin_url( 'admin.php?page=' . $slug ) ),
 				$slug === $current ? ' nav-tab-active' : '',
+				LSTAB_Icons::icon( isset( $icons[ $slug ] ) ? $icons[ $slug ] : 'grid' ), // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG.
 				esc_html( $label )
 			);
 		}
 
 		echo '</nav>';
+	}
+
+	/**
+	 * Which drawing belongs to which tab.
+	 *
+	 * An add-on adds its own tab through the `lstab_admin_tabs` filter and can
+	 * name an icon here the same way; anything unnamed falls back to the grid,
+	 * so a new tab is never left with a blank space where a picture should be.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function tab_icons() {
+		/**
+		 * Filters the icon used for each dashboard tab.
+		 *
+		 * @param array<string,string> $icons Tab slug mapped to an icon name.
+		 */
+		return apply_filters(
+			'lstab_admin_tab_icons',
+			array(
+				self::MENU_SLUG     => 'grid',
+				self::SETTINGS_SLUG => 'sliders',
+			)
+		);
 	}
 
 	/**
@@ -225,6 +255,28 @@ class LSTAB_Admin {
 			LSTAB_URL . 'assets/css/lstab-admin.css',
 			array( 'lstab-table' ),
 			LSTAB_Plugin::asset_version( 'assets/css/lstab-admin.css' )
+		);
+
+		// Its own file, because the shortcode button lives on the list screen
+		// where the add/edit script has nothing to do and returns immediately.
+		wp_enqueue_script(
+			'lstab-copy',
+			LSTAB_URL . 'assets/js/lstab-copy.js',
+			array(),
+			LSTAB_Plugin::asset_version( 'assets/js/lstab-copy.js' ),
+			true
+		);
+
+		wp_localize_script(
+			'lstab-copy',
+			'lstabCopy',
+			array(
+				'i18n' => array(
+					'copy'   => __( 'Copy', 'live-sheets-table' ),
+					'copied' => __( 'Copied', 'live-sheets-table' ),
+					'failed' => __( 'Press Ctrl+C', 'live-sheets-table' ),
+				),
+			)
 		);
 
 		wp_enqueue_script(
@@ -758,7 +810,7 @@ class LSTAB_Admin {
 			</p>
 			<p><?php echo esc_html( $health['detail'] ); ?></p>
 			<p>
-				<?php esc_html_e( 'Meanwhile you can update any sheet by hand with “Refresh now”.', 'live-sheets-table' ); ?>
+				<?php esc_html_e( 'Meanwhile you can update any sheet by hand with “Refresh”.', 'live-sheets-table' ); ?>
 			</p>
 
 			<p>
@@ -809,6 +861,197 @@ class LSTAB_Admin {
 			'<div class="notice %s is-dismissible"><p>%s</p></div>',
 			esc_attr( $class ),
 			esc_html( $notice['message'] )
+		);
+	}
+
+	/**
+	 * The plugin's own heading, above whichever screen you are on.
+	 *
+	 * WordPress gives a plugin one grey `<h1>` and nothing else, which is why
+	 * every plugin screen looks like every other plugin screen. A mark, a name
+	 * and one line of status cost nothing and are the whole difference between
+	 * "a settings page" and "a product".
+	 *
+	 * @param string $sub     One line under the name, already translated.
+	 * @param string $actions Buttons for the right-hand side, already escaped.
+	 * @return void
+	 */
+	public static function render_masthead( $sub = '', $actions = '' ) {
+		?>
+		<div class="lstab-masthead">
+			<span class="lstab-logo"><?php echo LSTAB_Icons::icon( 'grid' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG from the plugin. ?></span>
+			<span class="lstab-masthead-text">
+				<h1>
+					<?php esc_html_e( 'Live Sheets Table', 'live-sheets-table' ); ?>
+					<?php if ( LSTAB_Limits::is_pro() ) : ?>
+						<span class="lstab-pro-pill"><?php echo LSTAB_Icons::icon( 'spark' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>PRO</span>
+					<?php endif; ?>
+				</h1>
+				<?php if ( '' !== $sub ) : ?>
+					<span class="lstab-masthead-sub"><?php echo esc_html( $sub ); ?></span>
+				<?php endif; ?>
+			</span>
+			<?php if ( '' !== $actions ) : ?>
+				<span class="lstab-masthead-actions"><?php echo $actions; // phpcs:ignore WordPress.Security.EscapeOutput -- Caller escapes. ?></span>
+			<?php endif; ?>
+		</div>
+		<?php
+		/*
+		 * WordPress moves every admin notice to just after the first heading in
+		 * a .wrap unless it is told where the heading ends. Without this the
+		 * notices land inside the masthead, between the logo and the summary
+		 * line, and the whole thing looks broken the first time anything is
+		 * saved.
+		 */
+		?>
+		<hr class="wp-header-end">
+		<?php
+	}
+
+	/**
+	 * The one line under the plugin name on the list screen.
+	 *
+	 * @param array<int,array<string,mixed>> $sources All sources.
+	 * @return string
+	 */
+	public static function masthead_summary( $sources ) {
+		if ( ! $sources ) {
+			return __( 'No sheets yet', 'live-sheets-table' );
+		}
+
+		$rows = 0;
+		foreach ( $sources as $source ) {
+			$rows += (int) $source['row_count'];
+		}
+
+		$line = sprintf(
+			/* translators: 1: number of sheets, 2: total number of rows. */
+			_n( '%1$s sheet · %2$s rows', '%1$s sheets · %2$s rows', count( $sources ), 'live-sheets-table' ),
+			number_format_i18n( count( $sources ) ),
+			number_format_i18n( $rows )
+		);
+
+		/*
+		 * And the question people actually have when they open this screen:
+		 * when will it look at Google again. Left off when the schedule is not
+		 * running, because a countdown to something that will not happen is
+		 * worse than no countdown at all — the cron notice says why.
+		 */
+		$next = wp_next_scheduled( LSTAB_Cron::TICK_HOOK );
+
+		if ( $next && $next > time() ) {
+			$line .= ' · ' . sprintf(
+				/* translators: %s: human readable duration, e.g. "13 minutes". */
+				__( 'next check in %s', 'live-sheets-table' ),
+				human_time_diff( time(), $next )
+			);
+		}
+
+		return $line;
+	}
+
+	/**
+	 * How one source reads on its card.
+	 *
+	 * Three tones rather than the five the status text has, because a card is
+	 * scanned rather than read: is this fine, does it want me, or is it broken.
+	 *
+	 * Working normally is deliberately colourless. Colour that appears on every
+	 * card all day stops being a signal, and the one thing this dashboard must
+	 * be able to do is make a real problem obvious from across the room.
+	 *
+	 * @param array<string,mixed> $source Source row.
+	 * @return array{tone:string,icon:string,text:string,note:string}
+	 */
+	public static function card_state( $source ) {
+		if ( LSTAB_Example::is_example( $source ) ) {
+			return array(
+				'tone' => 'calm',
+				'icon' => 'play',
+				'text' => __( 'Example — not from Google', 'live-sheets-table' ),
+				'note' => __( 'Built into the plugin so you can try everything. Delete it whenever you like.', 'live-sheets-table' ),
+			);
+		}
+
+		$status = self::status_for( $source );
+
+		if ( 'ok' === $status['state'] ) {
+			return array(
+				'tone' => 'calm',
+				'icon' => 'check',
+				'text' => sprintf(
+					/* translators: %s: human readable time difference, e.g. "2 minutes". */
+					__( 'Up to date — %s ago', 'live-sheets-table' ),
+					human_time_diff( strtotime( $source['last_success_gmt'] . ' UTC' ), time() )
+				),
+				'note' => '',
+			);
+		}
+
+		if ( 'stale' === $status['state'] ) {
+			/*
+			 * Reassurance first, because the page is fine and that is the thing
+			 * somebody needs to know before anything else. The reason second,
+			 * and never dropped: "something went wrong" with no cause is how a
+			 * sheet stays broken for a week.
+			 */
+			$why = $source['last_error']
+				? ' ' . (string) $source['last_error']
+				: '';
+
+			return array(
+				'tone' => 'warn',
+				'icon' => 'alert',
+				'text' => __( 'Google did not answer', 'live-sheets-table' ),
+				'note' => __( 'Visitors are seeing the last good copy, so nothing on your pages is broken. We will try again shortly.', 'live-sheets-table' ) . $why,
+			);
+		}
+
+		if ( 'error' === $status['state'] ) {
+			return array(
+				'tone' => 'error',
+				'icon' => 'cross',
+				'text' => __( 'Nothing to show yet', 'live-sheets-table' ),
+				'note' => $source['last_error'] ? (string) $source['last_error'] : __( 'This sheet has never been read successfully.', 'live-sheets-table' ),
+			);
+		}
+
+		return array(
+			'tone' => 'idle',
+			'icon' => 'clock',
+			'text' => __( 'Not checked yet', 'live-sheets-table' ),
+			'note' => '',
+		);
+	}
+
+	/**
+	 * The first few column headings of a source, for telling it apart.
+	 *
+	 * @param array<string,mixed> $source Source row.
+	 * @param int                 $shown  How many to name.
+	 * @return array{names:array<int,string>,extra:int}
+	 */
+	public static function column_names( $source, $shown = 3 ) {
+		$config = LSTAB_Columns::sanitize( isset( $source['columns_config'] ) ? $source['columns_config'] : array() );
+		$names  = array();
+
+		foreach ( $config as $index => $column ) {
+			$label = '' !== $column['label'] ? $column['label'] : $column['source'];
+
+			if ( '' === $label ) {
+				$label = sprintf(
+					/* translators: %s: column letter, as Google labels it. */
+					__( 'Column %s', 'live-sheets-table' ),
+					LSTAB_Columns::letter( (int) $index )
+				);
+			}
+
+			$names[] = $label;
+		}
+
+		return array(
+			'names' => array_slice( $names, 0, $shown ),
+			'extra' => max( 0, count( $names ) - $shown ),
 		);
 	}
 

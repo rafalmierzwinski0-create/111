@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.3.0
+Stable tag: 3.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,16 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.4.0 =
+* Added: a welcome screen for a site with no sheets yet — one field for the link, and the table appears before anything is saved.
+* Added: a built-in example price list. It lives inside the plugin, works with no internet and never contacts Google, so the plugin can be tried before you have a spreadsheet of your own.
+* Added: a copy button beside every shortcode. It was the most repeated action in the plugin and the only one that needed a steady hand.
+* Added: each sheet now says which pages use it — and says plainly when nothing does, so an unused source can be deleted without guessing.
+* Added: the first few column names on each card, for telling similar sheets apart, and the last few sync results as a small bar chart.
+* Changed: the source list is a card per sheet instead of a table row, ordered by what people actually look for: is it working, which sheet is it, how do I put it on a page.
+* Changed: a sheet that is working normally is now stated in grey rather than green. Colour is kept for the things that need attention, so a real fault stands out.
+* Changed: the dashboard has its own heading, icons drawn in the page itself, and a colour scheme defined in one place rather than spread through the stylesheet.
 
 = 3.3.0 =
 * Changed: a hidden row is now remembered by the line it is on in Google, checked against everything that row said. Two rows that read exactly alike are two separate choices, so taking out a duplicate no longer takes out its twin somewhere else in the sheet.
@@ -317,6 +327,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.4.0 =
+A redesigned dashboard: a welcome screen, sheets as cards, one-click shortcode copying, and each sheet says which pages use it.
 
 = 3.3.0 =
 Hidden rows and columns are now remembered by their line and their position, and anything that moves in Google comes back on the page with a message instead of the wrong thing disappearing.

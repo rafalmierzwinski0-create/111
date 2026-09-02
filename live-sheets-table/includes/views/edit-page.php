@@ -17,15 +17,29 @@ $lstab_intervals  = LSTAB_Limits::intervals();
 $lstab_presets    = LSTAB_Styles::all();
 $lstab_is_pro     = LSTAB_Limits::is_pro();
 $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
+
+/*
+ * A link pasted on the welcome screen arrives here in the address. Carrying it
+ * through means the first thing somebody sees after pasting is their own table,
+ * not the same empty field again.
+ */
+if ( ! $lstab_is_edit ) {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only prefill of a field the person just typed.
+	$lstab_pasted = isset( $_GET['sheet_url'] ) ? esc_url_raw( wp_unslash( $_GET['sheet_url'] ) ) : '';
+
+	if ( '' !== $lstab_pasted ) {
+		$lstab_values['sheet_url'] = $lstab_pasted;
+	}
+}
 ?>
 <div class="wrap lstab-admin lstab-editor">
-	<h1>
-		<?php
-		echo $lstab_is_edit
-			? esc_html__( 'Edit sheet source', 'live-sheets-table' )
-			: esc_html__( 'Add new sheet source', 'live-sheets-table' );
-		?>
-	</h1>
+	<?php
+	LSTAB_Admin::render_masthead(
+		$lstab_is_edit
+			? esc_html__( 'Editing a sheet', 'live-sheets-table' )
+			: esc_html__( 'Paste a link and see the table before you save', 'live-sheets-table' )
+	);
+	?>
 
 	<?php LSTAB_Admin::print_cron_notice(); ?>
 	<?php LSTAB_Admin::print_notice(); ?>
@@ -369,7 +383,7 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 					<?php
 					echo esc_html(
 						$lstab_is_edit
-							? __( 'Waiting for a first look at the sheet. Choose “Refresh now” on the sources list, and your real columns will appear here.', 'live-sheets-table' )
+							? __( 'Waiting for a first look at the sheet. Choose “Refresh” on the sources list, and your real columns will appear here.', 'live-sheets-table' )
 							: __( 'Save this source first. It is read straight away, and your real columns appear here.', 'live-sheets-table' )
 					);
 					?>
