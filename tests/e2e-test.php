@@ -1519,6 +1519,23 @@ lstab_assert(
 );
 lstab_assert( '' === LSTAB_Hidden_Rows::key_for( array( '', ' ', '' ) ), 'A row with nothing in it has no name' );
 
+// A name is often not much of a name: a date, a code, the number 3. What the
+// row says is what someone will recognise, so that is what is shown.
+lstab_assert( 'Kask · M · 120' === LSTAB_Hidden_Rows::describe( array( 'Kask', 'M', '120' ) ), 'A row is described by what it says', LSTAB_Hidden_Rows::describe( array( 'Kask', 'M', '120' ) ) );
+lstab_assert( '2026-08-20 · 41,00' === LSTAB_Hidden_Rows::describe( array( '2026-08-20', '', '41,00' ) ), 'Empty cells are skipped over', LSTAB_Hidden_Rows::describe( array( '2026-08-20', '', '41,00' ) ) );
+lstab_assert( '' === LSTAB_Hidden_Rows::describe( array( '', ' ' ) ), 'And a row with nothing in it says nothing' );
+
+// A row whose first cell is empty has no name, and can still be hidden: it is
+// recognised by everything it says.
+$nameless = array(
+	array( '', 'Bez nazwy', '10' ),
+	array( 'Kask', 'M', '120' ),
+);
+$hide_nameless = array( LSTAB_Hidden_Rows::entry_for( $nameless[0] ) );
+$left_nameless = LSTAB_Hidden_Rows::filter_rows( $nameless, array(), array( 'hidden_rows' => $hide_nameless ), array() );
+lstab_assert( 1 === count( $left_nameless ), 'A row with an empty first cell can be hidden', wp_json_encode( $left_nameless ) );
+lstab_assert( 'Kask' === $left_nameless[0][0], 'And it is the right one gone' );
+
 $cleaned = LSTAB_Hidden_Rows::sanitize(
 	array(
 		' Kask ',

@@ -139,6 +139,39 @@ class LSTAB_Hidden_Rows {
 	}
 
 	/**
+	 * A row put into words, for saying which one is meant.
+	 *
+	 * The name alone is often not enough to recognise a row by: it may be a
+	 * date, a code, or the number 3, and a sheet whose first column is a serial
+	 * number gives every row a name that means nothing to anyone. So a few of
+	 * the filled cells are shown together, which is how the row reads on the
+	 * page and therefore how someone will recognise it.
+	 *
+	 * @param array<int,string> $cells Row cells, or a stored record of them.
+	 * @param int               $parts How many filled cells to show.
+	 * @return string
+	 */
+	public static function describe( $cells, $parts = 3 ) {
+		$shown = array();
+
+		foreach ( (array) $cells as $cell ) {
+			$cell = self::tidy( (string) $cell );
+
+			if ( '' === $cell ) {
+				continue;
+			}
+
+			$shown[] = function_exists( 'mb_substr' ) ? mb_substr( $cell, 0, 40 ) : substr( $cell, 0, 40 );
+
+			if ( count( $shown ) >= $parts ) {
+				break;
+			}
+		}
+
+		return implode( ' · ', $shown );
+	}
+
+	/**
 	 * Everything needed to find one row again.
 	 *
 	 * @param array<int,string> $row Row cells.
@@ -477,7 +510,7 @@ class LSTAB_Hidden_Rows {
 			}
 
 			$stalled[] = array(
-				'name'   => $entry['name'],
+				'name'   => '' !== self::describe( $entry['cells'] ) ? self::describe( $entry['cells'] ) : $entry['name'],
 				'reason' => ( isset( $names[ $entry['name'] ] ) && $names[ $entry['name'] ] > 1 ) ? 'ambiguous' : 'missing',
 			);
 		}

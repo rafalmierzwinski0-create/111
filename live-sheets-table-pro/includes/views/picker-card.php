@@ -62,14 +62,21 @@ defined( 'ABSPATH' ) || exit;
 					?>
 					<tr class="lstabp-picker-row<?php echo $lstabp_off ? ' is-hidden' : ''; ?>"
 						data-lstabp-key="<?php echo esc_attr( $lstabp_key ); ?>"
+						data-lstabp-label="<?php echo esc_attr( LSTAB_Hidden_Rows::describe( $lstabp_row ) ); ?>"
 						data-lstabp-sig="<?php echo esc_attr( $lstabp_sig ); ?>"
 						data-lstabp-shared="<?php echo esc_attr( (string) $lstabp_shared ); ?>">
 						<th scope="row" class="lstabp-picker-handle">
 							<button type="button"
 								class="lstabp-picker-toggle"
 								data-lstabp-row="<?php echo esc_attr( $lstabp_sig ); ?>"
+								data-lstabp-label="<?php echo esc_attr( LSTAB_Hidden_Rows::describe( $lstabp_row ) ); ?>"
 								aria-pressed="<?php echo $lstabp_off ? 'true' : 'false'; ?>"
-								<?php disabled( '' === $lstabp_key ); ?>
+								<?php
+								// A row with nothing in it cannot be pointed at, but one
+								// whose first cell happens to be empty can: it is
+								// recognised by everything it says, not by a name.
+								disabled( '' === trim( implode( '', (array) $lstabp_row ) ) );
+								?>
 								<?php if ( $lstabp_shared > 1 ) : ?>
 									title="<?php echo esc_attr( sprintf( /* translators: %d: number of rows. */ __( '%d rows are identical, cell for cell, so they are one choice: hiding it hides all of them.', 'live-sheets-table-pro' ), $lstabp_shared ) ); ?>"
 								<?php endif; ?>>
@@ -140,7 +147,8 @@ defined( 'ABSPATH' ) || exit;
 				name="hidden_rows[<?php echo esc_attr( (string) $lstabp_index ); ?>][sig]"
 				value="<?php echo esc_attr( $lstabp_entry['sig'] ); ?>"
 				data-lstabp-present="<?php echo $lstabp_live ? '1' : '0'; ?>"
-				data-lstabp-name="<?php echo esc_attr( $lstabp_entry['name'] ); ?>">
+				data-lstabp-name="<?php echo esc_attr( $lstabp_entry['name'] ); ?>"
+				data-lstabp-label="<?php echo esc_attr( LSTAB_Hidden_Rows::describe( $lstabp_entry['cells'] ) ); ?>">
 		<?php endforeach; ?>
 	</div>
 </div>

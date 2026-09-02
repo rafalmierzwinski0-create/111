@@ -38,7 +38,8 @@
 			function ( field ) {
 				found.push( {
 					name: field.getAttribute( 'data-lstabp-name' ) || '',
-					sig: field.value || ''
+					sig: field.value || '',
+					label: field.getAttribute( 'data-lstabp-label' ) || field.getAttribute( 'data-lstabp-name' ) || ''
 				} );
 			}
 		);
@@ -139,7 +140,10 @@
 					seen[ sig ] = true;
 					entries.push( {
 						name: row.getAttribute( 'data-lstabp-key' ) || '',
-						sig: sig
+						sig: sig,
+						// What the row says, for the list below the table: a
+						// name alone can be a date, a code, or the number 3.
+						label: row.getAttribute( 'data-lstabp-label' ) || row.getAttribute( 'data-lstabp-key' ) || ''
 					} );
 				}
 			}
@@ -186,6 +190,8 @@
 		chips.innerHTML = '';
 
 		keys.forEach( function ( entry, position ) {
+			// Only what the server needs to find the row again; the label is
+			// for reading, and is rebuilt from the sheet each time.
 			[ 'name', 'sig' ].forEach( function ( part ) {
 				var field = document.createElement( 'input' );
 				field.type = 'hidden';
@@ -194,7 +200,7 @@
 				fields.appendChild( field );
 			} );
 
-			var key = entry.name;
+			var key = entry.label || entry.name;
 			var shared = sharedBy( entry.sig );
 			var chip = document.createElement( 'li' );
 			chip.className = 'lstabp-chip' + ( 0 === shared ? ' is-orphan' : '' );

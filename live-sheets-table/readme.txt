@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.1.0
+Stable tag: 3.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -156,6 +156,10 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 
 == Changelog ==
 
+= 3.1.1 =
+* Changed: a hidden row is now referred to by what it says — “Kask · M · 120” — rather than by its first cell alone. A first cell is often a date, a code, or the number 3, which tells nobody which row is meant.
+* Fixed: a row whose first cell is empty can be hidden. It has no name to be known by, so it is recognised by everything else it says, which was already how an unedited row was found.
+
 = 3.1.0 =
 * Fixed: column settings follow their heading instead of their place in the row. Adding a column in Google used to shift every setting one place along — so the column you had left out of the table became a different column, and the one meant to be private was published. Nothing about the page looked wrong, which is what made it worth finding.
 * Added: when a change to your sheet means something you had left out is being shown again, the dashboard says so, names it, and links to the table. Every other fault here announces itself; this one looks exactly like everything being fine, so it has to come and find you.
@@ -297,6 +301,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.1.1 =
+Hidden rows are now referred to by what they say, and a row with an empty first cell can be hidden.
 
 = 3.1.0 =
 Column settings now follow their heading, and the dashboard tells you when something hidden has come back.
