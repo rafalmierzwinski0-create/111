@@ -113,10 +113,10 @@ return array(
 		=> 'Kto może zarządzać tabelami, może też odczytać każdy wskazany arkusz — łącznie z kolumnami pominiętymi w opublikowanej tabeli. Domyślnie są to redaktorzy, bo to oni publikują strony, na których te tabele stoją.',
 	'Editors and above'                          => 'Redaktorzy i wyżej',
 	'Administrators only'                        => 'Tylko administratorzy',
-	'New tables start with'                      => 'Nowe tabele zaczynają od',
-	'The schedule a newly added sheet is given. Every table can still be changed on its own afterwards.'
-		=> 'Harmonogram nadawany nowo dodanemu arkuszowi. Każdą tabelę można potem zmienić osobno.',
-	'The shortest your licence allows'           => 'Najkrótszy, na jaki pozwala licencja',
+	'How often new tables check Google'          => 'Jak często nowe tabele sprawdzają Google',
+	'Every table has its own “Check Google for changes” setting. This is only the value a table is given the moment you add it, so that you are not choosing the same thing over and over. It changes nothing about the tables you already have, and any table can be set differently afterwards.'
+		=> 'Każda tabela ma własne ustawienie „Sprawdzaj zmiany w Google”. To jest tylko wartość, którą tabela dostaje w chwili dodania — żebyś nie wybierał w kółko tego samego. Nie zmienia niczego w tabelach, które już masz, i każdą tabelę można potem ustawić inaczej.',
+	'As often as allowed — every %s at present'  => 'Tak często, jak wolno — obecnie co %s',
 	'Every %s'                                   => 'Co %s',
 	'When this plugin is deleted'                => 'Gdy ta wtyczka zostanie usunięta',
 	'Also delete every sheet source and setting' => 'Usuń też wszystkie źródła arkuszy i ustawienia',
@@ -126,6 +126,22 @@ return array(
 		=> 'Nie masz uprawnień do zmiany tych ustawień.',
 	'See what is hidden, and what will come back'
 		=> 'Zobacz, co jest ukryte i co wróci',
+	// When something hidden comes back.
+	'Something you had left out of a table is being shown again.'
+		=> 'Coś, co pominąłeś w tabeli, jest znów pokazywane.',
+	'The sheet changed in a way that the choice could not be followed through. Nothing is broken, and the page looks perfectly normal — which is why this is being said out loud rather than left to be noticed.'
+		=> 'Arkusz zmienił się tak, że nie dało się przenieść tego wyboru dalej. Nic nie jest zepsute, a strona wygląda całkiem normalnie — i właśnie dlatego mówimy o tym wprost, zamiast czekać, aż ktoś zauważy.',
+	'The column “%s” is no longer in the sheet under that heading, so it is no longer being left out of the table.'
+		=> 'Kolumny „%s” nie ma już w arkuszu pod tym nagłówkiem, więc przestała być pomijana w tabeli.',
+	'The column “%1$s” is no longer in the sheet under that heading, so it is no longer being shown as “%2$s”.'
+		=> 'Kolumny „%1$s” nie ma już w arkuszu pod tym nagłówkiem, więc nie jest już pokazywana jako „%2$s”.',
+	'The hidden row “%s” was edited, and several rows now say that, so there is no telling which one you meant. None of them is hidden.'
+		=> 'Ukryty wiersz „%s” został zmieniony, a teraz kilka wierszy mówi to samo — nie da się orzec, o który Ci chodziło. Żaden z nich nie jest ukryty.',
+	'The hidden row “%s” is not in the sheet any more. Your choice is kept in case it comes back.'
+		=> 'Ukrytego wiersza „%s” nie ma już w arkuszu. Twój wybór zostaje zapamiętany, gdyby wrócił.',
+	'Open this table and put it right'           => 'Otwórz tę tabelę i popraw',
+	'I have read this'                           => 'Przeczytałem',
+	'You do not have permission to do that.'     => 'Nie masz do tego uprawnień.',
 	'Save changes and sync'                      => 'Zapisz zmiany i zsynchronizuj',
 	'Save source and sync'                       => 'Zapisz źródło i zsynchronizuj',
 

@@ -65,24 +65,119 @@ class LSTAB_Columns {
 	 * @return array<int,array<string,mixed>>
 	 */
 	public static function reconcile( $config, $headers ) {
-		$config  = self::sanitize( $config );
-		$updated = array();
+		$config   = self::sanitize( $config );
+		$headers  = array_map( 'sanitize_text_field', array_map( 'strval', array_values( (array) $headers ) ) );
+		$blank    = array(
+			'label'  => '',
+			'hidden' => false,
+			'source' => '',
+		);
 
-		foreach ( array_values( (array) $headers ) as $index => $heading ) {
-			$existing = isset( $config[ $index ] ) ? $config[ $index ] : array(
-				'label'  => '',
-				'hidden' => false,
-				'source' => '',
+		/*
+		 * Settings follow their heading, not their place in the row.
+		 *
+		 * Keeping them by position looks harmless and is not: someone adding a
+		 * column in Google shifts every setting one place along, so the column
+		 * left out of the table becomes a different column — and the one that
+		 * was meant to be private is published. Nothing about the page looks
+		 * wrong, which is what makes it worth this much care.
+		 *
+		 * A heading is only followed while it is unambiguous: one setting
+		 * remembering it, one column in the sheet carrying it. Anything else
+		 * falls back to position, which is no worse than it ever was.
+		 */
+		$remembered = array();
+
+		foreach ( $config as $index => $column ) {
+			if ( '' === $column['source'] ) {
+				continue;
+			}
+
+			$remembered[ $column['source'] ][] = $index;
+		}
+
+		$heading_counts = array_count_values( $headers );
+		$claimed        = array();
+		$updated        = array();
+
+		// First pass: every heading that can be recognised takes its own back.
+		foreach ( $headers as $index => $heading ) {
+			if ( '' === $heading || ! isset( $remembered[ $heading ] ) ) {
+				continue;
+			}
+
+			if ( 1 !== count( $remembered[ $heading ] ) || 1 !== $heading_counts[ $heading ] ) {
+				continue;
+			}
+
+			$from = $remembered[ $heading ][0];
+
+			$claimed[ $from ]  = true;
+			$updated[ $index ] = array(
+				'label'  => $config[ $from ]['label'],
+				'hidden' => $config[ $from ]['hidden'],
+				'source' => $heading,
 			);
+		}
+
+		// Second pass: whatever is left keeps the place it had.
+		foreach ( $headers as $index => $heading ) {
+			if ( isset( $updated[ $index ] ) ) {
+				continue;
+			}
+
+			$existing = ( isset( $config[ $index ] ) && ! isset( $claimed[ $index ] ) ) ? $config[ $index ] : $blank;
 
 			$updated[ $index ] = array(
 				'label'  => $existing['label'],
 				'hidden' => $existing['hidden'],
-				'source' => sanitize_text_field( (string) $heading ),
+				'source' => $heading,
 			);
 		}
 
+		ksort( $updated );
+
 		return $updated;
+	}
+
+	/**
+	 * Settings whose heading is nowhere in the sheet any more.
+	 *
+	 * Only the ones that were doing something: a renamed column that had been
+	 * left out of the table is now in it, and a renamed column that had been
+	 * relabelled is showing the sheet's own heading. Both are worth telling
+	 * someone about; a column nobody had configured is not.
+	 *
+	 * @param array<int,array<string,mixed>> $config  Stored configuration.
+	 * @param array<int,string>              $headers Headings from the sheet.
+	 * @return array<int,array{was:string,hidden:bool,label:string}>
+	 */
+	public static function orphans( $config, $headers ) {
+		$config   = self::sanitize( $config );
+		$headers  = array_map( 'strval', array_values( (array) $headers ) );
+		$orphaned = array();
+
+		foreach ( $config as $column ) {
+			if ( '' === $column['source'] ) {
+				continue;
+			}
+
+			if ( '' === $column['label'] && ! $column['hidden'] ) {
+				continue;
+			}
+
+			if ( in_array( $column['source'], $headers, true ) ) {
+				continue;
+			}
+
+			$orphaned[] = array(
+				'was'    => $column['source'],
+				'hidden' => (bool) $column['hidden'],
+				'label'  => $column['label'],
+			);
+		}
+
+		return $orphaned;
 	}
 
 	/**

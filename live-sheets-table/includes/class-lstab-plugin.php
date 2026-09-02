@@ -76,6 +76,13 @@ class LSTAB_Plugin {
 	public $settings;
 
 	/**
+	 * Telling someone when a hidden thing has come back.
+	 *
+	 * @var LSTAB_Hidden_Alerts
+	 */
+	public $hidden_alerts;
+
+	/**
 	 * Elementor widget registration.
 	 *
 	 * @var LSTAB_Elementor
@@ -97,6 +104,7 @@ class LSTAB_Plugin {
 		$this->paging    = new LSTAB_Paging();
 		$this->hidden_rows = new LSTAB_Hidden_Rows();
 		$this->settings    = new LSTAB_Settings();
+		$this->hidden_alerts = new LSTAB_Hidden_Alerts();
 		$this->elementor = new LSTAB_Elementor();
 
 		add_action( 'init', array( $this, 'load_textdomain' ) );
@@ -111,6 +119,7 @@ class LSTAB_Plugin {
 		$this->paging->register();
 		$this->hidden_rows->register();
 		$this->settings->register();
+		$this->hidden_alerts->register();
 		$this->elementor->register();
 
 		if ( is_admin() ) {

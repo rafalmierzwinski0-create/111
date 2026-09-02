@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.0.0
+Stable tag: 3.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -156,6 +156,11 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 
 == Changelog ==
 
+= 3.1.0 =
+* Fixed: column settings follow their heading instead of their place in the row. Adding a column in Google used to shift every setting one place along — so the column you had left out of the table became a different column, and the one meant to be private was published. Nothing about the page looked wrong, which is what made it worth finding.
+* Added: when a change to your sheet means something you had left out is being shown again, the dashboard says so, names it, and links to the table. Every other fault here announces itself; this one looks exactly like everything being fine, so it has to come and find you.
+* Changed: a hidden row that has been edited is now recognised by how much of it still matches, rather than by its name alone. Deleting one of ten helmets used to leave its name unique, and the choice would then settle on a different helmet. A row is only taken when it is a clear winner and genuinely close; two rows equally like it, or none close enough, hides nothing and raises the notice above.
+
 = 3.0.0 =
 * Added: a Settings screen — who may manage tables, what schedule a new table starts on, and whether deleting the plugin should also delete your tables.
 * Changed: deleting the plugin no longer removes your tables unless you have said it should. Deleting a plugin in order to reinstall it is a normal thing to do; losing every table you had configured because of it is not.
@@ -292,6 +297,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.1.0 =
+Column settings now follow their heading, and the dashboard tells you when something hidden has come back.
 
 = 3.0.0 =
 Adds a Settings screen, moves the plugin's screens into tabs, and stops deleting your tables when the plugin is deleted.

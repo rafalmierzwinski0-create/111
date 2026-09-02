@@ -591,3 +591,12 @@
 .lstab-grace-notice p:first-child {
 	font-size: 1.02em;
 }
+
+.lstab-hidden-alert .lstab-alert-list {
+	margin: 0 0 12px 20px;
+	list-style: disc;
+}
+
+.lstab-hidden-alert .lstab-alert-list li {
+	margin-bottom: 4px;
+}

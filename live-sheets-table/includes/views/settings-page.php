@@ -42,14 +42,20 @@ defined( 'ABSPATH' ) || exit;
 		</div>
 
 		<div class="lstab-card">
-			<h2 class="lstab-card-title"><?php esc_html_e( 'New tables start with', 'live-sheets-table' ); ?></h2>
+			<h2 class="lstab-card-title"><?php esc_html_e( 'How often new tables check Google', 'live-sheets-table' ); ?></h2>
 			<p class="lstab-help">
-				<?php esc_html_e( 'The schedule a newly added sheet is given. Every table can still be changed on its own afterwards.', 'live-sheets-table' ); ?>
+				<?php esc_html_e( 'Every table has its own “Check Google for changes” setting. This is only the value a table is given the moment you add it, so that you are not choosing the same thing over and over. It changes nothing about the tables you already have, and any table can be set differently afterwards.', 'live-sheets-table' ); ?>
 			</p>
 			<p>
 				<select name="lstab_settings[default_interval]">
 					<option value="0" <?php selected( (int) $settings['default_interval'], 0 ); ?>>
-						<?php esc_html_e( 'The shortest your licence allows', 'live-sheets-table' ); ?>
+						<?php
+						printf(
+							/* translators: %s: human readable duration, e.g. "15 minutes". */
+							esc_html__( 'As often as allowed — every %s at present', 'live-sheets-table' ),
+							esc_html( human_time_diff( 0, LSTAB_Limits::min_interval() ) )
+						);
+						?>
 					</option>
 					<?php foreach ( LSTAB_Cron::schedule_map() as $lstab_slug => $lstab_seconds ) : ?>
 						<?php if ( $lstab_seconds < LSTAB_Limits::min_interval() ) : ?>

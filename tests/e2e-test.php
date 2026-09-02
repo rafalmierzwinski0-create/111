@@ -1565,13 +1565,22 @@ $by_name                = array( LSTAB_Hidden_Rows::entry_for( array( 'Kask', 'M
 $after_edit             = LSTAB_Hidden_Rows::filter_rows( $unique, array(), array( 'hidden_rows' => $by_name ), array() );
 lstab_assert( 1 === count( $after_edit ), 'Editing a hidden row does not bring it back while its name is unique', wp_json_encode( $after_edit ) );
 
-// But where the name is shared and nothing matches in full, nothing is hidden:
-// showing a row that should be hidden is a mistake someone can see, and the
-// wrong row disappearing is not.
+// Where the name is shared, the row that still says most of what this one said
+// is the one meant: "Kask, M, 199" is one cell from "Kask, M, 110"; its
+// neighbours are two.
 $after_ambiguous = LSTAB_Hidden_Rows::filter_rows( $renamed_price, array(), array( 'hidden_rows' => $by_name ), array() );
-lstab_assert( 4 === count( $after_ambiguous ), 'An edit that makes the name ambiguous hides nothing rather than the wrong thing', (string) count( $after_ambiguous ) );
+lstab_assert( 3 === count( $after_ambiguous ), 'An edit is followed even where several rows share the name', (string) count( $after_ambiguous ) );
+lstab_assert( ! in_array( array( 'Kask', 'M', '199' ), $after_ambiguous, true ), 'And it is the edited row that stays hidden', wp_json_encode( $after_ambiguous ) );
 
-$stalled = LSTAB_Hidden_Rows::unresolved( $by_name, $renamed_price );
+// But a guess is never made: two rows equally like it, or none close enough,
+// and the answer is no row at all — plus a word to whoever can put it right.
+$equally_close = array( array( 'Kask', 'M', '150' ), array( 'Kask', 'M', '160' ) );
+lstab_assert(
+	2 === count( LSTAB_Hidden_Rows::filter_rows( $equally_close, array(), array( 'hidden_rows' => $by_name ), array() ) ),
+	'Two rows equally like it means neither is hidden'
+);
+
+$stalled = LSTAB_Hidden_Rows::unresolved( $by_name, $equally_close );
 lstab_assert( 1 === count( $stalled ) && 'ambiguous' === $stalled[0]['reason'], 'And the choice is reported as needing a look', wp_json_encode( $stalled ) );
 lstab_assert( 'missing' === LSTAB_Hidden_Rows::unresolved( $by_name, array( array( 'Rower' ) ) )[0]['reason'], 'A choice whose row has gone is reported differently' );
 
@@ -1603,7 +1612,7 @@ $helmets = array(
 	array( 'Kask', 'M', '120' ),
 	array( 'Kask', 'L', '140' ),
 );
-$choice = array( LSTAB_Hidden_Rows::entry_for( $helmets[1], 1 ) );
+$choice = array( LSTAB_Hidden_Rows::entry_for( $helmets[1] ) );
 $names  = LSTAB_Hidden_Rows::name_counts( $helmets );
 
 lstab_assert( array( 1 ) === LSTAB_Hidden_Rows::matches( $choice[0], $helmets, $names ), 'The chosen helmet is found while nothing has changed' );
@@ -1621,6 +1630,29 @@ lstab_assert(
 	array( 2 ) === LSTAB_Hidden_Rows::matches( $choice[0], $shifted, LSTAB_Hidden_Rows::name_counts( $shifted ) ),
 	'A row inserted above does not move the choice to another helmet',
 	wp_json_encode( LSTAB_Hidden_Rows::matches( $choice[0], $shifted, LSTAB_Hidden_Rows::name_counts( $shifted ) ) )
+);
+
+// Edited and moved between one sync and the next: position would answer this
+// with whichever helmet had landed in that slot, which is worse than useless.
+$both = array( array( 'Kask', 'L', '140' ), array( 'Kask', 'S', '100' ), array( 'Kask', 'M', '130' ) );
+lstab_assert(
+	array( 2 ) === LSTAB_Hidden_Rows::matches( $choice[0], $both, LSTAB_Hidden_Rows::name_counts( $both ) ),
+	'A row edited and moved at once is still recognised by what it says',
+	wp_json_encode( LSTAB_Hidden_Rows::matches( $choice[0], $both, LSTAB_Hidden_Rows::name_counts( $both ) ) )
+);
+
+// And where nothing is close enough, or two things are equally close, the
+// answer is no row at all rather than a guess.
+$gone = array( array( 'Kask', 'S', '100' ), array( 'Kask', 'L', '140' ) );
+lstab_assert(
+	array() === LSTAB_Hidden_Rows::matches( $choice[0], $gone, LSTAB_Hidden_Rows::name_counts( $gone ) ),
+	'A deleted row does not drag a different one down with it'
+);
+
+$twins = array( array( 'Kask', 'M', '130' ), array( 'Kask', 'M', '140' ) );
+lstab_assert(
+	array() === LSTAB_Hidden_Rows::matches( $choice[0], $twins, LSTAB_Hidden_Rows::name_counts( $twins ) ),
+	'Two rows equally like it is no answer to which one'
 );
 
 // The rewriting is what keeps the third rule honest, so it is checked on a
@@ -1657,6 +1689,137 @@ LSTAB_Hidden_Rows::reanchor( $follow, array( array( 'Rower', '', '4000' ) ) );
 lstab_assert( 1 === count( LSTAB_Storage::get( $follow )['hidden_rows'] ), 'A choice whose row has gone is kept, in case it comes back' );
 
 LSTAB_Storage::delete( $follow );
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '12i. Columns follow their heading, and say when they cannot' );
+
+/*
+ * Column settings used to be kept by position, which looks harmless until
+ * somebody adds a column in Google: every setting shifts one place along, the
+ * column left out of the table becomes a different column, and the one meant to
+ * be private is published. Nothing about the page looks wrong.
+ */
+$config = array(
+	0 => array( 'label' => '', 'hidden' => false, 'source' => 'Produkt' ),
+	1 => array( 'label' => 'Cena brutto', 'hidden' => false, 'source' => 'Cena' ),
+	2 => array( 'label' => '', 'hidden' => true, 'source' => 'Notatki wewnętrzne' ),
+);
+
+$inserted = LSTAB_Columns::reconcile( $config, array( 'Kod', 'Produkt', 'Cena', 'Notatki wewnętrzne' ) );
+lstab_assert( ! $inserted[3]['hidden'] === false, 'A column added in Google does not publish the private one', wp_json_encode( wp_list_pluck( $inserted, 'source' ) ) );
+lstab_assert( true === $inserted[3]['hidden'], 'The right column is still the hidden one' );
+lstab_assert( false === $inserted[2]['hidden'], 'And the price is not hidden in its place' );
+lstab_assert( 'Cena brutto' === $inserted[2]['label'], 'A renamed column keeps its new name too', $inserted[2]['label'] );
+lstab_assert( '' === $inserted[0]['label'] && false === $inserted[0]['hidden'], 'The new column starts with nothing set' );
+
+$reordered = LSTAB_Columns::reconcile( $config, array( 'Notatki wewnętrzne', 'Produkt', 'Cena' ) );
+lstab_assert( true === $reordered[0]['hidden'], 'Reordering the sheet moves the settings with it' );
+
+// Two columns of the same name are no longer an answer to "which one", so
+// position is used, exactly as before.
+$ambiguous = LSTAB_Columns::reconcile( $config, array( 'Produkt', 'Produkt', 'Notatki wewnętrzne' ) );
+lstab_assert( 3 === count( $ambiguous ), 'A sheet with repeated headings still produces one setting per column' );
+
+// A heading that has gone is reported rather than silently forgotten.
+$orphans = LSTAB_Columns::orphans( $config, array( 'Produkt', 'Cena' ) );
+lstab_assert( 1 === count( $orphans ), 'A configured column that is gone is reported', wp_json_encode( $orphans ) );
+lstab_assert( 'Notatki wewnętrzne' === $orphans[0]['was'] && $orphans[0]['hidden'], 'And it says which, and that it was hidden' );
+lstab_assert( array() === LSTAB_Columns::orphans( $config, array( 'Produkt', 'Cena', 'Notatki wewnętrzne' ) ), 'Nothing is reported while every heading is there' );
+lstab_assert(
+	array() === LSTAB_Columns::orphans( array( 0 => array( 'label' => '', 'hidden' => false, 'source' => 'Coś' ) ), array( 'Inne' ) ),
+	'A column nobody had configured is not worth reporting'
+);
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '12j. Saying when something hidden has come back' );
+
+/*
+ * Every other fault here announces itself. A thing being shown that was meant
+ * to be hidden announces nothing: the page looks complete, which is what it
+ * would look like if all were well. So it has to come and find someone.
+ */
+delete_option( LSTAB_Hidden_Alerts::OPTION );
+delete_option( LSTAB_Hidden_Alerts::DISMISSED_OPT );
+
+$watched = (int) LSTAB_Storage::insert(
+	array(
+		'title'      => 'Cennik z notatkami',
+		'sheet_url'  => 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0',
+		'sheet_id'   => '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789',
+		'sheet_kind' => 'doc',
+		'gid'        => '0',
+	)
+);
+
+$before_rows = array( array( 'Kask', 'S', '100' ), array( 'Kask', 'M', '120' ) );
+LSTAB_Storage::record_success( $watched, array( 'headers' => array( 'Produkt', 'Rozmiar', 'Notatki' ), 'rows' => $before_rows ) );
+LSTAB_Storage::update(
+	$watched,
+	array(
+		'columns_config' => array(
+			0 => array( 'label' => '', 'hidden' => false, 'source' => 'Produkt' ),
+			1 => array( 'label' => '', 'hidden' => false, 'source' => 'Rozmiar' ),
+			2 => array( 'label' => '', 'hidden' => true, 'source' => 'Notatki' ),
+		),
+		'hidden_rows'    => array( LSTAB_Hidden_Rows::entry_for( $before_rows[1] ) ),
+	)
+);
+
+$was = LSTAB_Storage::get( $watched );
+
+// Nothing untoward: the alert stays quiet.
+LSTAB_Hidden_Alerts::check( $was, array( 'headers' => array( 'Produkt', 'Rozmiar', 'Notatki' ), 'rows' => $before_rows ) );
+lstab_assert( ! isset( LSTAB_Hidden_Alerts::pending()[ $watched ] ), 'A sheet that has not moved raises nothing' );
+
+// The hidden column is deleted in Google, and the hidden row with it.
+$after = array( 'headers' => array( 'Produkt', 'Rozmiar' ), 'rows' => array( array( 'Kask', 'S', '100' ) ) );
+LSTAB_Storage::record_success( $watched, $after );
+LSTAB_Hidden_Alerts::check( $was, $after );
+
+$alert = LSTAB_Hidden_Alerts::pending();
+lstab_assert( isset( $alert[ $watched ] ), 'A hidden column that has gone raises the alert' );
+lstab_assert( 1 === count( $alert[ $watched ]['columns'] ), 'It names the column', wp_json_encode( $alert[ $watched ]['columns'] ) );
+lstab_assert( 1 === count( $alert[ $watched ]['rows'] ), 'And the row' );
+lstab_assert( 'Cennik z notatkami' === $alert[ $watched ]['title'], 'And which table it is about' );
+
+$lstab_alert_user = get_users( array( 'role' => 'administrator', 'number' => 1, 'fields' => 'ID' ) );
+wp_set_current_user( $lstab_alert_user ? (int) $lstab_alert_user[0] : 1 );
+ob_start();
+LSTAB_Hidden_Alerts::print_notice();
+$alert_html = (string) ob_get_clean();
+lstab_assert( false !== strpos( $alert_html, 'lstab-hidden-alert' ), 'And it is said out loud in the dashboard' );
+lstab_assert( false !== strpos( $alert_html, 'Notatki' ), 'Naming what came back', $alert_html );
+
+wp_set_current_user( 0 );
+ob_start();
+LSTAB_Hidden_Alerts::print_notice();
+lstab_assert( '' === trim( (string) ob_get_clean() ), 'Nobody who cannot act on it is shown it' );
+
+// Putting it away silences that finding, and only that finding.
+update_option( LSTAB_Hidden_Alerts::DISMISSED_OPT, array( LSTAB_Hidden_Alerts::signature( $watched, $alert[ $watched ] ) ), true );
+lstab_assert( ! isset( LSTAB_Hidden_Alerts::pending()[ $watched ] ), 'Reading it puts it away' );
+
+// A second thing coming undone is a different finding, so it is heard even
+// though the first was put away.
+$was_more                      = $was;
+$was_more['columns_config'][1] = array( 'label' => 'Rozmiar (S/M/L)', 'hidden' => false, 'source' => 'Rozmiar' );
+LSTAB_Storage::record_success( $watched, array( 'headers' => array( 'Produkt' ), 'rows' => array() ) );
+LSTAB_Hidden_Alerts::check( $was_more, array( 'headers' => array( 'Produkt' ), 'rows' => array() ) );
+lstab_assert( isset( LSTAB_Hidden_Alerts::pending()[ $watched ] ), 'A further thing coming back is news again' );
+lstab_assert( 2 === count( LSTAB_Hidden_Alerts::pending()[ $watched ]['columns'] ), 'And both columns are named', wp_json_encode( LSTAB_Hidden_Alerts::pending()[ $watched ]['columns'] ) );
+
+// Putting the sheet back the way it was clears it.
+LSTAB_Storage::record_success( $watched, array( 'headers' => array( 'Produkt', 'Rozmiar', 'Notatki' ), 'rows' => $before_rows ) );
+LSTAB_Hidden_Alerts::check( $was, array( 'headers' => array( 'Produkt', 'Rozmiar', 'Notatki' ), 'rows' => $before_rows ) );
+lstab_assert( ! isset( LSTAB_Hidden_Alerts::pending()[ $watched ] ), 'And fixing the sheet clears it' );
+
+LSTAB_Storage::delete( $watched );
+lstab_assert( array() === LSTAB_Hidden_Alerts::pending(), 'Deleting a table takes its alert with it' );
+
+delete_option( LSTAB_Hidden_Alerts::OPTION );
+delete_option( LSTAB_Hidden_Alerts::DISMISSED_OPT );
 
 // ---------------------------------------------------------------------------
 

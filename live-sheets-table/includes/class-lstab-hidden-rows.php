@@ -20,18 +20,22 @@ defined( 'ABSPATH' ) || exit;
  * cell, which tells ten products all called "Kask" apart exactly. And the row's
  * name — its first filled cell — which is what survives someone editing it.
  *
- * Finding it again goes in that order, with where it sat as a last resort. The
- * row matching in full is the row that was chosen, however far it has moved. If
- * nothing matches in full the row has been edited, so the one of that name is
- * taken — and where several rows share that name, the one in the place this row
- * was last seen in. Only then, with none of the three answering, is nothing
- * hidden and the screen made to say why: a row that should be hidden and is not
- * is a mistake someone can see, and the wrong row disappearing is not.
+ * Finding it again goes in that order, then by resemblance. The row matching in
+ * full is the row that was chosen, however far it has moved. If nothing matches
+ * in full the row has been edited, so the one of that name is taken — and where
+ * several rows share that name, the one that still says most of what this row
+ * said, provided it is a clear winner and genuinely close. Only with none of the
+ * three answering is nothing hidden, and then the screen is made to say why: a
+ * row that should be hidden and is not is a mistake someone can see, and the
+ * wrong row disappearing is not.
  *
- * What makes the third rule safe is that every choice is written back against
- * its row after each sync. The stored position and contents are therefore from
- * the last reading of the sheet, not from the day the choice was made, so each
- * edit is resolved against a record that was true a moment ago.
+ * Position is deliberately not part of any of this. It is the one thing about a
+ * row that changes for reasons having nothing to do with the row.
+ *
+ * Every choice is written back against its row after each sync, so what is
+ * compared is a record of the row as the sheet last held it rather than as it
+ * was on the day the choice was made — which is what keeps a run of small edits
+ * from drifting out of reach one at a time.
  */
 class LSTAB_Hidden_Rows {
 
@@ -48,6 +52,11 @@ class LSTAB_Hidden_Rows {
 	const MAX_KEY = 300;
 
 	/**
+	 * How many of a row's cells are remembered for recognising it later.
+	 */
+	const MAX_CELLS = 30;
+
+	/**
 	 * Register hooks.
 	 *
 	 * @return void
@@ -59,6 +68,31 @@ class LSTAB_Hidden_Rows {
 		 * filter at 10, so an add-on still decides which rows exist at all.
 		 */
 		add_filter( 'lstab_source_rows', array( __CLASS__, 'filter_rows' ), 12, 4 );
+
+		/*
+		 * A choice arriving from the screen carries only what a form can hold:
+		 * the row's name and a signature of it. Resolving it against the stored
+		 * sheet right away fills in the rest, so a row hidden a minute ago can
+		 * already be followed through an edit rather than having to wait for
+		 * the next sync to be recognisable.
+		 */
+		add_action( 'lstab_source_saved', array( __CLASS__, 'anchor_saved' ) );
+	}
+
+	/**
+	 * Fill in what the form could not carry.
+	 *
+	 * @param int $id Source ID.
+	 * @return void
+	 */
+	public static function anchor_saved( $id ) {
+		$source = LSTAB_Storage::get( (int) $id );
+
+		if ( ! $source || empty( $source['hidden_rows'] ) ) {
+			return;
+		}
+
+		self::reanchor( (int) $id, isset( $source['data']['rows'] ) ? $source['data']['rows'] : array() );
 	}
 
 	/**
@@ -110,12 +144,57 @@ class LSTAB_Hidden_Rows {
 	 * @param array<int,string> $row Row cells.
 	 * @return array{name:string,sig:string}
 	 */
-	public static function entry_for( $row, $position = -1 ) {
+	public static function entry_for( $row ) {
 		return array(
-			'name' => self::key_for( $row ),
-			'sig'  => self::signature( $row ),
-			'pos'  => (int) $position,
+			'name'  => self::key_for( $row ),
+			'sig'   => self::signature( $row ),
+			'cells' => self::cells_of( $row ),
 		);
+	}
+
+	/**
+	 * What the row said, cell by cell, kept for recognising it later.
+	 *
+	 * Capped, because this is a record of a row rather than a copy of the
+	 * sheet: enough to tell one product from another, not enough to matter.
+	 *
+	 * @param array<int,string> $row Row cells.
+	 * @return array<int,string>
+	 */
+	public static function cells_of( $row ) {
+		$cells = array();
+
+		foreach ( array_slice( (array) $row, 0, self::MAX_CELLS ) as $cell ) {
+			$cell    = self::tidy( (string) $cell );
+			$cells[] = function_exists( 'mb_substr' ) ? mb_substr( $cell, 0, self::MAX_KEY ) : substr( $cell, 0, self::MAX_KEY );
+		}
+
+		return $cells;
+	}
+
+	/**
+	 * How many cells two rows disagree about.
+	 *
+	 * @param array<int,string> $left  Cells.
+	 * @param array<int,string> $right Cells.
+	 * @return int
+	 */
+	protected static function distance( $left, $right ) {
+		$left  = array_values( (array) $left );
+		$right = self::cells_of( $right );
+		$width = max( count( $left ), count( $right ) );
+		$apart = 0;
+
+		for ( $i = 0; $i < $width; $i++ ) {
+			$a = isset( $left[ $i ] ) ? $left[ $i ] : '';
+			$b = isset( $right[ $i ] ) ? $right[ $i ] : '';
+
+			if ( $a !== $b ) {
+				$apart++;
+			}
+		}
+
+		return $apart;
 	}
 
 	/**
@@ -187,9 +266,9 @@ class LSTAB_Hidden_Rows {
 
 			$seen[ $fingerprint ] = true;
 			$clean[]              = array(
-				'name' => $name,
-				'sig'  => $sig,
-				'pos'  => isset( $entry['pos'] ) && is_scalar( $entry['pos'] ) ? (int) $entry['pos'] : -1,
+				'name'  => $name,
+				'sig'   => $sig,
+				'cells' => isset( $entry['cells'] ) && is_array( $entry['cells'] ) ? self::cells_of( $entry['cells'] ) : array(),
 			);
 		}
 
@@ -273,33 +352,61 @@ class LSTAB_Hidden_Rows {
 			return array();
 		}
 
-		// 2. Nothing matches in full, so the row was edited. Its name will do
-		// while only one row carries it.
+		/*
+		 * 2. Nothing matches in full, so the row has been edited. Of the rows
+		 * that still carry its name, the one that still says most of what it
+		 * said is the one meant: "Kask, M, 999" is one cell from the "Kask, M,
+		 * 120" that was hidden, while "Kask, S, 100" is two.
+		 *
+		 * It has to be a clear winner and it has to be close. Two candidates
+		 * equally like the row is no answer to "which one", and a row deleted
+		 * outright leaves only candidates that are nothing like it — its
+		 * same-named neighbours. Both end here, with nothing hidden and
+		 * something said, rather than in the wrong row disappearing.
+		 */
+		if ( $entry['cells'] ) {
+			$best    = null;
+			$closest = PHP_INT_MAX;
+			$tied    = false;
+			$allowed = (int) floor( max( count( $entry['cells'] ), 1 ) / 2 );
+
+			foreach ( $rows as $index => $row ) {
+				if ( self::key_for( $row ) !== $entry['name'] ) {
+					continue;
+				}
+
+				$apart = self::distance( $entry['cells'], $row );
+
+				if ( $apart < $closest ) {
+					$closest = $apart;
+					$best    = $index;
+					$tied    = false;
+				} elseif ( $apart === $closest ) {
+					$tied = true;
+				}
+			}
+
+			if ( null === $best || $tied || $closest > $allowed ) {
+				return array();
+			}
+
+			return array( $best );
+		}
+
+		/*
+		 * A choice saved before rows were remembered cell by cell has only its
+		 * name to go on, so it is used while exactly one row carries it. The
+		 * next sync writes the choice back in full and it stops coming here.
+		 */
 		if ( isset( $names[ $entry['name'] ] ) && 1 === $names[ $entry['name'] ] ) {
 			foreach ( $rows as $index => $row ) {
 				if ( self::key_for( $row ) === $entry['name'] ) {
 					$found[] = $index;
 				}
 			}
-
-			return $found;
 		}
 
-		/*
-		 * 3. Edited, and its name is shared — ten products all called "Kask",
-		 * one of which had its price changed. Where it sat is the only evidence
-		 * left, and it is good evidence here: the choice is re-anchored after
-		 * every sync, so the position is from the last time the sheet was read
-		 * rather than from whenever the row was first chosen. It is only
-		 * trusted when the row still there carries the same name.
-		 */
-		$pos = isset( $entry['pos'] ) ? (int) $entry['pos'] : -1;
-
-		if ( $pos >= 0 && isset( $rows[ $pos ] ) && self::key_for( $rows[ $pos ] ) === $entry['name'] ) {
-			return array( $pos );
-		}
-
-		return array();
+		return $found;
 	}
 
 	/**
@@ -339,7 +446,7 @@ class LSTAB_Hidden_Rows {
 				continue;
 			}
 
-			$fresh = self::entry_for( $rows[ $found[0] ], $found[0] );
+			$fresh = self::entry_for( $rows[ $found[0] ] );
 
 			if ( $fresh !== $entry ) {
 				$changed = true;
