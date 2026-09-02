@@ -22,6 +22,28 @@ class LSTAB_Sync {
 	const VIEW_TIMEOUT = 4;
 
 	/**
+	 * The longest a visitor is made to wait while a sheet is fetched.
+	 *
+	 * Four seconds is the default because it is roughly where a page stops
+	 * feeling slow and starts feeling broken. A site with a very large sheet on
+	 * slow hosting may genuinely need longer, and the alternative — a table
+	 * that never refreshes on a site whose schedule does not run — is worse
+	 * than a page that takes a moment.
+	 *
+	 * @return int Seconds.
+	 */
+	public static function view_timeout() {
+		$chosen = (int) LSTAB_Settings::get( 'view_timeout', self::VIEW_TIMEOUT );
+
+		/**
+		 * Filters how long a page draw may wait for Google.
+		 *
+		 * @param int $seconds Seconds to wait.
+		 */
+		return (int) apply_filters( 'lstab_view_timeout', max( 2, min( 15, $chosen ) ) );
+	}
+
+	/**
 	 * How long one attempt keeps others from trying, in seconds.
 	 */
 	const VIEW_LOCK = 30;
@@ -204,7 +226,7 @@ class LSTAB_Sync {
 		 * request gets what is left of the four, and once nothing is left the
 		 * second endpoint is not tried at all.
 		 */
-		$deadline = microtime( true ) + self::VIEW_TIMEOUT;
+		$deadline = microtime( true ) + self::view_timeout();
 
 		$shorten = function ( $args ) use ( $deadline ) {
 			$args['timeout'] = max( 0.5, $deadline - microtime( true ) );

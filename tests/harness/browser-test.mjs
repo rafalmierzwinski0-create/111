@@ -79,14 +79,17 @@ const calmTone = await page.locator( '.lstab-state' ).first().evaluate( ( el ) =
 check( calmTone === 'rgb(91, 109, 107)', 'A healthy sheet is stated in grey, not green', calmTone );
 
 check( await page.locator( '.lstab-shortcode' ).first().isVisible(), 'Shortcode is shown for copy/paste' );
-check( await page.locator( '.lstab-copy' ).first().isVisible(), 'And has a copy button beside it' );
+check( await page.locator( '.lstab-src .lstab-copy' ).first().isVisible(), 'And has a copy button beside it' );
 
 // The single most repeated action in the plugin. Reading the clipboard needs a
 // permission Chromium will not grant headlessly, so the check is that the
 // button reports success — the browser API itself is not ours to test.
-await page.locator( '.lstab-copy' ).first().click();
-await page.locator( '.lstab-copy.is-done' ).first().waitFor( { timeout: 5000 } ).catch( () => {} );
-const copyLabel = await page.locator( '.lstab-copy .lstab-copy-label' ).first().innerText();
+// Scoped to the card: the cron notice offers its own copy button, and "the
+// first one on the page" stopped meaning the shortcode the moment it did.
+const cardCopy = page.locator( '.lstab-src .lstab-copy' ).first();
+await cardCopy.click();
+await page.locator( '.lstab-src .lstab-copy.is-done' ).first().waitFor( { timeout: 5000 } ).catch( () => {} );
+const copyLabel = await cardCopy.locator( '.lstab-copy-label' ).innerText();
 check( /Copied/i.test( copyLabel ), 'Clicking it confirms the shortcode was copied', copyLabel );
 
 check(

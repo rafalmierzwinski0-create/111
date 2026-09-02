@@ -41,6 +41,11 @@ defined( 'ABSPATH' ) || exit;
 		</p>
 	</div>
 
+	<p class="lstabp-picker-legend">
+		<span class="lstabp-legend-chip"><span class="lstabp-legend-mark" aria-hidden="true">×</span><?php esc_html_e( 'Click a heading or a line number to take it out', 'live-sheets-table-pro' ); ?></span>
+		<span class="lstabp-legend-chip"><span class="lstabp-legend-mark lstabp-legend-mark--back" aria-hidden="true">↺</span><?php esc_html_e( 'Click it again to put it back', 'live-sheets-table-pro' ); ?></span>
+	</p>
+
 	<div class="lstabp-picker-scroll">
 		<table class="lstabp-picker" id="lstabp-picker">
 			<thead>
@@ -117,6 +122,19 @@ defined( 'ABSPATH' ) || exit;
 			?>
 		</p>
 	<?php endif; ?>
+
+	<div class="lstabp-picker-paging" id="lstabp-picker-paging" hidden>
+		<span class="lstabp-page-group" data-lstabp-page-for="rows" hidden>
+			<button type="button" class="lstab-mini" data-lstabp-step="rows:-1">&larr;</button>
+			<span class="lstabp-page-label" data-lstabp-page-label="rows"></span>
+			<button type="button" class="lstab-mini" data-lstabp-step="rows:1">&rarr;</button>
+		</span>
+		<span class="lstabp-page-group" data-lstabp-page-for="cols" hidden>
+			<button type="button" class="lstab-mini" data-lstabp-step="cols:-1">&larr;</button>
+			<span class="lstabp-page-label" data-lstabp-page-label="cols"></span>
+			<button type="button" class="lstab-mini" data-lstabp-step="cols:1">&rarr;</button>
+		</span>
+	</div>
 
 	<div class="lstabp-picker-summary">
 		<p class="lstabp-picker-empty"<?php echo $hidden ? ' hidden' : ''; ?>>

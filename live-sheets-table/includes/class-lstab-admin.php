@@ -834,19 +834,28 @@ class LSTAB_Admin {
 				<strong><?php esc_html_e( 'To check sheets even when nobody visits', 'live-sheets-table' ); ?></strong><br>
 				<?php esc_html_e( 'WordPress has no clock of its own — its schedule only runs when a page is requested, so a quiet site checks nothing. Give your host a real clock instead. Most hosting panels have a “Cron jobs” screen; paste this line into it:', 'live-sheets-table' ); ?>
 			</p>
-			<p>
+			<p class="lstab-cron-row">
 				<code class="lstab-cron-line"><?php echo esc_html( LSTAB_Cron::system_cron_line() ); ?></code>
+				<button type="button" class="lstab-copy" data-lstab-copy="<?php echo esc_attr( LSTAB_Cron::system_cron_line() ); ?>">
+					<?php echo LSTAB_Icons::icon( 'copy' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+					<span class="lstab-copy-label"><?php esc_html_e( 'Copy', 'live-sheets-table' ); ?></span>
+				</button>
 			</p>
-			<p class="description">
+			<p class="lstab-help">
+				<?php esc_html_e( 'No cron screen on your hosting? A free uptime monitor pointed at your home page does the same job, because every visit it makes runs the schedule.', 'live-sheets-table' ); ?>
+			</p>
+			<p>
 				<?php
-				printf(
-					/* translators: %s: link to the WordPress cron documentation. */
-					esc_html__( 'No shell access? A free uptime monitor pointed at your home page does the same job, because every visit it makes runs the schedule. %s', 'live-sheets-table' ),
-					'<a href="https://developer.wordpress.org/plugins/cron/hooking-wp-cron-into-the-system-task-scheduler/" target="_blank" rel="noopener noreferrer">'
-						. esc_html__( 'How to run WordPress schedules from a system cron', 'live-sheets-table' )
-						. '</a>'
-				);
+				/*
+				 * On its own line with an icon. Underlined text trailing off the
+				 * end of a grey paragraph reads as something that slipped in,
+				 * not as somewhere to go next.
+				 */
 				?>
+				<a class="lstab-quiet" href="https://developer.wordpress.org/plugins/cron/hooking-wp-cron-into-the-system-task-scheduler/" target="_blank" rel="noopener noreferrer">
+					<?php echo LSTAB_Icons::icon( 'external' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+					<?php esc_html_e( 'The WordPress guide to system cron', 'live-sheets-table' ); ?>
+				</a>
 			</p>
 		</div>
 		<?php

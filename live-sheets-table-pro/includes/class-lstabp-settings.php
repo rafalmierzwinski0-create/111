@@ -74,40 +74,57 @@ class LSTABP_Settings {
 	 * @return void
 	 */
 	public function render_licence_section( $settings ) {
-		$grace = LSTAB_Limits::is_pro() ? 0 : LSTAB_Limits::grace_remaining();
+		$grace  = LSTAB_Limits::is_pro() ? 0 : LSTAB_Limits::grace_remaining();
+		$active = LSTAB_Limits::is_pro();
 		?>
-		<div class="lstab-card lstabp-licence-card">
-			<h2 class="lstab-card-title"><?php esc_html_e( 'Your subscription', 'live-sheets-table-pro' ); ?></h2>
+		<div class="lstab-panel lstabp-licence-card">
+			<div class="lstab-panel-head">
+				<?php echo LSTAB_Icons::badge( 'spark', 'amber' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+				<span>
+					<h2><?php esc_html_e( 'Your subscription', 'live-sheets-table-pro' ); ?></h2>
+					<span class="lstab-panel-sub"><?php esc_html_e( 'What Pro is doing on this site, and how to stop paying for it', 'live-sheets-table-pro' ); ?></span>
+				</span>
+			</div>
 
-			<?php if ( LSTAB_Limits::is_pro() ) : ?>
-				<p class="lstabp-licence-state is-active">
-					<?php esc_html_e( 'Pro is active on this site.', 'live-sheets-table-pro' ); ?>
-				</p>
-			<?php elseif ( $grace > 0 ) : ?>
-				<p class="lstabp-licence-state is-grace">
-					<?php
-					printf(
-						/* translators: %s: human readable time difference, e.g. "6 days". */
-						esc_html__( 'Pro is not running here. Columns and rows you hid will start showing again in %s.', 'live-sheets-table-pro' ),
-						esc_html( human_time_diff( time(), time() + $grace ) )
-					);
-					?>
-				</p>
-			<?php else : ?>
-				<p class="lstabp-licence-state">
-					<?php esc_html_e( 'Pro is not running here.', 'live-sheets-table-pro' ); ?>
-				</p>
-			<?php endif; ?>
+			<div class="lstab-state-strip">
+				<?php if ( $active ) : ?>
+					<span class="lstab-state lstab-state--calm lstabp-licence-state is-active">
+						<?php echo LSTAB_Icons::icon( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+						<?php esc_html_e( 'Pro is active on this site.', 'live-sheets-table-pro' ); ?>
+					</span>
+				<?php elseif ( $grace > 0 ) : ?>
+					<span class="lstab-state lstab-state--warn lstabp-licence-state is-grace">
+						<?php echo LSTAB_Icons::icon( 'alert' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+						<?php
+						printf(
+							/* translators: %s: human readable time difference, e.g. "6 days". */
+							esc_html__( 'Pro is not running here. Columns and rows you hid will start showing again in %s.', 'live-sheets-table-pro' ),
+							esc_html( human_time_diff( time(), time() + $grace ) )
+						);
+						?>
+					</span>
+				<?php else : ?>
+					<span class="lstab-state lstab-state--idle lstabp-licence-state">
+						<?php echo LSTAB_Icons::icon( 'clock' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+						<?php esc_html_e( 'Pro is not running here.', 'live-sheets-table-pro' ); ?>
+					</span>
+				<?php endif; ?>
+			</div>
 
-			<p class="lstab-help">
-				<?php esc_html_e( 'Billing lives in your account, not on your site, so cancelling is done there and takes effect at the end of the period you have paid for. Nothing on your pages changes on the day you cancel.', 'live-sheets-table-pro' ); ?>
-			</p>
-
-			<p>
-				<a class="button" href="<?php echo esc_url( LSTABP_Settings::account_url() ); ?>" target="_blank" rel="noopener noreferrer">
-					<?php esc_html_e( 'Manage or cancel subscription', 'live-sheets-table-pro' ); ?>
-				</a>
-			</p>
+			<div class="lstab-row">
+				<div class="lstab-row-say">
+					<p class="lstab-row-title"><?php esc_html_e( 'Billing and cancellation', 'live-sheets-table-pro' ); ?></p>
+					<p class="lstab-row-help">
+						<?php esc_html_e( 'Billing lives in your account, not on your site, so cancelling is done there and takes effect at the end of the period you have paid for. Nothing on your pages changes on the day you cancel.', 'live-sheets-table-pro' ); ?>
+					</p>
+				</div>
+				<div class="lstab-row-do">
+					<a class="lstab-mini lstab-mini--strong" href="<?php echo esc_url( LSTABP_Settings::account_url() ); ?>" target="_blank" rel="noopener noreferrer">
+						<?php echo LSTAB_Icons::icon( 'external' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+						<?php esc_html_e( 'Manage or cancel subscription', 'live-sheets-table-pro' ); ?>
+					</a>
+				</div>
+			</div>
 		</div>
 		<?php
 	}

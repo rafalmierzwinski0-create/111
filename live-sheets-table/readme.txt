@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.5.0
+Stable tag: 3.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,14 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.6.0 =
+* Fixed: the bundled example was counted when deciding whether the schedule had stalled, so a site whose schedule was working perfectly could be told it was not. The example is never fetched, so it is no longer counted.
+* Changed: the settings screen is one panel per subject with a row per decision, instead of a stack of identical white boxes. Each subject has its own coloured mark, so the dangerous one and the Google one can be found at a glance.
+* Added: two settings the competition charges for — the look every new table starts from, and how long a page may wait for Google before falling back to the stored copy.
+* Changed: the welcome screen now stays until there is a sheet of your own. The built-in example is ours, not yours, and hiding the one screen that explains what to do next left people looking at a demo with no way forward.
+* Changed: the sheets sit on graph paper, and pointing at one marks it the way a spreadsheet marks a selected range.
+* Fixed: the wording of the scheduling notice, which used shell jargon in Polish and trailed its link off the end of a grey paragraph. The cron line now has a copy button.
 
 = 3.5.0 =
 * Fixed: opening the built-in example showed an empty preview and could not be saved. The editor now draws its table from the copy already stored, so any sheet appears the moment the screen does — and the example no longer asks for a Google link it will never have.
@@ -333,6 +341,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.6.0 =
+Fixes a false scheduling warning caused by the built-in example, and redraws the settings screen.
 
 = 3.5.0 =
 Fixes the built-in example, which would not open, and splits the editor into three tabs.

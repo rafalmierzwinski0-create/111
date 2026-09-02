@@ -17,6 +17,93 @@
 
 	var settings = window.lstabpPicker || {};
 	var i18n = settings.i18n || {};
+
+	/*
+	 * Paging. A forty-column sheet does not fit on any screen, and two hundred
+	 * rows of clickable line numbers is a wall rather than a control. Both are
+	 * paged here rather than in PHP so that every row and every column stays in
+	 * the form: what is hidden must be submitted whether or not you happened to
+	 * be looking at that page when you saved.
+	 */
+	( function paging() {
+		var ROWS = 25;
+		var COLS = 12;
+
+		var bar = document.getElementById( 'lstabp-picker-paging' );
+
+		if ( ! bar ) {
+			return;
+		}
+
+		var bodyRows = picker.querySelectorAll( 'tbody tr' );
+		var headings = picker.querySelectorAll( 'thead th.lstabp-picker-col' );
+		var at = { rows: 0, cols: 0 };
+
+		var pages = function ( total, per ) {
+			return Math.max( 1, Math.ceil( total / per ) );
+		};
+
+		var rowPages = pages( bodyRows.length, ROWS );
+		var colPages = pages( headings.length, COLS );
+
+		if ( rowPages < 2 && colPages < 2 ) {
+			return;
+		}
+
+		var label = function ( which, page, total, count ) {
+			var text = ( 'rows' === which ? i18n.rowsPage : i18n.colsPage ) || '%1$s / %2$s';
+
+			return text.replace( '%1$s', page + 1 ).replace( '%2$s', total ).replace( '%3$s', count );
+		};
+
+		var paint = function () {
+			Array.prototype.forEach.call( bodyRows, function ( row, index ) {
+				row.hidden = rowPages > 1 && Math.floor( index / ROWS ) !== at.rows;
+			} );
+
+			Array.prototype.forEach.call( headings, function ( head, index ) {
+				var off = colPages > 1 && Math.floor( index / COLS ) !== at.cols;
+
+				head.hidden = off;
+
+				// Every cell in that column goes with its heading, or the rows
+				// below would silently shift one place to the left.
+				Array.prototype.forEach.call(
+					picker.querySelectorAll( 'td[data-lstabp-column="' + index + '"]' ),
+					function ( cell ) {
+						cell.hidden = off;
+					}
+				);
+			} );
+
+			var groups = bar.querySelectorAll( '[data-lstabp-page-for]' );
+
+			Array.prototype.forEach.call( groups, function ( group ) {
+				var which = group.getAttribute( 'data-lstabp-page-for' );
+				var total = 'rows' === which ? rowPages : colPages;
+				var count = 'rows' === which ? bodyRows.length : headings.length;
+
+				group.hidden = total < 2;
+				group.querySelector( '[data-lstabp-page-label]' ).textContent =
+					label( which, at[ which ], total, count );
+			} );
+
+			bar.hidden = false;
+		};
+
+		Array.prototype.forEach.call( bar.querySelectorAll( '[data-lstabp-step]' ), function ( button ) {
+			button.addEventListener( 'click', function () {
+				var parts = button.getAttribute( 'data-lstabp-step' ).split( ':' );
+				var which = parts[ 0 ];
+				var total = 'rows' === which ? rowPages : colPages;
+
+				at[ which ] = ( at[ which ] + Number( parts[ 1 ] ) + total ) % total;
+				paint();
+			} );
+		} );
+
+		paint();
+	}() );
 	var fields = document.getElementById( 'lstabp-hidden-rows-fields' );
 	var chips = document.getElementById( 'lstabp-hidden-rows-chips' );
 	var empty = document.querySelector( '.lstabp-picker-empty' );

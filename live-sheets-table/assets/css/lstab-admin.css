@@ -301,6 +301,278 @@
 	display: none !important;
 }
 
+/* ══════════════════════════════════════════════ coloured section badges ══ */
+
+/*
+ * One coloured tile per section. A settings screen of identical white boxes
+ * reads as a form to get through; a landmark per section is what lets somebody
+ * find "the dangerous one" or "the Google one" at a glance, and keeps finding
+ * it in the same place a month later.
+ *
+ * The hues are deliberately not the accent: the accent means "you can act on
+ * this", and a badge is not an action. They are also not the status colours,
+ * for the same reason.
+ */
+.lstab-badge {
+	display: grid;
+	place-items: center;
+	inline-size: 2.5rem;
+	block-size: 2.5rem;
+	border-radius: 12px;
+	flex: none;
+	color: #fff;
+	background-image: linear-gradient( 152deg, var( --lstab-badge-from ), var( --lstab-badge-to ) );
+	box-shadow:
+		0 1px 2px rgba( 16, 24, 24, 0.12 ),
+		0 8px 18px -10px var( --lstab-badge-glow ),
+		inset 0 1px 0 rgba( 255, 255, 255, 0.35 );
+}
+
+.lstab-badge svg {
+	inline-size: 1.3rem;
+	block-size: 1.3rem;
+}
+
+.lstab-badge--teal   { --lstab-badge-from: #14a89c; --lstab-badge-to: #0a5a54; --lstab-badge-glow: rgba( 14, 124, 116, 0.55 ); }
+.lstab-badge--indigo { --lstab-badge-from: #7c74f0; --lstab-badge-to: #3f37c9; --lstab-badge-glow: rgba( 79, 70, 229, 0.5 ); }
+.lstab-badge--amber  { --lstab-badge-from: #f0a63c; --lstab-badge-to: #b45309; --lstab-badge-glow: rgba( 180, 83, 9, 0.45 ); }
+.lstab-badge--rose   { --lstab-badge-from: #f2685c; --lstab-badge-to: #b3271b; --lstab-badge-glow: rgba( 193, 53, 42, 0.45 ); }
+.lstab-badge--violet { --lstab-badge-from: #b06ae0; --lstab-badge-to: #6d28a8; --lstab-badge-glow: rgba( 139, 62, 200, 0.45 ); }
+.lstab-badge--sky    { --lstab-badge-from: #3fa9e6; --lstab-badge-to: #14618f; --lstab-badge-glow: rgba( 20, 97, 143, 0.45 ); }
+.lstab-badge--slate  { --lstab-badge-from: #8794a0; --lstab-badge-to: #4b5764; --lstab-badge-glow: rgba( 75, 87, 100, 0.4 ); }
+
+.lstab-badge--lg { inline-size: 3rem; block-size: 3rem; border-radius: 14px; }
+.lstab-badge--lg svg { inline-size: 1.55rem; block-size: 1.55rem; }
+
+/* A panel whose content is prose or a table rather than label/control rows. */
+.lstab-panel-body { padding: 1.05rem 1.25rem 1.2rem; }
+
+.lstab-admin .lstab-panel-body > p:first-child { margin-top: 0; }
+.lstab-admin .lstab-panel-body > :last-child { margin-bottom: 0; }
+
+.lstabp-client-form { inline-size: 100%; }
+.lstabp-client-form p { margin: 0 0 0.7rem; }
+.lstabp-client-form p:last-child { margin-bottom: 0; }
+
+.lstab-admin .lstabp-client-form label { display: block; margin-bottom: 0.25rem; font-size: 0.82rem; }
+
+/* A row whose control is a small form rather than one field. */
+.lstab-row--wide { grid-template-columns: minmax( 0, 1fr ) minmax( 0, 26rem ); }
+
+@media ( max-width: 60rem ) {
+	.lstab-row--wide { grid-template-columns: minmax( 0, 1fr ); }
+}
+
+/*
+ * An address with no spaces in it, plus the button that saves anyone from
+ * having to select it by hand. Without the wrapping rule a long URL in a narrow
+ * column breaks one character per line and turns into a vertical ribbon.
+ */
+.lstab-copyline {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.4rem;
+	margin-top: 0.35rem;
+	min-inline-size: 0;
+}
+
+.lstab-admin .lstab-copyline code {
+	font-size: 0.75rem;
+	background: var( --lstab-tint );
+	border: 1px solid var( --lstab-line );
+	border-radius: 6px;
+	padding: 0.32rem 0.55rem;
+	color: var( --lstab-ink );
+	white-space: normal;
+	overflow-wrap: anywhere;
+	min-inline-size: 0;
+	max-inline-size: 100%;
+}
+
+.lstab-admin ol.lstab-steps > li > span { min-inline-size: 0; }
+
+/* A reference table inside a panel: read left to right, like a glossary. */
+.lstab-panel-body .lstab-column-list { inline-size: 100%; }
+
+.lstab-panel-body .lstab-column-list th,
+.lstab-panel-body .lstab-column-list td {
+	text-align: start;
+	vertical-align: top;
+}
+
+.lstab-panel-body .lstab-column-list th:first-child,
+.lstab-panel-body .lstab-column-list td:first-child { inline-size: 8rem; }
+
+/* A checkbox that reads as a switch, because "off by default" is the point. */
+.lstab-switch {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.85rem;
+	color: var( --lstab-ink-2 );
+	cursor: pointer;
+	padding: 0.4rem 0.7rem;
+	border: 1px solid var( --lstab-line );
+	border-radius: 8px;
+	background: var( --lstab-tint );
+}
+
+.lstab-switch:hover { border-color: var( --lstab-a ); }
+
+.lstab-switch:focus-within {
+	border-color: var( --lstab-a );
+	box-shadow: 0 0 0 3px var( --lstab-a-glow );
+}
+
+/* ══════════════════════════════════════════ settings as rows, not boxes ══ */
+
+/*
+ * One panel, one row per decision. Six separate white cards made six equal
+ * shouts; a single panel with quiet dividers has a rhythm, and the eye can run
+ * down the left edge reading only the things it has to decide.
+ */
+.lstab-panel {
+	background: var( --lstab-card );
+	border: 1px solid var( --lstab-line );
+	border-radius: 14px;
+	box-shadow: var( --lstab-shadow );
+	overflow: hidden;
+	margin-bottom: 1.1rem;
+}
+
+.lstab-panel-head {
+	display: flex;
+	align-items: center;
+	gap: 0.7rem;
+	padding: 1rem 1.25rem;
+	border-bottom: 1px solid var( --lstab-line-soft );
+	background:
+		linear-gradient( 180deg, var( --lstab-tint ), transparent );
+}
+
+.lstab-admin .lstab-panel-head h2 {
+	margin: 0;
+	padding: 0;
+	font-size: 1rem;
+	font-weight: 700;
+	letter-spacing: -0.015em;
+	line-height: 1.25;
+	color: var( --lstab-ink );
+}
+
+.lstab-panel-head .lstab-panel-sub {
+	display: block;
+	font-size: 0.79rem;
+	font-weight: 400;
+	color: var( --lstab-ink-3 );
+}
+
+.lstab-row {
+	display: grid;
+	grid-template-columns: minmax( 0, 1fr ) minmax( 0, 20rem );
+	gap: 0.75rem 1.5rem;
+	align-items: start;
+	padding: 1.05rem 1.25rem;
+	border-block-start: 1px solid var( --lstab-line-soft );
+}
+
+.lstab-panel-head + .lstab-row { border-block-start: 0; }
+
+@media ( max-width: 60rem ) {
+	.lstab-row { grid-template-columns: minmax( 0, 1fr ); }
+}
+
+.lstab-row-say { display: flex; flex-direction: column; gap: 0.28rem; min-inline-size: 0; }
+
+.lstab-admin .lstab-row-title {
+	margin: 0;
+	font-size: 0.92rem;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+	color: var( --lstab-ink );
+}
+
+.lstab-admin .lstab-row-help {
+	margin: 0;
+	font-size: 0.82rem;
+	line-height: 1.55;
+	color: var( --lstab-ink-2 );
+	max-inline-size: 64ch;
+}
+
+.lstab-row-do {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+	align-items: flex-start;
+}
+
+@media ( min-width: 60rem ) {
+	.lstab-row-do { align-items: flex-end; }
+}
+
+.lstab-admin .lstab-row-do select,
+.lstab-admin .lstab-row-do input[type="text"] {
+	inline-size: 100%;
+	max-inline-size: 100%;
+}
+
+.lstab-admin .lstab-row-do input[type="number"] { max-inline-size: 100%; }
+
+/* The row nobody should reach for by accident. */
+.lstab-row--danger { background: linear-gradient( 90deg, rgba( 193, 53, 42, 0.045 ), transparent 60% ); }
+
+/* A state line at the top of a panel: connected, running, lapsed. */
+.lstab-state-strip {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.6rem 1rem;
+	padding: 0.85rem 1.25rem;
+	border-block-start: 1px solid var( --lstab-line-soft );
+	background: var( --lstab-tint );
+	font-size: 0.85rem;
+	color: var( --lstab-ink-2 );
+}
+
+.lstab-state-strip .lstab-state { margin: 0; }
+
+/* Steps somebody has to follow in order, numbered because they are ordered. */
+.lstab-admin ol.lstab-steps {
+	margin: 0.35rem 0 0;
+	padding-inline-start: 0;
+	list-style: none;
+	counter-reset: lstab-step;
+	display: flex;
+	flex-direction: column;
+	gap: 0.55rem;
+}
+
+.lstab-admin ol.lstab-steps > li {
+	counter-increment: lstab-step;
+	display: grid;
+	grid-template-columns: 1.5rem minmax( 0, 1fr );
+	gap: 0.6rem;
+	font-size: 0.84rem;
+	color: var( --lstab-ink-2 );
+	margin: 0;
+}
+
+.lstab-admin ol.lstab-steps > li::before {
+	content: counter( lstab-step );
+	display: grid;
+	place-items: center;
+	inline-size: 1.5rem;
+	block-size: 1.5rem;
+	border-radius: 50%;
+	background: var( --lstab-a-wash );
+	color: var( --lstab-a-deep );
+	font-size: 0.72rem;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+}
+
 /* ─────────────────────────────────────────────── the editor's own panes */
 
 .lstab-panes {
@@ -348,6 +620,38 @@
 }
 
 /* The shortcode and its button, on the editor as on the list. */
+.lstab-timeout {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.85rem;
+	color: var( --lstab-ink-2 );
+}
+
+.lstab-admin .lstab-timeout input {
+	inline-size: 5rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.lstab-cron-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.45rem;
+}
+
+.lstab-admin .lstab-cron-line {
+	font-size: 0.78rem;
+	background: var( --lstab-tint );
+	border: 1px solid var( --lstab-line );
+	border-radius: 6px;
+	padding: 0.4rem 0.6rem;
+	color: var( --lstab-ink );
+	display: inline-block;
+	max-inline-size: 100%;
+	overflow-x: auto;
+}
+
 .lstab-usage-code {
 	display: flex;
 	flex-wrap: wrap;
@@ -367,11 +671,25 @@
 
 /* ──────────────────────────────────────────────────── the source cards */
 
+/*
+ * The sheets sit on paper. The grid is the plugin's one piece of decoration
+ * and it is not decoration: it says what this tool is about before a word is
+ * read, and it makes the white cards read as cells laid on a sheet rather than
+ * as boxes floating on grey.
+ */
 .lstab-src-list {
 	display: flex;
 	flex-direction: column;
 	gap: 0.7rem;
 	margin-top: 1rem;
+	padding: 0.85rem;
+	border: 1px solid var( --lstab-line );
+	border-radius: 12px;
+	background-color: var( --lstab-ground );
+	background-image:
+		linear-gradient( rgba( 14, 124, 116, 0.055 ) 1px, transparent 1px ),
+		linear-gradient( 90deg, rgba( 14, 124, 116, 0.055 ) 1px, transparent 1px );
+	background-size: 26px 26px;
 }
 
 .lstab-src {
@@ -379,9 +697,48 @@
 	background: var( --lstab-card );
 	border: 1px solid var( --lstab-line );
 	border-radius: var( --lstab-radius );
-	overflow: hidden;
 	box-shadow: var( --lstab-shadow );
 	color: var( --lstab-ink );
+	transition: border-color 130ms ease, box-shadow 130ms ease;
+}
+
+/*
+ * Pointing at a card marks it the way a spreadsheet marks a selected range:
+ * the edge takes the accent and the little square everyone drags from appears
+ * in the corner. Borrowed on purpose — it is the one gesture every person who
+ * opens this plugin already knows.
+ */
+.lstab-src:hover,
+.lstab-src:focus-within {
+	border-color: var( --lstab-a );
+	box-shadow: 0 0 0 1px var( --lstab-a ), 0 6px 18px -12px var( --lstab-a-glow );
+}
+
+.lstab-src::after {
+	content: "";
+	position: absolute;
+	inset-inline-end: -4px;
+	inset-block-end: -4px;
+	inline-size: 9px;
+	block-size: 9px;
+	border-radius: 2px;
+	background: var( --lstab-a );
+	border: 2px solid var( --lstab-ground );
+	opacity: 0;
+	transform: scale( 0.6 );
+	transition: opacity 130ms ease, transform 130ms ease;
+}
+
+.lstab-src:hover::after,
+.lstab-src:focus-within::after {
+	opacity: 1;
+	transform: scale( 1 );
+}
+
+/* The severity stripe is drawn inside the rounded edge. */
+.lstab-src::before {
+	border-start-start-radius: var( --lstab-radius );
+	border-end-start-radius: var( --lstab-radius );
 }
 
 /* A bar down the left edge, colourless until something wants doing. A card

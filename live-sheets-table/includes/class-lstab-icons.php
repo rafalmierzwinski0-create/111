@@ -42,6 +42,45 @@ class LSTAB_Icons {
 	}
 
 	/**
+	 * An icon on a coloured tile, for the head of a section.
+	 *
+	 * A settings screen made of white boxes reads as a form somebody has to get
+	 * through. One coloured mark per section gives the eye somewhere to land,
+	 * makes the screen scannable from a distance, and — because the hue is
+	 * fixed per section — becomes a landmark people navigate by without ever
+	 * reading the heading twice.
+	 *
+	 * The glyph is the same line work as everywhere else, drawn in white on the
+	 * tile, so nothing here is a second icon set to keep in step with the first.
+	 *
+	 * @param string $name Icon name.
+	 * @param string $hue  One of the hues in the stylesheet: teal, indigo,
+	 *                     amber, rose, violet, sky, slate.
+	 * @return string
+	 */
+	public static function badge( $name, $hue = 'teal' ) {
+		$paths = self::paths();
+
+		if ( ! isset( $paths[ $name ] ) ) {
+			return '';
+		}
+
+		$hues = array( 'teal', 'indigo', 'amber', 'rose', 'violet', 'sky', 'slate' );
+
+		if ( ! in_array( $hue, $hues, true ) ) {
+			$hue = 'teal';
+		}
+
+		return sprintf(
+			'<span class="lstab-badge lstab-badge--%1$s" aria-hidden="true">'
+				. '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false">%2$s</svg>'
+				. '</span>',
+			esc_attr( $hue ),
+			$paths[ $name ]
+		);
+	}
+
+	/**
 	 * The line work, one entry per icon.
 	 *
 	 * Kept as plain path data on a 24-unit grid with one stroke weight, so the

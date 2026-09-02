@@ -75,6 +75,10 @@ class LSTABP_Picker {
 					'notThereNow'  => __( 'not on that line now', 'live-sheets-table-pro' ),
 					'shown'        => __( 'Shown', 'live-sheets-table-pro' ),
 					'hidden'       => __( 'Hidden', 'live-sheets-table-pro' ),
+					/* translators: 1: page number, 2: number of pages, 3: total rows. */
+					'rowsPage'     => __( 'Rows — page %1$s of %2$s (%3$s in all)', 'live-sheets-table-pro' ),
+					/* translators: 1: page number, 2: number of pages, 3: total columns. */
+					'colsPage'     => __( 'Columns — page %1$s of %2$s (%3$s in all)', 'live-sheets-table-pro' ),
 				),
 			)
 		);

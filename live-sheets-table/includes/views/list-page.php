@@ -16,6 +16,19 @@ defined( 'ABSPATH' ) || exit;
 
 $lstab_can_add = LSTAB_Limits::can_add_source();
 
+/*
+ * The welcome screen stays until there is a sheet of the reader's own. The
+ * built-in example is ours, not theirs: somebody who has only clicked "show me
+ * an example" has still not connected anything, and hiding the one screen that
+ * tells them how would leave them looking at a demo with no way forward.
+ */
+$lstab_own = array_filter(
+	$sources,
+	static function ( $candidate ) {
+		return ! LSTAB_Example::is_example( $candidate );
+	}
+);
+
 $lstab_add_button = $lstab_can_add
 	? sprintf(
 		'<a href="%s" class="lstab-btn">%s%s</a>',
@@ -33,9 +46,11 @@ $lstab_add_button = $lstab_can_add
 	<?php LSTAB_Admin::print_cron_notice(); ?>
 	<?php LSTAB_Admin::print_notice(); ?>
 
-	<?php if ( ! $sources ) : ?>
+	<?php if ( ! $lstab_own ) : ?>
 		<?php require LSTAB_PATH . 'includes/views/welcome.php'; ?>
-	<?php else : ?>
+	<?php endif; ?>
+
+	<?php if ( $sources ) : ?>
 		<div class="lstab-src-list">
 			<?php
 			$lstab_intervals = LSTAB_Limits::intervals();

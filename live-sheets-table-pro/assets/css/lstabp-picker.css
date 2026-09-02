@@ -64,8 +64,8 @@
 
 .lstabp-picker-toggle:hover,
 .lstabp-picker-toggle:focus-visible {
-	background: #f0f6fc;
-	color: #043959;
+	background: #e2f1ef;
+	color: #0a5a54;
 }
 
 .lstabp-picker-toggle[disabled] {
@@ -91,12 +91,12 @@
 	content: "×";
 	font-size: 1.1em;
 	line-height: 1;
-	opacity: 0;
+	opacity: 0.3;
 }
 
 .lstabp-picker-toggle:hover .lstabp-picker-mark::before,
 .lstabp-picker-toggle:focus-visible .lstabp-picker-mark::before {
-	opacity: 0.55;
+	opacity: 1;
 }
 
 .lstabp-picker th.is-hidden .lstabp-picker-mark::before,
@@ -191,4 +191,80 @@
 .lstabp-chip-remove:focus-visible {
 	background: #d63638;
 	color: #fff;
+}
+
+
+/* ─────────────────────────────────────────────── saying what to do here */
+
+.lstabp-picker-legend {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem 1.2rem;
+	margin: 0 0 0.6rem;
+	font-size: 0.79rem;
+	color: #556764;
+}
+
+.lstabp-legend-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.lstabp-legend-mark {
+	display: inline-grid;
+	place-items: center;
+	inline-size: 1.15rem;
+	block-size: 1.15rem;
+	border: 1px dashed #b9cbc8;
+	border-radius: 4px;
+	font-size: 0.85rem;
+	line-height: 1;
+	color: #0a5a54;
+	background: #f9fcfb;
+}
+
+.lstabp-legend-mark--back { border-style: solid; background: #e2f1ef; }
+
+/*
+ * A heading and a line number are buttons. Saying so with a dotted underline
+ * costs nothing and removes the one question this screen used to raise: that
+ * you had to discover it by waving the mouse around.
+ */
+.lstabp-picker-col .lstabp-picker-name {
+	text-decoration: underline dotted #b9cbc8;
+	text-underline-offset: 3px;
+}
+
+.lstabp-picker-col:hover .lstabp-picker-name,
+.lstabp-picker-handle:hover .lstabp-picker-number {
+	text-decoration-color: #0e7c74;
+}
+
+.lstabp-picker-handle .lstabp-picker-number {
+	text-decoration: underline dotted #c6d5d2;
+	text-underline-offset: 3px;
+}
+
+/* ───────────────────────────────────────────────────── paging the sheet */
+
+.lstabp-picker-paging {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1.4rem;
+	align-items: center;
+	margin-top: 0.65rem;
+}
+
+.lstabp-page-group {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.lstabp-page-label {
+	font-size: 0.78rem;
+	color: #556764;
+	font-variant-numeric: tabular-nums;
+	min-inline-size: 12rem;
 }

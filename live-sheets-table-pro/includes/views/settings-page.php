@@ -12,86 +12,142 @@
 defined( 'ABSPATH' ) || exit;
 ?>
 <div class="wrap lstab-admin">
-	<h1><?php esc_html_e( 'Live Sheets Table', 'live-sheets-table-pro' ); ?></h1>
+	<?php LSTAB_Admin::render_masthead( esc_html__( 'Private sheets, filters and everything Pro adds', 'live-sheets-table-pro' ) ); ?>
 
 	<?php LSTAB_Admin::render_tabs( LSTABP_Settings::PAGE_SLUG ); ?>
 
 	<?php LSTABP_Settings::print_notice(); ?>
 
-	<div class="lstab-card">
-		<h2 class="lstab-card-title"><?php esc_html_e( '1. Your Google client', 'live-sheets-table-pro' ); ?></h2>
-		<p class="lstab-help">
+	<div class="lstab-panel">
+		<div class="lstab-panel-head">
+			<?php echo LSTAB_Icons::badge( 'lock', 'indigo' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+			<span>
+				<h2><?php esc_html_e( 'Your Google client', 'live-sheets-table-pro' ); ?></h2>
+				<span class="lstab-panel-sub"><?php esc_html_e( 'Your own credentials, so your spreadsheets never travel through anyone else\'s', 'live-sheets-table-pro' ); ?></span>
+			</span>
+		</div>
+
+		<div class="lstab-row lstab-row--wide">
+		<div class="lstab-row-say">
+		<p class="lstab-row-help">
 			<?php esc_html_e( 'To read sheets that are not shared publicly, this site signs in to Google as you. That needs an OAuth client from your own Google Cloud project — your own, deliberately, so your spreadsheets are never routed through anyone else\'s credentials.', 'live-sheets-table-pro' ); ?>
 		</p>
-		<ol class="lstab-help">
+		</p>
+		<ol class="lstab-steps">
 			<li><?php esc_html_e( 'Open Google Cloud Console and create a project.', 'live-sheets-table-pro' ); ?></li>
 			<li><?php esc_html_e( 'Enable the Google Sheets API for it.', 'live-sheets-table-pro' ); ?></li>
 			<li><?php esc_html_e( 'Create an OAuth client of type “Web application”.', 'live-sheets-table-pro' ); ?></li>
 			<li>
-				<?php esc_html_e( 'Add this exact address as an authorised redirect URI:', 'live-sheets-table-pro' ); ?>
-				<br>
-				<code class="lstab-shortcode"><?php echo esc_html( LSTABP_Google_Auth::redirect_uri() ); ?></code>
+				<span>
+					<?php esc_html_e( 'Add this exact address as an authorised redirect URI:', 'live-sheets-table-pro' ); ?>
+					<span class="lstab-copyline">
+						<code><?php echo esc_html( LSTABP_Google_Auth::redirect_uri() ); ?></code>
+						<button type="button" class="lstab-copy" data-lstab-copy="<?php echo esc_attr( LSTABP_Google_Auth::redirect_uri() ); ?>">
+							<?php echo LSTAB_Icons::icon( 'copy' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+							<span class="lstab-copy-label"><?php esc_html_e( 'Copy', 'live-sheets-table-pro' ); ?></span>
+						</button>
+					</span>
+				</span>
 			</li>
 		</ol>
+		</div>
 
-		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-			<?php wp_nonce_field( 'lstabp_save_client' ); ?>
-			<input type="hidden" name="action" value="lstabp_save_client">
+		<div class="lstab-row-do">
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="lstabp-client-form">
+				<?php wp_nonce_field( 'lstabp_save_client' ); ?>
+				<input type="hidden" name="action" value="lstabp_save_client">
 
-			<p>
-				<label for="lstabp-client-id"><strong><?php esc_html_e( 'Client ID', 'live-sheets-table-pro' ); ?></strong></label>
-				<input type="text" id="lstabp-client-id" name="client_id" class="large-text code"
-					value="<?php echo esc_attr( $client['client_id'] ); ?>"
-					autocomplete="off">
-			</p>
-			<p>
-				<label for="lstabp-client-secret"><strong><?php esc_html_e( 'Client secret', 'live-sheets-table-pro' ); ?></strong></label>
-				<input type="password" id="lstabp-client-secret" name="client_secret" class="large-text code"
-					value="<?php echo esc_attr( $client['client_secret'] ); ?>"
-					autocomplete="off">
-			</p>
-			<p>
-				<button type="submit" class="button"><?php esc_html_e( 'Save client', 'live-sheets-table-pro' ); ?></button>
-			</p>
-		</form>
+				<p>
+					<label for="lstabp-client-id"><strong><?php esc_html_e( 'Client ID', 'live-sheets-table-pro' ); ?></strong></label>
+					<input type="text" id="lstabp-client-id" name="client_id" class="large-text code"
+						value="<?php echo esc_attr( $client['client_id'] ); ?>"
+						autocomplete="off">
+				</p>
+				<p>
+					<label for="lstabp-client-secret"><strong><?php esc_html_e( 'Client secret', 'live-sheets-table-pro' ); ?></strong></label>
+					<input type="password" id="lstabp-client-secret" name="client_secret" class="large-text code"
+						value="<?php echo esc_attr( $client['client_secret'] ); ?>"
+						autocomplete="off">
+				</p>
+				<p>
+					<button type="submit" class="lstab-btn"><?php esc_html_e( 'Save client', 'live-sheets-table-pro' ); ?></button>
+				</p>
+			</form>
+		</div>
+		</div>
 	</div>
 
-	<div class="lstab-card">
-		<h2 class="lstab-card-title"><?php esc_html_e( '2. Connect the account', 'live-sheets-table-pro' ); ?></h2>
+	<div class="lstab-panel">
+		<div class="lstab-panel-head">
+			<?php echo LSTAB_Icons::badge( 'link', 'sky' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+			<span>
+				<h2><?php esc_html_e( 'The connected account', 'live-sheets-table-pro' ); ?></h2>
+				<span class="lstab-panel-sub"><?php esc_html_e( 'Read access only — this can never change anything in Google', 'live-sheets-table-pro' ); ?></span>
+			</span>
+		</div>
 
-		<?php if ( ! LSTABP_Google_Auth::has_client() ) : ?>
-			<p class="lstab-help"><?php esc_html_e( 'Save a client above first.', 'live-sheets-table-pro' ); ?></p>
-		<?php elseif ( $connected ) : ?>
-			<p>
-				<span class="lstab-status lstab-status--ok">
-					<span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
+		<div class="lstab-state-strip">
+			<?php if ( ! LSTABP_Google_Auth::has_client() ) : ?>
+				<span class="lstab-state lstab-state--idle">
+					<?php echo LSTAB_Icons::icon( 'clock' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+					<?php esc_html_e( 'Waiting for a client above', 'live-sheets-table-pro' ); ?>
+				</span>
+			<?php elseif ( $connected ) : ?>
+				<span class="lstab-state lstab-state--calm">
+					<?php echo LSTAB_Icons::icon( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
 					<?php esc_html_e( 'Connected. Private sheets can be read.', 'live-sheets-table-pro' ); ?>
 				</span>
-			</p>
-			<p class="lstab-help">
-				<?php esc_html_e( 'Only read access to spreadsheets was requested, so this connection cannot change or delete anything in your Google account.', 'live-sheets-table-pro' ); ?>
-			</p>
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-				<?php wp_nonce_field( 'lstabp_google_disconnect' ); ?>
-				<input type="hidden" name="action" value="lstabp_google_disconnect">
-				<button type="submit" class="button button-link-delete">
-					<?php esc_html_e( 'Disconnect', 'live-sheets-table-pro' ); ?>
-				</button>
-			</form>
-		<?php else : ?>
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-				<?php wp_nonce_field( 'lstabp_google_connect' ); ?>
-				<input type="hidden" name="action" value="lstabp_google_connect">
-				<button type="submit" class="button button-primary">
-					<?php esc_html_e( 'Connect a Google account', 'live-sheets-table-pro' ); ?>
-				</button>
-			</form>
-		<?php endif; ?>
+			<?php else : ?>
+				<span class="lstab-state lstab-state--idle">
+					<?php echo LSTAB_Icons::icon( 'lock' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+					<?php esc_html_e( 'Not connected yet', 'live-sheets-table-pro' ); ?>
+				</span>
+			<?php endif; ?>
+		</div>
+
+		<div class="lstab-row">
+			<div class="lstab-row-say">
+				<p class="lstab-row-title"><?php esc_html_e( 'Sign in to Google', 'live-sheets-table-pro' ); ?></p>
+				<p class="lstab-row-help">
+					<?php esc_html_e( 'Only read access to spreadsheets is requested, so this connection cannot change or delete anything in your Google account. Disconnecting takes effect immediately; any sheet still marked private simply stops being readable until you connect again.', 'live-sheets-table-pro' ); ?>
+				</p>
+			</div>
+			<div class="lstab-row-do">
+				<?php if ( ! LSTABP_Google_Auth::has_client() ) : ?>
+					<span class="lstab-row-help"><?php esc_html_e( 'Save a client above first.', 'live-sheets-table-pro' ); ?></span>
+				<?php elseif ( $connected ) : ?>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<?php wp_nonce_field( 'lstabp_google_disconnect' ); ?>
+						<input type="hidden" name="action" value="lstabp_google_disconnect">
+						<button type="submit" class="lstab-quiet lstab-quiet--danger">
+							<?php echo LSTAB_Icons::icon( 'cross' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+							<?php esc_html_e( 'Disconnect', 'live-sheets-table-pro' ); ?>
+						</button>
+					</form>
+				<?php else : ?>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<?php wp_nonce_field( 'lstabp_google_connect' ); ?>
+						<input type="hidden" name="action" value="lstabp_google_connect">
+						<button type="submit" class="lstab-btn">
+							<?php echo LSTAB_Icons::icon( 'link' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+							<?php esc_html_e( 'Connect a Google account', 'live-sheets-table-pro' ); ?>
+						</button>
+					</form>
+				<?php endif; ?>
+			</div>
+		</div>
 	</div>
 
-	<div class="lstab-card">
-		<h2 class="lstab-card-title"><?php esc_html_e( '3. Which sheets are private', 'live-sheets-table-pro' ); ?></h2>
+	<div class="lstab-panel">
+		<div class="lstab-panel-head">
+			<?php echo LSTAB_Icons::badge( 'shield', 'violet' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+			<span>
+				<h2><?php esc_html_e( 'Which sheets are private', 'live-sheets-table-pro' ); ?></h2>
+				<span class="lstab-panel-sub"><?php esc_html_e( 'Tick one and you can remove link sharing in Google entirely', 'live-sheets-table-pro' ); ?></span>
+			</span>
+		</div>
 
+		<div class="lstab-panel-body">
 		<?php if ( ! $sources ) : ?>
 			<p class="lstab-help"><?php esc_html_e( 'No sheet sources yet.', 'live-sheets-table-pro' ); ?></p>
 		<?php else : ?>
@@ -126,14 +182,23 @@ defined( 'ABSPATH' ) || exit;
 				</table>
 
 				<p>
-					<button type="submit" class="button"><?php esc_html_e( 'Save', 'live-sheets-table-pro' ); ?></button>
+					<button type="submit" class="lstab-btn"><?php esc_html_e( 'Save', 'live-sheets-table-pro' ); ?></button>
 				</p>
 			</form>
 		<?php endif; ?>
+		</div>
 	</div>
 
-	<div class="lstab-card">
-		<h2 class="lstab-card-title"><?php esc_html_e( 'Filtered views', 'live-sheets-table-pro' ); ?></h2>
+	<div class="lstab-panel">
+		<div class="lstab-panel-head">
+			<?php echo LSTAB_Icons::badge( 'sliders', 'teal' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+			<span>
+				<h2><?php esc_html_e( 'Filtered views', 'live-sheets-table-pro' ); ?></h2>
+				<span class="lstab-panel-sub"><?php esc_html_e( 'One sheet, as many pages as you like', 'live-sheets-table-pro' ); ?></span>
+			</span>
+		</div>
+
+		<div class="lstab-panel-body">
 		<p class="lstab-help">
 			<?php esc_html_e( 'One saved sheet can feed as many pages as you like. Add a filter to the shortcode and each page shows only the rows it is about — the spreadsheet stays single.', 'live-sheets-table-pro' ); ?>
 		</p>
@@ -172,5 +237,6 @@ defined( 'ABSPATH' ) || exit;
 		<p class="lstab-help">
 			<?php esc_html_e( 'Symbols such as = and > work too, but WordPress removes a “less than” sign from a shortcode attribute before the plugin ever sees it, so the words above are the form that always works.', 'live-sheets-table-pro' ); ?>
 		</p>
+		</div>
 	</div>
 </div>

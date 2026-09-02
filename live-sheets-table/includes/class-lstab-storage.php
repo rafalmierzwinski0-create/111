@@ -161,7 +161,7 @@ class LSTAB_Storage {
 			// as often as the licence allows.
 			'sync_interval'    => max( LSTAB_Limits::min_interval(), (int) LSTAB_Settings::get( 'default_interval', 0 ) ),
 			'first_row_header' => 1,
-			'style_preset'     => 'clean',
+			'style_preset'     => LSTAB_Styles::sanitize( (string) LSTAB_Settings::get( 'default_style', 'clean' ) ),
 			'layout'           => 'table',
 			'sticky_first'     => 1,
 			'link_cells'       => 1,

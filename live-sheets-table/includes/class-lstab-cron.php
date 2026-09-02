@@ -190,6 +190,16 @@ class LSTAB_Cron {
 		$worst_age = 0;
 
 		foreach ( LSTAB_Storage::get_all() as $source ) {
+			/*
+			 * The bundled example is not a document anywhere and is never
+			 * fetched, so its stored copy is as fresh as it will ever be.
+			 * Counting it here reported a scheduling fault that did not exist,
+			 * on a site whose schedule was working perfectly.
+			 */
+			if ( LSTAB_Example::is_example( $source ) ) {
+				continue;
+			}
+
 			// A source that has never synced is reported where it is listed,
 			// and by the table itself. Nothing to add here.
 			if ( empty( $source['last_success_gmt'] ) ) {

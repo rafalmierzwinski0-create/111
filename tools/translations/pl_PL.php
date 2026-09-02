@@ -90,9 +90,9 @@ return array(
 	'To check sheets even when nobody visits'
 		=> 'Aby sprawdzać arkusze nawet wtedy, gdy nikt nie wchodzi na stronę',
 	'WordPress has no clock of its own — its schedule only runs when a page is requested, so a quiet site checks nothing. Give your host a real clock instead. Most hosting panels have a “Cron jobs” screen; paste this line into it:'
-		=> 'WordPress nie ma własnego zegara — jego harmonogram uruchamia się dopiero wtedy, gdy ktoś poprosi o stronę, więc witryna bez ruchu nie sprawdza niczego. Daj mu prawdziwy zegar po stronie hostingu. Większość paneli hostingowych ma ekran „Cron jobs”; wklej tam tę linię:',
-	'No shell access? A free uptime monitor pointed at your home page does the same job, because every visit it makes runs the schedule. %s'
-		=> 'Nie masz dostępu do powłoki? Darmowy monitor dostępności wycelowany w stronę główną zrobi to samo, bo każde jego odwiedziny uruchamiają harmonogram. %s',
+		=> 'WordPress nie ma własnego zegara — jego harmonogram rusza dopiero wtedy, gdy ktoś otworzy stronę, więc witryna bez ruchu nie sprawdza niczego. Zegar może dać mu hosting. Większość paneli hostingowych ma ekran „Cron jobs” albo „Zadania cron”; wklej tam tę linię:',
+	'No cron screen on your hosting? A free uptime monitor pointed at your home page does the same job, because every visit it makes runs the schedule.'
+		=> 'Twój hosting nie ma ekranu z cronem? Darmowy monitor dostępności skierowany na Twoją stronę główną zrobi to samo — każde jego wejście uruchamia harmonogram.',
 	'In the table'                               => 'W tabeli',
 	'Shown'                                      => 'Widoczna',
 	'Hidden'                                     => 'Ukryta',
@@ -191,8 +191,8 @@ return array(
 	// Scheduler health.
 	'Meanwhile you can update any sheet by hand with “Refresh now”. %s'
 		=> 'W międzyczasie możesz zaktualizować dowolny arkusz ręcznie przyciskiem „Odśwież teraz”. %s',
-	'How to run WordPress schedules from a system cron'
-		=> 'Jak uruchamiać harmonogramy WordPressa z systemowego crona',
+	'The WordPress guide to system cron'
+		=> 'Poradnik WordPressa o systemowym cronie',
 
 	// Layout and the horizontal slider.
 	'On screens too narrow for the whole table'  => 'Na ekranach zbyt wąskich dla całej tabeli',
@@ -573,4 +573,32 @@ return array(
 		=> 'Wskaż swój arkusz',
 	'This is the built-in example'
 		=> 'To jest wbudowany przykład',
+
+	// Site-wide settings added alongside the redesign.
+	'How long to wait for Google'
+		=> 'Jak długo czekać na Google',
+	'How new tables look'
+		=> 'Jak wyglądają nowe tabele',
+	'Only ever applies when the schedule has not run and a visitor arrives to a table that is due a check. The page waits this long, then gives up and shows the copy it already has — so the visitor always gets a table either way. Raise it only if you have a very large sheet on slow hosting; every extra second is a second somebody waits.'
+		=> 'Dotyczy wyłącznie sytuacji, gdy harmonogram nie zadziałał, a odwiedzający trafia na tabelę, której należy się sprawdzenie. Strona czeka tyle, po czym odpuszcza i pokazuje kopię, którą już ma — więc odwiedzający i tak zawsze dostaje tabelę. Zwiększaj tylko przy bardzo dużym arkuszu na wolnym hostingu; każda dodatkowa sekunda to sekunda czyjegoś czekania.',
+	'The style a table is given the moment you add it. Every table can still be changed afterwards; this is only so that somebody who has settled on one look is not choosing it again for every sheet.'
+		=> 'Styl, który tabela dostaje w chwili dodania. Każdą tabelę da się potem zmienić; chodzi tylko o to, żeby ktoś, kto wybrał już swój wygląd, nie wskazywał go od nowa przy każdym arkuszu.',
+	'seconds'
+		=> 'sekund',
+
+	// Settings redrawn as panels.
+	'Access'
+		=> 'Dostęp',
+	'Checking Google'
+		=> 'Sprawdzanie Google',
+	'Delete everything'
+		=> 'Usuń wszystko',
+	'How often, and how long a visitor may be made to wait'
+		=> 'Jak często i jak długo odwiedzający może czekać',
+	'The one setting here that cannot be undone'
+		=> 'Jedyne ustawienie tutaj, którego nie da się cofnąć',
+	'What a table looks like before you have touched it'
+		=> 'Jak wygląda tabela, zanim jej dotkniesz',
+	'Who is trusted with the tables on this site'
+		=> 'Komu powierzasz tabele na tej witrynie',
 );
