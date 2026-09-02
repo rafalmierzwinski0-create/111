@@ -147,11 +147,15 @@ class LSTAB_Hidden_Rows {
 	 * the filled cells are shown together, which is how the row reads on the
 	 * page and therefore how someone will recognise it.
 	 *
+	 * A few, and no more. A row of twenty columns quoted in full is not a
+	 * description of anything — it is the row again, in a sentence, and nobody
+	 * reads to the end of it. Four is enough to know which row is meant.
+	 *
 	 * @param array<int,string> $cells Row cells, or a stored record of them.
 	 * @param int               $parts How many filled cells to show.
 	 * @return string
 	 */
-	public static function describe( $cells, $parts = 3 ) {
+	public static function describe( $cells, $parts = 4 ) {
 		$shown = array();
 
 		foreach ( (array) $cells as $cell ) {
@@ -177,12 +181,29 @@ class LSTAB_Hidden_Rows {
 	 * @param array<int,string> $row Row cells.
 	 * @return array{name:string,sig:string}
 	 */
-	public static function entry_for( $row ) {
+	public static function entry_for( $row, $line = 0 ) {
 		return array(
 			'name'  => self::key_for( $row ),
 			'sig'   => self::signature( $row ),
 			'cells' => self::cells_of( $row ),
+			// Only ever used to say which row is meant. Nothing is ever found
+			// by it: a row's line changes for reasons having nothing to do
+			// with the row, which is the whole reason none of this uses it.
+			'line'  => max( 0, (int) $line ),
 		);
+	}
+
+	/**
+	 * The line number Google shows beside one of the stored rows.
+	 *
+	 * @param array<string,mixed> $source Source row.
+	 * @param int                 $index  Position among the stored rows.
+	 * @return int
+	 */
+	public static function line_for( $source, $index ) {
+		$offset = isset( $source['data']['offset'] ) ? (int) $source['data']['offset'] : 0;
+
+		return $offset + (int) $index + 1;
 	}
 
 	/**
@@ -302,6 +323,7 @@ class LSTAB_Hidden_Rows {
 				'name'  => $name,
 				'sig'   => $sig,
 				'cells' => isset( $entry['cells'] ) && is_array( $entry['cells'] ) ? self::cells_of( $entry['cells'] ) : array(),
+				'line'  => isset( $entry['line'] ) && is_scalar( $entry['line'] ) ? max( 0, (int) $entry['line'] ) : 0,
 			);
 		}
 
@@ -463,6 +485,8 @@ class LSTAB_Hidden_Rows {
 			return;
 		}
 
+		$offset = isset( $source['data']['offset'] ) ? (int) $source['data']['offset'] : 0;
+
 		$rows    = array_values( (array) $rows );
 		$names   = self::name_counts( $rows );
 		$entries = self::sanitize( $source['hidden_rows'] );
@@ -479,7 +503,7 @@ class LSTAB_Hidden_Rows {
 				continue;
 			}
 
-			$fresh = self::entry_for( $rows[ $found[0] ] );
+			$fresh = self::entry_for( $rows[ $found[0] ], $offset + (int) $found[0] + 1 );
 
 			if ( $fresh !== $entry ) {
 				$changed = true;
@@ -511,6 +535,7 @@ class LSTAB_Hidden_Rows {
 
 			$stalled[] = array(
 				'name'   => '' !== self::describe( $entry['cells'] ) ? self::describe( $entry['cells'] ) : $entry['name'],
+				'line'   => (int) $entry['line'],
 				'reason' => ( isset( $names[ $entry['name'] ] ) && $names[ $entry['name'] ] > 1 ) ? 'ambiguous' : 'missing',
 			);
 		}

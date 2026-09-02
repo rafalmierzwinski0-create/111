@@ -131,14 +131,14 @@ return array(
 		=> 'Coś, co pominąłeś w tabeli, jest znów pokazywane.',
 	'The sheet changed in a way that the choice could not be followed through. Nothing is broken, and the page looks perfectly normal — which is why this is being said out loud rather than left to be noticed.'
 		=> 'Arkusz zmienił się tak, że nie dało się przenieść tego wyboru dalej. Nic nie jest zepsute, a strona wygląda całkiem normalnie — i właśnie dlatego mówimy o tym wprost, zamiast czekać, aż ktoś zauważy.',
-	'The column “%s” is no longer in the sheet under that heading, so it is no longer being left out of the table.'
-		=> 'Kolumny „%s” nie ma już w arkuszu pod tym nagłówkiem, więc przestała być pomijana w tabeli.',
-	'The column “%1$s” is no longer in the sheet under that heading, so it is no longer being shown as “%2$s”.'
-		=> 'Kolumny „%1$s” nie ma już w arkuszu pod tym nagłówkiem, więc nie jest już pokazywana jako „%2$s”.',
-	'The hidden row “%s” was edited, and several rows now say that, so there is no telling which one you meant. None of them is hidden.'
-		=> 'Ukryty wiersz „%s” został zmieniony, a teraz kilka wierszy mówi to samo — nie da się orzec, o który Ci chodziło. Żaden z nich nie jest ukryty.',
-	'The hidden row “%s” is not in the sheet any more. Your choice is kept in case it comes back.'
-		=> 'Ukrytego wiersza „%s” nie ma już w arkuszu. Twój wybór zostaje zapamiętany, gdyby wrócił.',
+	'The column “%s” is being shown again — that heading is no longer in the sheet.'
+		=> 'Kolumna „%s” jest znów pokazywana — tego nagłówka nie ma już w arkuszu.',
+	'The column “%1$s” is showing its own heading again instead of “%2$s” — that heading is no longer in the sheet.'
+		=> 'Kolumna „%1$s” pokazuje znów własny nagłówek zamiast „%2$s” — tego nagłówka nie ma już w arkuszu.',
+	'The row that was line %1$d (“%2$s”) is being shown again — it was edited, and more than one row now looks like it.'
+		=> 'Wiersz, który był w linii %1$d („%2$s”), jest znów pokazywany — został zmieniony i więcej niż jeden wiersz wygląda teraz podobnie.',
+	'The row that was line %1$d (“%2$s”) is not in the sheet any more. Your choice is kept in case it comes back.'
+		=> 'Wiersza, który był w linii %1$d („%2$s”), nie ma już w arkuszu. Twój wybór zostaje zapamiętany, gdyby wrócił.',
 	'Open this table and put it right'           => 'Otwórz tę tabelę i popraw',
 	'I have read this'                           => 'Przeczytałem',
 	'You do not have permission to do that.'     => 'Nie masz do tego uprawnień.',

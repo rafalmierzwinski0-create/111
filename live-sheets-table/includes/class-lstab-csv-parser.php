@@ -69,6 +69,12 @@ class LSTAB_CSV_Parser {
 		$parsed = array(
 			'headers' => $headers,
 			'rows'    => array_values( $rows ),
+			// How many lines of the sheet come before the first stored row.
+			// Kept so that a row can be referred to by the number Google shows
+			// beside it rather than by its place in what was stored, which are
+			// not the same thing the moment a sheet has a heading or a gap at
+			// the top — and a row number that is off by one is worse than none.
+			'offset'  => $offset + ( $first_row_header ? 1 : 0 ),
 		);
 
 		// Carried with the data rather than reported separately, so it travels

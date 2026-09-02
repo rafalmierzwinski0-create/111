@@ -141,6 +141,24 @@ class LSTAB_Columns {
 	}
 
 	/**
+	 * A column's letter, as Google labels it.
+	 *
+	 * @param int $index Column position, counting from zero.
+	 * @return string
+	 */
+	public static function letter( $index ) {
+		$index  = max( 0, (int) $index );
+		$letter = '';
+
+		do {
+			$letter = chr( 65 + ( $index % 26 ) ) . $letter;
+			$index  = intdiv( $index, 26 ) - 1;
+		} while ( $index >= 0 );
+
+		return $letter;
+	}
+
+	/**
 	 * Settings whose heading is nowhere in the sheet any more.
 	 *
 	 * Only the ones that were doing something: a renamed column that had been
@@ -157,7 +175,7 @@ class LSTAB_Columns {
 		$headers  = array_map( 'strval', array_values( (array) $headers ) );
 		$orphaned = array();
 
-		foreach ( $config as $column ) {
+		foreach ( $config as $index => $column ) {
 			if ( '' === $column['source'] ) {
 				continue;
 			}
@@ -174,6 +192,7 @@ class LSTAB_Columns {
 				'was'    => $column['source'],
 				'hidden' => (bool) $column['hidden'],
 				'label'  => $column['label'],
+				'letter' => self::letter( $index ),
 			);
 		}
 

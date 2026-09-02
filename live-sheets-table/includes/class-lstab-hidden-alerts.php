@@ -204,12 +204,12 @@ class LSTAB_Hidden_Alerts {
 								$lstab_column['hidden']
 									? sprintf(
 										/* translators: %s: heading of a column. */
-										__( 'The column “%s” is no longer in the sheet under that heading, so it is no longer being left out of the table.', 'live-sheets-table' ),
+										__( 'The column “%s” is being shown again — that heading is no longer in the sheet.', 'live-sheets-table' ),
 										$lstab_column['was']
 									)
 									: sprintf(
 										/* translators: 1: heading of a column, 2: the name it was shown under. */
-										__( 'The column “%1$s” is no longer in the sheet under that heading, so it is no longer being shown as “%2$s”.', 'live-sheets-table' ),
+										__( 'The column “%1$s” is showing its own heading again instead of “%2$s” — that heading is no longer in the sheet.', 'live-sheets-table' ),
 										$lstab_column['was'],
 										$lstab_column['label']
 									)
@@ -224,13 +224,15 @@ class LSTAB_Hidden_Alerts {
 							echo esc_html(
 								'ambiguous' === $lstab_row['reason']
 									? sprintf(
-										/* translators: %s: what the row is called. */
-										__( 'The hidden row “%s” was edited, and several rows now say that, so there is no telling which one you meant. None of them is hidden.', 'live-sheets-table' ),
+										/* translators: 1: the sheet line the row was last on, 2: the first few things the row said. */
+										__( 'The row that was line %1$d (“%2$s”) is being shown again — it was edited, and more than one row now looks like it.', 'live-sheets-table' ),
+										(int) $lstab_row['line'],
 										$lstab_row['name']
 									)
 									: sprintf(
-										/* translators: %s: what the row is called. */
-										__( 'The hidden row “%s” is not in the sheet any more. Your choice is kept in case it comes back.', 'live-sheets-table' ),
+										/* translators: 1: the sheet line the row was last on, 2: the first few things the row said. */
+										__( 'The row that was line %1$d (“%2$s”) is not in the sheet any more. Your choice is kept in case it comes back.', 'live-sheets-table' ),
+										(int) $lstab_row['line'],
 										$lstab_row['name']
 									)
 							);

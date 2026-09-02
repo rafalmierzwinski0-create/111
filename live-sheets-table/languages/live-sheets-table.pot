@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-02 09:08+0000\n"
+"POT-Creation-Date: 2026-09-02 09:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -166,8 +166,8 @@ msgid "Column %1$d was “%2$s”, now “%3$s”"
 msgstr ""
 
 #. translators: %d: column number.
-#: includes/views/edit-page.php:415 includes/class-lstab-csv-parser.php:365
-#: includes/class-lstab-csv-parser.php:392
+#: includes/views/edit-page.php:415 includes/class-lstab-csv-parser.php:371
+#: includes/class-lstab-csv-parser.php:398
 msgid "Column %d"
 msgstr ""
 
@@ -363,7 +363,7 @@ msgstr ""
 msgid "How to run WordPress schedules from a system cron"
 msgstr ""
 
-#: includes/class-lstab-hidden-alerts.php:261
+#: includes/class-lstab-hidden-alerts.php:263
 msgid "I have read this"
 msgstr ""
 
@@ -528,7 +528,7 @@ msgstr ""
 msgid "Open in Google Sheets"
 msgstr ""
 
-#: includes/class-lstab-hidden-alerts.php:254
+#: includes/class-lstab-hidden-alerts.php:256
 msgid "Open this table and put it right"
 msgstr ""
 
@@ -910,12 +910,12 @@ msgstr ""
 
 #. translators: 1: heading of a column, 2: the name it was shown under.
 #: includes/class-lstab-hidden-alerts.php:212
-msgid "The column “%1$s” is no longer in the sheet under that heading, so it is no longer being shown as “%2$s”."
+msgid "The column “%1$s” is showing its own heading again instead of “%2$s” — that heading is no longer in the sheet."
 msgstr ""
 
 #. translators: %s: heading of a column.
 #: includes/class-lstab-hidden-alerts.php:207
-msgid "The column “%s” is no longer in the sheet under that heading, so it is no longer being left out of the table."
+msgid "The column “%s” is being shown again — that heading is no longer in the sheet."
 msgstr ""
 
 #: includes/views/edit-page.php:381
@@ -944,14 +944,16 @@ msgid_plural "The free version stores %d sheet sources. Remove one, or upgrade t
 msgstr[0] ""
 msgstr[1] ""
 
-#. translators: %s: what the row is called.
-#: includes/class-lstab-hidden-alerts.php:233
-msgid "The hidden row “%s” is not in the sheet any more. Your choice is kept in case it comes back."
+#. translators: 1: the sheet line the row was last on, 2: the first few things
+#. the row said.
+#: includes/class-lstab-hidden-alerts.php:228
+msgid "The row that was line %1$d (“%2$s”) is being shown again — it was edited, and more than one row now looks like it."
 msgstr ""
 
-#. translators: %s: what the row is called.
-#: includes/class-lstab-hidden-alerts.php:228
-msgid "The hidden row “%s” was edited, and several rows now say that, so there is no telling which one you meant. None of them is hidden."
+#. translators: 1: the sheet line the row was last on, 2: the first few things
+#. the row said.
+#: includes/class-lstab-hidden-alerts.php:234
+msgid "The row that was line %1$d (“%2$s”) is not in the sheet any more. Your choice is kept in case it comes back."
 msgstr ""
 
 #: includes/class-lstab-hidden-alerts.php:192
@@ -1081,7 +1083,7 @@ msgstr ""
 msgid "You do not have permission to change these settings."
 msgstr ""
 
-#: includes/class-lstab-hidden-alerts.php:274
+#: includes/class-lstab-hidden-alerts.php:276
 msgid "You do not have permission to do that."
 msgstr ""
 

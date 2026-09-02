@@ -1522,6 +1522,12 @@ lstab_assert( '' === LSTAB_Hidden_Rows::key_for( array( '', ' ', '' ) ), 'A row 
 // A name is often not much of a name: a date, a code, the number 3. What the
 // row says is what someone will recognise, so that is what is shown.
 lstab_assert( 'Kask · M · 120' === LSTAB_Hidden_Rows::describe( array( 'Kask', 'M', '120' ) ), 'A row is described by what it says', LSTAB_Hidden_Rows::describe( array( 'Kask', 'M', '120' ) ) );
+
+// A row of twenty columns quoted in full is the row again, in a sentence, and
+// nobody reads to the end of it.
+$wide = array_map( 'strval', range( 1, 20 ) );
+lstab_assert( '1 · 2 · 3 · 4' === LSTAB_Hidden_Rows::describe( $wide ), 'A wide row is described by its first four cells, not all twenty', LSTAB_Hidden_Rows::describe( $wide ) );
+lstab_assert( 3 === substr_count( LSTAB_Hidden_Rows::describe( $wide ), '·' ), 'Which is four parts and no more' );
 lstab_assert( '2026-08-20 · 41,00' === LSTAB_Hidden_Rows::describe( array( '2026-08-20', '', '41,00' ) ), 'Empty cells are skipped over', LSTAB_Hidden_Rows::describe( array( '2026-08-20', '', '41,00' ) ) );
 lstab_assert( '' === LSTAB_Hidden_Rows::describe( array( '', ' ' ) ), 'And a row with nothing in it says nothing' );
 
@@ -1709,6 +1715,48 @@ LSTAB_Storage::delete( $follow );
 
 // ---------------------------------------------------------------------------
 
+lstab_section( '12i0. The line number is the one Google shows' );
+
+/*
+ * A row is only ever referred to by its line, never found by it. Which makes
+ * the number's only job being right: our first stored row is the sheet's second
+ * line whenever there is a heading, and off by one more for every blank line
+ * above it. A number that does not match what someone sees in Google is worse
+ * than no number at all.
+ */
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
+$lined = LSTAB_Storage::get( $source_id );
+
+lstab_assert( isset( $lined['data']['offset'] ), 'The stored copy remembers how many lines come before it' );
+lstab_assert( 1 === (int) $lined['data']['offset'], 'One heading row and no blank lines above it', (string) $lined['data']['offset'] );
+lstab_assert( 2 === LSTAB_Hidden_Rows::line_for( $lined, 0 ), 'So the first row of data is line 2', (string) LSTAB_Hidden_Rows::line_for( $lined, 0 ) );
+lstab_assert( 3 === LSTAB_Hidden_Rows::line_for( $lined, 1 ), 'And the second is line 3' );
+
+// Hiding a row records that line, and a sync keeps it current.
+LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array( LSTAB_Hidden_Rows::entry_for( $lined['data']['rows'][1] ) ) ) );
+LSTAB_Hidden_Rows::reanchor( $source_id, $lined['data']['rows'] );
+$recorded = LSTAB_Storage::get( $source_id )['hidden_rows'];
+lstab_assert( 3 === (int) $recorded[0]['line'], 'A hidden row records the line it was on', wp_json_encode( $recorded[0]['line'] ) );
+
+// And moving it in the sheet moves the number with it, since the record is
+// rewritten each time.
+$pushed = array_merge( array( array( 'Nowy', '1', '', '', '' ) ), $lined['data']['rows'] );
+LSTAB_Storage::record_success( $source_id, array( 'headers' => $lined['data']['headers'], 'rows' => $pushed, 'offset' => 1 ) );
+LSTAB_Hidden_Rows::reanchor( $source_id, $pushed );
+lstab_assert( 4 === (int) LSTAB_Storage::get( $source_id )['hidden_rows'][0]['line'], 'And follows it down the sheet', wp_json_encode( LSTAB_Storage::get( $source_id )['hidden_rows'][0]['line'] ) );
+
+// Back to the source as the earlier sections left it: one row hidden, which
+// the sections below check is still honoured while Pro is winding down.
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
+LSTAB_Storage::update(
+	$source_id,
+	array( 'hidden_rows' => array( LSTAB_Hidden_Rows::entry_for( LSTAB_Storage::get( $source_id )['data']['rows'][1] ) ) )
+);
+
+// ---------------------------------------------------------------------------
+
 lstab_section( '12i. Columns follow their heading, and say when they cannot' );
 
 /*
@@ -1771,7 +1819,8 @@ $watched = (int) LSTAB_Storage::insert(
 );
 
 $before_rows = array( array( 'Kask', 'S', '100' ), array( 'Kask', 'M', '120' ) );
-LSTAB_Storage::record_success( $watched, array( 'headers' => array( 'Produkt', 'Rozmiar', 'Notatki' ), 'rows' => $before_rows ) );
+// offset 1 = the heading row, so the second stored row is line 3 in Google.
+LSTAB_Storage::record_success( $watched, array( 'headers' => array( 'Produkt', 'Rozmiar', 'Notatki' ), 'rows' => $before_rows, 'offset' => 1 ) );
 LSTAB_Storage::update(
 	$watched,
 	array(
@@ -1780,7 +1829,7 @@ LSTAB_Storage::update(
 			1 => array( 'label' => '', 'hidden' => false, 'source' => 'Rozmiar' ),
 			2 => array( 'label' => '', 'hidden' => true, 'source' => 'Notatki' ),
 		),
-		'hidden_rows'    => array( LSTAB_Hidden_Rows::entry_for( $before_rows[1] ) ),
+		'hidden_rows'    => array( LSTAB_Hidden_Rows::entry_for( $before_rows[1], 3 ) ),
 	)
 );
 
@@ -1799,6 +1848,11 @@ $alert = LSTAB_Hidden_Alerts::pending();
 lstab_assert( isset( $alert[ $watched ] ), 'A hidden column that has gone raises the alert' );
 lstab_assert( 1 === count( $alert[ $watched ]['columns'] ), 'It names the column', wp_json_encode( $alert[ $watched ]['columns'] ) );
 lstab_assert( 1 === count( $alert[ $watched ]['rows'] ), 'And the row' );
+
+// A row is named by the line Google shows beside it, not by its place in what
+// was stored: a sheet with a heading row makes those two differ by one, and a
+// line number that is off by one is worse than none at all.
+lstab_assert( 3 === $alert[ $watched ]['rows'][0]['line'], 'By the line Google shows beside it', (string) $alert[ $watched ]['rows'][0]['line'] );
 lstab_assert( 'Cennik z notatkami' === $alert[ $watched ]['title'], 'And which table it is about' );
 
 $lstab_alert_user = get_users( array( 'role' => 'administrator', 'number' => 1, 'fields' => 'ID' ) );

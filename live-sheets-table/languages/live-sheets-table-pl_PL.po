@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-02 09:08+0000\n"
-"PO-Revision-Date: 2026-09-02 09:08+0000\n"
+"POT-Creation-Date: 2026-09-02 09:28+0000\n"
+"PO-Revision-Date: 2026-09-02 09:28+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -167,8 +167,8 @@ msgid "Column %1$d was “%2$s”, now “%3$s”"
 msgstr "Kolumna %1$d była „%2$s”, teraz jest „%3$s”"
 
 #. translators: %d: column number.
-#: includes/views/edit-page.php:415 includes/class-lstab-csv-parser.php:365
-#: includes/class-lstab-csv-parser.php:392
+#: includes/views/edit-page.php:415 includes/class-lstab-csv-parser.php:371
+#: includes/class-lstab-csv-parser.php:398
 msgid "Column %d"
 msgstr "Kolumna %d"
 
@@ -364,7 +364,7 @@ msgstr "Jak często nowe tabele sprawdzają Google"
 msgid "How to run WordPress schedules from a system cron"
 msgstr "Jak uruchamiać harmonogramy WordPressa z systemowego crona"
 
-#: includes/class-lstab-hidden-alerts.php:261
+#: includes/class-lstab-hidden-alerts.php:263
 msgid "I have read this"
 msgstr "Przeczytałem"
 
@@ -529,7 +529,7 @@ msgstr "Widoczne tylko w kokpicie, żeby odróżnić źródła."
 msgid "Open in Google Sheets"
 msgstr "Otwórz w Arkuszach Google"
 
-#: includes/class-lstab-hidden-alerts.php:254
+#: includes/class-lstab-hidden-alerts.php:256
 msgid "Open this table and put it right"
 msgstr "Otwórz tę tabelę i popraw"
 
@@ -912,13 +912,13 @@ msgstr "To źródło arkusza już nie istnieje."
 
 #. translators: 1: heading of a column, 2: the name it was shown under.
 #: includes/class-lstab-hidden-alerts.php:212
-msgid "The column “%1$s” is no longer in the sheet under that heading, so it is no longer being shown as “%2$s”."
-msgstr "Kolumny „%1$s” nie ma już w arkuszu pod tym nagłówkiem, więc nie jest już pokazywana jako „%2$s”."
+msgid "The column “%1$s” is showing its own heading again instead of “%2$s” — that heading is no longer in the sheet."
+msgstr "Kolumna „%1$s” pokazuje znów własny nagłówek zamiast „%2$s” — tego nagłówka nie ma już w arkuszu."
 
 #. translators: %s: heading of a column.
 #: includes/class-lstab-hidden-alerts.php:207
-msgid "The column “%s” is no longer in the sheet under that heading, so it is no longer being left out of the table."
-msgstr "Kolumny „%s” nie ma już w arkuszu pod tym nagłówkiem, więc przestała być pomijana w tabeli."
+msgid "The column “%s” is being shown again — that heading is no longer in the sheet."
+msgstr "Kolumna „%s” jest znów pokazywana — tego nagłówka nie ma już w arkuszu."
 
 #: includes/views/edit-page.php:381
 msgid "The columns in your sheet have moved."
@@ -948,15 +948,17 @@ msgstr[0] "Wersja darmowa przechowuje %d źródło arkusza. Usuń istniejące al
 msgstr[1] "Wersja darmowa przechowuje %d źródła arkuszy. Usuń jedno albo przejdź na Pro, aby dodać więcej."
 msgstr[2] "Wersja darmowa przechowuje %d źródeł arkuszy. Usuń jedno albo przejdź na Pro, aby dodać więcej."
 
-#. translators: %s: what the row is called.
-#: includes/class-lstab-hidden-alerts.php:233
-msgid "The hidden row “%s” is not in the sheet any more. Your choice is kept in case it comes back."
-msgstr "Ukrytego wiersza „%s” nie ma już w arkuszu. Twój wybór zostaje zapamiętany, gdyby wrócił."
-
-#. translators: %s: what the row is called.
+#. translators: 1: the sheet line the row was last on, 2: the first few things
+#. the row said.
 #: includes/class-lstab-hidden-alerts.php:228
-msgid "The hidden row “%s” was edited, and several rows now say that, so there is no telling which one you meant. None of them is hidden."
-msgstr "Ukryty wiersz „%s” został zmieniony, a teraz kilka wierszy mówi to samo — nie da się orzec, o który Ci chodziło. Żaden z nich nie jest ukryty."
+msgid "The row that was line %1$d (“%2$s”) is being shown again — it was edited, and more than one row now looks like it."
+msgstr "Wiersz, który był w linii %1$d („%2$s”), jest znów pokazywany — został zmieniony i więcej niż jeden wiersz wygląda teraz podobnie."
+
+#. translators: 1: the sheet line the row was last on, 2: the first few things
+#. the row said.
+#: includes/class-lstab-hidden-alerts.php:234
+msgid "The row that was line %1$d (“%2$s”) is not in the sheet any more. Your choice is kept in case it comes back."
+msgstr "Wiersza, który był w linii %1$d („%2$s”), nie ma już w arkuszu. Twój wybór zostaje zapamiętany, gdyby wrócił."
 
 #: includes/class-lstab-hidden-alerts.php:192
 msgid "The sheet changed in a way that the choice could not be followed through. Nothing is broken, and the page looks perfectly normal — which is why this is being said out loud rather than left to be noticed."
@@ -1085,7 +1087,7 @@ msgstr "Nie masz uprawnień do zarządzania źródłami arkuszy."
 msgid "You do not have permission to change these settings."
 msgstr "Nie masz uprawnień do zmiany tych ustawień."
 
-#: includes/class-lstab-hidden-alerts.php:274
+#: includes/class-lstab-hidden-alerts.php:276
 msgid "You do not have permission to do that."
 msgstr "Nie masz do tego uprawnień."
 
