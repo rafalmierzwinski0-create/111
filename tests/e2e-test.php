@@ -1590,6 +1590,133 @@ lstab_assert( false === strpos( $searched, 'Kask Lazer' ), 'A hidden row cannot 
 
 // ---------------------------------------------------------------------------
 
+lstab_section( '12g. Following a row that changes' );
+
+/*
+ * The case a name alone cannot answer: ten helmets, one of them hidden, and
+ * then its price changes. Nothing matches in full any more and the name is
+ * shared, so where it sat is the only evidence left — which is only good
+ * evidence because every choice is rewritten against its row after each sync.
+ */
+$helmets = array(
+	array( 'Kask', 'S', '100' ),
+	array( 'Kask', 'M', '120' ),
+	array( 'Kask', 'L', '140' ),
+);
+$choice = array( LSTAB_Hidden_Rows::entry_for( $helmets[1], 1 ) );
+$names  = LSTAB_Hidden_Rows::name_counts( $helmets );
+
+lstab_assert( array( 1 ) === LSTAB_Hidden_Rows::matches( $choice[0], $helmets, $names ), 'The chosen helmet is found while nothing has changed' );
+
+$repriced    = $helmets;
+$repriced[1] = array( 'Kask', 'M', '130' );
+lstab_assert(
+	array( 1 ) === LSTAB_Hidden_Rows::matches( $choice[0], $repriced, LSTAB_Hidden_Rows::name_counts( $repriced ) ),
+	'A price change does not put it back on the page',
+	wp_json_encode( LSTAB_Hidden_Rows::matches( $choice[0], $repriced, LSTAB_Hidden_Rows::name_counts( $repriced ) ) )
+);
+
+$shifted = array_merge( array( array( 'Rower', '', '4000' ) ), $helmets );
+lstab_assert(
+	array( 2 ) === LSTAB_Hidden_Rows::matches( $choice[0], $shifted, LSTAB_Hidden_Rows::name_counts( $shifted ) ),
+	'A row inserted above does not move the choice to another helmet',
+	wp_json_encode( LSTAB_Hidden_Rows::matches( $choice[0], $shifted, LSTAB_Hidden_Rows::name_counts( $shifted ) ) )
+);
+
+// The rewriting is what keeps the third rule honest, so it is checked on a
+// real source rather than assumed.
+$follow = (int) LSTAB_Storage::insert(
+	array(
+		'title'      => 'Kaski',
+		'sheet_url'  => 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0',
+		'sheet_id'   => '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789',
+		'sheet_kind' => 'doc',
+		'gid'        => '0',
+	)
+);
+LSTAB_Storage::record_success( $follow, array( 'headers' => array( 'Produkt', 'Rozmiar', 'Cena' ), 'rows' => $helmets ) );
+LSTAB_Storage::update( $follow, array( 'hidden_rows' => $choice ) );
+
+LSTAB_Hidden_Rows::reanchor( $follow, $repriced );
+$anchored = LSTAB_Storage::get( $follow )['hidden_rows'];
+lstab_assert(
+	LSTAB_Hidden_Rows::signature( $repriced[1] ) === $anchored[0]['sig'],
+	'After a sync the choice describes the row as it is now',
+	wp_json_encode( $anchored )
+);
+
+// Which means the next change is matched in full again, not by position.
+$moved_again = array_merge( array( array( 'Rower', '', '4000' ) ), $repriced );
+lstab_assert(
+	array( 2 ) === LSTAB_Hidden_Rows::matches( $anchored[0], $moved_again, LSTAB_Hidden_Rows::name_counts( $moved_again ) ),
+	'So a later insertion is matched on the row itself'
+);
+
+// A choice pointing at nothing is left alone rather than quietly dropped.
+LSTAB_Hidden_Rows::reanchor( $follow, array( array( 'Rower', '', '4000' ) ) );
+lstab_assert( 1 === count( LSTAB_Storage::get( $follow )['hidden_rows'] ), 'A choice whose row has gone is kept, in case it comes back' );
+
+LSTAB_Storage::delete( $follow );
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '12h. Settings, and where the screens live' );
+
+$lstab_tab_user = get_users( array( 'role' => 'administrator', 'number' => 1, 'fields' => 'ID' ) );
+wp_set_current_user( $lstab_tab_user ? (int) $lstab_tab_user[0] : 1 );
+
+$tabs = LSTAB_Admin::tabs();
+lstab_assert( isset( $tabs[ LSTAB_Admin::MENU_SLUG ] ), 'Sources is a tab' );
+lstab_assert( isset( $tabs[ LSTAB_Admin::SETTINGS_SLUG ] ), 'So is settings' );
+
+ob_start();
+LSTAB_Admin::render_tabs( LSTAB_Admin::MENU_SLUG );
+$tab_html = (string) ob_get_clean();
+lstab_assert( false !== strpos( $tab_html, 'nav-tab-wrapper' ), 'They are printed as a row of tabs' );
+lstab_assert( false !== strpos( $tab_html, 'nav-tab-active' ), 'And the one you are on is marked' );
+
+$defaults = LSTAB_Settings::defaults();
+lstab_assert( 'edit_pages' === $defaults['manage_capability'], 'Editors can manage tables by default', $defaults['manage_capability'] );
+lstab_assert( empty( $defaults['delete_on_uninstall'] ), 'And deleting the plugin keeps your tables' );
+
+// Nothing that is not on the list may be stored, whatever is submitted.
+$saved = LSTAB_Settings::save(
+	array(
+		'manage_capability'   => 'do_anything_at_all',
+		'default_interval'    => '999',
+		'delete_on_uninstall' => '1',
+		'something_else'      => 'x',
+	)
+);
+lstab_assert( 'edit_pages' === $saved['manage_capability'], 'An unknown capability falls back to the default', $saved['manage_capability'] );
+lstab_assert( 0 === $saved['default_interval'], 'And an interval that is not offered falls back too', (string) $saved['default_interval'] );
+lstab_assert( ! isset( $saved['something_else'] ), 'A field nobody asked for is not stored' );
+lstab_assert( true === $saved['delete_on_uninstall'], 'What is on the list is kept' );
+
+// The capability actually governs the screens.
+LSTAB_Settings::save( array( 'manage_capability' => 'manage_options' ) );
+lstab_assert( 'manage_options' === LSTAB_Limits::capability(), 'Choosing administrators only reaches the screens', LSTAB_Limits::capability() );
+LSTAB_Settings::save( array( 'manage_capability' => 'edit_pages' ) );
+lstab_assert( 'edit_pages' === LSTAB_Limits::capability(), 'And so does choosing editors' );
+
+// A new source starts on the schedule the site asked for.
+LSTAB_Settings::save( array( 'manage_capability' => 'edit_pages', 'default_interval' => 3600 ) );
+$fresh_source = (int) LSTAB_Storage::insert(
+	array(
+		'title'      => 'Nowe',
+		'sheet_url'  => 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0',
+		'sheet_id'   => '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789',
+		'sheet_kind' => 'doc',
+		'gid'        => '0',
+	)
+);
+lstab_assert( 3600 === (int) LSTAB_Storage::get( $fresh_source )['sync_interval'], 'A new table starts on the site default', (string) LSTAB_Storage::get( $fresh_source )['sync_interval'] );
+LSTAB_Storage::delete( $fresh_source );
+delete_option( LSTAB_Settings::OPTION );
+wp_set_current_user( 0 );
+
+// ---------------------------------------------------------------------------
+
 lstab_section( '12f. What happens when Pro stops' );
 
 /*
@@ -1619,10 +1746,23 @@ lstab_assert(
 	'And the page is unchanged from the day the licence ended'
 );
 
+// The countdown is for the people who can act on it, so it is shown to them
+// and to nobody else.
+$lstab_prior_user = get_current_user_id();
+$lstab_admin_user = get_users( array( 'role' => 'administrator', 'number' => 1, 'fields' => 'ID' ) );
+wp_set_current_user( $lstab_admin_user ? (int) $lstab_admin_user[0] : 1 );
+
 ob_start();
 LSTAB_Admin::print_grace_notice();
 $grace_notice = (string) ob_get_clean();
 lstab_assert( false !== strpos( $grace_notice, 'lstab-grace-notice' ), 'The dashboard says the countdown is running' );
+lstab_assert( false !== strpos( $grace_notice, 'is-dismissible' ), 'And it can be put away' );
+
+wp_set_current_user( 0 );
+ob_start();
+LSTAB_Admin::print_grace_notice();
+lstab_assert( '' === trim( (string) ob_get_clean() ), 'Someone who cannot change it is not shown it' );
+wp_set_current_user( $lstab_admin_user ? (int) $lstab_admin_user[0] : 1 );
 
 // Eleven days on: released, and the pages show everything again.
 update_option( LSTAB_Limits::SEEN_OPTION, time() - 11 * DAY_IN_SECONDS, true );
@@ -1635,6 +1775,8 @@ lstab_assert(
 ob_start();
 LSTAB_Admin::print_grace_notice();
 lstab_assert( '' === trim( (string) ob_get_clean() ), 'The countdown notice stops once there is nothing to count' );
+
+wp_set_current_user( $lstab_prior_user );
 
 // Hidden columns follow exactly the same rule.
 LSTAB_Storage::update( $source_id, array( 'columns_config' => array( 2 => array( 'hidden' => true, 'label' => '', 'source' => 'Dostępność' ) ) ) );

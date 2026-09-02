@@ -21,6 +21,8 @@ class LSTABP_Settings {
 	 */
 	public function register() {
 		add_action( 'admin_menu', array( $this, 'add_menu' ), 20 );
+		add_filter( 'lstab_admin_tabs', array( $this, 'add_tab' ) );
+		add_action( 'lstab_settings_sections', array( $this, 'render_licence_section' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
 		add_action( 'admin_post_lstabp_save_client', array( $this, 'handle_save_client' ) );
 		add_action( 'admin_post_lstabp_save_sources', array( $this, 'handle_save_sources' ) );
@@ -32,14 +34,91 @@ class LSTABP_Settings {
 	 * @return void
 	 */
 	public function add_menu() {
+		/*
+		 * Under the free plugin's parent for hidden screens: the page exists
+		 * and can be opened, but belongs in the row of tabs above the other
+		 * screens rather than as a fourth line in the sidebar.
+		 */
 		add_submenu_page(
-			'live-sheets-table',
+			LSTAB_Admin::HIDDEN_PARENT,
 			__( 'Pro settings', 'live-sheets-table-pro' ),
 			__( 'Pro', 'live-sheets-table-pro' ),
 			'manage_options',
 			self::PAGE_SLUG,
 			array( $this, 'render' )
 		);
+	}
+
+	/**
+	 * Add this screen to the row of tabs the free plugin prints.
+	 *
+	 * @param array<string,string> $tabs Page slug mapped to its label.
+	 * @return array<string,string>
+	 */
+	public function add_tab( $tabs ) {
+		if ( current_user_can( 'manage_options' ) ) {
+			$tabs[ self::PAGE_SLUG ] = __( 'Pro', 'live-sheets-table-pro' );
+		}
+
+		return $tabs;
+	}
+
+	/**
+	 * The licence, and how to stop paying for it, on the settings screen.
+	 *
+	 * Cancelling is put where someone would look for it rather than made hard
+	 * to find. A subscription that takes a support ticket to leave is one people
+	 * leave angrily, and say so in public.
+	 *
+	 * @param array<string,mixed> $settings Stored settings.
+	 * @return void
+	 */
+	public function render_licence_section( $settings ) {
+		$grace = LSTAB_Limits::is_pro() ? 0 : LSTAB_Limits::grace_remaining();
+		?>
+		<div class="lstab-card lstabp-licence-card">
+			<h2 class="lstab-card-title"><?php esc_html_e( 'Your subscription', 'live-sheets-table-pro' ); ?></h2>
+
+			<?php if ( LSTAB_Limits::is_pro() ) : ?>
+				<p class="lstabp-licence-state is-active">
+					<?php esc_html_e( 'Pro is active on this site.', 'live-sheets-table-pro' ); ?>
+				</p>
+			<?php elseif ( $grace > 0 ) : ?>
+				<p class="lstabp-licence-state is-grace">
+					<?php
+					printf(
+						/* translators: %s: human readable time difference, e.g. "6 days". */
+						esc_html__( 'Pro is not running here. Columns and rows you hid will start showing again in %s.', 'live-sheets-table-pro' ),
+						esc_html( human_time_diff( time(), time() + $grace ) )
+					);
+					?>
+				</p>
+			<?php else : ?>
+				<p class="lstabp-licence-state">
+					<?php esc_html_e( 'Pro is not running here.', 'live-sheets-table-pro' ); ?>
+				</p>
+			<?php endif; ?>
+
+			<p class="lstab-help">
+				<?php esc_html_e( 'Billing lives in your account, not on your site, so cancelling is done there and takes effect at the end of the period you have paid for. Nothing on your pages changes on the day you cancel.', 'live-sheets-table-pro' ); ?>
+			</p>
+
+			<p>
+				<a class="button" href="<?php echo esc_url( LSTABP_Settings::account_url() ); ?>" target="_blank" rel="noopener noreferrer">
+					<?php esc_html_e( 'Manage or cancel subscription', 'live-sheets-table-pro' ); ?>
+				</a>
+			</p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Where billing is managed.
+	 *
+	 * @return string
+	 */
+	public static function account_url() {
+		return (string) apply_filters( 'lstabp_account_url', 'https://example.com/live-sheets-table/account/' );
 	}
 
 	/**

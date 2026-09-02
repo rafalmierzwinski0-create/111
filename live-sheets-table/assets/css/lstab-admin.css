@@ -562,3 +562,32 @@
 	overflow-x: auto;
 }
 
+
+/* ---------------------------------------------------------------------------
+   Tabs, settings, and the countdown.
+   --------------------------------------------------------------------------- */
+
+.lstab-tabs {
+	margin-bottom: 20px;
+}
+
+.lstab-settings .lstab-card {
+	max-width: 780px;
+}
+
+.lstab-card-danger {
+	border-left: 3px solid #d63638;
+}
+
+.lstab-column-state .lstab-state-hidden {
+	color: #b26200;
+	font-weight: 600;
+}
+
+.lstab-column-state .lstab-state-shown {
+	color: #787c82;
+}
+
+.lstab-grace-notice p:first-child {
+	font-size: 1.02em;
+}

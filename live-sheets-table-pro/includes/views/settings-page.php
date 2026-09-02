@@ -12,7 +12,9 @@
 defined( 'ABSPATH' ) || exit;
 ?>
 <div class="wrap lstab-admin">
-	<h1><?php esc_html_e( 'Live Sheets Table Pro', 'live-sheets-table-pro' ); ?></h1>
+	<h1><?php esc_html_e( 'Live Sheets Table', 'live-sheets-table-pro' ); ?></h1>
+
+	<?php LSTAB_Admin::render_tabs( LSTABP_Settings::PAGE_SLUG ); ?>
 
 	<?php LSTABP_Settings::print_notice(); ?>
 

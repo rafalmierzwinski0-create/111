@@ -27,7 +27,6 @@ $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 		?>
 	</h1>
 
-	<?php LSTAB_Admin::print_grace_notice(); ?>
 	<?php LSTAB_Admin::print_cron_notice(); ?>
 	<?php LSTAB_Admin::print_notice(); ?>
 

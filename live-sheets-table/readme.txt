@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.9.0
+Stable tag: 3.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -156,6 +156,13 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 
 == Changelog ==
 
+= 3.0.0 =
+* Added: a Settings screen — who may manage tables, what schedule a new table starts on, and whether deleting the plugin should also delete your tables.
+* Changed: deleting the plugin no longer removes your tables unless you have said it should. Deleting a plugin in order to reinstall it is a normal thing to do; losing every table you had configured because of it is not.
+* Changed: the plugin's screens are now tabs across the top of one screen rather than separate entries in the sidebar. The Pro add-on adds its own tab there instead of a fourth line on the left.
+* Changed: the countdown that runs after Pro stops now appears at the top of any dashboard screen, not only this plugin's, and can be put away — it comes back for the last two days, when it stops being information and starts being the last chance to act on it.
+* Fixed: a hidden row now survives being edited even where its name is shared with others. Ten helmets all called "Kask" and one of them repriced used to be more than the rules could resolve, so the hidden one came back. Every choice is now written back against its row after each sync, which means where the row sat is evidence from the last reading of the sheet rather than from the day the choice was made — enough to follow one helmet of ten through a price change.
+
 = 2.9.0 =
 * Changed: leaving a column out of a table is part of Pro. The list of columns still shows which are in and which are out, and still renames them, but the choice itself is made in Pro by clicking your own sheet.
 * Changed: choices only Pro can make keep working for ten days after Pro stops. A licence ending on a Tuesday should not rearrange a public page on the Tuesday, and ten quiet days followed by a page changing by itself would be worse than no grace at all — so the dashboard says how long is left while the countdown runs. A site that already had a column hidden gets the same ten days when it updates.
@@ -285,6 +292,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.0.0 =
+Adds a Settings screen, moves the plugin's screens into tabs, and stops deleting your tables when the plugin is deleted.
 
 = 2.9.0 =
 Hiding columns and rows is a Pro feature, with ten days of grace after Pro stops. A hidden row is now recognised by everything it says.

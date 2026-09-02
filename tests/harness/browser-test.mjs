@@ -834,6 +834,48 @@ const publishedHeads = await apage.locator( '.lstab' ).first().locator( 'thead t
 check( publishedHeads.length === 5, 'The published page shows every column', String( publishedHeads.length ) );
 check( /NAZWA PRODUKTU/i.test( publishedHeads[ 0 ] ), 'The published page uses the new name', publishedHeads[ 0 ] );
 
+section( '9c. The plugin\'s own screens' );
+
+// remove_submenu_page() looks like the way to keep a screen off the sidebar and
+// is not: it also removes the right to open it, and the page then answers with
+// "Sorry, you are not allowed". Only a real request finds that out.
+const settingsResponse = await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-settings`, { waitUntil: 'networkidle' } );
+check( settingsResponse.status() === 200, 'The settings screen opens', String( settingsResponse.status() ) );
+check(
+	! ( await page.locator( 'body' ).innerText() ).includes( 'not allowed' ),
+	'And is allowed, not merely registered'
+);
+
+const tabLabels = await page.locator( '.lstab-tabs .nav-tab' ).allInnerTexts();
+check( tabLabels.length >= 2, 'The screens are tabs across the top', JSON.stringify( tabLabels ) );
+check(
+	await page.locator( '.lstab-tabs .nav-tab-active' ).innerText() === 'Settings',
+	'And the tab you are on is the one marked'
+);
+
+const sidebar = await page.locator( '#adminmenu a[href*="live-sheets-table"]' ).evaluateAll( ( els ) => els.map( ( e ) => e.getAttribute( 'href' ) ) );
+check(
+	! sidebar.some( ( href ) => href && href.includes( 'live-sheets-table-settings' ) ),
+	'Settings is not also a line in the sidebar',
+	JSON.stringify( sidebar )
+);
+
+// Saving from here must not disturb anything it does not show.
+await page.selectOption( 'select[name="lstab_settings[default_interval]"]', '3600' );
+await Promise.all( [ page.waitForLoadState( 'networkidle' ), page.locator( '.lstab-submit button[type=submit]' ).click() ] );
+check(
+	( await page.locator( 'body' ).innerText() ).includes( 'Settings saved' ),
+	'Saving says so'
+);
+check(
+	await page.locator( 'select[name="lstab_settings[default_interval]"]' ).inputValue() === '3600',
+	'And the choice sticks'
+);
+await page.locator( '.wrap' ).first().screenshot( { path: `${ SHOTS }/38-settings.png` } );
+
+await page.selectOption( 'select[name="lstab_settings[default_interval]"]', '0' );
+await Promise.all( [ page.waitForLoadState( 'networkidle' ), page.locator( '.lstab-submit button[type=submit]' ).click() ] );
+
 section( '9b. Even column widths' );
 
 const widthReport = await apage.locator( '.lstab' ).evaluateAll( ( els ) => els.map( ( el ) => {

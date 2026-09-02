@@ -69,6 +69,13 @@ class LSTAB_Plugin {
 	public $hidden_rows;
 
 	/**
+	 * Site-wide settings.
+	 *
+	 * @var LSTAB_Settings
+	 */
+	public $settings;
+
+	/**
 	 * Elementor widget registration.
 	 *
 	 * @var LSTAB_Elementor
@@ -89,6 +96,7 @@ class LSTAB_Plugin {
 		$this->links     = new LSTAB_Links();
 		$this->paging    = new LSTAB_Paging();
 		$this->hidden_rows = new LSTAB_Hidden_Rows();
+		$this->settings    = new LSTAB_Settings();
 		$this->elementor = new LSTAB_Elementor();
 
 		add_action( 'init', array( $this, 'load_textdomain' ) );
@@ -102,6 +110,7 @@ class LSTAB_Plugin {
 		$this->links->register();
 		$this->paging->register();
 		$this->hidden_rows->register();
+		$this->settings->register();
 		$this->elementor->register();
 
 		if ( is_admin() ) {

@@ -331,6 +331,10 @@ class LSTAB_Sync {
 		// "Refresh now" — the sheet answers, so there is nothing to hold off.
 		self::end_cooldown( $id );
 
+		// Each choice about a hidden row is written back against the row it now
+		// points at, so tomorrow's edit is resolved against today's sheet.
+		LSTAB_Hidden_Rows::reanchor( $id, isset( $table['rows'] ) ? $table['rows'] : array() );
+
 		/**
 		 * Fires after a source syncs successfully.
 		 *

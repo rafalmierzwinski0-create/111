@@ -12,8 +12,25 @@ defined( 'ABSPATH' ) || exit;
  */
 class LSTAB_Admin {
 
-	const MENU_SLUG = 'live-sheets-table';
-	const EDIT_SLUG = 'live-sheets-table-edit';
+	const MENU_SLUG     = 'live-sheets-table';
+	const EDIT_SLUG     = 'live-sheets-table-edit';
+	const SETTINGS_SLUG = 'live-sheets-table-settings';
+
+	/**
+	 * Parent slug for screens that exist without appearing in the sidebar.
+	 *
+	 * There is no menu of this name, which is the point: a page registered
+	 * under it can be opened and is allowed to be, but nothing draws it on the
+	 * left. remove_submenu_page() looks like the way to do this and is not —
+	 * it also removes the right to open the page, and the screen answers with
+	 * "Sorry, you are not allowed to access this page".
+	 */
+	const HIDDEN_PARENT = 'lstab-hidden';
+
+	/**
+	 * User meta: when this person last put the countdown away.
+	 */
+	const GRACE_DISMISSED = 'lstab_grace_dismissed';
 
 	/**
 	 * Register hooks.
@@ -31,6 +48,10 @@ class LSTAB_Admin {
 		add_action( 'admin_post_lstab_refresh_source', array( $this, 'handle_refresh' ) );
 		add_action( 'admin_post_lstab_dismiss_ragged', array( $this, 'handle_dismiss_ragged' ) );
 		add_action( 'admin_notices', array( $this, 'print_global_notice' ) );
+		// At the very top of every screen, not only ours: a countdown to a
+		// public page changing is not something to find only if you go looking.
+		add_action( 'admin_notices', array( __CLASS__, 'print_grace_notice' ) );
+		add_action( 'wp_ajax_lstab_dismiss_grace', array( $this, 'handle_dismiss_grace' ) );
 		add_filter( 'plugin_action_links_' . LSTAB_BASENAME, array( $this, 'action_links' ) );
 	}
 
@@ -69,6 +90,85 @@ class LSTAB_Admin {
 			self::EDIT_SLUG,
 			array( $this, 'render_edit_page' )
 		);
+
+		/*
+		 * Reachable, and not on the list on the left. Sources, settings and the
+		 * add-on are three views of one plugin, and a row of tabs above them
+		 * says that better than three entries in a sidebar that also holds
+		 * every other plugin's.
+		 */
+		add_submenu_page(
+			self::HIDDEN_PARENT,
+			__( 'Live Sheets Table settings', 'live-sheets-table' ),
+			__( 'Settings', 'live-sheets-table' ),
+			'manage_options',
+			self::SETTINGS_SLUG,
+			array( $this, 'render_settings_page' )
+		);
+	}
+
+	/**
+	 * The screens this plugin offers, as tabs.
+	 *
+	 * @return array<string,string> Page slug mapped to its label.
+	 */
+	public static function tabs() {
+		$tabs = array(
+			self::MENU_SLUG => __( 'Sheet sources', 'live-sheets-table' ),
+		);
+
+		if ( current_user_can( 'manage_options' ) ) {
+			$tabs[ self::SETTINGS_SLUG ] = __( 'Settings', 'live-sheets-table' );
+		}
+
+		/**
+		 * Filters the tabs across the top of every screen this plugin owns.
+		 *
+		 * @param array<string,string> $tabs Page slug mapped to its label.
+		 */
+		return (array) apply_filters( 'lstab_admin_tabs', $tabs );
+	}
+
+	/**
+	 * Print the row of tabs.
+	 *
+	 * @param string $current Slug of the screen being shown.
+	 * @return void
+	 */
+	public static function render_tabs( $current ) {
+		$tabs = self::tabs();
+
+		if ( count( $tabs ) < 2 ) {
+			return;
+		}
+
+		echo '<nav class="nav-tab-wrapper lstab-tabs">';
+
+		foreach ( $tabs as $slug => $label ) {
+			printf(
+				'<a href="%1$s" class="nav-tab%2$s">%3$s</a>',
+				esc_url( admin_url( 'admin.php?page=' . $slug ) ),
+				$slug === $current ? ' nav-tab-active' : '',
+				esc_html( $label )
+			);
+		}
+
+		echo '</nav>';
+	}
+
+	/**
+	 * Render the settings screen.
+	 *
+	 * @return void
+	 */
+	public function render_settings_page() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to change these settings.', 'live-sheets-table' ) );
+		}
+
+		$settings = LSTAB_Settings::all();
+
+		include LSTAB_PATH . 'includes/views/settings-page.php';
 	}
 
 	/**
@@ -93,6 +193,23 @@ class LSTAB_Admin {
 	 * @return void
 	 */
 	public function enqueue( $hook ) {
+		/*
+		 * The countdown shows on every admin screen, so the script that makes
+		 * its dismissal stick has to load on every admin screen too — but only
+		 * while there is a countdown to dismiss.
+		 */
+		if ( ! LSTAB_Limits::is_pro() && LSTAB_Limits::grace_remaining() > 0 ) {
+			wp_enqueue_script(
+				'lstab-notice',
+				LSTAB_URL . 'assets/js/lstab-notice.js',
+				array(),
+				LSTAB_Plugin::asset_version( 'assets/js/lstab-notice.js' ),
+				true
+			);
+
+			wp_localize_script( 'lstab-notice', 'lstabNotice', array( 'ajaxUrl' => admin_url( 'admin-ajax.php' ) ) );
+		}
+
 		if ( false === strpos( (string) $hook, self::MENU_SLUG ) ) {
 			return;
 		}
@@ -567,7 +684,7 @@ class LSTAB_Admin {
 	 * @return void
 	 */
 	public static function print_grace_notice() {
-		if ( LSTAB_Limits::is_pro() ) {
+		if ( LSTAB_Limits::is_pro() || ! current_user_can( LSTAB_Limits::capability() ) ) {
 			return;
 		}
 
@@ -577,8 +694,20 @@ class LSTAB_Admin {
 			return;
 		}
 
+		/*
+		 * Dismissable, because a countdown that cannot be put away is a nag —
+		 * and a nag is read once and then not at all. It comes back for the
+		 * last two days, which is when it stops being information and starts
+		 * being the last chance to act on it.
+		 */
+		$dismissed = (int) get_user_meta( get_current_user_id(), self::GRACE_DISMISSED, true );
+
+		if ( $dismissed > time() - WEEK_IN_SECONDS && $left > 2 * DAY_IN_SECONDS ) {
+			return;
+		}
+
 		?>
-		<div class="notice notice-warning lstab-grace-notice">
+		<div class="notice notice-warning is-dismissible lstab-grace-notice" data-lstab-dismiss="<?php echo esc_attr( wp_create_nonce( self::GRACE_DISMISSED ) ); ?>">
 			<p>
 				<strong>
 					<?php
@@ -593,8 +722,26 @@ class LSTAB_Admin {
 			<p>
 				<?php esc_html_e( 'Choosing what to leave out of a table is part of Pro, and Pro is not active on this site. Your choices are still being honoured for now, so nothing on your pages has changed yet.', 'live-sheets-table' ); ?>
 			</p>
+			<p>
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . self::SETTINGS_SLUG ) ); ?>">
+					<?php esc_html_e( 'See what is hidden, and what will come back', 'live-sheets-table' ); ?>
+				</a>
+			</p>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Remember that this person put the countdown away.
+	 *
+	 * @return void
+	 */
+	public function handle_dismiss_grace() {
+		check_ajax_referer( self::GRACE_DISMISSED );
+
+		update_user_meta( get_current_user_id(), self::GRACE_DISMISSED, time() );
+
+		wp_send_json_success();
 	}
 
 	public static function print_cron_notice() {

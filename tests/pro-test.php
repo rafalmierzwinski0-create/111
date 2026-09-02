@@ -652,6 +652,47 @@ lstabp_assert( false !== strpos( $orphan_card, 'data-lstabp-present="0"' ), 'A k
 
 // ---------------------------------------------------------------------------
 
+lstabp_section( '5f. Where the add-on lives, and how to leave' );
+
+// The add-on is a tab across the top of the plugin's own screens rather than a
+// fourth line in a sidebar that already holds every other plugin's.
+$lstabp_admin = get_users( array( 'role' => 'administrator', 'number' => 1, 'fields' => 'ID' ) );
+wp_set_current_user( $lstabp_admin ? (int) $lstabp_admin[0] : 1 );
+
+$tabs = LSTAB_Admin::tabs();
+lstabp_assert( isset( $tabs[ LSTABP_Settings::PAGE_SLUG ] ), 'The add-on adds itself to the row of tabs', wp_json_encode( array_keys( $tabs ) ) );
+
+ob_start();
+LSTAB_Admin::render_tabs( LSTABP_Settings::PAGE_SLUG );
+$tab_html = (string) ob_get_clean();
+lstabp_assert( false !== strpos( $tab_html, LSTABP_Settings::PAGE_SLUG ), 'And is reachable from them' );
+lstabp_assert( false !== strpos( $tab_html, 'nav-tab-active' ), 'And marked when you are on it' );
+
+/*
+ * Cancelling is put where someone would look for it. A subscription that takes
+ * a support ticket to leave is one people leave angrily, and say so in public.
+ */
+ob_start();
+( new LSTABP_Settings() )->render_licence_section( LSTAB_Settings::all() );
+$licence = (string) ob_get_clean();
+lstabp_assert( false !== strpos( $licence, 'lstabp-licence-card' ), 'The settings screen carries a subscription section' );
+lstabp_assert( false !== strpos( $licence, LSTABP_Settings::account_url() ), 'With a way out of it' );
+lstabp_assert( false !== strpos( $licence, 'is-active' ), 'And it says the licence is running' );
+
+// With the add-on gone, the same section counts down instead.
+add_filter( 'lstab_is_pro', '__return_false', 99 );
+update_option( LSTAB_Limits::SEEN_OPTION, time() - DAY_IN_SECONDS, true );
+ob_start();
+( new LSTABP_Settings() )->render_licence_section( LSTAB_Settings::all() );
+$lapsed = (string) ob_get_clean();
+remove_filter( 'lstab_is_pro', '__return_false', 99 );
+lstabp_assert( false !== strpos( $lapsed, 'is-grace' ), 'Once it stops, the same section says what happens next' );
+update_option( LSTAB_Limits::SEEN_OPTION, time(), true );
+
+wp_set_current_user( 0 );
+
+// ---------------------------------------------------------------------------
+
 lstabp_section( '6. The free plugin is untouched' );
 
 // Pro must reach the free plugin only through published hooks: no edits to its

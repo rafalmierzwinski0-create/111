@@ -20,13 +20,18 @@ defined( 'ABSPATH' ) || exit;
  * cell, which tells ten products all called "Kask" apart exactly. And the row's
  * name — its first filled cell — which is what survives someone editing it.
  *
- * Finding it again then goes in that order. The row that matches in full is the
- * row that was chosen, however far it has moved. If nothing matches in full the
- * row has been edited, so the one of that name is taken instead — but only while
- * exactly one row carries it, because a name shared by several is no longer an
- * answer to "which one". In that last case nothing is hidden and the screen says
- * so: a row that should be hidden and is not is a mistake someone can see, and
- * the wrong row disappearing is not.
+ * Finding it again goes in that order, with where it sat as a last resort. The
+ * row matching in full is the row that was chosen, however far it has moved. If
+ * nothing matches in full the row has been edited, so the one of that name is
+ * taken — and where several rows share that name, the one in the place this row
+ * was last seen in. Only then, with none of the three answering, is nothing
+ * hidden and the screen made to say why: a row that should be hidden and is not
+ * is a mistake someone can see, and the wrong row disappearing is not.
+ *
+ * What makes the third rule safe is that every choice is written back against
+ * its row after each sync. The stored position and contents are therefore from
+ * the last reading of the sheet, not from the day the choice was made, so each
+ * edit is resolved against a record that was true a moment ago.
  */
 class LSTAB_Hidden_Rows {
 
@@ -105,10 +110,11 @@ class LSTAB_Hidden_Rows {
 	 * @param array<int,string> $row Row cells.
 	 * @return array{name:string,sig:string}
 	 */
-	public static function entry_for( $row ) {
+	public static function entry_for( $row, $position = -1 ) {
 		return array(
 			'name' => self::key_for( $row ),
 			'sig'  => self::signature( $row ),
+			'pos'  => (int) $position,
 		);
 	}
 
@@ -183,6 +189,7 @@ class LSTAB_Hidden_Rows {
 			$clean[]              = array(
 				'name' => $name,
 				'sig'  => $sig,
+				'pos'  => isset( $entry['pos'] ) && is_scalar( $entry['pos'] ) ? (int) $entry['pos'] : -1,
 			);
 		}
 
@@ -249,6 +256,7 @@ class LSTAB_Hidden_Rows {
 	public static function matches( $entry, $rows, $names ) {
 		$found = array();
 
+		// 1. The row itself, wherever it has moved to.
 		if ( '' !== $entry['sig'] ) {
 			foreach ( $rows as $index => $row ) {
 				if ( self::signature( $row ) === $entry['sig'] ) {
@@ -261,17 +269,88 @@ class LSTAB_Hidden_Rows {
 			return $found;
 		}
 
-		if ( '' === $entry['name'] || ! isset( $names[ $entry['name'] ] ) || 1 !== $names[ $entry['name'] ] ) {
+		if ( '' === $entry['name'] ) {
 			return array();
 		}
 
-		foreach ( $rows as $index => $row ) {
-			if ( self::key_for( $row ) === $entry['name'] ) {
-				$found[] = $index;
+		// 2. Nothing matches in full, so the row was edited. Its name will do
+		// while only one row carries it.
+		if ( isset( $names[ $entry['name'] ] ) && 1 === $names[ $entry['name'] ] ) {
+			foreach ( $rows as $index => $row ) {
+				if ( self::key_for( $row ) === $entry['name'] ) {
+					$found[] = $index;
+				}
 			}
+
+			return $found;
 		}
 
-		return $found;
+		/*
+		 * 3. Edited, and its name is shared — ten products all called "Kask",
+		 * one of which had its price changed. Where it sat is the only evidence
+		 * left, and it is good evidence here: the choice is re-anchored after
+		 * every sync, so the position is from the last time the sheet was read
+		 * rather than from whenever the row was first chosen. It is only
+		 * trusted when the row still there carries the same name.
+		 */
+		$pos = isset( $entry['pos'] ) ? (int) $entry['pos'] : -1;
+
+		if ( $pos >= 0 && isset( $rows[ $pos ] ) && self::key_for( $rows[ $pos ] ) === $entry['name'] ) {
+			return array( $pos );
+		}
+
+		return array();
+	}
+
+	/**
+	 * Write each choice back against the row it now points at.
+	 *
+	 * Run after every successful sync. Without it a choice would go on
+	 * describing a row as it was on the day it was made, and each further edit
+	 * would take it further from the truth until it could no longer be resolved
+	 * at all. With it, the record follows the row: a price changed today is
+	 * simply what that row says now, and tomorrow's insertion above it is
+	 * matched in full again.
+	 *
+	 * @param int                          $id   Source ID.
+	 * @param array<int,array<int,string>> $rows Sheet rows as just stored.
+	 * @return void
+	 */
+	public static function reanchor( $id, $rows ) {
+		$source = LSTAB_Storage::get( $id );
+
+		if ( ! $source || empty( $source['hidden_rows'] ) ) {
+			return;
+		}
+
+		$rows    = array_values( (array) $rows );
+		$names   = self::name_counts( $rows );
+		$entries = self::sanitize( $source['hidden_rows'] );
+		$updated = array();
+		$changed = false;
+
+		foreach ( $entries as $entry ) {
+			$found = self::matches( $entry, $rows, $names );
+
+			if ( ! $found ) {
+				// Nothing to anchor to. The choice is kept as it is: the row
+				// may be back tomorrow, and forgetting it would be worse.
+				$updated[] = $entry;
+				continue;
+			}
+
+			$fresh = self::entry_for( $rows[ $found[0] ], $found[0] );
+
+			if ( $fresh !== $entry ) {
+				$changed = true;
+			}
+
+			$updated[] = $fresh;
+		}
+
+		if ( $changed ) {
+			LSTAB_Storage::update( $id, array( 'hidden_rows' => $updated ) );
+		}
 	}
 
 	/**

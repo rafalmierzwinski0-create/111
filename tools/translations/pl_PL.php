@@ -102,6 +102,30 @@ return array(
 		=> 'Ukryte przez Ciebie kolumny i wiersze zaczną znów się pokazywać za %s.',
 	'Choosing what to leave out of a table is part of Pro, and Pro is not active on this site. Your choices are still being honoured for now, so nothing on your pages has changed yet.'
 		=> 'Wybieranie, co pominąć w tabeli, jest częścią Pro, a Pro nie jest aktywne na tej witrynie. Twoje wybory są na razie respektowane, więc na stronach nic się jeszcze nie zmieniło.',
+	// Settings screen.
+	'Sheet sources'                              => 'Źródła arkuszy',
+	'Settings'                                   => 'Ustawienia',
+	'Live Sheets Table settings'                 => 'Ustawienia Live Sheets Table',
+	'Settings saved.'                            => 'Ustawienia zapisane.',
+	'Save settings'                              => 'Zapisz ustawienia',
+	'Who can manage tables'                      => 'Kto może zarządzać tabelami',
+	'Whoever can manage tables can also read every sheet they point at, including any column left out of the published table. Editors are the default because they are the people publishing the pages these tables go on.'
+		=> 'Kto może zarządzać tabelami, może też odczytać każdy wskazany arkusz — łącznie z kolumnami pominiętymi w opublikowanej tabeli. Domyślnie są to redaktorzy, bo to oni publikują strony, na których te tabele stoją.',
+	'Editors and above'                          => 'Redaktorzy i wyżej',
+	'Administrators only'                        => 'Tylko administratorzy',
+	'New tables start with'                      => 'Nowe tabele zaczynają od',
+	'The schedule a newly added sheet is given. Every table can still be changed on its own afterwards.'
+		=> 'Harmonogram nadawany nowo dodanemu arkuszowi. Każdą tabelę można potem zmienić osobno.',
+	'The shortest your licence allows'           => 'Najkrótszy, na jaki pozwala licencja',
+	'Every %s'                                   => 'Co %s',
+	'When this plugin is deleted'                => 'Gdy ta wtyczka zostanie usunięta',
+	'Also delete every sheet source and setting' => 'Usuń też wszystkie źródła arkuszy i ustawienia',
+	'Off by default, because deleting a plugin to reinstall it is a normal thing to do and losing every table for it would not be. This only applies when the plugin is deleted from the Plugins screen, not when it is deactivated. Your spreadsheets in Google are never touched either way.'
+		=> 'Domyślnie wyłączone, bo usunięcie wtyczki po to, żeby zainstalować ją ponownie, jest czymś normalnym, a utrata przy tym wszystkich tabel nie byłaby. Dotyczy tylko usunięcia z ekranu Wtyczki, nie dezaktywacji. Twoje arkusze w Google i tak nigdy nie są ruszane.',
+	'You do not have permission to change these settings.'
+		=> 'Nie masz uprawnień do zmiany tych ustawień.',
+	'See what is hidden, and what will come back'
+		=> 'Zobacz, co jest ukryte i co wróci',
 	'Save changes and sync'                      => 'Zapisz zmiany i zsynchronizuj',
 	'Save source and sync'                       => 'Zapisz źródło i zsynchronizuj',
 
