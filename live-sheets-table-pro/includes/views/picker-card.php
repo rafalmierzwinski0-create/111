@@ -23,19 +23,21 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php
 	/*
-	 * Said before anything is clicked, not after something has gone wrong. A
-	 * choice is remembered as a line and a heading, so moving either in Google
-	 * breaks it — and someone who knows that in advance can decide whether to
-	 * reorder their sheet, which is a much better position than finding out
-	 * from a notice afterwards.
+	 * Said before anything is clicked, not after something has gone wrong.
+	 * Someone who knows in advance that reordering their sheet undoes these
+	 * choices can plan around it; someone who learns it from a notice a week
+	 * later has already published the page.
 	 */
 	?>
 	<div class="notice notice-info inline lstabp-picker-note">
 		<p>
-			<strong><?php esc_html_e( 'If you move it in Google, it comes back.', 'live-sheets-table-pro' ); ?></strong>
+			<strong><?php esc_html_e( 'Moving a column or row in Google will show it again', 'live-sheets-table-pro' ); ?></strong>
 		</p>
 		<p>
-			<?php esc_html_e( 'A column is remembered by its heading and a row by the line it is on. Reordering your columns, renaming a heading, or inserting a line above a hidden row means the choice no longer matches what is there — so nothing is taken out rather than the wrong thing, that row or column is on the page again, and the dashboard tells you which. Point at it again to put it back.', 'live-sheets-table-pro' ); ?>
+			<?php esc_html_e( 'A hidden column is matched to its heading, and a hidden row to its line number. Reordering columns, renaming a heading, or inserting a row above a hidden one breaks that match.', 'live-sheets-table-pro' ); ?>
+		</p>
+		<p>
+			<?php esc_html_e( 'When a match breaks, the column or row is shown again — the plugin will not risk hiding the wrong one in its place. A notice in your dashboard tells you which table is affected, and you can hide it again from this screen in one click.', 'live-sheets-table-pro' ); ?>
 		</p>
 	</div>
 
