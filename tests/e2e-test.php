@@ -1362,14 +1362,22 @@ $all_hidden = LSTAB_Columns::apply(
 );
 lstab_assert( 2 === count( $all_hidden['headers'] ), 'Hiding every column falls back to showing the table' );
 
-// Positions are the key, so a column inserted in Google shifts the settings.
-// That has to be reported rather than silently mislabelling data.
-$config = LSTAB_Columns::reconcile(
-	array( 1 => array( 'label' => 'Cena' ) ),
-	$sheet_headers
+// A column is addressed by its position, and the heading that was in that
+// position when the choice was made is kept beside it as the check. A column
+// nobody has touched simply records whatever heading is there now.
+$config = LSTAB_Columns::reconcile( array(), $sheet_headers );
+lstab_assert( 'Cena netto' === $config[1]['source'], 'An untouched column records the heading in its position', $config[1]['source'] );
+
+// Somebody renames it. The form carries the heading they were looking at, so
+// the choice knows what it was made about.
+$config[1] = array(
+	'label'  => 'Cena',
+	'hidden' => false,
+	'source' => 'Cena netto',
 );
-lstab_assert( 'Cena netto' === $config[1]['source'], 'The sheet heading is remembered next to the label', $config[1]['source'] );
+$config = LSTAB_Columns::reconcile( $config, $sheet_headers );
 lstab_assert( 'Cena' === $config[1]['label'], 'Reconciling keeps the label' );
+lstab_assert( 'Cena netto' === $config[1]['source'], 'And keeps the heading the choice was made about', $config[1]['source'] );
 
 $shifted = array( 'Produkt', 'SKU', 'Cena netto', 'Dostępność', 'Opis' );
 $drifted = LSTAB_Columns::drift( $config, $shifted );
@@ -1377,16 +1385,56 @@ lstab_assert( 1 === count( $drifted ), 'An inserted column is detected', wp_json
 lstab_assert( 'Cena netto' === $drifted[0]['was'] && 'SKU' === $drifted[0]['now'], 'The report says what moved', wp_json_encode( $drifted[0] ) );
 lstab_assert( ! LSTAB_Columns::drift( $config, $sheet_headers ), 'No drift is reported when nothing moved' );
 
+/*
+ * Syncing against the shifted sheet must leave that remembered heading alone.
+ * Adopting the new one would erase the only evidence that anything moved, and
+ * the choice would go on being applied to whatever had taken the position over.
+ */
+$after_shift = LSTAB_Columns::reconcile( $config, $shifted );
+lstab_assert( 'Cena netto' === $after_shift[1]['source'], 'A sync never adopts the new heading for a configured column', $after_shift[1]['source'] );
+lstab_assert( 1 === count( LSTAB_Columns::drift( $after_shift, $shifted ) ), 'So the shift is still reported after a sync' );
+
+// And the choice stops applying while the position holds something else: the
+// column is shown under the sheet's own heading rather than under a name that
+// was meant for different data.
+$mislabelled = LSTAB_Columns::apply(
+	array(
+		'headers' => $shifted,
+		'rows'    => array( array( 'Kask', 'K-1', '349,00', 'W magazynie', 'Rozmiary' ) ),
+	),
+	$after_shift
+);
+lstab_assert( 'SKU' === $mislabelled['headers'][1], 'A shifted column shows the sheet heading, not the old label', $mislabelled['headers'][1] );
+
+// The same rule for hiding, which is the one that matters: a column left out
+// comes back rather than a different column disappearing in its place.
+$hidden_shift = LSTAB_Columns::apply(
+	array(
+		'headers' => $shifted,
+		'rows'    => array( array( 'Kask', 'K-1', '349,00', 'W magazynie', 'Rozmiary' ) ),
+	),
+	array( 3 => array( 'hidden' => true, 'source' => 'Opis' ) )
+);
+lstab_assert( 5 === count( $hidden_shift['headers'] ), 'A hidden column whose heading has moved is shown again', wp_json_encode( $hidden_shift['headers'] ) );
+lstab_assert( in_array( 'Dostępność', $hidden_shift['headers'], true ), 'And the column that took its place is not taken out instead', wp_json_encode( $hidden_shift['headers'] ) );
+
+$reported = LSTAB_Columns::orphans( array( 3 => array( 'hidden' => true, 'source' => 'Opis' ) ), $shifted );
+lstab_assert( 1 === count( $reported ), 'Which is reported rather than left to be noticed', wp_json_encode( $reported ) );
+lstab_assert( 'Opis' === $reported[0]['was'] && 'Dostępność' === $reported[0]['now'], 'The report says what was there and what is there now', wp_json_encode( $reported[0] ) );
+lstab_assert( 'D' === $reported[0]['letter'], 'And names the column the way Google does', $reported[0]['letter'] );
+lstab_assert( ! LSTAB_Columns::orphans( array( 3 => array( 'hidden' => true, 'source' => 'Opis' ) ), $sheet_headers ), 'Nothing is reported while the heading is where it was' );
+
 $untouched = LSTAB_Columns::reconcile( array(), $sheet_headers );
 lstab_assert( ! LSTAB_Columns::drift( $untouched, $shifted ), 'Columns nobody configured cannot drift' );
+lstab_assert( ! LSTAB_Columns::orphans( $untouched, $shifted ), 'And are not reported either' );
 
 // End to end: settings reach the rendered page.
 LSTAB_Storage::update(
 	$source_id,
 	array(
 		'columns_config' => array(
-			1 => array( 'label' => 'Cena brutto' ),
-			3 => array( 'hidden' => true ),
+			1 => array( 'label' => 'Cena brutto', 'source' => 'Cena netto' ),
+			3 => array( 'hidden' => true, 'source' => 'Opis' ),
 		),
 	)
 );
@@ -1401,7 +1449,7 @@ LSTAB_Sync::run( $source_id );
 $after_sync = LSTAB_Storage::get( $source_id );
 lstab_assert( 'Cena brutto' === $after_sync['columns_config'][1]['label'], 'A sync keeps the labels', wp_json_encode( $after_sync['columns_config'][1] ) );
 lstab_assert( true === $after_sync['columns_config'][3]['hidden'], 'A sync keeps the visibility' );
-lstab_assert( 'Cena netto' === $after_sync['columns_config'][1]['source'], 'A sync refreshes the remembered heading' );
+lstab_assert( 'Cena netto' === $after_sync['columns_config'][1]['source'], 'A sync keeps the heading the choice was made about' );
 
 // The whole card once sat outside the form element, so nothing in it was ever
 // submitted: renaming and hiding looked like they worked and then silently
@@ -1495,120 +1543,135 @@ wp_set_current_user( 0 );
 
 // ---------------------------------------------------------------------------
 
-lstab_section( '12e. Hiding rows: which row, and for how long' );
+lstab_section( '12e. Hiding rows by line, checked by what is on it' );
 
 /*
- * A choice records what the row said, twice: the whole row, which tells ten
- * products all called "Kask" apart exactly, and its name, which is what
- * survives someone editing it. Finding it again goes in that order.
+ * A choice records the line and what was on it. The line is how the row is
+ * found; what was on it is how the choice is checked. Neither alone would do:
+ * a line moves for reasons having nothing to do with the row, and a name is
+ * shared by ten helmets.
  */
 lstab_set_mock( 'ok', 'main' );
 LSTAB_Sync::run( $source_id );
 $sheet = LSTAB_Storage::get( $source_id );
 $rows  = $sheet['data']['rows'];
 
-lstab_assert( 'Kask Lazer' === LSTAB_Hidden_Rows::key_for( $rows[1] ), 'A row is named by its first filled cell', LSTAB_Hidden_Rows::key_for( $rows[1] ) );
-lstab_assert( 32 === strlen( LSTAB_Hidden_Rows::signature( $rows[1] ) ), 'And signed by everything in it' );
-lstab_assert(
-	LSTAB_Hidden_Rows::signature( array( 'Kask', '100' ) ) !== LSTAB_Hidden_Rows::signature( array( 'Kask', '120' ) ),
-	'Two rows of the same name but different prices are different rows'
+$entry = LSTAB_Hidden_Rows::entry_for( $rows[1], 1 );
+lstab_assert( 1 === $entry['index'], 'A choice records which line' );
+lstab_assert( 'Kask Lazer' === $entry['name'], 'And what was called there', $entry['name'] );
+lstab_assert( 32 === strlen( $entry['sig'] ), 'And everything it said' );
+lstab_assert( false !== strpos( $entry['label'], 'Kask Lazer' ), 'And how to describe it later', $entry['label'] );
+
+lstab_assert( LSTAB_Hidden_Rows::still_there( $entry, $rows ), 'It is recognised while the sheet has not moved' );
+
+// The everyday case: ten helmets, one of them taken out on its own line.
+$helmets = array(
+	array( 'Kask', 'S', '100' ),
+	array( 'Kask', 'M', '120' ),
+	array( 'Kask', 'L', '140' ),
 );
+$only_m = array( LSTAB_Hidden_Rows::entry_for( $helmets[1], 1 ) );
+$after  = LSTAB_Hidden_Rows::filter_rows( $helmets, array(), array( 'hidden_rows' => $only_m ), array() );
+lstab_assert( 2 === count( $after ), 'One of three rows sharing a name is taken out on its own', (string) count( $after ) );
+lstab_assert( 'S' === $after[0][1] && 'L' === $after[1][1], 'And it is the right one', wp_json_encode( $after ) );
+
+/*
+ * Editing it puts it back, and that is deliberate. Checking only the name would
+ * spare an edited row — and would also pass on whichever helmet had moved into
+ * that line, since all three are called "Kask". Taking out the wrong row is the
+ * one outcome none of this may produce, so any change to the line puts the row
+ * on the page and says so.
+ */
+$repriced    = $helmets;
+$repriced[1] = array( 'Kask', 'M', '199' );
 lstab_assert(
-	LSTAB_Hidden_Rows::signature( array( ' Kask  Lazer ' ) ) === LSTAB_Hidden_Rows::signature( array( 'Kask Lazer' ) ),
-	'Runs of whitespace are not a difference'
+	3 === count( LSTAB_Hidden_Rows::filter_rows( $repriced, array(), array( 'hidden_rows' => $only_m ), array() ) ),
+	'Editing the row puts it back on the page rather than guessing'
 );
-lstab_assert( '' === LSTAB_Hidden_Rows::key_for( array( '', ' ', '' ) ), 'A row with nothing in it has no name' );
+lstab_assert( 'moved' === LSTAB_Hidden_Rows::unresolved( $only_m, $repriced )[0]['reason'], 'And says so' );
 
-// A name is often not much of a name: a date, a code, the number 3. What the
-// row says is what someone will recognise, so that is what is shown.
-lstab_assert( 'Kask · M · 120' === LSTAB_Hidden_Rows::describe( array( 'Kask', 'M', '120' ) ), 'A row is described by what it says', LSTAB_Hidden_Rows::describe( array( 'Kask', 'M', '120' ) ) );
+/*
+ * Moving it does. This is the whole point of the check: the plugin will not
+ * take out whatever happens to have landed on that line, because taking out the
+ * wrong row is a mistake nobody sees. It shows the row and says so instead.
+ */
+$shifted = array_merge( array( array( 'Rower', '', '4000' ) ), $helmets );
+$moved   = LSTAB_Hidden_Rows::filter_rows( $shifted, array(), array( 'hidden_rows' => $only_m ), array() );
+lstab_assert( 4 === count( $moved ), 'A row inserted above puts the hidden row back on the page', (string) count( $moved ) );
+lstab_assert( in_array( array( 'Kask', 'M', '120' ), $moved, true ), 'And no other row has been taken out in its place', wp_json_encode( $moved ) );
 
-// A row of twenty columns quoted in full is the row again, in a sentence, and
-// nobody reads to the end of it.
-$wide = array_map( 'strval', range( 1, 20 ) );
-lstab_assert( '1 · 2 · 3 · 4' === LSTAB_Hidden_Rows::describe( $wide ), 'A wide row is described by its first four cells, not all twenty', LSTAB_Hidden_Rows::describe( $wide ) );
-lstab_assert( 3 === substr_count( LSTAB_Hidden_Rows::describe( $wide ), '·' ), 'Which is four parts and no more' );
-lstab_assert( '2026-08-20 · 41,00' === LSTAB_Hidden_Rows::describe( array( '2026-08-20', '', '41,00' ) ), 'Empty cells are skipped over', LSTAB_Hidden_Rows::describe( array( '2026-08-20', '', '41,00' ) ) );
-lstab_assert( '' === LSTAB_Hidden_Rows::describe( array( '', ' ' ) ), 'And a row with nothing in it says nothing' );
+$told = LSTAB_Hidden_Rows::unresolved( $only_m, $shifted );
+lstab_assert( 1 === count( $told ) && 'moved' === $told[0]['reason'], 'Which is reported rather than left to be noticed', wp_json_encode( $told ) );
 
-// A row whose first cell is empty has no name, and can still be hidden: it is
-// recognised by everything it says.
+// A sheet that has shrunk past that line is a different thing to say.
+$short = array( array( 'Kask', 'S', '100' ) );
+lstab_assert( 'missing' === LSTAB_Hidden_Rows::unresolved( $only_m, $short )[0]['reason'], 'A line the sheet no longer reaches is reported differently' );
+
+// A row whose first cell is empty is named by its first filled one.
 $nameless = array(
 	array( '', 'Bez nazwy', '10' ),
 	array( 'Kask', 'M', '120' ),
 );
-$hide_nameless = array( LSTAB_Hidden_Rows::entry_for( $nameless[0] ) );
-$left_nameless = LSTAB_Hidden_Rows::filter_rows( $nameless, array(), array( 'hidden_rows' => $hide_nameless ), array() );
-lstab_assert( 1 === count( $left_nameless ), 'A row with an empty first cell can be hidden', wp_json_encode( $left_nameless ) );
-lstab_assert( 'Kask' === $left_nameless[0][0], 'And it is the right one gone' );
+$hide_nameless = array( LSTAB_Hidden_Rows::entry_for( $nameless[0], 0 ) );
+lstab_assert( 'Bez nazwy' === $hide_nameless[0]['name'], 'A row whose first cell is empty is named by the next filled one', $hide_nameless[0]['name'] );
+lstab_assert( 1 === count( LSTAB_Hidden_Rows::filter_rows( $nameless, array(), array( 'hidden_rows' => $hide_nameless ), array() ) ), 'And can be taken out' );
 
+// A row with nothing in it anywhere has no name at all, and the line plus what
+// it said is still enough to take it out: a spacer row is a real thing to hide.
+$blank = array(
+	array( '', '', '' ),
+	array( 'Kask', 'M', '120' ),
+);
+$hide_blank = array( LSTAB_Hidden_Rows::entry_for( $blank[0], 0 ) );
+lstab_assert( '' === $hide_blank[0]['name'], 'A row with nothing in it has no name', $hide_blank[0]['name'] );
+lstab_assert( '' === $hide_blank[0]['label'], 'And nothing to describe it by', $hide_blank[0]['label'] );
+lstab_assert( 1 === count( LSTAB_Hidden_Rows::filter_rows( $blank, array(), array( 'hidden_rows' => $hide_blank ), array() ) ), 'It can still be taken out' );
+
+$nameless_edited    = $nameless;
+$nameless_edited[0] = array( '', 'Bez nazwy', '11' );
+lstab_assert(
+	2 === count( LSTAB_Hidden_Rows::filter_rows( $nameless_edited, array(), array( 'hidden_rows' => $hide_nameless ), array() ) ),
+	'Editing it puts it back, exactly as for any other row'
+);
+
+// A row is described by what it says, four cells at most.
+lstab_assert( 'Kask · M · 120' === LSTAB_Hidden_Rows::describe( array( 'Kask', 'M', '120' ) ), 'A row is described by what it says', LSTAB_Hidden_Rows::describe( array( 'Kask', 'M', '120' ) ) );
+$wide = array_map( 'strval', range( 1, 20 ) );
+lstab_assert( '1 · 2 · 3 · 4' === LSTAB_Hidden_Rows::describe( $wide ), 'A wide row is described by four cells, not twenty', LSTAB_Hidden_Rows::describe( $wide ) );
+
+// Cleaning: an entry with no line at all is not an entry.
 $cleaned = LSTAB_Hidden_Rows::sanitize(
 	array(
-		' Kask ',
-		array( 'name' => 'Kask' ),
-		array( 'name' => 'Inny', 'sig' => str_repeat( 'a', 32 ) ),
-		array( 'name' => '', 'sig' => 'nonsense' ),
-		'',
+		array( 'index' => 2, 'name' => ' Kask ', 'sig' => str_repeat( 'a', 32 ), 'label' => 'Kask · M' ),
+		array( 'index' => 2, 'name' => 'Duplikat' ),
+		array( 'name' => 'Bez linii' ),
+		'nonsense',
 	)
 );
-lstab_assert( 2 === count( $cleaned ), 'Choices are trimmed, deduplicated, and rubbish is dropped', wp_json_encode( $cleaned ) );
-lstab_assert( 'Kask' === $cleaned[0]['name'] && '' === $cleaned[0]['sig'], 'A plain name from an older version is still understood', wp_json_encode( $cleaned[0] ) );
+lstab_assert( 1 === count( $cleaned ), 'Choices are deduplicated by line and rubbish is dropped', wp_json_encode( $cleaned ) );
+lstab_assert( 'Kask' === $cleaned[0]['name'], 'And trimmed' );
 
-// The everyday case: ten helmets, and only one of them goes.
-$helmets = array(
-	array( 'Kask', 'S', '100' ),
-	array( 'Kask', 'M', '110' ),
-	array( 'Kask', 'L', '120' ),
-	array( 'Rower', '', '4000' ),
-);
-$only_m = array( LSTAB_Hidden_Rows::entry_for( $helmets[1] ) );
-$after  = LSTAB_Hidden_Rows::filter_rows( $helmets, array( 'Produkt', 'Rozmiar', 'Cena' ), array( 'hidden_rows' => $only_m ), array() );
-lstab_assert( 3 === count( $after ), 'One of three rows sharing a name can be hidden on its own', (string) count( $after ) );
-lstab_assert( 'S' === $after[0][1] && 'L' === $after[1][1], 'And it is the right one', wp_json_encode( $after ) );
-
-// Rows genuinely identical in every cell are one choice, because a reader
-// cannot tell them apart either.
-$identical = array( array( 'Kask', 'M' ), array( 'Kask', 'M' ), array( 'Rower', '' ) );
-$counts    = LSTAB_Hidden_Rows::signature_counts( $identical );
-lstab_assert( 2 === $counts[ LSTAB_Hidden_Rows::signature( $identical[0] ) ], 'Identical rows are counted together', wp_json_encode( $counts ) );
-
-// Moving the sheet around underneath a choice changes nothing.
-$moved = $helmets;
-array_unshift( $moved, array( 'Nowy', '', '1' ) );
-$after_move = LSTAB_Hidden_Rows::filter_rows( $moved, array(), array( 'hidden_rows' => $only_m ), array() );
-lstab_assert( 4 === count( $after_move ), 'A row inserted above does not shift what is hidden', (string) count( $after_move ) );
-lstab_assert( ! in_array( array( 'Kask', 'M', '110' ), $after_move, true ), 'The chosen row is still the one gone' );
-
-// Editing the hidden row: the signature no longer matches, so the name is
-// used — but only because it is the only row of that name.
-$renamed_price          = $helmets;
-$renamed_price[1]       = array( 'Kask', 'M', '199' );
-$unique                 = array( array( 'Zamek', 'x', '1' ), array( 'Kask', 'M', '199' ) );
-$by_name                = array( LSTAB_Hidden_Rows::entry_for( array( 'Kask', 'M', '110' ) ) );
-$after_edit             = LSTAB_Hidden_Rows::filter_rows( $unique, array(), array( 'hidden_rows' => $by_name ), array() );
-lstab_assert( 1 === count( $after_edit ), 'Editing a hidden row does not bring it back while its name is unique', wp_json_encode( $after_edit ) );
-
-// Where the name is shared, the row that still says most of what this one said
-// is the one meant: "Kask, M, 199" is one cell from "Kask, M, 110"; its
-// neighbours are two.
-$after_ambiguous = LSTAB_Hidden_Rows::filter_rows( $renamed_price, array(), array( 'hidden_rows' => $by_name ), array() );
-lstab_assert( 3 === count( $after_ambiguous ), 'An edit is followed even where several rows share the name', (string) count( $after_ambiguous ) );
-lstab_assert( ! in_array( array( 'Kask', 'M', '199' ), $after_ambiguous, true ), 'And it is the edited row that stays hidden', wp_json_encode( $after_ambiguous ) );
-
-// But a guess is never made: two rows equally like it, or none close enough,
-// and the answer is no row at all — plus a word to whoever can put it right.
-$equally_close = array( array( 'Kask', 'M', '150' ), array( 'Kask', 'M', '160' ) );
+// A sync leaves a choice that no longer matches exactly as it was, so that it
+// starts working again the moment the sheet is put back.
+LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array( LSTAB_Hidden_Rows::entry_for( $rows[1], 1 ) ) ) );
+$edited    = $rows;
+$edited[1] = array( 'Kask Lazer', '999,00', 'Brak', '', '2026-01-02' );
+LSTAB_Storage::record_success( $source_id, array( 'headers' => $sheet['data']['headers'], 'rows' => $edited, 'offset' => 1 ) );
+LSTAB_Hidden_Rows::reanchor( $source_id, $edited );
 lstab_assert(
-	2 === count( LSTAB_Hidden_Rows::filter_rows( $equally_close, array(), array( 'hidden_rows' => $by_name ), array() ) ),
-	'Two rows equally like it means neither is hidden'
+	LSTAB_Hidden_Rows::signature( $rows[1] ) === LSTAB_Storage::get( $source_id )['hidden_rows'][0]['sig'],
+	'A choice that no longer matches is left untouched, not quietly moved on'
+);
+LSTAB_Storage::record_success( $source_id, array( 'headers' => $sheet['data']['headers'], 'rows' => $rows, 'offset' => 1 ) );
+lstab_assert(
+	LSTAB_Hidden_Rows::still_there( LSTAB_Storage::get( $source_id )['hidden_rows'][0], $rows ),
+	'So putting the sheet back makes it work again'
 );
 
-$stalled = LSTAB_Hidden_Rows::unresolved( $by_name, $equally_close );
-lstab_assert( 1 === count( $stalled ) && 'ambiguous' === $stalled[0]['reason'], 'And the choice is reported as needing a look', wp_json_encode( $stalled ) );
-lstab_assert( 'missing' === LSTAB_Hidden_Rows::unresolved( $by_name, array( array( 'Rower' ) ) )[0]['reason'], 'A choice whose row has gone is reported differently' );
-
-// End to end, on a real source.
-LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array( LSTAB_Hidden_Rows::entry_for( $rows[1] ) ) ) );
+// End to end on a real source.
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
+LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array( LSTAB_Hidden_Rows::entry_for( LSTAB_Storage::get( $source_id )['data']['rows'][1], 1 ) ) ) );
 $hidden_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
 lstab_assert( false === strpos( $hidden_html, 'Kask Lazer' ), 'A hidden row is not on the page' );
 lstab_assert( false !== strpos( $hidden_html, 'Rower górski' ), 'The rest of the table is untouched' );
@@ -1619,365 +1682,6 @@ $searched = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
 $_GET     = array();
 LSTAB_Storage::update( $source_id, array( 'per_page' => 0 ) );
 lstab_assert( false === strpos( $searched, 'Kask Lazer' ), 'A hidden row cannot be found by searching for it' );
-
-// ---------------------------------------------------------------------------
-
-lstab_section( '12g. Following a row that changes' );
-
-/*
- * The case a name alone cannot answer: ten helmets, one of them hidden, and
- * then its price changes. Nothing matches in full any more and the name is
- * shared, so where it sat is the only evidence left — which is only good
- * evidence because every choice is rewritten against its row after each sync.
- */
-$helmets = array(
-	array( 'Kask', 'S', '100' ),
-	array( 'Kask', 'M', '120' ),
-	array( 'Kask', 'L', '140' ),
-);
-$choice = array( LSTAB_Hidden_Rows::entry_for( $helmets[1] ) );
-$names  = LSTAB_Hidden_Rows::name_counts( $helmets );
-
-lstab_assert( array( 1 ) === LSTAB_Hidden_Rows::matches( $choice[0], $helmets, $names ), 'The chosen helmet is found while nothing has changed' );
-
-$repriced    = $helmets;
-$repriced[1] = array( 'Kask', 'M', '130' );
-lstab_assert(
-	array( 1 ) === LSTAB_Hidden_Rows::matches( $choice[0], $repriced, LSTAB_Hidden_Rows::name_counts( $repriced ) ),
-	'A price change does not put it back on the page',
-	wp_json_encode( LSTAB_Hidden_Rows::matches( $choice[0], $repriced, LSTAB_Hidden_Rows::name_counts( $repriced ) ) )
-);
-
-$shifted = array_merge( array( array( 'Rower', '', '4000' ) ), $helmets );
-lstab_assert(
-	array( 2 ) === LSTAB_Hidden_Rows::matches( $choice[0], $shifted, LSTAB_Hidden_Rows::name_counts( $shifted ) ),
-	'A row inserted above does not move the choice to another helmet',
-	wp_json_encode( LSTAB_Hidden_Rows::matches( $choice[0], $shifted, LSTAB_Hidden_Rows::name_counts( $shifted ) ) )
-);
-
-// Edited and moved between one sync and the next: position would answer this
-// with whichever helmet had landed in that slot, which is worse than useless.
-$both = array( array( 'Kask', 'L', '140' ), array( 'Kask', 'S', '100' ), array( 'Kask', 'M', '130' ) );
-lstab_assert(
-	array( 2 ) === LSTAB_Hidden_Rows::matches( $choice[0], $both, LSTAB_Hidden_Rows::name_counts( $both ) ),
-	'A row edited and moved at once is still recognised by what it says',
-	wp_json_encode( LSTAB_Hidden_Rows::matches( $choice[0], $both, LSTAB_Hidden_Rows::name_counts( $both ) ) )
-);
-
-// And where nothing is close enough, or two things are equally close, the
-// answer is no row at all rather than a guess.
-$gone = array( array( 'Kask', 'S', '100' ), array( 'Kask', 'L', '140' ) );
-lstab_assert(
-	array() === LSTAB_Hidden_Rows::matches( $choice[0], $gone, LSTAB_Hidden_Rows::name_counts( $gone ) ),
-	'A deleted row does not drag a different one down with it'
-);
-
-$twins = array( array( 'Kask', 'M', '130' ), array( 'Kask', 'M', '140' ) );
-lstab_assert(
-	array() === LSTAB_Hidden_Rows::matches( $choice[0], $twins, LSTAB_Hidden_Rows::name_counts( $twins ) ),
-	'Two rows equally like it is no answer to which one'
-);
-
-// The rewriting is what keeps the third rule honest, so it is checked on a
-// real source rather than assumed.
-$follow = (int) LSTAB_Storage::insert(
-	array(
-		'title'      => 'Kaski',
-		'sheet_url'  => 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0',
-		'sheet_id'   => '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789',
-		'sheet_kind' => 'doc',
-		'gid'        => '0',
-	)
-);
-LSTAB_Storage::record_success( $follow, array( 'headers' => array( 'Produkt', 'Rozmiar', 'Cena' ), 'rows' => $helmets ) );
-LSTAB_Storage::update( $follow, array( 'hidden_rows' => $choice ) );
-
-LSTAB_Hidden_Rows::reanchor( $follow, $repriced );
-$anchored = LSTAB_Storage::get( $follow )['hidden_rows'];
-lstab_assert(
-	LSTAB_Hidden_Rows::signature( $repriced[1] ) === $anchored[0]['sig'],
-	'After a sync the choice describes the row as it is now',
-	wp_json_encode( $anchored )
-);
-
-// Which means the next change is matched in full again, not by position.
-$moved_again = array_merge( array( array( 'Rower', '', '4000' ) ), $repriced );
-lstab_assert(
-	array( 2 ) === LSTAB_Hidden_Rows::matches( $anchored[0], $moved_again, LSTAB_Hidden_Rows::name_counts( $moved_again ) ),
-	'So a later insertion is matched on the row itself'
-);
-
-// A choice pointing at nothing is left alone rather than quietly dropped.
-LSTAB_Hidden_Rows::reanchor( $follow, array( array( 'Rower', '', '4000' ) ) );
-lstab_assert( 1 === count( LSTAB_Storage::get( $follow )['hidden_rows'] ), 'A choice whose row has gone is kept, in case it comes back' );
-
-LSTAB_Storage::delete( $follow );
-
-// ---------------------------------------------------------------------------
-
-lstab_section( '12i0. The line number is the one Google shows' );
-
-/*
- * A row is only ever referred to by its line, never found by it. Which makes
- * the number's only job being right: our first stored row is the sheet's second
- * line whenever there is a heading, and off by one more for every blank line
- * above it. A number that does not match what someone sees in Google is worse
- * than no number at all.
- */
-lstab_set_mock( 'ok', 'main' );
-LSTAB_Sync::run( $source_id );
-$lined = LSTAB_Storage::get( $source_id );
-
-lstab_assert( isset( $lined['data']['offset'] ), 'The stored copy remembers how many lines come before it' );
-lstab_assert( 1 === (int) $lined['data']['offset'], 'One heading row and no blank lines above it', (string) $lined['data']['offset'] );
-lstab_assert( 2 === LSTAB_Hidden_Rows::line_for( $lined, 0 ), 'So the first row of data is line 2', (string) LSTAB_Hidden_Rows::line_for( $lined, 0 ) );
-lstab_assert( 3 === LSTAB_Hidden_Rows::line_for( $lined, 1 ), 'And the second is line 3' );
-
-// Hiding a row records that line, and a sync keeps it current.
-LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array( LSTAB_Hidden_Rows::entry_for( $lined['data']['rows'][1] ) ) ) );
-LSTAB_Hidden_Rows::reanchor( $source_id, $lined['data']['rows'] );
-$recorded = LSTAB_Storage::get( $source_id )['hidden_rows'];
-lstab_assert( 3 === (int) $recorded[0]['line'], 'A hidden row records the line it was on', wp_json_encode( $recorded[0]['line'] ) );
-
-// And moving it in the sheet moves the number with it, since the record is
-// rewritten each time.
-$pushed = array_merge( array( array( 'Nowy', '1', '', '', '' ) ), $lined['data']['rows'] );
-LSTAB_Storage::record_success( $source_id, array( 'headers' => $lined['data']['headers'], 'rows' => $pushed, 'offset' => 1 ) );
-LSTAB_Hidden_Rows::reanchor( $source_id, $pushed );
-lstab_assert( 4 === (int) LSTAB_Storage::get( $source_id )['hidden_rows'][0]['line'], 'And follows it down the sheet', wp_json_encode( LSTAB_Storage::get( $source_id )['hidden_rows'][0]['line'] ) );
-
-// Back to the source as the earlier sections left it: one row hidden, which
-// the sections below check is still honoured while Pro is winding down.
-lstab_set_mock( 'ok', 'main' );
-LSTAB_Sync::run( $source_id );
-LSTAB_Storage::update(
-	$source_id,
-	array( 'hidden_rows' => array( LSTAB_Hidden_Rows::entry_for( LSTAB_Storage::get( $source_id )['data']['rows'][1] ) ) )
-);
-
-// ---------------------------------------------------------------------------
-
-lstab_section( '12i. Columns follow their heading, and say when they cannot' );
-
-/*
- * Column settings used to be kept by position, which looks harmless until
- * somebody adds a column in Google: every setting shifts one place along, the
- * column left out of the table becomes a different column, and the one meant to
- * be private is published. Nothing about the page looks wrong.
- */
-$config = array(
-	0 => array( 'label' => '', 'hidden' => false, 'source' => 'Produkt' ),
-	1 => array( 'label' => 'Cena brutto', 'hidden' => false, 'source' => 'Cena' ),
-	2 => array( 'label' => '', 'hidden' => true, 'source' => 'Notatki wewnętrzne' ),
-);
-
-$inserted = LSTAB_Columns::reconcile( $config, array( 'Kod', 'Produkt', 'Cena', 'Notatki wewnętrzne' ) );
-lstab_assert( ! $inserted[3]['hidden'] === false, 'A column added in Google does not publish the private one', wp_json_encode( wp_list_pluck( $inserted, 'source' ) ) );
-lstab_assert( true === $inserted[3]['hidden'], 'The right column is still the hidden one' );
-lstab_assert( false === $inserted[2]['hidden'], 'And the price is not hidden in its place' );
-lstab_assert( 'Cena brutto' === $inserted[2]['label'], 'A renamed column keeps its new name too', $inserted[2]['label'] );
-lstab_assert( '' === $inserted[0]['label'] && false === $inserted[0]['hidden'], 'The new column starts with nothing set' );
-
-$reordered = LSTAB_Columns::reconcile( $config, array( 'Notatki wewnętrzne', 'Produkt', 'Cena' ) );
-lstab_assert( true === $reordered[0]['hidden'], 'Reordering the sheet moves the settings with it' );
-
-// Two columns of the same name are no longer an answer to "which one", so
-// position is used, exactly as before.
-$ambiguous = LSTAB_Columns::reconcile( $config, array( 'Produkt', 'Produkt', 'Notatki wewnętrzne' ) );
-lstab_assert( 3 === count( $ambiguous ), 'A sheet with repeated headings still produces one setting per column' );
-
-// A heading that has gone is reported rather than silently forgotten.
-$orphans = LSTAB_Columns::orphans( $config, array( 'Produkt', 'Cena' ) );
-lstab_assert( 1 === count( $orphans ), 'A configured column that is gone is reported', wp_json_encode( $orphans ) );
-lstab_assert( 'Notatki wewnętrzne' === $orphans[0]['was'] && $orphans[0]['hidden'], 'And it says which, and that it was hidden' );
-lstab_assert( array() === LSTAB_Columns::orphans( $config, array( 'Produkt', 'Cena', 'Notatki wewnętrzne' ) ), 'Nothing is reported while every heading is there' );
-lstab_assert(
-	array() === LSTAB_Columns::orphans( array( 0 => array( 'label' => '', 'hidden' => false, 'source' => 'Coś' ) ), array( 'Inne' ) ),
-	'A column nobody had configured is not worth reporting'
-);
-
-// ---------------------------------------------------------------------------
-
-lstab_section( '12j. Saying when something hidden has come back' );
-
-/*
- * Every other fault here announces itself. A thing being shown that was meant
- * to be hidden announces nothing: the page looks complete, which is what it
- * would look like if all were well. So it has to come and find someone.
- */
-delete_option( LSTAB_Hidden_Alerts::OPTION );
-delete_option( LSTAB_Hidden_Alerts::DISMISSED_OPT );
-
-$watched = (int) LSTAB_Storage::insert(
-	array(
-		'title'      => 'Cennik z notatkami',
-		'sheet_url'  => 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0',
-		'sheet_id'   => '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789',
-		'sheet_kind' => 'doc',
-		'gid'        => '0',
-	)
-);
-
-$before_rows = array( array( 'Kask', 'S', '100' ), array( 'Kask', 'M', '120' ) );
-// offset 1 = the heading row, so the second stored row is line 3 in Google.
-LSTAB_Storage::record_success( $watched, array( 'headers' => array( 'Produkt', 'Rozmiar', 'Notatki' ), 'rows' => $before_rows, 'offset' => 1 ) );
-LSTAB_Storage::update(
-	$watched,
-	array(
-		'columns_config' => array(
-			0 => array( 'label' => '', 'hidden' => false, 'source' => 'Produkt' ),
-			1 => array( 'label' => '', 'hidden' => false, 'source' => 'Rozmiar' ),
-			2 => array( 'label' => '', 'hidden' => true, 'source' => 'Notatki' ),
-		),
-		'hidden_rows'    => array( LSTAB_Hidden_Rows::entry_for( $before_rows[1], 3 ) ),
-	)
-);
-
-$was = LSTAB_Storage::get( $watched );
-
-// Nothing untoward: the alert stays quiet.
-LSTAB_Hidden_Alerts::check( $was, array( 'headers' => array( 'Produkt', 'Rozmiar', 'Notatki' ), 'rows' => $before_rows ) );
-lstab_assert( ! isset( LSTAB_Hidden_Alerts::pending()[ $watched ] ), 'A sheet that has not moved raises nothing' );
-
-// The hidden column is deleted in Google, and the hidden row with it.
-$after = array( 'headers' => array( 'Produkt', 'Rozmiar' ), 'rows' => array( array( 'Kask', 'S', '100' ) ) );
-LSTAB_Storage::record_success( $watched, $after );
-LSTAB_Hidden_Alerts::check( $was, $after );
-
-$alert = LSTAB_Hidden_Alerts::pending();
-lstab_assert( isset( $alert[ $watched ] ), 'A hidden column that has gone raises the alert' );
-lstab_assert( 1 === count( $alert[ $watched ]['columns'] ), 'It names the column', wp_json_encode( $alert[ $watched ]['columns'] ) );
-lstab_assert( 1 === count( $alert[ $watched ]['rows'] ), 'And the row' );
-
-// A row is named by the line Google shows beside it, not by its place in what
-// was stored: a sheet with a heading row makes those two differ by one, and a
-// line number that is off by one is worse than none at all.
-lstab_assert( 3 === $alert[ $watched ]['rows'][0]['line'], 'By the line Google shows beside it', (string) $alert[ $watched ]['rows'][0]['line'] );
-lstab_assert( 'Cennik z notatkami' === $alert[ $watched ]['title'], 'And which table it is about' );
-
-$lstab_alert_user = get_users( array( 'role' => 'administrator', 'number' => 1, 'fields' => 'ID' ) );
-wp_set_current_user( $lstab_alert_user ? (int) $lstab_alert_user[0] : 1 );
-ob_start();
-LSTAB_Hidden_Alerts::print_notice();
-$alert_html = (string) ob_get_clean();
-lstab_assert( false !== strpos( $alert_html, 'lstab-hidden-alert' ), 'And it is said out loud in the dashboard' );
-lstab_assert( false !== strpos( $alert_html, 'Notatki' ), 'Naming what came back', $alert_html );
-
-/*
- * A column whose heading has gone is publishing its data again. A row that has
- * simply been deleted is not: nothing is on the page that should not be. Saying
- * the same thing about both is how a warning stops being read, so the two are
- * told apart and the notice says which it is.
- */
-lstab_assert( LSTAB_Hidden_Alerts::is_exposure( $alert[ $watched ] ), 'A hidden column that is publishing again counts as an exposure' );
-lstab_assert( false !== strpos( $alert_html, 'notice-warning' ), 'So the notice is a warning', substr( $alert_html, 0, 120 ) );
-
-$only_missing = array(
-	'title'   => 'Tylko brakujący wiersz',
-	'columns' => array(),
-	'rows'    => array( array( 'name' => 'Kask · M · 120', 'line' => 5, 'reason' => 'missing' ) ),
-);
-lstab_assert( ! LSTAB_Hidden_Alerts::is_exposure( $only_missing ), 'A row that has simply gone is not an exposure' );
-
-$ambiguous_only = array(
-	'title'   => 'Nierozstrzygalny wiersz',
-	'columns' => array(),
-	'rows'    => array( array( 'name' => 'Kask · M · 120', 'line' => 5, 'reason' => 'ambiguous' ) ),
-);
-lstab_assert( LSTAB_Hidden_Alerts::is_exposure( $ambiguous_only ), 'A row that can no longer be told apart is' );
-
-$label_only = array(
-	'title'   => 'Zgubiona nazwa',
-	'columns' => array( array( 'was' => 'Cena', 'hidden' => false, 'label' => 'Cena brutto', 'letter' => 'B' ) ),
-	'rows'    => array(),
-);
-lstab_assert( ! LSTAB_Hidden_Alerts::is_exposure( $label_only ), 'And a column that has only lost its new name is not' );
-
-wp_set_current_user( 0 );
-ob_start();
-LSTAB_Hidden_Alerts::print_notice();
-lstab_assert( '' === trim( (string) ob_get_clean() ), 'Nobody who cannot act on it is shown it' );
-
-// Putting it away silences that finding, and only that finding.
-update_option( LSTAB_Hidden_Alerts::DISMISSED_OPT, array( LSTAB_Hidden_Alerts::signature( $watched, $alert[ $watched ] ) ), true );
-lstab_assert( ! isset( LSTAB_Hidden_Alerts::pending()[ $watched ] ), 'Reading it puts it away' );
-
-// A second thing coming undone is a different finding, so it is heard even
-// though the first was put away.
-$was_more                      = $was;
-$was_more['columns_config'][1] = array( 'label' => 'Rozmiar (S/M/L)', 'hidden' => false, 'source' => 'Rozmiar' );
-LSTAB_Storage::record_success( $watched, array( 'headers' => array( 'Produkt' ), 'rows' => array() ) );
-LSTAB_Hidden_Alerts::check( $was_more, array( 'headers' => array( 'Produkt' ), 'rows' => array() ) );
-lstab_assert( isset( LSTAB_Hidden_Alerts::pending()[ $watched ] ), 'A further thing coming back is news again' );
-lstab_assert( 2 === count( LSTAB_Hidden_Alerts::pending()[ $watched ]['columns'] ), 'And both columns are named', wp_json_encode( LSTAB_Hidden_Alerts::pending()[ $watched ]['columns'] ) );
-
-// Putting the sheet back the way it was clears it.
-LSTAB_Storage::record_success( $watched, array( 'headers' => array( 'Produkt', 'Rozmiar', 'Notatki' ), 'rows' => $before_rows ) );
-LSTAB_Hidden_Alerts::check( $was, array( 'headers' => array( 'Produkt', 'Rozmiar', 'Notatki' ), 'rows' => $before_rows ) );
-lstab_assert( ! isset( LSTAB_Hidden_Alerts::pending()[ $watched ] ), 'And fixing the sheet clears it' );
-
-LSTAB_Storage::delete( $watched );
-lstab_assert( array() === LSTAB_Hidden_Alerts::pending(), 'Deleting a table takes its alert with it' );
-
-delete_option( LSTAB_Hidden_Alerts::OPTION );
-delete_option( LSTAB_Hidden_Alerts::DISMISSED_OPT );
-
-// ---------------------------------------------------------------------------
-
-lstab_section( '12h. Settings, and where the screens live' );
-
-$lstab_tab_user = get_users( array( 'role' => 'administrator', 'number' => 1, 'fields' => 'ID' ) );
-wp_set_current_user( $lstab_tab_user ? (int) $lstab_tab_user[0] : 1 );
-
-$tabs = LSTAB_Admin::tabs();
-lstab_assert( isset( $tabs[ LSTAB_Admin::MENU_SLUG ] ), 'Sources is a tab' );
-lstab_assert( isset( $tabs[ LSTAB_Admin::SETTINGS_SLUG ] ), 'So is settings' );
-
-ob_start();
-LSTAB_Admin::render_tabs( LSTAB_Admin::MENU_SLUG );
-$tab_html = (string) ob_get_clean();
-lstab_assert( false !== strpos( $tab_html, 'nav-tab-wrapper' ), 'They are printed as a row of tabs' );
-lstab_assert( false !== strpos( $tab_html, 'nav-tab-active' ), 'And the one you are on is marked' );
-
-$defaults = LSTAB_Settings::defaults();
-lstab_assert( 'edit_pages' === $defaults['manage_capability'], 'Editors can manage tables by default', $defaults['manage_capability'] );
-lstab_assert( empty( $defaults['delete_on_uninstall'] ), 'And deleting the plugin keeps your tables' );
-
-// Nothing that is not on the list may be stored, whatever is submitted.
-$saved = LSTAB_Settings::save(
-	array(
-		'manage_capability'   => 'do_anything_at_all',
-		'default_interval'    => '999',
-		'delete_on_uninstall' => '1',
-		'something_else'      => 'x',
-	)
-);
-lstab_assert( 'edit_pages' === $saved['manage_capability'], 'An unknown capability falls back to the default', $saved['manage_capability'] );
-lstab_assert( 0 === $saved['default_interval'], 'And an interval that is not offered falls back too', (string) $saved['default_interval'] );
-lstab_assert( ! isset( $saved['something_else'] ), 'A field nobody asked for is not stored' );
-lstab_assert( true === $saved['delete_on_uninstall'], 'What is on the list is kept' );
-
-// The capability actually governs the screens.
-LSTAB_Settings::save( array( 'manage_capability' => 'manage_options' ) );
-lstab_assert( 'manage_options' === LSTAB_Limits::capability(), 'Choosing administrators only reaches the screens', LSTAB_Limits::capability() );
-LSTAB_Settings::save( array( 'manage_capability' => 'edit_pages' ) );
-lstab_assert( 'edit_pages' === LSTAB_Limits::capability(), 'And so does choosing editors' );
-
-// A new source starts on the schedule the site asked for.
-LSTAB_Settings::save( array( 'manage_capability' => 'edit_pages', 'default_interval' => 3600 ) );
-$fresh_source = (int) LSTAB_Storage::insert(
-	array(
-		'title'      => 'Nowe',
-		'sheet_url'  => 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0',
-		'sheet_id'   => '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789',
-		'sheet_kind' => 'doc',
-		'gid'        => '0',
-	)
-);
-lstab_assert( 3600 === (int) LSTAB_Storage::get( $fresh_source )['sync_interval'], 'A new table starts on the site default', (string) LSTAB_Storage::get( $fresh_source )['sync_interval'] );
-LSTAB_Storage::delete( $fresh_source );
-delete_option( LSTAB_Settings::OPTION );
-wp_set_current_user( 0 );
 
 // ---------------------------------------------------------------------------
 

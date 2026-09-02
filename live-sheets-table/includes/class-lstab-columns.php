@@ -65,77 +65,34 @@ class LSTAB_Columns {
 	 * @return array<int,array<string,mixed>>
 	 */
 	public static function reconcile( $config, $headers ) {
-		$config   = self::sanitize( $config );
-		$headers  = array_map( 'sanitize_text_field', array_map( 'strval', array_values( (array) $headers ) ) );
-		$blank    = array(
-			'label'  => '',
-			'hidden' => false,
-			'source' => '',
-		);
+		$config  = self::sanitize( $config );
+		$headers = array_map( 'sanitize_text_field', array_map( 'strval', array_values( (array) $headers ) ) );
+		$updated = array();
 
-		/*
-		 * Settings follow their heading, not their place in the row.
-		 *
-		 * Keeping them by position looks harmless and is not: someone adding a
-		 * column in Google shifts every setting one place along, so the column
-		 * left out of the table becomes a different column — and the one that
-		 * was meant to be private is published. Nothing about the page looks
-		 * wrong, which is what makes it worth this much care.
-		 *
-		 * A heading is only followed while it is unambiguous: one setting
-		 * remembering it, one column in the sheet carrying it. Anything else
-		 * falls back to position, which is no worse than it ever was.
-		 */
-		$remembered = array();
-
-		foreach ( $config as $index => $column ) {
-			if ( '' === $column['source'] ) {
-				continue;
-			}
-
-			$remembered[ $column['source'] ][] = $index;
-		}
-
-		$heading_counts = array_count_values( $headers );
-		$claimed        = array();
-		$updated        = array();
-
-		// First pass: every heading that can be recognised takes its own back.
 		foreach ( $headers as $index => $heading ) {
-			if ( '' === $heading || ! isset( $remembered[ $heading ] ) ) {
-				continue;
-			}
-
-			if ( 1 !== count( $remembered[ $heading ] ) || 1 !== $heading_counts[ $heading ] ) {
-				continue;
-			}
-
-			$from = $remembered[ $heading ][0];
-
-			$claimed[ $from ]  = true;
-			$updated[ $index ] = array(
-				'label'  => $config[ $from ]['label'],
-				'hidden' => $config[ $from ]['hidden'],
-				'source' => $heading,
+			$existing = isset( $config[ $index ] ) ? $config[ $index ] : array(
+				'label'  => '',
+				'hidden' => false,
+				'source' => '',
 			);
-		}
 
-		// Second pass: whatever is left keeps the place it had.
-		foreach ( $headers as $index => $heading ) {
-			if ( isset( $updated[ $index ] ) ) {
-				continue;
-			}
-
-			$existing = ( isset( $config[ $index ] ) && ! isset( $claimed[ $index ] ) ) ? $config[ $index ] : $blank;
+			$configured = '' !== $existing['label'] || $existing['hidden'];
 
 			$updated[ $index ] = array(
 				'label'  => $existing['label'],
 				'hidden' => $existing['hidden'],
-				'source' => $heading,
+				/*
+				 * The heading that was there when the choice was made, kept
+				 * exactly as it was for as long as the choice lasts. It is the
+				 * check: a column is only taken out of the table while the
+				 * heading in that position is still this one. Overwriting it
+				 * here would destroy the only evidence that the sheet has
+				 * moved, which is how a column left out once quietly became a
+				 * different column.
+				 */
+				'source' => $configured ? $existing['source'] : $heading,
 			);
 		}
-
-		ksort( $updated );
 
 		return $updated;
 	}
@@ -159,16 +116,15 @@ class LSTAB_Columns {
 	}
 
 	/**
-	 * Settings whose heading is nowhere in the sheet any more.
+	 * Settings whose heading is not the one in that position any more.
 	 *
-	 * Only the ones that were doing something: a renamed column that had been
-	 * left out of the table is now in it, and a renamed column that had been
-	 * relabelled is showing the sheet's own heading. Both are worth telling
-	 * someone about; a column nobody had configured is not.
+	 * Only the ones that were doing something. A column that was being left out
+	 * is on the page again; a column that was being shown under another name is
+	 * showing the sheet's own. A column nobody had configured cannot drift.
 	 *
 	 * @param array<int,array<string,mixed>> $config  Stored configuration.
 	 * @param array<int,string>              $headers Headings from the sheet.
-	 * @return array<int,array{was:string,hidden:bool,label:string}>
+	 * @return array<int,array{was:string,now:string,hidden:bool,label:string,letter:string}>
 	 */
 	public static function orphans( $config, $headers ) {
 		$config   = self::sanitize( $config );
@@ -184,12 +140,15 @@ class LSTAB_Columns {
 				continue;
 			}
 
-			if ( in_array( $column['source'], $headers, true ) ) {
+			$now = isset( $headers[ $index ] ) ? $headers[ $index ] : '';
+
+			if ( $now === $column['source'] ) {
 				continue;
 			}
 
 			$orphaned[] = array(
 				'was'    => $column['source'],
+				'now'    => $now,
 				'hidden' => (bool) $column['hidden'],
 				'label'  => $column['label'],
 				'letter' => self::letter( $index ),
@@ -260,12 +219,21 @@ class LSTAB_Columns {
 		foreach ( $headers as $index => $heading ) {
 			$column = isset( $config[ $index ] ) ? $config[ $index ] : null;
 
-			if ( $column && $column['hidden'] && $may_hide ) {
+			/*
+			 * A choice applies while what is in that position is still what it
+			 * was made about. Once the heading there is a different one, the
+			 * column is shown and the dashboard says why: a column appearing
+			 * that should not is a mistake somebody can see and is told about,
+			 * where the wrong column disappearing is one nobody sees at all.
+			 */
+			$matches = $column && ( '' === $column['source'] || (string) $heading === $column['source'] );
+
+			if ( $matches && $column['hidden'] && $may_hide ) {
 				continue;
 			}
 
 			$keep[]   = $index;
-			$labels[] = ( $column && '' !== $column['label'] ) ? $column['label'] : (string) $heading;
+			$labels[] = ( $matches && '' !== $column['label'] ) ? $column['label'] : (string) $heading;
 		}
 
 		// Refuse to render nothing: hiding every column is a configuration

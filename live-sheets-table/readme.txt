@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.2.0
+Stable tag: 3.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,14 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.3.0 =
+* Changed: a hidden row is now remembered by the line it is on in Google, checked against everything that row said. Two rows that read exactly alike are two separate choices, so taking out a duplicate no longer takes out its twin somewhere else in the sheet.
+* Changed: a hidden or renamed column is remembered by its position, checked against the heading that was there when the choice was made — and a sync never quietly adopts a new heading in its place, which is what used to let a choice drift onto a different column.
+* Changed: when a line or a heading has moved, nothing is taken out. The row or column is on the page and the dashboard says which one and why, rather than the wrong one disappearing where nobody would see it.
+* Added: the Hide columns and rows screen says up front that moving a column or inserting a line above a hidden row in Google will bring it back, so it is not something to find out from a notice afterwards.
+* Added: rows are labelled by the line number Google shows them on, in the picker and in every message about them.
+* Fixed: a row that is blank in every cell can be taken out too.
 
 = 3.2.0 =
 * Fixed: the notice about a hidden thing no longer said what had happened. It announced that something was on the page again even when the row had simply been deleted, in which case nothing is on the page at all. A row that has gone and a row that is back are now told apart: one is a warning, the other is information.
@@ -309,6 +317,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.3.0 =
+Hidden rows and columns are now remembered by their line and their position, and anything that moves in Google comes back on the page with a message instead of the wrong thing disappearing.
 
 = 3.2.0 =
 The notice about a hidden row or column now says what actually happened, and stops calling a deleted row an exposure.

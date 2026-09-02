@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-02 09:36+0000\n"
+"POT-Creation-Date: 2026-09-02 12:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -363,7 +363,7 @@ msgstr ""
 msgid "How to run WordPress schedules from a system cron"
 msgstr ""
 
-#: includes/class-lstab-hidden-alerts.php:300
+#: includes/class-lstab-hidden-alerts.php:315
 msgid "I have read this"
 msgstr ""
 
@@ -411,6 +411,11 @@ msgstr ""
 
 #: includes/class-lstab-styles.php:24
 msgid "Light rules between rows, generous spacing. Inherits your theme fonts."
+msgstr ""
+
+#. translators: 1: the sheet line, 2: the first few things the row said.
+#: includes/class-lstab-hidden-alerts.php:280
+msgid "Line %1$d is not “%2$s” any more, so nothing is being taken out there and that row is on the page. Somebody has inserted, removed or reordered rows in Google. Click the row you want and save."
 msgstr ""
 
 #: includes/class-lstab-customizer.php:58
@@ -528,7 +533,7 @@ msgstr ""
 msgid "Open in Google Sheets"
 msgstr ""
 
-#: includes/class-lstab-hidden-alerts.php:293
+#: includes/class-lstab-hidden-alerts.php:308
 msgid "Open this table"
 msgstr ""
 
@@ -818,11 +823,11 @@ msgstr ""
 msgid "Small"
 msgstr ""
 
-#: includes/class-lstab-hidden-alerts.php:228
+#: includes/class-lstab-hidden-alerts.php:234
 msgid "Something you had taken out of a table is no longer in the sheet."
 msgstr ""
 
-#: includes/class-lstab-hidden-alerts.php:227
+#: includes/class-lstab-hidden-alerts.php:233
 msgid "Something you had taken out of a table is on the page again."
 msgstr ""
 
@@ -912,6 +917,17 @@ msgstr ""
 msgid "That sheet source no longer exists."
 msgstr ""
 
+#. translators: 1: heading that was renamed, 2: the name it was shown under, 3:
+#. heading in that position now.
+#: includes/class-lstab-hidden-alerts.php:256
+msgid "The column you renamed to “%2$s” was headed “%1$s”. That position now holds “%3$s” instead, so it is showing the sheet's own heading again. Somebody has moved, renamed or removed a column in Google."
+msgstr ""
+
+#. translators: 1: heading that was taken out, 2: heading in that position now.
+#: includes/class-lstab-hidden-alerts.php:250
+msgid "The column you took out was headed “%1$s”. That position now holds “%2$s” instead, so nothing is being taken out and the column is on the page. Somebody has moved, renamed or removed a column in Google. Click the one you want and save."
+msgstr ""
+
 #: includes/views/edit-page.php:381
 msgid "The columns in your sheet have moved."
 msgstr ""
@@ -938,16 +954,9 @@ msgid_plural "The free version stores %d sheet sources. Remove one, or upgrade t
 msgstr[0] ""
 msgstr[1] ""
 
-#. translators: 1: the first few things the row said, 2: the sheet line it was
-#. last on.
-#: includes/class-lstab-hidden-alerts.php:265
-msgid "The row “%1$s”, last seen on line %2$d, has been edited so much that more than one row now looks like it. Rather than take out the wrong one, none has been taken out — so that row is on the page. Point at it again to put it back."
-msgstr ""
-
-#. translators: 1: the first few things the row said, 2: the sheet line it was
-#. last on.
-#: includes/class-lstab-hidden-alerts.php:271
-msgid "The row “%1$s”, last seen on line %2$d, is not in the sheet any more, so nothing is on the page that should not be. The setting has been left alone: if you put that row back in Google, it will be taken out of the table again."
+#. translators: 1: the sheet line, 2: the first few things the row said.
+#: includes/class-lstab-hidden-alerts.php:286
+msgid "The sheet no longer reaches line %1$d, where “%2$s” was taken out. Nothing is on the page that should not be. The setting is left alone: if the sheet grows back to that line, whatever is there will be taken out, so check it then."
 msgstr ""
 
 #: includes/class-lstab-csv-parser.php:32
@@ -965,16 +974,6 @@ msgstr ""
 
 #: includes/views/edit-page.php:38
 msgid "The usual cause is a value that runs two cells together — a lone quotation mark, or a comma inside a value that was not quoted. It can also be a cell holding a line break, or a copy of the sheet edited by hand rather than exported by Google. Open those rows in your sheet and compare them against the ones around them."
-msgstr ""
-
-#. translators: 1: heading of a column, 2: the name it was shown under.
-#: includes/class-lstab-hidden-alerts.php:249
-msgid "There is no column headed “%1$s” any more, so nothing is being shown as “%2$s”. Most often the heading has been changed in Google, or the column removed."
-msgstr ""
-
-#. translators: %s: heading of a column.
-#: includes/class-lstab-hidden-alerts.php:244
-msgid "There is no column headed “%s” any more, so it is not being left out — whatever is in it is now on the page. Most often the heading has been changed in Google, or the column removed. If it was renamed, take the new one out of the table."
 msgstr ""
 
 #: includes/views/edit-page.php:289
@@ -1083,7 +1082,7 @@ msgstr ""
 msgid "You do not have permission to change these settings."
 msgstr ""
 
-#: includes/class-lstab-hidden-alerts.php:313
+#: includes/class-lstab-hidden-alerts.php:328
 msgid "You do not have permission to do that."
 msgstr ""
 
@@ -1091,8 +1090,17 @@ msgstr ""
 msgid "Your pages are still showing the last copy that arrived, so nothing is broken for visitors. But WordPress runs scheduled work only when someone visits the site, so a quiet site falls behind — and on a site that should be busy this usually means something is stopping it: a security plugin, a page cache answering every request without running WordPress, or a host that switches scheduling off without replacing it."
 msgstr ""
 
+#: includes/class-lstab-hidden-alerts.php:252
+#: includes/class-lstab-hidden-alerts.php:259
+msgid "nothing"
+msgstr ""
+
 #: blocks/sheet-table/index.js:86
 msgid "rows"
+msgstr ""
+
+#: includes/class-lstab-hidden-alerts.php:272
+msgid "the empty row"
 msgstr ""
 
 #. translators: 1: source title, 2: human readable time difference, e.g. "2

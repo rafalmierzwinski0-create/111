@@ -860,9 +860,14 @@ check(
 	JSON.stringify( sidebar )
 );
 
-// Saving from here must not disturb anything it does not show.
+/*
+ * Saving from here must not disturb anything it does not show. Waiting for the
+ * address the save redirects to, rather than for the network to go quiet: the
+ * quiet moment can be the page we are still standing on, and then the check
+ * reads the screen from before the save.
+ */
 await page.selectOption( 'select[name="lstab_settings[default_interval]"]', '3600' );
-await Promise.all( [ page.waitForLoadState( 'networkidle' ), page.locator( '.lstab-submit button[type=submit]' ).click() ] );
+await Promise.all( [ page.waitForURL( /lstab-saved/ ), page.locator( '.lstab-submit button[type=submit]' ).click() ] );
 check(
 	( await page.locator( 'body' ).innerText() ).includes( 'Settings saved' ),
 	'Saving says so'
@@ -874,7 +879,7 @@ check(
 await page.locator( '.wrap' ).first().screenshot( { path: `${ SHOTS }/38-settings.png` } );
 
 await page.selectOption( 'select[name="lstab_settings[default_interval]"]', '0' );
-await Promise.all( [ page.waitForLoadState( 'networkidle' ), page.locator( '.lstab-submit button[type=submit]' ).click() ] );
+await Promise.all( [ page.waitForURL( /lstab-saved/ ), page.locator( '.lstab-submit button[type=submit]' ).click() ] );
 
 section( '9b. Even column widths' );
 

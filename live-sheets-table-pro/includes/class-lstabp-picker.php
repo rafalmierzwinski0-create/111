@@ -72,9 +72,7 @@ class LSTABP_Picker {
 			array(
 				'i18n' => array(
 					'showRowAgain' => __( 'Show this row again', 'live-sheets-table-pro' ),
-					/* translators: %d: how many rows say the same thing. */
-					'alsoMatches'  => __( '%d rows', 'live-sheets-table-pro' ),
-					'notInSheet'   => __( 'not in the sheet now', 'live-sheets-table-pro' ),
+					'notThereNow'  => __( 'not on that line now', 'live-sheets-table-pro' ),
 					'shown'        => __( 'Shown', 'live-sheets-table-pro' ),
 					'hidden'       => __( 'Hidden', 'live-sheets-table-pro' ),
 				),
@@ -103,9 +101,8 @@ class LSTABP_Picker {
 
 		$columns = isset( $source['columns_config'] ) ? (array) $source['columns_config'] : array();
 		$hidden  = LSTAB_Hidden_Rows::sanitize( isset( $source['hidden_rows'] ) ? $source['hidden_rows'] : array() );
-		$counts  = LSTAB_Hidden_Rows::name_counts( $rows );
 		$dropped = LSTAB_Hidden_Rows::positions( $hidden, $rows );
-		$twins   = LSTAB_Hidden_Rows::signature_counts( $rows );
+		$offset  = isset( $source['data']['offset'] ) ? (int) $source['data']['offset'] : 0;
 		$shown   = array_slice( $rows, 0, self::MAX_ROWS );
 
 		include LSTABP_PATH . 'includes/views/picker-card.php';

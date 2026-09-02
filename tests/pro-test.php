@@ -545,7 +545,7 @@ LSTAB_Storage::update( $source_id, array( 'columns_config' => array() ) );
 // hidden things reappearing in the download.
 $hidden_row = LSTAB_Storage::get( $source_id )['data']['rows'][0];
 $hidden_key = LSTAB_Hidden_Rows::key_for( $hidden_row );
-LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array( LSTAB_Hidden_Rows::entry_for( $hidden_row ) ) ) );
+LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array( LSTAB_Hidden_Rows::entry_for( $hidden_row, 0 ) ) ) );
 $export_rows = LSTAB_Renderer::prepare( LSTAB_Storage::get( $source_id ), array() );
 $exported    = wp_json_encode( $export_rows['rows'] );
 lstabp_assert( false === strpos( (string) $exported, $hidden_key ), 'A hidden row is not in the file either', (string) $exported );
@@ -601,54 +601,64 @@ $picker->render_card( null, false );
 lstabp_assert( '' === trim( (string) ob_get_clean() ), 'Nothing is printed while a source is being added' );
 
 /*
- * A row is remembered by what it says, so rows that say the same thing are one
- * choice rather than two. That is usually what someone means and occasionally a
- * surprise — and a surprise is only a problem while it is invisible, so the
- * screen counts them before anything is clicked.
+ * A row is remembered by the line it is on, so two rows that say exactly the
+ * same thing are still two separate choices. Remembering what the row said
+ * instead made them one, and taking out a duplicate quietly took its twin out
+ * of the table as well, somewhere else entirely.
  */
 $twins = array(
 	array( 'Kask', '100', 'W magazynie' ),
 	array( 'Kask', '120', 'Brak' ),
-	array( 'Rower', '4000', 'W magazynie' ),
+	array( 'Kask', '100', 'W magazynie' ),
 );
-$counts = LSTAB_Hidden_Rows::signature_counts( $twins );
-lstabp_assert( 1 === $counts[ LSTAB_Hidden_Rows::signature( $twins[0] ) ], 'Two helmets at different prices are two rows, not one', wp_json_encode( array_values( $counts ) ) );
 
-$same   = array( array( 'Kask', '100', 'W magazynie' ), array( 'Kask', '100', 'W magazynie' ) );
-$shared = LSTAB_Hidden_Rows::signature_counts( $same );
-lstabp_assert( 2 === $shared[ LSTAB_Hidden_Rows::signature( $same[0] ) ], 'Rows identical in every cell are one choice, because a reader cannot tell them apart either' );
+$twin_source                = $picker_source;
+$twin_source['data']        = array(
+	'headers' => array( 'Produkt', 'Cena', 'Stan' ),
+	'rows'    => $twins,
+	'offset'  => 1,
+);
+$twin_source['hidden_rows'] = array( LSTAB_Hidden_Rows::entry_for( $twins[0], 0 ) );
 
-$twin_source            = $picker_source;
-$twin_source['data']    = array( 'headers' => array( 'Produkt', 'Cena', 'Stan' ), 'rows' => $twins );
-$twin_source['hidden_rows'] = array();
+$left = LSTAB_Hidden_Rows::filter_rows( $twins, $twin_source['data']['headers'], $twin_source, array() );
+lstabp_assert( 2 === count( $left ), 'One row is taken out, not everything that reads like it', (string) count( $left ) );
+lstabp_assert( array( 'Kask', '100', 'W magazynie' ) === $left[1], 'Its identical twin further down the sheet stays', wp_json_encode( $left ) );
 
+/*
+ * Which means the screen has to say which line each choice is on: "Kask · 100"
+ * is not an answer to "which one did I take out?" when two rows say it.
+ */
 ob_start();
 $picker->render_card( $twin_source, true );
 $twin_card = (string) ob_get_clean();
-lstabp_assert( false === strpos( $twin_card, 'data-lstabp-shared="2"' ), 'Two helmets at different prices are not marked as one choice' );
+lstabp_assert( false !== strpos( $twin_card, 'data-lstabp-line="2"' ), 'The screen names the line each choice is on' );
+lstabp_assert( false !== strpos( $twin_card, 'data-lstabp-line="4"' ), 'And numbers every row the way Google does' );
+lstabp_assert( false !== strpos( $twin_card, 'data-lstabp-present="1"' ), 'A choice matching its line is marked as working' );
 
-// Only rows that are identical cell for cell get the warning.
-$same_source                = $twin_source;
-$same_source['data']['rows'] = $same;
-ob_start();
-$picker->render_card( $same_source, true );
-$same_card = (string) ob_get_clean();
-lstabp_assert( false !== strpos( $same_card, 'data-lstabp-shared="2"' ), 'Rows identical in every cell are marked as one choice' );
-lstabp_assert( false !== strpos( $same_card, '×2' ), 'And the count is shown before anything is clicked' );
+// Said before anything is clicked: moving the row or the column in Google is
+// what breaks a choice, and that is worth knowing in advance.
+lstabp_assert( false !== strpos( $twin_card, 'lstabp-picker-note' ), 'The screen warns that moving things in Google undoes a choice' );
 
-// Hiding one helmet leaves the other, which is the whole point.
-$twin_source['hidden_rows'] = array( LSTAB_Hidden_Rows::entry_for( $twins[0] ) );
-$left = LSTAB_Hidden_Rows::filter_rows( $twins, $twin_source['data']['headers'], $twin_source, array() );
-lstabp_assert( 2 === count( $left ), 'One of two rows sharing a name can be hidden on its own', (string) count( $left ) );
-lstabp_assert( '120' === $left[0][1], 'And it is the right one', wp_json_encode( $left ) );
-
-// A choice whose row has since been renamed is kept, and shown as dormant.
-$orphan_source                = $picker_source;
-$orphan_source['hidden_rows'] = array( array( 'name' => 'Coś, czego już nie ma', 'sig' => str_repeat( 'b', 32 ) ) );
+/*
+ * A choice whose line no longer holds what it did is kept and shown as
+ * dormant. Dropping it would be the plugin deciding on someone's behalf that
+ * they no longer want that row hidden; keeping it means the choice starts
+ * working again the moment the sheet is put back.
+ */
+$orphan_source                = $twin_source;
+$orphan_source['hidden_rows'] = array(
+	array(
+		'index' => 0,
+		'name'  => 'Coś, czego już nie ma',
+		'sig'   => str_repeat( 'b', 32 ),
+		'label' => 'Coś, czego już nie ma',
+	),
+);
 ob_start();
 $picker->render_card( $orphan_source, true );
 $orphan_card = (string) ob_get_clean();
-lstabp_assert( false !== strpos( $orphan_card, 'data-lstabp-present="0"' ), 'A key with no row left is marked as such rather than dropped' );
+lstabp_assert( false !== strpos( $orphan_card, 'data-lstabp-present="0"' ), 'A choice that no longer matches its line is marked as such rather than dropped' );
+lstabp_assert( false !== strpos( $orphan_card, 'Coś, czego już nie ma' ), 'And still says what it was about' );
 
 // ---------------------------------------------------------------------------
 

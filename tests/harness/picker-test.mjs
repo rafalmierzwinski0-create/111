@@ -64,9 +64,15 @@ await page.waitForTimeout( 300 );
 const chips = await page.locator( '#lstabp-hidden-rows-chips .lstabp-chip' ).allInnerTexts();
 check( chips.length === 1, 'A clicked row is listed below the table', JSON.stringify( chips ) );
 check( chips[ 0 ].includes( rowLabel ), 'By name', JSON.stringify( chips ) );
+
+const rowLine = await page.locator( '#lstabp-picker tbody tr' ).nth( 1 ).getAttribute( 'data-lstabp-line' );
+check( chips[ 0 ].includes( rowLine ), 'And by the line Google shows it on', JSON.stringify( chips ) + ' line ' + rowLine );
+
+const fieldCount = await page.locator( '#lstabp-hidden-rows-fields input[name^="hidden_rows"]' ).count();
+check( fieldCount === 4, 'It carries the line, the name, what it said and how to check it', String( fieldCount ) );
 check(
-	await page.locator( '#lstabp-hidden-rows-fields input[name^="hidden_rows"]' ).count() === 2,
-	'And carries both its name and what it said'
+	await page.locator( '#lstabp-hidden-rows-fields input[name$="[index]"]' ).first().getAttribute( 'value' ) === '1',
+	'And the line it remembers is the row that was clicked'
 );
 
 await page.locator( '.lstabp-picker-card' ).scrollIntoViewIfNeeded();

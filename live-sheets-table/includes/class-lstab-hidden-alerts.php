@@ -64,6 +64,12 @@ class LSTAB_Hidden_Alerts {
 		}
 
 		$rows    = isset( $fresh['data']['rows'] ) ? (array) $fresh['data']['rows'] : array();
+		$lines   = array();
+
+		foreach ( LSTAB_Hidden_Rows::unresolved( $fresh['hidden_rows'], $rows ) as $stalled ) {
+			$stalled['line'] = LSTAB_Hidden_Rows::line_for( $fresh, $stalled['index'] );
+			$lines[]         = $stalled;
+		}
 		$headers = isset( $table['headers'] ) ? (array) $table['headers'] : array();
 
 		/*
@@ -74,7 +80,7 @@ class LSTAB_Hidden_Alerts {
 		 */
 		$found = array(
 			'title'   => (string) $fresh['title'],
-			'rows'    => LSTAB_Hidden_Rows::unresolved( $fresh['hidden_rows'], $rows ),
+			'rows'    => $lines,
 			'columns' => LSTAB_Columns::orphans( isset( $source['columns_config'] ) ? $source['columns_config'] : array(), $headers ),
 		);
 
@@ -187,7 +193,7 @@ class LSTAB_Hidden_Alerts {
 		}
 
 		foreach ( $found['rows'] as $row ) {
-			if ( 'ambiguous' === $row['reason'] ) {
+			if ( 'moved' === $row['reason'] ) {
 				return true;
 			}
 		}
@@ -240,15 +246,17 @@ class LSTAB_Hidden_Alerts {
 							echo esc_html(
 								$lstab_column['hidden']
 									? sprintf(
-										/* translators: %s: heading of a column. */
-										__( 'There is no column headed “%s” any more, so it is not being left out — whatever is in it is now on the page. Most often the heading has been changed in Google, or the column removed. If it was renamed, take the new one out of the table.', 'live-sheets-table' ),
-										$lstab_column['was']
+										/* translators: 1: heading that was taken out, 2: heading in that position now. */
+										__( 'The column you took out was headed “%1$s”. That position now holds “%2$s” instead, so nothing is being taken out and the column is on the page. Somebody has moved, renamed or removed a column in Google. Click the one you want and save.', 'live-sheets-table' ),
+										$lstab_column['was'],
+										'' === $lstab_column['now'] ? __( 'nothing', 'live-sheets-table' ) : $lstab_column['now']
 									)
 									: sprintf(
-										/* translators: 1: heading of a column, 2: the name it was shown under. */
-										__( 'There is no column headed “%1$s” any more, so nothing is being shown as “%2$s”. Most often the heading has been changed in Google, or the column removed.', 'live-sheets-table' ),
+										/* translators: 1: heading that was renamed, 2: the name it was shown under, 3: heading in that position now. */
+										__( 'The column you renamed to “%2$s” was headed “%1$s”. That position now holds “%3$s” instead, so it is showing the sheet\'s own heading again. Somebody has moved, renamed or removed a column in Google.', 'live-sheets-table' ),
 										$lstab_column['was'],
-										$lstab_column['label']
+										$lstab_column['label'],
+										'' === $lstab_column['now'] ? __( 'nothing', 'live-sheets-table' ) : $lstab_column['now']
 									)
 							);
 							?>
@@ -256,21 +264,28 @@ class LSTAB_Hidden_Alerts {
 					<?php endforeach; ?>
 
 					<?php foreach ( $lstab_found['rows'] as $lstab_row ) : ?>
+						<?php
+						// A row that was blank in every cell has nothing to quote,
+						// and “” in the middle of a sentence reads as a bug.
+						$lstab_said = '' !== $lstab_row['label']
+							? $lstab_row['label']
+							: __( 'the empty row', 'live-sheets-table' );
+						?>
 						<li>
 							<?php
 							echo esc_html(
-								'ambiguous' === $lstab_row['reason']
+								'moved' === $lstab_row['reason']
 									? sprintf(
-										/* translators: 1: the first few things the row said, 2: the sheet line it was last on. */
-										__( 'The row “%1$s”, last seen on line %2$d, has been edited so much that more than one row now looks like it. Rather than take out the wrong one, none has been taken out — so that row is on the page. Point at it again to put it back.', 'live-sheets-table' ),
-										$lstab_row['name'],
-										(int) $lstab_row['line']
+										/* translators: 1: the sheet line, 2: the first few things the row said. */
+										__( 'Line %1$d is not “%2$s” any more, so nothing is being taken out there and that row is on the page. Somebody has inserted, removed or reordered rows in Google. Click the row you want and save.', 'live-sheets-table' ),
+										(int) $lstab_row['line'],
+										$lstab_said
 									)
 									: sprintf(
-										/* translators: 1: the first few things the row said, 2: the sheet line it was last on. */
-										__( 'The row “%1$s”, last seen on line %2$d, is not in the sheet any more, so nothing is on the page that should not be. The setting has been left alone: if you put that row back in Google, it will be taken out of the table again.', 'live-sheets-table' ),
-										$lstab_row['name'],
-										(int) $lstab_row['line']
+										/* translators: 1: the sheet line, 2: the first few things the row said. */
+										__( 'The sheet no longer reaches line %1$d, where “%2$s” was taken out. Nothing is on the page that should not be. The setting is left alone: if the sheet grows back to that line, whatever is there will be taken out, so check it then.', 'live-sheets-table' ),
+										(int) $lstab_row['line'],
+										$lstab_said
 									)
 							);
 							?>

@@ -131,14 +131,16 @@ return array(
 		=> 'Coś, co usunąłeś z tabeli, jest znów na stronie.',
 	'Something you had taken out of a table is no longer in the sheet.'
 		=> 'Czegoś, co usunąłeś z tabeli, nie ma już w arkuszu.',
-	'There is no column headed “%s” any more, so it is not being left out — whatever is in it is now on the page. Most often the heading has been changed in Google, or the column removed. If it was renamed, take the new one out of the table.'
-		=> 'Nie ma już kolumny o nagłówku „%s”, więc nic nie jest pomijane — to, co w niej było, jest teraz na stronie. Najczęściej znaczy to, że w Google zmieniono nazwę nagłówka albo usunięto kolumnę. Jeśli zmieniono nazwę, usuń z tabeli tę nową.',
-	'There is no column headed “%1$s” any more, so nothing is being shown as “%2$s”. Most often the heading has been changed in Google, or the column removed.'
-		=> 'Nie ma już kolumny o nagłówku „%1$s”, więc nic nie jest pokazywane jako „%2$s”. Najczęściej znaczy to, że w Google zmieniono nazwę nagłówka albo usunięto kolumnę.',
-	'The row “%1$s”, last seen on line %2$d, has been edited so much that more than one row now looks like it. Rather than take out the wrong one, none has been taken out — so that row is on the page. Point at it again to put it back.'
-		=> 'Wiersz „%1$s”, ostatnio widziany w linii %2$d, został zmieniony na tyle, że więcej niż jeden wiersz wygląda teraz tak samo. Zamiast usunąć niewłaściwy, nie usunięto żadnego — więc ten wiersz jest na stronie. Kliknij go ponownie, żeby go usunąć.',
-	'The row “%1$s”, last seen on line %2$d, is not in the sheet any more, so nothing is on the page that should not be. The setting has been left alone: if you put that row back in Google, it will be taken out of the table again.'
-		=> 'Wiersza „%1$s”, ostatnio widzianego w linii %2$d, nie ma już w arkuszu, więc na stronie nie pojawiło się nic, czego nie powinno być. Ustawienie zostaje nietknięte: jeśli wpiszesz ten wiersz z powrotem w Google, znów zostanie usunięty z tabeli.',
+	'The column you took out was headed “%1$s”. That position now holds “%2$s” instead, so nothing is being taken out and the column is on the page. Somebody has moved, renamed or removed a column in Google. Click the one you want and save.'
+		=> 'Kolumna, którą usunąłeś, miała nagłówek „%1$s”. W tym miejscu jest teraz „%2$s”, więc nic nie jest usuwane i ta kolumna jest na stronie. Ktoś przestawił, przemianował albo usunął kolumnę w Google. Kliknij tę, o którą Ci chodzi, i zapisz.',
+	'The column you renamed to “%2$s” was headed “%1$s”. That position now holds “%3$s” instead, so it is showing the sheet\'s own heading again. Somebody has moved, renamed or removed a column in Google.'
+		=> 'Kolumna, którą przemianowałeś na „%2$s”, miała nagłówek „%1$s”. W tym miejscu jest teraz „%3$s”, więc pokazuje znów własny nagłówek z arkusza. Ktoś przestawił, przemianował albo usunął kolumnę w Google.',
+	'nothing'                                    => 'nic',
+	'the empty row'                              => 'pusty wiersz',
+	'Line %1$d is not “%2$s” any more, so nothing is being taken out there and that row is on the page. Somebody has inserted, removed or reordered rows in Google. Click the row you want and save.'
+		=> 'W linii %1$d nie ma już „%2$s”, więc nic nie jest tam usuwane i ten wiersz jest na stronie. Ktoś dodał, usunął albo przestawił wiersze w Google. Kliknij wiersz, o który Ci chodzi, i zapisz.',
+	'The sheet no longer reaches line %1$d, where “%2$s” was taken out. Nothing is on the page that should not be. The setting is left alone: if the sheet grows back to that line, whatever is there will be taken out, so check it then.'
+		=> 'Arkusz nie sięga już linii %1$d, w której usunięto „%2$s”. Na stronie nie ma nic, czego nie powinno być. Ustawienie zostaje nietknięte: jeśli arkusz znów urośnie do tej linii, to, co się tam znajdzie, zostanie usunięte — sprawdź to wtedy.',
 	'Open this table'                            => 'Otwórz tę tabelę',
 	'I have read this'                           => 'Przeczytałem',
 	'You do not have permission to do that.'     => 'Nie masz do tego uprawnień.',
