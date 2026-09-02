@@ -168,6 +168,34 @@ class LSTAB_Hidden_Alerts {
 	}
 
 	/**
+	 * Whether a finding means something is on the page that should not be.
+	 *
+	 * A column whose heading has gone is publishing its data again, and a row
+	 * that can no longer be told from its neighbours is back among them. A row
+	 * that has simply been deleted is neither: nothing is being shown, because
+	 * there is nothing left to show. Calling both of those the same thing is
+	 * how a warning stops being read.
+	 *
+	 * @param array<string,mixed> $found Recorded finding.
+	 * @return bool
+	 */
+	public static function is_exposure( $found ) {
+		foreach ( $found['columns'] as $column ) {
+			if ( $column['hidden'] ) {
+				return true;
+			}
+		}
+
+		foreach ( $found['rows'] as $row ) {
+			if ( 'ambiguous' === $row['reason'] ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Print the notice.
 	 *
 	 * @return void
@@ -183,19 +211,28 @@ class LSTAB_Hidden_Alerts {
 			return;
 		}
 
+		$exposed = false;
+
+		foreach ( $pending as $found ) {
+			$exposed = $exposed || self::is_exposure( $found );
+		}
+
 		?>
-		<div class="notice notice-warning lstab-hidden-alert">
+		<div class="notice <?php echo $exposed ? 'notice-warning' : 'notice-info'; ?> lstab-hidden-alert">
 			<p>
-				<strong><?php esc_html_e( 'Something you had left out of a table is being shown again.', 'live-sheets-table' ); ?></strong>
-			</p>
-			<p>
-				<?php esc_html_e( 'The sheet changed in a way that the choice could not be followed through. Nothing is broken, and the page looks perfectly normal — which is why this is being said out loud rather than left to be noticed.', 'live-sheets-table' ); ?>
+				<strong>
+					<?php
+					echo esc_html(
+						$exposed
+							? __( 'Something you had taken out of a table is on the page again.', 'live-sheets-table' )
+							: __( 'Something you had taken out of a table is no longer in the sheet.', 'live-sheets-table' )
+					);
+					?>
+				</strong>
 			</p>
 
 			<?php foreach ( $pending as $lstab_id => $lstab_found ) : ?>
-				<p>
-					<strong><?php echo esc_html( $lstab_found['title'] ); ?></strong>
-				</p>
+				<p><strong><?php echo esc_html( $lstab_found['title'] ); ?></strong></p>
 				<ul class="lstab-alert-list">
 					<?php foreach ( $lstab_found['columns'] as $lstab_column ) : ?>
 						<li>
@@ -204,12 +241,12 @@ class LSTAB_Hidden_Alerts {
 								$lstab_column['hidden']
 									? sprintf(
 										/* translators: %s: heading of a column. */
-										__( 'The column “%s” is being shown again — that heading is no longer in the sheet.', 'live-sheets-table' ),
+										__( 'There is no column headed “%s” any more, so it is not being left out — whatever is in it is now on the page. Most often the heading has been changed in Google, or the column removed. If it was renamed, take the new one out of the table.', 'live-sheets-table' ),
 										$lstab_column['was']
 									)
 									: sprintf(
 										/* translators: 1: heading of a column, 2: the name it was shown under. */
-										__( 'The column “%1$s” is showing its own heading again instead of “%2$s” — that heading is no longer in the sheet.', 'live-sheets-table' ),
+										__( 'There is no column headed “%1$s” any more, so nothing is being shown as “%2$s”. Most often the heading has been changed in Google, or the column removed.', 'live-sheets-table' ),
 										$lstab_column['was'],
 										$lstab_column['label']
 									)
@@ -224,16 +261,16 @@ class LSTAB_Hidden_Alerts {
 							echo esc_html(
 								'ambiguous' === $lstab_row['reason']
 									? sprintf(
-										/* translators: 1: the sheet line the row was last on, 2: the first few things the row said. */
-										__( 'The row that was line %1$d (“%2$s”) is being shown again — it was edited, and more than one row now looks like it.', 'live-sheets-table' ),
-										(int) $lstab_row['line'],
-										$lstab_row['name']
+										/* translators: 1: the first few things the row said, 2: the sheet line it was last on. */
+										__( 'The row “%1$s”, last seen on line %2$d, has been edited so much that more than one row now looks like it. Rather than take out the wrong one, none has been taken out — so that row is on the page. Point at it again to put it back.', 'live-sheets-table' ),
+										$lstab_row['name'],
+										(int) $lstab_row['line']
 									)
 									: sprintf(
-										/* translators: 1: the sheet line the row was last on, 2: the first few things the row said. */
-										__( 'The row that was line %1$d (“%2$s”) is not in the sheet any more. Your choice is kept in case it comes back.', 'live-sheets-table' ),
-										(int) $lstab_row['line'],
-										$lstab_row['name']
+										/* translators: 1: the first few things the row said, 2: the sheet line it was last on. */
+										__( 'The row “%1$s”, last seen on line %2$d, is not in the sheet any more, so nothing is on the page that should not be. The setting has been left alone: if you put that row back in Google, it will be taken out of the table again.', 'live-sheets-table' ),
+										$lstab_row['name'],
+										(int) $lstab_row['line']
 									)
 							);
 							?>
@@ -253,7 +290,7 @@ class LSTAB_Hidden_Alerts {
 						)
 					);
 					?>
-					"><?php esc_html_e( 'Open this table and put it right', 'live-sheets-table' ); ?></a>
+					"><?php esc_html_e( 'Open this table', 'live-sheets-table' ); ?></a>
 				</p>
 			<?php endforeach; ?>
 

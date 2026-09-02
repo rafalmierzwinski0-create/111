@@ -127,19 +127,19 @@ return array(
 	'See what is hidden, and what will come back'
 		=> 'Zobacz, co jest ukryte i co wróci',
 	// When something hidden comes back.
-	'Something you had left out of a table is being shown again.'
-		=> 'Coś, co pominąłeś w tabeli, jest znów pokazywane.',
-	'The sheet changed in a way that the choice could not be followed through. Nothing is broken, and the page looks perfectly normal — which is why this is being said out loud rather than left to be noticed.'
-		=> 'Arkusz zmienił się tak, że nie dało się przenieść tego wyboru dalej. Nic nie jest zepsute, a strona wygląda całkiem normalnie — i właśnie dlatego mówimy o tym wprost, zamiast czekać, aż ktoś zauważy.',
-	'The column “%s” is being shown again — that heading is no longer in the sheet.'
-		=> 'Kolumna „%s” jest znów pokazywana — tego nagłówka nie ma już w arkuszu.',
-	'The column “%1$s” is showing its own heading again instead of “%2$s” — that heading is no longer in the sheet.'
-		=> 'Kolumna „%1$s” pokazuje znów własny nagłówek zamiast „%2$s” — tego nagłówka nie ma już w arkuszu.',
-	'The row that was line %1$d (“%2$s”) is being shown again — it was edited, and more than one row now looks like it.'
-		=> 'Wiersz, który był w linii %1$d („%2$s”), jest znów pokazywany — został zmieniony i więcej niż jeden wiersz wygląda teraz podobnie.',
-	'The row that was line %1$d (“%2$s”) is not in the sheet any more. Your choice is kept in case it comes back.'
-		=> 'Wiersza, który był w linii %1$d („%2$s”), nie ma już w arkuszu. Twój wybór zostaje zapamiętany, gdyby wrócił.',
-	'Open this table and put it right'           => 'Otwórz tę tabelę i popraw',
+	'Something you had taken out of a table is on the page again.'
+		=> 'Coś, co usunąłeś z tabeli, jest znów na stronie.',
+	'Something you had taken out of a table is no longer in the sheet.'
+		=> 'Czegoś, co usunąłeś z tabeli, nie ma już w arkuszu.',
+	'There is no column headed “%s” any more, so it is not being left out — whatever is in it is now on the page. Most often the heading has been changed in Google, or the column removed. If it was renamed, take the new one out of the table.'
+		=> 'Nie ma już kolumny o nagłówku „%s”, więc nic nie jest pomijane — to, co w niej było, jest teraz na stronie. Najczęściej znaczy to, że w Google zmieniono nazwę nagłówka albo usunięto kolumnę. Jeśli zmieniono nazwę, usuń z tabeli tę nową.',
+	'There is no column headed “%1$s” any more, so nothing is being shown as “%2$s”. Most often the heading has been changed in Google, or the column removed.'
+		=> 'Nie ma już kolumny o nagłówku „%1$s”, więc nic nie jest pokazywane jako „%2$s”. Najczęściej znaczy to, że w Google zmieniono nazwę nagłówka albo usunięto kolumnę.',
+	'The row “%1$s”, last seen on line %2$d, has been edited so much that more than one row now looks like it. Rather than take out the wrong one, none has been taken out — so that row is on the page. Point at it again to put it back.'
+		=> 'Wiersz „%1$s”, ostatnio widziany w linii %2$d, został zmieniony na tyle, że więcej niż jeden wiersz wygląda teraz tak samo. Zamiast usunąć niewłaściwy, nie usunięto żadnego — więc ten wiersz jest na stronie. Kliknij go ponownie, żeby go usunąć.',
+	'The row “%1$s”, last seen on line %2$d, is not in the sheet any more, so nothing is on the page that should not be. The setting has been left alone: if you put that row back in Google, it will be taken out of the table again.'
+		=> 'Wiersza „%1$s”, ostatnio widzianego w linii %2$d, nie ma już w arkuszu, więc na stronie nie pojawiło się nic, czego nie powinno być. Ustawienie zostaje nietknięte: jeśli wpiszesz ten wiersz z powrotem w Google, znów zostanie usunięty z tabeli.',
+	'Open this table'                            => 'Otwórz tę tabelę',
 	'I have read this'                           => 'Przeczytałem',
 	'You do not have permission to do that.'     => 'Nie masz do tego uprawnień.',
 	'Save changes and sync'                      => 'Zapisz zmiany i zsynchronizuj',

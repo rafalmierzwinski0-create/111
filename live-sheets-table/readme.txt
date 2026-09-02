@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.1.2
+Stable tag: 3.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -156,6 +156,10 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 
 == Changelog ==
 
+= 3.2.0 =
+* Fixed: the notice about a hidden thing no longer said what had happened. It announced that something was on the page again even when the row had simply been deleted, in which case nothing is on the page at all. A row that has gone and a row that is back are now told apart: one is a warning, the other is information.
+* Changed: each message now says what was looked for, what was found instead, what it means for the page, and what to do about it — and names the likeliest cause, which for a column is almost always that its heading was renamed in Google rather than that the column vanished.
+
 = 3.1.2 =
 * Changed: a hidden row is now quoted by at most four of its cells, and named alongside the line it was last on. A row of twenty columns quoted in full is the row again, in a sentence, and nobody reads to the end of it.
 * Changed: a column is referred to by its heading alone.
@@ -305,6 +309,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.2.0 =
+The notice about a hidden row or column now says what actually happened, and stops calling a deleted row an exposure.
 
 = 3.1.2 =
 Shortens how a hidden row is quoted, and names a column by its heading.

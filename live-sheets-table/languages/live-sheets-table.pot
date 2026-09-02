@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-02 09:28+0000\n"
+"POT-Creation-Date: 2026-09-02 09:36+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -363,7 +363,7 @@ msgstr ""
 msgid "How to run WordPress schedules from a system cron"
 msgstr ""
 
-#: includes/class-lstab-hidden-alerts.php:263
+#: includes/class-lstab-hidden-alerts.php:300
 msgid "I have read this"
 msgstr ""
 
@@ -528,8 +528,8 @@ msgstr ""
 msgid "Open in Google Sheets"
 msgstr ""
 
-#: includes/class-lstab-hidden-alerts.php:256
-msgid "Open this table and put it right"
+#: includes/class-lstab-hidden-alerts.php:293
+msgid "Open this table"
 msgstr ""
 
 #: includes/views/edit-page.php:487
@@ -818,8 +818,12 @@ msgstr ""
 msgid "Small"
 msgstr ""
 
-#: includes/class-lstab-hidden-alerts.php:189
-msgid "Something you had left out of a table is being shown again."
+#: includes/class-lstab-hidden-alerts.php:228
+msgid "Something you had taken out of a table is no longer in the sheet."
+msgstr ""
+
+#: includes/class-lstab-hidden-alerts.php:227
+msgid "Something you had taken out of a table is on the page again."
 msgstr ""
 
 #. translators: %s: column name.
@@ -908,16 +912,6 @@ msgstr ""
 msgid "That sheet source no longer exists."
 msgstr ""
 
-#. translators: 1: heading of a column, 2: the name it was shown under.
-#: includes/class-lstab-hidden-alerts.php:212
-msgid "The column “%1$s” is showing its own heading again instead of “%2$s” — that heading is no longer in the sheet."
-msgstr ""
-
-#. translators: %s: heading of a column.
-#: includes/class-lstab-hidden-alerts.php:207
-msgid "The column “%s” is being shown again — that heading is no longer in the sheet."
-msgstr ""
-
 #: includes/views/edit-page.php:381
 msgid "The columns in your sheet have moved."
 msgstr ""
@@ -944,20 +938,16 @@ msgid_plural "The free version stores %d sheet sources. Remove one, or upgrade t
 msgstr[0] ""
 msgstr[1] ""
 
-#. translators: 1: the sheet line the row was last on, 2: the first few things
-#. the row said.
-#: includes/class-lstab-hidden-alerts.php:228
-msgid "The row that was line %1$d (“%2$s”) is being shown again — it was edited, and more than one row now looks like it."
+#. translators: 1: the first few things the row said, 2: the sheet line it was
+#. last on.
+#: includes/class-lstab-hidden-alerts.php:265
+msgid "The row “%1$s”, last seen on line %2$d, has been edited so much that more than one row now looks like it. Rather than take out the wrong one, none has been taken out — so that row is on the page. Point at it again to put it back."
 msgstr ""
 
-#. translators: 1: the sheet line the row was last on, 2: the first few things
-#. the row said.
-#: includes/class-lstab-hidden-alerts.php:234
-msgid "The row that was line %1$d (“%2$s”) is not in the sheet any more. Your choice is kept in case it comes back."
-msgstr ""
-
-#: includes/class-lstab-hidden-alerts.php:192
-msgid "The sheet changed in a way that the choice could not be followed through. Nothing is broken, and the page looks perfectly normal — which is why this is being said out loud rather than left to be noticed."
+#. translators: 1: the first few things the row said, 2: the sheet line it was
+#. last on.
+#: includes/class-lstab-hidden-alerts.php:271
+msgid "The row “%1$s”, last seen on line %2$d, is not in the sheet any more, so nothing is on the page that should not be. The setting has been left alone: if you put that row back in Google, it will be taken out of the table again."
 msgstr ""
 
 #: includes/class-lstab-csv-parser.php:32
@@ -975,6 +965,16 @@ msgstr ""
 
 #: includes/views/edit-page.php:38
 msgid "The usual cause is a value that runs two cells together — a lone quotation mark, or a comma inside a value that was not quoted. It can also be a cell holding a line break, or a copy of the sheet edited by hand rather than exported by Google. Open those rows in your sheet and compare them against the ones around them."
+msgstr ""
+
+#. translators: 1: heading of a column, 2: the name it was shown under.
+#: includes/class-lstab-hidden-alerts.php:249
+msgid "There is no column headed “%1$s” any more, so nothing is being shown as “%2$s”. Most often the heading has been changed in Google, or the column removed."
+msgstr ""
+
+#. translators: %s: heading of a column.
+#: includes/class-lstab-hidden-alerts.php:244
+msgid "There is no column headed “%s” any more, so it is not being left out — whatever is in it is now on the page. Most often the heading has been changed in Google, or the column removed. If it was renamed, take the new one out of the table."
 msgstr ""
 
 #: includes/views/edit-page.php:289
@@ -1083,7 +1083,7 @@ msgstr ""
 msgid "You do not have permission to change these settings."
 msgstr ""
 
-#: includes/class-lstab-hidden-alerts.php:276
+#: includes/class-lstab-hidden-alerts.php:313
 msgid "You do not have permission to do that."
 msgstr ""
 

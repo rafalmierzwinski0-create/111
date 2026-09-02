@@ -1863,6 +1863,36 @@ $alert_html = (string) ob_get_clean();
 lstab_assert( false !== strpos( $alert_html, 'lstab-hidden-alert' ), 'And it is said out loud in the dashboard' );
 lstab_assert( false !== strpos( $alert_html, 'Notatki' ), 'Naming what came back', $alert_html );
 
+/*
+ * A column whose heading has gone is publishing its data again. A row that has
+ * simply been deleted is not: nothing is on the page that should not be. Saying
+ * the same thing about both is how a warning stops being read, so the two are
+ * told apart and the notice says which it is.
+ */
+lstab_assert( LSTAB_Hidden_Alerts::is_exposure( $alert[ $watched ] ), 'A hidden column that is publishing again counts as an exposure' );
+lstab_assert( false !== strpos( $alert_html, 'notice-warning' ), 'So the notice is a warning', substr( $alert_html, 0, 120 ) );
+
+$only_missing = array(
+	'title'   => 'Tylko brakujący wiersz',
+	'columns' => array(),
+	'rows'    => array( array( 'name' => 'Kask · M · 120', 'line' => 5, 'reason' => 'missing' ) ),
+);
+lstab_assert( ! LSTAB_Hidden_Alerts::is_exposure( $only_missing ), 'A row that has simply gone is not an exposure' );
+
+$ambiguous_only = array(
+	'title'   => 'Nierozstrzygalny wiersz',
+	'columns' => array(),
+	'rows'    => array( array( 'name' => 'Kask · M · 120', 'line' => 5, 'reason' => 'ambiguous' ) ),
+);
+lstab_assert( LSTAB_Hidden_Alerts::is_exposure( $ambiguous_only ), 'A row that can no longer be told apart is' );
+
+$label_only = array(
+	'title'   => 'Zgubiona nazwa',
+	'columns' => array( array( 'was' => 'Cena', 'hidden' => false, 'label' => 'Cena brutto', 'letter' => 'B' ) ),
+	'rows'    => array(),
+);
+lstab_assert( ! LSTAB_Hidden_Alerts::is_exposure( $label_only ), 'And a column that has only lost its new name is not' );
+
 wp_set_current_user( 0 );
 ob_start();
 LSTAB_Hidden_Alerts::print_notice();
