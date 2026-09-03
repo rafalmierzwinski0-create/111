@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-03 07:58+0000\n"
-"PO-Revision-Date: 2026-09-03 07:58+0000\n"
+"POT-Creation-Date: 2026-09-03 10:29+0000\n"
+"PO-Revision-Date: 2026-09-03 10:29+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -90,6 +90,10 @@ msgstr "40 min"
 msgid "45 min"
 msgstr "45 min"
 
+#: includes/views/settings-page.php:138
+msgid "A caching plugin stores the finished page and serves that copy to everybody. It clears it when a post is edited — and a sheet arriving from Google is not that, so without this the table updates here and the visitor keeps seeing yesterday. The pages a table is on are the ones this plugin can see it on: a shortcode or a block in their content. Choose the whole cache if your tables live in a widget, a template or a page builder’s own store, where nothing can be named."
+msgstr "Wtyczka cache’ująca zapisuje gotową stronę i wszystkim podaje tę samą kopię. Czyści ją, gdy edytujesz wpis — a arkusz przychodzący z Google to nie jest edycja wpisu, więc bez tego tabela zaktualizuje się tutaj, a odwiedzający dalej będzie widział wczorajszą. Strony, na których jest tabela, to te, na których wtyczka potrafi ją zobaczyć: shortcode albo blok w ich treści. Wybierz cały cache, jeśli Twoje tabele siedzą w widżecie, w szablonie albo w bibliotece kreatora stron, gdzie nie da się wskazać konkretnej strony."
+
 #: includes/views/welcome.php:45
 msgid "A change in the sheet reaches the page by itself"
 msgstr "Zmiana w arkuszu trafia na stronę sama"
@@ -130,7 +134,7 @@ msgstr "Dodaj nowe"
 msgid "Add new sheet source"
 msgstr "Dodaj nowe źródło arkusza"
 
-#: includes/views/list-page.php:275
+#: includes/views/list-page.php:312
 msgid "Add the example"
 msgstr "Dodaj przykład"
 
@@ -138,7 +142,7 @@ msgstr "Dodaj przykład"
 msgid "Add the example price list"
 msgstr "Dodaj przykładowy cennik"
 
-#: includes/class-lstab-settings.php:114
+#: includes/class-lstab-settings.php:122
 msgid "Administrators only"
 msgstr "Tylko administratorzy"
 
@@ -150,7 +154,7 @@ msgstr "Wszystkie źródła arkuszy"
 msgid "All sources"
 msgstr "Wszystkie źródła"
 
-#: includes/views/settings-page.php:180
+#: includes/views/settings-page.php:211
 msgid "Also delete every sheet source and setting"
 msgstr "Usuń też wszystkie źródła arkuszy i ustawienia"
 
@@ -167,7 +171,7 @@ msgstr "Zawsze karty"
 msgid "Always use cards, at every width"
 msgstr "Zawsze używaj kart, przy każdej szerokości"
 
-#: includes/views/edit-page.php:80 includes/views/settings-page.php:129
+#: includes/views/edit-page.php:80 includes/views/settings-page.php:160
 msgid "Appearance"
 msgstr "Wygląd"
 
@@ -279,7 +283,7 @@ msgstr "Ukryte przez Ciebie kolumny i wiersze zaczną znów się pokazywać za %
 msgid "Compact"
 msgstr "Zwarta"
 
-#: includes/views/list-page.php:286
+#: includes/views/list-page.php:323
 msgid "Compare Free and Pro"
 msgstr "Porównaj wersję darmową i Pro"
 
@@ -287,7 +291,7 @@ msgstr "Porównaj wersję darmową i Pro"
 msgid "Copied"
 msgstr "Skopiowane"
 
-#: includes/views/edit-page.php:206 includes/views/list-page.php:240
+#: includes/views/edit-page.php:206 includes/views/list-page.php:277
 #: includes/class-lstab-admin.php:275 includes/class-lstab-admin.php:852
 msgid "Copy"
 msgstr "Kopiuj"
@@ -317,15 +321,15 @@ msgstr "Nie udało się zapisać źródła arkusza."
 msgid "Daily"
 msgstr "Codziennie"
 
-#: includes/views/list-page.php:259
+#: includes/views/list-page.php:296
 msgid "Delete"
 msgstr "Usuń"
 
-#: includes/views/settings-page.php:189
+#: includes/views/settings-page.php:220
 msgid "Delete everything"
 msgstr "Usuń wszystko"
 
-#: includes/views/list-page.php:253
+#: includes/views/list-page.php:290
 msgid "Delete this sheet source? Tables using it will stop rendering."
 msgstr "Usunąć to źródło arkusza? Tabele, które go używają, przestaną się wyświetlać."
 
@@ -345,7 +349,7 @@ msgstr "Edycja arkusza"
 msgid "Editorial"
 msgstr "Redakcyjny"
 
-#: includes/class-lstab-settings.php:113
+#: includes/class-lstab-settings.php:121
 msgid "Editors and above"
 msgstr "Redaktorzy i wyżej"
 
@@ -509,7 +513,7 @@ msgstr "Co godzinę"
 msgid "How long to wait for Google"
 msgstr "Jak długo czekać na Google"
 
-#: includes/views/settings-page.php:136
+#: includes/views/settings-page.php:167
 msgid "How new tables look"
 msgstr "Jak wyglądają nowe tabele"
 
@@ -525,7 +529,7 @@ msgstr "Jak często i jak długo odwiedzający może czekać"
 msgid "I have read this"
 msgstr "Przeczytałem"
 
-#: includes/views/list-page.php:248
+#: includes/views/list-page.php:285
 msgid "In Google"
 msgstr "W Google"
 
@@ -653,7 +657,7 @@ msgstr "Nazwij i ustaw harmonogram"
 msgid "Narrow column"
 msgstr "Wąska kolumna"
 
-#: includes/views/list-page.php:281
+#: includes/views/list-page.php:318
 msgid "Need more than one sheet?"
 msgstr "Potrzebujesz więcej niż jednego arkusza?"
 
@@ -718,11 +722,19 @@ msgstr "Jeszcze nie zsynchronizowano"
 msgid "Notes"
 msgstr "Uwagi"
 
+#: includes/views/settings-page.php:141
+msgid "Nothing is cleared by a check that found no changes, so this costs nothing on the tables that rarely move."
+msgstr "Sprawdzenie, które nie znalazło zmian, nie czyści niczego — więc przy rzadko zmienianych tabelach nie kosztuje to nic."
+
 #: includes/class-lstab-admin.php:1051
 msgid "Nothing to show yet"
 msgstr "Nie ma jeszcze czego pokazać"
 
-#: includes/views/settings-page.php:182
+#: includes/class-lstab-cache.php:56
+msgid "Nothing — I will clear it myself"
+msgstr "Nic — wyczyszczę sam"
+
+#: includes/views/settings-page.php:213
 msgid "Off by default, because deleting a plugin to reinstall it is a normal thing to do and losing every table for it would not be. This only applies when the plugin is deleted from the Plugins screen, not when it is deactivated. Your spreadsheets in Google are never touched either way."
 msgstr "Domyślnie wyłączone, bo usunięcie wtyczki po to, żeby zainstalować ją ponownie, jest czymś normalnym, a utrata przy tym wszystkich tabel nie byłaby. Dotyczy tylko usunięcia z ekranu Wtyczki, nie dezaktywacji. Twoje arkusze w Google i tak nigdy nie są ruszane."
 
@@ -741,6 +753,10 @@ msgstr "Dotyczy wyłącznie sytuacji, gdy harmonogram nie zadziałał, a odwiedz
 #: includes/views/edit-page.php:165
 msgid "Only shown in the dashboard, to tell sources apart."
 msgstr "Widoczne tylko w kokpicie, żeby odróżnić źródła."
+
+#: includes/class-lstab-cache.php:54
+msgid "Only the pages this table is on"
+msgstr "Tylko strony, na których jest ta tabela"
 
 #: includes/class-lstab-hidden-alerts.php:308
 msgid "Open this table"
@@ -766,6 +782,19 @@ msgstr "Okładziny organiczne lub metaliczne"
 #: includes/class-lstab-renderer.php:523
 msgid "Page %1$s of %2$s"
 msgstr "Strona %1$s z %2$s"
+
+#. translators: 1: number of pages, 2: human readable duration, e.g. "5
+#. minutes".
+#: includes/views/list-page.php:248
+msgid "Page cache cleared on %1$s page, %2$s ago"
+msgid_plural "Page cache cleared on %1$s pages, %2$s ago"
+msgstr[0] "Cache wyczyszczony na %1$s stronie, %2$s temu"
+msgstr[1] "Cache wyczyszczony na %1$s stronach, %2$s temu"
+msgstr[2] "Cache wyczyszczony na %1$s stronach, %2$s temu"
+
+#: includes/views/settings-page.php:129
+msgid "Page caching"
+msgstr "Cache strony"
 
 #: includes/class-lstab-example.php:123
 msgid "Part on back order"
@@ -835,7 +864,7 @@ msgstr "Cennik"
 msgid "Pro"
 msgstr "Pro"
 
-#: includes/views/list-page.php:283
+#: includes/views/list-page.php:320
 msgid "Pro adds unlimited sources, one-minute syncing, conditional cell formatting, filtered views, premium presets and private-sheet support."
 msgstr "Pro dodaje nielimitowaną liczbę źródeł, synchronizację co minutę, formatowanie warunkowe komórek, widoki filtrowane, presety premium i obsługę arkuszy prywatnych."
 
@@ -913,7 +942,7 @@ msgstr "Zapisz zmiany"
 msgid "Save changes and sync"
 msgstr "Zapisz zmiany i zsynchronizuj"
 
-#: includes/views/settings-page.php:196
+#: includes/views/settings-page.php:227
 msgid "Save settings"
 msgstr "Zapisz ustawienia"
 
@@ -1076,6 +1105,10 @@ msgstr "Wyświetlane jako"
 msgid "Small"
 msgstr "Mała"
 
+#: includes/views/settings-page.php:130
+msgid "So a new price reaches the people looking at it"
+msgstr "Żeby nowa cena dotarła do tych, którzy na nią patrzą"
+
 #: includes/class-lstab-hidden-alerts.php:234
 msgid "Something you had taken out of a table is no longer in the sheet."
 msgstr "Czegoś, co usunąłeś z tabeli, nie ma już w arkuszu."
@@ -1208,7 +1241,7 @@ msgstr[2] "Wersja darmowa przechowuje %d źródeł arkuszy. Usuń jedno albo prz
 msgid "The last few checks, oldest first"
 msgstr "Kilka ostatnich sprawdzeń, od najstarszego"
 
-#: includes/views/settings-page.php:174
+#: includes/views/settings-page.php:205
 msgid "The one setting here that cannot be undone"
 msgstr "Jedyne ustawienie tutaj, którego nie da się cofnąć"
 
@@ -1226,7 +1259,7 @@ msgstr "Arkusz nie zwrócił żadnych danych. Sprawdź, czy wybrana zakładka fa
 msgid "The slider is always visible while there is more table to see, unlike the browser's own scrollbar. Use the width buttons beside the preview to check it."
 msgstr "Suwak jest widoczny zawsze, gdy tabela ma coś jeszcze do pokazania — inaczej niż pasek przewijania przeglądarki. Sprawdź go przyciskami szerokości obok podglądu."
 
-#: includes/views/settings-page.php:138
+#: includes/views/settings-page.php:169
 msgid "The style a table is given the moment you add it. Every table can still be changed afterwards; this is only so that somebody who has settled on one look is not choosing it again for every sheet."
 msgstr "Styl, który tabela dostaje w chwili dodania. Każdą tabelę da się potem zmienić; chodzi tylko o to, żeby ktoś, kto wybrał już swój wygląd, nie wskazywał go od nowa przy każdym arkuszu."
 
@@ -1237,6 +1270,10 @@ msgstr "Tabela poniżej nadal renderuje się z kopii, która dotarła, więc nic
 #: includes/views/edit-page.php:53
 msgid "The usual cause is a value that runs two cells together — a lone quotation mark, or a comma inside a value that was not quoted. It can also be a cell holding a line break, or a copy of the sheet edited by hand rather than exported by Google. Open those rows in your sheet and compare them against the ones around them."
 msgstr "Najczęstsza przyczyna to wartość, która skleiła dwie komórki w jedną — pojedynczy cudzysłów albo przecinek w wartości, która nie została ujęta w cudzysłów. Bywa też, że komórka zawiera znak nowej linii, albo że arkusz był edytowany ręcznie zamiast wyeksportowany przez Google. Otwórz te wiersze w arkuszu i porównaj je z sąsiednimi."
+
+#: includes/class-lstab-cache.php:55
+msgid "The whole cache, every time"
+msgstr "Cały cache, za każdym razem"
 
 #: includes/views/edit-page.php:513
 msgid "This is exactly what the parser sees. Check the headings and a few rows before you save — wrong tab, merged cells or a shifted header row show up here, not on your live page."
@@ -1334,7 +1371,7 @@ msgstr "Odwiedzający widzą ostatnią dobrą kopię, więc nic na Twoich strona
 msgid "Waiting for a first look at the sheet. Choose “Refresh” on the sources list, and your real columns will appear here."
 msgstr "Czekamy na pierwsze spojrzenie na arkusz. Wybierz „Odśwież” na liście źródeł, a pojawią się tu Twoje prawdziwe kolumny."
 
-#: includes/views/list-page.php:274
+#: includes/views/list-page.php:311
 msgid "Want somewhere safe to try the settings? Add the built-in example price list — it never touches Google."
 msgstr "Chcesz mieć gdzie bezpiecznie sprawdzić ustawienia? Dodaj wbudowany przykładowy cennik — nigdy nie sięga do Google."
 
@@ -1346,15 +1383,19 @@ msgstr "Tylko czytamy. Nigdy nie zapisujemy"
 msgid "What Google actually sent"
 msgstr "Co dokładnie przysłał Google"
 
-#: includes/views/settings-page.php:130
+#: includes/views/settings-page.php:161
 msgid "What a table looks like before you have touched it"
 msgstr "Jak wygląda tabela, zanim jej dotkniesz"
+
+#: includes/views/settings-page.php:136
+msgid "What to clear when a sheet changes"
+msgstr "Co czyścić, gdy arkusz się zmieni"
 
 #: includes/class-lstab-example.php:112
 msgid "Wheel truing"
 msgstr "Centrowanie koła"
 
-#: includes/views/settings-page.php:173
+#: includes/views/settings-page.php:204
 msgid "When this plugin is deleted"
 msgstr "Gdy ta wtyczka zostanie usunięta"
 
@@ -1380,6 +1421,11 @@ msgstr "Kto może zarządzać tabelami, może też odczytać każdy wskazany ark
 msgid "Whoever opens the page sees data no older than this. Checking normally happens in the background; if it has not run — a quiet site, or a host that blocks WordPress schedules — the check happens as the page is drawn instead, waits at most %d seconds, and falls back to the copy you already have."
 msgstr "Kto otworzy stronę, zobaczy dane nie starsze niż tyle. Sprawdzanie zwykle odbywa się w tle; jeśli się nie wykonało — witryna bez ruchu albo hosting blokujący harmonogramy WordPressa — sprawdzenie następuje w trakcie rysowania strony, czeka najwyżej %d sekund i wraca do kopii, którą już masz."
 
+#. translators: %s: human readable duration, e.g. "5 minutes".
+#: includes/views/list-page.php:241
+msgid "Whole page cache cleared %s ago"
+msgstr "Cały cache strony wyczyszczony %s temu"
+
 #: includes/views/edit-page.php:518
 msgid "Width:"
 msgstr "Szerokość:"
@@ -1401,7 +1447,7 @@ msgstr "Nie masz uprawnień do zarządzania źródłami arkuszy."
 msgid "You are not allowed to write CSS on this site."
 msgstr "Nie masz uprawnień do pisania CSS na tej witrynie."
 
-#: includes/class-lstab-admin.php:196 includes/class-lstab-settings.php:147
+#: includes/class-lstab-admin.php:196 includes/class-lstab-settings.php:155
 msgid "You do not have permission to change these settings."
 msgstr "Nie masz uprawnień do zmiany tych ustawień."
 

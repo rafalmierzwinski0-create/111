@@ -609,4 +609,27 @@ return array(
 		=> 'Każda reguła zapisuje się jako %s, a po nim to, co napisałeś.',
 	'You are not allowed to write CSS on this site.'
 		=> 'Nie masz uprawnień do pisania CSS na tej witrynie.',
+	'Page caching'
+		=> 'Cache strony',
+	'So a new price reaches the people looking at it'
+		=> 'Żeby nowa cena dotarła do tych, którzy na nią patrzą',
+	'What to clear when a sheet changes'
+		=> 'Co czyścić, gdy arkusz się zmieni',
+	'A caching plugin stores the finished page and serves that copy to everybody. It clears it when a post is edited — and a sheet arriving from Google is not that, so without this the table updates here and the visitor keeps seeing yesterday. The pages a table is on are the ones this plugin can see it on: a shortcode or a block in their content. Choose the whole cache if your tables live in a widget, a template or a page builder’s own store, where nothing can be named.'
+		=> 'Wtyczka cache’ująca zapisuje gotową stronę i wszystkim podaje tę samą kopię. Czyści ją, gdy edytujesz wpis — a arkusz przychodzący z Google to nie jest edycja wpisu, więc bez tego tabela zaktualizuje się tutaj, a odwiedzający dalej będzie widział wczorajszą. Strony, na których jest tabela, to te, na których wtyczka potrafi ją zobaczyć: shortcode albo blok w ich treści. Wybierz cały cache, jeśli Twoje tabele siedzą w widżecie, w szablonie albo w bibliotece kreatora stron, gdzie nie da się wskazać konkretnej strony.',
+	'Nothing is cleared by a check that found no changes, so this costs nothing on the tables that rarely move.'
+		=> 'Sprawdzenie, które nie znalazło zmian, nie czyści niczego — więc przy rzadko zmienianych tabelach nie kosztuje to nic.',
+	'Only the pages this table is on'
+		=> 'Tylko strony, na których jest ta tabela',
+	'The whole cache, every time'
+		=> 'Cały cache, za każdym razem',
+	'Nothing — I will clear it myself'
+		=> 'Nic — wyczyszczę sam',
+	'Whole page cache cleared %s ago'
+		=> 'Cały cache strony wyczyszczony %s temu',
+	'Page cache cleared on %1$s page, %2$s ago' => array(
+		'Cache wyczyszczony na %1$s stronie, %2$s temu',
+		'Cache wyczyszczony na %1$s stronach, %2$s temu',
+		'Cache wyczyszczony na %1$s stronach, %2$s temu',
+	),
 );

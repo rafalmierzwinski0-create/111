@@ -88,9 +88,32 @@ check( await page.locator( '.lstab-src .lstab-copy' ).first().isVisible(), 'And 
 // first one on the page" stopped meaning the shortcode the moment it did.
 const cardCopy = page.locator( '.lstab-src .lstab-copy' ).first();
 await cardCopy.click();
-await page.locator( '.lstab-src .lstab-copy.is-done' ).first().waitFor( { timeout: 5000 } ).catch( () => {} );
-const copyLabel = await cardCopy.locator( '.lstab-copy-label' ).innerText();
-check( /Copied/i.test( copyLabel ), 'Clicking it confirms the shortcode was copied', copyLabel );
+
+// Watched rather than polled. The button says "Copied" for 1.8 seconds and then
+// puts its own label back, so a check that arrives late reads the label after it
+// has already reverted and calls a working button broken — which is what this
+// test did about one run in ten.
+const copyConfirmed = await cardCopy.evaluate( ( el ) => new Promise( ( resolve ) => {
+	if ( el.classList.contains( 'is-done' ) ) {
+		resolve( true );
+		return;
+	}
+
+	const observer = new MutationObserver( () => {
+		if ( el.classList.contains( 'is-done' ) ) {
+			observer.disconnect();
+			resolve( true );
+		}
+	} );
+
+	observer.observe( el, { attributes: true, attributeFilter: [ 'class' ] } );
+
+	setTimeout( () => {
+		observer.disconnect();
+		resolve( false );
+	}, 5000 );
+} ) );
+check( copyConfirmed, 'Clicking it confirms the shortcode was copied' );
 
 check(
 	await page.locator( '.lstab-masthead h1' ).first().isVisible(),

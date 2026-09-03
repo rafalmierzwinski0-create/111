@@ -37,6 +37,10 @@ class LSTAB_Settings {
 			// the stored copy. Four seconds suits nearly everyone; a very large
 			// sheet on slow hosting is why it can be raised.
 			'view_timeout'      => LSTAB_Sync::VIEW_TIMEOUT,
+			// A page cache has no way of knowing a sheet arrived, so the plugin
+			// tells it. Only the pages the table is on, so one price moving does
+			// not throw away the whole site's cache.
+			'purge_cache'       => 'pages',
 			'delete_on_uninstall' => false,
 		);
 	}
@@ -94,6 +98,10 @@ class LSTAB_Settings {
 			// Below two seconds nothing on a real connection ever arrives in
 			// time; above fifteen the page is broken by any reasonable measure.
 			$clean['view_timeout'] = max( 2, min( 15, (int) $input['view_timeout'] ) );
+		}
+
+		if ( isset( $input['purge_cache'] ) && array_key_exists( (string) $input['purge_cache'], LSTAB_Cache::modes() ) ) {
+			$clean['purge_cache'] = (string) $input['purge_cache'];
 		}
 
 		$clean['delete_on_uninstall'] = ! empty( $input['delete_on_uninstall'] );

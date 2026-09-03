@@ -64,6 +64,18 @@ function lstab_section( $title ) {
 }
 
 /**
+ * Serve a payload of our own choosing, for a test that needs the sheet to
+ * change between one sync and the next.
+ *
+ * @param string $csv What Google should answer with.
+ * @return void
+ */
+function lstab_serve_custom( $csv ) {
+	file_put_contents( WP_CONTENT_DIR . '/lstab-mock-custom.csv', $csv );
+	lstab_set_mock( 'custom' );
+}
+
+/**
  * Point the mock at a given failure mode.
  *
  * @param string $mode Mode name.
@@ -2132,6 +2144,149 @@ lstab_assert( null === LSTAB_Storage::get( $doomed ), 'Deletion invalidates the 
 // A miss is cached too; it must not resurrect as an array.
 lstab_assert( null === LSTAB_Storage::get( 987654 ), 'A missing source stays missing' );
 lstab_assert( null === LSTAB_Storage::get( 987654 ), 'A cached miss is still a miss on the second read' );
+
+// ---------------------------------------------------------------------------
+
+lstab_section( '14y. Telling the page cache' );
+
+/*
+ * There is no caching plugin on this test site, so the integrations are checked
+ * the way a caching plugin would see them: by listening for the actions the
+ * plugin fires, and by watching the hook it publishes for anything it has not
+ * heard of.
+ */
+$purge_seen = array();
+
+add_action(
+	'lstab_purge_page_cache',
+	function ( $posts, $purged_source ) use ( &$purge_seen ) {
+		$purge_seen[] = array(
+			'posts'  => $posts,
+			'source' => $purged_source,
+		);
+	},
+	10,
+	2
+);
+
+$litespeed_seen = array();
+add_action(
+	'litespeed_purge_post',
+	function ( $post_id ) use ( &$litespeed_seen ) {
+		$litespeed_seen[] = (int) $post_id;
+	}
+);
+
+// A page that actually holds the table, and one that does not.
+$cache_page = wp_insert_post(
+	array(
+		'post_title'   => 'Cennik w cache',
+		'post_status'  => 'publish',
+		'post_type'    => 'page',
+		'post_content' => '[sheet_table id="' . $source_id . '"]',
+	)
+);
+$other_page = wp_insert_post(
+	array(
+		'post_title'   => 'Strona bez tabeli',
+		'post_status'  => 'publish',
+		'post_type'    => 'page',
+		'post_content' => 'Nic tu nie ma.',
+	)
+);
+LSTAB_Usage::forget();
+
+lstab_assert( 'pages' === LSTAB_Cache::mode(), 'Clearing only the pages a table is on is the default', LSTAB_Cache::mode() );
+
+$purged = LSTAB_Cache::purge( $source_id );
+lstab_assert( 'pages' === $purged['scope'], 'A purge clears pages rather than everything', $purged['scope'] );
+lstab_assert( 1 === $purged['posts'], 'Exactly the one page holding the table', (string) $purged['posts'] );
+lstab_assert( ! empty( $purge_seen ), 'And anything else listening is told which pages they were' );
+lstab_assert(
+	! empty( $purge_seen ) && in_array( $cache_page, $purge_seen[0]['posts'], true ),
+	'The page with the table is in that list',
+	wp_json_encode( $purge_seen )
+);
+lstab_assert(
+	! empty( $purge_seen ) && ! in_array( $other_page, $purge_seen[0]['posts'], true ),
+	'The page without it is not',
+	wp_json_encode( $purge_seen )
+);
+lstab_assert( in_array( (int) $cache_page, $litespeed_seen, true ), 'A caching plugin listening for its own hook is told too', wp_json_encode( $litespeed_seen ) );
+
+// The dashboard has to be able to say what happened.
+$purge_note = LSTAB_Cache::last( $source_id );
+lstab_assert( is_array( $purge_note ) && $purge_note['posts'] === 1, 'The clearing is recorded for the dashboard', wp_json_encode( $purge_note ) );
+lstab_assert( $purge_note['time'] > time() - 60, 'With the time it happened' );
+
+// A check that found nothing new must not clear anything: that is the whole
+// difference between this being free and this being a tax on every sync.
+delete_option( LSTAB_Cache::LOG_OPTION );
+lstab_serve_custom( "Produkt,Cena netto,Dostępność\nRower górski \"Trek\",4199.99,W magazynie\n" );
+LSTAB_Sync::run( $source_id );
+delete_option( LSTAB_Cache::LOG_OPTION );
+
+// Same bytes again — nothing changed, so nothing should be cleared.
+LSTAB_Sync::run( $source_id );
+lstab_assert( null === LSTAB_Cache::last( $source_id ), 'A sync that found no changes clears nothing', wp_json_encode( LSTAB_Cache::last( $source_id ) ) );
+
+// Different bytes — the visitor is looking at a page that is now wrong.
+lstab_serve_custom( "Produkt,Cena netto,Dostępność\nRower górski \"Trek\",4999.99,W magazynie\n" );
+LSTAB_Sync::run( $source_id );
+$after_change = LSTAB_Cache::last( $source_id );
+lstab_assert( is_array( $after_change ), 'A sync that brought something new does clear it', wp_json_encode( $after_change ) );
+
+// Switching it off means off.
+$cache_settings                = LSTAB_Settings::all();
+$cache_settings['purge_cache'] = 'off';
+LSTAB_Settings::save( $cache_settings );
+delete_option( LSTAB_Cache::LOG_OPTION );
+$purge_seen = array();
+
+lstab_serve_custom( "Produkt,Cena netto,Dostępność\nRower górski \"Trek\",5999.99,W magazynie\n" );
+LSTAB_Sync::run( $source_id );
+lstab_assert( null === LSTAB_Cache::last( $source_id ), 'Switched off, nothing is cleared even when the sheet changed' );
+lstab_assert( empty( $purge_seen ), 'And nothing listening is told either' );
+
+// The whole-cache choice, for tables in a widget or a template.
+$cache_settings['purge_cache'] = 'site';
+LSTAB_Settings::save( $cache_settings );
+
+$flushed_all = false;
+add_action(
+	'lstab_purge_all_cache',
+	function () use ( &$flushed_all ) {
+		$flushed_all = true;
+	}
+);
+
+lstab_serve_custom( "Produkt,Cena netto,Dostępność\nRower górski \"Trek\",6999.99,W magazynie\n" );
+LSTAB_Sync::run( $source_id );
+lstab_assert( $flushed_all, 'The whole-cache choice clears the whole cache' );
+
+$cache_settings['purge_cache'] = 'pages';
+LSTAB_Settings::save( $cache_settings );
+
+// Deleting a source stops it being remembered.
+$cache_throwaway = LSTAB_Storage::insert(
+	array(
+		'title'     => 'Do wyrzucenia',
+		'sheet_url' => 'https://docs.google.com/spreadsheets/d/WWW/edit#gid=0',
+		'sheet_id'  => 'WWW',
+	)
+);
+LSTAB_Cache::purge( $cache_throwaway );
+lstab_assert( is_array( LSTAB_Cache::last( $cache_throwaway ) ), 'A throwaway source has a record to lose' );
+LSTAB_Storage::delete( $cache_throwaway );
+lstab_assert( null === LSTAB_Cache::last( $cache_throwaway ), 'Deleting a source forgets it' );
+
+wp_delete_post( $cache_page, true );
+wp_delete_post( $other_page, true );
+LSTAB_Usage::forget();
+
+// Put the sheet back the way the rest of the run expects it.
+lstab_set_mock( 'ok', 'main' );
+LSTAB_Sync::run( $source_id );
 
 // ---------------------------------------------------------------------------
 

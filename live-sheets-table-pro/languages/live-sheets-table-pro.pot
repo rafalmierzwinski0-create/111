@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-03 07:58+0000\n"
+"POT-Creation-Date: 2026-09-03 10:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -52,7 +52,7 @@ msgstr ""
 msgid "Bold text"
 msgstr ""
 
-#: includes/class-lstabp-export.php:234
+#: includes/class-lstabp-export.php:286
 msgid "Buttons under the table: one Excel file, one CSV, and Print. The file holds exactly what the page shows — the same rows after any filter, and only the columns you left in — and never reaches past them. The Excel file opens in one click with the numbers already numbers, whatever language the person opening it uses. Printing uses the browser, so there is no extra software and no watermark."
 msgstr ""
 
@@ -114,7 +114,7 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
-#: includes/class-lstabp-xlsx.php:68
+#: includes/class-lstabp-xlsx.php:73
 msgid "Could not build the Excel file."
 msgstr ""
 
@@ -198,11 +198,11 @@ msgstr ""
 msgid "Hide columns and rows"
 msgstr ""
 
-#: includes/class-lstabp-export.php:231
+#: includes/class-lstabp-export.php:283
 msgid "Let visitors download or print this table"
 msgstr ""
 
-#: includes/class-lstabp-export.php:226
+#: includes/class-lstabp-export.php:278
 msgid "Let visitors take it away"
 msgstr ""
 
@@ -365,7 +365,7 @@ msgstr ""
 msgid "Symbols such as = and > work too, but WordPress removes a “less than” sign from a shortcode attribute before the plugin ever sees it, so the words above are the form that always works."
 msgstr ""
 
-#: includes/class-lstabp-xlsx.php:300
+#: includes/class-lstabp-xlsx.php:305
 msgid "Table"
 msgstr ""
 

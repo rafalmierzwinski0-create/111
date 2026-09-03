@@ -176,6 +176,12 @@ class LSTABP_Export {
 
 		$name = sanitize_file_name( $source['title'] ? $source['title'] : 'table' );
 
+		// A title made entirely of characters a filename cannot hold leaves
+		// nothing behind, and "\".csv"" is not a filename.
+		if ( '' === $name ) {
+			$name = 'table';
+		}
+
 		if ( 'xlsx' === $format ) {
 			$file = LSTABP_Xlsx::build( $prepared['headers'], $prepared['rows'], (string) $source['title'] );
 
@@ -196,20 +202,66 @@ class LSTABP_Export {
 
 		nocache_headers();
 		header( 'Content-Type: text/csv; charset=utf-8' );
+		header( 'X-Content-Type-Options: nosniff' );
 		header( 'Content-Disposition: attachment; filename="' . $name . '.csv"' );
 
+		// phpcs:ignore WordPress.WP.AlternativeFunctions -- Streaming to the browser; there is no WP_Filesystem equivalent.
 		$out = fopen( 'php://output', 'w' );
 
 		// A BOM, or Excel opens a Polish price list as mojibake.
 		fwrite( $out, "\xEF\xBB\xBF" );
-		fputcsv( $out, $prepared['headers'] );
+		self::put_row( $out, $prepared['headers'] );
 
 		foreach ( $prepared['rows'] as $row ) {
-			fputcsv( $out, (array) $row );
+			self::put_row( $out, (array) $row );
 		}
 
 		fclose( $out );
 		exit;
+	}
+
+	/**
+	 * Write one row, with anything formula-shaped defused first.
+	 *
+	 * @param resource          $handle Output stream.
+	 * @param array<int,string> $cells  Cell values.
+	 * @return void
+	 */
+	protected static function put_row( $handle, $cells ) {
+		// The escape character is disabled on purpose: PHP's default is a
+		// backslash, which is not part of the CSV convention and turns a cell
+		// ending in one into something no reader parses back the same way.
+		fputcsv( $handle, array_map( array( __CLASS__, 'defuse' ), $cells ), ',', '"', '' );
+	}
+
+	/**
+	 * Stop a cell from being run as a formula by whatever opens the file.
+	 *
+	 * A spreadsheet treats a cell beginning with =, +, - or @ as a formula, and
+	 * a formula in a downloaded file runs on the machine of whoever opened it —
+	 * "=cmd|'/c calc'!A0" is the well-known one. The sheet behind a table is not
+	 * necessarily written only by people the site owner trusts: a sheet fed by a
+	 * form, or shared for editing, holds whatever somebody typed into it.
+	 *
+	 * The fix is the one Google Sheets itself uses: an apostrophe in front,
+	 * which marks the cell as text. Numbers are left alone, so a column of
+	 * negative values still adds up.
+	 *
+	 * @param string $value Cell value.
+	 * @return string
+	 */
+	public static function defuse( $value ) {
+		$value = (string) $value;
+
+		if ( '' === $value || ! preg_match( '/^[=+\-@\t\r]/', $value ) ) {
+			return $value;
+		}
+
+		if ( LSTAB_Renderer::looks_numeric( $value ) ) {
+			return $value;
+		}
+
+		return "'" . $value;
 	}
 
 	/**

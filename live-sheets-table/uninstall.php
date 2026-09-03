@@ -38,5 +38,6 @@ delete_option( 'lstab_tick_schedule' );
 delete_option( 'lstab_last_tick' );
 delete_option( 'lstab_ragged_sources' );
 delete_option( 'lstab_ragged_dismissed' );
+delete_option( LSTAB_Cache::LOG_OPTION );
 delete_option( LSTAB_Limits::SEEN_OPTION );
 delete_option( LSTAB_Settings::OPTION );

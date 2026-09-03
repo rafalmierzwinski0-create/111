@@ -397,6 +397,157 @@ ex_assert( '' === trim( $gone_visitor ), 'A visitor sees nothing at all where a 
 
 // ---------------------------------------------------------------------------
 
+ex_section( 'F2. Attacking the CSS field on purpose' );
+
+/*
+ * The field's whole safety argument is two sentences: nothing typed here can
+ * end the style block, and nothing typed here can reach outside the table. Both
+ * are attacked directly rather than demonstrated with a well-behaved example.
+ */
+
+$css_sel = LSTAB_Custom_Css::selector( 42 );
+
+/**
+ * Whether a stylesheet, once cleaned and scoped, could end its own style block.
+ *
+ * @param string $css Attempt.
+ * @return bool
+ */
+function ex_escapes_style_block( $css ) {
+	$block = LSTAB_Custom_Css::style_tag( 42, $css, false );
+
+	// Everything after the opening tag is what the browser reads as CSS. If
+	// "</" appears in it before the tag this code wrote, the block ended early
+	// and whatever followed became markup.
+	$inside = substr( $block, (int) strpos( $block, '>' ) + 1 );
+	$inside = substr( $inside, 0, max( 0, strlen( $inside ) - strlen( '</style>' ) ) );
+
+	return false !== stripos( $inside, '</' );
+}
+
+$attacks = array(
+	'the plain attempt'                 => 'td{}</style><script>alert(1)</script>',
+	'doubling up, so one pass rebuilds it' => 'td{}<</' . '/style><script>alert(1)</script>',
+	'three deep'                        => 'td{}<<</' . '//style><img src=x onerror=alert(1)>',
+	'hidden in a comment'               => 'td{ /* </' . 'style> */ color: red }',
+	'split by a comment'                => 'td{}<' . '/*x*/' . '/style>',
+	'hidden in a string'                => 'td{ content: "</' . 'style><script>alert(1)</script>" }',
+	'in a selector'                     => '</' . 'style><script>alert(1)</script> td { color: red }',
+	'upper case'                        => 'td{}<</' . '/STYLE><SCRIPT>alert(1)</SCRIPT>',
+);
+
+foreach ( $attacks as $label => $attempt ) {
+	ex_assert( ! ex_escapes_style_block( $attempt ), "Cannot end the style block: {$label}" );
+}
+
+// Scope: every rule must carry the table's selector, whatever shape it arrives in.
+$escapes = array(
+	'a plain rule'            => 'body { display: none }',
+	'a closing brace first'   => '} body { display: none }',
+	'a brace inside a string' => 'td { content: "}" } body { display: none }',
+	'an unknown at-rule'      => '@nonsense { body { display: none } }',
+	'a nested media query'    => '@media screen { @media print { body { display: none } } }',
+	'a comma-separated list'  => 'td, body { display: none }',
+	'a comma inside :not()'   => 'td:not(a, b), body { display: none }',
+	'a stray opening brace'   => 'td { color: red } { body { display: none } }',
+);
+
+foreach ( $escapes as $label => $attempt ) {
+	$scoped = LSTAB_Custom_Css::scope( LSTAB_Custom_Css::sanitize( $attempt ), $css_sel );
+
+	// Every rule in the result has to begin with the table's own selector.
+	$loose = false;
+	foreach ( explode( '}', $scoped ) as $chunk ) {
+		if ( false === strpos( $chunk, '{' ) ) {
+			continue;
+		}
+
+		$head = trim( substr( $chunk, 0, (int) strpos( $chunk, '{' ) ) );
+		$head = trim( $head, '{' );
+
+		if ( '' === $head || '@' === substr( ltrim( $head ), 0, 1 ) ) {
+			continue;
+		}
+
+		// Split the way the code under test does: a comma inside :not() or
+		// :is() belongs to that selector, it does not start a new one.
+		$one   = '';
+		$paren = 0;
+		$list  = array();
+		foreach ( str_split( $head ) as $letter ) {
+			if ( '(' === $letter ) {
+				$paren++;
+			} elseif ( ')' === $letter ) {
+				$paren = max( 0, $paren - 1 );
+			} elseif ( ',' === $letter && 0 === $paren ) {
+				$list[] = $one;
+				$one    = '';
+				continue;
+			}
+			$one .= $letter;
+		}
+		$list[] = $one;
+
+		foreach ( $list as $selector_part ) {
+			if ( 0 !== strpos( trim( $selector_part ), $css_sel ) ) {
+				$loose = true;
+			}
+		}
+	}
+
+	ex_assert( ! $loose, "Cannot reach outside the table: {$label}", $scoped );
+}
+
+// A rule with a brace inside a quoted value must survive intact, or the safety
+// measure would be quietly corrupting ordinary stylesheets.
+$quoted = LSTAB_Custom_Css::scope( 'td::after { content: "}"; color: red }', $css_sel );
+ex_assert(
+	false !== strpos( $quoted, 'content: "}"' ) && false !== strpos( $quoted, 'color: red' ),
+	'A brace inside a quoted value is content, not the end of the rule',
+	$quoted
+);
+
+$commented = LSTAB_Custom_Css::scope( 'td::after { content: "/* not a comment */" }', $css_sel );
+ex_assert(
+	false !== strpos( $commented, 'not a comment' ),
+	'And "/*" inside a quoted value is not a comment either',
+	$commented
+);
+
+// Fetching a stylesheet from somewhere else on every page view.
+$imported = LSTAB_Custom_Css::sanitize( "@import url(https://example.com/x.css);\ntd{color:red}" );
+ex_assert( false === stripos( $imported, 'example.com' ), '@import cannot pull in another site\'s stylesheet', $imported );
+
+// A cut paste must not leave the stored value ending in half a character.
+$long = LSTAB_Custom_Css::sanitize( str_repeat( 'ą', LSTAB_Custom_Css::MAX_LENGTH ) );
+ex_assert(
+	$long === wp_check_invalid_utf8( $long, true ) && '' !== $long,
+	'An over-long paste is cut on a character boundary, not mid-letter'
+);
+
+// The live preview endpoint takes the selector from the caller, so it is the
+// one place a scope could be chosen rather than given.
+$css_rest = new WP_REST_Request( 'POST', '/live-sheets-table/v1/scoped-css' );
+$css_rest->set_param( 'css', 'td { color: red }' );
+$css_rest->set_param( 'selector', 'body' );
+wp_set_current_user( 1 );
+$css_reply = rest_do_request( $css_rest )->get_data();
+ex_assert(
+	false === strpos( (string) $css_reply['css'], 'body td' ),
+	'The preview endpoint refuses a selector of the caller\'s choosing',
+	(string) $css_reply['css']
+);
+
+$css_rest = new WP_REST_Request( 'POST', '/live-sheets-table/v1/scoped-css' );
+$css_rest->set_param( 'css', 'td { color: red }' );
+$css_rest->set_param( 'selector', '[data-lstab-preview="stage"]' );
+wp_set_current_user( 0 );
+$css_denied = rest_do_request( $css_rest );
+ex_assert( $css_denied->is_error(), 'And a visitor cannot call it at all' );
+wp_set_current_user( 1 );
+
+// ---------------------------------------------------------------------------
+
 ex_section( 'G. Deactivate, reactivate, and the data is still there' );
 
 ex_serve( $source_id, "Produkt,Cena\nRower,4199\n" );

@@ -60,6 +60,11 @@ class LSTABP_Xlsx {
 			return new WP_Error( 'lstabp_no_temp', __( 'Could not create a temporary file for the download.', 'live-sheets-table-pro' ) );
 		}
 
+		// Readable only by the account that will read it back a line later. The
+		// temporary directory may be one the web server serves, and a table can
+		// hold a price list not everyone is meant to see.
+		@chmod( $path, 0600 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors, WordPress.WP.AlternativeFunctions -- Best effort; a server that refuses it still gets the file deleted straight after sending.
+
 		$zip = new ZipArchive();
 
 		if ( true !== $zip->open( $path, ZipArchive::OVERWRITE ) ) {

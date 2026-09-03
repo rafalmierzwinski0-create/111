@@ -82,9 +82,18 @@ class LSTAB_Custom_Css {
 		// whichever operating system it was typed on.
 		$css = str_replace( array( "\r\n", "\r" ), "\n", $css );
 
-		// The one sequence that can close the style block. Not valid CSS
-		// outside a string, so nothing usable is lost with it.
-		$css = str_replace( '</', '', $css );
+		/*
+		 * The one sequence that can close the style block. Not valid CSS
+		 * outside a string, so nothing usable is lost with it — but removing it
+		 * once is not enough: taking "</" out of "<</" + "/style" joins what was
+		 * on either side back into "</style", which is exactly the thing being
+		 * removed. Repeating until the text stops changing is the only honest
+		 * way to say it is gone.
+		 */
+		do {
+			$before = $css;
+			$css    = str_replace( '</', '', $css );
+		} while ( $before !== $css );
 
 		/*
 		 * @import would let a table pull a stylesheet from another server on
@@ -100,7 +109,12 @@ class LSTAB_Custom_Css {
 		$css = (string) preg_replace( '#javascript\s*:#i', '', $css );
 
 		if ( strlen( $css ) > self::MAX_LENGTH ) {
-			$css = substr( $css, 0, self::MAX_LENGTH );
+			// On a character boundary, or the stored value ends in half a
+			// letter — which is not valid UTF-8 and which the database is
+			// entitled to reject.
+			$css = function_exists( 'mb_strcut' )
+				? mb_strcut( $css, 0, self::MAX_LENGTH, 'UTF-8' )
+				: substr( $css, 0, self::MAX_LENGTH );
 		}
 
 		return trim( $css );
@@ -124,13 +138,60 @@ class LSTAB_Custom_Css {
 	 * @return string
 	 */
 	public static function scope( $css, $selector ) {
-		$css = (string) $css;
-
 		// Comments first: a brace inside one would otherwise be read as the
 		// start of a rule and throw the rest of the file out of step.
-		$css = (string) preg_replace( '#/\*.*?\*/#s', '', $css );
+		return self::scope_block( self::strip_comments( (string) $css ), $selector );
+	}
 
-		return self::scope_block( $css, $selector );
+	/**
+	 * Remove comments, leaving anything inside a quoted string alone.
+	 *
+	 * Done by hand rather than with a pattern because a pattern cannot tell a
+	 * comment from the characters "/*" inside content: "…", and removing half a
+	 * string would turn a harmless rule into a broken one.
+	 *
+	 * @param string $css Stylesheet.
+	 * @return string
+	 */
+	protected static function strip_comments( $css ) {
+		$out    = '';
+		$length = strlen( $css );
+		$quote  = '';
+
+		for ( $i = 0; $i < $length; $i++ ) {
+			$char = $css[ $i ];
+
+			if ( '' !== $quote ) {
+				$out .= $char;
+
+				if ( '\\' === $char && $i + 1 < $length ) {
+					$out .= $css[ $i + 1 ];
+					$i++;
+					continue;
+				}
+
+				if ( $char === $quote ) {
+					$quote = '';
+				}
+				continue;
+			}
+
+			if ( '"' === $char || "'" === $char ) {
+				$quote = $char;
+				$out  .= $char;
+				continue;
+			}
+
+			if ( '/' === $char && $i + 1 < $length && '*' === $css[ $i + 1 ] ) {
+				$end = strpos( $css, '*/', $i + 2 );
+				$i   = ( false === $end ) ? $length : $end + 1;
+				continue;
+			}
+
+			$out .= $char;
+		}
+
+		return $out;
 	}
 
 	/**
@@ -144,18 +205,67 @@ class LSTAB_Custom_Css {
 		$out    = '';
 		$buffer = '';
 		$length = strlen( $css );
+		$quote  = '';
 
 		for ( $i = 0; $i < $length; $i++ ) {
 			$char = $css[ $i ];
 
+			/*
+			 * Braces and commas inside a quoted value are content, not
+			 * structure: content: "}" is a perfectly ordinary rule, and reading
+			 * its brace as the end of the block would throw everything after it
+			 * out of step.
+			 */
+			if ( '' !== $quote ) {
+				$buffer .= $char;
+
+				if ( '\\' === $char && $i + 1 < $length ) {
+					$buffer .= $css[ $i + 1 ];
+					$i++;
+					continue;
+				}
+
+				if ( $char === $quote ) {
+					$quote = '';
+				}
+				continue;
+			}
+
+			if ( '"' === $char || "'" === $char ) {
+				$quote   = $char;
+				$buffer .= $char;
+				continue;
+			}
+
 			if ( '{' === $char ) {
 				$depth = 1;
 				$j     = $i + 1;
+				$inner_quote = '';
 
 				while ( $j < $length && $depth > 0 ) {
-					if ( '{' === $css[ $j ] ) {
+					$inner_char = $css[ $j ];
+
+					if ( '' !== $inner_quote ) {
+						if ( '\\' === $inner_char ) {
+							$j += 2;
+							continue;
+						}
+						if ( $inner_char === $inner_quote ) {
+							$inner_quote = '';
+						}
+						$j++;
+						continue;
+					}
+
+					if ( '"' === $inner_char || "'" === $inner_char ) {
+						$inner_quote = $inner_char;
+						$j++;
+						continue;
+					}
+
+					if ( '{' === $inner_char ) {
 						$depth++;
-					} elseif ( '}' === $css[ $j ] ) {
+					} elseif ( '}' === $inner_char ) {
 						$depth--;
 					}
 					$j++;
@@ -224,12 +334,24 @@ class LSTAB_Custom_Css {
 		$depth = 0;
 		$part  = '';
 
-		// Split on commas, but not the ones inside :is(), :not() and friends.
+		// Split on commas, but not the ones inside :is(), :not() and friends,
+		// and not the ones inside an attribute selector's quoted value.
 		$length = strlen( $header );
+		$quote  = '';
 		for ( $i = 0; $i < $length; $i++ ) {
 			$char = $header[ $i ];
 
-			if ( '(' === $char ) {
+			if ( '' !== $quote ) {
+				$part .= $char;
+				if ( $char === $quote ) {
+					$quote = '';
+				}
+				continue;
+			}
+
+			if ( '"' === $char || "'" === $char ) {
+				$quote = $char;
+			} elseif ( '(' === $char ) {
 				$depth++;
 			} elseif ( ')' === $char ) {
 				$depth = max( 0, $depth - 1 );
@@ -280,6 +402,15 @@ class LSTAB_Custom_Css {
 		$scoped = self::scope( $css, self::selector( $source_id ) );
 
 		if ( '' === trim( $scoped ) ) {
+			return '';
+		}
+
+		/*
+		 * The belt to sanitize()'s braces. Everything above is meant to make
+		 * this impossible; if some future edit makes it possible again, the
+		 * table loses its styling rather than the page losing its style block.
+		 */
+		if ( false !== stripos( $scoped, '</' ) ) {
 			return '';
 		}
 

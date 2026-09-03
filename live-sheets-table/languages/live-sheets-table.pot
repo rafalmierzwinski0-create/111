@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-03 07:58+0000\n"
+"POT-Creation-Date: 2026-09-03 10:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -88,6 +88,10 @@ msgstr ""
 msgid "45 min"
 msgstr ""
 
+#: includes/views/settings-page.php:138
+msgid "A caching plugin stores the finished page and serves that copy to everybody. It clears it when a post is edited — and a sheet arriving from Google is not that, so without this the table updates here and the visitor keeps seeing yesterday. The pages a table is on are the ones this plugin can see it on: a shortcode or a block in their content. Choose the whole cache if your tables live in a widget, a template or a page builder’s own store, where nothing can be named."
+msgstr ""
+
 #: includes/views/welcome.php:45
 msgid "A change in the sheet reaches the page by itself"
 msgstr ""
@@ -128,7 +132,7 @@ msgstr ""
 msgid "Add new sheet source"
 msgstr ""
 
-#: includes/views/list-page.php:275
+#: includes/views/list-page.php:312
 msgid "Add the example"
 msgstr ""
 
@@ -136,7 +140,7 @@ msgstr ""
 msgid "Add the example price list"
 msgstr ""
 
-#: includes/class-lstab-settings.php:114
+#: includes/class-lstab-settings.php:122
 msgid "Administrators only"
 msgstr ""
 
@@ -148,7 +152,7 @@ msgstr ""
 msgid "All sources"
 msgstr ""
 
-#: includes/views/settings-page.php:180
+#: includes/views/settings-page.php:211
 msgid "Also delete every sheet source and setting"
 msgstr ""
 
@@ -165,7 +169,7 @@ msgstr ""
 msgid "Always use cards, at every width"
 msgstr ""
 
-#: includes/views/edit-page.php:80 includes/views/settings-page.php:129
+#: includes/views/edit-page.php:80 includes/views/settings-page.php:160
 msgid "Appearance"
 msgstr ""
 
@@ -277,7 +281,7 @@ msgstr ""
 msgid "Compact"
 msgstr ""
 
-#: includes/views/list-page.php:286
+#: includes/views/list-page.php:323
 msgid "Compare Free and Pro"
 msgstr ""
 
@@ -285,7 +289,7 @@ msgstr ""
 msgid "Copied"
 msgstr ""
 
-#: includes/views/edit-page.php:206 includes/views/list-page.php:240
+#: includes/views/edit-page.php:206 includes/views/list-page.php:277
 #: includes/class-lstab-admin.php:275 includes/class-lstab-admin.php:852
 msgid "Copy"
 msgstr ""
@@ -315,15 +319,15 @@ msgstr ""
 msgid "Daily"
 msgstr ""
 
-#: includes/views/list-page.php:259
+#: includes/views/list-page.php:296
 msgid "Delete"
 msgstr ""
 
-#: includes/views/settings-page.php:189
+#: includes/views/settings-page.php:220
 msgid "Delete everything"
 msgstr ""
 
-#: includes/views/list-page.php:253
+#: includes/views/list-page.php:290
 msgid "Delete this sheet source? Tables using it will stop rendering."
 msgstr ""
 
@@ -343,7 +347,7 @@ msgstr ""
 msgid "Editorial"
 msgstr ""
 
-#: includes/class-lstab-settings.php:113
+#: includes/class-lstab-settings.php:121
 msgid "Editors and above"
 msgstr ""
 
@@ -507,7 +511,7 @@ msgstr ""
 msgid "How long to wait for Google"
 msgstr ""
 
-#: includes/views/settings-page.php:136
+#: includes/views/settings-page.php:167
 msgid "How new tables look"
 msgstr ""
 
@@ -523,7 +527,7 @@ msgstr ""
 msgid "I have read this"
 msgstr ""
 
-#: includes/views/list-page.php:248
+#: includes/views/list-page.php:285
 msgid "In Google"
 msgstr ""
 
@@ -651,7 +655,7 @@ msgstr ""
 msgid "Narrow column"
 msgstr ""
 
-#: includes/views/list-page.php:281
+#: includes/views/list-page.php:318
 msgid "Need more than one sheet?"
 msgstr ""
 
@@ -716,11 +720,19 @@ msgstr ""
 msgid "Notes"
 msgstr ""
 
+#: includes/views/settings-page.php:141
+msgid "Nothing is cleared by a check that found no changes, so this costs nothing on the tables that rarely move."
+msgstr ""
+
 #: includes/class-lstab-admin.php:1051
 msgid "Nothing to show yet"
 msgstr ""
 
-#: includes/views/settings-page.php:182
+#: includes/class-lstab-cache.php:56
+msgid "Nothing — I will clear it myself"
+msgstr ""
+
+#: includes/views/settings-page.php:213
 msgid "Off by default, because deleting a plugin to reinstall it is a normal thing to do and losing every table for it would not be. This only applies when the plugin is deleted from the Plugins screen, not when it is deactivated. Your spreadsheets in Google are never touched either way."
 msgstr ""
 
@@ -738,6 +750,10 @@ msgstr ""
 
 #: includes/views/edit-page.php:165
 msgid "Only shown in the dashboard, to tell sources apart."
+msgstr ""
+
+#: includes/class-lstab-cache.php:54
+msgid "Only the pages this table is on"
 msgstr ""
 
 #: includes/class-lstab-hidden-alerts.php:308
@@ -763,6 +779,18 @@ msgstr ""
 #. translators: 1: current page, 2: number of pages.
 #: includes/class-lstab-renderer.php:523
 msgid "Page %1$s of %2$s"
+msgstr ""
+
+#. translators: 1: number of pages, 2: human readable duration, e.g. "5
+#. minutes".
+#: includes/views/list-page.php:248
+msgid "Page cache cleared on %1$s page, %2$s ago"
+msgid_plural "Page cache cleared on %1$s pages, %2$s ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/views/settings-page.php:129
+msgid "Page caching"
 msgstr ""
 
 #: includes/class-lstab-example.php:123
@@ -833,7 +861,7 @@ msgstr ""
 msgid "Pro"
 msgstr ""
 
-#: includes/views/list-page.php:283
+#: includes/views/list-page.php:320
 msgid "Pro adds unlimited sources, one-minute syncing, conditional cell formatting, filtered views, premium presets and private-sheet support."
 msgstr ""
 
@@ -910,7 +938,7 @@ msgstr ""
 msgid "Save changes and sync"
 msgstr ""
 
-#: includes/views/settings-page.php:196
+#: includes/views/settings-page.php:227
 msgid "Save settings"
 msgstr ""
 
@@ -1073,6 +1101,10 @@ msgstr ""
 msgid "Small"
 msgstr ""
 
+#: includes/views/settings-page.php:130
+msgid "So a new price reaches the people looking at it"
+msgstr ""
+
 #: includes/class-lstab-hidden-alerts.php:234
 msgid "Something you had taken out of a table is no longer in the sheet."
 msgstr ""
@@ -1203,7 +1235,7 @@ msgstr[1] ""
 msgid "The last few checks, oldest first"
 msgstr ""
 
-#: includes/views/settings-page.php:174
+#: includes/views/settings-page.php:205
 msgid "The one setting here that cannot be undone"
 msgstr ""
 
@@ -1221,7 +1253,7 @@ msgstr ""
 msgid "The slider is always visible while there is more table to see, unlike the browser's own scrollbar. Use the width buttons beside the preview to check it."
 msgstr ""
 
-#: includes/views/settings-page.php:138
+#: includes/views/settings-page.php:169
 msgid "The style a table is given the moment you add it. Every table can still be changed afterwards; this is only so that somebody who has settled on one look is not choosing it again for every sheet."
 msgstr ""
 
@@ -1231,6 +1263,10 @@ msgstr ""
 
 #: includes/views/edit-page.php:53
 msgid "The usual cause is a value that runs two cells together — a lone quotation mark, or a comma inside a value that was not quoted. It can also be a cell holding a line break, or a copy of the sheet edited by hand rather than exported by Google. Open those rows in your sheet and compare them against the ones around them."
+msgstr ""
+
+#: includes/class-lstab-cache.php:55
+msgid "The whole cache, every time"
 msgstr ""
 
 #: includes/views/edit-page.php:513
@@ -1329,7 +1365,7 @@ msgstr ""
 msgid "Waiting for a first look at the sheet. Choose “Refresh” on the sources list, and your real columns will appear here."
 msgstr ""
 
-#: includes/views/list-page.php:274
+#: includes/views/list-page.php:311
 msgid "Want somewhere safe to try the settings? Add the built-in example price list — it never touches Google."
 msgstr ""
 
@@ -1341,15 +1377,19 @@ msgstr ""
 msgid "What Google actually sent"
 msgstr ""
 
-#: includes/views/settings-page.php:130
+#: includes/views/settings-page.php:161
 msgid "What a table looks like before you have touched it"
+msgstr ""
+
+#: includes/views/settings-page.php:136
+msgid "What to clear when a sheet changes"
 msgstr ""
 
 #: includes/class-lstab-example.php:112
 msgid "Wheel truing"
 msgstr ""
 
-#: includes/views/settings-page.php:173
+#: includes/views/settings-page.php:204
 msgid "When this plugin is deleted"
 msgstr ""
 
@@ -1375,6 +1415,11 @@ msgstr ""
 msgid "Whoever opens the page sees data no older than this. Checking normally happens in the background; if it has not run — a quiet site, or a host that blocks WordPress schedules — the check happens as the page is drawn instead, waits at most %d seconds, and falls back to the copy you already have."
 msgstr ""
 
+#. translators: %s: human readable duration, e.g. "5 minutes".
+#: includes/views/list-page.php:241
+msgid "Whole page cache cleared %s ago"
+msgstr ""
+
 #: includes/views/edit-page.php:518
 msgid "Width:"
 msgstr ""
@@ -1396,7 +1441,7 @@ msgstr ""
 msgid "You are not allowed to write CSS on this site."
 msgstr ""
 
-#: includes/class-lstab-admin.php:196 includes/class-lstab-settings.php:147
+#: includes/class-lstab-admin.php:196 includes/class-lstab-settings.php:155
 msgid "You do not have permission to change these settings."
 msgstr ""
 

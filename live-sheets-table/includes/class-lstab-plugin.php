@@ -90,6 +90,13 @@ class LSTAB_Plugin {
 	public $usage;
 
 	/**
+	 * Telling the page cache when a table has changed.
+	 *
+	 * @var LSTAB_Cache
+	 */
+	public $cache;
+
+	/**
 	 * The sample table somebody can try before they have a sheet.
 	 *
 	 * @var LSTAB_Example
@@ -120,6 +127,7 @@ class LSTAB_Plugin {
 		$this->settings    = new LSTAB_Settings();
 		$this->hidden_alerts = new LSTAB_Hidden_Alerts();
 		$this->usage         = new LSTAB_Usage();
+		$this->cache         = new LSTAB_Cache();
 		$this->example       = new LSTAB_Example();
 		$this->elementor = new LSTAB_Elementor();
 
@@ -137,6 +145,7 @@ class LSTAB_Plugin {
 		$this->settings->register();
 		$this->hidden_alerts->register();
 		$this->usage->register();
+		$this->cache->register();
 		$this->example->register();
 		$this->elementor->register();
 

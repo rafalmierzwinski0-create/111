@@ -3,7 +3,7 @@
  * Plugin Name:       Live Sheets Table – Google Sheets to WordPress
  * Plugin URI:        https://example.com/live-sheets-table
  * Description:       Publish a Google Sheet as a fast, responsive, auto-refreshing table. Server-side rendered, cached locally, never breaks the page when Google is unreachable.
- * Version:           3.7.0
+ * Version:           3.8.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Live Sheets Table
@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'LSTAB_VERSION', '3.7.0' );
+define( 'LSTAB_VERSION', '3.8.0' );
 define( 'LSTAB_FILE', __FILE__ );
 define( 'LSTAB_PATH', plugin_dir_path( __FILE__ ) );
 define( 'LSTAB_URL', plugin_dir_url( __FILE__ ) );
@@ -34,6 +34,7 @@ require_once LSTAB_PATH . 'includes/class-lstab-settings.php';
 require_once LSTAB_PATH . 'includes/class-lstab-hidden-alerts.php';
 require_once LSTAB_PATH . 'includes/class-lstab-icons.php';
 require_once LSTAB_PATH . 'includes/class-lstab-usage.php';
+require_once LSTAB_PATH . 'includes/class-lstab-cache.php';
 require_once LSTAB_PATH . 'includes/class-lstab-example.php';
 require_once LSTAB_PATH . 'includes/class-lstab-elementor.php';
 require_once LSTAB_PATH . 'includes/class-lstab-storage.php';

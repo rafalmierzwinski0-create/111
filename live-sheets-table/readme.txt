@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.7.0
+Stable tag: 3.8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,11 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.8.0 =
+* Added: the page cache is cleared when a sheet actually changes. A caching plugin clears a page when a post is edited, and a sheet arriving from Google is not that — which is why a table can update in the dashboard and keep showing yesterday's price to visitors. Only the pages the table is on are cleared, only when the fetched copy differs from the stored one, and the dashboard says what was cleared and when. WP Rocket, LiteSpeed, W3 Total Cache, WP Super Cache, WP Fastest Cache, Cache Enabler, Hummingbird, SiteGround, WP Engine, Nginx Helper and Breeze are called by name; anything else can listen for `lstab_purge_page_cache`.
+* Fixed: the CSS field could be made to end its own style block. Removing the sequence that closes it once was not enough, because removing it from certain inputs joins what was on either side back into the same sequence. It is now removed until the text stops changing, the result is checked once more before it is printed, and the exploratory suite attacks it eight different ways.
+* Fixed: a brace or a comma inside a quoted CSS value — `content: "}"` — was read as the end of a rule, which mangled everything after it.
 
 = 3.7.0 =
 * Added: a CSS field on the Appearance tab, for the last thing the settings do not cover. Every rule is confined to the table it was written for, so nothing typed there can reach the rest of the page, and the preview shows it working as you type.
@@ -348,6 +353,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.8.0 =
+Clears the page cache when a sheet changes, and closes a hole in the CSS field.
 
 = 3.7.0 =
 Adds a CSS field for each table, confined to that table.

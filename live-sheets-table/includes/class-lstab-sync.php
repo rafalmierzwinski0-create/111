@@ -355,6 +355,13 @@ class LSTAB_Sync {
 			isset( $table['headers'] ) ? $table['headers'] : array()
 		);
 
+		/*
+		 * Whether anything actually arrived that was not there before. Most
+		 * checks find nothing new — the whole point of checking often — and a
+		 * page cache should not be thrown away for a sheet nobody edited.
+		 */
+		$changed = md5( (string) wp_json_encode( $table ) ) !== (string) $source['snapshot_hash'];
+
 		LSTAB_Storage::update( $id, array( 'columns_config' => $columns ) );
 		LSTAB_Storage::record_success( $id, $table );
 
@@ -365,6 +372,25 @@ class LSTAB_Sync {
 		// Each choice about a hidden row is written back against the row it now
 		// points at, so tomorrow's edit is resolved against today's sheet.
 		LSTAB_Hidden_Rows::reanchor( $id, isset( $table['rows'] ) ? $table['rows'] : array() );
+
+		if ( $changed ) {
+			/*
+			 * The page a visitor is served was built before this arrived, and
+			 * nothing else is going to tell the cache otherwise: a page cache
+			 * is cleared by editing a post, and a sheet arriving from Google is
+			 * not that.
+			 */
+			LSTAB_Cache::purge( (int) $id );
+
+			/**
+			 * Fires when a sync brought back something different.
+			 *
+			 * @param int   $id     Source ID.
+			 * @param array $table  Parsed table.
+			 * @param array $source Source row as it was before.
+			 */
+			do_action( 'lstab_source_changed', (int) $id, $table, $source );
+		}
 
 		/**
 		 * Fires after a source syncs successfully.
