@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Live Sheets Table Pro
  * Description:       Adds private Google Sheets, filtered views, colour rules, CSV and print export, premium presets and higher limits to Live Sheets Table.
- * Version:           1.7.0
+ * Version:           1.7.1
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Requires Plugins:  live-sheets-table
@@ -22,7 +22,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'LSTABP_VERSION', '1.7.0' );
+define( 'LSTABP_VERSION', '1.7.1' );
 define( 'LSTABP_FILE', __FILE__ );
 define( 'LSTABP_PATH', plugin_dir_path( __FILE__ ) );
 define( 'LSTABP_URL', plugin_dir_url( __FILE__ ) );

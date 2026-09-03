@@ -5,11 +5,16 @@
  * merely absent, so it reads as a choice someone made and not as a fault.
  */
 
+/*
+ * Sideways only. A fixed height was how a long sheet was kept in hand before
+ * this screen had paging; with paging it just cuts the last row of the page in
+ * half and leaves two things to scroll — the page and the box inside it.
+ */
 .lstabp-picker-scroll {
-	overflow: auto;
-	max-height: 460px;
-	border: 1px solid #dcdcde;
-	border-radius: 6px;
+	overflow-x: auto;
+	overflow-y: visible;
+	border: 1px solid #dbe5e3;
+	border-radius: 8px;
 	background: #fff;
 }
 
