@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.6.0
+Stable tag: 3.6.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.6.1 =
+* Fixed: resetting a colour in the editor left the old colour sitting in the swatch beside it, so a reset that had worked still looked as though it had not. A cleared swatch now shows the colour the chosen style supplies in its place, and changing style updates the swatches that are following it.
 
 = 3.6.0 =
 * Fixed: the bundled example was counted when deciding whether the schedule had stalled, so a site whose schedule was working perfectly could be told it was not. The example is never fetched, so it is no longer counted.
@@ -341,6 +344,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.6.1 =
+Fixes the colour swatches keeping their old value after a reset.
 
 = 3.6.0 =
 Fixes a false scheduling warning caused by the built-in example, and redraws the settings screen.

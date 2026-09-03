@@ -241,6 +241,29 @@ const tableStyle = () =>
 		inline: el.getAttribute( 'style' ) || '',
 	} ) );
 
+/**
+ * The colour the chosen preset is currently giving one token, as #rrggbb.
+ *
+ * A swatch with no override of its own should be showing exactly this.
+ */
+const presetColour = ( token ) => page.evaluate( ( name ) => {
+	const swatch = document.querySelector( '.lstab-swatch[data-lstab-token="' + name + '"]' );
+	const table = document.querySelector( '.lstab-preview .lstab' );
+	const probe = document.createElement( 'span' );
+
+	probe.style.color = getComputedStyle( table )
+		.getPropertyValue( swatch.getAttribute( 'data-lstab-var' ) ).trim();
+	document.body.appendChild( probe );
+	const parts = ( getComputedStyle( probe ).color || '' ).match( /[0-9.]+/g );
+	document.body.removeChild( probe );
+
+	return parts && parts.length >= 3
+		? '#' + parts.slice( 0, 3 ).map(
+			( n ) => ( '0' + parseInt( n, 10 ).toString( 16 ) ).slice( -2 )
+		).join( '' )
+		: '#ffffff';
+}, token );
+
 const beforeCustomising = await tableStyle();
 check( beforeCustomising.accent === '', 'A fresh source has no overrides', beforeCustomising.inline );
 
@@ -363,6 +386,23 @@ const afterClear = await tableStyle();
 check( afterClear.accent === '', 'Resetting one colour removes just that one', afterClear.inline );
 check( afterClear.inline.includes( '--lstab-bg' ), 'The other colours survive that reset', afterClear.inline );
 
+// The swatch itself has to let go of the colour too. Leaving #c0392b sitting in
+// the picker after clearing it reads as "still set", which is what it looked
+// like to everybody who tried it.
+const accentSwatchAfterClear = await page.locator(
+	'.lstab-swatch[data-lstab-token="accent"] .lstab-color-input'
+).inputValue();
+check(
+	'#c0392b' !== accentSwatchAfterClear,
+	'Clearing one colour empties its swatch as well',
+	accentSwatchAfterClear
+);
+check(
+	accentSwatchAfterClear === await presetColour( 'accent' ),
+	'The cleared swatch shows the colour the preset supplies',
+	accentSwatchAfterClear
+);
+
 // Reloading the preview must not discard what has been set.
 await pane( 'general' );
 await page.locator( '#lstab-preview-button' ).click();
@@ -381,6 +421,39 @@ await page.locator( '#lstab-reset-appearance' ).click();
 await page.waitForTimeout( 150 );
 const afterResetAll = await tableStyle();
 check( afterResetAll.inline === '', 'Reset clears every override', afterResetAll.inline );
+
+const strandedSwatches = await page.evaluate( () => {
+	const stranded = [];
+
+	document.querySelectorAll( '.lstab-swatch' ).forEach( ( swatch ) => {
+		const picker = swatch.querySelector( '.lstab-color-input' );
+		const table = document.querySelector( '.lstab-preview .lstab' );
+		const probe = document.createElement( 'span' );
+
+		probe.style.color = getComputedStyle( table )
+			.getPropertyValue( swatch.getAttribute( 'data-lstab-var' ) ).trim();
+		document.body.appendChild( probe );
+		const parts = ( getComputedStyle( probe ).color || '' ).match( /[0-9.]+/g );
+		document.body.removeChild( probe );
+
+		const expected = parts && parts.length >= 3
+			? '#' + parts.slice( 0, 3 ).map(
+				( n ) => ( '0' + parseInt( n, 10 ).toString( 16 ) ).slice( -2 )
+			).join( '' )
+			: '#ffffff';
+
+		if ( picker.value !== expected ) {
+			stranded.push( swatch.getAttribute( 'data-lstab-token' ) + ': ' + picker.value + ' ≠ ' + expected );
+		}
+	} );
+
+	return stranded;
+} );
+check(
+	0 === strandedSwatches.length,
+	'Reset empties every swatch, not just the table',
+	strandedSwatches.join( ', ' )
+);
 
 // Set one, save, and confirm it reaches the published page.
 await page.locator( '.lstab-swatch[data-lstab-token="accent"] .lstab-color-input' ).evaluate( ( el ) => {

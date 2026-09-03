@@ -381,6 +381,88 @@
 		} );
 	}
 
+	/**
+	 * Turn any CSS colour into the #rrggbb a colour input will accept.
+	 *
+	 * A preset writes its colours however it likes — a name, three digits,
+	 * rgb() — but <input type="color"> takes one form only and silently keeps
+	 * its old value when handed anything else. Letting the browser parse it
+	 * through a throwaway element is the only way to cover every spelling.
+	 *
+	 * @param {string} value A CSS colour, or nothing.
+	 * @return {string} A #rrggbb string, or '' when it could not be read.
+	 */
+	function toHex( value ) {
+		var text = ( value || '' ).trim();
+
+		if ( ! text ) {
+			return '';
+		}
+
+		if ( /^#[0-9a-f]{6}$/i.test( text ) ) {
+			return text.toLowerCase();
+		}
+
+		var probe = document.createElement( 'span' );
+
+		probe.style.color = text;
+
+		if ( ! probe.style.color ) {
+			return '';
+		}
+
+		probe.style.display = 'none';
+		document.body.appendChild( probe );
+
+		var parts = ( window.getComputedStyle( probe ).color || '' ).match( /[0-9.]+/g );
+
+		document.body.removeChild( probe );
+
+		if ( ! parts || parts.length < 3 ) {
+			return '';
+		}
+
+		return '#' + parts.slice( 0, 3 ).map( function ( part ) {
+			return ( '0' + parseInt( part, 10 ).toString( 16 ) ).slice( -2 );
+		} ).join( '' );
+	}
+
+	/**
+	 * Show, in the swatch itself, the colour the preset is now supplying.
+	 *
+	 * Clearing an override used to leave the old colour sitting in the picker,
+	 * which read as "still set" even though nothing was. Reading the value back
+	 * off the previewed table means the swatch shows what the table is actually
+	 * using — so a reset looks like a reset.
+	 *
+	 * Call it only after the override has been taken off the table, or it reads
+	 * back the very value being cleared.
+	 *
+	 * @param {Element} swatch The swatch to update.
+	 * @return {void}
+	 */
+	function followPreset( swatch ) {
+		var picker = swatch.querySelector( '.lstab-color-input' );
+		var table = stage.querySelector( '.lstab' );
+		var resolved = table
+			? window.getComputedStyle( table ).getPropertyValue( swatch.getAttribute( 'data-lstab-var' ) )
+			: '';
+
+		picker.value = toHex( resolved ) || '#ffffff';
+	}
+
+	/**
+	 * Put one swatch back to following the preset.
+	 *
+	 * @param {Element} swatch The swatch to clear.
+	 * @return {void}
+	 */
+	function clearSwatch( swatch ) {
+		swatch.querySelector( '.lstab-color-value' ).value = '';
+		swatch.querySelector( '.lstab-color-input' ).setAttribute( 'data-lstab-unset', '1' );
+		swatch.querySelector( '.lstab-color-clear' ).disabled = true;
+	}
+
 	Array.prototype.forEach.call( swatches, function ( swatch ) {
 		var picker = swatch.querySelector( '.lstab-color-input' );
 		var hidden = swatch.querySelector( '.lstab-color-value' );
@@ -394,10 +476,9 @@
 		} );
 
 		clear.addEventListener( 'click', function () {
-			hidden.value = '';
-			picker.setAttribute( 'data-lstab-unset', '1' );
-			clear.disabled = true;
+			clearSwatch( swatch );
 			applyAppearance();
+			followPreset( swatch );
 		} );
 	} );
 
@@ -407,11 +488,7 @@
 
 	if ( resetAppearance ) {
 		resetAppearance.addEventListener( 'click', function () {
-			Array.prototype.forEach.call( swatches, function ( swatch ) {
-				swatch.querySelector( '.lstab-color-value' ).value = '';
-				swatch.querySelector( '.lstab-color-input' ).setAttribute( 'data-lstab-unset', '1' );
-				swatch.querySelector( '.lstab-color-clear' ).disabled = true;
-			} );
+			Array.prototype.forEach.call( swatches, clearSwatch );
 			Array.prototype.forEach.call( metricInputs, function ( input ) {
 				input.value = 'normal';
 			} );
@@ -420,6 +497,10 @@
 			if ( table ) {
 				table.removeAttribute( 'style' );
 			}
+
+			// Only now that the overrides are off the table can each swatch be
+			// shown the colour the preset supplies in their place.
+			Array.prototype.forEach.call( swatches, followPreset );
 		} );
 	}
 
@@ -442,6 +523,14 @@
 	Array.prototype.forEach.call( presetInputs, function ( input ) {
 		input.addEventListener( 'change', function () {
 			applyPreset( input.value );
+
+			// A swatch with no override of its own is showing the old preset's
+			// colour until it is told otherwise.
+			Array.prototype.forEach.call( swatches, function ( swatch ) {
+				if ( ! swatch.querySelector( '.lstab-color-value' ).value ) {
+					followPreset( swatch );
+				}
+			} );
 		} );
 	} );
 
