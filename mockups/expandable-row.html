@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Rozwijany wiersz — makieta</title>
+<link rel="stylesheet" href="lstab-table.css">
+<style>
+	body {
+		margin: 0;
+		padding: 40px;
+		background: #f4f6f6;
+		font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+		color: #1d2327;
+	}
+	.wrap { max-width: 1180px; margin: 0 auto; }
+	h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.01em; }
+	.sub { color: #5b6d6b; margin: 0 0 34px; font-size: 14px; }
+	h2 {
+		font-size: 12px;
+		text-transform: uppercase;
+		letter-spacing: 0.09em;
+		color: #0e7c74;
+		margin: 34px 0 4px;
+	}
+	h2 .n {
+		display: inline-flex;
+		width: 18px; height: 18px;
+		align-items: center; justify-content: center;
+		border-radius: 50%;
+		background: #0e7c74; color: #fff;
+		font-size: 11px; margin-right: 7px;
+		letter-spacing: 0;
+	}
+	.note { color: #5b6d6b; font-size: 13px; margin: 0 0 14px; max-width: 62ch; line-height: 1.55; }
+	.panel {
+		background: #fff;
+		border: 1px solid #dbe5e3;
+		border-radius: 14px;
+		padding: 18px 20px;
+		box-shadow: 0 1px 2px rgba(16,40,38,0.04);
+	}
+	.cut { position: relative; }
+	.cut::after {
+		content: "";
+		position: absolute; top: 0; right: 0; bottom: 0; width: 90px;
+		background: linear-gradient(to right, rgba(255,255,255,0), #fff 78%);
+		pointer-events: none;
+	}
+	.phone { max-width: 380px; }
+
+	/* ---- the proposed drawer, as it would ship ---- */
+	.lstab-open {
+		display: inline-flex;
+		align-items: center; justify-content: center;
+		width: 26px; height: 26px;
+		margin-right: 10px;
+		border: 1px solid var(--lstab-border, #e2e6e6);
+		border-radius: 7px;
+		background: #fff;
+		color: #5b6d6b;
+		cursor: pointer;
+		vertical-align: -6px;
+		transition: transform 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+	}
+	.lstab-open svg { width: 13px; height: 13px; }
+	.lstab-open:hover { border-color: var(--lstab-accent, #0e7c74); color: var(--lstab-accent, #0e7c74); }
+	.lstab-open[aria-expanded="true"] {
+		transform: rotate(90deg);
+		border-color: var(--lstab-accent, #0e7c74);
+		color: var(--lstab-accent, #0e7c74);
+		background: rgba(14,124,116,0.07);
+	}
+	tr.is-open > td { background: rgba(14,124,116,0.045); }
+	.lstab-detail > td {
+		padding: 0 !important;
+		background: rgba(14,124,116,0.045);
+		border-bottom: 1px solid var(--lstab-border, #e2e6e6);
+	}
+	.lstab-detail-inner {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+		gap: 12px 30px;
+		padding: 16px 20px 20px 58px;
+	}
+	.lstab-detail-pair { min-width: 0; }
+	.lstab-detail-key {
+		display: block;
+		font-size: 11px;
+		letter-spacing: 0.07em;
+		text-transform: uppercase;
+		color: #5b6d6b;
+		margin-bottom: 2px;
+	}
+	.lstab-detail-value { display: block; font-size: 14px; line-height: 1.5; }
+	.wide { grid-column: 1 / -1; }
+
+	/* ---- the editor control ---- */
+	.editor {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		gap: 10px 18px;
+		align-items: center;
+		max-width: 560px;
+	}
+	.editor .row {
+		display: contents;
+	}
+	.editor .name { font-size: 14px; padding: 7px 0; }
+	.editor .name small { display: block; color: #8a9a98; font-size: 12px; }
+	.seg {
+		display: inline-flex;
+		border: 1px solid #dbe5e3;
+		border-radius: 9px;
+		overflow: hidden;
+		background: #fbfbfa;
+	}
+	.seg span {
+		font-size: 12px;
+		padding: 6px 12px;
+		color: #5b6d6b;
+		border-right: 1px solid #e8eeed;
+		white-space: nowrap;
+	}
+	.seg span:last-child { border-right: 0; }
+	.seg span.on { background: #0e7c74; color: #fff; font-weight: 600; }
+	.seg span.on.grey { background: #5b6d6b; }
+	.legend { font-size: 12px; color: #8a9a98; margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+	<h1>Rozwijany wiersz ze szczegółami</h1>
+	<p class="sub">Makieta na prawdziwym arkuszu stylów wtyczki — tak by to wyglądało po zbudowaniu.</p>
+
+	<h2><span class="n">1</span>Dziś: dziewięć kolumn, siedem poza ekranem</h2>
+	<p class="note">Arkusz z serwisu rowerowego ma dziewięć kolumn. Na stronie mieszczą się trzy i pół. Reszta jest za suwakiem — czyli dla większości odwiedzających nie istnieje.</p>
+	<div class="panel cut">
+		<div class="lstab lstab-style-clean lstab-layout-table" data-lstab-id="1">
+			<div class="lstab-scroll">
+				<table class="lstab-table">
+					<thead><tr>
+						<th>Produkt</th><th data-lstab-align="end">Cena netto</th><th>Dostępność</th>
+						<th>Kod</th><th>Gwarancja</th><th data-lstab-align="end">Waga</th>
+						<th>Rozmiary</th><th>Opis</th><th>Zaktualizowano</th>
+					</tr></thead>
+					<tbody>
+						<tr><td>Rower górski „Trek”</td><td data-lstab-align="end">4 199,99</td><td>W magazynie</td><td>TRK-29-M</td><td>24 miesiące</td><td data-lstab-align="end">13,4 kg</td><td>M, L, XL</td><td>Rama aluminiowa, widelec 120 mm</td><td>2026-08-20</td></tr>
+						<tr><td>Kask Lazer</td><td data-lstab-align="end">349,00</td><td>W magazynie</td><td>LZR-CMP</td><td>12 miesięcy</td><td data-lstab-align="end">0,31 kg</td><td>S, M, L</td><td>Certyfikat EN 1078</td><td>2026-08-21</td></tr>
+						<tr><td>Lampka Sigma</td><td data-lstab-align="end">89,00</td><td>Brak</td><td>SIG-300</td><td>24 miesiące</td><td data-lstab-align="end">0,12 kg</td><td>—</td><td>300 lumenów, USB-C</td><td>2026-08-22</td></tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<h2><span class="n">2</span>Z rozwijanym wierszem</h2>
+	<p class="note">Trzy kolumny, po których się skanuje, zostają w tabeli. Pozostałe sześć wchodzi do szuflady pod wierszem. Strzałka rozwija, druga strzałka zwija. Nic nie ucieka poza ekran.</p>
+	<div class="panel">
+		<div class="lstab lstab-style-clean lstab-layout-table" data-lstab-id="2">
+			<div class="lstab-scroll">
+				<table class="lstab-table">
+					<thead><tr>
+						<th>Produkt</th><th data-lstab-align="end">Cena netto</th><th>Dostępność</th>
+					</tr></thead>
+					<tbody>
+						<tr class="is-open">
+							<td>
+								<button class="lstab-open" aria-expanded="true" aria-label="Zwiń szczegóły">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+								</button>Rower górski „Trek”
+							</td>
+							<td data-lstab-align="end">4 199,99</td><td>W magazynie</td>
+						</tr>
+						<tr class="lstab-detail"><td colspan="3">
+							<div class="lstab-detail-inner">
+								<span class="lstab-detail-pair"><span class="lstab-detail-key">Kod</span><span class="lstab-detail-value">TRK-29-M</span></span>
+								<span class="lstab-detail-pair"><span class="lstab-detail-key">Gwarancja</span><span class="lstab-detail-value">24 miesiące</span></span>
+								<span class="lstab-detail-pair"><span class="lstab-detail-key">Waga</span><span class="lstab-detail-value">13,4 kg</span></span>
+								<span class="lstab-detail-pair"><span class="lstab-detail-key">Rozmiary</span><span class="lstab-detail-value">M, L, XL</span></span>
+								<span class="lstab-detail-pair"><span class="lstab-detail-key">Zaktualizowano</span><span class="lstab-detail-value">2026-08-20</span></span>
+								<span class="lstab-detail-pair wide"><span class="lstab-detail-key">Opis</span><span class="lstab-detail-value">Rama aluminiowa 6061, widelec skokowy 120 mm, hamulce hydrauliczne, przerzutki 1×12. W zestawie zestaw naprawczy i bidon.</span></span>
+							</div>
+						</td></tr>
+						<tr>
+							<td>
+								<button class="lstab-open" aria-expanded="false" aria-label="Pokaż szczegóły">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+								</button>Kask Lazer
+							</td>
+							<td data-lstab-align="end">349,00</td><td>W magazynie</td>
+						</tr>
+						<tr>
+							<td>
+								<button class="lstab-open" aria-expanded="false" aria-label="Pokaż szczegóły">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+								</button>Lampka Sigma
+							</td>
+							<td data-lstab-align="end">89,00</td><td>Brak</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<h2><span class="n">3</span>Na telefonie</h2>
+	<p class="note">Ten sam mechanizm, ta sama treść. Bez szuflady telefon dostaje albo dziewięć kolumn do przesuwania palcem, albo kartę wysoką na trzy ekrany.</p>
+	<div class="panel phone">
+		<div class="lstab lstab-style-clean lstab-layout-table" data-lstab-id="3">
+			<div class="lstab-scroll">
+				<table class="lstab-table">
+					<thead><tr><th>Produkt</th><th data-lstab-align="end">Cena</th></tr></thead>
+					<tbody>
+						<tr class="is-open">
+							<td>
+								<button class="lstab-open" aria-expanded="true" aria-label="Zwiń">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+								</button>Kask Lazer
+							</td>
+							<td data-lstab-align="end">349,00</td>
+						</tr>
+						<tr class="lstab-detail"><td colspan="2">
+							<div class="lstab-detail-inner" style="padding-left: 20px;">
+								<span class="lstab-detail-pair"><span class="lstab-detail-key">Dostępność</span><span class="lstab-detail-value">W magazynie</span></span>
+								<span class="lstab-detail-pair"><span class="lstab-detail-key">Kod</span><span class="lstab-detail-value">LZR-CMP</span></span>
+								<span class="lstab-detail-pair"><span class="lstab-detail-key">Rozmiary</span><span class="lstab-detail-value">S, M, L</span></span>
+								<span class="lstab-detail-pair"><span class="lstab-detail-key">Opis</span><span class="lstab-detail-value">Certyfikat EN 1078, 18 otworów wentylacyjnych.</span></span>
+							</div>
+						</td></tr>
+						<tr>
+							<td>
+								<button class="lstab-open" aria-expanded="false" aria-label="Pokaż">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+								</button>Lampka Sigma
+							</td>
+							<td data-lstab-align="end">89,00</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<h2><span class="n">4</span>Co się zmienia w edytorze</h2>
+	<p class="note">Dziś każda kolumna ma dwa stany. Dochodzi trzeci — i to cała zmiana w ustawieniach. Żadnej nowej zakładki, żadnego nowego pojęcia do wytłumaczenia.</p>
+	<div class="panel">
+		<div class="editor">
+			<div class="row"><span class="name">Produkt<small>pierwsza kolumna, przypięta</small></span><span class="seg"><span class="on">W tabeli</span><span>W szczegółach</span><span>Ukryta</span></span></div>
+			<div class="row"><span class="name">Cena netto</span><span class="seg"><span class="on">W tabeli</span><span>W szczegółach</span><span>Ukryta</span></span></div>
+			<div class="row"><span class="name">Dostępność</span><span class="seg"><span class="on">W tabeli</span><span>W szczegółach</span><span>Ukryta</span></span></div>
+			<div class="row"><span class="name">Kod</span><span class="seg"><span>W tabeli</span><span class="on">W szczegółach</span><span>Ukryta</span></span></div>
+			<div class="row"><span class="name">Gwarancja</span><span class="seg"><span>W tabeli</span><span class="on">W szczegółach</span><span>Ukryta</span></span></div>
+			<div class="row"><span class="name">Opis<small>długi tekst</small></span><span class="seg"><span>W tabeli</span><span class="on">W szczegółach</span><span>Ukryta</span></span></div>
+			<div class="row"><span class="name">Marża<small>nie dla klientów</small></span><span class="seg"><span>W tabeli</span><span>W szczegółach</span><span class="on grey">Ukryta</span></span></div>
+		</div>
+		<p class="legend">„Ukryta” dalej znaczy to samo co dziś: kolumna nie opuszcza serwera i nie ma jej ani w HTML-u, ani w eksporcie.</p>
+	</div>
+
+</div>
+</body>
+</html>
