@@ -2147,6 +2147,111 @@ lstab_assert( null === LSTAB_Storage::get( 987654 ), 'A cached miss is still a m
 
 // ---------------------------------------------------------------------------
 
+lstab_section( '14x. Columns that live under the row' );
+
+$detail_config = LSTAB_Storage::get( $source_id )['columns_config'];
+$detail_config[3]['detail'] = true;
+LSTAB_Storage::update( $source_id, array( 'columns_config' => $detail_config ) );
+
+// Named from the sheet rather than written out here, so the test says what it
+// means whichever fixture it runs against.
+$detail_stored  = LSTAB_Storage::get( $source_id );
+$detail_heading = (string) $detail_stored['data']['headers'][3];
+$detail_value   = (string) $detail_stored['data']['rows'][0][3];
+
+$detail_source = LSTAB_Storage::get( $source_id );
+lstab_assert( ! empty( $detail_source['columns_config'][3]['detail'] ), 'The choice survives a round trip through the database' );
+
+$detail_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+
+lstab_assert( false !== strpos( $detail_html, 'lstab-detail' ), 'The table renders a drawer under its rows' );
+lstab_assert( false !== strpos( $detail_html, 'class="lstab-open"' ), 'With a button to open it' );
+lstab_assert(
+	false !== strpos( $detail_html, 'aria-expanded="false"' ) && false !== strpos( $detail_html, 'aria-controls=' ),
+	'That says what it controls and whether it is open'
+);
+
+// The moved column must be out of the table proper and inside the drawer.
+$detail_head = substr( $detail_html, (int) strpos( $detail_html, '<thead' ), (int) strpos( $detail_html, '</thead>' ) - (int) strpos( $detail_html, '<thead' ) );
+lstab_assert( false === strpos( $detail_head, $detail_heading ), 'The moved column is no longer a column of the table', $detail_heading );
+lstab_assert( false !== strpos( $detail_html, 'lstab-detail-key' ), 'And is named inside the drawer instead' );
+lstab_assert( false !== strpos( $detail_html, esc_html( $detail_value ) ), 'Its values are in the page, not fetched on the click', $detail_value );
+
+// The whole point: the words are in the HTML, so a search engine and the
+// table's own search box both find them.
+lstab_assert( false !== strpos( $detail_html, 'hidden>' ) || false !== strpos( $detail_html, ' hidden' ), 'The drawer starts closed' );
+
+// Every remaining column plus the arrow's own column.
+if ( preg_match( '#<td colspan="(\d+)"#', $detail_html, $span ) ) {
+	$detail_columns = substr_count( $detail_head, '<th ' );
+	lstab_assert(
+		(int) $span[1] === $detail_columns,
+		'The drawer spans exactly the width of the table',
+		$span[1] . ' vs ' . $detail_columns
+	);
+}
+
+// Hiding wins: a column cannot be both gone and in the drawer.
+$detail_config[3]['hidden'] = true;
+LSTAB_Storage::update( $source_id, array( 'columns_config' => $detail_config ) );
+$both_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert(
+	false === strpos( $both_html, esc_html( $detail_value ) ) && false === strpos( $both_html, $detail_heading ),
+	'A hidden column stays hidden, drawer or no drawer',
+	$detail_heading
+);
+$detail_config[3]['hidden'] = false;
+LSTAB_Storage::update( $source_id, array( 'columns_config' => $detail_config ) );
+
+// Refusing to render nothing: every column in the drawer is a mistake, not a
+// layout, and an empty table helps nobody find it.
+$all_detail = LSTAB_Storage::get( $source_id )['columns_config'];
+foreach ( $all_detail as $lstab_i => $lstab_column ) {
+	$all_detail[ $lstab_i ]['detail'] = true;
+	$all_detail[ $lstab_i ]['hidden'] = false;
+}
+LSTAB_Storage::update( $source_id, array( 'columns_config' => $all_detail ) );
+$empty_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false === strpos( $empty_html, 'lstab-detail' ), 'Putting every column in the drawer is refused rather than rendered' );
+lstab_assert( false !== strpos( $empty_html, 'Rower' ), 'And the table is drawn as it was' );
+
+// The export ignores the drawer: a file has no rows to open.
+LSTAB_Storage::update( $source_id, array( 'columns_config' => $detail_config ) );
+$detail_prepared = LSTAB_Renderer::prepare( LSTAB_Storage::get( $source_id ), array() );
+lstab_assert(
+	in_array( $detail_heading, $detail_prepared['headers'], true ),
+	'A column in the drawer is still in the data a download would carry',
+	wp_json_encode( $detail_prepared['headers'] )
+);
+
+/*
+ * Without the add-on the drawer is not offered, and a column that was in it
+ * comes back into the table. Widening a table is a visible change somebody can
+ * see and undo; quietly dropping a column would not be.
+ */
+$detail_seen = get_option( LSTAB_Limits::SEEN_OPTION );
+delete_option( LSTAB_Limits::SEEN_OPTION );
+
+if ( ! LSTAB_Limits::pro_effective() ) {
+	$free_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+	$free_head = substr( $free_html, (int) strpos( $free_html, '<thead' ), (int) strpos( $free_html, '</thead>' ) - (int) strpos( $free_html, '<thead' ) );
+
+	lstab_assert( false === strpos( $free_html, 'lstab-detail' ), 'Without the add-on there is no drawer' );
+	lstab_assert( false !== strpos( $free_head, $detail_heading ), 'And the column is back in the table rather than gone', $detail_heading );
+} else {
+	lstab_assert( true, 'Free-tier fallback not checked here — the add-on is active on this site' );
+}
+
+if ( $detail_seen ) {
+	update_option( LSTAB_Limits::SEEN_OPTION, $detail_seen, true );
+}
+
+// Put it back for the rest of the run.
+$detail_config[3]['detail'] = false;
+LSTAB_Storage::update( $source_id, array( 'columns_config' => $detail_config ) );
+
+// ---------------------------------------------------------------------------
+
 lstab_section( '14y. Telling the page cache' );
 
 /*
@@ -2196,11 +2301,18 @@ $other_page = wp_insert_post(
 );
 LSTAB_Usage::forget();
 
-lstab_assert( 'pages' === LSTAB_Cache::mode(), 'Clearing only the pages a table is on is the default', LSTAB_Cache::mode() );
+/*
+ * How many pages hold this table is a property of the site the suite happens to
+ * be run against — the demo page is seeded for the browser run too — so this
+ * checks the purge against what the usage map actually says rather than against
+ * a number written here.
+ */
+$cache_places = count( LSTAB_Usage::places( $source_id ) );
 
 $purged = LSTAB_Cache::purge( $source_id );
 lstab_assert( 'pages' === $purged['scope'], 'A purge clears pages rather than everything', $purged['scope'] );
-lstab_assert( 1 === $purged['posts'], 'Exactly the one page holding the table', (string) $purged['posts'] );
+lstab_assert( $cache_places === $purged['posts'], 'Exactly the pages holding the table', $purged['posts'] . ' of ' . $cache_places );
+lstab_assert( $purged['posts'] >= 1, 'Which is at least the one just made', (string) $purged['posts'] );
 lstab_assert( ! empty( $purge_seen ), 'And anything else listening is told which pages they were' );
 lstab_assert(
 	! empty( $purge_seen ) && in_array( $cache_page, $purge_seen[0]['posts'], true ),
@@ -2216,7 +2328,7 @@ lstab_assert( in_array( (int) $cache_page, $litespeed_seen, true ), 'A caching p
 
 // The dashboard has to be able to say what happened.
 $purge_note = LSTAB_Cache::last( $source_id );
-lstab_assert( is_array( $purge_note ) && $purge_note['posts'] === 1, 'The clearing is recorded for the dashboard', wp_json_encode( $purge_note ) );
+lstab_assert( is_array( $purge_note ) && $purge_note['posts'] === $cache_places, 'The clearing is recorded for the dashboard', wp_json_encode( $purge_note ) );
 lstab_assert( $purge_note['time'] > time() - 60, 'With the time it happened' );
 
 // A check that found nothing new must not clear anything: that is the whole
@@ -2236,22 +2348,24 @@ LSTAB_Sync::run( $source_id );
 $after_change = LSTAB_Cache::last( $source_id );
 lstab_assert( is_array( $after_change ), 'A sync that brought something new does clear it', wp_json_encode( $after_change ) );
 
-// Switching it off means off.
-$cache_settings                = LSTAB_Settings::all();
-$cache_settings['purge_cache'] = 'off';
-LSTAB_Settings::save( $cache_settings );
+// A developer with a reason can still switch it off; there is no setting for
+// it, because "should the page match the sheet?" is not a question worth asking
+// anybody.
+add_filter( 'lstab_clear_page_cache', '__return_false' );
 delete_option( LSTAB_Cache::LOG_OPTION );
 $purge_seen = array();
 
 lstab_serve_custom( "Produkt,Cena netto,Dostępność\nRower górski \"Trek\",5999.99,W magazynie\n" );
 LSTAB_Sync::run( $source_id );
-lstab_assert( null === LSTAB_Cache::last( $source_id ), 'Switched off, nothing is cleared even when the sheet changed' );
+lstab_assert( null === LSTAB_Cache::last( $source_id ), 'The filter switches it off completely' );
 lstab_assert( empty( $purge_seen ), 'And nothing listening is told either' );
+remove_filter( 'lstab_clear_page_cache', '__return_false' );
 
-// The whole-cache choice, for tables in a widget or a template.
-$cache_settings['purge_cache'] = 'site';
-LSTAB_Settings::save( $cache_settings );
-
+/*
+ * A table nothing names — a widget, a template, a page builder's library — is
+ * exactly where a stale copy would go unnoticed longest, so finding no page
+ * clears everything rather than nothing.
+ */
 $flushed_all = false;
 add_action(
 	'lstab_purge_all_cache',
@@ -2260,12 +2374,27 @@ add_action(
 	}
 );
 
-lstab_serve_custom( "Produkt,Cena netto,Dostępność\nRower górski \"Trek\",6999.99,W magazynie\n" );
-LSTAB_Sync::run( $source_id );
-lstab_assert( $flushed_all, 'The whole-cache choice clears the whole cache' );
+// A source nothing points at, rather than the one under test: the demo page is
+// seeded on this site for the browser run and would keep naming that one.
+$orphan = LSTAB_Storage::insert(
+	array(
+		'title'     => 'Nigdzie nieużywana',
+		'sheet_url' => 'https://docs.google.com/spreadsheets/d/VVV/edit#gid=0',
+		'sheet_id'  => 'VVV',
+	)
+);
+LSTAB_Usage::forget();
 
-$cache_settings['purge_cache'] = 'pages';
-LSTAB_Settings::save( $cache_settings );
+lstab_assert( ! LSTAB_Usage::places( $orphan ), 'The orphan table really is on no page' );
+
+LSTAB_Cache::purge( $orphan );
+lstab_assert( $flushed_all, 'A table on no page anybody can name clears the whole cache instead' );
+$after_site = LSTAB_Cache::last( $orphan );
+lstab_assert( is_array( $after_site ) && 'site' === $after_site['scope'], 'And says so', wp_json_encode( $after_site ) );
+
+LSTAB_Storage::delete( $orphan );
+wp_delete_post( $cache_page, true );
+LSTAB_Usage::forget();
 
 // Deleting a source stops it being remembered.
 $cache_throwaway = LSTAB_Storage::insert(
@@ -2280,7 +2409,6 @@ lstab_assert( is_array( LSTAB_Cache::last( $cache_throwaway ) ), 'A throwaway so
 LSTAB_Storage::delete( $cache_throwaway );
 lstab_assert( null === LSTAB_Cache::last( $cache_throwaway ), 'Deleting a source forgets it' );
 
-wp_delete_post( $cache_page, true );
 wp_delete_post( $other_page, true );
 LSTAB_Usage::forget();
 

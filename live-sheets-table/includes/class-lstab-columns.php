@@ -45,6 +45,9 @@ class LSTAB_Columns {
 			$clean[ (int) $index ] = array(
 				'label'  => isset( $column['label'] ) ? sanitize_text_field( (string) $column['label'] ) : '',
 				'hidden' => $hidden,
+				// Not in the table, but not gone either: shown under the row it
+				// belongs to, once somebody asks for it.
+				'detail' => ! empty( $column['detail'] ),
 				'source' => isset( $column['source'] ) ? sanitize_text_field( (string) $column['source'] ) : '',
 			);
 		}
@@ -73,14 +76,16 @@ class LSTAB_Columns {
 			$existing = isset( $config[ $index ] ) ? $config[ $index ] : array(
 				'label'  => '',
 				'hidden' => false,
+				'detail' => false,
 				'source' => '',
 			);
 
-			$configured = '' !== $existing['label'] || $existing['hidden'];
+			$configured = '' !== $existing['label'] || $existing['hidden'] || ! empty( $existing['detail'] );
 
 			$updated[ $index ] = array(
 				'label'  => $existing['label'],
 				'hidden' => $existing['hidden'],
+				'detail' => ! empty( $existing['detail'] ),
 				/*
 				 * The heading that was there when the choice was made, kept
 				 * exactly as it was for as long as the choice lasts. It is the
@@ -210,6 +215,12 @@ class LSTAB_Columns {
 
 		$keep    = array();
 		$labels  = array();
+		$details = array();
+
+		// The drawer is part of the paid tier, and follows the same grace
+		// period as hiding: a lapsed licence widens the table again rather than
+		// leaving a control nobody can reach.
+		$may_detail = LSTAB_Limits::pro_effective();
 
 		// Leaving a column out is the add-on's to decide, and is honoured for a
 		// grace period after it stops so that a lapsed licence does not
@@ -234,6 +245,13 @@ class LSTAB_Columns {
 
 			$keep[]   = $index;
 			$labels[] = ( $matches && '' !== $column['label'] ) ? $column['label'] : (string) $heading;
+
+			if ( $matches && ! empty( $column['detail'] ) && $may_detail ) {
+				// Recorded against the position it will have once the hidden
+				// columns are gone, which is the only position the renderer
+				// ever sees.
+				$details[] = count( $keep ) - 1;
+			}
 		}
 
 		// Refuse to render nothing: hiding every column is a configuration
@@ -252,9 +270,19 @@ class LSTAB_Columns {
 			$filtered[] = $trimmed;
 		}
 
+		/*
+		 * Refuse to put every column in the drawer: a table of nothing but
+		 * chevrons is a configuration mistake, and rendering it would leave
+		 * whoever made it with no way of seeing what went wrong.
+		 */
+		if ( count( $details ) >= count( $keep ) ) {
+			$details = array();
+		}
+
 		return array(
 			'headers' => $labels,
 			'rows'    => $filtered,
+			'details' => $details,
 		);
 	}
 }

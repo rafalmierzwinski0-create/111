@@ -319,19 +319,30 @@
 		} );
 	}
 
-	button.addEventListener( 'click', function () {
-		if ( ! inFlight ) {
-			loadPreview();
-		}
-	} );
+	/*
+	 * The bundled example has no Google card, so it has no preview button and
+	 * no tab picker either. Reaching for them regardless threw, and a throw
+	 * here stopped the rest of this file from running at all — which is why the
+	 * example's colours and style did nothing: not one of those controls had
+	 * been wired up by the time the error landed.
+	 */
+	if ( button ) {
+		button.addEventListener( 'click', function () {
+			if ( ! inFlight ) {
+				loadPreview();
+			}
+		} );
+	}
 
-	tabsSelect.addEventListener( 'change', function () {
-		var selected = tabsSelect.options[ tabsSelect.selectedIndex ];
-		if ( selected ) {
-			tabNameField.value = selected.textContent;
-		}
-		loadPreview( tabsSelect.value );
-	} );
+	if ( tabsSelect ) {
+		tabsSelect.addEventListener( 'change', function () {
+			var selected = tabsSelect.options[ tabsSelect.selectedIndex ];
+			if ( selected && tabNameField ) {
+				tabNameField.value = selected.textContent;
+			}
+			loadPreview( tabsSelect.value );
+		} );
+	}
 
 	// ------------------------------------------------------------ own CSS
 
@@ -635,32 +646,103 @@
 	// Hiding or renaming changes the markup itself, so the preview is rebuilt
 	// rather than restyled. A text field only fires this on blur, so a rename
 	// costs one round trip, not one per keystroke.
+	/**
+	 * Redraw the preview from the copy already stored.
+	 *
+	 * Renaming a column or hiding one changes the markup, not just its styling,
+	 * so the table has to be built again — but not by asking Google, which is
+	 * slow, is a request nobody asked for, and is impossible for the bundled
+	 * example. The server has the rows already; this hands it the settings as
+	 * they stand in the form, unsaved.
+	 *
+	 * @return {void}
+	 */
+	function redrawFromStored() {
+		var id = sourceIdField ? parseInt( sourceIdField.value, 10 ) || 0 : 0;
+
+		if ( ! id ) {
+			return;
+		}
+
+		window.wp.apiFetch( {
+			path: '/live-sheets-table/v1/redraw',
+			method: 'POST',
+			data: {
+				sourceId: id,
+				style: selectedPreset(),
+				layout: layoutSelect ? layoutSelect.value : 'table',
+				columns: columnSettings()
+			}
+		} ).then(
+			function ( response ) {
+				stage.innerHTML = response.html || '';
+				applyAppearance();
+				if ( window.lstabInit ) {
+					window.lstabInit();
+				}
+			},
+			function () {
+				// Nothing to say: the preview simply stays as it was until the
+				// next change, or until the save that makes it certain.
+			}
+		);
+	}
+
+	/*
+	 * A rename shows as it is typed rather than only after a save. "change"
+	 * fires on blur for a text field, so this is one redraw per rename, not one
+	 * per keystroke.
+	 */
 	Array.prototype.forEach.call( columnRows, function ( row ) {
 		row.addEventListener( 'change', function () {
 			if ( stage.querySelector( '.lstab-table' ) ) {
-				loadPreview( gidField.value );
+				redrawFromStored();
 			}
 		} );
+
+		// And as it is typed, for the field somebody is actually looking at.
+		var label = row.querySelector( 'input[type="text"]' );
+
+		if ( label ) {
+			var typing = null;
+
+			label.addEventListener( 'input', function () {
+				window.clearTimeout( typing );
+				typing = window.setTimeout( redrawFromStored, 450 );
+			} );
+		}
 	} );
 
 	if ( firstRowHeader ) {
 		firstRowHeader.addEventListener( 'change', function () {
-			if ( stage.querySelector( '.lstab-table' ) ) {
-				loadPreview( gidField.value );
+			if ( ! stage.querySelector( '.lstab-table' ) ) {
+				return;
+			}
+
+			// Which line is the heading is a question about the sheet, not
+			// about the stored table, so this one does go to Google — where
+			// there is a sheet to go to.
+			if ( urlInput && urlInput.value ) {
+				loadPreview( gidField ? gidField.value : '' );
+			} else {
+				redrawFromStored();
 			}
 		} );
 	}
 
-	urlInput.addEventListener( 'keydown', function ( event ) {
-		if ( 'Enter' === event.key ) {
-			event.preventDefault();
-			loadPreview();
-		}
-	} );
+	if ( urlInput ) {
+		urlInput.addEventListener( 'keydown', function ( event ) {
+			if ( 'Enter' === event.key ) {
+				event.preventDefault();
+				loadPreview();
+			}
+		} );
 
-	// Editing an existing source: show what is stored right away.
-	if ( urlInput.value ) {
-		loadPreview( gidField.value );
+		// Editing a source that has a sheet behind it: fetch once on opening,
+		// which is also what fills the tab picker.
+		if ( urlInput.value ) {
+			loadPreview( gidField ? gidField.value : '' );
+		}
 	}
 }() );
 

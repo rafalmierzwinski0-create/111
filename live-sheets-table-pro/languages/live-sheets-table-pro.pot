@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-03 10:29+0000\n"
+"POT-Creation-Date: 2026-09-03 12:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -68,6 +68,10 @@ msgstr ""
 msgid "Click it again to put it back"
 msgstr ""
 
+#: includes/views/picker-card.php:47
+msgid "Click the arrow to move a column under the row instead"
+msgstr ""
+
 #: includes/views/settings-page.php:61
 msgid "Client ID"
 msgstr ""
@@ -85,12 +89,12 @@ msgid "Colour rules"
 msgstr ""
 
 #. translators: %s: column letter, as Google labels it.
-#: includes/views/picker-card.php:68
+#: includes/views/picker-card.php:63
 msgid "Column %s"
 msgstr ""
 
 #. translators: 1: page number, 2: number of pages, 3: total columns.
-#: includes/class-lstabp-picker.php:81
+#: includes/class-lstabp-picker.php:82
 msgid "Columns — page %1$s of %2$s (%3$s in all)"
 msgstr ""
 
@@ -198,6 +202,10 @@ msgstr ""
 msgid "Hide columns and rows"
 msgstr ""
 
+#: includes/class-lstabp-picker.php:78
+msgid "In the details"
+msgstr ""
+
 #: includes/class-lstabp-export.php:283
 msgid "Let visitors download or print this table"
 msgstr ""
@@ -206,7 +214,7 @@ msgstr ""
 msgid "Let visitors take it away"
 msgstr ""
 
-#: includes/views/picker-card.php:54
+#: includes/views/picker-card.php:55
 msgid "Line"
 msgstr ""
 
@@ -222,6 +230,11 @@ msgstr ""
 msgid "Meaning"
 msgstr ""
 
+#. translators: %s: column name.
+#: includes/views/picker-card.php:88 includes/views/picker-card.php:93
+msgid "Move “%s” under the row, behind an arrow"
+msgstr ""
+
 #: includes/views/picker-card.php:34
 msgid "Moving a column or row in Google will show it again"
 msgstr ""
@@ -230,7 +243,7 @@ msgstr ""
 msgid "No Google account is connected, so private sheets cannot be read."
 msgstr ""
 
-#: includes/views/picker-card.php:141
+#: includes/views/picker-card.php:169
 msgid "No rows taken out."
 msgstr ""
 
@@ -304,7 +317,7 @@ msgid "Red"
 msgstr ""
 
 #. translators: 1: page number, 2: number of pages, 3: total rows.
-#: includes/class-lstabp-picker.php:79
+#: includes/class-lstabp-picker.php:80
 msgid "Rows — page %1$s of %2$s (%3$s in all)"
 msgstr ""
 
@@ -345,7 +358,7 @@ msgid "Show this row again"
 msgstr ""
 
 #. translators: 1: rows shown here, 2: rows in the sheet.
-#: includes/views/picker-card.php:118
+#: includes/views/picker-card.php:146
 msgid "Showing the first %1$d of %2$d rows. Picking rows one at a time past that point is not really the tool for the job — the filter above is."
 msgstr ""
 

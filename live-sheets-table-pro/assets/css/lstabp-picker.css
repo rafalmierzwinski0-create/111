@@ -78,6 +78,21 @@
 	opacity: 0.5;
 }
 
+/*
+ * The line numbers are the same kind of thing as the headings above them —
+ * a gutter you click, not data — so they get the same tint. Leaving this column
+ * white made the left edge read as the table's first column and the numbers as
+ * a value in it, which is not what a spreadsheet looks like and not what these
+ * numbers mean.
+ */
+.lstabp-picker-handle {
+	background: #f6f7f7;
+}
+
+.lstabp-picker tr.is-hidden .lstabp-picker-handle {
+	background: #f1f2f2;
+}
+
 .lstabp-picker-handle .lstabp-picker-toggle {
 	font-weight: 400;
 	color: #787c82;
@@ -272,4 +287,98 @@
 	color: #556764;
 	font-variant-numeric: tabular-nums;
 	min-inline-size: 12rem;
+}
+
+/* ───────────────────────────────────── moving a column under the row */
+
+.lstabp-picker-col {
+	position: relative;
+}
+
+/*
+ * A second mark on the heading, beside the one that takes the column out. Two
+ * small buttons rather than one that cycles: cycling makes the first click
+ * ambiguous and the third a guess.
+ */
+.lstabp-picker-detail {
+	position: absolute;
+	top: 50%;
+	right: 4px;
+	transform: translateY( -50% );
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	padding: 0;
+	border: 1px solid transparent;
+	border-radius: 5px;
+	background: none;
+	color: #787c82;
+	cursor: pointer;
+	opacity: 0.45;
+}
+
+.lstabp-picker-detail:hover,
+.lstabp-picker-detail:focus-visible {
+	opacity: 1;
+	border-color: #0e7c74;
+	color: #0e7c74;
+}
+
+.lstabp-picker-detail[aria-pressed="true"] {
+	opacity: 1;
+	border-color: #0e7c74;
+	background: #e2f1ef;
+	color: #0a5a54;
+}
+
+.lstabp-picker-detail[disabled] {
+	opacity: 0.15;
+	cursor: default;
+}
+
+.lstabp-picker-chevron {
+	width: 6px;
+	height: 6px;
+	border-right: 2px solid currentColor;
+	border-bottom: 2px solid currentColor;
+	transform: translateY( -2px ) rotate( 45deg );
+}
+
+.lstabp-picker-detail[aria-pressed="true"] .lstabp-picker-chevron {
+	transform: translateY( -1px ) rotate( 45deg );
+}
+
+/* The heading keeps room for the mark, so a long one does not sit under it. */
+.lstabp-picker-col .lstabp-picker-toggle {
+	padding-right: 28px;
+}
+
+/* A column in the drawer is neither struck through nor plain: it is elsewhere. */
+.lstabp-picker th.is-detail .lstabp-picker-name {
+	color: #0a5a54;
+}
+
+.lstabp-picker td.is-detail {
+	background: rgba( 14, 124, 116, 0.05 );
+	color: #50575e;
+}
+
+.lstabp-legend-mark--detail {
+	border-style: solid;
+	background: #e2f1ef;
+	position: relative;
+}
+
+.lstabp-legend-mark--detail::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	margin: auto;
+	width: 5px;
+	height: 5px;
+	border-right: 2px solid #0a5a54;
+	border-bottom: 2px solid #0a5a54;
+	transform: translateY( -1px ) rotate( 45deg );
 }

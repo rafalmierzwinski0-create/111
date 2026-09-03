@@ -632,4 +632,10 @@ return array(
 		'Cache wyczyszczony na %1$s stronach, %2$s temu',
 		'Cache wyczyszczony na %1$s stronach, %2$s temu',
 	),
+	'In the details'
+		=> 'W szczegółach',
+	'Show details'
+		=> 'Pokaż szczegóły',
+	'This sheet has not been fetched yet, so there is nothing to redraw.'
+		=> 'Ten arkusz nie został jeszcze pobrany, więc nie ma czego przerysować.',
 );

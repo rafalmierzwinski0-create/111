@@ -190,6 +190,7 @@ class LSTAB_Renderer {
 			);
 			$headers = $configured['headers'];
 			$rows    = $configured['rows'];
+			$details = isset( $configured['details'] ) ? (array) $configured['details'] : array();
 		}
 
 		/**
@@ -208,6 +209,10 @@ class LSTAB_Renderer {
 		return array(
 			'headers' => $headers,
 			'rows'    => $rows,
+			// Positions, in the rendered table, of the columns that belong
+			// under the row rather than in it. The export ignores this: a file
+			// has no rows to open, so it carries every column it was given.
+			'details' => isset( $details ) ? (array) $details : array(),
 		);
 	}
 
@@ -223,6 +228,13 @@ class LSTAB_Renderer {
 		$headers  = $prepared['headers'];
 		$rows     = $prepared['rows'];
 
+		/*
+		 * Columns that live in the drawer under each row rather than in the
+		 * table itself. Kept as a lookup by position, because every loop below
+		 * walks positions.
+		 */
+		$details = array_flip( array_map( 'intval', isset( $prepared['details'] ) ? (array) $prepared['details'] : array() ) );
+
 		$style     = $args['style'] ? LSTAB_Styles::sanitize( $args['style'] ) : LSTAB_Styles::sanitize( $source['style_preset'] );
 		$source_id = (int) $source['id'];
 		$uid       = $source_id > 0 ? (string) $source_id : uniqid();
@@ -235,7 +247,10 @@ class LSTAB_Renderer {
 		// The width at which a table must stack depends on how many columns it
 		// has: five columns need far more room than two. The bucket is emitted
 		// as a class so the stylesheet can pick a matching breakpoint.
-		$column_count = count( $headers );
+		// Columns in the table itself. The ones moved into the drawer are not
+		// competing for width, so counting them would put a four-column table
+		// into the breakpoint meant for six.
+		$column_count = count( $headers ) - count( $details );
 		$bucket       = max( 1, min( 6, $column_count ) );
 
 		// Columns that hold numbers read better right-aligned with tabular figures.
@@ -382,6 +397,9 @@ class LSTAB_Renderer {
 					<thead role="rowgroup">
 						<tr role="row">
 							<?php foreach ( $headers as $index => $header ) : ?>
+								<?php if ( isset( $details[ $index ] ) ) : ?>
+									<?php continue; ?>
+								<?php endif; ?>
 								<th scope="col" role="columnheader"
 									data-lstab-col="<?php echo esc_attr( (string) $index ); ?>"
 									data-lstab-align="<?php echo esc_attr( isset( $alignments[ $index ] ) ? $alignments[ $index ] : 'start' ); ?>">
@@ -429,8 +447,12 @@ class LSTAB_Renderer {
 					</thead>
 					<tbody role="rowgroup">
 						<?php foreach ( $rows as $row_index => $row ) : ?>
-							<tr role="row" class="lstab-row">
+							<tr role="row" class="lstab-row"<?php echo $details ? ' data-lstab-row="' . esc_attr( (string) $row_index ) . '"' : ''; ?>>
+								<?php $lstab_first_cell = true; ?>
 								<?php foreach ( (array) $row as $col_index => $cell ) : ?>
+									<?php if ( isset( $details[ $col_index ] ) ) : ?>
+										<?php continue; ?>
+									<?php endif; ?>
 									<?php
 									$label = isset( $headers[ $col_index ] ) ? (string) $headers[ $col_index ] : '';
 
@@ -463,6 +485,10 @@ class LSTAB_Renderer {
 										array(
 											'data-label'       => $label,
 											'data-lstab-align' => isset( $alignments[ $col_index ] ) ? $alignments[ $col_index ] : 'start',
+											// Named so the stylesheet can lay
+											// this one cell out around the
+											// button it is about to hold.
+											'class'            => ( $details && $lstab_first_cell ) ? 'lstab-cell-opens' : false,
 										),
 										(string) $cell,
 										(int) $col_index,
@@ -471,6 +497,35 @@ class LSTAB_Renderer {
 									);
 									?>
 									<td role="cell"<?php echo self::attributes( $attributes ); // phpcs:ignore WordPress.Security.EscapeOutput -- Escaped in attributes(). ?>>
+										<?php if ( $details && $lstab_first_cell ) : ?>
+											<?php
+											/*
+											 * Inside the first cell rather than
+											 * in a column of its own: a column
+											 * would take a share of the width,
+											 * would become the pinned one on a
+											 * table that scrolls sideways, and
+											 * would put a heading above a thing
+											 * that is not data.
+											 *
+											 * A real button, not a clickable
+											 * row. A row that opens on any
+											 * click cannot be reached from a
+											 * keyboard, swallows the selection
+											 * of a value somebody wanted to
+											 * copy, and gives a screen reader
+											 * nothing to announce.
+											 */
+											?>
+											<button type="button" class="lstab-open"
+												aria-expanded="false"
+												aria-controls="<?php echo esc_attr( $table_id . '-detail-' . $row_index ); ?>"
+												data-lstab-open="<?php echo esc_attr( (string) $row_index ); ?>">
+												<span class="screen-reader-text"><?php esc_html_e( 'Show details', 'live-sheets-table' ); ?></span>
+												<span class="lstab-open-mark" aria-hidden="true"></span>
+											</button>
+										<?php endif; ?>
+										<?php $lstab_first_cell = false; ?>
 										<?php if ( '' !== $label ) : ?>
 											<span class="lstab-cell-label"><?php echo esc_html( $label ); ?></span>
 										<?php endif; ?>
@@ -486,6 +541,63 @@ class LSTAB_Renderer {
 									</td>
 								<?php endforeach; ?>
 							</tr>
+
+							<?php if ( $details ) : ?>
+								<?php
+								/*
+								 * Rendered here rather than fetched on the
+								 * click. It costs a little markup and buys
+								 * three things: the words are in the page, so
+								 * a search engine and the table's own search
+								 * box both find them; nothing has to happen
+								 * over the network when somebody opens a row;
+								 * and it still works with no JavaScript at all,
+								 * where the drawer simply sits open.
+								 */
+								?>
+								<tr class="lstab-detail" id="<?php echo esc_attr( $table_id . '-detail-' . $row_index ); ?>"
+									data-lstab-detail-for="<?php echo esc_attr( (string) $row_index ); ?>" hidden>
+									<td colspan="<?php echo esc_attr( (string) max( 1, count( $headers ) - count( $details ) ) ); ?>">
+										<div class="lstab-detail-inner">
+											<?php foreach ( array_keys( $details ) as $lstab_detail_index ) : ?>
+												<?php
+												$lstab_detail_value = isset( $row[ $lstab_detail_index ] ) ? (string) $row[ $lstab_detail_index ] : '';
+
+												if ( '' === trim( $lstab_detail_value ) ) {
+													// An empty pair is a label
+													// with nothing under it,
+													// which reads as a fault.
+													continue;
+												}
+
+												$lstab_detail_custom = apply_filters(
+													'lstab_render_cell',
+													null,
+													$lstab_detail_value,
+													(int) $lstab_detail_index,
+													(int) $row_index,
+													$source
+												);
+												?>
+												<div class="lstab-detail-pair">
+													<span class="lstab-detail-key">
+														<?php echo esc_html( isset( $headers[ $lstab_detail_index ] ) ? (string) $headers[ $lstab_detail_index ] : '' ); ?>
+													</span>
+													<span class="lstab-detail-value">
+														<?php
+														if ( null !== $lstab_detail_custom ) {
+															echo wp_kses_post( $lstab_detail_custom );
+														} else {
+															echo esc_html( $lstab_detail_value );
+														}
+														?>
+													</span>
+												</div>
+											<?php endforeach; ?>
+										</div>
+									</td>
+								</tr>
+							<?php endif; ?>
 						<?php endforeach; ?>
 					</tbody>
 				</table>

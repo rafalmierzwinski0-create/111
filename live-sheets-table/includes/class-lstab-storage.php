@@ -634,10 +634,55 @@ class LSTAB_Storage {
 		self::index_ragged( (int) $id, null );
 
 		if ( $deleted ) {
+			self::reset_numbering();
+
 			do_action( 'lstab_source_deleted', (int) $id );
 		}
 
 		return (bool) $deleted;
+	}
+
+	/**
+	 * Start counting from one again once the last table is gone.
+	 *
+	 * The number is in the shortcode somebody pastes into a page, so it is not
+	 * an internal detail: delete three tables, add one, and being handed
+	 * [sheet_table id="4"] on a site with one table reads like a bug. There is
+	 * nothing left to collide with when the table is empty, so this is the one
+	 * moment it can be done safely — and it is skipped entirely otherwise.
+	 *
+	 * @return void
+	 */
+	protected static function reset_numbering() {
+		global $wpdb;
+
+		if ( self::count_sources() > 0 ) {
+			return;
+		}
+
+		$table = self::table();
+
+		/*
+		 * MySQL and SQLite keep the counter in different places, and a site may
+		 * be on either. Both statements are harmless where they do not apply,
+		 * so errors are hidden rather than reported: failing to tidy a number
+		 * is not something to trouble anybody with.
+		 */
+		$errors = $wpdb->hide_errors();
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name cannot be a placeholder.
+		$wpdb->query( "ALTER TABLE {$table} AUTO_INCREMENT = 1" );
+
+		if ( $wpdb->get_var( "SELECT name FROM sqlite_master WHERE type='table' AND name='sqlite_sequence'" ) ) {
+			$wpdb->query( $wpdb->prepare( 'DELETE FROM sqlite_sequence WHERE name = %s', $table ) );
+		}
+		// phpcs:enable
+
+		if ( $errors ) {
+			$wpdb->show_errors();
+		}
+
+		$wpdb->last_error = '';
 	}
 
 	/**

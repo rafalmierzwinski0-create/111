@@ -44,6 +44,7 @@ defined( 'ABSPATH' ) || exit;
 	<p class="lstabp-picker-legend">
 		<span class="lstabp-legend-chip"><span class="lstabp-legend-mark" aria-hidden="true">×</span><?php esc_html_e( 'Click a heading or a line number to take it out', 'live-sheets-table-pro' ); ?></span>
 		<span class="lstabp-legend-chip"><span class="lstabp-legend-mark lstabp-legend-mark--back" aria-hidden="true">↺</span><?php esc_html_e( 'Click it again to put it back', 'live-sheets-table-pro' ); ?></span>
+		<span class="lstabp-legend-chip"><span class="lstabp-legend-mark lstabp-legend-mark--detail" aria-hidden="true"></span><?php esc_html_e( 'Click the arrow to move a column under the row instead', 'live-sheets-table-pro' ); ?></span>
 	</p>
 
 	<div class="lstabp-picker-scroll">
@@ -54,23 +55,47 @@ defined( 'ABSPATH' ) || exit;
 						<span class="screen-reader-text"><?php esc_html_e( 'Line', 'live-sheets-table-pro' ); ?></span>
 					</th>
 					<?php foreach ( $headers as $lstabp_i => $lstabp_head ) : ?>
-						<?php $lstabp_col_hidden = ! empty( $columns[ $lstabp_i ]['hidden'] ); ?>
-						<th scope="col" class="lstabp-picker-col<?php echo $lstabp_col_hidden ? ' is-hidden' : ''; ?>">
+						<?php
+						$lstabp_col_hidden = ! empty( $columns[ $lstabp_i ]['hidden'] );
+						$lstabp_col_detail = ! empty( $columns[ $lstabp_i ]['detail'] );
+						$lstabp_col_name   = '' === trim( (string) $lstabp_head )
+							/* translators: %s: column letter, as Google labels it. */
+							? sprintf( __( 'Column %s', 'live-sheets-table-pro' ), LSTAB_Columns::letter( $lstabp_i ) )
+							: (string) $lstabp_head;
+						?>
+						<th scope="col" class="lstabp-picker-col<?php echo $lstabp_col_hidden ? ' is-hidden' : ''; ?><?php echo $lstabp_col_detail ? ' is-detail' : ''; ?>">
 							<button type="button"
 								class="lstabp-picker-toggle"
 								data-lstabp-column="<?php echo esc_attr( (string) $lstabp_i ); ?>"
 								aria-pressed="<?php echo $lstabp_col_hidden ? 'true' : 'false'; ?>">
-								<span class="lstabp-picker-name">
+								<span class="lstabp-picker-name"><?php echo esc_html( $lstabp_col_name ); ?></span>
+								<span class="lstabp-picker-mark" aria-hidden="true"></span>
+							</button>
+							<?php
+							/*
+							 * A second, separate mark rather than a click that
+							 * cycles through three states: cycling makes the
+							 * first click ambiguous and the third a guess, and
+							 * the click that takes a column out is a gesture
+							 * people already know from this screen.
+							 */
+							?>
+							<button type="button"
+								class="lstabp-picker-detail"
+								data-lstabp-detail="<?php echo esc_attr( (string) $lstabp_i ); ?>"
+								aria-pressed="<?php echo $lstabp_col_detail ? 'true' : 'false'; ?>"
+								<?php disabled( $lstabp_col_hidden ); ?>
+								title="<?php echo esc_attr( sprintf( /* translators: %s: column name. */ __( 'Move “%s” under the row, behind an arrow', 'live-sheets-table-pro' ), $lstabp_col_name ) ); ?>">
+								<span class="screen-reader-text">
 									<?php
-									echo esc_html(
-										'' === trim( (string) $lstabp_head )
-											/* translators: %s: column letter, as Google labels it. */
-											? sprintf( __( 'Column %s', 'live-sheets-table-pro' ), LSTAB_Columns::letter( $lstabp_i ) )
-											: $lstabp_head
+									printf(
+										/* translators: %s: column name. */
+										esc_html__( 'Move “%s” under the row, behind an arrow', 'live-sheets-table-pro' ),
+										esc_html( $lstabp_col_name )
 									);
 									?>
 								</span>
-								<span class="lstabp-picker-mark" aria-hidden="true"></span>
+								<span class="lstabp-picker-chevron" aria-hidden="true"></span>
 							</button>
 						</th>
 					<?php endforeach; ?>
@@ -98,8 +123,11 @@ defined( 'ABSPATH' ) || exit;
 							</button>
 						</th>
 						<?php foreach ( $headers as $lstabp_i => $lstabp_unused ) : ?>
-							<?php $lstabp_col_hidden = ! empty( $columns[ $lstabp_i ]['hidden'] ); ?>
-							<td class="lstabp-picker-cell<?php echo $lstabp_col_hidden ? ' is-hidden' : ''; ?>"
+							<?php
+							$lstabp_col_hidden = ! empty( $columns[ $lstabp_i ]['hidden'] );
+							$lstabp_col_detail = ! empty( $columns[ $lstabp_i ]['detail'] );
+							?>
+							<td class="lstabp-picker-cell<?php echo $lstabp_col_hidden ? ' is-hidden' : ''; ?><?php echo $lstabp_col_detail ? ' is-detail' : ''; ?>"
 								data-lstabp-column="<?php echo esc_attr( (string) $lstabp_i ); ?>">
 								<?php echo esc_html( isset( $lstabp_row[ $lstabp_i ] ) ? $lstabp_row[ $lstabp_i ] : '' ); ?>
 							</td>

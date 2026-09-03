@@ -124,37 +124,6 @@ defined( 'ABSPATH' ) || exit;
 
 		<div class="lstab-panel">
 			<div class="lstab-panel-head">
-				<?php echo LSTAB_Icons::badge( 'bolt', 'amber' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-				<span>
-					<h2><?php esc_html_e( 'Page caching', 'live-sheets-table' ); ?></h2>
-					<span class="lstab-panel-sub"><?php esc_html_e( 'So a new price reaches the people looking at it', 'live-sheets-table' ); ?></span>
-				</span>
-			</div>
-
-			<div class="lstab-row">
-				<div class="lstab-row-say">
-					<p class="lstab-row-title"><?php esc_html_e( 'What to clear when a sheet changes', 'live-sheets-table' ); ?></p>
-					<p class="lstab-row-help">
-						<?php esc_html_e( 'A caching plugin stores the finished page and serves that copy to everybody. It clears it when a post is edited — and a sheet arriving from Google is not that, so without this the table updates here and the visitor keeps seeing yesterday. The pages a table is on are the ones this plugin can see it on: a shortcode or a block in their content. Choose the whole cache if your tables live in a widget, a template or a page builder’s own store, where nothing can be named.', 'live-sheets-table' ); ?>
-					</p>
-					<p class="lstab-row-help">
-						<?php esc_html_e( 'Nothing is cleared by a check that found no changes, so this costs nothing on the tables that rarely move.', 'live-sheets-table' ); ?>
-					</p>
-				</div>
-				<div class="lstab-row-do">
-					<select name="lstab_settings[purge_cache]">
-						<?php foreach ( LSTAB_Cache::modes() as $lstab_mode => $lstab_mode_label ) : ?>
-							<option value="<?php echo esc_attr( $lstab_mode ); ?>" <?php selected( LSTAB_Cache::mode(), $lstab_mode ); ?>>
-								<?php echo esc_html( $lstab_mode_label ); ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
-				</div>
-			</div>
-		</div>
-
-		<div class="lstab-panel">
-			<div class="lstab-panel-head">
 				<?php echo LSTAB_Icons::badge( 'brush', 'violet' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
 				<span>
 					<h2><?php esc_html_e( 'Appearance', 'live-sheets-table' ); ?></h2>

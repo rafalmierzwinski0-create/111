@@ -491,10 +491,15 @@ if ( ! $lstab_is_edit ) {
 										<input type="hidden" <?php disabled( $lstab_waiting ); ?>
 											name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][hidden]"
 											value="<?php echo empty( $lstab_column['hidden'] ) ? '0' : '1'; ?>">
-										<?php if ( empty( $lstab_column['hidden'] ) ) : ?>
-											<span class="lstab-state-shown"><?php esc_html_e( 'Shown', 'live-sheets-table' ); ?></span>
-										<?php else : ?>
+										<input type="hidden" <?php disabled( $lstab_waiting ); ?>
+											name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][detail]"
+											value="<?php echo empty( $lstab_column['detail'] ) ? '0' : '1'; ?>">
+										<?php if ( ! empty( $lstab_column['hidden'] ) ) : ?>
 											<span class="lstab-state-hidden"><?php esc_html_e( 'Hidden', 'live-sheets-table' ); ?></span>
+										<?php elseif ( ! empty( $lstab_column['detail'] ) ) : ?>
+											<span class="lstab-state-detail"><?php esc_html_e( 'In the details', 'live-sheets-table' ); ?></span>
+										<?php else : ?>
+											<span class="lstab-state-shown"><?php esc_html_e( 'Shown', 'live-sheets-table' ); ?></span>
 										<?php endif; ?>
 									</td>
 								</tr>

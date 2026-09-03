@@ -1738,6 +1738,12 @@
 	color: #787c82;
 }
 
+/* Not out of the table and not in it either, so neither of the two above. */
+.lstab-column-state .lstab-state-detail {
+	color: var( --lstab-a );
+	font-weight: 600;
+}
+
 .lstab-grace-notice p:first-child {
 	font-size: 1.02em;
 }

@@ -342,7 +342,28 @@
 			return;
 		}
 
-		var rows = Array.prototype.slice.call( body.rows );
+		/*
+		 * A drawer is a row of its own in the markup — the only way to put a
+		 * full-width panel inside a table — but it is not a row of the table as
+		 * anybody reading it means the word. It is never counted, never sorted
+		 * on its own, and never searched apart from the row it belongs to.
+		 */
+		var rows = Array.prototype.slice.call( body.rows ).filter( function ( row ) {
+			return ! row.classList.contains( 'lstab-detail' );
+		} );
+
+		/**
+		 * The drawer belonging to one row, if it has one.
+		 *
+		 * @param {Element} row A data row.
+		 * @return {Element|null} Its drawer.
+		 */
+		function detailOf( row ) {
+			var next = row.nextElementSibling;
+
+			return next && next.classList.contains( 'lstab-detail' ) ? next : null;
+		}
+
 		var input = root.querySelector( '.lstab-search-input' );
 		var counter = root.querySelector( '.lstab-count' );
 		var empty = root.querySelector( '.lstab-no-results' );
@@ -367,8 +388,22 @@
 			var visible = 0;
 
 			rows.forEach( function ( row ) {
-				var match = ! term || row.textContent.toLowerCase().indexOf( term ) !== -1;
+				var detail = detailOf( row );
+
+				// What is in the drawer is part of the row, so searching finds
+				// it. A search that missed the text it can see on screen —
+				// because the row happened to be open — would read as broken.
+				var haystack = row.textContent + ( detail ? ' ' + detail.textContent : '' );
+				var match = ! term || haystack.toLowerCase().indexOf( term ) !== -1;
+
 				row.hidden = ! match;
+
+				if ( detail ) {
+					// Hidden with its row; otherwise it follows whether the row
+					// is open, which the button is the only thing to decide.
+					detail.hidden = ! match || 'true' !== openState( row );
+				}
+
 				if ( match ) {
 					visible++;
 				}
@@ -392,6 +427,48 @@
 			} );
 			updateCount( rows.length );
 		}
+
+		/**
+		 * Whether one row's drawer is open, as the button reports it.
+		 *
+		 * @param {Element} row A data row.
+		 * @return {string} 'true' or 'false'.
+		 */
+		function openState( row ) {
+			var button = row.querySelector( '.lstab-open' );
+
+			return button ? button.getAttribute( 'aria-expanded' ) : 'false';
+		}
+
+		/*
+		 * Opening and closing a drawer. Delegated to the table, so a redraw of
+		 * the rows — a sort, a search, a preview rebuilt in the editor — does
+		 * not leave dead buttons behind.
+		 */
+		body.addEventListener( 'click', function ( event ) {
+			var button = event.target.closest ? event.target.closest( '.lstab-open' ) : null;
+
+			if ( ! button || ! body.contains( button ) ) {
+				return;
+			}
+
+			var row = button.closest( 'tr' );
+			var detail = row ? detailOf( row ) : null;
+
+			if ( ! detail ) {
+				return;
+			}
+
+			var open = 'true' !== button.getAttribute( 'aria-expanded' );
+
+			button.setAttribute( 'aria-expanded', open ? 'true' : 'false' );
+			row.classList.toggle( 'is-open', open );
+			detail.hidden = ! open;
+
+			// An open drawer is taller than the row was, and the slider under a
+			// wide table measures what it can see.
+			root.dispatchEvent( new CustomEvent( 'lstab:resize' ) );
+		} );
 
 		var headers = table.tHead ? Array.prototype.slice.call( table.tHead.rows[ 0 ].cells ) : [];
 
@@ -457,7 +534,15 @@
 
 				var fragment = document.createDocumentFragment();
 				sorted.forEach( function ( row ) {
+					var detail = detailOf( row );
+
 					fragment.appendChild( row );
+
+					// Moved with it, or sorting would leave every drawer under
+					// somebody else's row.
+					if ( detail ) {
+						fragment.appendChild( detail );
+					}
 				} );
 				body.appendChild( fragment );
 			} );

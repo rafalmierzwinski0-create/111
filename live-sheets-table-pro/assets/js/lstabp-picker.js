@@ -153,6 +153,18 @@
 	}
 
 	/**
+	 * The field carrying whether a column belongs under the row.
+	 *
+	 * @param {number} index Column position.
+	 * @return {HTMLInputElement|null} Field.
+	 */
+	function detailField( index ) {
+		return document.querySelector(
+			'input[type="hidden"][name="columns[' + index + '][detail]"]'
+		);
+	}
+
+	/**
 	 * Keep the free plugin's own wording in step with the picker.
 	 *
 	 * @param {number}  index  Column position.
@@ -175,8 +187,46 @@
 			return;
 		}
 
-		label.className = hidden ? 'lstab-state-hidden' : 'lstab-state-shown';
-		label.textContent = hidden ? ( i18n.hidden || 'Hidden' ) : ( i18n.shown || 'Shown' );
+		var detail = detailField( index );
+		var inDrawer = detail && '1' === detail.value;
+
+		if ( hidden ) {
+			label.className = 'lstab-state-hidden';
+			label.textContent = i18n.hidden || 'Hidden';
+		} else if ( inDrawer ) {
+			label.className = 'lstab-state-detail';
+			label.textContent = i18n.inDetails || 'In the details';
+		} else {
+			label.className = 'lstab-state-shown';
+			label.textContent = i18n.shown || 'Shown';
+		}
+	}
+
+	/**
+	 * Show a column as moved under the row, everywhere it appears.
+	 *
+	 * @param {number}  index  Column position.
+	 * @param {boolean} detail Whether it belongs in the drawer.
+	 * @return {void}
+	 */
+	function paintDetail( index, detail ) {
+		Array.prototype.forEach.call(
+			picker.querySelectorAll( '[data-lstabp-column="' + index + '"]' ),
+			function ( cell ) {
+				cell.classList.toggle( 'is-detail', detail );
+
+				var header = cell.closest( 'th' );
+				if ( header ) {
+					header.classList.toggle( 'is-detail', detail );
+				}
+			}
+		);
+
+		var button = picker.querySelector( 'button[data-lstabp-detail="' + index + '"]' );
+		if ( button ) {
+			button.setAttribute( 'aria-pressed', detail ? 'true' : 'false' );
+			button.closest( 'th' ).classList.toggle( 'is-detail', detail );
+		}
 	}
 
 	/**
@@ -313,6 +363,22 @@
 	}
 
 	picker.addEventListener( 'click', function ( event ) {
+		var chevron = event.target.closest( '.lstabp-picker-detail' );
+
+		if ( chevron && ! chevron.disabled ) {
+			var detailIndex = chevron.getAttribute( 'data-lstabp-detail' );
+			var field = detailField( detailIndex );
+			var wanted = 'true' !== chevron.getAttribute( 'aria-pressed' );
+
+			if ( field ) {
+				field.value = wanted ? '1' : '0';
+			}
+
+			paintDetail( detailIndex, wanted );
+			paintState( detailIndex, false );
+			return;
+		}
+
 		var toggle = event.target.closest( '.lstabp-picker-toggle' );
 		if ( ! toggle || toggle.disabled ) {
 			return;
@@ -326,6 +392,27 @@
 
 			if ( field ) {
 				field.value = hidden ? '1' : '0';
+			}
+
+			/*
+			 * Taking a column out of the table takes it out of the drawer too.
+			 * "Hidden but also in the details" is not a state anybody means,
+			 * and leaving the arrow lit under a struck-through heading reads as
+			 * a bug.
+			 */
+			if ( hidden ) {
+				var detailToo = detailField( column );
+
+				if ( detailToo ) {
+					detailToo.value = '0';
+				}
+
+				paintDetail( column, false );
+			}
+
+			var chevronButton = picker.querySelector( 'button[data-lstabp-detail="' + column + '"]' );
+			if ( chevronButton ) {
+				chevronButton.disabled = hidden;
 			}
 
 			paintColumn( column, hidden );

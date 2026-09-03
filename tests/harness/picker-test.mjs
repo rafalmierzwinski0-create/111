@@ -141,6 +141,69 @@ const restored = await pageText();
 check( shows( restored, headingName ), 'The published page has the column back' );
 check( shows( restored, rowLabel ), 'And the row' );
 
+// ------------------------------------------- moving a column under the row
+section( '5. Moving a column into the details' );
+
+// The save above left the browser on the list of sources, so the editor has to
+// be opened again before there is a picker to click.
+await page.goto( editHref, { waitUntil: 'networkidle' } );
+await page.locator( '[data-lstab-goto="hide"]' ).click();
+await page.waitForTimeout( 200 );
+
+const chevron = page.locator( '#lstabp-picker thead button[data-lstabp-detail="2"]' );
+check( await chevron.count() === 1, 'Each heading offers a second mark for the details' );
+
+await chevron.click();
+await page.waitForTimeout( 200 );
+check( 'true' === await chevron.getAttribute( 'aria-pressed' ), 'Clicking it marks the column as moved' );
+check(
+	'In the details' === ( await page.locator( '.lstab-column-list tbody tr' ).nth( 2 ).locator( '.lstab-column-state span' ).innerText() ).trim(),
+	'And the list of columns says so, without a reload'
+);
+
+// Hiding a column takes it out of the drawer too: "hidden but also in the
+// details" is not a state anybody means.
+await page.locator( '#lstabp-picker thead button[data-lstabp-column="2"]' ).click();
+await page.waitForTimeout( 200 );
+check( 'false' === await chevron.getAttribute( 'aria-pressed' ), 'Hiding a column takes it out of the details as well' );
+check( await chevron.isDisabled(), 'And the arrow is not offered while it is hidden' );
+
+await page.locator( '#lstabp-picker thead button[data-lstabp-column="2"]' ).click();
+await page.waitForTimeout( 200 );
+check( ! ( await chevron.isDisabled() ), 'Putting it back offers the arrow again' );
+
+await chevron.click();
+await page.waitForTimeout( 200 );
+await page.screenshot( { path: `${ SHOTS }/48-picker-details.png`, fullPage: true } );
+
+await Promise.all( [
+	page.waitForLoadState( 'networkidle' ),
+	page.locator( '.lstab-submit button[type=submit]' ).first().click()
+] );
+await page.waitForTimeout( 1200 );
+
+const withDrawer = await pageText();
+check( ! shows( withDrawer, headingName ), 'The published table no longer has it as a column' );
+// pageText() reports what is rendered, and a drawer starts closed, so this one
+// asks the page itself rather than reading its visible text.
+const drawerOnPage = await front.locator( '.lstab-open' ).count();
+check( drawerOnPage > 0, 'And offers the drawer instead', String( drawerOnPage ) );
+check(
+	await front.locator( '.lstab-detail-key' ).first().innerText() !== '',
+	'With the moved column named inside it'
+);
+
+// Put it back.
+await page.goto( editHref, { waitUntil: 'networkidle' } );
+await page.locator( '[data-lstab-goto="hide"]' ).click();
+await page.waitForTimeout( 250 );
+await page.locator( '#lstabp-picker thead button[data-lstabp-detail="2"]' ).click();
+await Promise.all( [
+	page.waitForLoadState( 'networkidle' ),
+	page.locator( '.lstab-submit button[type=submit]' ).first().click()
+] );
+await page.waitForTimeout( 800 );
+
 check( errors.length === 0, 'No script errors anywhere in the run', errors.join( '\n' ) );
 
 console.log( '\n' + '─'.repeat( 60 ) );

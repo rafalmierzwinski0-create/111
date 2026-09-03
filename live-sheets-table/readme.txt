@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.8.0
+Stable tag: 3.9.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,14 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.9.0 =
+* Added: a column can now live under its row instead of in the table. A wide sheet keeps the three or four columns worth scanning, and the rest open behind an arrow on the row itself. The values are in the page rather than fetched on the click, so searching finds them, a search engine reads them, and the drawer works with no JavaScript at all. Sorting keeps each drawer with its row. Set it from the add-on's picker, with a second mark beside the one that hides a column.
+* Fixed: opening the built-in example threw a JavaScript error that stopped the whole editor script, so nothing on the Appearance tab did anything on that table — colours, style, layout. The editor no longer reaches for the controls a sheetless table does not have.
+* Added: renaming a column shows in the preview as you type, without saving and without a request to Google. It redraws from the copy already stored.
+* Changed: the numbering starts from one again once the last table is deleted. The number is in the shortcode you paste into a page, so being handed [sheet_table id="7"] on a site with one table read like a fault.
+* Changed: there is no longer a setting for clearing the page cache. "Should the page a visitor sees match the sheet?" is not a question worth putting to anybody, and the people it would bite are the least likely to find the switch. Tables on a page it can name clear those pages; a table in a widget or a template, where no page can be named, clears the whole cache. A filter is there for a developer with a reason.
+* Changed: in the add-on's picker, the line numbers now sit on the same tint as the headings above them, the way a spreadsheet's own gutters do.
 
 = 3.8.0 =
 * Added: the page cache is cleared when a sheet actually changes. A caching plugin clears a page when a post is edited, and a sheet arriving from Google is not that — which is why a table can update in the dashboard and keep showing yesterday's price to visitors. Only the pages the table is on are cleared, only when the fetched copy differs from the stored one, and the dashboard says what was cleared and when. WP Rocket, LiteSpeed, W3 Total Cache, WP Super Cache, WP Fastest Cache, Cache Enabler, Hummingbird, SiteGround, WP Engine, Nginx Helper and Breeze are called by name; anything else can listen for `lstab_purge_page_cache`.
@@ -353,6 +361,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.9.0 =
+Columns can now live under the row, behind an arrow. Fixes the built-in example's Appearance tab.
 
 = 3.8.0 =
 Clears the page cache when a sheet changes, and closes a hole in the CSS field.

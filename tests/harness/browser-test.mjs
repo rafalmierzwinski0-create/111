@@ -3,6 +3,7 @@
  */
 import { chromium } from 'playwright';
 import fs from 'node:fs';
+import { execFileSync } from 'node:child_process';
 
 const BASE = process.env.LSTAB_BASE || 'http://127.0.0.1:8089';
 const SHOTS = process.env.LSTAB_SHOTS || new URL( '../../screenshots', import.meta.url ).pathname;
@@ -13,6 +14,19 @@ fs.mkdirSync( SHOTS, { recursive: true } );
 
 const setMock = ( mode, tab = 'main' ) =>
 	fs.writeFileSync( MOCK_STATE, JSON.stringify( { mode, tab } ) );
+
+/*
+ * Move one column into the details drawer. Driving the picker would test the
+ * picker, which has a suite of its own; this one is about what a visitor gets.
+ */
+const setDetailColumn = ( column, on ) =>
+	execFileSync( 'php', [
+		new URL( 'set-detail.php', import.meta.url ).pathname,
+		`${ SCRATCH }/wp71`,
+		String( sourceId ),
+		String( column ),
+		on ? '1' : '0',
+	] ).toString().trim();
 
 // Start every run from a known-good sheet.
 setMock( 'ok' );
@@ -1308,6 +1322,88 @@ check(
 	! ( await page.evaluate( () => !! ( window.lstabBlock && window.lstabBlock.isPro ) ) ),
 	'The free build does not claim to be Pro'
 );
+
+// ---------------------------------------------------- the drawer under a row
+section( '9e. Details under the row' );
+
+// Set from PHP rather than through the picker: this section is about what the
+// visitor gets, and the picker has its own suite.
+await setDetailColumn( 3, true );
+await apage.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
+await apage.waitForTimeout( 300 );
+
+const openers = apage.locator( '.lstab-open' );
+check( await openers.count() > 0, 'Every row has a button to open its details' );
+
+const drawer = apage.locator( '.lstab-detail' ).first();
+check( await drawer.count() > 0, 'And a drawer to open' );
+check( ! ( await drawer.isVisible() ), 'Which starts closed' );
+
+await openers.first().click();
+await apage.waitForTimeout( 200 );
+check( await drawer.isVisible(), 'Clicking the button opens it' );
+check(
+	'true' === await openers.first().getAttribute( 'aria-expanded' ),
+	'And the button says so, for anybody not looking at the screen'
+);
+
+const pairText = await drawer.innerText();
+check( pairText.trim().length > 0, 'The drawer holds the values it was given', pairText.slice( 0, 80 ) );
+
+await openers.first().click();
+await apage.waitForTimeout( 200 );
+check( ! ( await drawer.isVisible() ), 'Clicking again closes it' );
+
+// It has to work from a keyboard, which a clickable row would not.
+await openers.first().focus();
+await apage.keyboard.press( 'Enter' );
+await apage.waitForTimeout( 200 );
+check( await drawer.isVisible(), 'Enter opens it from the keyboard' );
+await openers.first().click();
+await apage.waitForTimeout( 150 );
+
+// The whole reason the drawer is rendered rather than fetched: searching finds
+// what is inside it.
+const drawerTerm = ( await apage.locator( '.lstab-detail-value' ).first().innerText() ).trim().split( /\s+/ )[ 0 ];
+await apage.fill( '.lstab-search-input', drawerTerm );
+await apage.waitForTimeout( 400 );
+const foundByDrawer = await apage.locator( '.lstab-table tbody tr.lstab-row:not([hidden])' ).count();
+check( foundByDrawer > 0, `Searching for "${ drawerTerm }", which is only in a drawer, still finds its row`, String( foundByDrawer ) );
+
+// And a drawer must never be counted as a row of its own.
+const drawerCountText = await apage.locator( '.lstab-count' ).innerText();
+check( ! /\b14 rows\b/.test( drawerCountText ), 'Drawers are not counted as rows', drawerCountText );
+
+await apage.fill( '.lstab-search-input', '' );
+await apage.waitForTimeout( 400 );
+
+// Sorting has to carry each drawer with its row.
+await apage.locator( '.lstab-table thead .lstab-sort' ).first().click();
+await apage.waitForTimeout( 300 );
+const pairedAfterSort = await apage.evaluate( () => {
+	const rows = Array.from( document.querySelectorAll( '.lstab-table tbody tr' ) );
+	return rows.every( ( row, index ) => {
+		if ( ! row.classList.contains( 'lstab-detail' ) ) {
+			return true;
+		}
+
+		const previous = rows[ index - 1 ];
+		return previous
+			&& ! previous.classList.contains( 'lstab-detail' )
+			&& previous.getAttribute( 'data-lstab-row' ) === row.getAttribute( 'data-lstab-detail-for' );
+	} );
+} );
+check( pairedAfterSort, 'Sorting keeps every drawer under the row it belongs to' );
+
+// Opening one must not open the rest.
+await apage.locator( '.lstab-open' ).nth( 1 ).click();
+await apage.waitForTimeout( 200 );
+const openCount = await apage.locator( '.lstab-detail:not([hidden])' ).count();
+check( 1 === openCount, 'Opening one row opens exactly one drawer', String( openCount ) );
+
+const drawerErrors = consoleErrors.length;
+await setDetailColumn( 3, false );
+check( drawerErrors === consoleErrors.length, 'No script errors while the drawer was in use' );
 
 // -------------------------------------------------------------- block editor
 section( '10. Block editor' );

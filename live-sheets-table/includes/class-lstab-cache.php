@@ -34,27 +34,25 @@ class LSTAB_Cache {
 	const LOG_OPTION = 'lstab_purge_log';
 
 	/**
-	 * What the site has chosen to clear.
+	 * Whether to do this at all.
 	 *
-	 * @return string One of 'pages', 'site', 'off'.
-	 */
-	public static function mode() {
-		$mode = (string) LSTAB_Settings::get( 'purge_cache', 'pages' );
-
-		return in_array( $mode, array( 'pages', 'site', 'off' ), true ) ? $mode : 'pages';
-	}
-
-	/**
-	 * The choices offered on the settings screen.
+	 * There is no setting for it, on purpose. "Should the page a visitor sees
+	 * match the sheet?" is not a question worth putting to somebody: the answer
+	 * is always yes, and the people most likely to be bitten are the least
+	 * likely to have found the switch. It is a filter rather than a setting, so
+	 * a developer with a reason can still turn it off.
 	 *
-	 * @return array<string,string>
+	 * @param int $source_id Source about to be cleared.
+	 * @return bool
 	 */
-	public static function modes() {
-		return array(
-			'pages' => __( 'Only the pages this table is on', 'live-sheets-table' ),
-			'site'  => __( 'The whole cache, every time', 'live-sheets-table' ),
-			'off'   => __( 'Nothing — I will clear it myself', 'live-sheets-table' ),
-		);
+	public static function enabled( $source_id = 0 ) {
+		/**
+		 * Filters whether the page cache is cleared when a sheet changes.
+		 *
+		 * @param bool $enabled   Whether to clear.
+		 * @param int  $source_id Source that changed.
+		 */
+		return (bool) apply_filters( 'lstab_clear_page_cache', true, (int) $source_id );
 	}
 
 	/**
@@ -65,21 +63,10 @@ class LSTAB_Cache {
 	 */
 	public static function purge( $source_id ) {
 		$source_id = (int) $source_id;
-		$mode      = self::mode();
 
-		if ( 'off' === $mode ) {
+		if ( ! self::enabled( $source_id ) ) {
 			return array(
 				'scope' => 'off',
-				'posts' => 0,
-			);
-		}
-
-		if ( 'site' === $mode ) {
-			self::purge_site();
-			self::record( $source_id, 'site', 0 );
-
-			return array(
-				'scope' => 'site',
 				'posts' => 0,
 			);
 		}
@@ -88,6 +75,24 @@ class LSTAB_Cache {
 		// list's own keys are just positions.
 		$posts = wp_list_pluck( LSTAB_Usage::places( $source_id ), 'id' );
 		$posts = array_values( array_unique( array_map( 'intval', $posts ) ) );
+
+		/*
+		 * A table can be somewhere no page names it: a widget, a theme
+		 * template, a page builder's own library. Finding nothing is therefore
+		 * not proof that nothing needs clearing, and this is exactly the site
+		 * where a stale table would go unnoticed longest — so the whole cache
+		 * goes instead. It costs a rebuild, and only ever on a sync that
+		 * actually brought something new.
+		 */
+		if ( ! $posts ) {
+			self::purge_site();
+			self::record( $source_id, 'site', 0 );
+
+			return array(
+				'scope' => 'site',
+				'posts' => 0,
+			);
+		}
 
 		foreach ( $posts as $post_id ) {
 			self::purge_post( (int) $post_id );

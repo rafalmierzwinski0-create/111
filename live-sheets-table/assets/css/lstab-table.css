@@ -1116,3 +1116,146 @@
 		break-inside: avoid;
 	}
 }
+
+/* ------------------------------------------------- the details under a row */
+
+/*
+ * A drawer is a second table row holding one full-width cell: the only way to
+ * put a panel under a row without leaving the table, and so without losing the
+ * column alignment that made the table worth having.
+ */
+
+/*
+ * The button sits inside the first cell, before its value. It gets a column of
+ * its own only in the sense that the drawer's indent lines up under it.
+ */
+.lstab-open {
+	float: left;
+	margin-right: 0.55em;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	inline-size: 1.7em;
+	block-size: 1.7em;
+	padding: 0;
+	border: 1px solid var(--lstab-border);
+	border-radius: calc( var(--lstab-radius) * 0.5 );
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+	transition: transform 0.16s ease, border-color 0.16s ease, background-color 0.16s ease;
+}
+
+/*
+ * Drawn rather than lettered: an arrow character sits on a different baseline
+ * in every font a theme might set, and half of them have no glyph for the one
+ * you wanted.
+ */
+.lstab-open-mark {
+	inline-size: 0.42em;
+	block-size: 0.42em;
+	border-right: 2px solid currentColor;
+	border-bottom: 2px solid currentColor;
+	transform: translateX( -0.1em ) rotate( -45deg );
+}
+
+.lstab-open:hover,
+.lstab-open:focus-visible {
+	border-color: var(--lstab-accent);
+	color: var(--lstab-accent);
+}
+
+.lstab-open[aria-expanded="true"] {
+	transform: rotate( 90deg );
+	border-color: var(--lstab-accent);
+	color: var(--lstab-accent);
+}
+
+/*
+ * On the row, not on its cells: the pinned first column inherits its
+ * background from the row so that the table can scroll under it, and painting
+ * the cells directly left that one cell white while the rest of the row was
+ * tinted.
+ */
+.lstab-table tr.is-open {
+	background: var(--lstab-hover, transparent);
+}
+
+/*
+ * The value beside the button rather than wrapping underneath it. A block box
+ * happily flows its text around a float, which put the second line of a long
+ * name under the chevron; a block formatting context is placed beside the
+ * float instead, and flow-root is the way to ask for one without clipping.
+ */
+.lstab-cell-opens .lstab-cell-value {
+	display: flow-root;
+}
+
+.lstab-detail {
+	display: var(--lstab-row-display);
+}
+
+/*
+ * The browser's own rule for [hidden] is display:none, and any class rule
+ * setting a display beats it. Without this the closed drawers were still laid
+ * out — invisible, but still telling the table how wide to be, which is how a
+ * three-column table came out six thousand pixels across.
+ */
+.lstab-detail[hidden] {
+	display: none;
+}
+
+.lstab-detail > td {
+	display: var(--lstab-cell-display);
+	padding: 0;
+	background: var(--lstab-hover, transparent);
+	max-width: none;
+}
+
+/*
+ * Zero width, then stretched to the cell it is in. A table sized to its
+ * contents asks every cell how wide it would like to be, and a drawer holding
+ * a paragraph would like to be very wide indeed — wide enough to push the
+ * table's real columns off the screen. Asking for nothing and then filling
+ * what it is given is what keeps the drawer subordinate to the table.
+ */
+.lstab-detail-inner {
+	display: grid;
+	grid-template-columns: repeat( auto-fit, minmax( 13rem, 1fr ) );
+	gap: 0.7em 2em;
+	padding: 0.2em var(--lstab-pad-x, 0.8em) 1em calc( var(--lstab-pad-x, 0.8em) + 2.4em );
+	width: 0;
+	min-width: 100%;
+}
+
+.lstab-detail-key {
+	display: block;
+	font-size: 0.78em;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	opacity: 0.65;
+	margin-bottom: 0.15em;
+}
+
+.lstab-detail-value {
+	display: block;
+	overflow-wrap: anywhere;
+}
+
+/*
+ * In card mode the chevron has no column of its own to sit in, and the drawer
+ * is already stacked under the values it belongs to, so the padding that
+ * indented it under a table row would only push it off the card.
+ */
+@container lstab (max-width: 560px) {
+	.lstab-detail-inner {
+		padding-left: var(--lstab-pad-x, 0.8em);
+	}
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+	.lstab-open {
+		transition: none;
+	}
+}
+

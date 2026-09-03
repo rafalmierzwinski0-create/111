@@ -84,6 +84,40 @@ class LSTAB_Rest {
 		);
 
 		/*
+		 * Redrawing a saved table from the copy already stored: no request to
+		 * Google, so renaming a column or hiding one shows immediately rather
+		 * than after a save. It is also the only way the bundled example can
+		 * have a live preview at all, having nothing to fetch.
+		 */
+		register_rest_route(
+			self::NAMESPACE_V1,
+			'/redraw',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'redraw' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+				'args'                => array(
+					'sourceId' => array(
+						'type'     => 'integer',
+						'required' => true,
+					),
+					'style'    => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+					'layout'   => array(
+						'type'    => 'string',
+						'default' => 'table',
+					),
+					'columns'  => array(
+						'type'    => 'array',
+						'default' => array(),
+					),
+				),
+			)
+		);
+
+		/*
 		 * The editor shows custom CSS working as it is typed. Confining a rule
 		 * to one table is done by rewriting its selectors, and that is written
 		 * once, here in PHP — a second copy in JavaScript would eventually
@@ -157,6 +191,62 @@ class LSTAB_Rest {
 			'lstab_forbidden',
 			__( 'You are not allowed to list sheet sources.', 'live-sheets-table' ),
 			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
+	 * Redraw a saved source from its stored copy.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function redraw( $request ) {
+		$source_id = absint( $request->get_param( 'sourceId' ) );
+		$source    = $source_id ? LSTAB_Storage::get( $source_id ) : null;
+
+		if ( ! $source ) {
+			return new WP_Error(
+				'lstab_unknown_source',
+				__( 'That sheet source no longer exists.', 'live-sheets-table' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		if ( empty( $source['data']['headers'] ) && empty( $source['data']['rows'] ) ) {
+			return new WP_Error(
+				'lstab_nothing_stored',
+				__( 'This sheet has not been fetched yet, so there is nothing to redraw.', 'live-sheets-table' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		$rows    = (array) $source['data']['rows'];
+		$preview = array_slice( $rows, 0, 25 );
+
+		return rest_ensure_response(
+			array(
+				'rowCount'  => count( $rows ),
+				'colCount'  => count( (array) $source['data']['headers'] ),
+				'truncated' => count( $rows ) > count( $preview ),
+				'html'      => LSTAB_Renderer::render_preview(
+					LSTAB_Columns::apply(
+						array(
+							'headers' => (array) $source['data']['headers'],
+							'rows'    => $preview,
+						),
+						LSTAB_Columns::sanitize( (array) $request->get_param( 'columns' ) )
+					),
+					array(
+						'style'      => LSTAB_Styles::sanitize( (string) $request->get_param( 'style' ) ),
+						'layout'     => (string) $request->get_param( 'layout' ),
+						'source_id'  => $source_id,
+						// The stored appearance, so a redraw does not undo what
+						// the swatches have already applied to the preview.
+						'style_vars' => isset( $source['style_vars'] ) ? $source['style_vars'] : array(),
+						'custom_css' => isset( $source['custom_css'] ) ? $source['custom_css'] : '',
+					)
+				),
+			)
 		);
 	}
 
