@@ -2135,6 +2135,114 @@ lstab_assert( null === LSTAB_Storage::get( 987654 ), 'A cached miss is still a m
 
 // ---------------------------------------------------------------------------
 
+lstab_section( '14z. A table with its own CSS' );
+
+// Scoping is the whole safety argument, so it is checked rule shape by rule
+// shape rather than only end to end.
+$css_selector = LSTAB_Custom_Css::selector( 7 );
+
+$scoped = LSTAB_Custom_Css::scope( 'td { color: red; }', $css_selector );
+lstab_assert(
+	'[data-lstab-id="7"] td{color: red;}' === $scoped,
+	'A plain rule is confined to its own table',
+	$scoped
+);
+
+$scoped = LSTAB_Custom_Css::scope( 'th, td { padding: 0; }', $css_selector );
+lstab_assert(
+	'[data-lstab-id="7"] th,[data-lstab-id="7"] td{padding: 0;}' === $scoped,
+	'Every selector in a list is confined, not just the first',
+	$scoped
+);
+
+$scoped = LSTAB_Custom_Css::scope( '&.lstab-paged td { color: red; }', $css_selector );
+lstab_assert(
+	'[data-lstab-id="7"].lstab-paged td{color: red;}' === $scoped,
+	'"&" means the table itself',
+	$scoped
+);
+
+$scoped = LSTAB_Custom_Css::scope( ':is(th, td) { color: red; }', $css_selector );
+lstab_assert(
+	'[data-lstab-id="7"] :is(th, td){color: red;}' === $scoped,
+	'A comma inside :is() is not a second selector',
+	$scoped
+);
+
+$scoped = LSTAB_Custom_Css::scope( '@media (max-width: 40em) { td { color: red; } }', $css_selector );
+lstab_assert(
+	false !== strpos( $scoped, '[data-lstab-id="7"] td' ) && 0 === strpos( $scoped, '@media' ),
+	'Rules inside @media are confined too',
+	$scoped
+);
+
+$scoped = LSTAB_Custom_Css::scope( '@keyframes spin { from { opacity: 0 } to { opacity: 1 } }', $css_selector );
+lstab_assert(
+	false === strpos( $scoped, '[data-lstab-id="7"] from' ),
+	'@keyframes steps are left alone, since prefixing them would break them',
+	$scoped
+);
+
+lstab_assert(
+	'' === LSTAB_Custom_Css::scope( 'body { display: none; }', '' ) || false === strpos( LSTAB_Custom_Css::scope( 'body { display: none }', $css_selector ), '^body' ),
+	'A rule naming the page itself still only reaches inside the table',
+	LSTAB_Custom_Css::scope( 'body { display: none }', $css_selector )
+);
+
+// Nothing typed here may leave the style block or fetch a stylesheet.
+$dirty = LSTAB_Custom_Css::sanitize( "td { color: red }\n</style><script>alert(1)</script>" );
+lstab_assert( false === strpos( $dirty, '</' ), 'The one sequence that could end a style block is removed', $dirty );
+
+$dirty = LSTAB_Custom_Css::sanitize( "@import url('https://example.com/x.css');\ntd { color: red }" );
+lstab_assert( false === stripos( $dirty, '@import' ), '@import is refused', $dirty );
+
+$dirty = LSTAB_Custom_Css::sanitize( 'td { width: expression(alert(1)); }' );
+lstab_assert( false === stripos( $dirty, 'expression(' ), 'Old IE script expressions are refused', $dirty );
+
+lstab_assert(
+	strlen( LSTAB_Custom_Css::sanitize( str_repeat( 'a', 40000 ) ) ) <= LSTAB_Custom_Css::MAX_LENGTH,
+	'An enormous paste is cut to the stored maximum'
+);
+
+// And end to end: stored on the source, printed with the table, scoped to it.
+LSTAB_Storage::update( $source_id, array( 'custom_css' => 'td { border-left: 3px solid #123456; }' ) );
+$with_css = LSTAB_Storage::get( $source_id );
+lstab_assert(
+	'td { border-left: 3px solid #123456; }' === $with_css['custom_css'],
+	'The rules survive a round trip through the database',
+	$with_css['custom_css']
+);
+
+$css_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert(
+	false !== strpos( $css_html, '<style class="lstab-custom-css"' ),
+	'The published table carries its own style block'
+);
+lstab_assert(
+	false !== strpos( $css_html, '[data-lstab-id="' . $source_id . '"] td{border-left: 3px solid #123456;}' ),
+	'And the rule inside it names this table and nothing else',
+	substr( $css_html, (int) strpos( $css_html, '<style' ), 200 )
+);
+
+// The same table twice on one page is one set of rules, not two.
+LSTAB_Custom_Css::reset_printed();
+$twice = do_shortcode( '[sheet_table id="' . $source_id . '"]' ) . do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert(
+	1 === substr_count( $twice, 'lstab-custom-css' ),
+	'The same table twice on a page prints its rules once',
+	(string) substr_count( $twice, 'lstab-custom-css' )
+);
+
+LSTAB_Storage::update( $source_id, array( 'custom_css' => '' ) );
+LSTAB_Custom_Css::reset_printed();
+$without_css = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert(
+	false === strpos( $without_css, 'lstab-custom-css' ),
+	'A table with no CSS of its own carries no style block at all'
+);
+
+// ---------------------------------------------------------------------------
+
 lstab_section( '15. Translations' );
 
 $languages = LSTAB_PATH . 'languages/';

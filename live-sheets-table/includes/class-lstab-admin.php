@@ -427,6 +427,17 @@ class LSTAB_Admin {
 		);
 
 		/*
+		 * Only from somebody allowed to write it, and only when the field was
+		 * on the screen. Anybody else saving the source leaves the stored rules
+		 * exactly as they are: an editor without the right to write CSS must
+		 * not be able to delete somebody else's by pressing Save.
+		 */
+		if ( isset( $_POST['_lstab_custom_css_present'] ) && LSTAB_Custom_Css::user_can_edit() ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Cleaned in LSTAB_Custom_Css::sanitize(); sanitize_text_field would eat the newlines and braces this is made of.
+			$data['custom_css'] = LSTAB_Custom_Css::sanitize( wp_unslash( $_POST['custom_css'] ?? '' ) );
+		}
+
+		/*
 		 * Only when the control that edits this was actually on the screen. An
 		 * empty list means "nothing hidden" when the picker submitted it, and
 		 * means nothing at all when the picker was not there — and treating the

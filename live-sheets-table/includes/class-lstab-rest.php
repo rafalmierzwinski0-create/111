@@ -83,6 +83,32 @@ class LSTAB_Rest {
 			)
 		);
 
+		/*
+		 * The editor shows custom CSS working as it is typed. Confining a rule
+		 * to one table is done by rewriting its selectors, and that is written
+		 * once, here in PHP — a second copy in JavaScript would eventually
+		 * disagree with the first, and the preview would stop being a preview.
+		 */
+		register_rest_route(
+			self::NAMESPACE_V1,
+			'/scoped-css',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'scoped_css' ),
+				'permission_callback' => array( $this, 'can_write_css' ),
+				'args'                => array(
+					'css'      => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+					'selector' => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+				),
+			)
+		);
+
 		register_rest_route(
 			self::NAMESPACE_V1,
 			'/sources/(?P<id>\d+)/refresh',
@@ -131,6 +157,51 @@ class LSTAB_Rest {
 			'lstab_forbidden',
 			__( 'You are not allowed to list sheet sources.', 'live-sheets-table' ),
 			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
+	 * Permission check for the CSS preview.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public function can_write_css() {
+		if ( current_user_can( LSTAB_Limits::capability() ) && LSTAB_Custom_Css::user_can_edit() ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'lstab_forbidden',
+			__( 'You are not allowed to write CSS on this site.', 'live-sheets-table' ),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
+	 * Confine a stylesheet to one selector, so the editor can show it working.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response
+	 */
+	public function scoped_css( $request ) {
+		$selector = trim( (string) $request->get_param( 'selector' ) );
+
+		/*
+		 * The caller says which element to confine the rules to, but only in
+		 * the shape this plugin uses. Anything else and a preview could be
+		 * asked to style the dashboard around it.
+		 */
+		if ( ! preg_match( '#^\[data-lstab-preview="[a-z0-9-]{1,40}"\]$#', $selector ) ) {
+			$selector = '[data-lstab-preview="none"]';
+		}
+
+		return rest_ensure_response(
+			array(
+				'css' => LSTAB_Custom_Css::scope(
+					LSTAB_Custom_Css::sanitize( (string) $request->get_param( 'css' ) ),
+					$selector
+				),
+			)
 		);
 	}
 

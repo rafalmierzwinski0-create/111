@@ -361,6 +361,35 @@ if ( ! $lstab_is_edit ) {
 					</p>
 				</div>
 			<?php endif; ?>
+
+			<?php if ( LSTAB_Custom_Css::user_can_edit() ) : ?>
+				<div class="lstab-card lstab-css-card">
+					<h2 class="lstab-card-title"><?php esc_html_e( 'Your own CSS', 'live-sheets-table' ); ?></h2>
+					<p class="lstab-help">
+						<?php esc_html_e( 'For the last thing the settings above do not cover. Write ordinary rules — the plugin puts this table’s own selector in front of each one, so nothing written here can reach the rest of the page. Where you mean the table itself rather than something inside it, write & — as in &.lstab-paged.', 'live-sheets-table' ); ?>
+					</p>
+
+					<input type="hidden" name="_lstab_custom_css_present" value="1">
+					<textarea id="lstab-custom-css"
+						name="custom_css"
+						class="lstab-css-field"
+						rows="8"
+						spellcheck="false"
+						autocapitalize="off"
+						autocorrect="off"
+						placeholder="<?php echo esc_attr( "th { letter-spacing: 0.04em; }\ntd:first-child { font-weight: 600; }" ); ?>"><?php echo esc_textarea( $lstab_is_edit && isset( $source['custom_css'] ) ? $source['custom_css'] : '' ); ?></textarea>
+
+					<p class="lstab-help lstab-css-foot">
+						<?php
+						printf(
+							/* translators: %s: the CSS selector this table's rules are given, e.g. [data-lstab-id="7"]. */
+							esc_html__( 'Every rule is saved as %s followed by what you wrote.', 'live-sheets-table' ),
+							'<code>' . esc_html( LSTAB_Custom_Css::selector( $lstab_is_edit ? (int) $source['id'] : 0 ) ) . '</code>'
+						);
+						?>
+					</p>
+				</div>
+			<?php endif; ?>
 			</div><!-- /pane look -->
 
 			<div class="lstab-pane" data-lstab-pane="hide" hidden>
@@ -509,7 +538,7 @@ if ( ! $lstab_is_edit ) {
 			</p>
 
 			<div id="lstab-preview" class="lstab-preview">
-				<div id="lstab-preview-stage" class="lstab-preview-stage">
+				<div id="lstab-preview-stage" class="lstab-preview-stage" data-lstab-preview="stage">
 					<?php
 					/*
 					 * Drawn from the copy already stored, so the table is on

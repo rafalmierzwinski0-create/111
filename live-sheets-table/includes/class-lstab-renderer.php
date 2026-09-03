@@ -32,6 +32,7 @@ class LSTAB_Renderer {
 			'class'       => '',
 			'layout'      => 'inherit',
 			'style_vars'  => array(),
+			'custom_css'  => '',
 			'columns'     => null,
 			'sticky'      => null,
 			'filter'      => '',
@@ -130,7 +131,14 @@ class LSTAB_Renderer {
 			'col_count'        => isset( $data['headers'] ) ? count( (array) $data['headers'] ) : 0,
 			'last_success_gmt' => null,
 			'style_vars'       => isset( $args['style_vars'] ) ? $args['style_vars'] : array(),
+			'custom_css'       => isset( $args['custom_css'] ) ? (string) $args['custom_css'] : '',
 		);
+
+		/*
+		 * A preview is a second rendering of a table the page may already be
+		 * showing, and the once-per-request guard would swallow its rules.
+		 */
+		LSTAB_Custom_Css::reset_printed();
 
 		return self::render_table( $source, $args );
 	}
@@ -288,9 +296,15 @@ class LSTAB_Renderer {
 
 		self::enqueue_assets();
 
+		// Whatever the author wrote for this table, confined to it. Printed
+		// beside the table rather than in the head so it survives being
+		// rendered by a block, a shortcode or the editor's preview alike.
+		$custom_css = isset( $source['custom_css'] ) ? (string) $source['custom_css'] : '';
+
 		ob_start();
 		?>
 		<div class="lstab-container">
+		<?php echo LSTAB_Custom_Css::style_tag( $source_id, $custom_css ); // phpcs:ignore WordPress.Security.EscapeOutput -- Cleaned and rebuilt in LSTAB_Custom_Css; escaping here would print the rules rather than apply them. ?>
 		<div class="<?php echo esc_attr( implode( ' ', array_map( 'sanitize_html_class', $classes ) ) ); ?>"
 			data-lstab-id="<?php echo esc_attr( (string) $source_id ); ?>"
 			<?php if ( '' !== $inline_style ) : ?>

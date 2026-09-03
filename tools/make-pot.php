@@ -1,7 +1,10 @@
 <?php
 /**
- * Extracts translatable strings from the plugin and writes languages/*.pot,
- * plus a .po/.mo pair for any translation table under tools/translations/.
+ * Extracts translatable strings from both plugins and writes languages/*.pot,
+ * plus a .po/.mo pair for any translation table under the plugin's translation
+ * directory. Pro ships the catalogue only — its strings are English and there
+ * is no locale to compile yet — but the catalogue is what a translator needs,
+ * and without one in the archive the add-on cannot be translated at all.
  *
  * WordPress ships no gettext binaries, so this leans on core's own POMO
  * classes for writing the catalogues.
@@ -25,8 +28,21 @@ require_once $wp_root . '/wp-includes/pomo/translations.php';
 require_once $wp_root . '/wp-includes/pomo/po.php';
 require_once $wp_root . '/wp-includes/pomo/mo.php';
 
-$plugin_dir = dirname( __DIR__ ) . '/live-sheets-table';
-$domain     = 'live-sheets-table';
+/** The plugins to extract, each with its own domain and translation tables. */
+$lstab_projects = array(
+	array(
+		'dir'          => dirname( __DIR__ ) . '/live-sheets-table',
+		'domain'       => 'live-sheets-table',
+		'name'         => 'Live Sheets Table',
+		'translations' => __DIR__ . '/translations',
+	),
+	array(
+		'dir'          => dirname( __DIR__ ) . '/live-sheets-table-pro',
+		'domain'       => 'live-sheets-table-pro',
+		'name'         => 'Live Sheets Table Pro',
+		'translations' => __DIR__ . '/translations-pro',
+	),
+);
 
 /** Functions whose arguments hold translatable text, mapped to their shape. */
 const LSTAB_FUNCTIONS = array(
@@ -42,8 +58,6 @@ const LSTAB_FUNCTIONS = array(
 	'_n'            => 'plural',
 	'_nx'           => 'plural_context',
 );
-
-$entries = array();
 
 /**
  * Record one extracted string.
@@ -194,12 +208,15 @@ function lstab_scan_php( $file, $relative, &$entries ) {
  * @param string $file     Absolute path.
  * @param string $relative Path shown in the catalogue.
  * @param array  $entries  Accumulator, by reference.
+ * @param string $domain   Text domain to look for.
  * @return void
  */
-function lstab_scan_js( $file, $relative, &$entries ) {
+function lstab_scan_js( $file, $relative, &$entries, $domain ) {
 	$source = (string) file_get_contents( $file );
 
-	if ( ! preg_match_all( "#__\(\s*'((?:[^'\\\\]|\\\\.)*)'\s*,\s*'live-sheets-table'\s*\)#", $source, $matches, PREG_OFFSET_CAPTURE ) ) {
+	$pattern = "#__\(\s*'((?:[^'\\\\]|\\\\.)*)'\s*,\s*'" . preg_quote( $domain, '#' ) . "'\s*\)#";
+
+	if ( ! preg_match_all( $pattern, $source, $matches, PREG_OFFSET_CAPTURE ) ) {
 		return;
 	}
 
@@ -215,25 +232,6 @@ function lstab_scan_js( $file, $relative, &$entries ) {
 		);
 	}
 }
-
-$iterator = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $plugin_dir ) );
-
-foreach ( $iterator as $file ) {
-	if ( ! $file->isFile() ) {
-		continue;
-	}
-
-	$path     = $file->getPathname();
-	$relative = ltrim( str_replace( $plugin_dir, '', $path ), '/' );
-
-	if ( 'php' === $file->getExtension() ) {
-		lstab_scan_php( $path, $relative, $entries );
-	} elseif ( 'js' === $file->getExtension() ) {
-		lstab_scan_js( $path, $relative, $entries );
-	}
-}
-
-ksort( $entries );
 
 /**
  * Build a PO object from the extracted entries.
@@ -274,71 +272,114 @@ function lstab_build_po( $entries, $headers, $translations = array() ) {
 	return $po;
 }
 
-$languages = dirname( __DIR__ ) . '/live-sheets-table/languages';
-if ( ! is_dir( $languages ) ) {
-	mkdir( $languages, 0755, true );
+foreach ( $lstab_projects as $lstab_project ) {
+	if ( ! is_dir( $lstab_project['dir'] ) ) {
+		echo "Skipped {$lstab_project['name']}: no such directory\n";
+		continue;
+	}
+
+	lstab_make_catalogues( $lstab_project );
 }
 
-$pot_headers = array(
-	'Project-Id-Version'        => 'Live Sheets Table 1.0.0',
-	'Report-Msgid-Bugs-To'      => 'https://example.com/live-sheets-table/support',
-	'POT-Creation-Date'         => gmdate( 'Y-m-d H:iO' ),
-	'PO-Revision-Date'          => 'YEAR-MO-DA HO:MI+ZONE',
-	'Last-Translator'           => 'FULL NAME <EMAIL@ADDRESS>',
-	'Language-Team'             => 'LANGUAGE <LL@li.org>',
-	'MIME-Version'              => '1.0',
-	'Content-Type'              => 'text/plain; charset=UTF-8',
-	'Content-Transfer-Encoding' => '8bit',
-	'X-Domain'                  => $domain,
-	'Plural-Forms'              => 'nplurals=2; plural=(n != 1);',
-);
+/**
+ * Extract one plugin and write its catalogues.
+ *
+ * @param array $project Plugin directory, domain, display name and the
+ *                       directory its locale tables live in.
+ * @return void
+ */
+function lstab_make_catalogues( $project ) {
+	$plugin_dir = $project['dir'];
+	$domain     = $project['domain'];
+	$entries    = array();
 
-$pot = lstab_build_po( $entries, $pot_headers );
-$pot->export_to_file( $languages . '/' . $domain . '.pot' );
-echo 'Wrote ' . count( $entries ) . " entries to languages/{$domain}.pot\n";
+	$iterator = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $plugin_dir ) );
 
-// Locale catalogues.
-foreach ( glob( __DIR__ . '/translations/*.php' ) as $translation_file ) {
-	$locale       = basename( $translation_file, '.php' );
-	$translations = require $translation_file;
+	foreach ( $iterator as $file ) {
+		if ( ! $file->isFile() ) {
+			continue;
+		}
 
-	$headers                     = $pot_headers;
-	$headers['PO-Revision-Date'] = gmdate( 'Y-m-d H:iO' );
-	$headers['Language']         = $locale;
-	$headers['Last-Translator']  = 'Live Sheets Table';
-	$headers['Language-Team']    = $locale;
+		$path     = $file->getPathname();
+		$relative = ltrim( str_replace( $plugin_dir, '', $path ), '/' );
 
-	if ( 'pl_PL' === $locale ) {
-		$headers['Plural-Forms'] = 'nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);';
-	}
-
-	$po = lstab_build_po( $entries, $headers, $translations );
-	$po->export_to_file( $languages . '/' . $domain . '-' . $locale . '.po' );
-
-	$mo = new MO();
-	$mo->set_headers( $headers );
-	foreach ( $po->entries as $entry ) {
-		$mo->add_entry( $entry );
-	}
-	$mo->export_to_file( $languages . '/' . $domain . '-' . $locale . '.mo' );
-
-	$done  = 0;
-	foreach ( $entries as $key => $entry ) {
-		if ( isset( $translations[ $key ] ) ) {
-			$done++;
+		if ( 'php' === $file->getExtension() ) {
+			lstab_scan_php( $path, $relative, $entries );
+		} elseif ( 'js' === $file->getExtension() ) {
+			lstab_scan_js( $path, $relative, $entries, $domain );
 		}
 	}
-	printf(
-		"Wrote %s: %d/%d translated%s\n",
-		$locale,
-		$done,
-		count( $entries ),
-		$done === count( $entries ) ? '' : ' — MISSING ' . ( count( $entries ) - $done )
+
+	ksort( $entries );
+
+	$languages = $plugin_dir . '/languages';
+	if ( ! is_dir( $languages ) ) {
+		mkdir( $languages, 0755, true );
+	}
+
+	$pot_headers = array(
+		'Project-Id-Version'        => $project['name'] . ' 1.0.0',
+		'Report-Msgid-Bugs-To'      => 'https://example.com/live-sheets-table/support',
+		'POT-Creation-Date'         => gmdate( 'Y-m-d H:iO' ),
+		'PO-Revision-Date'          => 'YEAR-MO-DA HO:MI+ZONE',
+		'Last-Translator'           => 'FULL NAME <EMAIL@ADDRESS>',
+		'Language-Team'             => 'LANGUAGE <LL@li.org>',
+		'MIME-Version'              => '1.0',
+		'Content-Type'              => 'text/plain; charset=UTF-8',
+		'Content-Transfer-Encoding' => '8bit',
+		'X-Domain'                  => $domain,
+		'Plural-Forms'              => 'nplurals=2; plural=(n != 1);',
 	);
 
-	foreach ( $entries as $key => $entry ) {
-		if ( ! isset( $translations[ $key ] ) ) {
-			echo '  missing: ' . str_replace( "\4", ' | ', $key ) . "\n";
+	$pot = lstab_build_po( $entries, $pot_headers );
+	$pot->export_to_file( $languages . '/' . $domain . '.pot' );
+	echo 'Wrote ' . count( $entries ) . " entries to {$domain}/languages/{$domain}.pot\n";
+
+	// Locale catalogues, where a translation table has been written for one.
+	// The source language is English, so having none is the normal state for a
+	// plugin nobody has translated yet, not a fault.
+	foreach ( (array) glob( $project['translations'] . '/*.php' ) as $translation_file ) {
+		$locale       = basename( $translation_file, '.php' );
+		$translations = require $translation_file;
+
+		$headers                     = $pot_headers;
+		$headers['PO-Revision-Date'] = gmdate( 'Y-m-d H:iO' );
+		$headers['Language']         = $locale;
+		$headers['Last-Translator']  = 'Live Sheets Table';
+		$headers['Language-Team']    = $locale;
+
+		if ( 'pl_PL' === $locale ) {
+			$headers['Plural-Forms'] = 'nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);';
+		}
+
+		$po = lstab_build_po( $entries, $headers, $translations );
+		$po->export_to_file( $languages . '/' . $domain . '-' . $locale . '.po' );
+
+		$mo = new MO();
+		$mo->set_headers( $headers );
+		foreach ( $po->entries as $entry ) {
+			$mo->add_entry( $entry );
+		}
+		$mo->export_to_file( $languages . '/' . $domain . '-' . $locale . '.mo' );
+
+		$done = 0;
+		foreach ( $entries as $key => $entry ) {
+			if ( isset( $translations[ $key ] ) ) {
+				$done++;
+			}
+		}
+		printf(
+			"Wrote %s: %d/%d translated%s\n",
+			$locale,
+			$done,
+			count( $entries ),
+			$done === count( $entries ) ? '' : ' — MISSING ' . ( count( $entries ) - $done )
+		);
+
+		foreach ( $entries as $key => $entry ) {
+			if ( ! isset( $translations[ $key ] ) ) {
+				echo '  missing: ' . str_replace( "\4", ' | ', $key ) . "\n";
+			}
 		}
 	}
 }

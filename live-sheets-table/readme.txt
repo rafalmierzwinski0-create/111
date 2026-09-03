@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.6.1
+Stable tag: 3.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -62,7 +62,7 @@ Paste your link and the parser shows you exactly what it read — headings, rows
 
 = Pro =
 
-Live Sheets Table Pro adds unlimited sheet sources, syncing as often as every minute, hiding columns and rows by clicking them in your own sheet, conditional cell formatting, filtered views, CSV and print export for visitors, premium presets, private-sheet support through an authenticated connection, a multi-site licence and priority support.
+Live Sheets Table Pro adds unlimited sheet sources, syncing as often as every minute, hiding columns and rows by clicking them in your own sheet, conditional cell formatting, filtered views, Excel, CSV and print export for visitors, premium presets, private-sheet support through an authenticated connection, a multi-site licence and priority support.
 
 = Privacy =
 
@@ -155,6 +155,10 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.7.0 =
+* Added: a CSS field on the Appearance tab, for the last thing the settings do not cover. Every rule is confined to the table it was written for, so nothing typed there can reach the rest of the page, and the preview shows it working as you type.
+* Fixed: a mismatch between the column list and the format list used when a source is first created, which stored a brand-new source's column settings as the number 0. Nothing visible went wrong, because a brand-new source has no column settings yet, but it would have the first time one was created with any.
 
 = 3.6.1 =
 * Fixed: resetting a colour in the editor left the old colour sitting in the swatch beside it, so a reset that had worked still looked as though it had not. A cleared swatch now shows the colour the chosen style supplies in its place, and changing style updates the swatches that are following it.
@@ -344,6 +348,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.7.0 =
+Adds a CSS field for each table, confined to that table.
 
 = 3.6.1 =
 Fixes the colour swatches keeping their old value after a reset.

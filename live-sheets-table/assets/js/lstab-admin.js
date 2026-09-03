@@ -333,6 +333,83 @@
 		loadPreview( tabsSelect.value );
 	} );
 
+	// ------------------------------------------------------------ own CSS
+
+	/*
+	 * Rules typed into the CSS field, shown on the preview as they are typed.
+	 * The rewriting that confines them to one table is done on the server, so
+	 * the preview is styled by exactly the code the published page will use.
+	 */
+	( function () {
+		var field = document.getElementById( 'lstab-custom-css' );
+
+		if ( ! field || ! stage ) {
+			return;
+		}
+
+		var sheet = document.createElement( 'style' );
+		var timer = null;
+		var pending = null;
+
+		sheet.className = 'lstab-live-css';
+		stage.parentNode.insertBefore( sheet, stage.nextSibling );
+
+		/**
+		 * Ask the server for the scoped form and put it on the page.
+		 *
+		 * @return {void}
+		 */
+		function refresh() {
+			var css = field.value;
+
+			// The stored rules arrived with the server-rendered preview and are
+			// confined to the saved table's own selector. Once this is driving
+			// the preview they would be a second, stale answer.
+			var stored = stage.querySelector( 'style.lstab-custom-css' );
+			if ( stored ) {
+				stored.parentNode.removeChild( stored );
+			}
+
+			if ( ! css.trim() ) {
+				sheet.textContent = '';
+				return;
+			}
+
+			if ( pending === css ) {
+				return;
+			}
+			pending = css;
+
+			window.wp.apiFetch( {
+				path: '/live-sheets-table/v1/scoped-css',
+				method: 'POST',
+				data: {
+					css: css,
+					selector: '[data-lstab-preview="stage"]'
+				}
+			} ).then(
+				function ( response ) {
+					// A slow answer to an older keystroke must not overwrite a
+					// newer one.
+					if ( pending === css ) {
+						sheet.textContent = response.css || '';
+					}
+				},
+				function () {
+					// Nothing to say: the field is still there, the preview is
+					// simply one edit behind until the next keystroke.
+				}
+			);
+		}
+
+		field.addEventListener( 'input', function () {
+			window.clearTimeout( timer );
+			timer = window.setTimeout( refresh, 400 );
+		} );
+
+		field.addEventListener( 'change', refresh );
+	}() );
+
 	// ---------------------------------------------------------- appearance
 
 	var swatches = document.querySelectorAll( '.lstab-swatch' );

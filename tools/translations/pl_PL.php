@@ -601,4 +601,12 @@ return array(
 		=> 'Jak wygląda tabela, zanim jej dotkniesz',
 	'Who is trusted with the tables on this site'
 		=> 'Komu powierzasz tabele na tej witrynie',
+	'Your own CSS'
+		=> 'Własny CSS',
+	'For the last thing the settings above do not cover. Write ordinary rules — the plugin puts this table’s own selector in front of each one, so nothing written here can reach the rest of the page. Where you mean the table itself rather than something inside it, write & — as in &.lstab-paged.'
+		=> 'Na to jedno, czego nie obejmują ustawienia powyżej. Pisz zwykłe reguły — wtyczka sama dopisuje przed każdą z nich selektor tej tabeli, więc nic stąd nie sięgnie reszty strony. Gdy chodzi Ci o samą tabelę, a nie o coś w środku, napisz & — na przykład &.lstab-paged.',
+	'Every rule is saved as %s followed by what you wrote.'
+		=> 'Każda reguła zapisuje się jako %s, a po nim to, co napisałeś.',
+	'You are not allowed to write CSS on this site.'
+		=> 'Nie masz uprawnień do pisania CSS na tej witrynie.',
 );

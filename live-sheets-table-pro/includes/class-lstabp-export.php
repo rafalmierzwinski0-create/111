@@ -99,22 +99,31 @@ class LSTABP_Export {
 
 		$filter = isset( $args['filter'] ) ? (string) $args['filter'] : '';
 
-		$url = add_query_arg(
-			array(
-				'action' => self::ACTION,
-				'source' => $source_id,
-				'filter' => rawurlencode( $filter ),
-				'sig'    => self::signature( $source_id, $filter ),
-			),
-			admin_url( 'admin-post.php' )
-		);
+		$link = function ( $format ) use ( $source_id, $filter ) {
+			return add_query_arg(
+				array(
+					'action' => self::ACTION,
+					'source' => $source_id,
+					'filter' => rawurlencode( $filter ),
+					'format' => $format,
+					'sig'    => self::signature( $source_id, $filter ),
+				),
+				admin_url( 'admin-post.php' )
+			);
+		};
 
 		wp_enqueue_script( 'lstabp-export' );
 
 		ob_start();
 		?>
 		<p class="lstabp-export">
-			<a class="lstabp-export-button" href="<?php echo esc_url( $url ); ?>" rel="nofollow">
+			<?php if ( LSTABP_Xlsx::is_available() ) : ?>
+				<?php // First, because it is what most people mean by "download the table". ?>
+				<a class="lstabp-export-button" href="<?php echo esc_url( $link( 'xlsx' ) ); ?>" rel="nofollow">
+					<?php esc_html_e( 'Download for Excel', 'live-sheets-table-pro' ); ?>
+				</a>
+			<?php endif; ?>
+			<a class="lstabp-export-button" href="<?php echo esc_url( $link( 'csv' ) ); ?>" rel="nofollow">
 				<?php esc_html_e( 'Download CSV', 'live-sheets-table-pro' ); ?>
 			</a>
 			<button type="button" class="lstabp-export-button" data-lstabp-print="<?php echo esc_attr( (string) $source_id ); ?>">
@@ -132,7 +141,7 @@ class LSTABP_Export {
 	}
 
 	/**
-	 * Stream the table as CSV.
+	 * Stream the table as a file.
 	 *
 	 * @return void
 	 */
@@ -141,7 +150,15 @@ class LSTABP_Export {
 		$source_id = isset( $_GET['source'] ) ? absint( wp_unslash( $_GET['source'] ) ) : 0;
 		$filter    = isset( $_GET['filter'] ) ? sanitize_text_field( rawurldecode( wp_unslash( $_GET['filter'] ) ) ) : '';
 		$signature = isset( $_GET['sig'] ) ? sanitize_text_field( wp_unslash( $_GET['sig'] ) ) : '';
+		$format    = isset( $_GET['format'] ) ? sanitize_key( wp_unslash( $_GET['format'] ) ) : 'csv';
 		// phpcs:enable
+
+		// The format decides how the same rows are written, never which rows
+		// they are, so it is outside the signature — and anything unrecognised
+		// is the format the links have always used.
+		if ( 'xlsx' !== $format || ! LSTABP_Xlsx::is_available() ) {
+			$format = 'csv';
+		}
 
 		$source = $source_id ? LSTAB_Storage::get( $source_id ) : null;
 
@@ -158,6 +175,24 @@ class LSTABP_Export {
 		$prepared = LSTAB_Renderer::prepare( $source, array( 'filter' => $filter ) );
 
 		$name = sanitize_file_name( $source['title'] ? $source['title'] : 'table' );
+
+		if ( 'xlsx' === $format ) {
+			$file = LSTABP_Xlsx::build( $prepared['headers'], $prepared['rows'], (string) $source['title'] );
+
+			if ( is_wp_error( $file ) ) {
+				wp_die( esc_html( $file->get_error_message() ), '', array( 'response' => 500 ) );
+			}
+
+			nocache_headers();
+			header( 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' );
+			header( 'Content-Disposition: attachment; filename="' . $name . '.xlsx"' );
+			header( 'Content-Length: ' . filesize( $file ) );
+
+			// phpcs:ignore WordPress.WP.AlternativeFunctions -- Streaming a file to the browser, not reading it into a string.
+			readfile( $file );
+			wp_delete_file( $file );
+			exit;
+		}
 
 		nocache_headers();
 		header( 'Content-Type: text/csv; charset=utf-8' );
@@ -193,10 +228,10 @@ class LSTABP_Export {
 				<label>
 					<input type="hidden" name="lstabp_export_present" value="1">
 					<input type="checkbox" name="lstabp_export" value="1" <?php checked( $enabled ); ?>>
-					<?php esc_html_e( 'Show “Download CSV” and “Print” under this table', 'live-sheets-table-pro' ); ?>
+					<?php esc_html_e( 'Let visitors download or print this table', 'live-sheets-table-pro' ); ?>
 				</label>
 				<span class="lstab-help">
-					<?php esc_html_e( 'The download holds exactly what the page shows: the same rows after any filter, and only the columns you left in. It never reaches past them. Printing uses the browser, so there is no extra software and no watermark.', 'live-sheets-table-pro' ); ?>
+					<?php esc_html_e( 'Buttons under the table: one Excel file, one CSV, and Print. The file holds exactly what the page shows — the same rows after any filter, and only the columns you left in — and never reaches past them. The Excel file opens in one click with the numbers already numbers, whatever language the person opening it uses. Printing uses the browser, so there is no extra software and no watermark.', 'live-sheets-table-pro' ); ?>
 				</span>
 			</p>
 		</div>

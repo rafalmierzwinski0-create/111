@@ -572,7 +572,104 @@ lstabp_assert( ! LSTABP_Export::is_enabled( $export_throwaway ), 'Deleting a sou
 
 delete_option( LSTABP_Export::OPTION );
 
-lstabp_section( '5e. Pointing at what you want gone' );
+lstabp_section( '5e. The Excel file itself' );
+
+lstabp_assert( LSTABP_Xlsx::is_available(), 'This server can build Excel files' );
+
+$xlsx_path = LSTABP_Xlsx::build(
+	array( 'Usługa', 'Cena', 'Uwagi' ),
+	array(
+		array( 'Serwis', '1 215,50', 'Uwaga „z cudzysłowem” & znakiem' ),
+		array( 'Kask', '89,00', '' ),
+		array( 'Zestaw', '12,00 zł', 'Cena z walutą' ),
+	),
+	'Cennik'
+);
+
+lstabp_assert( ! is_wp_error( $xlsx_path ) && file_exists( $xlsx_path ), 'A workbook is written' );
+
+$xlsx = new ZipArchive();
+lstabp_assert( true === $xlsx->open( $xlsx_path ), 'And it is a readable zip' );
+
+$sheet_xml = (string) $xlsx->getFromName( 'xl/worksheets/sheet1.xml' );
+lstabp_assert( '' !== $sheet_xml, 'It holds a worksheet' );
+lstabp_assert( false !== $xlsx->getFromName( '[Content_Types].xml' ), 'And the parts list every reader opens first' );
+lstabp_assert( false !== $xlsx->getFromName( 'xl/workbook.xml' ), 'And a workbook' );
+lstabp_assert( false !== $xlsx->getFromName( 'xl/styles.xml' ), 'And a stylesheet' );
+
+// The XML has to be well formed, or Excel refuses the file outright rather
+// than showing what it can.
+$xlsx_dom = simplexml_load_string( $sheet_xml );
+lstabp_assert( false !== $xlsx_dom, 'The worksheet XML parses' );
+
+lstabp_assert(
+	false !== strpos( $sheet_xml, '<c r="B2"><v>1215.5</v></c>' ),
+	'A Polish price arrives as a number, not as text',
+	$sheet_xml
+);
+lstabp_assert(
+	false !== strpos( $sheet_xml, 'Cena z walutą' ) && false === strpos( $sheet_xml, '<v>12</v>' ),
+	'A price written with its currency keeps the currency, and stays text',
+	$sheet_xml
+);
+lstabp_assert(
+	false !== strpos( $sheet_xml, 'Uwaga „z cudzysłowem” &amp; znakiem' ),
+	'An ampersand in a cell is escaped rather than breaking the file',
+	$sheet_xml
+);
+lstabp_assert(
+	false !== strpos( $sheet_xml, 'ySplit="1"' ),
+	'The heading row is frozen, so it stays put while scrolling'
+);
+lstabp_assert(
+	false !== strpos( $sheet_xml, '<c r="A1" s="1"' ),
+	'And drawn in the heading style',
+	$sheet_xml
+);
+
+$workbook_xml = (string) $xlsx->getFromName( 'xl/workbook.xml' );
+lstabp_assert( false !== strpos( $workbook_xml, 'name="Cennik"' ), 'The sheet tab is named after the table', $workbook_xml );
+
+$xlsx->close();
+wp_delete_file( $xlsx_path );
+
+// A control character pasted into a sheet must not cost the whole file.
+$xlsx_path = LSTABP_Xlsx::build( array( 'A' ), array( array( "one\x07two" ) ), 'Odd/Name: with * bad [chars] that Excel refuses outright' );
+$xlsx      = new ZipArchive();
+$xlsx->open( $xlsx_path );
+$odd_sheet    = (string) $xlsx->getFromName( 'xl/worksheets/sheet1.xml' );
+$odd_workbook = (string) $xlsx->getFromName( 'xl/workbook.xml' );
+lstabp_assert( false !== simplexml_load_string( $odd_sheet ), 'A control character in a cell does not break the file' );
+lstabp_assert( false !== strpos( $odd_sheet, 'onetwo' ), 'It is dropped, and the text around it kept', $odd_sheet );
+lstabp_assert(
+	false === strpos( $odd_workbook, '/' ) || false === strpos( $odd_workbook, 'name="Odd/' ),
+	'A tab name Excel would refuse is cleaned',
+	$odd_workbook
+);
+lstabp_assert(
+	(bool) preg_match( '#name="([^"]{1,31})"#u', $odd_workbook ),
+	'And cut to the 31 characters Excel allows',
+	$odd_workbook
+);
+$xlsx->close();
+wp_delete_file( $xlsx_path );
+
+// Column letters, which nothing else would notice going wrong until a sheet
+// grew past twenty-six columns.
+lstabp_assert( 'A' === LSTABP_Xlsx::column_name( 0 ), 'Column 1 is A' );
+lstabp_assert( 'Z' === LSTABP_Xlsx::column_name( 25 ), 'Column 26 is Z' );
+lstabp_assert( 'AA' === LSTABP_Xlsx::column_name( 26 ), 'Column 27 is AA' );
+lstabp_assert( 'AB' === LSTABP_Xlsx::column_name( 27 ), 'Column 28 is AB' );
+lstabp_assert( 'BA' === LSTABP_Xlsx::column_name( 52 ), 'Column 53 is BA' );
+
+// And the button that leads to it.
+update_option( LSTABP_Export::OPTION, array( $source_id => true ), true );
+$xlsx_buttons = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstabp_assert( false !== strpos( $xlsx_buttons, 'format=xlsx' ), 'The table offers an Excel download' );
+lstabp_assert( false !== strpos( $xlsx_buttons, 'format=csv' ), 'And still offers CSV beside it' );
+delete_option( LSTABP_Export::OPTION );
+
+lstabp_section( '5f. Pointing at what you want gone' );
 
 // With the add-on running, hiding is honoured outright rather than on borrowed
 // time, and the countdown notice has nothing to count.
@@ -662,7 +759,7 @@ lstabp_assert( false !== strpos( $orphan_card, 'Coś, czego już nie ma' ), 'And
 
 // ---------------------------------------------------------------------------
 
-lstabp_section( '5f. Where the add-on lives, and how to leave' );
+lstabp_section( '5g. Where the add-on lives, and how to leave' );
 
 // The add-on is a tab across the top of the plugin's own screens rather than a
 // fourth line in a sidebar that already holds every other plugin's.

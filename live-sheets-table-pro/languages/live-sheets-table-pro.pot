@@ -1,0 +1,519 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
+"Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
+"POT-Creation-Date: 2026-09-03 07:58+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: live-sheets-table-pro\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: includes/views/picker-card.php:37
+msgid "A hidden column is matched to its heading, and a hidden row to its line number. Reordering columns, renaming a heading, or inserting a row above a hidden one breaks that match."
+msgstr ""
+
+#: includes/views/rules-card.php:100
+msgid "Abc"
+msgstr ""
+
+#: includes/views/settings-page.php:42
+msgid "Add this exact address as an authorised redirect URI:"
+msgstr ""
+
+#: includes/class-lstabp-google-auth.php:139
+msgid "Add your Google client ID and secret first."
+msgstr ""
+
+#: includes/class-lstabp-rules.php:85
+msgid "Amber"
+msgstr ""
+
+#: includes/views/rules-card.php:61
+msgid "Applies to"
+msgstr ""
+
+#: includes/class-lstabp-settings.php:116
+msgid "Billing and cancellation"
+msgstr ""
+
+#: includes/class-lstabp-settings.php:118
+msgid "Billing lives in your account, not on your site, so cancelling is done there and takes effect at the end of the period you have paid for. Nothing on your pages changes on the day you cancel."
+msgstr ""
+
+#: includes/class-lstabp-rules.php:93
+msgid "Blue"
+msgstr ""
+
+#: includes/class-lstabp-rules.php:101
+msgid "Bold text"
+msgstr ""
+
+#: includes/class-lstabp-export.php:234
+msgid "Buttons under the table: one Excel file, one CSV, and Print. The file holds exactly what the page shows — the same rows after any filter, and only the columns you left in — and never reaches past them. The Excel file opens in one click with the numbers already numbers, whatever language the person opening it uses. Printing uses the browser, so there is no extra software and no watermark."
+msgstr ""
+
+#: includes/views/picker-card.php:45
+msgid "Click a heading or a line number to take it out"
+msgstr ""
+
+#: includes/views/picker-card.php:21
+msgid "Click a heading to take that column out of the table, or a line number to take that row out. Click again to put it back. Nothing is written to Google — your spreadsheet keeps everything, the table just stops showing it."
+msgstr ""
+
+#: includes/views/picker-card.php:46
+msgid "Click it again to put it back"
+msgstr ""
+
+#: includes/views/settings-page.php:61
+msgid "Client ID"
+msgstr ""
+
+#: includes/views/settings-page.php:67
+msgid "Client secret"
+msgstr ""
+
+#: includes/views/rules-card.php:27
+msgid "Colour a cell by what is in it — “Sold out” red, “In stock” green, anything over a price in bold. The colours are worked out on the server, so they are in the page a visitor receives rather than applied afterwards by script."
+msgstr ""
+
+#: includes/views/rules-card.php:25
+msgid "Colour rules"
+msgstr ""
+
+#. translators: %s: column letter, as Google labels it.
+#: includes/views/picker-card.php:68
+msgid "Column %s"
+msgstr ""
+
+#. translators: 1: page number, 2: number of pages, 3: total columns.
+#: includes/class-lstabp-picker.php:81
+msgid "Columns — page %1$s of %2$s (%3$s in all)"
+msgstr ""
+
+#: includes/views/rules-card.php:58
+msgid "Condition"
+msgstr ""
+
+#: includes/views/settings-page.php:208
+msgid "Conditions are separated by commas and all must match. Column names match either the heading in your sheet or the name you gave it."
+msgstr ""
+
+#: includes/views/settings-page.php:133
+msgid "Connect a Google account"
+msgstr ""
+
+#: includes/views/settings-page.php:98
+msgid "Connected. Private sheets can be read."
+msgstr ""
+
+#: includes/views/settings-page.php:47
+msgid "Copy"
+msgstr ""
+
+#: includes/class-lstabp-xlsx.php:68
+msgid "Could not build the Excel file."
+msgstr ""
+
+#: includes/class-lstabp-xlsx.php:60
+msgid "Could not create a temporary file for the download."
+msgstr ""
+
+#. translators: %s: transport error.
+#: includes/class-lstabp-google-auth.php:308
+msgid "Could not reach Google to complete sign-in: %s"
+msgstr ""
+
+#: includes/views/settings-page.php:39
+msgid "Create an OAuth client of type “Web application”."
+msgstr ""
+
+#: includes/views/settings-page.php:124
+msgid "Disconnect"
+msgstr ""
+
+#: includes/class-lstabp-export.php:127
+msgid "Download CSV"
+msgstr ""
+
+#: includes/class-lstabp-export.php:123
+msgid "Download for Excel"
+msgstr ""
+
+#: includes/views/settings-page.php:38
+msgid "Enable the Google Sheets API for it."
+msgstr ""
+
+#: includes/views/settings-page.php:196
+msgid "Filtered views"
+msgstr ""
+
+#: includes/class-lstabp-google-auth.php:198
+msgid "Google account connected. Private sheets can now be used as sources."
+msgstr ""
+
+#: includes/class-lstabp-google-auth.php:211
+msgid "Google account disconnected. Private sheets will stop updating."
+msgstr ""
+
+#: includes/class-lstabp-settings.php:174
+msgid "Google client saved."
+msgstr ""
+
+#: includes/class-lstabp-google-auth.php:189
+msgid "Google did not return an authorisation code."
+msgstr ""
+
+#. translators: %s: error reported by Google.
+#: includes/class-lstabp-google-auth.php:178
+msgid "Google refused the connection: %s"
+msgstr ""
+
+#. translators: %s: reason reported by Google.
+#: includes/class-lstabp-google-auth.php:330
+msgid "Google rejected the sign-in: %s"
+msgstr ""
+
+#: includes/class-lstabp-rules.php:89
+msgid "Green"
+msgstr ""
+
+#: includes/class-lstabp-rules.php:97
+msgid "Grey"
+msgstr ""
+
+#. translators: %d: HTTP status code.
+#: includes/class-lstabp-google-auth.php:322
+msgid "HTTP %d"
+msgstr ""
+
+#: includes/class-lstabp-picker.php:77
+msgid "Hidden"
+msgstr ""
+
+#: includes/views/picker-card.php:19
+msgid "Hide columns and rows"
+msgstr ""
+
+#: includes/class-lstabp-export.php:231
+msgid "Let visitors download or print this table"
+msgstr ""
+
+#: includes/class-lstabp-export.php:226
+msgid "Let visitors take it away"
+msgstr ""
+
+#: includes/views/picker-card.php:54
+msgid "Line"
+msgstr ""
+
+#: includes/class-lstabp-plugin.php:85
+msgid "Live Sheets Table Pro needs the free Live Sheets Table plugin to be installed and active. Pro adds to it rather than replacing it."
+msgstr ""
+
+#: includes/class-lstabp-settings.php:124
+msgid "Manage or cancel subscription"
+msgstr ""
+
+#: includes/views/settings-page.php:214
+msgid "Meaning"
+msgstr ""
+
+#: includes/views/picker-card.php:34
+msgid "Moving a column or row in Google will show it again"
+msgstr ""
+
+#: includes/class-lstabp-google-auth.php:251
+msgid "No Google account is connected, so private sheets cannot be read."
+msgstr ""
+
+#: includes/views/picker-card.php:141
+msgid "No rows taken out."
+msgstr ""
+
+#: includes/views/settings-page.php:152
+msgid "No sheet sources yet."
+msgstr ""
+
+#: includes/views/settings-page.php:103
+msgid "Not connected yet"
+msgstr ""
+
+#: includes/views/settings-page.php:203
+msgid "One saved sheet can feed as many pages as you like. Add a filter to the shortcode and each page shows only the rows it is about — the spreadsheet stays single."
+msgstr ""
+
+#: includes/views/settings-page.php:197
+msgid "One sheet, as many pages as you like"
+msgstr ""
+
+#: includes/views/settings-page.php:112
+msgid "Only read access to spreadsheets is requested, so this connection cannot change or delete anything in your Google account. Disconnecting takes effect immediately; any sheet still marked private simply stops being readable until you connect again."
+msgstr ""
+
+#: includes/views/settings-page.php:37
+msgid "Open Google Cloud Console and create a project."
+msgstr ""
+
+#: includes/class-lstabp-export.php:130
+msgid "Print"
+msgstr ""
+
+#: includes/views/settings-page.php:165
+msgid "Private"
+msgstr ""
+
+#: includes/views/settings-page.php:15
+msgid "Private sheets, filters and everything Pro adds"
+msgstr ""
+
+#: includes/class-lstabp-settings.php:45 includes/class-lstabp-settings.php:60
+msgid "Pro"
+msgstr ""
+
+#: includes/class-lstabp-settings.php:93
+msgid "Pro is active on this site."
+msgstr ""
+
+#: includes/class-lstabp-settings.php:109
+msgid "Pro is not running here."
+msgstr ""
+
+#. translators: %s: human readable time difference, e.g. "6 days".
+#: includes/class-lstabp-settings.php:101
+msgid "Pro is not running here. Columns and rows you hid will start showing again in %s."
+msgstr ""
+
+#: includes/class-lstabp-settings.php:44
+msgid "Pro settings"
+msgstr ""
+
+#: includes/views/settings-page.php:85
+msgid "Read access only — this can never change anything in Google"
+msgstr ""
+
+#: includes/views/settings-page.php:176
+msgid "Read through the connected account"
+msgstr ""
+
+#: includes/class-lstabp-rules.php:81
+msgid "Red"
+msgstr ""
+
+#. translators: 1: page number, 2: number of pages, 3: total rows.
+#: includes/class-lstabp-picker.php:79
+msgid "Rows — page %1$s of %2$s (%3$s in all)"
+msgstr ""
+
+#: includes/views/settings-page.php:185
+msgid "Save"
+msgstr ""
+
+#: includes/views/settings-page.php:117
+msgid "Save a client above first."
+msgstr ""
+
+#: includes/views/settings-page.php:73
+msgid "Save client"
+msgstr ""
+
+#: includes/views/rules-card.php:36
+msgid "Save this source first. Once its columns are known you can set rules on them."
+msgstr ""
+
+#: includes/views/rules-card.php:114
+msgid "Set a rule’s column back to “no rule” to remove it. Two spare rows are always kept at the bottom; save to get two more."
+msgstr ""
+
+#: includes/class-lstabp-settings.php:195
+msgid "Sheet settings saved."
+msgstr ""
+
+#: includes/views/settings-page.php:164
+msgid "Sheet source"
+msgstr ""
+
+#: includes/views/rules-card.php:60
+msgid "Show it"
+msgstr ""
+
+#: includes/class-lstabp-picker.php:74
+msgid "Show this row again"
+msgstr ""
+
+#. translators: 1: rows shown here, 2: rows in the sheet.
+#: includes/views/picker-card.php:118
+msgid "Showing the first %1$d of %2$d rows. Picking rows one at a time past that point is not really the tool for the job — the filter above is."
+msgstr ""
+
+#: includes/class-lstabp-picker.php:76
+msgid "Shown"
+msgstr ""
+
+#: includes/views/settings-page.php:110
+msgid "Sign in to Google"
+msgstr ""
+
+#: includes/class-lstabp-rules.php:105
+msgid "Struck through"
+msgstr ""
+
+#: includes/views/settings-page.php:238
+msgid "Symbols such as = and > work too, but WordPress removes a “less than” sign from a shortcode attribute before the plugin ever sees it, so the words above are the form that always works."
+msgstr ""
+
+#: includes/class-lstabp-xlsx.php:300
+msgid "Table"
+msgstr ""
+
+#: includes/views/rules-card.php:104
+msgid "That cell"
+msgstr ""
+
+#: includes/class-lstabp-google-auth.php:169
+msgid "That sign-in did not match the request that started it, so it was discarded. Please try connecting again."
+msgstr ""
+
+#: includes/views/settings-page.php:84
+msgid "The connected account"
+msgstr ""
+
+#: includes/views/rules-card.php:105
+msgid "The whole row"
+msgstr ""
+
+#: includes/class-lstabp-export.php:170
+msgid "This download link is not valid."
+msgstr ""
+
+#: includes/class-lstabp-xlsx.php:48
+msgid "This server cannot build Excel files."
+msgstr ""
+
+#: includes/class-lstabp-export.php:166
+msgid "This table cannot be downloaded."
+msgstr ""
+
+#: includes/views/settings-page.php:155
+msgid "Tick a sheet to read it through the connected account instead of its public link. You can then remove link sharing in Google entirely — the spreadsheet becomes private again while the table keeps working."
+msgstr ""
+
+#: includes/views/settings-page.php:146
+msgid "Tick one and you can remove link sharing in Google entirely"
+msgstr ""
+
+#: includes/views/settings-page.php:33
+msgid "To read sheets that are not shared publicly, this site signs in to Google as you. That needs an OAuth client from your own Google Cloud project — your own, deliberately, so your spreadsheets are never routed through anyone else's credentials."
+msgstr ""
+
+#: includes/views/rules-card.php:59
+msgid "Value"
+msgstr ""
+
+#: includes/views/settings-page.php:93
+msgid "Waiting for a client above"
+msgstr ""
+
+#: includes/views/rules-card.php:35
+msgid "Waiting for a first look at the sheet, so there are no columns to choose from yet."
+msgstr ""
+
+#: includes/class-lstabp-settings.php:85
+msgid "What Pro is doing on this site, and how to stop paying for it"
+msgstr ""
+
+#: includes/views/picker-card.php:40
+msgid "When a match breaks, the column or row is shown again — the plugin will not risk hiding the wrong one in its place. A notice in your dashboard tells you which table is affected, and you can hide it again from this screen in one click."
+msgstr ""
+
+#: includes/views/rules-card.php:57
+msgid "When this column"
+msgstr ""
+
+#: includes/views/settings-page.php:145
+msgid "Which sheets are private"
+msgstr ""
+
+#: includes/views/settings-page.php:213
+msgid "Write"
+msgstr ""
+
+#: includes/class-lstabp-google-auth.php:156
+msgid "You are not allowed to connect an account."
+msgstr ""
+
+#: includes/class-lstabp-settings.php:245
+#: includes/class-lstabp-google-auth.php:366
+msgid "You are not allowed to do that."
+msgstr ""
+
+#: includes/class-lstabp-settings.php:205
+msgid "You are not allowed to view this page."
+msgstr ""
+
+#: includes/views/settings-page.php:25
+msgid "Your Google client"
+msgstr ""
+
+#: includes/views/settings-page.php:26
+msgid "Your own credentials, so your spreadsheets never travel through anyone else's"
+msgstr ""
+
+#: includes/class-lstabp-settings.php:84
+msgid "Your subscription"
+msgstr ""
+
+#: includes/views/settings-page.php:222 includes/class-lstabp-rules.php:120
+msgid "contains"
+msgstr ""
+
+#: includes/class-lstabp-rules.php:118
+msgid "is"
+msgstr ""
+
+#: includes/views/settings-page.php:221
+msgid "is anything but"
+msgstr ""
+
+#: includes/class-lstabp-rules.php:122
+msgid "is at least"
+msgstr ""
+
+#: includes/class-lstabp-rules.php:124
+msgid "is at most"
+msgstr ""
+
+#: includes/views/settings-page.php:220
+msgid "is exactly"
+msgstr ""
+
+#: includes/views/settings-page.php:223 includes/class-lstabp-rules.php:121
+msgid "is greater than"
+msgstr ""
+
+#: includes/views/settings-page.php:224
+msgid "is greater than or equal to"
+msgstr ""
+
+#: includes/views/settings-page.php:225 includes/class-lstabp-rules.php:123
+msgid "is less than"
+msgstr ""
+
+#: includes/views/settings-page.php:226
+msgid "is less than or equal to"
+msgstr ""
+
+#: includes/class-lstabp-rules.php:119
+msgid "is not"
+msgstr ""
+
+#: includes/class-lstabp-picker.php:75
+msgid "not on that line now"
+msgstr ""
+
+#: includes/views/rules-card.php:69
+msgid "— no rule —"
+msgstr ""

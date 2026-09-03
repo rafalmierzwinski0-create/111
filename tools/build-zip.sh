@@ -30,10 +30,13 @@ fail=0
 if [ "$SLUG" = "live-sheets-table" ] && [ ! -f "$STAGE/readme.txt" ]; then
 	echo "ERROR: readme.txt missing"; fail=1
 fi
+# Both plugins ship a catalogue: without one in the archive the strings cannot
+# be translated at all, however carefully they were wrapped in the source.
+if [ ! -f "$STAGE/languages/$SLUG.pot" ]; then
+	echo "ERROR: POT catalogue missing"; fail=1
+fi
+
 if [ "$SLUG" = "live-sheets-table" ]; then
-	if [ ! -f "$STAGE/languages/$SLUG.pot" ]; then
-		echo "ERROR: POT catalogue missing"; fail=1
-	fi
 	if [ ! -f "$STAGE/languages/$SLUG-pl_PL.mo" ]; then
 		echo "ERROR: compiled Polish catalogue missing"; fail=1
 	fi

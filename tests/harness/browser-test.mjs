@@ -486,6 +486,74 @@ await Promise.all( [
 await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
 await page.waitForSelector( '.lstab-preview .lstab-table', { timeout: 15000 } );
 
+// ---------------------------------------------------------------- own CSS
+
+section( '3d. A table with its own CSS' );
+
+await pane( 'look' );
+const cssField = page.locator( '#lstab-custom-css' );
+check( await cssField.count() > 0, 'The Appearance tab offers a CSS field' );
+
+await cssField.fill( 'td { outline: 2px dotted rgb(4, 5, 6); }\n.nothing-here { color: red }' );
+// The field asks the server for the scoped form 400ms after the last keystroke.
+await page.waitForTimeout( 1200 );
+
+const liveCss = await page.locator( 'style.lstab-live-css' ).evaluate( ( el ) => el.textContent );
+check(
+	liveCss.includes( '[data-lstab-preview="stage"] td' ),
+	'What is typed is confined to the preview, not let loose on the dashboard',
+	liveCss
+);
+
+const previewOutline = await page.locator( '.lstab-preview tbody td' ).first().evaluate(
+	( el ) => getComputedStyle( el ).outlineColor
+);
+check( previewOutline.includes( 'rgb(4, 5, 6)' ), 'And it is visibly applied to the preview', previewOutline );
+
+// The point of scoping: a rule for "td" must not reach the dashboard's own
+// tables or anything else on the screen.
+const escaped = await page.evaluate( () => {
+	const outside = document.querySelector( '.lstab-editor-grid' );
+	return outside ? getComputedStyle( outside ).outlineColor : '';
+} );
+check( ! escaped.includes( 'rgb(4, 5, 6)' ), 'Nothing outside the table is touched by it', escaped );
+
+// Save, and check the published page.
+await Promise.all( [
+	page.waitForURL( /page=live-sheets-table/ ),
+	page.locator( '#lstab-source-form button[type="submit"]' ).click(),
+] );
+
+const publishedCss = await page.evaluate( async ( base ) => {
+	const res = await fetch( base + '/cennik/', { credentials: 'same-origin' } );
+	const html = await res.text();
+	return {
+		hasBlock: html.includes( 'lstab-custom-css' ),
+		scoped: /\[data-lstab-id="\d+"\] td\{outline: 2px dotted rgb\(4, 5, 6\);\}/.test( html ),
+		unscoped: html.includes( '<style class="lstab-custom-css" data-lstab-css="0"' ),
+	};
+}, BASE );
+check( publishedCss.hasBlock, 'The published page carries the table\'s own style block' );
+check( publishedCss.scoped, 'And every rule in it names that table' );
+
+// Put it back, so the rest of the run sees a plain table.
+await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
+await page.waitForSelector( '.lstab-preview .lstab-table', { timeout: 15000 } );
+await pane( 'look' );
+await page.locator( '#lstab-custom-css' ).fill( '' );
+await Promise.all( [
+	page.waitForURL( /page=live-sheets-table/ ),
+	page.locator( '#lstab-source-form button[type="submit"]' ).click(),
+] );
+await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
+await page.waitForSelector( '.lstab-preview .lstab-table', { timeout: 15000 } );
+
+const clearedCss = await page.evaluate( async ( base ) => {
+	const res = await fetch( base + '/cennik/', { credentials: 'same-origin' } );
+	return ( await res.text() ).includes( 'lstab-custom-css' );
+}, BASE );
+check( ! clearedCss, 'Clearing the field takes the style block off the page again' );
+
 // Switching tab re-fetches the preview.
 section( '4. Switching sheet tab' );
 await pane( 'general' );

@@ -1750,3 +1750,45 @@
 .lstab-hidden-alert .lstab-alert-list li {
 	margin-bottom: 4px;
 }
+
+/* The CSS field. A monospaced box that looks like somewhere code goes, on the
+   same graph paper as the rest of the plugin so it still belongs to it. */
+
+.lstab-css-field {
+	width: 100%;
+	min-height: 9rem;
+	padding: 0.7rem 0.8rem;
+	border: 1px solid var( --lstab-line );
+	border-radius: 10px;
+	background-color: #fbfbfa;
+	background-image:
+		linear-gradient( to right, rgba( 14, 124, 116, 0.05 ) 1px, transparent 1px ),
+		linear-gradient( to bottom, rgba( 14, 124, 116, 0.05 ) 1px, transparent 1px );
+	background-size: 22px 22px;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.84rem;
+	line-height: 1.7;
+	tab-size: 4;
+	resize: vertical;
+}
+
+.lstab-css-field:focus {
+	border-color: var( --lstab-a );
+	box-shadow: 0 0 0 3px rgba( 14, 124, 116, 0.14 );
+	outline: none;
+}
+
+.lstab-css-field::placeholder {
+	color: #a7aaad;
+}
+
+.lstab-css-foot {
+	margin-top: 0.5rem;
+}
+
+.lstab-css-foot code {
+	padding: 0.1rem 0.35rem;
+	border-radius: 4px;
+	background: rgba( 14, 124, 116, 0.08 );
+	font-size: 0.82em;
+}

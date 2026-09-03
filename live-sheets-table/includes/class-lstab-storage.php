@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class LSTAB_Storage {
 
-	const DB_VERSION     = '1.8.0';
+	const DB_VERSION     = '1.9.0';
 	const DB_VERSION_OPT = 'lstab_db_version';
 
 	/**
@@ -70,6 +70,7 @@ class LSTAB_Storage {
 			columns_config text NULL,
 			hidden_rows text NULL,
 			style_vars text NULL,
+			custom_css text NULL,
 			snapshot longtext NULL,
 			snapshot_hash varchar(32) NOT NULL DEFAULT '',
 			row_count int(10) unsigned NOT NULL DEFAULT 0,
@@ -169,6 +170,7 @@ class LSTAB_Storage {
 			'columns_config'   => array(),
 			'hidden_rows'      => array(),
 			'style_vars'       => LSTAB_Customizer::defaults(),
+			'custom_css'       => '',
 		);
 	}
 
@@ -201,6 +203,7 @@ class LSTAB_Storage {
 			'columns_config'   => wp_json_encode( LSTAB_Columns::sanitize( $data['columns_config'] ) ),
 			'hidden_rows'      => wp_json_encode( LSTAB_Hidden_Rows::sanitize( isset( $data['hidden_rows'] ) ? $data['hidden_rows'] : array() ) ),
 			'style_vars'       => wp_json_encode( LSTAB_Customizer::sanitize( $data['style_vars'] ) ),
+			'custom_css'       => LSTAB_Custom_Css::sanitize( isset( $data['custom_css'] ) ? $data['custom_css'] : '' ),
 			'snapshot'         => null,
 			'snapshot_hash'    => '',
 			'row_count'        => 0,
@@ -215,7 +218,29 @@ class LSTAB_Storage {
 			'updated_gmt'      => $now,
 		);
 
-		$formats = array( '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s' );
+		/*
+		 * Derived from the row rather than written out beside it. The two lists
+		 * had drifted apart by one entry, which put every format after it against
+		 * the wrong column: the column settings of a brand-new source were being
+		 * stored as the number 0 rather than as their JSON. It did no visible harm
+		 * — a new source has no column settings yet — but it would have the first
+		 * time a source was created with any, and a list nobody has to keep in
+		 * step cannot drift again.
+		 */
+		$integer_columns = array(
+			'sync_interval',
+			'first_row_header',
+			'sticky_first',
+			'link_cells',
+			'per_page',
+			'row_count',
+			'col_count',
+		);
+
+		$formats = array();
+		foreach ( array_keys( $row ) as $lstab_column ) {
+			$formats[] = in_array( $lstab_column, $integer_columns, true ) ? '%d' : '%s';
+		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Custom table, no core API available.
 		$inserted = $wpdb->insert( self::table(), $row, $formats );
@@ -254,6 +279,7 @@ class LSTAB_Storage {
 			'columns_config'   => '%s',
 			'hidden_rows'      => '%s',
 			'style_vars'       => '%s',
+			'custom_css'       => '%s',
 		);
 
 		$row     = array();
@@ -267,6 +293,8 @@ class LSTAB_Storage {
 				$row[ $column ] = wp_json_encode( LSTAB_Customizer::sanitize( $data[ $column ] ) );
 			} elseif ( 'hidden_rows' === $column ) {
 				$row[ $column ] = wp_json_encode( LSTAB_Hidden_Rows::sanitize( $data[ $column ] ) );
+			} elseif ( 'custom_css' === $column ) {
+				$row[ $column ] = LSTAB_Custom_Css::sanitize( $data[ $column ] );
 			} elseif ( 'columns_config' === $column ) {
 				$row[ $column ] = wp_json_encode( LSTAB_Columns::sanitize( $data[ $column ] ) );
 			} elseif ( '%d' === $format ) {
@@ -571,7 +599,7 @@ class LSTAB_Storage {
 	 */
 	protected static function meta_columns() {
 		return 'id, title, sheet_url, sheet_id, sheet_kind, gid, tab_name, sync_interval, '
-			. 'first_row_header, style_preset, layout, sticky_first, link_cells, per_page, columns_config, hidden_rows, style_vars, '
+			. 'first_row_header, style_preset, layout, sticky_first, link_cells, per_page, columns_config, hidden_rows, style_vars, custom_css, '
 			. 'snapshot_hash, row_count, col_count, sync_log, '
 			. 'last_status, last_error, last_ragged, last_attempt_gmt, last_success_gmt, created_gmt, updated_gmt';
 	}
@@ -651,6 +679,9 @@ class LSTAB_Storage {
 		$row['style_vars'] = LSTAB_Customizer::sanitize(
 			isset( $row['style_vars'] ) ? json_decode( (string) $row['style_vars'], true ) : array()
 		);
+
+		// Stored as typed, cleaned on the way in and scoped on the way out.
+		$row['custom_css'] = isset( $row['custom_css'] ) ? (string) $row['custom_css'] : '';
 
 		// Metadata-only reads have no snapshot column; 'data' stays absent so a
 		// caller cannot mistake "not loaded" for "no data stored".
