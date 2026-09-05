@@ -1447,6 +1447,50 @@ const drawerErrors = consoleErrors.length;
 await setDetailColumn( 3, false );
 check( drawerErrors === consoleErrors.length, 'No script errors while the drawer was in use' );
 
+// --------------------------------------- what the editor's preview promises
+section( '9e2. The preview tells the truth about the drawer' );
+
+/*
+ * The editor applied the column settings before handing the table to the
+ * renderer, which threw away everything the renderer works out along the way —
+ * so a column moved into the drawer still showed as a column of the table
+ * until the source was saved and the page reloaded. The preview was promising
+ * something the published page would not do.
+ */
+await setDetailColumn( 1, true );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.waitForSelector( '.lstab-preview .lstab-table', { timeout: 15000 } );
+await page.waitForTimeout( 800 );
+
+const previewHeads = await page.locator( '.lstab-preview thead th' ).allInnerTexts();
+check( previewHeads.length === 4, 'The preview drops the column that moved into the drawer', previewHeads.join( ' | ' ) );
+check( await page.locator( '.lstab-preview .lstab-open' ).count() > 0, 'And offers the arrow the published page will' );
+
+/*
+ * With a column out of the table, the live rename had one fewer heading than
+ * it had rows to walk, so every name after it landed on the wrong column.
+ */
+await pane( 'hide' );
+const renameFields = page.locator( '.lstab-column-list tbody input[type="text"]' );
+await renameFields.nth( 4 ).fill( 'OSTATNIA' );
+await page.waitForTimeout( 500 );
+
+const afterRename = await page.locator( '.lstab-preview thead th' ).allInnerTexts();
+check(
+	afterRename[ afterRename.length - 1 ].toLowerCase().includes( 'ostatnia' ),
+	'Renaming the last column renames the last column',
+	afterRename.join( ' | ' )
+);
+check(
+	! afterRename.slice( 0, -1 ).some( ( head ) => head.toLowerCase().includes( 'ostatnia' ) ),
+	'And not one of the others',
+	afterRename.join( ' | ' )
+);
+
+await renameFields.nth( 4 ).fill( '' );
+await page.waitForTimeout( 300 );
+await setDetailColumn( 1, false );
+
 // ------------------------------------------------------- the editor's shape
 section( '9f. The two columns of the editor' );
 

@@ -2348,6 +2348,31 @@ LSTAB_Sync::run( $source_id );
 $after_change = LSTAB_Cache::last( $source_id );
 lstab_assert( is_array( $after_change ), 'A sync that brought something new does clear it', wp_json_encode( $after_change ) );
 
+/*
+ * Saving a table that is on no page cannot have made any page stale, and every
+ * table is on no page the first time it is saved. Throwing away a whole site's
+ * cache for that would be a punishment for adding a table.
+ */
+$flushed_on_save = false;
+add_action(
+	'lstab_purge_all_cache',
+	function () use ( &$flushed_on_save ) {
+		$flushed_on_save = true;
+	}
+);
+
+$unplaced = LSTAB_Storage::insert(
+	array(
+		'title'     => 'Jeszcze nigdzie',
+		'sheet_url' => 'https://docs.google.com/spreadsheets/d/UUU/edit#gid=0',
+		'sheet_id'  => 'UUU',
+	)
+);
+LSTAB_Usage::forget();
+do_action( 'lstab_source_saved', $unplaced );
+lstab_assert( ! $flushed_on_save, 'Saving a table nobody uses yet clears nothing at all' );
+LSTAB_Storage::delete( $unplaced );
+
 // A developer with a reason can still switch it off; there is no setting for
 // it, because "should the page match the sheet?" is not a question worth asking
 // anybody.

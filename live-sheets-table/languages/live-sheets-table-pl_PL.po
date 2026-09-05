@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-05 20:24+0000\n"
-"PO-Revision-Date: 2026-09-05 20:24+0000\n"
+"POT-Creation-Date: 2026-09-05 21:14+0000\n"
+"PO-Revision-Date: 2026-09-05 21:14+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -670,7 +670,7 @@ msgstr "Potrzebujesz więcej niż jednego arkusza?"
 msgid "Never synced successfully"
 msgstr "Nigdy nie zsynchronizowano poprawnie"
 
-#: includes/class-lstab-renderer.php:645 includes/class-lstab-renderer.php:648
+#: includes/class-lstab-renderer.php:666 includes/class-lstab-renderer.php:669
 msgid "Next"
 msgstr "Następna"
 
@@ -682,7 +682,7 @@ msgstr "Twój hosting nie ma ekranu z cronem? Darmowy monitor dostępności skie
 msgid "No parts replaced"
 msgstr "Bez wymiany części"
 
-#: includes/class-lstab-renderer.php:654 includes/class-lstab-renderer.php:656
+#: includes/class-lstab-renderer.php:675 includes/class-lstab-renderer.php:677
 msgid "No rows match your search."
 msgstr "Żaden wiersz nie pasuje do wyszukiwania."
 
@@ -772,7 +772,7 @@ msgid "Organic or metallic compound"
 msgstr "Okładziny organiczne lub metaliczne"
 
 #. translators: 1: current page, 2: number of pages.
-#: includes/class-lstab-renderer.php:635
+#: includes/class-lstab-renderer.php:656
 msgid "Page %1$s of %2$s"
 msgstr "Strona %1$s z %2$s"
 
@@ -837,7 +837,7 @@ msgstr "Podgląd nie powiódł się"
 msgid "Preview width"
 msgstr "Szerokość podglądu"
 
-#: includes/class-lstab-renderer.php:624 includes/class-lstab-renderer.php:627
+#: includes/class-lstab-renderer.php:645 includes/class-lstab-renderer.php:648
 msgid "Previous"
 msgstr "Poprzednia"
 
@@ -953,7 +953,7 @@ msgstr "Zapisane źródło"
 msgid "Saved, but the first sync failed: %s"
 msgstr "Zapisano, ale pierwsza synchronizacja nie powiodła się: %s"
 
-#: includes/class-lstab-renderer.php:613
+#: includes/class-lstab-renderer.php:634
 msgid "Scroll the table sideways"
 msgstr "Przewiń tabelę w bok"
 
@@ -1154,7 +1154,7 @@ msgstr "Błąd synchronizacji — odwiedzający wciąż widzą ostatnią poprawn
 msgid "Table options"
 msgstr "Opcje tabeli"
 
-#: includes/class-lstab-renderer.php:621
+#: includes/class-lstab-renderer.php:642
 msgid "Table pages"
 msgstr "Strony tabeli"
 
@@ -1326,7 +1326,7 @@ msgid "Up to five working days"
 msgstr "Termin do 5 dni roboczych"
 
 #. translators: %s: human readable time difference, e.g. "5 mins".
-#: includes/class-lstab-renderer.php:668
+#: includes/class-lstab-renderer.php:689
 msgid "Updated %s ago"
 msgstr "Zaktualizowano %s temu"
 
@@ -1428,7 +1428,7 @@ msgstr "Nie masz uprawnień do przeglądania źródeł arkuszy."
 msgid "You are not allowed to manage sheet sources."
 msgstr "Nie masz uprawnień do zarządzania źródłami arkuszy."
 
-#: includes/class-lstab-rest.php:265
+#: includes/class-lstab-rest.php:263
 msgid "You are not allowed to write CSS on this site."
 msgstr "Nie masz uprawnień do pisania CSS na tej witrynie."
 

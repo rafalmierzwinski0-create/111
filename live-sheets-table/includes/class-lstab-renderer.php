@@ -555,8 +555,29 @@ class LSTAB_Renderer {
 								 * where the drawer simply sits open.
 								 */
 								?>
+								<?php
+								/**
+								 * Filters the attributes of the drawer row.
+								 *
+								 * A drawer belongs to the row above it, so
+								 * anything that coloured that row has to reach
+								 * here too — otherwise a row painted red opens
+								 * onto a white panel.
+								 *
+								 * @param array $attributes Attribute map.
+								 * @param int   $row_index  Row the drawer belongs to.
+								 * @param array $source     Source row.
+								 */
+								$lstab_detail_attributes = (array) apply_filters(
+									'lstab_detail_attributes',
+									array(),
+									(int) $row_index,
+									$source
+								);
+								?>
 								<tr class="lstab-detail" id="<?php echo esc_attr( $table_id . '-detail-' . $row_index ); ?>"
-									data-lstab-detail-for="<?php echo esc_attr( (string) $row_index ); ?>" hidden>
+									data-lstab-detail-for="<?php echo esc_attr( (string) $row_index ); ?>"
+									<?php echo self::attributes( $lstab_detail_attributes ); // phpcs:ignore WordPress.Security.EscapeOutput -- Escaped in attributes(). ?> hidden>
 									<td colspan="<?php echo esc_attr( (string) max( 1, count( $headers ) - count( $details ) ) ); ?>">
 										<div class="lstab-detail-inner">
 											<?php foreach ( array_keys( $details ) as $lstab_detail_index ) : ?>

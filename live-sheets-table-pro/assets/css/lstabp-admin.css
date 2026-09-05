@@ -128,3 +128,26 @@
 	margin-top: 0.22em;
 	color: #0e7c74;
 }
+
+/* A rule pointing at a heading the sheet no longer has. */
+.lstabp-rules-orphans {
+	margin: 0.6rem 0 0.9rem;
+	padding: 0.7rem 0.9rem;
+	border-inline-start: 3px solid #b26200;
+	border-radius: 6px;
+	background: #fcf6ec;
+	font-size: 0.88rem;
+}
+
+.lstabp-rules-orphans p {
+	margin: 0 0 0.35rem;
+}
+
+.lstabp-rules-orphans p:last-child {
+	margin-bottom: 0;
+}
+
+.lstabp-rule.is-orphan {
+	border-color: #e3b778;
+	background: #fffaf2;
+}

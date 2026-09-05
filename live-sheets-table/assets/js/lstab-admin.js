@@ -238,6 +238,7 @@
 		columnRows().forEach( function ( row ) {
 			var label = row.querySelector( 'input[type="text"]' );
 			var state = row.querySelector( 'input[name$="[hidden]"]' );
+			var drawer = row.querySelector( 'input[name$="[detail]"]' );
 
 			if ( ! label || label.disabled ) {
 				return;
@@ -246,10 +247,13 @@
 			settings.push( {
 				source: label.placeholder || '',
 				label: label.value,
-				// The add-on writes into this field as you click, so reading it
-				// here keeps the preview honest whether the add-on is there or
-				// not, without the free plugin knowing anything about it.
-				visible: ! ( state && '1' === state.value )
+				// The add-on writes into these fields as you click, so reading
+				// them here keeps the preview honest whether the add-on is
+				// there or not, without the free plugin knowing anything about
+				// it. Leaving 'detail' out is why the preview used to show a
+				// column in the table that the published page put in a drawer.
+				visible: ! ( state && '1' === state.value ),
+				detail: !! ( drawer && '1' === drawer.value )
 			} );
 		} );
 
@@ -832,13 +836,18 @@
 		columnRows().forEach( function ( row ) {
 			var field = row.querySelector( 'input[type="text"]' );
 			var state = row.querySelector( 'input[name$="[hidden]"]' );
+			var drawer = row.querySelector( 'input[name$="[detail]"]' );
 
 			if ( ! field || field.disabled ) {
 				return;
 			}
 
-			// A hidden column has no heading on the table to rename.
-			if ( state && '1' === state.value ) {
+			/*
+			 * Neither a hidden column nor one that lives under the row has a
+			 * heading on the table to rename, and counting them would put every
+			 * name after them on the wrong column.
+			 */
+			if ( ( state && '1' === state.value ) || ( drawer && '1' === drawer.value ) ) {
 				return;
 			}
 

@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.11.0
+Stable tag: 3.11.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,13 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.11.1 =
+* Fixed: the editor's preview showed a column in the table that the published page put in the details drawer. The preview applied the column settings before handing the table over, which threw away the part of the work that decides where a column goes.
+* Fixed: renaming a column wrote the new name onto the wrong heading when any column had been moved into the drawer.
+* Fixed: a row picked out by a colour rule opened onto a drawer that was not coloured.
+* Fixed: pressing Save on a table that is not on any page yet — which is every table, the first time — threw away the whole site's page cache. Nothing on any page could have gone stale, so nothing is cleared.
+* Fixed: a drawer's full-width cell is no longer treated as the pinned first column of a table that scrolls sideways.
 
 = 3.11.0 =
 * Fixed: the two columns of the editor now always end level. The form column runs from about 490 pixels on the hiding tab to 1790 on the appearance one, and opening “What Google actually sent” added another 360 to the other side — so which column was longer, and by how much, changed with every tab and every disclosure.
@@ -370,6 +377,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.11.1 =
+Five fixes where the drawer, the colour rules and the cache met each other.
 
 = 3.11.0 =
 The editor's two columns always end level now.

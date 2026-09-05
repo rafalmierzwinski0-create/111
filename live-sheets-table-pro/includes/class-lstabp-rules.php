@@ -60,6 +60,9 @@ class LSTABP_Rules {
 		// run before this.
 		add_filter( 'lstab_source_rows', array( $this, 'capture' ), 20, 4 );
 		add_filter( 'lstab_cell_attributes', array( $this, 'attributes' ), 10, 5 );
+		// A drawer belongs to the row above it, so a rule that painted the row
+		// paints the panel it opens too.
+		add_filter( 'lstab_detail_attributes', array( $this, 'detail_attributes' ), 10, 2 );
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
 		/*
@@ -256,6 +259,24 @@ class LSTABP_Rules {
 		}
 
 		return $rows;
+	}
+
+	/**
+	 * Paint the drawer under a row the same colour as the row.
+	 *
+	 * @param array<string,string> $attributes Attribute map.
+	 * @param int                  $row_index  Row the drawer belongs to.
+	 * @return array<string,string>
+	 */
+	public function detail_attributes( $attributes, $row_index ) {
+		if ( ! isset( $this->rows[ $row_index ] ) ) {
+			return $attributes;
+		}
+
+		$attributes['class'] = trim( ( isset( $attributes['class'] ) ? $attributes['class'] . ' ' : '' ) . 'lstab-ruled' );
+		$attributes['style'] = ( isset( $attributes['style'] ) ? $attributes['style'] : '' ) . $this->rows[ $row_index ];
+
+		return $attributes;
 	}
 
 	/**

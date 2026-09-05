@@ -27,6 +27,21 @@ $lstabp_operators = LSTABP_Rules::operators();
  */
 $lstabp_waiting = ! $headers;
 $lstabp_saved   = count( $rules );
+
+/*
+ * Rules whose column is no longer in the sheet. Renaming a heading in Google
+ * is enough: the rule stays stored, stops colouring anything, and — because
+ * its column had no matching option — the select fell back to the empty one,
+ * so the next save deleted it without a word. Now the missing column is kept
+ * as an option of its own, so a save preserves the rule, and the card says
+ * what happened.
+ */
+$lstabp_orphans = array();
+foreach ( $rules as $lstabp_i => $lstabp_stored ) {
+	if ( '' !== $lstabp_stored['column'] && ! in_array( $lstabp_stored['column'], $headers, true ) ) {
+		$lstabp_orphans[ $lstabp_i ] = $lstabp_stored['column'];
+	}
+}
 $lstabp_rows    = array_merge(
 	$rules,
 	array_fill( 0, 2, array( 'column' => '', 'operator' => '=', 'value' => '', 'style' => 'red', 'scope' => 'cell' ) )
@@ -60,6 +75,31 @@ $lstabp_rows    = array_merge(
 		</li>
 	</ul>
 
+	<?php if ( $lstabp_orphans && ! $lstabp_waiting ) : ?>
+		<div class="lstabp-rules-orphans">
+			<p>
+				<strong>
+					<?php
+					printf(
+						/* translators: %s: number of rules. */
+						esc_html( _n( 'One rule names a column your sheet no longer has.', '%s rules name columns your sheet no longer has.', count( $lstabp_orphans ), 'live-sheets-table-pro' ) ),
+						esc_html( number_format_i18n( count( $lstabp_orphans ) ) )
+					);
+					?>
+				</strong>
+			</p>
+			<p>
+				<?php
+				printf(
+					/* translators: %s: the headings a rule names, comma separated. */
+					esc_html__( 'Renaming a heading in Google is enough to do it. Nothing is coloured by %s until you point the rule at a heading that is there — the rule is kept until you do.', 'live-sheets-table-pro' ),
+					esc_html( implode( ', ', array_map( static function ( $lstabp_name ) { return '“' . $lstabp_name . '”'; }, $lstabp_orphans ) ) )
+				);
+				?>
+			</p>
+		</div>
+	<?php endif; ?>
+
 	<?php if ( $lstabp_waiting ) : ?>
 		<p class="lstab-columns-waiting">
 			<?php
@@ -87,7 +127,7 @@ $lstabp_rows    = array_merge(
 	<ol class="lstabp-rules">
 		<?php foreach ( $lstabp_rows as $lstabp_index => $lstabp_rule ) : ?>
 			<?php $lstabp_is_new = $lstabp_index >= $lstabp_saved; ?>
-			<li class="lstabp-rule<?php echo $lstabp_is_new ? ' is-new' : ''; ?>">
+			<li class="lstabp-rule<?php echo $lstabp_is_new ? ' is-new' : ''; ?><?php echo isset( $lstabp_orphans[ $lstabp_index ] ) ? ' is-orphan' : ''; ?>">
 				<span class="lstabp-rule-line">
 					<span class="lstabp-rule-word"><?php esc_html_e( 'When', 'live-sheets-table-pro' ); ?></span>
 
@@ -101,6 +141,18 @@ $lstabp_rows    = array_merge(
 							);
 							?>
 						</option>
+						<?php if ( isset( $lstabp_orphans[ $lstabp_index ] ) ) : ?>
+							<?php // Kept, and selected, so a save does not quietly delete the rule. ?>
+							<option value="<?php echo esc_attr( $lstabp_rule['column'] ); ?>" selected>
+								<?php
+								printf(
+									/* translators: %s: the heading a rule names. */
+									esc_html__( '%s — not in the sheet any more', 'live-sheets-table-pro' ),
+									esc_html( $lstabp_rule['column'] )
+								);
+								?>
+							</option>
+						<?php endif; ?>
 						<?php foreach ( $headers as $lstabp_heading ) : ?>
 							<option value="<?php echo esc_attr( $lstabp_heading ); ?>" <?php selected( $lstabp_rule['column'], $lstabp_heading ); ?>>
 								<?php echo esc_html( $lstabp_heading ); ?>

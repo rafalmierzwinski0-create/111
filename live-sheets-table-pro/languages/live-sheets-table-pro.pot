@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-05 20:24+0000\n"
+"POT-Creation-Date: 2026-09-05 21:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -12,7 +12,12 @@ msgstr ""
 "X-Domain: live-sheets-table-pro\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: includes/views/rules-card.php:55
+#. translators: %s: the heading a rule names.
+#: includes/views/rules-card.php:150
+msgid "%s — not in the sheet any more"
+msgstr ""
+
+#: includes/views/rules-card.php:70
 msgid "A colour on one cell sits on top of a colour on its row, so “the whole row grey, that one cell red” is two rules and works as it reads."
 msgstr ""
 
@@ -20,7 +25,7 @@ msgstr ""
 msgid "A hidden column is matched to its heading, and a hidden row to its line number. Reordering columns, renaming a heading, or inserting a row above a hidden one breaks that match."
 msgstr ""
 
-#: includes/views/rules-card.php:142 includes/class-lstabp-rules.php:374
+#: includes/views/rules-card.php:194 includes/class-lstabp-rules.php:395
 msgid "Abc"
 msgstr ""
 
@@ -32,7 +37,7 @@ msgstr ""
 msgid "Add your Google client ID and secret first."
 msgstr ""
 
-#: includes/class-lstabp-rules.php:91
+#: includes/class-lstabp-rules.php:94
 msgid "Amber"
 msgstr ""
 
@@ -44,11 +49,11 @@ msgstr ""
 msgid "Billing lives in your account, not on your site, so cancelling is done there and takes effect at the end of the period you have paid for. Nothing on your pages changes on the day you cancel."
 msgstr ""
 
-#: includes/class-lstabp-rules.php:99
+#: includes/class-lstabp-rules.php:102
 msgid "Blue"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:107
+#: includes/class-lstabp-rules.php:110
 msgid "Bold text"
 msgstr ""
 
@@ -80,11 +85,11 @@ msgstr ""
 msgid "Client secret"
 msgstr ""
 
-#: includes/views/rules-card.php:38
+#: includes/views/rules-card.php:53
 msgid "Colour a cell, or its whole row, by what the cell says. Every row of your sheet is checked against every rule here, and the colour is worked out on the server — so it is already in the page a visitor receives rather than painted on afterwards by script."
 msgstr ""
 
-#: includes/views/rules-card.php:36
+#: includes/views/rules-card.php:51
 msgid "Colour rules"
 msgstr ""
 
@@ -177,11 +182,11 @@ msgstr ""
 msgid "Google rejected the sign-in: %s"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:95
+#: includes/class-lstabp-rules.php:98
 msgid "Green"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:103
+#: includes/class-lstabp-rules.php:106
 msgid "Grey"
 msgstr ""
 
@@ -218,7 +223,7 @@ msgstr ""
 msgid "Live Sheets Table Pro needs the free Live Sheets Table plugin to be installed and active. Pro adds to it rather than replacing it."
 msgstr ""
 
-#: includes/views/rules-card.php:69
+#: includes/views/rules-card.php:109
 msgid "Load the preview first. Once the columns are known you can set rules on them."
 msgstr ""
 
@@ -254,6 +259,13 @@ msgstr ""
 #: includes/views/settings-page.php:103
 msgid "Not connected yet"
 msgstr ""
+
+#. translators: %s: number of rules.
+#: includes/views/rules-card.php:85
+msgid "One rule names a column your sheet no longer has."
+msgid_plural "%s rules name columns your sheet no longer has."
+msgstr[0] ""
+msgstr[1] ""
 
 #: includes/views/settings-page.php:203
 msgid "One saved sheet can feed as many pages as you like. Add a filter to the shortcode and each page shows only the rows it is about — the spreadsheet stays single."
@@ -312,8 +324,13 @@ msgstr ""
 msgid "Read through the connected account"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:87
+#: includes/class-lstabp-rules.php:90
 msgid "Red"
+msgstr ""
+
+#. translators: %s: the headings a rule names, comma separated.
+#: includes/views/rules-card.php:95
+msgid "Renaming a heading in Google is enough to do it. Nothing is coloured by %s until you point the rule at a heading that is there — the rule is kept until you do."
 msgstr ""
 
 #. translators: 1: page number, 2: number of pages, 3: total rows.
@@ -321,7 +338,7 @@ msgstr ""
 msgid "Rows — page %1$s of %2$s (%3$s in all)"
 msgstr ""
 
-#: includes/views/rules-card.php:51
+#: includes/views/rules-card.php:66
 msgid "Rules are read from the top down. If two of them colour the same place, the lower one wins — so put the general rule first and the exception under it."
 msgstr ""
 
@@ -362,7 +379,7 @@ msgstr ""
 msgid "Sign in to Google"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:111
+#: includes/class-lstabp-rules.php:114
 msgid "Struck through"
 msgstr ""
 
@@ -382,7 +399,7 @@ msgstr ""
 msgid "The connected account"
 msgstr ""
 
-#: includes/views/rules-card.php:150
+#: includes/views/rules-card.php:202
 msgid "The empty line at the bottom is the next rule; save to get another one. To take a rule away, set its column back to “remove this rule”."
 msgstr ""
 
@@ -414,7 +431,7 @@ msgstr ""
 msgid "Waiting for a client above"
 msgstr ""
 
-#: includes/views/rules-card.php:68
+#: includes/views/rules-card.php:108
 msgid "Waiting for a first look at the sheet, so there are no columns to choose from yet."
 msgstr ""
 
@@ -422,7 +439,7 @@ msgstr ""
 msgid "What Pro is doing on this site, and how to stop paying for it"
 msgstr ""
 
-#: includes/views/rules-card.php:92
+#: includes/views/rules-card.php:132
 msgid "When"
 msgstr ""
 
@@ -463,11 +480,11 @@ msgstr ""
 msgid "Your subscription"
 msgstr ""
 
-#: includes/views/settings-page.php:222 includes/class-lstabp-rules.php:126
+#: includes/views/settings-page.php:222 includes/class-lstabp-rules.php:129
 msgid "contains"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:124
+#: includes/class-lstabp-rules.php:127
 msgid "is"
 msgstr ""
 
@@ -475,11 +492,11 @@ msgstr ""
 msgid "is anything but"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:128
+#: includes/class-lstabp-rules.php:131
 msgid "is at least"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:130
+#: includes/class-lstabp-rules.php:133
 msgid "is at most"
 msgstr ""
 
@@ -487,7 +504,7 @@ msgstr ""
 msgid "is exactly"
 msgstr ""
 
-#: includes/views/settings-page.php:223 includes/class-lstabp-rules.php:127
+#: includes/views/settings-page.php:223 includes/class-lstabp-rules.php:130
 msgid "is greater than"
 msgstr ""
 
@@ -495,7 +512,7 @@ msgstr ""
 msgid "is greater than or equal to"
 msgstr ""
 
-#: includes/views/settings-page.php:225 includes/class-lstabp-rules.php:129
+#: includes/views/settings-page.php:225 includes/class-lstabp-rules.php:132
 msgid "is less than"
 msgstr ""
 
@@ -503,7 +520,7 @@ msgstr ""
 msgid "is less than or equal to"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:125
+#: includes/class-lstabp-rules.php:128
 msgid "is not"
 msgstr ""
 
@@ -511,30 +528,30 @@ msgstr ""
 msgid "not on that line now"
 msgstr ""
 
-#: includes/views/rules-card.php:125
+#: includes/views/rules-card.php:177
 msgid "paint"
 msgstr ""
 
-#: includes/views/rules-card.php:128
+#: includes/views/rules-card.php:180
 msgid "that cell"
 msgstr ""
 
-#: includes/views/rules-card.php:129
+#: includes/views/rules-card.php:181
 msgid "the whole row"
 msgstr ""
 
-#: includes/views/rules-card.php:122
+#: includes/views/rules-card.php:174
 msgid "what it says"
 msgstr ""
 
-#: includes/views/rules-card.php:99
+#: includes/views/rules-card.php:139
 msgid "— pick a column —"
 msgstr ""
 
-#: includes/views/rules-card.php:100
+#: includes/views/rules-card.php:140
 msgid "— remove this rule —"
 msgstr ""
 
-#: includes/views/rules-card.php:59
+#: includes/views/rules-card.php:74
 msgid "“is” and “is not” compare text and ignore case and spacing. The four number comparisons read a price as a number, so 1 215,50 and 1215.5 are the same figure and a currency after it makes no difference."
 msgstr ""

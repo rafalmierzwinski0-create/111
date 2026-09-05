@@ -512,6 +512,108 @@ delete_option( LSTABP_Rules::OPTION );
 
 // ---------------------------------------------------------------------------
 
+lstabp_section( '5c2. Rules meeting the rest of the plugin' );
+
+/*
+ * A drawer belongs to the row above it, so a rule that painted the row has to
+ * reach the panel that opens under it. It did not: a row picked out in red
+ * opened onto a white box.
+ */
+$rule_config = LSTAB_Storage::get( $source_id )['columns_config'];
+$rule_config[3]['detail'] = true;
+LSTAB_Storage::update( $source_id, array( 'columns_config' => $rule_config ) );
+
+update_option(
+	LSTABP_Rules::OPTION,
+	array(
+		$source_id => array(
+			array(
+				'column'   => 'Dostępność',
+				'operator' => '=',
+				'value'    => 'Brak',
+				'style'    => 'grey',
+				'scope'    => 'row',
+			),
+		),
+	),
+	false
+);
+
+$drawer_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+
+lstabp_assert( false !== strpos( $drawer_html, 'lstab-detail' ), 'The table has drawers to colour' );
+lstabp_assert(
+	(bool) preg_match( '#<tr class="lstab-detail"[^>]*class="lstab-ruled"[^>]*style=#', $drawer_html )
+		|| (bool) preg_match( '#<tr class="lstab-detail"[^>]*style="[^"]*background#', $drawer_html ),
+	'A row picked out by a rule opens onto a drawer of the same colour',
+	substr( $drawer_html, (int) strpos( $drawer_html, 'lstab-detail' ) - 40, 260 )
+);
+
+// And a row nobody picked out keeps a plain drawer.
+lstabp_assert(
+	substr_count( $drawer_html, '<tr class="lstab-detail"' ) > substr_count( $drawer_html, 'lstab-detail lstab-ruled' ),
+	'A row no rule matched keeps its drawer plain'
+);
+
+$rule_config[3]['detail'] = false;
+LSTAB_Storage::update( $source_id, array( 'columns_config' => $rule_config ) );
+
+/*
+ * Renaming a heading in Google used to kill a rule twice over: it stopped
+ * colouring anything, and its column no longer matched any option in the card,
+ * so the next save deleted it without a word.
+ */
+$rule_source = LSTAB_Storage::get( $source_id );
+$rule_data   = $rule_source['data'];
+$was_heading = $rule_data['headers'][2];
+
+$rule_data['headers'][2] = 'Stan magazynowy';
+LSTAB_Storage::record_success( $source_id, $rule_data );
+
+ob_start();
+$rules   = LSTABP_Rules::for_source( $source_id );
+$headers = LSTAB_Storage::get( $source_id )['data']['headers'];
+$is_edit = true;
+require LSTABP_PATH . 'includes/views/rules-card.php';
+$rules_html = (string) ob_get_clean();
+
+lstabp_assert( false !== strpos( $rules_html, 'lstabp-rules-orphans' ), 'The card says a rule names a column that is gone' );
+lstabp_assert( false !== strpos( $rules_html, $was_heading ), 'And names the heading it is looking for', $was_heading );
+lstabp_assert(
+	(bool) preg_match( '#<option value="' . preg_quote( $was_heading, '#' ) . '" selected>#', $rules_html ),
+	'The missing column stays selected, so saving does not silently delete the rule'
+);
+
+// Prove that: run the save the form would run, with what the form would send.
+$_POST['_lstabp_rules_present'] = '1';
+$_POST['lstabp_rules']          = array(
+	array(
+		'column'   => $was_heading,
+		'operator' => '=',
+		'value'    => 'Brak',
+		'style'    => 'grey',
+		'scope'    => 'row',
+	),
+);
+do_action( 'lstab_source_saved', $source_id );
+unset( $_POST['_lstabp_rules_present'], $_POST['lstabp_rules'] );
+
+lstabp_assert(
+	1 === count( LSTABP_Rules::for_source( $source_id ) ),
+	'Saving the screen keeps the rule rather than dropping it',
+	(string) count( LSTABP_Rules::for_source( $source_id ) )
+);
+
+// Put the sheet back and check the rule starts working again on its own.
+$rule_data['headers'][2] = $was_heading;
+LSTAB_Storage::record_success( $source_id, $rule_data );
+lstabp_assert(
+	false !== strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'lstab-ruled' ),
+	'And it colours again the moment the heading comes back'
+);
+
+delete_option( LSTABP_Rules::OPTION );
+
 lstabp_section( '5d. Taking the table away' );
 
 update_option( LSTABP_Export::OPTION, array( $source_id => true ), true );

@@ -229,17 +229,15 @@ class LSTAB_Rest {
 				'colCount'  => count( (array) $source['data']['headers'] ),
 				'truncated' => count( $rows ) > count( $preview ),
 				'html'      => LSTAB_Renderer::render_preview(
-					LSTAB_Columns::apply(
-						array(
-							'headers' => (array) $source['data']['headers'],
-							'rows'    => $preview,
-						),
-						LSTAB_Columns::sanitize( (array) $request->get_param( 'columns' ) )
+					array(
+						'headers' => (array) $source['data']['headers'],
+						'rows'    => $preview,
 					),
 					array(
 						'style'      => LSTAB_Styles::sanitize( (string) $request->get_param( 'style' ) ),
 						'layout'     => (string) $request->get_param( 'layout' ),
 						'source_id'  => $source_id,
+						'columns'    => LSTAB_Columns::sanitize( (array) $request->get_param( 'columns' ) ),
 						// The stored appearance, so a redraw does not undo what
 						// the swatches have already applied to the preview.
 						'style_vars' => isset( $source['style_vars'] ) ? $source['style_vars'] : array(),
@@ -374,18 +372,24 @@ class LSTAB_Rest {
 				'raw'       => self::sample( $csv ),
 				'rawBytes'  => strlen( $csv ),
 				'ragged'    => isset( $table['ragged'] ) ? $table['ragged'] : null,
+				/*
+				 * The settings are handed over rather than applied here, so the
+				 * preview goes through the same preparation a published page
+				 * does. Applying them first threw away everything that step
+				 * works out along the way — which is why a column moved into
+				 * the details drawer still showed as a column of the table
+				 * until the source was saved and the page reloaded.
+				 */
 				'html'      => LSTAB_Renderer::render_preview(
-					LSTAB_Columns::apply(
-						array(
-							'headers' => $table['headers'],
-							'rows'    => $preview,
-						),
-						LSTAB_Columns::sanitize( (array) $request->get_param( 'columns' ) )
+					array(
+						'headers' => $table['headers'],
+						'rows'    => $preview,
 					),
 					array(
 						'style'     => LSTAB_Styles::sanitize( (string) $request->get_param( 'style' ) ),
 						'layout'    => (string) $request->get_param( 'layout' ),
 						'source_id' => absint( $request->get_param( 'sourceId' ) ),
+						'columns'   => LSTAB_Columns::sanitize( (array) $request->get_param( 'columns' ) ),
 					)
 				),
 			)

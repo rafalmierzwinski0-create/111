@@ -58,10 +58,12 @@ class LSTAB_Cache {
 	/**
 	 * Clear whatever holds an old copy of one table.
 	 *
-	 * @param int $source_id Source ID.
+	 * @param int  $source_id Source ID.
+	 * @param bool $may_flush Whether finding no page at all may fall back to
+	 *                        clearing the whole cache.
 	 * @return array{scope:string,posts:int} What was done.
 	 */
-	public static function purge( $source_id ) {
+	public static function purge( $source_id, $may_flush = true ) {
 		$source_id = (int) $source_id;
 
 		if ( ! self::enabled( $source_id ) ) {
@@ -81,15 +83,26 @@ class LSTAB_Cache {
 		 * template, a page builder's own library. Finding nothing is therefore
 		 * not proof that nothing needs clearing, and this is exactly the site
 		 * where a stale table would go unnoticed longest — so the whole cache
-		 * goes instead. It costs a rebuild, and only ever on a sync that
-		 * actually brought something new.
+		 * goes instead.
+		 *
+		 * Only when new data arrived, though. Pressing Save on a table that is
+		 * not on any page yet — which is every table, the first time — cannot
+		 * have made any page stale, and rebuilding a whole site's cache for it
+		 * would be a punishment for adding a table.
 		 */
-		if ( ! $posts ) {
+		if ( ! $posts && $may_flush ) {
 			self::purge_site();
 			self::record( $source_id, 'site', 0 );
 
 			return array(
 				'scope' => 'site',
+				'posts' => 0,
+			);
+		}
+
+		if ( ! $posts ) {
+			return array(
+				'scope' => 'none',
 				'posts' => 0,
 			);
 		}
@@ -126,13 +139,18 @@ class LSTAB_Cache {
 	public function register() {
 		// Saving changes what the page looks like as surely as new data does: a
 		// hidden column or a different style is a different page.
-		add_action( 'lstab_source_saved', array( __CLASS__, 'purge' ) );
+		add_action(
+			'lstab_source_saved',
+			static function ( $source_id ) {
+				LSTAB_Cache::purge( (int) $source_id, false );
+			}
+		);
 
 		add_action(
 			'lstab_source_deleted',
 			static function ( $source_id ) {
 				// The pages that held it are now pages without it.
-				LSTAB_Cache::purge( (int) $source_id );
+				LSTAB_Cache::purge( (int) $source_id, false );
 				LSTAB_Cache::forget( (int) $source_id );
 			}
 		);
