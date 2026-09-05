@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-05 16:34+0000\n"
-"PO-Revision-Date: 2026-09-05 16:34+0000\n"
+"POT-Creation-Date: 2026-09-05 20:24+0000\n"
+"PO-Revision-Date: 2026-09-05 20:24+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -50,7 +50,7 @@ msgstr[2] "%1$s arkuszy · %2$s wierszy"
 msgid "%s and see the whole plugin working. One click removes it again."
 msgstr "%s i obejrzyj całą wtyczkę w działaniu. Usuniesz go jednym kliknięciem."
 
-#: includes/views/edit-page.php:449
+#: includes/views/edit-page.php:460
 msgid "(no longer there)"
 msgstr "(już jej nie ma)"
 
@@ -98,7 +98,7 @@ msgstr "Zmiana w arkuszu trafia na stronę sama"
 msgid "A link in a cell is otherwise plain text a visitor has to select and copy, which on a phone is close to impossible. Only http, https and e-mail addresses are linked."
 msgstr "Bez tego link w komórce jest zwykłym tekstem, który odwiedzający musi zaznaczyć i skopiować — na telefonie to praktycznie niewykonalne. Linkowane są wyłącznie adresy http, https i e-mail."
 
-#: includes/views/edit-page.php:542
+#: includes/views/edit-page.php:563
 msgid "A wide table becomes one card per row once its column gets too narrow. Use these to check both before you publish."
 msgstr "Szeroka tabela zamienia się w jedną kartę na wiersz, gdy jej kolumna staje się zbyt wąska. Sprawdź oba warianty, zanim opublikujesz."
 
@@ -208,7 +208,7 @@ msgstr "Wbudowany we wtyczkę, żebyś mógł wszystko wypróbować. Usuń go, k
 msgid "Cables included, housing extra"
 msgstr "Linki w cenie, pancerze osobno"
 
-#: includes/views/edit-page.php:628
+#: includes/views/edit-page.php:653
 msgid "Cancel"
 msgstr "Anuluj"
 
@@ -247,7 +247,7 @@ msgstr "Wyczyść"
 
 #. translators: 1: column number, 2: heading that used to be there, 3: heading
 #. there now.
-#: includes/views/edit-page.php:446
+#: includes/views/edit-page.php:457
 msgid "Column %1$d was “%2$s”, now “%3$s”"
 msgstr "Kolumna %1$d była „%2$s”, teraz jest „%3$s”"
 
@@ -257,7 +257,7 @@ msgid "Column %1$s"
 msgstr "Kolumna %1$s"
 
 #. translators: %d: column number.
-#: includes/views/edit-page.php:470 includes/class-lstab-csv-parser.php:371
+#: includes/views/edit-page.php:481 includes/class-lstab-csv-parser.php:371
 #: includes/class-lstab-csv-parser.php:398
 msgid "Column %d"
 msgstr "Kolumna %d"
@@ -267,7 +267,7 @@ msgstr "Kolumna %d"
 msgid "Column %s"
 msgstr "Kolumna %s"
 
-#: includes/views/edit-page.php:414
+#: includes/views/edit-page.php:425
 msgid "Columns"
 msgstr "Kolumny"
 
@@ -381,7 +381,7 @@ msgstr "Co minutę"
 
 #. translators: %s: the CSS selector this table's rules are given, e.g.
 #. [data-lstab-id="7"].
-#: includes/views/edit-page.php:386
+#: includes/views/edit-page.php:397
 msgid "Every rule is saved as %s followed by what you wrote."
 msgstr "Każda reguła zapisuje się jako %s, a po nim to, co napisałeś."
 
@@ -415,7 +415,7 @@ msgstr "Filtr"
 msgid "Fine-tune the look"
 msgstr "Dopracuj wygląd"
 
-#: includes/views/edit-page.php:369
+#: includes/views/edit-page.php:380
 msgid "For the last thing the settings above do not cover. Write ordinary rules — the plugin puts this table’s own selector in front of each one, so nothing written here can reach the rest of the page. Where you mean the table itself rather than something inside it, write & — as in &.lstab-paged."
 msgstr "Na to jedno, czego nie obejmują ustawienia powyżej. Pisz zwykłe reguły — wtyczka sama dopisuje przed każdą z nich selektor tej tabeli, więc nic stąd nie sięgnie reszty strony. Gdy chodzi Ci o samą tabelę, a nie o coś w środku, napisz & — na przykład &.lstab-paged."
 
@@ -431,7 +431,7 @@ msgstr "Przegląd, mycie i smarowanie"
 msgid "Full grid with a shaded header. Good for dense numeric data."
 msgstr "Pełna siatka z cieniowanym nagłówkiem. Dobre dla gęstych danych liczbowych."
 
-#: includes/views/edit-page.php:526
+#: includes/views/edit-page.php:547
 msgid "Full width"
 msgstr "Pełna szerokość"
 
@@ -494,7 +494,7 @@ msgstr "Tło nagłówka"
 msgid "Header text"
 msgstr "Tekst nagłówka"
 
-#: includes/views/edit-page.php:498
+#: includes/views/edit-page.php:509
 msgid "Hidden"
 msgstr "Ukryta"
 
@@ -542,15 +542,15 @@ msgstr "W Arkuszach Google wybierz Udostępnij → Dostęp ogólny → „Każdy
 msgid "In stock"
 msgstr "Od ręki"
 
-#: includes/views/edit-page.php:500
+#: includes/views/edit-page.php:511
 msgid "In the details"
 msgstr "W szczegółach"
 
-#: includes/views/edit-page.php:463
+#: includes/views/edit-page.php:474
 msgid "In the table"
 msgstr "W tabeli"
 
-#: includes/views/edit-page.php:461
+#: includes/views/edit-page.php:472
 msgid "In your sheet"
 msgstr "W Twoim arkuszu"
 
@@ -588,7 +588,7 @@ msgstr "Układ"
 msgid "Leave at 0 to put the whole sheet on the page. Any other number splits it, and searching and sorting then happen on the server across the whole sheet rather than on the page in front of you — so a search still finds a row on page nine."
 msgstr "Zostaw 0, aby cały arkusz był na jednej stronie. Każda inna liczba dzieli go na strony, a wyszukiwanie i sortowanie przenoszą się wtedy na serwer i obejmują cały arkusz, a nie tylko stronę, którą masz przed sobą — więc wyszukiwarka nadal znajdzie wiersz ze strony dziewiątej."
 
-#: includes/views/edit-page.php:418
+#: includes/views/edit-page.php:429
 msgid "Leaving a column or a row out of the table is part of Pro, where you choose it by clicking your own sheet."
 msgstr "Pomijanie kolumny lub wiersza w tabeli jest częścią Pro — wybierasz je, klikając we własny arkusz."
 
@@ -658,7 +658,7 @@ msgstr "Północ"
 msgid "Name it and set the schedule"
 msgstr "Nazwij i ustaw harmonogram"
 
-#: includes/views/edit-page.php:527
+#: includes/views/edit-page.php:548
 msgid "Narrow column"
 msgstr "Wąska kolumna"
 
@@ -793,7 +793,7 @@ msgstr "Część na zamówienie"
 msgid "Paste a Google Sheets link first."
 msgstr "Najpierw wklej link do arkusza Google."
 
-#: includes/views/edit-page.php:567
+#: includes/views/edit-page.php:588
 msgid "Paste a link and choose “Load preview”."
 msgstr "Wklej link i wybierz „Wczytaj podgląd”."
 
@@ -805,7 +805,7 @@ msgstr "Wklej link i zobacz tabelę, zanim zapiszesz"
 msgid "Paste the link to your Google Sheet first."
 msgstr "Najpierw wklej link do swojego arkusza Google."
 
-#: includes/views/edit-page.php:528
+#: includes/views/edit-page.php:549
 msgid "Phone"
 msgstr "Telefon"
 
@@ -825,7 +825,7 @@ msgstr "Wskaż swój arkusz"
 msgid "Press Ctrl+C"
 msgstr "Naciśnij Ctrl+C"
 
-#: includes/views/edit-page.php:516
+#: includes/views/edit-page.php:537
 msgid "Preview"
 msgstr "Podgląd"
 
@@ -833,7 +833,7 @@ msgstr "Podgląd"
 msgid "Preview failed"
 msgstr "Podgląd nie powiódł się"
 
-#: includes/views/edit-page.php:522
+#: includes/views/edit-page.php:543
 msgid "Preview width"
 msgstr "Szerokość podglądu"
 
@@ -878,7 +878,7 @@ msgstr "Odśwież"
 msgid "Refresh failed: %s"
 msgstr "Odświeżanie nie powiodło się: %s"
 
-#: includes/views/edit-page.php:416
+#: includes/views/edit-page.php:427
 msgid "Rename a column for your visitors. Nothing here is written back to Google — your spreadsheet keeps its own headings, including working names nobody should see."
 msgstr "Zmień nazwę kolumny dla odwiedzających albo w ogóle pomiń ją w tabeli. Nic z tego nie jest zapisywane do Google — Twój arkusz zachowuje własne nagłówki, także robocze nazwy, których nikt nie powinien widzieć."
 
@@ -923,11 +923,11 @@ msgstr "Liczba wierszy nigdy nie jest ograniczona — źródło pomieści tyle w
 msgid "Rows per page"
 msgstr "Wierszy na stronę"
 
-#: includes/views/edit-page.php:619
+#: includes/views/edit-page.php:644
 msgid "Save changes"
 msgstr "Zapisz zmiany"
 
-#: includes/views/edit-page.php:622
+#: includes/views/edit-page.php:647
 msgid "Save changes and sync"
 msgstr "Zapisz zmiany i zsynchronizuj"
 
@@ -935,11 +935,11 @@ msgstr "Zapisz zmiany i zsynchronizuj"
 msgid "Save settings"
 msgstr "Zapisz ustawienia"
 
-#: includes/views/edit-page.php:623
+#: includes/views/edit-page.php:648
 msgid "Save source and sync"
 msgstr "Zapisz źródło i zsynchronizuj"
 
-#: includes/views/edit-page.php:428
+#: includes/views/edit-page.php:439
 msgid "Save this source first. It is read straight away, and your real columns appear here."
 msgstr "Najpierw zapisz to źródło. Arkusz zostanie od razu odczytany, a Twoje prawdziwe kolumny pojawią się tutaj."
 
@@ -1010,7 +1010,7 @@ msgstr "Usługa"
 msgid "Settings"
 msgstr "Ustawienia"
 
-#: includes/views/edit-page.php:438
+#: includes/views/edit-page.php:449
 msgid "Settings below are matched by position, so a column added or removed in Google shifts them. Check that each row still points at the right column:"
 msgstr "Ustawienia poniżej dopasowują się po pozycji, więc kolumna dodana lub usunięta w Google je przesuwa. Sprawdź, czy każdy wiersz nadal wskazuje właściwą kolumnę:"
 
@@ -1086,11 +1086,11 @@ msgstr "Pokaż „zaktualizowano … temu”"
 msgid "Showing the first 25 rows."
 msgstr "Pokazano pierwsze 25 wierszy."
 
-#: includes/views/edit-page.php:502 includes/class-lstab-admin.php:314
+#: includes/views/edit-page.php:513 includes/class-lstab-admin.php:314
 msgid "Shown"
 msgstr "Widoczna"
 
-#: includes/views/edit-page.php:462
+#: includes/views/edit-page.php:473
 msgid "Shown as"
 msgstr "Wyświetlane jako"
 
@@ -1198,11 +1198,11 @@ msgstr "Kolumna, którą przemianowałeś na „%2$s”, miała nagłówek „%1
 msgid "The column you took out was headed “%1$s”. That position now holds “%2$s” instead, so nothing is being taken out and the column is on the page. Somebody has moved, renamed or removed a column in Google. Click the one you want and save."
 msgstr "Kolumna, którą usunąłeś, miała nagłówek „%1$s”. W tym miejscu jest teraz „%2$s”, więc nic nie jest usuwane i ta kolumna jest na stronie. Ktoś przestawił, przemianował albo usunął kolumnę w Google. Kliknij tę, o którą Ci chodzi, i zapisz."
 
-#: includes/views/edit-page.php:436
+#: includes/views/edit-page.php:447
 msgid "The columns in your sheet have moved."
 msgstr "Kolumny w Twoim arkuszu się przesunęły."
 
-#: includes/views/edit-page.php:585
+#: includes/views/edit-page.php:606
 msgid "The exported text, exactly as it arrived, before the plugin read it. If a value looks wrong in the table above, find it here: if it is already wrong here, the sheet is where to fix it. Copy this if you need to send it to support."
 msgstr "Wyeksportowany tekst dokładnie w takiej postaci, w jakiej dotarł — zanim wtyczka go odczytała. Jeśli jakaś wartość wygląda źle w tabeli powyżej, znajdź ją tutaj: jeśli już tu jest zła, to arkusz jest miejscem do poprawki. Skopiuj to, jeśli musisz wysłać do wsparcia."
 
@@ -1260,7 +1260,7 @@ msgstr "Tabela poniżej nadal renderuje się z kopii, która dotarła, więc nic
 msgid "The usual cause is a value that runs two cells together — a lone quotation mark, or a comma inside a value that was not quoted. It can also be a cell holding a line break, or a copy of the sheet edited by hand rather than exported by Google. Open those rows in your sheet and compare them against the ones around them."
 msgstr "Najczęstsza przyczyna to wartość, która skleiła dwie komórki w jedną — pojedynczy cudzysłów albo przecinek w wartości, która nie została ujęta w cudzysłów. Bywa też, że komórka zawiera znak nowej linii, albo że arkusz był edytowany ręcznie zamiast wyeksportowany przez Google. Otwórz te wiersze w arkuszu i porównaj je z sąsiednimi."
 
-#: includes/views/edit-page.php:518
+#: includes/views/edit-page.php:539
 msgid "This is exactly what the parser sees. Check the headings and a few rows before you save — wrong tab, merged cells or a shifted header row show up here, not on your live page."
 msgstr "Dokładnie to widzi parser. Sprawdź nagłówki i kilka wierszy przed zapisaniem — zła zakładka, scalone komórki czy przesunięty wiersz nagłówka widać tutaj, a nie na działającej stronie."
 
@@ -1356,7 +1356,7 @@ msgstr "Mocno zaokrąglone"
 msgid "Visitors are seeing the last good copy, so nothing on your pages is broken. We will try again shortly."
 msgstr "Odwiedzający widzą ostatnią dobrą kopię, więc nic na Twoich stronach nie jest zepsute. Spróbujemy ponownie za chwilę."
 
-#: includes/views/edit-page.php:427
+#: includes/views/edit-page.php:438
 msgid "Waiting for a first look at the sheet. Choose “Refresh” on the sources list, and your real columns will appear here."
 msgstr "Czekamy na pierwsze spojrzenie na arkusz. Wybierz „Odśwież” na liście źródeł, a pojawią się tu Twoje prawdziwe kolumny."
 
@@ -1368,7 +1368,7 @@ msgstr "Chcesz mieć gdzie bezpiecznie sprawdzić ustawienia? Dodaj wbudowany pr
 msgid "We only ever read. Never write"
 msgstr "Tylko czytamy. Nigdy nie zapisujemy"
 
-#: includes/views/edit-page.php:583
+#: includes/views/edit-page.php:604
 msgid "What Google actually sent"
 msgstr "Co dokładnie przysłał Google"
 
@@ -1411,7 +1411,7 @@ msgstr "Kto otworzy stronę, zobaczy dane nie starsze niż tyle. Sprawdzanie zwy
 msgid "Whole page cache cleared %s ago"
 msgstr "Cały cache strony wyczyszczony %s temu"
 
-#: includes/views/edit-page.php:523
+#: includes/views/edit-page.php:544
 msgid "Width:"
 msgstr "Szerokość:"
 
@@ -1441,7 +1441,7 @@ msgstr "Nie masz uprawnień do zmiany tych ustawień."
 msgid "You do not have permission to do that."
 msgstr "Nie masz do tego uprawnień."
 
-#: includes/views/edit-page.php:367
+#: includes/views/edit-page.php:378
 msgid "Your own CSS"
 msgstr "Własny CSS"
 

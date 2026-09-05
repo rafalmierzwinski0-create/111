@@ -31,7 +31,9 @@ class LSTABP_Export {
 		add_action( 'admin_post_' . self::ACTION, array( $this, 'serve' ) );
 		add_action( 'admin_post_nopriv_' . self::ACTION, array( $this, 'serve' ) );
 
-		add_action( 'lstab_edit_page_settings', array( $this, 'render_card' ), 20, 2 );
+		// Also the Appearance tab: these are buttons a visitor sees under the
+		// table, not a decision about which columns it holds.
+		add_action( 'lstab_edit_pane_cards', array( $this, 'render_pane_card' ), 20, 3 );
 		add_action( 'lstab_source_saved', array( $this, 'save' ) );
 		add_action( 'lstab_source_deleted', array( $this, 'forget' ) );
 
@@ -266,6 +268,21 @@ class LSTABP_Export {
 
 	/**
 	 * Print the setting on the source screen.
+	 *
+	 * @param array<string,mixed>|null $source  Source row.
+	 * @param bool                     $is_edit Editing an existing source.
+	 * @return void
+	 */
+	public function render_pane_card( $pane, $source, $is_edit ) {
+		if ( 'look' !== $pane ) {
+			return;
+		}
+
+		$this->render_card( $source, $is_edit );
+	}
+
+	/**
+	 * Print the export card.
 	 *
 	 * @param array<string,mixed>|null $source  Source row.
 	 * @param bool                     $is_edit Editing an existing source.

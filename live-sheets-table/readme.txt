@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.10.0
+Stable tag: 3.11.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,11 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.11.0 =
+* Fixed: the two columns of the editor now always end level. The form column runs from about 490 pixels on the hiding tab to 1790 on the appearance one, and opening “What Google actually sent” added another 360 to the other side — so which column was longer, and by how much, changed with every tab and every disclosure.
+* Changed: the exported payload is no longer allowed to take a third of the page when opened; it scrolls inside its own box.
+* Added: an add-on can now print its cards on whichever tab of the editor they belong to, instead of all of them landing under “Columns and rows”.
 
 = 3.10.0 =
 * Changed: every block in the dashboard now carries the same frame the sheets list has — the edge takes the accent and the little square you drag from appears in the corner, the way a spreadsheet marks a selected range. The editor's cards and the preview box were still wearing WordPress grey; they are on the plugin's own colours now.
@@ -365,6 +370,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.11.0 =
+The editor's two columns always end level now.
 
 = 3.10.0 =
 Renaming columns no longer needs a save first, and every block wears the same frame.

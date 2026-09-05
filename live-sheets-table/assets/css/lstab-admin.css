@@ -1236,11 +1236,19 @@
 	margin-bottom: 0.25rem;
 }
 
+/*
+ * Both columns are one grid row, so they end level whatever is in them. They
+ * did not before: the form column runs from 490px on the hiding tab to 1790px
+ * on the appearance one, and opening "What Google actually sent" adds another
+ * 360 to the other side — so which column was longer, and by how much, changed
+ * with every tab and every disclosure. The page looked broken in a way nobody
+ * could name.
+ */
 .lstab-editor-grid {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr);
 	gap: 1.4rem;
-	align-items: start;
+	align-items: stretch;
 }
 
 @media screen and (min-width: 1500px) {
@@ -1248,7 +1256,12 @@
 		grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
 	}
 
-	.lstab-preview-pane {
+	/*
+	 * The column stretches; what is inside it sticks. A stretched grid item is
+	 * exactly as tall as its row, so it has nowhere to move and sticky does
+	 * nothing to it — the inner box is what follows the screen down.
+	 */
+	.lstab-preview-stick {
 		position: sticky;
 		top: 46px;
 	}
@@ -1745,10 +1758,10 @@
 
 .lstab-raw {
 	margin-top: 1rem;
-	border: 1px solid #dcdcde;
-	border-radius: 6px;
+	border: 1px solid var( --lstab-line );
+	border-radius: var( --lstab-radius );
 	padding: 0.6rem 0.9rem;
-	background: #fff;
+	background: var( --lstab-card );
 }
 
 .lstab-raw summary {
@@ -1758,6 +1771,13 @@
 
 .lstab-raw-text {
 	width: 100%;
+	/*
+	 * Opening this used to add a third of a screen to one column and nothing
+	 * to the other. It is a thing you look at when something is wrong, not a
+	 * thing to give a third of the page to.
+	 */
+	max-height: 15rem;
+	overflow-y: auto;
 	font-family: Consolas, Monaco, monospace;
 	font-size: 0.78rem;
 	line-height: 1.5;

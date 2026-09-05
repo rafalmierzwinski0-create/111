@@ -204,6 +204,71 @@ await Promise.all( [
 ] );
 await page.waitForTimeout( 800 );
 
+// -------------------------------------------------- where the Pro cards live
+section( '6. Colour rules, and which tab the cards sit on' );
+
+await page.goto( editHref, { waitUntil: 'networkidle' } );
+await page.locator( '[data-lstab-goto="look"]' ).click();
+await page.waitForTimeout( 300 );
+
+check( await page.locator( '.lstabp-rules-card' ).isVisible(), 'Colour rules are on the Appearance tab, where a colour belongs' );
+check( await page.locator( '.lstabp-export-card' ).isVisible(), 'So is the download card, which is also about what a visitor sees' );
+
+await page.locator( '[data-lstab-goto="hide"]' ).click();
+await page.waitForTimeout( 300 );
+check( await page.locator( '#lstabp-picker' ).isVisible(), 'And the picker stays where hiding is' );
+check( ! ( await page.locator( '.lstabp-rules-card' ).isVisible() ), 'The rules card is not on both at once' );
+
+// A rule is one sentence, and the swatch shows the words in the colour chosen.
+await page.locator( '[data-lstab-goto="look"]' ).click();
+await page.waitForTimeout( 250 );
+
+const firstRule = page.locator( '.lstabp-rule' ).first();
+check( await firstRule.count() > 0, 'Each rule is one line rather than a row of a table' );
+
+await firstRule.locator( 'select.lstabp-rule-column' ).selectOption( { index: 3 } );
+await firstRule.locator( '.lstabp-rule-value' ).fill( 'Brak' );
+await page.waitForTimeout( 250 );
+
+check(
+	'Brak' === ( await firstRule.locator( '.lstabp-swatch' ).innerText() ).trim(),
+	'The swatch shows your own words, not the word "Abc"',
+	await firstRule.locator( '.lstabp-swatch' ).innerText()
+);
+
+await firstRule.locator( '.lstabp-style-select' ).selectOption( 'green' );
+await page.waitForTimeout( 200 );
+const swatchStyle = await firstRule.locator( '.lstabp-swatch' ).getAttribute( 'style' );
+check( /background/.test( swatchStyle || '' ), 'And repaints itself when the colour changes', String( swatchStyle ) );
+
+// It has to reach the page, which is the only thing that finally matters.
+await Promise.all( [
+	page.waitForLoadState( 'networkidle' ),
+	page.locator( '.lstab-submit button[type=submit]' ).first().click()
+] );
+await page.waitForTimeout( 1200 );
+
+await front.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
+const painted = await front.locator( 'td[style*="background"]' ).count();
+check( painted > 0, 'A saved rule colours the published table', String( painted ) );
+
+// Take it away again, the way the card says to.
+await page.goto( editHref, { waitUntil: 'networkidle' } );
+await page.locator( '[data-lstab-goto="look"]' ).click();
+await page.waitForTimeout( 250 );
+await page.locator( '.lstabp-rule' ).first().locator( 'select.lstabp-rule-column' ).selectOption( '' );
+await Promise.all( [
+	page.waitForLoadState( 'networkidle' ),
+	page.locator( '.lstab-submit button[type=submit]' ).first().click()
+] );
+await page.waitForTimeout( 1000 );
+
+await front.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
+check(
+	0 === await front.locator( 'td[style*="background"]' ).count(),
+	'And setting its column back to "remove this rule" takes the colour off again'
+);
+
 check( errors.length === 0, 'No script errors anywhere in the run', errors.join( '\n' ) );
 
 console.log( '\n' + '─'.repeat( 60 ) );

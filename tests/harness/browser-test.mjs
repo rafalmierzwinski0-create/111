@@ -1447,6 +1447,54 @@ const drawerErrors = consoleErrors.length;
 await setDetailColumn( 3, false );
 check( drawerErrors === consoleErrors.length, 'No script errors while the drawer was in use' );
 
+// ------------------------------------------------------- the editor's shape
+section( '9f. The two columns of the editor' );
+
+/*
+ * The form column runs from about 490px on the hiding tab to 1790px on the
+ * appearance one, and opening "What Google actually sent" used to add another
+ * 360 to the other side — so which column was longer, and by how much, changed
+ * with every tab. They are one grid row now, and a row has one height.
+ */
+await page.setViewportSize( { width: 1700, height: 1000 } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.waitForSelector( '.lstab-preview .lstab-table', { timeout: 15000 } );
+
+const columnBottoms = async () => page.evaluate( () => {
+	const grid = document.querySelector( '.lstab-editor-grid' );
+	const shown = Array.from( grid.children ).filter( ( child ) => child.offsetParent !== null );
+
+	return shown.map( ( child ) => Math.round( child.getBoundingClientRect().bottom ) );
+} );
+
+for ( const tab of [ 'general', 'look', 'hide' ] ) {
+	await pane( tab );
+	await page.waitForTimeout( 200 );
+
+	const closed = await columnBottoms();
+	check(
+		closed.length === 2 && closed[ 0 ] === closed[ 1 ],
+		`Both columns end level on the "${ tab }" tab`,
+		JSON.stringify( closed )
+	);
+
+	const raw = page.locator( '#lstab-raw-wrap summary' );
+	if ( await raw.count() ) {
+		await raw.click();
+		await page.waitForTimeout( 250 );
+		const opened = await columnBottoms();
+		check(
+			opened.length === 2 && opened[ 0 ] === opened[ 1 ],
+			`And still level with the payload opened on "${ tab }"`,
+			JSON.stringify( opened )
+		);
+		await raw.click();
+		await page.waitForTimeout( 150 );
+	}
+}
+
+await page.setViewportSize( { width: 1500, height: 1000 } );
+
 // -------------------------------------------------------------- block editor
 section( '10. Block editor' );
 setMock( 'ok' );

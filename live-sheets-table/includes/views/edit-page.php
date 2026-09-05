@@ -362,6 +362,17 @@ if ( ! $lstab_is_edit ) {
 				</div>
 			<?php endif; ?>
 
+			<?php
+			/**
+			 * Fires inside the "Appearance" pane of the source form.
+			 *
+			 * @param string     $pane    Pane slug: 'general', 'look' or 'hide'.
+			 * @param array|null $source  Source row, or null while adding.
+			 * @param bool       $is_edit Whether an existing source is being edited.
+			 */
+			do_action( 'lstab_edit_pane_cards', 'look', $lstab_is_edit ? $source : null, $lstab_is_edit );
+			?>
+
 			<?php if ( LSTAB_Custom_Css::user_can_edit() ) : ?>
 				<div class="lstab-card lstab-css-card">
 					<h2 class="lstab-card-title"><?php esc_html_e( 'Your own CSS', 'live-sheets-table' ); ?></h2>
@@ -513,6 +524,16 @@ if ( ! $lstab_is_edit ) {
 		</div>
 
 		<div class="lstab-preview-pane">
+			<?php
+			/*
+			 * The pane is the grid's second column and stretches with it, so
+			 * both columns always end level whichever tab is open; this holds
+			 * what is in it and sticks to the top of the screen while the form
+			 * beside it scrolls. Sticking the column itself cannot work — a
+			 * stretched grid item has no room to move inside.
+			 */
+			?>
+			<div class="lstab-preview-stick">
 			<h2><?php esc_html_e( 'Preview', 'live-sheets-table' ); ?></h2>
 			<p class="lstab-help">
 				<?php esc_html_e( 'This is exactly what the parser sees. Check the headings and a few rows before you save — wrong tab, merged cells or a shifted header row show up here, not on your live page.', 'live-sheets-table' ); ?>
@@ -587,6 +608,7 @@ if ( ! $lstab_is_edit ) {
 				<p id="lstab-raw-meta" class="lstab-help"></p>
 				<textarea id="lstab-raw" class="lstab-raw-text" rows="12" readonly spellcheck="false"></textarea>
 			</details>
+			</div>
 		</div>
 	</div>
 
@@ -606,6 +628,9 @@ if ( ! $lstab_is_edit ) {
 	 * @param bool       $is_edit Whether an existing source is being edited.
 	 */
 	do_action( 'lstab_edit_page_settings', $lstab_is_edit ? $source : null, $lstab_is_edit );
+
+	/** This documented in the Appearance pane above. */
+	do_action( 'lstab_edit_pane_cards', 'hide', $lstab_is_edit ? $source : null, $lstab_is_edit );
 	?>
 
 	</div><!-- /pane hide -->
