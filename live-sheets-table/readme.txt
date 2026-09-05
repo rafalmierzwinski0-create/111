@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.9.0
+Stable tag: 3.10.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,10 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.10.0 =
+* Changed: every block in the dashboard now carries the same frame the sheets list has — the edge takes the accent and the little square you drag from appears in the corner, the way a spreadsheet marks a selected range. The editor's cards and the preview box were still wearing WordPress grey; they are on the plugin's own colours now.
+* Added: a column can be renamed before the source has ever been saved. The list used to be three disabled placeholders and a note telling you to save first; it is now built from the preview that has already arrived, and typing a name changes the preview as you type.
 
 = 3.9.0 =
 * Added: a column can now live under its row instead of in the table. A wide sheet keeps the three or four columns worth scanning, and the rest open behind an arrow on the row itself. The values are in the page rather than fetched on the click, so searching finds them, a search engine reads them, and the drawer works with no JavaScript at all. Sorting keeps each drawer with its row. Set it from the add-on's picker, with a second mark beside the one that hides a column.
@@ -361,6 +365,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.10.0 =
+Renaming columns no longer needs a save first, and every block wears the same frame.
 
 = 3.9.0 =
 Columns can now live under the row, behind an arrow. Fixes the built-in example's Appearance tab.

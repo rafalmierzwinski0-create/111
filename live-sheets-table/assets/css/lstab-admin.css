@@ -437,8 +437,17 @@
 	border: 1px solid var( --lstab-line );
 	border-radius: 14px;
 	box-shadow: var( --lstab-shadow );
-	overflow: hidden;
 	margin-bottom: 1.1rem;
+}
+
+/*
+ * The head's tint used to be kept inside the rounded corner by clipping the
+ * whole panel, which also clipped the fill handle that now sits outside it.
+ * Rounding the head itself does the same job and clips nothing.
+ */
+.lstab-panel > .lstab-panel-head:first-child {
+	border-start-start-radius: 14px;
+	border-start-end-radius: 14px;
 }
 
 .lstab-panel-head {
@@ -703,18 +712,46 @@
 }
 
 /*
- * Pointing at a card marks it the way a spreadsheet marks a selected range:
+ * ── The selection frame ───────────────────────────────────────────────
+ *
+ * Pointing at a block marks it the way a spreadsheet marks a selected range:
  * the edge takes the accent and the little square everyone drags from appears
  * in the corner. Borrowed on purpose — it is the one gesture every person who
- * opens this plugin already knows.
+ * opens this plugin already knows, and it is what ties the sheets list, the
+ * editor, the settings and the add-on's screens into one thing rather than
+ * four screens that happen to share a colour.
+ *
+ * Every block that holds content gets it, so the list is written once here
+ * rather than repeated per screen.
  */
+.lstab-src,
+.lstab-admin .lstab-card,
+.lstab-panel,
+.lstab-preview {
+	position: relative;
+	transition: border-color 130ms ease, box-shadow 130ms ease;
+}
+
 .lstab-src:hover,
-.lstab-src:focus-within {
+.lstab-src:focus-within,
+.lstab-admin .lstab-card:hover,
+.lstab-admin .lstab-card:focus-within,
+.lstab-panel:hover,
+.lstab-panel:focus-within,
+.lstab-preview:hover,
+.lstab-preview:focus-within {
 	border-color: var( --lstab-a );
 	box-shadow: 0 0 0 1px var( --lstab-a ), 0 6px 18px -12px var( --lstab-a-glow );
 }
 
-.lstab-src::after {
+/*
+ * The fill handle. It sits just outside the corner, which is why none of these
+ * blocks may clip their overflow.
+ */
+.lstab-src::after,
+.lstab-admin .lstab-card::after,
+.lstab-panel::after,
+.lstab-preview::after {
 	content: "";
 	position: absolute;
 	inset-inline-end: -4px;
@@ -727,12 +764,31 @@
 	opacity: 0;
 	transform: scale( 0.6 );
 	transition: opacity 130ms ease, transform 130ms ease;
+	pointer-events: none;
+	z-index: 1;
 }
 
 .lstab-src:hover::after,
-.lstab-src:focus-within::after {
+.lstab-src:focus-within::after,
+.lstab-admin .lstab-card:hover::after,
+.lstab-admin .lstab-card:focus-within::after,
+.lstab-panel:hover::after,
+.lstab-panel:focus-within::after,
+.lstab-preview:hover::after,
+.lstab-preview:focus-within::after {
 	opacity: 1;
 	transform: scale( 1 );
+}
+
+/*
+ * A block inside a block would draw two frames around nearly the same edge and
+ * two handles a few pixels apart, which reads as a rendering fault rather than
+ * as a design.
+ */
+.lstab-admin .lstab-card .lstab-card::after,
+.lstab-panel .lstab-card::after,
+.lstab-admin .lstab-card .lstab-panel::after {
+	display: none;
 }
 
 /* The severity stripe is drawn inside the rounded edge. */
@@ -1153,12 +1209,12 @@
 /* ══════════════════════════════════ screens carried over from before ══ */
 
 .lstab-admin .lstab-card {
-	background: #fff;
-	border: 1px solid #dcdcde;
-	border-radius: 6px;
+	background: var( --lstab-card );
+	border: 1px solid var( --lstab-line );
+	border-radius: var( --lstab-radius );
 	padding: 1.1rem 1.3rem 1.3rem;
 	margin-bottom: 1rem;
-	box-shadow: 0 1px 1px rgba( 0, 0, 0, 0.04 );
+	box-shadow: var( --lstab-shadow );
 }
 
 .lstab-admin .lstab-card-title {
@@ -1203,8 +1259,8 @@
 }
 
 .lstab-preview {
-	background: #fff;
-	border: 1px solid #dcdcde;
+	background: var( --lstab-card );
+	border: 1px solid var( --lstab-line );
 	border-radius: 6px;
 	padding: 1rem 1.2rem;
 	min-height: 12rem;

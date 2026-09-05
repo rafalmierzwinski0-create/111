@@ -638,4 +638,6 @@ return array(
 		=> 'Pokaż szczegóły',
 	'This sheet has not been fetched yet, so there is nothing to redraw.'
 		=> 'Ten arkusz nie został jeszcze pobrany, więc nie ma czego przerysować.',
+	'Column %1$s'
+		=> 'Kolumna %1$s',
 );

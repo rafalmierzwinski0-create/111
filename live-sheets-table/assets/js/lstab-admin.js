@@ -204,7 +204,24 @@
 	var rawWrap = document.getElementById( 'lstab-raw-wrap' );
 	var rawText = document.getElementById( 'lstab-raw' );
 	var rawMeta = document.getElementById( 'lstab-raw-meta' );
-	var columnRows = document.querySelectorAll( '.lstab-column-list tbody tr' );
+	var columnList = document.querySelector( '.lstab-column-list' );
+	var columnCard = document.querySelector( '.lstab-columns-card' );
+
+	/**
+	 * The column rows as they stand.
+	 *
+	 * Looked up each time rather than captured once: the list is rebuilt the
+	 * moment a preview arrives for a source that has never been saved, and a
+	 * list captured at page load would keep answering with the placeholders it
+	 * replaced.
+	 *
+	 * @return {Array} Row elements.
+	 */
+	function columnRows() {
+		return columnList
+			? Array.prototype.slice.call( columnList.querySelectorAll( 'tbody tr' ) )
+			: [];
+	}
 
 	/**
 	 * Read the column settings out of the form.
@@ -218,7 +235,7 @@
 	function columnSettings() {
 		var settings = [];
 
-		Array.prototype.forEach.call( columnRows, function ( row ) {
+		columnRows().forEach( function ( row ) {
 			var label = row.querySelector( 'input[type="text"]' );
 			var state = row.querySelector( 'input[name$="[hidden]"]' );
 
@@ -237,6 +254,103 @@
 		} );
 
 		return settings;
+	}
+
+	/**
+	 * Build the column list from the headings a preview brought back.
+	 *
+	 * Only when the list is still the placeholder one: a saved source has its
+	 * own list, carrying choices an add-on wrote into it, and rebuilding that
+	 * from a preview would throw them away.
+	 *
+	 * @param {Array} headers Headings, in sheet order.
+	 * @return {void}
+	 */
+	function buildColumnList( headers ) {
+		if ( ! columnList || ! columnCard || ! headers.length ) {
+			return;
+		}
+
+		var waiting = columnCard.classList.contains( 'is-waiting' );
+
+		if ( ! waiting ) {
+			return;
+		}
+
+		var body = columnList.querySelector( 'tbody' );
+
+		if ( ! body ) {
+			return;
+		}
+
+		// Anything already typed into a placeholder is kept: somebody who
+		// renamed a column and then pressed Preview should not lose it.
+		var typed = columnRows().map( function ( row ) {
+			var field = row.querySelector( 'input[type="text"]' );
+			return field ? field.value : '';
+		} );
+
+		body.innerHTML = '';
+
+		headers.forEach( function ( heading, index ) {
+			var row = document.createElement( 'tr' );
+			var name = String( heading || '' );
+
+			// The name from the sheet, and the two fields the form submits for
+			// every column, exactly as the server renders them for a saved one.
+			var sourceCell = document.createElement( 'td' );
+			var code = document.createElement( 'code' );
+			code.textContent = name || sprintf( i18n.columnNumber || 'Column %1$s', [ index + 1 ] );
+			sourceCell.appendChild( code );
+			sourceCell.appendChild( hiddenField( 'columns[' + index + '][source]', name ) );
+
+			var labelCell = document.createElement( 'td' );
+			var label = document.createElement( 'input' );
+			label.type = 'text';
+			label.className = 'regular-text';
+			label.name = 'columns[' + index + '][label]';
+			label.value = typed[ index ] || '';
+			label.placeholder = name;
+			labelCell.appendChild( label );
+
+			var stateCell = document.createElement( 'td' );
+			stateCell.className = 'lstab-column-state';
+			stateCell.appendChild( hiddenField( 'columns[' + index + '][hidden]', '0' ) );
+			stateCell.appendChild( hiddenField( 'columns[' + index + '][detail]', '0' ) );
+			var state = document.createElement( 'span' );
+			state.className = 'lstab-state-shown';
+			state.textContent = i18n.shown || 'Shown';
+			stateCell.appendChild( state );
+
+			row.appendChild( sourceCell );
+			row.appendChild( labelCell );
+			row.appendChild( stateCell );
+			body.appendChild( row );
+		} );
+
+		columnCard.classList.remove( 'is-waiting' );
+
+		var note = columnCard.querySelector( '.lstab-columns-waiting' );
+		if ( note ) {
+			note.remove();
+		}
+	}
+
+	/**
+	 * One hidden field, since the list needs six of them.
+	 *
+	 * @param {string} name  Field name.
+	 * @param {string} value Field value.
+	 * @return {HTMLInputElement} The field.
+	 */
+	function hiddenField( name, value ) {
+		var field = document.createElement( 'input' );
+
+		field.type = 'hidden';
+		field.name = name;
+		field.value = value;
+
+		return field;
 	}
 
 	function loadPreview( gid ) {
@@ -272,6 +386,13 @@
 			}
 
 			gidField.value = response.gid;
+
+			// A source that has never been saved has no columns stored, so the
+			// list under "Columns and rows" was three disabled placeholders and
+			// a note telling you to save first. The preview that just arrived
+			// knows the real headings, so the list is built from that instead
+			// and the names can be set before anything is stored.
+			buildColumnList( response.headers || [] );
 
 			// Only offered once there is something to show. A row that came
 			// back with the wrong number of cells is named here too, since
@@ -688,30 +809,84 @@
 		);
 	}
 
-	/*
-	 * A rename shows as it is typed rather than only after a save. "change"
-	 * fires on blur for a text field, so this is one redraw per rename, not one
-	 * per keystroke.
+	/**
+	 * Write the names as they stand straight onto the previewed table.
+	 *
+	 * Instant, and it needs nothing from the server — a rename changes the
+	 * words in the heading row and nothing else. It is also the only thing that
+	 * can work before the first save, when there is no stored copy to redraw
+	 * from and asking Google again for every keystroke would be absurd.
+	 *
+	 * @return {void}
 	 */
-	Array.prototype.forEach.call( columnRows, function ( row ) {
-		row.addEventListener( 'change', function () {
+	function renameHeadings() {
+		var table = stage.querySelector( '.lstab-table' );
+
+		if ( ! table ) {
+			return;
+		}
+
+		var heads = table.querySelectorAll( 'thead th' );
+		var shown = 0;
+
+		columnRows().forEach( function ( row ) {
+			var field = row.querySelector( 'input[type="text"]' );
+			var state = row.querySelector( 'input[name$="[hidden]"]' );
+
+			if ( ! field || field.disabled ) {
+				return;
+			}
+
+			// A hidden column has no heading on the table to rename.
+			if ( state && '1' === state.value ) {
+				return;
+			}
+
+			var head = heads[ shown ];
+			shown++;
+
+			if ( ! head ) {
+				return;
+			}
+
+			var name = field.value || field.placeholder || '';
+			var label = head.querySelector( '.lstab-sort-label' );
+
+			if ( label ) {
+				label.textContent = name;
+			} else {
+				head.textContent = name;
+			}
+		} );
+	}
+
+	/*
+	 * A rename shows as it is typed rather than only after a save. Delegated to
+	 * the list rather than bound row by row, because the list is rebuilt from
+	 * the preview on a source that has never been saved.
+	 */
+	if ( columnList ) {
+		var typing = null;
+
+		columnList.addEventListener( 'input', function ( event ) {
+			if ( ! event.target.matches( 'input[type="text"]' ) ) {
+				return;
+			}
+
+			renameHeadings();
+
+			// The full redraw follows, for the parts of a table a heading is
+			// not: the labels a card layout repeats beside every value.
+			window.clearTimeout( typing );
+			typing = window.setTimeout( redrawFromStored, 600 );
+		} );
+
+		columnList.addEventListener( 'change', function () {
 			if ( stage.querySelector( '.lstab-table' ) ) {
 				redrawFromStored();
 			}
 		} );
-
-		// And as it is typed, for the field somebody is actually looking at.
-		var label = row.querySelector( 'input[type="text"]' );
-
-		if ( label ) {
-			var typing = null;
-
-			label.addEventListener( 'input', function () {
-				window.clearTimeout( typing );
-				typing = window.setTimeout( redrawFromStored, 450 );
-			} );
-		}
-	} );
+	}
 
 	if ( firstRowHeader ) {
 		firstRowHeader.addEventListener( 'change', function () {

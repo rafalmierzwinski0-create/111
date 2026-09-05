@@ -184,6 +184,48 @@ check( await page.evaluate( () => ! window.__lstabXss ), 'No script from the she
 
 await page.screenshot( { path: `${ SHOTS }/01-add-source-preview.png`, fullPage: true } );
 
+// ------------------------------------------- renaming before the first save
+section( '3a0. Renaming a column before anything is saved' );
+
+/*
+ * This screen is still an unsaved source: nothing has been stored, so there are
+ * no columns in the database to list. The list is built from the preview that
+ * has just arrived instead, which is the difference between renaming a column
+ * now and having to save, wait for a sync and come back.
+ */
+await pane( 'hide' );
+
+const newColumnFields = page.locator( '.lstab-column-list tbody input[type="text"]' );
+check( await newColumnFields.count() === 5, 'The columns from the sheet are listed before any save', String( await newColumnFields.count() ) );
+check(
+	await page.locator( '.lstab-column-list tbody input[type="text"]:not([disabled])' ).count() === 5,
+	'And every one of them can be typed into'
+);
+check(
+	await page.locator( '.lstab-columns-waiting' ).count() === 0,
+	'The "save this first" note is gone, because it is no longer true'
+);
+check(
+	'Produkt' === await newColumnFields.first().getAttribute( 'placeholder' ),
+	'Each field shows the sheet\'s own heading as its placeholder',
+	String( await newColumnFields.first().getAttribute( 'placeholder' ) )
+);
+
+await newColumnFields.first().fill( 'Rower albo część' );
+await page.waitForTimeout( 400 );
+const renamedHead = ( await page.locator( '.lstab-preview thead th' ).allInnerTexts() ).join( ' | ' );
+check( renamedHead.toLowerCase().includes( 'rower albo część' ), 'Typing a name changes the preview at once', renamedHead );
+
+// The form has to carry it, or the rename would be a trick of the screen.
+check(
+	'Rower albo część' === await page.locator( 'input[name="columns[0][label]"]' ).inputValue(),
+	'And the form carries it, so the save keeps it'
+);
+
+await newColumnFields.first().fill( '' );
+await page.waitForTimeout( 300 );
+await pane( 'general' );
+
 // ---------------------------------------------------- preview width switcher
 section( '3a. Preview width switcher' );
 
