@@ -43,6 +43,20 @@ const section = ( t ) => console.log( `\n\x1b[1m${ t }\x1b[0m` );
  * on the visible pane before it can be clicked. Real people click the tab
  * first; so does this.
  */
+/*
+ * The columns-and-rows tab has no preview beside it — the picker under it shows
+ * the whole sheet, which is a better preview than the preview — and the editor
+ * opens on whichever tab you were last on. So anything waiting for the preview
+ * has to make sure it is on a tab that has one.
+ */
+const awaitPreview = async ( timeout = 15000 ) => {
+	if ( await page.locator( '.lstab-editor-grid.is-solo' ).count() ) {
+		await pane( 'general' );
+	}
+
+	await page.waitForSelector( '.lstab-preview .lstab-table', { timeout } );
+};
+
 const pane = async ( name ) => {
 	const tab = page.locator( `[data-lstab-goto="${ name }"]` );
 
@@ -165,7 +179,7 @@ check( unauthorised === 401 || unauthorised === 403, 'REST preview rejects a non
 consoleErrors.length = 0;
 
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
-await page.waitForSelector( '.lstab-preview .lstab-table', { timeout: 15000 } );
+await awaitPreview( 15000 );
 
 const previewStatus = await page.locator( '#lstab-preview-status' ).innerText();
 check( /Found 7 rows across 5 columns/.test( previewStatus ), 'Preview reports 7 rows × 5 columns', previewStatus );
@@ -555,7 +569,7 @@ check( publishedStyle, 'A saved override reaches the published page' );
 // Put it back.
 const sourceEditUrl = `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`;
 await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
-await page.waitForSelector( '.lstab-preview .lstab-table', { timeout: 15000 } );
+await awaitPreview( 15000 );
 await pane( 'look' );
 await page.locator( '#lstab-reset-appearance' ).click();
 await Promise.all( [
@@ -563,7 +577,7 @@ await Promise.all( [
 	page.locator( '#lstab-source-form button[type="submit"]' ).click(),
 ] );
 await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
-await page.waitForSelector( '.lstab-preview .lstab-table', { timeout: 15000 } );
+await awaitPreview( 15000 );
 
 // ---------------------------------------------------------------- own CSS
 
@@ -617,7 +631,7 @@ check( publishedCss.scoped, 'And every rule in it names that table' );
 
 // Put it back, so the rest of the run sees a plain table.
 await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
-await page.waitForSelector( '.lstab-preview .lstab-table', { timeout: 15000 } );
+await awaitPreview( 15000 );
 await pane( 'look' );
 await page.locator( '#lstab-custom-css' ).fill( '' );
 await Promise.all( [
@@ -625,7 +639,7 @@ await Promise.all( [
 	page.locator( '#lstab-source-form button[type="submit"]' ).click(),
 ] );
 await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
-await page.waitForSelector( '.lstab-preview .lstab-table', { timeout: 15000 } );
+await awaitPreview( 15000 );
 
 const clearedCss = await page.evaluate( async ( base ) => {
 	const res = await fetch( base + '/cennik/', { credentials: 'same-origin' } );
@@ -1060,7 +1074,7 @@ section( '9a. Column settings' );
 setMock( 'ok' );
 
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
-await page.waitForSelector( '.lstab-preview .lstab-table', { timeout: 20000 } );
+await awaitPreview( 20000 );
 // The pane is chosen once the editor is on screen; asking for it on the list
 // screen, where the tabs do not exist, quietly does nothing.
 await pane( 'hide' );
@@ -1071,13 +1085,18 @@ await pane( 'hide' );
  * empty column. Checking what is painted, not what is marked.
  */
 /*
- * Renaming a column is worth watching happen, so the preview stays beside the
- * column list. `hidden` is only a display rule and the grid sets its own
- * display, so this checks what is painted rather than what is marked.
+ * This tab gets the whole width instead of a preview beside it. The picker
+ * under the column list shows the entire sheet with what you have taken out
+ * struck through, which is a better preview than the preview — and keeping a
+ * box nobody looks at meant squeezing the picker into half the screen and
+ * leaving the two columns hundreds of pixels apart at the bottom.
+ *
+ * `hidden` is only a display rule and the grid sets its own display, so this
+ * checks what is painted rather than what is marked.
  */
 check(
-	await page.locator( '.lstab-preview-pane' ).isVisible(),
-	'The preview stays beside the column settings'
+	! ( await page.locator( '.lstab-preview-pane' ).isVisible() ),
+	'The columns-and-rows tab takes the whole width rather than half of it'
 );
 check(
 	await page.locator( '.lstab-columns-card' ).isVisible(),
@@ -1241,7 +1260,7 @@ await page.waitForLoadState( 'networkidle' );
 
 // The panel that settles "is it the sheet or the plugin?".
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
-await page.waitForSelector( '.lstab-preview .lstab-table', { timeout: 20000 } );
+await awaitPreview( 20000 );
 await page.waitForTimeout( 400 );
 const rawPanel = page.locator( '#lstab-raw-wrap' );
 check( await rawPanel.count() === 1 && ! ( await rawPanel.isHidden() ), 'The source screen can show what Google sent' );
@@ -1459,7 +1478,7 @@ section( '9e2. The preview tells the truth about the drawer' );
  */
 await setDetailColumn( 1, true );
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
-await page.waitForSelector( '.lstab-preview .lstab-table', { timeout: 15000 } );
+await awaitPreview( 15000 );
 await page.waitForTimeout( 800 );
 
 const previewHeads = await page.locator( '.lstab-preview thead th' ).allInnerTexts();
@@ -1502,33 +1521,61 @@ section( '9f. The two columns of the editor' );
  */
 await page.setViewportSize( { width: 1700, height: 1000 } );
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
-await page.waitForSelector( '.lstab-preview .lstab-table', { timeout: 15000 } );
+await awaitPreview( 15000 );
 
+/*
+ * The columns being one row was not enough on its own: the last block inside
+ * each still ended where its own content did, so the boxes a person actually
+ * looks at were 7 to 637 pixels apart depending on the tab. Both are measured.
+ */
 const columnBottoms = async () => page.evaluate( () => {
 	const grid = document.querySelector( '.lstab-editor-grid' );
 	const shown = Array.from( grid.children ).filter( ( child ) => child.offsetParent !== null );
+	const lastBlock = ( column ) => {
+		const blocks = Array.from( column.querySelectorAll( '.lstab-card, .lstab-preview, .lstab-raw' ) )
+			.filter( ( block ) => block.offsetParent !== null );
 
-	return shown.map( ( child ) => Math.round( child.getBoundingClientRect().bottom ) );
+		return blocks.length ? Math.round( blocks[ blocks.length - 1 ].getBoundingClientRect().bottom ) : null;
+	};
+
+	return {
+		columns: shown.map( ( child ) => Math.round( child.getBoundingClientRect().bottom ) ),
+		blocks: shown.map( lastBlock ),
+	};
 } );
 
 for ( const tab of [ 'general', 'look', 'hide' ] ) {
 	await pane( tab );
-	await page.waitForTimeout( 200 );
+	await page.evaluate( () => window.scrollTo( 0, document.body.scrollHeight ) );
+	await page.waitForTimeout( 250 );
 
 	const closed = await columnBottoms();
+
+	if ( 'hide' === tab ) {
+		// One column: the picker below is a better preview than the preview.
+		check( closed.columns.length === 1, 'The columns-and-rows tab gets the whole width', JSON.stringify( closed ) );
+		continue;
+	}
+
 	check(
-		closed.length === 2 && closed[ 0 ] === closed[ 1 ],
+		closed.columns[ 0 ] === closed.columns[ 1 ],
 		`Both columns end level on the "${ tab }" tab`,
-		JSON.stringify( closed )
+		JSON.stringify( closed.columns )
+	);
+	check(
+		closed.blocks[ 0 ] === closed.blocks[ 1 ],
+		`And so do the blocks inside them on "${ tab }"`,
+		JSON.stringify( closed.blocks )
 	);
 
 	const raw = page.locator( '#lstab-raw-wrap summary' );
-	if ( await raw.count() ) {
+	if ( await raw.count() && await raw.isVisible() ) {
 		await raw.click();
-		await page.waitForTimeout( 250 );
+		await page.evaluate( () => window.scrollTo( 0, document.body.scrollHeight ) );
+		await page.waitForTimeout( 300 );
 		const opened = await columnBottoms();
 		check(
-			opened.length === 2 && opened[ 0 ] === opened[ 1 ],
+			opened.columns[ 0 ] === opened.columns[ 1 ] && opened.blocks[ 0 ] === opened.blocks[ 1 ],
 			`And still level with the payload opened on "${ tab }"`,
 			JSON.stringify( opened )
 		);

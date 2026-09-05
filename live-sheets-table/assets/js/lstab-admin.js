@@ -55,6 +55,20 @@
 					block.hidden = list.indexOf( wanted ) === -1;
 				}
 			);
+
+			/*
+			 * The columns-and-rows tab gets the whole width. The small preview
+			 * is no use there — the picker under it shows the entire sheet with
+			 * what you have taken out struck through, which is a better preview
+			 * than the preview — and squeezing the picker into half the screen
+			 * to keep a box nobody is looking at left the two columns wildly
+			 * different lengths.
+			 */
+			var grid = document.querySelector( '.lstab-editor-grid' );
+
+			if ( grid ) {
+				grid.classList.toggle( 'is-solo', 'hide' === wanted );
+			}
 		};
 
 		Array.prototype.forEach.call( tabs, function ( tab ) {
@@ -357,6 +371,51 @@
 		return field;
 	}
 
+	/**
+	 * Anything an add-on wants the preview to know about.
+	 *
+	 * A colour rule being typed exists only in the form until it is saved, so
+	 * without this the preview could only ever show the rules as they were the
+	 * last time somebody pressed Save — which is exactly the round trip a
+	 * preview is for avoiding. An add-on pushes a function here; whatever it
+	 * returns is merged into the request.
+	 *
+	 * @return {Object} Extra fields for the preview request.
+	 */
+	function extraPreviewData() {
+		var extra = {};
+
+		( window.lstabPreviewFields || [] ).forEach( function ( collect ) {
+			try {
+				var fields = collect();
+
+				Object.keys( fields || {} ).forEach( function ( key ) {
+					extra[ key ] = fields[ key ];
+				} );
+			} catch ( error ) {
+				// An add-on that throws must not take the preview with it.
+			}
+		} );
+
+		return extra;
+	}
+
+	/**
+	 * Merge those fields into a request payload.
+	 *
+	 * @param {Object} data The payload.
+	 * @return {Object} The payload, with anything an add-on added.
+	 */
+	function withExtras( data ) {
+		var extra = extraPreviewData();
+
+		Object.keys( extra ).forEach( function ( key ) {
+			data[ key ] = extra[ key ];
+		} );
+
+		return data;
+	}
+
 	function loadPreview( gid ) {
 		var url = ( urlInput.value || '' ).trim();
 
@@ -371,7 +430,7 @@
 		window.wp.apiFetch( {
 			path: '/live-sheets-table/v1/preview',
 			method: 'POST',
-			data: {
+			data: withExtras( {
 				url: url,
 				gid: undefined === gid ? '' : String( gid ),
 				firstRowHeader: firstRowHeader ? firstRowHeader.checked : true,
@@ -379,7 +438,7 @@
 				layout: layoutSelect ? layoutSelect.value : 'table',
 				columns: columnSettings(),
 				sourceId: sourceIdField ? parseInt( sourceIdField.value, 10 ) || 0 : 0
-			}
+			} )
 		} ).then( function ( response ) {
 			setBusy( false );
 
@@ -792,12 +851,12 @@
 		window.wp.apiFetch( {
 			path: '/live-sheets-table/v1/redraw',
 			method: 'POST',
-			data: {
+			data: withExtras( {
 				sourceId: id,
 				style: selectedPreset(),
 				layout: layoutSelect ? layoutSelect.value : 'table',
 				columns: columnSettings()
-			}
+			} )
 		} ).then(
 			function ( response ) {
 				stage.innerHTML = response.html || '';
@@ -874,6 +933,12 @@
 	 * the list rather than bound row by row, because the list is rebuilt from
 	 * the preview on a source that has never been saved.
 	 */
+	/*
+	 * Published so an add-on can ask for the preview to be drawn again when one
+	 * of its own controls changes.
+	 */
+	window.lstabRedrawPreview = redrawFromStored;
+
 	if ( columnList ) {
 		var typing = null;
 

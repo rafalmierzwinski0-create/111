@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-05 21:14+0000\n"
+"POT-Creation-Date: 2026-09-05 23:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,7 +25,7 @@ msgstr ""
 msgid "A hidden column is matched to its heading, and a hidden row to its line number. Reordering columns, renaming a heading, or inserting a row above a hidden one breaks that match."
 msgstr ""
 
-#: includes/views/rules-card.php:194 includes/class-lstabp-rules.php:395
+#: includes/views/rules-card.php:194 includes/class-lstabp-rules.php:432
 msgid "Abc"
 msgstr ""
 
@@ -37,7 +37,7 @@ msgstr ""
 msgid "Add your Google client ID and secret first."
 msgstr ""
 
-#: includes/class-lstabp-rules.php:94
+#: includes/class-lstabp-rules.php:104
 msgid "Amber"
 msgstr ""
 
@@ -49,11 +49,11 @@ msgstr ""
 msgid "Billing lives in your account, not on your site, so cancelling is done there and takes effect at the end of the period you have paid for. Nothing on your pages changes on the day you cancel."
 msgstr ""
 
-#: includes/class-lstabp-rules.php:102
+#: includes/class-lstabp-rules.php:112
 msgid "Blue"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:110
+#: includes/class-lstabp-rules.php:120
 msgid "Bold text"
 msgstr ""
 
@@ -182,11 +182,11 @@ msgstr ""
 msgid "Google rejected the sign-in: %s"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:98
+#: includes/class-lstabp-rules.php:108
 msgid "Green"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:106
+#: includes/class-lstabp-rules.php:116
 msgid "Grey"
 msgstr ""
 
@@ -324,7 +324,7 @@ msgstr ""
 msgid "Read through the connected account"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:90
+#: includes/class-lstabp-rules.php:100
 msgid "Red"
 msgstr ""
 
@@ -379,7 +379,7 @@ msgstr ""
 msgid "Sign in to Google"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:114
+#: includes/class-lstabp-rules.php:124
 msgid "Struck through"
 msgstr ""
 
@@ -480,11 +480,11 @@ msgstr ""
 msgid "Your subscription"
 msgstr ""
 
-#: includes/views/settings-page.php:222 includes/class-lstabp-rules.php:129
+#: includes/views/settings-page.php:222 includes/class-lstabp-rules.php:139
 msgid "contains"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:127
+#: includes/class-lstabp-rules.php:137
 msgid "is"
 msgstr ""
 
@@ -492,11 +492,11 @@ msgstr ""
 msgid "is anything but"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:131
+#: includes/class-lstabp-rules.php:141
 msgid "is at least"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:133
+#: includes/class-lstabp-rules.php:143
 msgid "is at most"
 msgstr ""
 
@@ -504,7 +504,7 @@ msgstr ""
 msgid "is exactly"
 msgstr ""
 
-#: includes/views/settings-page.php:223 includes/class-lstabp-rules.php:130
+#: includes/views/settings-page.php:223 includes/class-lstabp-rules.php:140
 msgid "is greater than"
 msgstr ""
 
@@ -512,7 +512,7 @@ msgstr ""
 msgid "is greater than or equal to"
 msgstr ""
 
-#: includes/views/settings-page.php:225 includes/class-lstabp-rules.php:132
+#: includes/views/settings-page.php:225 includes/class-lstabp-rules.php:142
 msgid "is less than"
 msgstr ""
 
@@ -520,7 +520,7 @@ msgstr ""
 msgid "is less than or equal to"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:128
+#: includes/class-lstabp-rules.php:138
 msgid "is not"
 msgstr ""
 

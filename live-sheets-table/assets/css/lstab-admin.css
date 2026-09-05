@@ -1251,9 +1251,39 @@
 	align-items: stretch;
 }
 
+/*
+ * Both columns are one row, so they are the same height — but the last block
+ * inside each has to reach the bottom of that row too, or the boxes still end
+ * at different heights and the row's tidiness is invisible.
+ */
+.lstab-form,
+.lstab-form > .lstab-pane:not([hidden]) {
+	display: flex;
+	flex-direction: column;
+}
+
+.lstab-form > .lstab-pane:not([hidden]),
+.lstab-form > .lstab-pane:not([hidden]) > *:last-child {
+	flex: 1 1 auto;
+}
+
+/*
+ * A card carries a margin under it to separate it from the next one, and the
+ * last card has no next one — so that margin was the last sixteen pixels
+ * between the two columns' bottom edges.
+ */
+.lstab-form > .lstab-pane:not([hidden]) > *:last-child {
+	margin-bottom: 0;
+}
+
 @media screen and (min-width: 1500px) {
 	.lstab-editor-grid {
 		grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+	}
+
+	/* One column, full width: see the note in the pane switcher. */
+	.lstab-editor-grid.is-solo {
+		grid-template-columns: minmax(0, 1fr);
 	}
 
 	/*
@@ -1261,10 +1291,46 @@
 	 * exactly as tall as its row, so it has nowhere to move and sticky does
 	 * nothing to it — the inner box is what follows the screen down.
 	 */
+	/*
+	 * As tall as its column, so its last block ends level with the form's —
+	 * but never taller than the screen, so that on the long tabs it stays a
+	 * panel pinned beside what you are editing rather than a column of table
+	 * you have already scrolled past. The preview inside it takes the slack
+	 * and scrolls when there is more table than room.
+	 */
 	.lstab-preview-stick {
 		position: sticky;
 		top: 46px;
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		max-height: calc( 100vh - 70px );
 	}
+
+	.lstab-preview-stick .lstab-preview {
+		flex: 1 1 auto;
+		min-height: 8rem;
+		max-height: none;
+	}
+
+	/*
+	 * A flex item will not shrink below its own content unless told it may,
+	 * and the exported payload is a big block of content — so on a short
+	 * screen it pushed itself out through the bottom of the panel that was
+	 * meant to hold it.
+	 */
+	.lstab-preview-stick > * {
+		min-height: 0;
+	}
+
+	.lstab-preview-stick .lstab-raw {
+		flex: 0 1 auto;
+		overflow: auto;
+	}
+}
+
+.lstab-editor-grid.is-solo .lstab-preview-pane {
+	display: none;
 }
 
 .lstab-preview-pane h2 {

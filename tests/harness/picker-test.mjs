@@ -241,6 +241,23 @@ await page.waitForTimeout( 200 );
 const swatchStyle = await firstRule.locator( '.lstabp-swatch' ).getAttribute( 'style' );
 check( /background/.test( swatchStyle || '' ), 'And repaints itself when the colour changes', String( swatchStyle ) );
 
+/*
+ * And it shows in the preview while it is being typed. Before this, the only
+ * way to see what a colour rule did was to save and look at the published
+ * page — which is the round trip a preview exists to avoid.
+ */
+await page.waitForTimeout( 2200 );
+const paintedLive = await page.locator( '.lstab-preview td[style*="background"]' ).count();
+check( paintedLive > 0, 'The rule colours the preview before anything is saved', String( paintedLive ) );
+
+await firstRule.locator( 'select[name*="[scope]"]' ).selectOption( 'row' );
+await page.waitForTimeout( 2200 );
+const paintedRow = await page.locator( '.lstab-preview td[style*="background"]' ).count();
+check( paintedRow > paintedLive, 'And switching to the whole row colours the whole row, still unsaved', `${ paintedLive } → ${ paintedRow }` );
+
+await firstRule.locator( 'select[name*="[scope]"]' ).selectOption( 'cell' );
+await page.waitForTimeout( 1200 );
+
 // It has to reach the page, which is the only thing that finally matters.
 await Promise.all( [
 	page.waitForLoadState( 'networkidle' ),

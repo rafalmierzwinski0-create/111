@@ -223,6 +223,9 @@ class LSTAB_Rest {
 		$rows    = (array) $source['data']['rows'];
 		$preview = array_slice( $rows, 0, 25 );
 
+		/** This action is documented in the preview endpoint above. */
+		do_action( 'lstab_preview_request', $request, $source_id );
+
 		return rest_ensure_response(
 			array(
 				'rowCount'  => count( $rows ),
@@ -355,6 +358,19 @@ class LSTAB_Rest {
 
 		$rows    = $table['rows'];
 		$preview = array_slice( $rows, 0, 25 );
+
+		/**
+		 * Fires before a preview is rendered.
+		 *
+		 * An add-on reads its own unsaved settings out of the request here —
+		 * a colour rule being typed exists only in the form until it is saved,
+		 * and a preview that could only show what was saved would be asking
+		 * for the round trip it exists to avoid.
+		 *
+		 * @param WP_REST_Request $request   The request.
+		 * @param int             $source_id Source being previewed, or 0.
+		 */
+		do_action( 'lstab_preview_request', $request, absint( $request->get_param( 'sourceId' ) ) );
 
 		return rest_ensure_response(
 			array(

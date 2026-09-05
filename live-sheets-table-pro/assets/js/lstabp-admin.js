@@ -55,7 +55,74 @@
 		swatch.textContent = field.value.trim() || ( settings.i18n && settings.i18n.sample ) || 'Abc';
 	}
 
+	/**
+	 * The rules exactly as they stand in the form.
+	 *
+	 * @return {Array} One entry per filled-in rule.
+	 */
+	function currentRules() {
+		var rules = [];
+
+		Array.prototype.forEach.call( document.querySelectorAll( '.lstabp-rule' ), function ( line ) {
+			var column = line.querySelector( '.lstabp-rule-column' );
+
+			// A line with no column chosen is an empty form row, not a rule.
+			if ( ! column || ! column.value ) {
+				return;
+			}
+
+			var field = function ( selector ) {
+				var control = line.querySelector( selector );
+
+				return control ? control.value : '';
+			};
+
+			rules.push( {
+				column: column.value,
+				operator: field( 'select[name*="[operator]"]' ),
+				value: field( '.lstabp-rule-value' ),
+				style: field( '.lstabp-style-select' ),
+				scope: field( 'select[name*="[scope]"]' )
+			} );
+		} );
+
+		return rules;
+	}
+
 	function init() {
+		/*
+		 * A rule being typed exists only in this form until it is saved, so it
+		 * is handed to the preview with every request it makes. Without this
+		 * the only way to see a colour rule was to save and look at the page.
+		 */
+		window.lstabPreviewFields = window.lstabPreviewFields || [];
+		window.lstabPreviewFields.push( function () {
+			return { rules: currentRules() };
+		} );
+
+		var redrawing = null;
+
+		/**
+		 * Ask the editor to draw the preview again, once the typing stops.
+		 *
+		 * @return {void}
+		 */
+		function redraw() {
+			window.clearTimeout( redrawing );
+			redrawing = window.setTimeout( function () {
+				if ( window.lstabRedrawPreview ) {
+					window.lstabRedrawPreview();
+				}
+			}, 500 );
+		}
+
+		var card = document.querySelector( '.lstabp-rules-card' );
+
+		if ( card ) {
+			card.addEventListener( 'input', redraw );
+			card.addEventListener( 'change', redraw );
+		}
+
 		Array.prototype.forEach.call(
 			document.querySelectorAll( '.lstabp-style-select' ),
 			function ( select ) {

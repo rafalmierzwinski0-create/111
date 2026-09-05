@@ -27,6 +27,13 @@ class LSTABP_Rules {
 	const OPTION = 'lstabp_rules';
 
 	/**
+	 * Rules handed over for one preview request, by source.
+	 *
+	 * @var array<int,array<int,array<string,mixed>>>
+	 */
+	protected static $previewing = array();
+
+	/**
 	 * How many rules one source may hold.
 	 *
 	 * Past a certain point a table is not formatted, it is decorated, and every
@@ -63,6 +70,9 @@ class LSTABP_Rules {
 		// A drawer belongs to the row above it, so a rule that painted the row
 		// paints the panel it opens too.
 		add_filter( 'lstab_detail_attributes', array( $this, 'detail_attributes' ), 10, 2 );
+
+		// Rules being typed, so the preview shows them before anything is saved.
+		add_action( 'lstab_preview_request', array( $this, 'preview_request' ), 10, 2 );
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
 		/*
@@ -152,10 +162,37 @@ class LSTABP_Rules {
 	 * @return array<int,array<string,mixed>>
 	 */
 	public static function for_source( $source_id ) {
-		$all = self::all();
 		$key = (int) $source_id;
 
+		/*
+		 * A preview being drawn while somebody types has rules that exist only
+		 * in the form. They are handed over for the length of that one request
+		 * and stand in for the stored set.
+		 */
+		if ( isset( self::$previewing[ $key ] ) ) {
+			return self::$previewing[ $key ];
+		}
+
+		$all = self::all();
+
 		return isset( $all[ $key ] ) ? self::sanitize( $all[ $key ] ) : array();
+	}
+
+	/**
+	 * Take the rules being typed out of a preview request.
+	 *
+	 * @param WP_REST_Request $request   The request.
+	 * @param int             $source_id Source being previewed.
+	 * @return void
+	 */
+	public function preview_request( $request, $source_id ) {
+		$rules = $request->get_param( 'rules' );
+
+		if ( ! is_array( $rules ) ) {
+			return;
+		}
+
+		self::$previewing[ (int) $source_id ] = self::sanitize( $rules );
 	}
 
 	/**

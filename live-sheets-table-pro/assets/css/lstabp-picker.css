@@ -311,12 +311,12 @@
 	width: 20px;
 	height: 20px;
 	padding: 0;
-	border: 1px solid transparent;
+	border: 1px solid #dbe5e3;
 	border-radius: 5px;
-	background: none;
-	color: #787c82;
+	background: #fff;
+	color: #5b6d6b;
 	cursor: pointer;
-	opacity: 0.45;
+	opacity: 0.8;
 }
 
 .lstabp-picker-detail:hover,

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-05 21:14+0000\n"
+"POT-Creation-Date: 2026-09-05 23:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1422,7 +1422,7 @@ msgstr ""
 msgid "You are not allowed to manage sheet sources."
 msgstr ""
 
-#: includes/class-lstab-rest.php:263
+#: includes/class-lstab-rest.php:266
 msgid "You are not allowed to write CSS on this site."
 msgstr ""
 

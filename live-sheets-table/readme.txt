@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.11.1
+Stable tag: 3.12.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,11 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.12.0 =
+* Fixed: the blocks in the editor now end level, not just the columns holding them. Making the two columns one grid row was not enough — the last block inside each still stopped where its own content did, so the boxes anybody actually looks at were 7 to 637 pixels apart depending on the tab.
+* Changed: the “Columns and rows” tab takes the whole width. The small preview was no use there — the picker under it shows the entire sheet with what you have taken out struck through — and keeping it meant squeezing the picker into half the screen for nothing.
+* Added: an add-on can now show its own unsaved settings in the preview, which is what colour rules needed.
 
 = 3.11.1 =
 * Fixed: the editor's preview showed a column in the table that the published page put in the details drawer. The preview applied the column settings before handing the table over, which threw away the part of the work that decides where a column goes.
@@ -377,6 +382,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.12.0 =
+The editor's blocks end level, and colour rules preview as you type.
 
 = 3.11.1 =
 Five fixes where the drawer, the colour rules and the cache met each other.

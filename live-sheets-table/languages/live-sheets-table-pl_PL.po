@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-05 21:14+0000\n"
-"PO-Revision-Date: 2026-09-05 21:14+0000\n"
+"POT-Creation-Date: 2026-09-05 23:16+0000\n"
+"PO-Revision-Date: 2026-09-05 23:16+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -1428,7 +1428,7 @@ msgstr "Nie masz uprawnień do przeglądania źródeł arkuszy."
 msgid "You are not allowed to manage sheet sources."
 msgstr "Nie masz uprawnień do zarządzania źródłami arkuszy."
 
-#: includes/class-lstab-rest.php:263
+#: includes/class-lstab-rest.php:266
 msgid "You are not allowed to write CSS on this site."
 msgstr "Nie masz uprawnień do pisania CSS na tej witrynie."
 
