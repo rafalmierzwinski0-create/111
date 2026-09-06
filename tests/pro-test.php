@@ -439,8 +439,100 @@ $dirty = LSTABP_Rules::sanitize(
 );
 lstabp_assert( 1 === count( $dirty ), 'A row with no column chosen is not a rule', (string) count( $dirty ) );
 lstabp_assert( '=' === $dirty[0]['operator'], 'An unknown comparison falls back to equality', $dirty[0]['operator'] );
-lstabp_assert( 'red' === $dirty[0]['style'], 'An unknown look falls back to a known one', $dirty[0]['style'] );
+lstabp_assert( LSTABP_Rules::DEFAULT_STYLE === $dirty[0]['style'], 'An unknown look falls back to a known one', $dirty[0]['style'] );
 lstabp_assert( 'cell' === $dirty[0]['scope'], 'An unknown scope falls back to the cell', $dirty[0]['scope'] );
+
+// The colours themselves: a palette, a colour of somebody's own, the two looks
+// that are not a colour, and the five names the first version stored.
+$lstabp_picked = LSTABP_Rules::sanitize(
+	array(
+		array( 'column' => 'Produkt', 'value' => 'a', 'style' => 'custom', 'custom' => '#7C3AED' ),
+		array( 'column' => 'Produkt', 'value' => 'b', 'style' => 'custom', 'custom' => 'javascript:alert(1)' ),
+		array( 'column' => 'Produkt', 'value' => 'c', 'style' => '#e9f7ee' ),
+		array( 'column' => 'Produkt', 'value' => 'd', 'style' => 'strike' ),
+		array( 'column' => 'Produkt', 'value' => 'e', 'style' => 'amber' ),
+		array( 'column' => 'Produkt', 'value' => 'f', 'style' => '#fff' ),
+	)
+);
+lstabp_assert( '#7c3aed' === $lstabp_picked[0]['style'], 'A colour of your own is kept, in lower case', $lstabp_picked[0]['style'] );
+lstabp_assert( LSTABP_Rules::DEFAULT_STYLE === $lstabp_picked[1]['style'], 'Anything that is not a colour is not stored as one', $lstabp_picked[1]['style'] );
+lstabp_assert( '#e9f7ee' === $lstabp_picked[2]['style'], 'A palette colour is kept as itself', $lstabp_picked[2]['style'] );
+lstabp_assert( 'strike' === $lstabp_picked[3]['style'], 'A look that is not a colour survives', $lstabp_picked[3]['style'] );
+lstabp_assert( '#ffe9d6' === $lstabp_picked[4]['style'], 'A colour stored by its old name still means that colour', $lstabp_picked[4]['style'] );
+lstabp_assert( '#ffffff' === $lstabp_picked[5]['style'], 'A three-digit colour is written out in full', $lstabp_picked[5]['style'] );
+
+/*
+ * Text has to be readable on whatever background somebody picks, including the
+ * ones nobody would pick on purpose. 4.5 to 1 is the guidelines' bar for body
+ * text — but a mid-tone background is beyond help, since neither black nor
+ * white clears the bar on it, so what is asked of those is only that the choice
+ * is the best one available.
+ */
+$lstabp_luminance = static function ( $hex ) {
+	$total   = 0.0;
+	$weights = array( 0.2126, 0.7152, 0.0722 );
+
+	foreach ( array( 1, 3, 5 ) as $lstabp_at => $lstabp_offset ) {
+		$lstabp_channel = hexdec( substr( $hex, $lstabp_offset, 2 ) ) / 255;
+		$lstabp_channel = $lstabp_channel <= 0.03928
+			? $lstabp_channel / 12.92
+			: pow( ( $lstabp_channel + 0.055 ) / 1.055, 2.4 );
+		$total         += $weights[ $lstabp_at ] * $lstabp_channel;
+	}
+
+	return $total;
+};
+
+$lstabp_ratio = static function ( $one, $two ) use ( $lstabp_luminance ) {
+	$first  = $lstabp_luminance( $one );
+	$second = $lstabp_luminance( $two );
+
+	return ( max( $first, $second ) + 0.05 ) / ( min( $first, $second ) + 0.05 );
+};
+
+$lstabp_worst = 21.0;
+$lstabp_thin  = 0;
+
+mt_srand( 20260101 );
+$lstabp_trials = array_keys( LSTABP_Rules::palette() );
+
+for ( $lstabp_i = 0; $lstabp_i < 400; $lstabp_i++ ) {
+	$lstabp_trials[] = sprintf( '#%06x', mt_rand( 0, 0xffffff ) );
+}
+
+foreach ( $lstabp_trials as $lstabp_bg ) {
+	$lstabp_seen = $lstabp_ratio( $lstabp_bg, LSTABP_Rules::ink( $lstabp_bg ) );
+
+	// The best any text colour could manage on this background.
+	$lstabp_best = max( $lstabp_ratio( $lstabp_bg, '#000000' ), $lstabp_ratio( $lstabp_bg, '#ffffff' ) );
+
+	if ( $lstabp_best >= 4.5 ? $lstabp_seen < 4.5 : $lstabp_seen < $lstabp_best - 0.05 ) {
+		$lstabp_thin++;
+	}
+
+	$lstabp_worst = min( $lstabp_worst, $lstabp_seen );
+}
+
+lstabp_assert( 0 === $lstabp_thin, 'Every colour gets text as readable as that colour allows', (string) $lstabp_thin );
+
+foreach ( LSTABP_Rules::palette() as $lstabp_hex => $lstabp_name ) {
+	lstabp_assert(
+		$lstabp_ratio( $lstabp_hex, LSTABP_Rules::ink( $lstabp_hex ) ) >= 4.5,
+		"The palette's {$lstabp_name} is readable",
+		sprintf( '%.2f', $lstabp_ratio( $lstabp_hex, LSTABP_Rules::ink( $lstabp_hex ) ) )
+	);
+	lstabp_assert(
+		LSTABP_Rules::ink( $lstabp_hex ) !== $lstabp_hex,
+		"The palette's {$lstabp_name} does not print itself on itself"
+	);
+}
+
+// A colour cannot carry anything out of the attribute it is written into.
+lstabp_assert(
+	false === strpos( LSTABP_Rules::css_for( '#fff" onmouseover="x' ), 'onmouseover' ),
+	'A colour that is not one cannot escape the style attribute',
+	LSTABP_Rules::css_for( '#fff" onmouseover="x' )
+);
 
 $flood = LSTABP_Rules::sanitize( array_fill( 0, 50, array( 'column' => 'Produkt', 'value' => 'x' ) ) );
 lstabp_assert( LSTABP_Rules::MAX_RULES === count( $flood ), 'The number of rules is capped', (string) count( $flood ) );

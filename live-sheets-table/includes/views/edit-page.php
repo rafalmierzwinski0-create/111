@@ -218,27 +218,61 @@ if ( ! $lstab_is_edit ) {
 			<div class="lstab-card">
 				<h2 class="lstab-card-title"><?php esc_html_e( 'Pick a look', 'live-sheets-table' ); ?></h2>
 
-				<p>
-					<label for="lstab-layout"><strong><?php esc_html_e( 'On screens too narrow for the whole table', 'live-sheets-table' ); ?></strong></label>
-					<select id="lstab-layout" name="layout">
-						<?php
-						$lstab_layouts = array(
-							'table' => __( 'Keep the table and add a slider to scroll it sideways', 'live-sheets-table' ),
-							'auto'  => __( 'Turn each row into a labelled card', 'live-sheets-table' ),
-							'cards' => __( 'Always use cards, at every width', 'live-sheets-table' ),
-						);
-						$lstab_layout  = $lstab_is_edit && ! empty( $source['layout'] ) ? $source['layout'] : 'table';
-						foreach ( $lstab_layouts as $lstab_layout_key => $lstab_layout_label ) :
-							?>
-							<option value="<?php echo esc_attr( $lstab_layout_key ); ?>" <?php selected( $lstab_layout, $lstab_layout_key ); ?>>
-								<?php echo esc_html( $lstab_layout_label ); ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
+				<?php
+				/*
+				 * Three choices side by side rather than a dropdown. A dropdown
+				 * shows one line at a time, so the two card options — the one
+				 * that waits until the screen is narrow and the one that never
+				 * waits — read as the same sentence twice and the difference
+				 * between them was invisible. Picking one also moves the
+				 * preview to the width where that choice shows itself: at desk
+				 * width two of the three look identical, so the screen appeared
+				 * not to react at all.
+				 */
+				$lstab_layout  = $lstab_is_edit && ! empty( $source['layout'] ) ? $source['layout'] : 'table';
+				$lstab_layouts = array(
+					'table' => array(
+						'label' => __( 'Stay a table and slide sideways', 'live-sheets-table' ),
+						'desc'  => __( 'The columns stay columns at every width, and a slider under the table pushes it left and right. Nothing is ever cut off — but a wide sheet is a lot of sliding on a phone.', 'live-sheets-table' ),
+					),
+					'auto'  => array(
+						'label' => __( 'Become cards once it stops fitting', 'live-sheets-table' ),
+						'desc'  => __( 'A normal table on a computer. On a phone each row turns into its own block with the heading printed beside every value, so nothing has to be slid sideways to be read.', 'live-sheets-table' ),
+						'note'  => __( 'Suggested', 'live-sheets-table' ),
+					),
+					'cards' => array(
+						'label' => __( 'Always cards, never a table', 'live-sheets-table' ),
+						'desc'  => __( 'Blocks at every width, a wide screen included. Right for a sheet of profiles or listings — wrong for figures somebody wants to compare down a column.', 'live-sheets-table' ),
+					),
+				);
+				?>
+				<div class="lstab-choice-head">
+					<strong><?php esc_html_e( 'What the table does on a phone', 'live-sheets-table' ); ?></strong>
 					<span class="lstab-help">
-						<?php esc_html_e( 'The slider is always visible while there is more table to see, unlike the browser\'s own scrollbar. Use the width buttons beside the preview to check it.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'Pick one and the preview jumps to the width that shows the difference. The slider stays visible while there is more table to see, unlike the browser\'s own scrollbar.', 'live-sheets-table' ); ?>
 					</span>
-				</p>
+				</div>
+
+				<div class="lstab-presets lstab-layouts">
+					<?php foreach ( $lstab_layouts as $lstab_layout_key => $lstab_layout_meta ) : ?>
+						<label class="lstab-preset">
+							<input type="radio"
+								name="layout"
+								value="<?php echo esc_attr( $lstab_layout_key ); ?>"
+								data-lstab-layout
+								<?php checked( $lstab_layout, $lstab_layout_key ); ?>>
+							<span class="lstab-preset-body">
+								<span class="lstab-preset-name">
+									<?php echo esc_html( $lstab_layout_meta['label'] ); ?>
+									<?php if ( isset( $lstab_layout_meta['note'] ) ) : ?>
+										<span class="lstab-hint-badge"><?php echo esc_html( $lstab_layout_meta['note'] ); ?></span>
+									<?php endif; ?>
+								</span>
+								<span class="lstab-preset-desc"><?php echo esc_html( $lstab_layout_meta['desc'] ); ?></span>
+							</span>
+						</label>
+					<?php endforeach; ?>
+				</div>
 
 				<p class="lstab-checkbox">
 					<label>
@@ -248,16 +282,6 @@ if ( ! $lstab_is_edit ) {
 					</label>
 					<span class="lstab-help">
 						<?php esc_html_e( 'Useful when the first column names the row — a product, a person, a date. Turn it off if your first column is long text, where pinning it would take up most of a phone screen.', 'live-sheets-table' ); ?>
-					</span>
-				</p>
-
-				<p class="lstab-field">
-					<label for="lstab-per-page"><?php esc_html_e( 'Rows per page', 'live-sheets-table' ); ?></label>
-					<input type="number" id="lstab-per-page" name="per_page" min="0" max="500" step="1"
-						class="small-text"
-						value="<?php echo esc_attr( (string) ( $lstab_is_edit && isset( $source['per_page'] ) ? (int) $source['per_page'] : 0 ) ); ?>">
-					<span class="lstab-help">
-						<?php esc_html_e( 'Leave at 0 to put the whole sheet on the page. Any other number splits it, and searching and sorting then happen on the server across the whole sheet rather than on the page in front of you — so a search still finds a row on page nine.', 'live-sheets-table' ); ?>
 					</span>
 				</p>
 
@@ -271,6 +295,40 @@ if ( ! $lstab_is_edit ) {
 						<?php esc_html_e( 'A link in a cell is otherwise plain text a visitor has to select and copy, which on a phone is close to impossible. Only http, https and e-mail addresses are linked.', 'live-sheets-table' ); ?>
 					</span>
 				</p>
+
+				<?php
+				/*
+				 * Paging used to be one unlabelled number box holding 0, which
+				 * is how you turn a feature off by accident and never find it
+				 * again: nothing on the screen said the word "pages", so there
+				 * was nothing to look for. It is now a switch that says what it
+				 * does, with the row count only shown once it is on — and the
+				 * stored value is still the same single number, 0 for off.
+				 */
+				$lstab_per_page = $lstab_is_edit && isset( $source['per_page'] ) ? (int) $source['per_page'] : 0;
+				?>
+				<div class="lstab-paging">
+					<h3 class="lstab-subhead"><?php esc_html_e( 'Pagination', 'live-sheets-table' ); ?></h3>
+
+					<p class="lstab-checkbox">
+						<label>
+							<input type="checkbox" name="paging" id="lstab-paging" value="1" <?php checked( $lstab_per_page > 0 ); ?>>
+							<?php esc_html_e( 'Break a long sheet into numbered pages', 'live-sheets-table' ); ?>
+						</label>
+						<span class="lstab-help">
+							<?php esc_html_e( 'Off, the whole sheet is on the page at once — fine up to a few hundred rows, heavy going beyond that. On, the visitor gets page numbers under the table, and searching and sorting move to the server across the whole sheet rather than the page in front of them, so a search still finds a row on page nine.', 'live-sheets-table' ); ?>
+						</span>
+					</p>
+
+					<p class="lstab-field lstab-paging-rows" id="lstab-paging-rows" <?php echo $lstab_per_page > 0 ? '' : 'hidden'; ?>>
+						<label for="lstab-per-page"><?php esc_html_e( 'Rows on each page', 'live-sheets-table' ); ?></label>
+						<input type="number" id="lstab-per-page" name="per_page" min="1" max="500" step="1"
+							class="small-text"
+							value="<?php echo esc_attr( (string) ( $lstab_per_page > 0 ? $lstab_per_page : 25 ) ); ?>">
+					</p>
+				</div>
+
+				<h3 class="lstab-subhead"><?php esc_html_e( 'Table style', 'live-sheets-table' ); ?></h3>
 
 				<div class="lstab-presets">
 					<?php foreach ( $lstab_presets as $lstab_slug => $lstab_preset ) : ?>

@@ -428,7 +428,11 @@ class LSTAB_Admin {
 			'columns_config'   => isset( $_POST['columns'] ) ? LSTAB_Columns::sanitize( wp_unslash( $_POST['columns'] ) ) : array(),
 			'sticky_first'     => empty( $_POST['sticky_first'] ) ? 0 : 1,
 			'link_cells'       => empty( $_POST['link_cells'] ) ? 0 : 1,
-			'per_page'         => isset( $_POST['per_page'] ) ? min( LSTAB_Paging::MAX_PER_PAGE, absint( wp_unslash( $_POST['per_page'] ) ) ) : 0,
+			// The screen asks two questions — pages or no pages, and how many
+			// rows — and stores one number, where 0 means no pages. Without the
+			// switch, turning paging off meant typing a 0 into a box that never
+			// said what it was for.
+			'per_page'         => self::per_page_from_post(),
 		);
 
 		/*
@@ -1146,5 +1150,33 @@ class LSTAB_Admin {
 			'text'   => __( 'Not synced yet', 'live-sheets-table' ),
 			'detail' => '',
 		);
+	}
+	/**
+	 * How many rows a page holds, read from the two controls that ask it.
+	 *
+	 * The screen asks whether the table is paged and, if it is, how many rows
+	 * a page holds; the database keeps one number, where 0 means no pages.
+	 *
+	 * @return int Rows per page, or 0 for the whole sheet on one page.
+	 */
+	protected static function per_page_from_post() {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- The caller has already checked the nonce and the capability.
+		if ( empty( $_POST['paging'] ) ) {
+			return 0;
+		}
+
+		$per_page = isset( $_POST['per_page'] ) ? absint( wp_unslash( $_POST['per_page'] ) ) : 0;
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+
+		/*
+		 * Paging on and no number is not "no paging" — it is somebody who
+		 * cleared the box. Silently turning the feature off there would be the
+		 * old trap under a new name, so the field's own default stands in.
+		 */
+		if ( $per_page < 1 ) {
+			$per_page = 25;
+		}
+
+		return min( LSTAB_Paging::MAX_PER_PAGE, $per_page );
 	}
 }

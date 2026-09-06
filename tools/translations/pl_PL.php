@@ -195,13 +195,20 @@ return array(
 		=> 'Poradnik WordPressa o systemowym cronie',
 
 	// Layout and the horizontal slider.
-	'On screens too narrow for the whole table'  => 'Na ekranach zbyt wąskich dla całej tabeli',
-	'Keep the table and add a slider to scroll it sideways'
-		=> 'Zachowaj tabelę i dodaj suwak do przewijania w bok',
-	'Turn each row into a labelled card'         => 'Zamień każdy wiersz w kartę z etykietami',
-	'Always use cards, at every width'           => 'Zawsze używaj kart, przy każdej szerokości',
-	'The slider is always visible while there is more table to see, unlike the browser\'s own scrollbar. Use the width buttons beside the preview to check it.'
-		=> 'Suwak jest widoczny zawsze, gdy tabela ma coś jeszcze do pokazania — inaczej niż pasek przewijania przeglądarki. Sprawdź go przyciskami szerokości obok podglądu.',
+	'What the table does on a phone'             => 'Co tabela robi na telefonie',
+	'Pick one and the preview jumps to the width that shows the difference. The slider stays visible while there is more table to see, unlike the browser\'s own scrollbar.'
+		=> 'Wybierz jedną, a podgląd przeskoczy na szerokość, przy której widać różnicę. Suwak jest widoczny zawsze, gdy tabela ma coś jeszcze do pokazania — inaczej niż pasek przewijania przeglądarki.',
+	'Stay a table and slide sideways'            => 'Zostań tabelą i przesuwaj się w bok',
+	'The columns stay columns at every width, and a slider under the table pushes it left and right. Nothing is ever cut off — but a wide sheet is a lot of sliding on a phone.'
+		=> 'Kolumny pozostają kolumnami przy każdej szerokości, a suwak pod tabelą przesuwa ją w lewo i w prawo. Nic nigdy nie zostaje ucięte — ale szeroki arkusz to na telefonie sporo przesuwania.',
+	'Become cards once it stops fitting'         => 'Zamień się w karty, gdy przestanie się mieścić',
+	'A normal table on a computer. On a phone each row turns into its own block with the heading printed beside every value, so nothing has to be slid sideways to be read.'
+		=> 'Na komputerze zwykła tabela. Na telefonie każdy wiersz zamienia się we własny blok, z nagłówkiem wypisanym obok każdej wartości — więc nic nie trzeba przesuwać w bok, żeby to przeczytać.',
+	'Always cards, never a table'                => 'Zawsze karty, nigdy tabela',
+	'Blocks at every width, a wide screen included. Right for a sheet of profiles or listings — wrong for figures somebody wants to compare down a column.'
+		=> 'Bloki przy każdej szerokości, także na szerokim ekranie. Dobre dla arkusza z profilami albo ogłoszeniami — złe dla liczb, które ktoś chce porównywać w dół kolumny.',
+	'Suggested'                                  => 'Sugerowane',
+	'Table style'                                => 'Styl tabeli',
 	'Table with a slider'                        => 'Tabela z suwakiem',
 	'Stack into cards when narrow'               => 'Karty, gdy wąsko',
 	'A wide table keeps its shape and gains a draggable slider. Card layouts stack each row instead, which suits tables of long text.'
@@ -367,9 +374,11 @@ return array(
 	'%1$s characters received.'                  => 'Odebrano %1$s znaków.',
 	'Look at row %1$s: it came back with a different number of cells than the rest.'
 		=> 'Zobacz wiersz %1$s: wrócił z inną liczbą komórek niż reszta.',
-	'Rows per page'                              => 'Wierszy na stronę',
-	'Leave at 0 to put the whole sheet on the page. Any other number splits it, and searching and sorting then happen on the server across the whole sheet rather than on the page in front of you — so a search still finds a row on page nine.'
-		=> 'Zostaw 0, aby cały arkusz był na jednej stronie. Każda inna liczba dzieli go na strony, a wyszukiwanie i sortowanie przenoszą się wtedy na serwer i obejmują cały arkusz, a nie tylko stronę, którą masz przed sobą — więc wyszukiwarka nadal znajdzie wiersz ze strony dziewiątej.',
+	'Pagination'                                 => 'Paginacja',
+	'Break a long sheet into numbered pages'     => 'Podziel długi arkusz na numerowane strony',
+	'Off, the whole sheet is on the page at once — fine up to a few hundred rows, heavy going beyond that. On, the visitor gets page numbers under the table, and searching and sorting move to the server across the whole sheet rather than the page in front of them, so a search still finds a row on page nine.'
+		=> 'Wyłączona — cały arkusz jest na stronie naraz, co jest w porządku do kilkuset wierszy, a powyżej robi się ciężko. Włączona — odwiedzający dostaje numery stron pod tabelą, a wyszukiwanie i sortowanie przenoszą się na serwer i obejmują cały arkusz, a nie tylko stronę, którą ma przed sobą, więc wyszukiwarka nadal znajdzie wiersz ze strony dziewiątej.',
+	'Rows on each page'                          => 'Wierszy na każdej stronie',
 	'Search the whole sheet…'                    => 'Szukaj w całym arkuszu…',
 	'Search'                                     => 'Szukaj',
 	'Clear'                                      => 'Wyczyść',

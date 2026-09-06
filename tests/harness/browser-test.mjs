@@ -1258,6 +1258,99 @@ await columnRows.nth( 0 ).locator( 'input[type=text]' ).fill( '' );
 await page.locator( '.lstab-submit button[type=submit]' ).click();
 await page.waitForLoadState( 'networkidle' );
 
+// ------------------------------------------- the two settings nobody found
+section( '5f. Choosing a layout, and finding pagination' );
+
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await awaitPreview( 20000 );
+await pane( 'look' );
+await page.waitForTimeout( 300 );
+
+/*
+ * Three choices side by side rather than one dropdown. In the dropdown the two
+ * card options read as the same sentence twice, and picking either changed
+ * nothing on a desk-width preview — so the setting looked broken.
+ */
+check(
+	3 === ( await page.locator( 'input[data-lstab-layout]' ).count() ),
+	'The narrow-screen layouts are all three on screen at once',
+	String( await page.locator( 'input[data-lstab-layout]' ).count() )
+);
+
+const shownAt = async ( value ) => {
+	await page.locator( `input[data-lstab-layout][value="${ value }"]` ).check();
+	await page.waitForTimeout( 400 );
+
+	return page.evaluate( () => {
+		const stage = document.getElementById( 'lstab-preview-stage' );
+		const row = stage.querySelector( 'tbody tr' );
+
+		return {
+			width: Math.round( stage.getBoundingClientRect().width ),
+			rows: row ? getComputedStyle( row ).display : '',
+		};
+	} );
+};
+
+const asCards = await shownAt( 'auto' );
+check( asCards.width < 420, 'Picking a phone layout takes the preview to phone width', JSON.stringify( asCards ) );
+check( 'block' === asCards.rows, 'And the preview really does become cards', JSON.stringify( asCards ) );
+
+const always = await shownAt( 'cards' );
+check( always.width > 420, '"Always cards" goes back to full width, which is its whole claim', JSON.stringify( always ) );
+check( 'block' === always.rows, 'And is still cards at that width', JSON.stringify( always ) );
+
+const sliding = await shownAt( 'table' );
+check( 'table-row' === sliding.rows, 'Staying a table stays a table on a phone', JSON.stringify( sliding ) );
+check(
+	await page.locator( '#lstab-preview-stage .lstab-has-slider' ).count() > 0,
+	'And gets the slider it promises'
+);
+
+// Paging was a bare number box holding 0, with nothing on the screen saying
+// "pages" — so there was nothing to look for and no way to tell it was off.
+check(
+	await page.locator( '#lstab-paging' ).isVisible(),
+	'Pagination is a switch that says what it does'
+);
+check(
+	! ( await page.locator( '#lstab-paging-rows' ).isVisible() ),
+	'The row count is not asked for while there are no pages to put rows on'
+);
+
+await page.locator( '#lstab-paging' ).check();
+await page.waitForTimeout( 200 );
+check( await page.locator( '#lstab-paging-rows' ).isVisible(), 'Switching it on asks how many rows a page holds' );
+check(
+	'25' === ( await page.locator( '#lstab-per-page' ).inputValue() ),
+	'And offers a sensible number rather than a blank',
+	await page.locator( '#lstab-per-page' ).inputValue()
+);
+await page.locator( '.lstab-pane[data-lstab-pane="look"] .lstab-card' ).first().screenshot( { path: `${ SHOTS }/15-look-card.png` } );
+
+await page.locator( '#lstab-per-page' ).fill( '3' );
+await page.locator( '.lstab-submit button[type=submit]' ).click();
+await page.waitForLoadState( 'networkidle' );
+
+await apage.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
+check(
+	await apage.locator( '.lstab-pager' ).count() > 0,
+	'A table switched to pages arrives with page numbers under it'
+);
+check(
+	3 === ( await apage.locator( '.lstab' ).first().locator( 'tbody tr' ).count() ),
+	'And holds the number of rows it was told to',
+	String( await apage.locator( '.lstab' ).first().locator( 'tbody tr' ).count() )
+);
+
+// Off again, so the rest of the run finds the whole sheet where it expects it.
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await pane( 'look' );
+await page.locator( '#lstab-paging' ).uncheck();
+await page.locator( 'input[data-lstab-layout][value="table"]' ).check();
+await page.locator( '.lstab-submit button[type=submit]' ).click();
+await page.waitForLoadState( 'networkidle' );
+
 // The panel that settles "is it the sheet or the plugin?".
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
 await awaitPreview( 20000 );

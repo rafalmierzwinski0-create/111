@@ -20,10 +20,109 @@
 .lstabp-swatch {
 	display: inline-block;
 	margin-left: 0.45rem;
-	padding: 0.1rem 0.4rem;
+	padding: 0.14rem 0.5rem;
 	border-radius: 4px;
 	font-size: 0.8rem;
+	line-height: 1.5;
 	vertical-align: middle;
+}
+
+/* ────────────────────────────────────────── the palette on a rule */
+
+/*
+ * Colours are chosen by looking at them. The dropdown these replace listed
+ * five colours by name, which asked somebody to picture "amber" and then trust
+ * that the plugin pictured the same one.
+ */
+.lstabp-paint {
+	display: inline-flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.25rem;
+	margin-inline-start: 0.15rem;
+}
+
+.lstabp-paint-chip {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	inline-size: 1.35rem;
+	block-size: 1.35rem;
+	border-radius: 50%;
+	border: 1px solid rgba( 16, 24, 24, 0.16 );
+	background: #fff;
+	font-size: 0.72rem;
+	font-weight: 700;
+	line-height: 1;
+	color: #50575e;
+	cursor: pointer;
+	transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+/*
+ * The radio itself covers the circle rather than sitting beside it, so the
+ * whole chip is the target — a 13px radio button is not something anybody
+ * should have to hit nine times in a row.
+ */
+.lstabp-paint-chip input[type="radio"] {
+	position: absolute;
+	inset: 0;
+	inline-size: 100%;
+	block-size: 100%;
+	margin: 0;
+	padding: 0;
+	opacity: 0;
+	border: 0;
+	cursor: pointer;
+}
+
+.lstabp-paint-chip:hover {
+	transform: scale( 1.12 );
+}
+
+/* A ring outside the colour, so it reads on a pale chip and a strong one. */
+.lstabp-paint-chip:has( input:checked ) {
+	box-shadow: 0 0 0 2px #fff, 0 0 0 4px var( --lstab-a, #0e7c74 );
+}
+
+.lstabp-paint-chip:has( input:focus-visible ) {
+	box-shadow: 0 0 0 2px #fff, 0 0 0 4px var( --lstab-a-deep, #0a5a54 );
+}
+
+.lstabp-paint-effect-strike span[aria-hidden] {
+	text-decoration: line-through;
+}
+
+/* The circle that says "a colour of your own", showing the one chosen. */
+.lstabp-paint-own {
+	background-image: conic-gradient( #f4b8b8, #f7dfb4, #f3f0b0, #b8e6c6, #b6dfe0, #bcd2f4, #d5c8f2, #f2c4da, #f4b8b8 );
+	background-blend-mode: normal;
+}
+
+/* The picker beside it, made round to match. */
+.lstabp-own-colour {
+	inline-size: 1.35rem;
+	block-size: 1.35rem;
+	padding: 0;
+	border: 1px solid rgba( 16, 24, 24, 0.16 );
+	border-radius: 50%;
+	background: none;
+	cursor: pointer;
+	overflow: hidden;
+	flex: none;
+	appearance: none;
+	-webkit-appearance: none;
+}
+
+.lstabp-own-colour::-webkit-color-swatch-wrapper { padding: 0; }
+.lstabp-own-colour::-webkit-color-swatch { border: 0; border-radius: 50%; }
+.lstabp-own-colour::-moz-color-swatch { border: 0; border-radius: 50%; }
+
+.lstabp-rules-card.is-waiting .lstabp-paint,
+.lstabp-rules-card.is-waiting .lstabp-own-colour {
+	opacity: 0.5;
+	pointer-events: none;
 }
 
 .lstabp-rules-card.is-waiting .lstabp-rule-list {

@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.12.0
+Stable tag: 3.13.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,12 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.13.0 =
+* Changed: the choice of what a table does on a phone is now three options side by side, each saying when it applies, instead of a dropdown whose two card options read as the same sentence twice. Picking one moves the preview to the width where that choice shows itself — at desk width two of the three drew exactly the same table, so the setting looked as though it did nothing.
+* Changed: paging has a switch of its own that says the word “pagination”, and only asks how many rows a page holds once it is on. It was a bare number box holding 0, which is a feature you can switch off by accident and then never find again.
+* Fixed: the Columns tab's two blocks touched, with no gap between them — a side effect of levelling the blocks in 3.12.0.
+* Fixed: “Put it on a page” was narrower than the cards above it, leaving the column with a ragged edge.
 
 = 3.12.0 =
 * Fixed: the blocks in the editor now end level, not just the columns holding them. Making the two columns one grid row was not enough — the last block inside each still stopped where its own content did, so the boxes anybody actually looks at were 7 to 637 pixels apart depending on the tab.
@@ -382,6 +388,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.13.0 =
+Pagination is findable, and the phone layout shows you what it does.
 
 = 3.12.0 =
 The editor's blocks end level, and colour rules preview as you type.

@@ -3,9 +3,12 @@
  * Conditional formatting: colour a cell by what is in it.
  *
  * "In stock" green and "Sold out" red is the whole idea. A rule names a column,
- * a comparison and a value, and picks one of a fixed set of looks — a palette
- * rather than free colour pickers, so a table stays legible whoever built it
- * and so contrast is not left to chance.
+ * a comparison and a value, and picks a colour off a small classic palette or
+ * out of the browser's own colour picker.
+ *
+ * Contrast is still not left to chance: only the background is ever chosen, and
+ * the text colour is worked out from it — dark on a pale colour, white on a
+ * strong one — so a rule cannot produce yellow on white however hard it tries.
  *
  * Rules are evaluated on the server while the table is rendered. There is no
  * JavaScript involved and the colours are in the HTML that reaches the visitor,
@@ -87,44 +90,335 @@ class LSTABP_Rules {
 	}
 
 	/**
-	 * The looks a rule may apply.
+	 * The classic colours offered as ready-made choices.
 	 *
-	 * Backgrounds are pale and text is dark, so every pairing clears the
-	 * contrast bar without the person setting it up having to think about it.
+	 * Nine, pale, one per hue. A palette this size is a decision somebody can
+	 * make in a second; a full picker in its place is a decision nobody makes
+	 * well, which is why the picker is beside it rather than instead of it.
+	 *
+	 * @return array<string,string> Hex colour to its name.
+	 */
+	public static function palette() {
+		return array(
+			'#fdecec' => __( 'Red', 'live-sheets-table-pro' ),
+			'#ffe9d6' => __( 'Orange', 'live-sheets-table-pro' ),
+			'#fdf6cf' => __( 'Yellow', 'live-sheets-table-pro' ),
+			'#e9f7ee' => __( 'Green', 'live-sheets-table-pro' ),
+			'#dff2f0' => __( 'Teal', 'live-sheets-table-pro' ),
+			'#e8f1fd' => __( 'Blue', 'live-sheets-table-pro' ),
+			'#eee9fb' => __( 'Purple', 'live-sheets-table-pro' ),
+			'#fce9f1' => __( 'Pink', 'live-sheets-table-pro' ),
+			'#f1f2f4' => __( 'Grey', 'live-sheets-table-pro' ),
+		);
+	}
+
+	/**
+	 * The two looks that are not a colour at all.
 	 *
 	 * @return array<string,array<string,string>>
 	 */
-	public static function styles() {
+	public static function effects() {
 		return array(
-			'red'    => array(
-				'label' => __( 'Red', 'live-sheets-table-pro' ),
-				'css'   => 'background-color:#fdecec;color:#8a1c1c;',
-			),
-			'amber'  => array(
-				'label' => __( 'Amber', 'live-sheets-table-pro' ),
-				'css'   => 'background-color:#fff5e0;color:#7a4b00;',
-			),
-			'green'  => array(
-				'label' => __( 'Green', 'live-sheets-table-pro' ),
-				'css'   => 'background-color:#e9f7ee;color:#14532d;',
-			),
-			'blue'   => array(
-				'label' => __( 'Blue', 'live-sheets-table-pro' ),
-				'css'   => 'background-color:#e8f1fd;color:#1e3a8a;',
-			),
-			'grey'   => array(
-				'label' => __( 'Grey', 'live-sheets-table-pro' ),
-				'css'   => 'background-color:#f1f2f4;color:#3f4249;',
-			),
 			'bold'   => array(
 				'label' => __( 'Bold text', 'live-sheets-table-pro' ),
+				'chip'  => __( 'B', 'live-sheets-table-pro' ),
 				'css'   => 'font-weight:700;',
 			),
 			'strike' => array(
 				'label' => __( 'Struck through', 'live-sheets-table-pro' ),
+				'chip'  => __( 'S', 'live-sheets-table-pro' ),
 				'css'   => 'text-decoration:line-through;opacity:0.62;',
 			),
 		);
+	}
+
+	/**
+	 * What the five named colours of the first version meant.
+	 *
+	 * Rules saved then hold a word rather than a colour, and there is no upgrade
+	 * step to run: the word is translated to its colour every time it is read.
+	 *
+	 * @return array<string,string>
+	 */
+	protected static function legacy() {
+		return array(
+			'red'   => '#fdecec',
+			'amber' => '#ffe9d6',
+			'green' => '#e9f7ee',
+			'blue'  => '#e8f1fd',
+			'grey'  => '#f1f2f4',
+		);
+	}
+
+	/**
+	 * The colour a rule falls back to.
+	 */
+	const DEFAULT_STYLE = '#fdecec';
+
+	/**
+	 * Every look that can be chosen, named and drawn.
+	 *
+	 * Kept in the shape the first version used — a key, a label and a block of
+	 * CSS — so everything that reads it did not have to change.
+	 *
+	 * @return array<string,array<string,string>>
+	 */
+	public static function styles() {
+		$styles = array();
+
+		foreach ( self::palette() as $hex => $label ) {
+			$styles[ $hex ] = array(
+				'label' => $label,
+				'css'   => self::css_for( $hex ),
+			);
+		}
+
+		foreach ( self::effects() as $key => $effect ) {
+			$styles[ $key ] = array(
+				'label' => $effect['label'],
+				'css'   => $effect['css'],
+			);
+		}
+
+		return $styles;
+	}
+
+	/**
+	 * The CSS one look is made of.
+	 *
+	 * @param string $style A hex colour, or the key of an effect.
+	 * @return string Declarations, ending in a semicolon.
+	 */
+	public static function css_for( $style ) {
+		$effects = self::effects();
+
+		if ( isset( $effects[ $style ] ) ) {
+			return $effects[ $style ]['css'];
+		}
+
+		$hex = self::hex( $style );
+
+		if ( '' === $hex ) {
+			$hex = self::DEFAULT_STYLE;
+		}
+
+		return 'background-color:' . $hex . ';color:' . self::ink( $hex ) . ';';
+	}
+
+	/**
+	 * A colour, or nothing if it is not one.
+	 *
+	 * @param mixed $raw Candidate colour.
+	 * @return string '#rrggbb', or ''.
+	 */
+	public static function hex( $raw ) {
+		$raw = strtolower( trim( (string) $raw ) );
+
+		if ( preg_match( '~^#([0-9a-f]{3})$~', $raw, $short ) ) {
+			$raw = '#' . $short[1][0] . $short[1][0] . $short[1][1] . $short[1][1] . $short[1][2] . $short[1][2];
+		}
+
+		return preg_match( '~^#[0-9a-f]{6}$~', $raw ) ? $raw : '';
+	}
+
+	/**
+	 * Text that can be read on a given background.
+	 *
+	 * Two candidates are drawn up and the one with the better contrast wins.
+	 * The first is the colour's own hue darkened almost to ink, which is what
+	 * makes a red cell look designed rather than merely coloured; the second is
+	 * plain white, for a colour too strong to carry any shade of itself.
+	 *
+	 * Picking by measurement rather than by a brightness threshold matters for
+	 * exactly the colours somebody is most likely to reach for out of the
+	 * picker: a vivid green reads as dark to the usual weighting and as bright
+	 * to the eye, and got white text nobody could read.
+	 *
+	 * @param string $hex Background colour.
+	 * @return string Text colour.
+	 */
+	public static function ink( $hex ) {
+		$hex = self::hex( $hex );
+
+		if ( '' === $hex ) {
+			return '#1d2327';
+		}
+
+		/*
+		 * In the order they would be chosen by hand: the colour's own hue, then
+		 * the same hue deeper, then the admin's own ink, then white for a
+		 * background dark enough that nothing else will do, and pure black for
+		 * the light ones where even the ink is a shade too soft. The first that
+		 * clears the readability bar wins; if a colour is awkward enough that
+		 * none of them does — a mid-tone olive is the classic — the best of the
+		 * five stands.
+		 */
+		$candidates = array( self::deepen( $hex, 0.26 ), self::deepen( $hex, 0.15 ), '#1d2327', '#ffffff', '#000000' );
+		$best       = '#1d2327';
+		$best_ratio = 0.0;
+
+		foreach ( $candidates as $candidate ) {
+			$ratio = self::contrast( $hex, $candidate );
+
+			if ( $ratio >= 4.5 ) {
+				return $candidate;
+			}
+
+			if ( $ratio > $best_ratio ) {
+				$best       = $candidate;
+				$best_ratio = $ratio;
+			}
+		}
+
+		return $best;
+	}
+
+	/**
+	 * The same colour, taken down to nearly ink.
+	 *
+	 * @param string $hex   Background colour.
+	 * @param float  $light How dark to take it, 0 to 1.
+	 * @return string
+	 */
+	protected static function deepen( $hex, $light = 0.26 ) {
+		$red   = hexdec( substr( $hex, 1, 2 ) ) / 255;
+		$green = hexdec( substr( $hex, 3, 2 ) ) / 255;
+		$blue  = hexdec( substr( $hex, 5, 2 ) ) / 255;
+
+		$max   = max( $red, $green, $blue );
+		$min   = min( $red, $green, $blue );
+		$own   = ( $max + $min ) / 2;
+		$span  = $max - $min;
+
+		$saturation = 0.0;
+
+		if ( $span > 0 ) {
+			$saturation = $own > 0.5 ? $span / ( 2 - $max - $min ) : $span / ( $max + $min );
+		}
+
+		/*
+		 * Grey has no hue worth keeping, and a grey with a trace of one is
+		 * worse than none: deepening #f1f2f4 by its hue turned the text navy,
+		 * because the little blue in it is all there is to amplify.
+		 */
+		if ( $saturation < 0.2 ) {
+			return $light > 0.2 ? '#3f4249' : '#1d2327';
+		}
+
+		if ( $max === $red ) {
+			$hue = ( $green - $blue ) / $span + ( $green < $blue ? 6 : 0 );
+		} elseif ( $max === $green ) {
+			$hue = ( $blue - $red ) / $span + 2;
+		} else {
+			$hue = ( $red - $green ) / $span + 4;
+		}
+
+		$hue /= 6;
+
+		// Deep enough to read on the palest tint, and given back some of the
+		// colour a pale tint has almost none of.
+		return self::from_hsl( $hue, min( 0.75, max( 0.42, $saturation * 1.8 ) ), $light );
+	}
+
+	/**
+	 * How far apart two colours are, as the accessibility guidelines count it.
+	 *
+	 * @param string $one First colour.
+	 * @param string $two Second colour.
+	 * @return float Contrast ratio, 1 to 21.
+	 */
+	protected static function contrast( $one, $two ) {
+		$first  = self::luminance( $one );
+		$second = self::luminance( $two );
+
+		return ( max( $first, $second ) + 0.05 ) / ( min( $first, $second ) + 0.05 );
+	}
+
+	/**
+	 * How much light a colour puts out, by the sRGB definition.
+	 *
+	 * @param string $hex Colour.
+	 * @return float 0 to 1.
+	 */
+	protected static function luminance( $hex ) {
+		$weights = array( 0.2126, 0.7152, 0.0722 );
+		$total   = 0.0;
+
+		foreach ( array( 1, 3, 5 ) as $index => $offset ) {
+			$channel = hexdec( substr( $hex, $offset, 2 ) ) / 255;
+			$channel = $channel <= 0.03928 ? $channel / 12.92 : pow( ( $channel + 0.055 ) / 1.055, 2.4 );
+			$total  += $weights[ $index ] * $channel;
+		}
+
+		return $total;
+	}
+
+	/**
+	 * Hue, saturation and lightness back to a hex colour.
+	 *
+	 * @param float $hue        0-1.
+	 * @param float $saturation 0-1.
+	 * @param float $light      0-1.
+	 * @return string '#rrggbb'.
+	 */
+	protected static function from_hsl( $hue, $saturation, $light ) {
+		$high = $light < 0.5 ? $light * ( 1 + $saturation ) : $light + $saturation - $light * $saturation;
+		$low  = 2 * $light - $high;
+
+		$channel = static function ( $shift ) use ( $high, $low ) {
+			$shift = fmod( $shift + 1, 1 );
+
+			if ( $shift < 1 / 6 ) {
+				$value = $low + ( $high - $low ) * 6 * $shift;
+			} elseif ( $shift < 1 / 2 ) {
+				$value = $high;
+			} elseif ( $shift < 2 / 3 ) {
+				$value = $low + ( $high - $low ) * ( 2 / 3 - $shift ) * 6;
+			} else {
+				$value = $low;
+			}
+
+			return str_pad( dechex( (int) round( $value * 255 ) ), 2, '0', STR_PAD_LEFT );
+		};
+
+		return '#' . $channel( $hue + 1 / 3 ) . $channel( $hue ) . $channel( $hue - 1 / 3 );
+	}
+
+	/**
+	 * One rule's chosen look, whatever shape it arrived in.
+	 *
+	 * @param mixed $style  The chosen look: a hex colour, an effect, an old
+	 *                      colour name, or the word 'custom'.
+	 * @param mixed $custom The colour picker's value, read when 'custom'.
+	 * @return string A hex colour or an effect key.
+	 */
+	public static function sanitize_style( $style, $custom = '' ) {
+		$style  = is_scalar( $style ) ? strtolower( trim( (string) $style ) ) : '';
+		$legacy = self::legacy();
+
+		if ( isset( $legacy[ $style ] ) ) {
+			return $legacy[ $style ];
+		}
+
+		if ( isset( self::effects()[ $style ] ) ) {
+			return $style;
+		}
+
+		/*
+		 * The palette is a set of radio buttons and the picker is a field of
+		 * its own, so that choosing a colour of your own still works with
+		 * JavaScript switched off: the radio says "custom", and the colour
+		 * itself arrives in the other field.
+		 */
+		if ( 'custom' === $style ) {
+			$style = self::hex( $custom );
+
+			return '' === $style ? self::DEFAULT_STYLE : $style;
+		}
+
+		$hex = self::hex( $style );
+
+		return '' === $hex ? self::DEFAULT_STYLE : $hex;
 	}
 
 	/**
@@ -204,7 +498,6 @@ class LSTABP_Rules {
 	 * @return array<int,array<string,mixed>>
 	 */
 	public static function sanitize( $raw ) {
-		$styles    = self::styles();
 		$operators = self::operators();
 		$clean     = array();
 
@@ -220,13 +513,15 @@ class LSTABP_Rules {
 			}
 
 			$operator = isset( $rule['operator'] ) ? (string) $rule['operator'] : '=';
-			$style    = isset( $rule['style'] ) ? sanitize_key( (string) $rule['style'] ) : 'red';
 
 			$clean[] = array(
 				'column'   => $column,
 				'operator' => isset( $operators[ $operator ] ) ? $operator : '=',
 				'value'    => isset( $rule['value'] ) ? sanitize_text_field( (string) $rule['value'] ) : '',
-				'style'    => isset( $styles[ $style ] ) ? $style : 'red',
+				'style'    => self::sanitize_style(
+					isset( $rule['style'] ) ? $rule['style'] : '',
+					isset( $rule['custom'] ) ? $rule['custom'] : ''
+				),
 				'scope'    => ( isset( $rule['scope'] ) && 'row' === $rule['scope'] ) ? 'row' : 'cell',
 			);
 
@@ -263,7 +558,6 @@ class LSTABP_Rules {
 		$headers  = array_values( (array) $headers );
 		$columns  = LSTABP_Filters::column_map( $headers, $source );
 		$rendered = self::rendered_positions( $headers, $source, $args );
-		$styles   = self::styles();
 
 		foreach ( array_values( (array) $rows ) as $row_index => $row ) {
 			foreach ( $rules as $rule ) {
@@ -280,7 +574,7 @@ class LSTABP_Rules {
 					continue;
 				}
 
-				$css = $styles[ $rule['style'] ]['css'];
+				$css = self::css_for( $rule['style'] );
 
 				if ( 'row' === $rule['scope'] ) {
 					$this->rows[ $row_index ] = $css;
@@ -426,11 +720,9 @@ class LSTABP_Rules {
 			'lstabp-admin',
 			'lstabpRules',
 			array(
+				// Only the ready-made looks. A colour of somebody's own is
+				// worked out in the browser, by the same reasoning as ink().
 				'styles' => $swatches,
-				'i18n'   => array(
-					// What the swatch says before the rule has a value of its own.
-					'sample' => __( 'Abc', 'live-sheets-table-pro' ),
-				),
 			)
 		);
 	}

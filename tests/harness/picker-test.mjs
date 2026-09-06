@@ -230,16 +230,46 @@ await firstRule.locator( 'select.lstabp-rule-column' ).selectOption( { index: 3 
 await firstRule.locator( '.lstabp-rule-value' ).fill( 'Brak' );
 await page.waitForTimeout( 250 );
 
+/*
+ * The swatch is a sample of the colour, not an echo of the value: it says
+ * "Abc" so that the line does not stretch and re-flow as the value is typed.
+ */
 check(
-	'Brak' === ( await firstRule.locator( '.lstabp-swatch' ).innerText() ).trim(),
-	'The swatch shows your own words, not the word "Abc"',
+	'Abc' === ( await firstRule.locator( '.lstabp-swatch' ).innerText() ).trim(),
+	'The swatch shows a sample rather than repeating what was typed',
 	await firstRule.locator( '.lstabp-swatch' ).innerText()
 );
 
-await firstRule.locator( '.lstabp-style-select' ).selectOption( 'green' );
+// Colours are chosen by looking at them, off a palette of nine.
+check(
+	9 === ( await firstRule.locator( '.lstabp-paint-chip:not(.lstabp-paint-own):not([class*="effect"])' ).count() ),
+	'The palette offers its colours as colours',
+	String( await firstRule.locator( '.lstabp-paint-chip' ).count() )
+);
+
+await firstRule.locator( '.lstabp-paint-chip input[value="#e9f7ee"]' ).check();
 await page.waitForTimeout( 200 );
 const swatchStyle = await firstRule.locator( '.lstabp-swatch' ).getAttribute( 'style' );
-check( /background/.test( swatchStyle || '' ), 'And repaints itself when the colour changes', String( swatchStyle ) );
+check( /#e9f7ee/.test( swatchStyle || '' ), 'And repaints itself when the colour changes', String( swatchStyle ) );
+
+// A colour of somebody's own, which the palette cannot have anticipated. The
+// text colour is worked out here and on the server, and the two have to agree
+// or the swatch is a promise the page does not keep.
+await firstRule.locator( '.lstabp-own-colour' ).evaluate( ( el ) => {
+	el.value = '#7c3aed';
+	el.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+} );
+await page.waitForTimeout( 200 );
+const ownStyle = await firstRule.locator( '.lstabp-swatch' ).getAttribute( 'style' );
+check(
+	await firstRule.locator( '.lstabp-paint-own input[type=radio]' ).isChecked(),
+	'Reaching for the picker is itself the choice'
+);
+check(
+	'background-color:#7c3aed;color:#ffffff;' === String( ownStyle ).replace( / /g, '' ),
+	'A colour of your own gets text that can be read on it',
+	String( ownStyle )
+);
 
 /*
  * And it shows in the preview while it is being typed. Before this, the only

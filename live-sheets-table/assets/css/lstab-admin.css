@@ -1276,6 +1276,18 @@
 	margin-bottom: 0;
 }
 
+/*
+ * Except that on the Columns tab there is a next one. The wide cards an add-on
+ * prints sit in their own pane below the grid, and with the grid's last card
+ * having just had its margin taken away the two ended up touching — one long
+ * white block split by a hairline, which read as a rendering fault rather than
+ * as two cards. The space is put back on the block that follows, so it only
+ * exists when something actually follows.
+ */
+.lstab-editor-grid + .lstab-pane:not([hidden]) > *:first-child {
+	margin-block-start: 1rem;
+}
+
 @media screen and (min-width: 1500px) {
 	.lstab-editor-grid {
 		grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
@@ -1372,6 +1384,76 @@
 	float: none;
 	margin: 0 0 0 6px;
 	vertical-align: middle;
+}
+
+/* The narrow-screen layout choice, and the paging switch under it */
+
+.lstab-choice-head {
+	display: block;
+	margin-bottom: 0.5rem;
+}
+
+.lstab-choice-head .lstab-help {
+	margin-top: 0.2rem;
+}
+
+/*
+ * Three long descriptions side by side, so they want more room each than a
+ * style preset does — below about 1100px the card is not wide enough for
+ * three and they stack, which is the right answer rather than three slivers.
+ */
+.lstab-layouts {
+	grid-template-columns: repeat( auto-fit, minmax( 15rem, 1fr ) );
+	margin-bottom: 1.1rem;
+}
+
+.lstab-hint-badge {
+	display: inline-block;
+	margin-left: 0.35rem;
+	padding: 0.05rem 0.4rem;
+	border-radius: 999px;
+	background: var( --lstab-a-wash );
+	color: var( --lstab-a-deep );
+	font-size: 0.66rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	vertical-align: 0.1em;
+}
+
+/*
+ * A heading inside a card, for the one setting that is a feature of its own
+ * rather than another line of the same list. WordPress leaves h3 at heading
+ * size, which would make it shout louder than the card's own title.
+ */
+.lstab-admin .lstab-subhead {
+	margin: 1.2rem 0 0.5rem;
+	padding-top: 1rem;
+	border-top: 1px solid var( --lstab-line-soft );
+	font-size: 0.78rem;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var( --lstab-ink-3 );
+}
+
+.lstab-paging-rows {
+	inline-size: min( 100%, 17rem );
+	margin-top: 0.6rem;
+}
+
+.lstab-admin .lstab-paging-rows label {
+	color: var( --lstab-ink-2 );
+	font-size: 0.85rem;
+	white-space: nowrap;
+}
+
+/*
+ * `hidden` is only a display rule, and .lstab-field sets display: flex — which
+ * wins. Without this the row count stayed on screen with paging switched off.
+ */
+.lstab-admin .lstab-field[hidden] {
+	display: none;
 }
 
 /* Presets */
@@ -1574,9 +1656,13 @@
 	margin-top: 1.4rem;
 }
 
-.lstab-usage {
-	max-width: 62ch;
-}
+/*
+ * Full width, like every other card in its column. Capping this one at 62ch
+ * left it visibly narrower than the two cards above it, which looked like a
+ * mistake — the shortcode line inside it is short, but the ragged right-hand
+ * edge of the column was what you actually noticed. The help text sets its own
+ * reading width.
+ */
 
 .lstab-sources .lstab-col-status {
 	width: 28%;

@@ -131,9 +131,28 @@
 	var titleField = document.getElementById( 'lstab-title' );
 	var firstRowHeader = document.getElementById( 'lstab-first-row-header' );
 	var presetInputs = form.querySelectorAll( 'input[name="style_preset"]' );
-	var layoutSelect = document.getElementById( 'lstab-layout' );
+	var layoutInputs = form.querySelectorAll( 'input[data-lstab-layout]' );
+	var pagingToggle = document.getElementById( 'lstab-paging' );
+	var pagingRows = document.getElementById( 'lstab-paging-rows' );
 
 	var inFlight = false;
+
+	/**
+	 * Which of the three narrow-screen layouts is chosen.
+	 *
+	 * @return {string} 'table', 'auto' or 'cards'.
+	 */
+	function selectedLayout() {
+		var picked = 'table';
+
+		Array.prototype.forEach.call( layoutInputs, function ( input ) {
+			if ( input.checked ) {
+				picked = input.value;
+			}
+		} );
+
+		return picked;
+	}
 
 	function sprintf( template, values ) {
 		return String( template ).replace( /%(\d)\$s/g, function ( match, index ) {
@@ -435,7 +454,7 @@
 				gid: undefined === gid ? '' : String( gid ),
 				firstRowHeader: firstRowHeader ? firstRowHeader.checked : true,
 				style: selectedPreset(),
-				layout: layoutSelect ? layoutSelect.value : 'table',
+				layout: selectedLayout(),
 				columns: columnSettings(),
 				sourceId: sourceIdField ? parseInt( sourceIdField.value, 10 ) || 0 : 0
 			} )
@@ -776,19 +795,28 @@
 		} );
 	}
 
-	// Constrain the stage so the author can see the table and the card layout
-	// without resizing the browser. The container query does the rest.
+	/**
+	 * Squeeze the preview to one of the offered widths.
+	 *
+	 * Constrains the stage so the author can see the table and the card layout
+	 * without resizing the browser; the container query does the rest.
+	 *
+	 * @param {string} width Width in pixels, or '' for the full column.
+	 * @return {void}
+	 */
+	function setPreviewWidth( width ) {
+		stage.style.maxWidth = width ? width + 'px' : '';
+
+		Array.prototype.forEach.call( widthButtons, function ( button ) {
+			var active = button.getAttribute( 'data-lstab-width' ) === width;
+			button.classList.toggle( 'is-active', active );
+			button.setAttribute( 'aria-pressed', active ? 'true' : 'false' );
+		} );
+	}
+
 	Array.prototype.forEach.call( widthButtons, function ( widthButton ) {
 		widthButton.addEventListener( 'click', function () {
-			var width = widthButton.getAttribute( 'data-lstab-width' );
-
-			stage.style.maxWidth = width ? width + 'px' : '';
-
-			Array.prototype.forEach.call( widthButtons, function ( other ) {
-				var active = other === widthButton;
-				other.classList.toggle( 'is-active', active );
-				other.setAttribute( 'aria-pressed', active ? 'true' : 'false' );
-			} );
+			setPreviewWidth( widthButton.getAttribute( 'data-lstab-width' ) );
 		} );
 	} );
 
@@ -807,9 +835,21 @@
 	} );
 
 	// Layout is a class too, so swap it in place rather than refetching.
-	if ( layoutSelect ) {
-		layoutSelect.addEventListener( 'change', function () {
+	Array.prototype.forEach.call( layoutInputs, function ( input ) {
+		input.addEventListener( 'change', function () {
 			var table = stage.querySelector( '.lstab' );
+
+			/*
+			 * The preview is normally as wide as its column, and at that width
+			 * two of the three choices draw exactly the same table — so picking
+			 * one appeared to do nothing at all, which is a fair reason to
+			 * conclude the setting is broken. Each choice is therefore shown at
+			 * the width where it is itself: the two that answer "what happens
+			 * on a phone" go to phone width, and "always cards" goes back to
+			 * the full width, which is the whole of what it claims.
+			 */
+			setPreviewWidth( 'cards' === input.value ? '' : '390' );
+
 			if ( ! table ) {
 				return;
 			}
@@ -818,12 +858,23 @@
 				table.classList.remove( 'lstab-layout-' + value );
 			} );
 
-			if ( 'auto' !== layoutSelect.value ) {
-				table.classList.add( 'lstab-layout-' + layoutSelect.value );
+			if ( 'auto' !== input.value ) {
+				table.classList.add( 'lstab-layout-' + input.value );
 			}
 
 			// The slider has to re-measure once the layout changes.
 			table.dispatchEvent( new CustomEvent( 'lstab:resize' ) );
+		} );
+	} );
+
+	/*
+	 * The row count is only a question once there are pages to put rows on.
+	 * Shown while paging is off it invited a 0 — which is how the whole feature
+	 * used to get switched off by somebody who only meant to clear the box.
+	 */
+	if ( pagingToggle && pagingRows ) {
+		pagingToggle.addEventListener( 'change', function () {
+			pagingRows.hidden = ! pagingToggle.checked;
 		} );
 	}
 
@@ -854,7 +905,7 @@
 			data: withExtras( {
 				sourceId: id,
 				style: selectedPreset(),
-				layout: layoutSelect ? layoutSelect.value : 'table',
+				layout: selectedLayout(),
 				columns: columnSettings()
 			} )
 		} ).then(
