@@ -416,6 +416,94 @@
 	box-shadow: 1px 0 0 var(--lstab-border), 6px 0 8px -6px rgba( 16, 24, 40, 0.22 );
 }
 
+/* ------------------------------------------------- headings that follow you */
+
+/*
+ * Past the first screenful, a table without its headings is a grid of numbers
+ * nobody can read. The heading row follows the screen down instead.
+ *
+ * The catch is that a browser pins a sticky element to the nearest thing that
+ * scrolls, and the frame around the table is one: it scrolls sideways, which
+ * makes it a scroll container in both directions whatever its height. Pinned
+ * inside a box that is exactly as tall as the table, the headings had nothing
+ * to move against and simply sat there.
+ *
+ * So while the table fits its column — which is nearly always, and always in
+ * the card layout — the frame stops being a scroll container and the headings
+ * pin to the screen. A table wide enough to need the sideways slider keeps its
+ * frame, and its headings stay with the table. Only the script can tell which
+ * of the two a table is, so it says so with a class; the frame is a scroller
+ * until told otherwise, or a wide table would spill across the page for as
+ * long as it took the script to load.
+ */
+.lstab-sticky-head.lstab-fits .lstab-scroll {
+	overflow: visible;
+}
+
+/*
+ * A table too wide for its column keeps its frame, because that frame is what
+ * scrolls sideways — so the headings pin to the frame instead of to the
+ * screen. That only means something if the frame is shorter than the table, so
+ * a long one is capped: the table becomes a pane you scroll in both directions
+ * with its headings held at the top, which is what a spreadsheet does. A table
+ * shorter than the cap is untouched.
+ *
+ * Not on a phone, where an inner scrolling box inside a scrolling page is a
+ * trap rather than a convenience — and where a table this wide is usually
+ * showing as cards anyway.
+ */
+@media screen and (min-width: 600px) {
+	.lstab-sticky-head.lstab-has-slider .lstab-scroll {
+		max-height: var(--lstab-pane-max, 70vh);
+		overflow: auto;
+	}
+
+	.lstab-sticky-head.lstab-has-slider .lstab-table thead th {
+		position: sticky;
+		top: 0;
+		z-index: 3;
+	}
+
+	.lstab-sticky-head.lstab-has-slider.lstab-sticky-first .lstab-table thead th:first-child {
+		z-index: 4;
+	}
+}
+
+.lstab-sticky-head.lstab-fits .lstab-table thead th {
+	position: sticky;
+	/*
+	 * Nothing, unless something else already owns the top of the screen. The
+	 * admin bar does, for a logged-in visitor; a theme with a pinned header can
+	 * say so by setting this in the table's own CSS box.
+	 */
+	top: var(--lstab-sticky-top, 0px);
+	z-index: 3;
+}
+
+/* The corner cell is pinned in both directions at once, so it has to sit above
+   both the row it is in and the column below it. */
+.lstab-sticky-head.lstab-fits.lstab-sticky-first .lstab-table thead th:first-child {
+	z-index: 4;
+}
+
+.admin-bar .lstab-sticky-head {
+	--lstab-sticky-top: 32px;
+}
+
+@media screen and (max-width: 782px) {
+	.admin-bar .lstab-sticky-head {
+		--lstab-sticky-top: 46px;
+	}
+}
+
+/*
+ * Cards have no heading row — every value carries its own label — so there is
+ * nothing to pin, and the frame stays a frame.
+ */
+.lstab-layout-cards .lstab-sticky-head .lstab-table thead th {
+	position: static;
+}
+
 /* ------------------------------------------------------- horizontal slider */
 
 /*

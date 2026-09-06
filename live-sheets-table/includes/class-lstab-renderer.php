@@ -35,6 +35,7 @@ class LSTAB_Renderer {
 			'custom_css'  => '',
 			'columns'     => null,
 			'sticky'      => null,
+			'sticky_head' => null,
 			'filter'      => '',
 			'per_page'    => null,
 		);
@@ -264,6 +265,20 @@ class LSTAB_Renderer {
 
 		if ( $sticky ) {
 			$classes[] = 'lstab-sticky-first';
+		}
+
+		/*
+		 * The headings follow the screen down a long table. This is a class
+		 * rather than a stylesheet rule for everybody because a theme with a
+		 * navigation bar of its own already pinned to the top of the screen
+		 * would have two pinned things fighting over the same strip.
+		 */
+		$sticky_head = null !== $args['sticky_head']
+			? (bool) $args['sticky_head']
+			: ( ! isset( $source['sticky_head'] ) || (bool) $source['sticky_head'] );
+
+		if ( $sticky_head ) {
+			$classes[] = 'lstab-sticky-head';
 		}
 
 		// 'auto' lets the breakpoints decide; the other two pin the layout for

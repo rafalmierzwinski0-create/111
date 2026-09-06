@@ -132,10 +132,32 @@
 	var firstRowHeader = document.getElementById( 'lstab-first-row-header' );
 	var presetInputs = form.querySelectorAll( 'input[name="style_preset"]' );
 	var layoutInputs = form.querySelectorAll( 'input[data-lstab-layout]' );
+	/*
+	 * The two pinning settings, which the preview used to ignore completely:
+	 * the class is written into the table when the page is built, and nothing
+	 * changed it afterwards — so clearing "keep the first column in view" left
+	 * the column pinned and the screen said the setting did nothing.
+	 */
+	var pins = {
+		sticky_first: 'lstab-sticky-first',
+		sticky_head: 'lstab-sticky-head'
+	};
 	var pagingToggle = document.getElementById( 'lstab-paging' );
 	var pagingRows = document.getElementById( 'lstab-paging-rows' );
 
 	var inFlight = false;
+
+	/**
+	 * Whether one of the two pinning settings is ticked.
+	 *
+	 * @param {string} name The field's name.
+	 * @return {boolean} Whether it is on.
+	 */
+	function pinned( name ) {
+		var box = form.querySelector( 'input[name="' + name + '"]' );
+
+		return box ? box.checked : true;
+	}
 
 	/**
 	 * Which of the three narrow-screen layouts is chosen.
@@ -455,6 +477,8 @@
 				firstRowHeader: firstRowHeader ? firstRowHeader.checked : true,
 				style: selectedPreset(),
 				layout: selectedLayout(),
+				sticky: pinned( 'sticky_first' ),
+				stickyHead: pinned( 'sticky_head' ),
 				columns: columnSettings(),
 				sourceId: sourceIdField ? parseInt( sourceIdField.value, 10 ) || 0 : 0
 			} )
@@ -867,6 +891,28 @@
 		} );
 	} );
 
+	Object.keys( pins ).forEach( function ( name ) {
+		var box = form.querySelector( 'input[name="' + name + '"]' );
+
+		if ( ! box ) {
+			return;
+		}
+
+		box.addEventListener( 'change', function () {
+			var table = stage.querySelector( '.lstab' );
+
+			if ( ! table ) {
+				return;
+			}
+
+			table.classList.toggle( pins[ name ], box.checked );
+
+			// Pinning changes what has to be measured: a pinned first column
+			// takes width from what is left to scroll.
+			table.dispatchEvent( new CustomEvent( 'lstab:resize' ) );
+		} );
+	} );
+
 	/*
 	 * The row count is only a question once there are pages to put rows on.
 	 * Shown while paging is off it invited a 0 — which is how the whole feature
@@ -906,6 +952,8 @@
 				sourceId: id,
 				style: selectedPreset(),
 				layout: selectedLayout(),
+				sticky: pinned( 'sticky_first' ),
+				stickyHead: pinned( 'sticky_head' ),
 				columns: columnSettings()
 			} )
 		} ).then(

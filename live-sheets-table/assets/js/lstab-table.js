@@ -93,10 +93,22 @@
 		/**
 		 * Distance the content can travel.
 		 *
+		 * Measured from the table rather than from the frame around it. Once
+		 * the frame stops being a scroll container — which is what lets the
+		 * headings pin to the screen — it reports no scrollable overflow at
+		 * all, however far the table sticks out of it, and the slider would
+		 * never come back for a window that had since been made narrower.
+		 *
 		 * @return {number} Scrollable overflow in pixels.
 		 */
 		function overflow() {
-			return scroller.scrollWidth - scroller.clientWidth;
+			var table = scroller.querySelector( '.lstab-table' );
+
+			if ( ! table ) {
+				return 0;
+			}
+
+			return Math.max( table.scrollWidth, table.offsetWidth ) - scroller.clientWidth;
 		}
 
 		/**
@@ -161,10 +173,15 @@
 				bar.hidden = true;
 				root.classList.remove( 'lstab-has-slider' );
 				root.classList.remove( 'lstab-is-scrolled' );
+				// Measured, not assumed: only now can the frame stop being a
+				// scroll container, which is what lets the headings pin to the
+				// screen rather than to the frame.
+				root.classList.add( 'lstab-fits' );
 				return;
 			}
 
 			bar.hidden = false;
+			root.classList.remove( 'lstab-fits' );
 			root.classList.add( 'lstab-has-slider' );
 
 			// The pinned column's divider is only meaningful once something is
@@ -321,16 +338,23 @@
 		root.dataset.lstabReady = '1';
 
 		/*
+		 * The slider first, and outside the check below, because it is about
+		 * width and nothing else. It used to be set up after that check, so a
+		 * paged table too wide for its column was clipped with no slider, no
+		 * cards and no way to reach the columns past the edge — which is the
+		 * one thing the layout is not allowed to do.
+		 */
+		initSlider( root );
+
+		/*
 		 * A paged table holds one page of the sheet. Searching or sorting it
 		 * here would work on that page and present the result as the whole
 		 * table, so both are done on the server and the controls are ordinary
-		 * links and a form. The slider still applies: it is about width.
+		 * links and a form.
 		 */
 		if ( root.classList.contains( 'lstab-paged' ) ) {
 			return;
 		}
-
-		initSlider( root );
 
 		var table = root.querySelector( '.lstab-table' );
 		if ( ! table ) {

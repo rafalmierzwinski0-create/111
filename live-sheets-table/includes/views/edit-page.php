@@ -287,6 +287,17 @@ if ( ! $lstab_is_edit ) {
 
 				<p class="lstab-checkbox">
 					<label>
+						<input type="checkbox" name="sticky_head" value="1"
+							<?php checked( ! $lstab_is_edit || ! empty( $source['sticky_head'] ) ); ?>>
+						<?php esc_html_e( 'Keep the headings in view while the page scrolls down', 'live-sheets-table' ); ?>
+					</label>
+					<span class="lstab-help">
+						<?php esc_html_e( 'Past the first screenful of a long table nobody can remember which column is which. The heading row follows you down instead. Turn it off if your theme already pins something to the top of the screen, or on a table wide enough to need the sideways slider, where the headings stay with the table rather than with the screen.', 'live-sheets-table' ); ?>
+					</span>
+				</p>
+
+				<p class="lstab-checkbox">
+					<label>
 						<input type="checkbox" name="link_cells" value="1"
 							<?php checked( ! $lstab_is_edit || ! empty( $source['link_cells'] ) ); ?>>
 						<?php esc_html_e( 'Make web and e-mail addresses in cells clickable', 'live-sheets-table' ); ?>
@@ -635,10 +646,17 @@ if ( ! $lstab_is_edit ) {
 						echo LSTAB_Renderer::render_preview( // phpcs:ignore WordPress.Security.EscapeOutput -- Renderer escapes every cell.
 							$source['data'],
 							array(
-								'source_id'  => (int) $source['id'],
-								'style'      => (string) $source['style_preset'],
-								'style_vars' => $source['style_vars'],
-								'layout'     => (string) $source['layout'],
+								'source_id'   => (int) $source['id'],
+								'style'       => (string) $source['style_preset'],
+								'style_vars'  => $source['style_vars'],
+								'layout'      => (string) $source['layout'],
+								// render_preview() builds a source of its own
+								// from the data it is handed, and these are not
+								// in it — so without naming them the preview
+								// pinned the first column whatever the form
+								// said, and the setting looked broken.
+								'sticky'      => ! empty( $source['sticky_first'] ),
+								'sticky_head' => ! empty( $source['sticky_head'] ),
 							)
 						);
 					} else {

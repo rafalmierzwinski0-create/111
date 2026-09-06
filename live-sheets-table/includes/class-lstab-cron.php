@@ -225,6 +225,7 @@ class LSTAB_Cron {
 			return array(
 				'state'   => 'ok',
 				'message' => '',
+				'calm'    => '',
 				'detail'  => '',
 			);
 		}
@@ -237,7 +238,10 @@ class LSTAB_Cron {
 				$worst['title'],
 				human_time_diff( time() - $worst_age, time() )
 			),
-			'detail'  => __( 'Your pages are still showing the last copy that arrived, so nothing is broken for visitors. But WordPress runs scheduled work only when someone visits the site, so a quiet site falls behind — and on a site that should be busy this usually means something is stopping it: a security plugin, a page cache answering every request without running WordPress, or a host that switches scheduling off without replacing it.', 'live-sheets-table' ),
+			// Said on the visible line, because it is the answer to the only
+			// urgent question a warning of this size provokes.
+			'calm'    => __( 'Your pages still show the last copy that arrived, so nothing is broken for visitors.', 'live-sheets-table' ),
+			'detail'  => __( 'WordPress runs scheduled work only when someone visits the site, so a quiet site falls behind — and on a site that should be busy this usually means something is stopping it: a security plugin, a page cache answering every request without running WordPress, or a host that switches scheduling off without replacing it.', 'live-sheets-table' ),
 		);
 	}
 

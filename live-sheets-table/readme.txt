@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.13.0
+Stable tag: 3.14.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,12 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.14.0 =
+* Added: the headings stay where you can read them. On a table that fits its column they follow the screen down; on one wide enough to need the sideways slider, a long table becomes a pane that holds its headings at the top. A table shorter than a screenful is untouched. There is a switch for it beside the pinned first column.
+* Fixed: “Keep the first column in view” did nothing in the editor's preview — the preview pinned the column whatever the setting said, because the settings were never handed to it. Both pinning settings now change the preview as you tick them.
+* Fixed: a paged table too wide for its column was clipped with no slider and no way to reach the columns past the edge. The slider is about width, and paging has nothing to do with width.
+* Changed: the scheduling warning is one line with the rest folded away. It took three hundred pixels at the top of a screen whose job is to list sheets, to say that nothing was broken for visitors.
 
 = 3.13.0 =
 * Changed: the choice of what a table does on a phone is now three options side by side, each saying when it applies, instead of a dropdown whose two card options read as the same sentence twice. Picking one moves the preview to the width where that choice shows itself — at desk width two of the three drew exactly the same table, so the setting looked as though it did nothing.
@@ -388,6 +394,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.14.0 =
+Headings that stay put, and the pinned-column setting finally showing in the preview.
 
 = 3.13.0 =
 Pagination is findable, and the phone layout shows you what it does.

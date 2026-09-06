@@ -57,6 +57,16 @@ class LSTAB_Rest {
 						'type'    => 'string',
 						'default' => 'table',
 					),
+					// The two pinning settings, so ticking one shows in the
+					// preview rather than only after a save.
+					'sticky'         => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
+					'stickyHead'     => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
 					// Renames and hidden columns, so the preview shows what a
 					// visitor would see rather than the raw sheet.
 					'columns'        => array(
@@ -108,6 +118,15 @@ class LSTAB_Rest {
 					'layout'   => array(
 						'type'    => 'string',
 						'default' => 'table',
+					),
+					/** This documented on /preview above. */
+					'sticky'   => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
+					'stickyHead' => array(
+						'type'    => 'boolean',
+						'default' => true,
 					),
 					'columns'  => array(
 						'type'    => 'array',
@@ -237,9 +256,11 @@ class LSTAB_Rest {
 						'rows'    => $preview,
 					),
 					array(
-						'style'      => LSTAB_Styles::sanitize( (string) $request->get_param( 'style' ) ),
-						'layout'     => (string) $request->get_param( 'layout' ),
-						'source_id'  => $source_id,
+						'style'       => LSTAB_Styles::sanitize( (string) $request->get_param( 'style' ) ),
+						'layout'      => (string) $request->get_param( 'layout' ),
+						'sticky'      => (bool) $request->get_param( 'sticky' ),
+						'sticky_head' => (bool) $request->get_param( 'stickyHead' ),
+						'source_id'   => $source_id,
 						'columns'    => LSTAB_Columns::sanitize( (array) $request->get_param( 'columns' ) ),
 						// The stored appearance, so a redraw does not undo what
 						// the swatches have already applied to the preview.
@@ -402,9 +423,11 @@ class LSTAB_Rest {
 						'rows'    => $preview,
 					),
 					array(
-						'style'     => LSTAB_Styles::sanitize( (string) $request->get_param( 'style' ) ),
-						'layout'    => (string) $request->get_param( 'layout' ),
-						'source_id' => absint( $request->get_param( 'sourceId' ) ),
+						'style'       => LSTAB_Styles::sanitize( (string) $request->get_param( 'style' ) ),
+						'layout'      => (string) $request->get_param( 'layout' ),
+						'sticky'      => (bool) $request->get_param( 'sticky' ),
+						'sticky_head' => (bool) $request->get_param( 'stickyHead' ),
+						'source_id'   => absint( $request->get_param( 'sourceId' ) ),
 						'columns'   => LSTAB_Columns::sanitize( (array) $request->get_param( 'columns' ) ),
 					)
 				),

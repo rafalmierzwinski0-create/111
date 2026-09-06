@@ -1258,6 +1258,73 @@ await columnRows.nth( 0 ).locator( 'input[type=text]' ).fill( '' );
 await page.locator( '.lstab-submit button[type=submit]' ).click();
 await page.waitForLoadState( 'networkidle' );
 
+// ------------------------------------------------ headings that follow you
+section( '5e. The headings stay where you can read them' );
+
+/*
+ * Three cases, because a browser pins a sticky element to the nearest thing
+ * that scrolls and the frame around a table is one of those whenever it has to
+ * scroll sideways. So: a table that fits pins its headings to the screen; a
+ * wide but short one is left alone; a wide and long one becomes a pane whose
+ * headings are held at its top.
+ */
+{
+	const wide = await browser.newContext( { viewport: { width: 1500, height: 700 } } );
+	const wpage = await wide.newPage();
+	await wpage.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
+	await wpage.waitForTimeout( 500 );
+
+	const head = wpage.locator( '.lstab' ).first().locator( 'thead th' ).first();
+	const started = await head.boundingBox();
+	await wpage.evaluate( () => scrollBy( 0, 800 ) );
+	await wpage.waitForTimeout( 300 );
+	const ended = await head.boundingBox();
+
+	check(
+		started.y > 200 && ended.y >= 0 && ended.y < 40,
+		'A table that fits its column pins its headings to the screen',
+		`${ Math.round( started.y ) } → ${ Math.round( ended.y ) }`
+	);
+	await wpage.screenshot( { path: `${ SHOTS }/16-sticky-headings.png` } );
+	await wide.close();
+}
+
+{
+	// Narrow enough that the table has to scroll sideways, and short enough
+	// that the height cap never bites: nothing should have changed for it.
+	const roomy = await browser.newContext( { viewport: { width: 1000, height: 900 } } );
+	const rpage = await roomy.newPage();
+	await rpage.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
+	await rpage.waitForTimeout( 500 );
+	const frame = await rpage.locator( '.lstab' ).first().locator( '.lstab-scroll' ).evaluate( ( el ) => ( {
+		capped: el.scrollHeight - el.clientHeight > 2,
+		slider: el.parentElement.classList.contains( 'lstab-has-slider' ),
+	} ) );
+	check( frame.slider && ! frame.capped, 'A short table is left alone, however wide it is', JSON.stringify( frame ) );
+	await roomy.close();
+}
+
+{
+	// The same table on a screen short enough for the cap to bite.
+	const shortScreen = await browser.newContext( { viewport: { width: 1000, height: 380 } } );
+	const spage = await shortScreen.newPage();
+	await spage.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
+	await spage.waitForTimeout( 500 );
+	const frame = spage.locator( '.lstab' ).first().locator( '.lstab-scroll' );
+	const head = spage.locator( '.lstab' ).first().locator( 'thead th' ).first();
+	const started = await head.boundingBox();
+	await frame.evaluate( ( el ) => { el.scrollTop = 150; } );
+	await spage.waitForTimeout( 250 );
+	const ended = await head.boundingBox();
+	const moved = await frame.evaluate( ( el ) => el.scrollTop );
+	check(
+		moved > 100 && Math.abs( ended.y - started.y ) < 2,
+		'A long wide table becomes a pane that holds its headings',
+		`scrolled ${ moved }px, heading ${ Math.round( started.y ) } → ${ Math.round( ended.y ) }`
+	);
+	await shortScreen.close();
+}
+
 // ------------------------------------------- the two settings nobody found
 section( '5f. Choosing a layout, and finding pagination' );
 
@@ -1291,6 +1358,42 @@ const shownAt = async ( value ) => {
 		};
 	} );
 };
+
+/*
+ * Both pinning settings used to be written into the preview when the page was
+ * built and never touched again, so clearing one left the preview exactly as
+ * it was and the setting looked broken. The first column was pinned in the
+ * preview whatever the form said.
+ */
+const previewClasses = () => page.locator( '#lstab-preview-stage .lstab' ).getAttribute( 'class' );
+
+await page.locator( 'input[name="sticky_first"]' ).uncheck();
+await page.waitForTimeout( 300 );
+check(
+	! ( await previewClasses() ).includes( 'lstab-sticky-first' ),
+	'Clearing "keep the first column in view" unpins it in the preview',
+	await previewClasses()
+);
+check(
+	'static' === ( await page.evaluate( () => getComputedStyle( document.querySelector( '#lstab-preview-stage tbody td' ) ).position ) ),
+	'And the cell really stops being pinned, not just the class'
+);
+
+await page.locator( 'input[name="sticky_head"]' ).uncheck();
+await page.waitForTimeout( 300 );
+check(
+	! ( await previewClasses() ).includes( 'lstab-sticky-head' ),
+	'The headings setting reaches the preview too',
+	await previewClasses()
+);
+
+await page.locator( 'input[name="sticky_first"]' ).check();
+await page.locator( 'input[name="sticky_head"]' ).check();
+await page.waitForTimeout( 300 );
+check(
+	( await previewClasses() ).includes( 'lstab-sticky-first' ) && ( await previewClasses() ).includes( 'lstab-sticky-head' ),
+	'And ticking them again puts both back'
+);
 
 const asCards = await shownAt( 'auto' );
 check( asCards.width < 420, 'Picking a phone layout takes the preview to phone width', JSON.stringify( asCards ) );
@@ -1336,6 +1439,24 @@ await apage.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
 check(
 	await apage.locator( '.lstab-pager' ).count() > 0,
 	'A table switched to pages arrives with page numbers under it'
+);
+
+/*
+ * Paging turns searching and sorting over to the server, and the script used
+ * to give up on a paged table before setting up the slider — so a paged table
+ * too wide for its column was clipped with nothing to scroll it. The slider is
+ * about width and nothing else.
+ */
+check(
+	await apage.evaluate( () => Array.from( document.querySelectorAll( '.lstab-paged' ) ).every( ( wrap ) => {
+		const scroll = wrap.querySelector( '.lstab-scroll' );
+		const table = wrap.querySelector( '.lstab-table' );
+		const bar = wrap.querySelector( '.lstab-scrollbar' );
+		const clipped = Math.max( table.scrollWidth, table.offsetWidth ) - scroll.clientWidth;
+
+		return clipped <= 2 || ( bar && ! bar.hidden );
+	} ) ),
+	'A paged table wide enough to clip a column still gets its slider'
 );
 check(
 	3 === ( await apage.locator( '.lstab' ).first().locator( 'tbody tr' ).count() ),

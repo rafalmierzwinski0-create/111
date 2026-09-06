@@ -427,6 +427,7 @@ class LSTAB_Admin {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Sanitised field by field in LSTAB_Columns.
 			'columns_config'   => isset( $_POST['columns'] ) ? LSTAB_Columns::sanitize( wp_unslash( $_POST['columns'] ) ) : array(),
 			'sticky_first'     => empty( $_POST['sticky_first'] ) ? 0 : 1,
+			'sticky_head'      => empty( $_POST['sticky_head'] ) ? 0 : 1,
 			'link_cells'       => empty( $_POST['link_cells'] ) ? 0 : 1,
 			// The screen asks two questions — pages or no pages, and how many
 			// rows — and stores one number, where 0 means no pages. Without the
@@ -842,41 +843,56 @@ class LSTAB_Admin {
 
 		?>
 		<div class="notice notice-warning lstab-cron-notice">
-			<p>
+			<?php
+			/*
+			 * One line, and the rest folded away. This warning used to open
+			 * with three hundred pixels of hosting advice on a screen whose
+			 * job is to list sheets — and its own first sentence says nothing
+			 * is broken for visitors, so shouting that loudly, every time,
+			 * taught people to scroll past the one notice that matters.
+			 */
+			?>
+			<p class="lstab-cron-line-one">
 				<strong><?php echo esc_html( $health['message'] ); ?></strong>
-			</p>
-			<p><?php echo esc_html( $health['detail'] ); ?></p>
-			<p>
-				<?php esc_html_e( 'Meanwhile you can update any sheet by hand with “Refresh”.', 'live-sheets-table' ); ?>
+				<?php echo esc_html( $health['calm'] ); ?>
 			</p>
 
-			<p>
-				<strong><?php esc_html_e( 'To check sheets even when nobody visits', 'live-sheets-table' ); ?></strong><br>
-				<?php esc_html_e( 'WordPress has no clock of its own — its schedule only runs when a page is requested, so a quiet site checks nothing. Give your host a real clock instead. Most hosting panels have a “Cron jobs” screen; paste this line into it:', 'live-sheets-table' ); ?>
-			</p>
-			<p class="lstab-cron-row">
-				<code class="lstab-cron-line"><?php echo esc_html( LSTAB_Cron::system_cron_line() ); ?></code>
-				<button type="button" class="lstab-copy" data-lstab-copy="<?php echo esc_attr( LSTAB_Cron::system_cron_line() ); ?>">
-					<?php echo LSTAB_Icons::icon( 'copy' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-					<span class="lstab-copy-label"><?php esc_html_e( 'Copy', 'live-sheets-table' ); ?></span>
-				</button>
-			</p>
-			<p class="lstab-help">
-				<?php esc_html_e( 'No cron screen on your hosting? A free uptime monitor pointed at your home page does the same job, because every visit it makes runs the schedule.', 'live-sheets-table' ); ?>
-			</p>
-			<p>
-				<?php
-				/*
-				 * On its own line with an icon. Underlined text trailing off the
-				 * end of a grey paragraph reads as something that slipped in,
-				 * not as somewhere to go next.
-				 */
-				?>
-				<a class="lstab-quiet" href="https://developer.wordpress.org/plugins/cron/hooking-wp-cron-into-the-system-task-scheduler/" target="_blank" rel="noopener noreferrer">
-					<?php echo LSTAB_Icons::icon( 'external' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-					<?php esc_html_e( 'The WordPress guide to system cron', 'live-sheets-table' ); ?>
-				</a>
-			</p>
+			<details class="lstab-cron-more">
+				<summary><?php esc_html_e( 'Why it happens, and how to fix it for good', 'live-sheets-table' ); ?></summary>
+
+				<p><?php echo esc_html( $health['detail'] ); ?></p>
+				<p>
+					<?php esc_html_e( 'Meanwhile you can update any sheet by hand with “Refresh”.', 'live-sheets-table' ); ?>
+				</p>
+
+				<p>
+					<strong><?php esc_html_e( 'To check sheets even when nobody visits', 'live-sheets-table' ); ?></strong><br>
+					<?php esc_html_e( 'WordPress has no clock of its own — its schedule only runs when a page is requested, so a quiet site checks nothing. Give your host a real clock instead. Most hosting panels have a “Cron jobs” screen; paste this line into it:', 'live-sheets-table' ); ?>
+				</p>
+				<p class="lstab-cron-row">
+					<code class="lstab-cron-line"><?php echo esc_html( LSTAB_Cron::system_cron_line() ); ?></code>
+					<button type="button" class="lstab-copy" data-lstab-copy="<?php echo esc_attr( LSTAB_Cron::system_cron_line() ); ?>">
+						<?php echo LSTAB_Icons::icon( 'copy' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+						<span class="lstab-copy-label"><?php esc_html_e( 'Copy', 'live-sheets-table' ); ?></span>
+					</button>
+				</p>
+				<p class="lstab-help">
+					<?php esc_html_e( 'No cron screen on your hosting? A free uptime monitor pointed at your home page does the same job, because every visit it makes runs the schedule.', 'live-sheets-table' ); ?>
+				</p>
+				<p>
+					<?php
+					/*
+					 * On its own line with an icon. Underlined text trailing off
+					 * the end of a grey paragraph reads as something that
+					 * slipped in, not as somewhere to go next.
+					 */
+					?>
+					<a class="lstab-quiet" href="https://developer.wordpress.org/plugins/cron/hooking-wp-cron-into-the-system-task-scheduler/" target="_blank" rel="noopener noreferrer">
+						<?php echo LSTAB_Icons::icon( 'external' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+						<?php esc_html_e( 'The WordPress guide to system cron', 'live-sheets-table' ); ?>
+					</a>
+				</p>
+			</details>
 		</div>
 		<?php
 	}

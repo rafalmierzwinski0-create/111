@@ -193,6 +193,12 @@ return array(
 		=> 'W międzyczasie możesz zaktualizować dowolny arkusz ręcznie przyciskiem „Odśwież teraz”. %s',
 	'The WordPress guide to system cron'
 		=> 'Poradnik WordPressa o systemowym cronie',
+	'Why it happens, and how to fix it for good'
+		=> 'Dlaczego tak się dzieje i jak to naprawić na stałe',
+	'Your pages still show the last copy that arrived, so nothing is broken for visitors.'
+		=> 'Twoje strony nadal pokazują ostatnią kopię, która dotarła, więc dla odwiedzających nic nie jest zepsute.',
+	'WordPress runs scheduled work only when someone visits the site, so a quiet site falls behind — and on a site that should be busy this usually means something is stopping it: a security plugin, a page cache answering every request without running WordPress, or a host that switches scheduling off without replacing it.'
+		=> 'WordPress wykonuje zaplanowane zadania tylko wtedy, gdy ktoś odwiedza witrynę, więc cicha strona zostaje w tyle — a na stronie, która powinna mieć ruch, zwykle znaczy to, że coś to blokuje: wtyczka bezpieczeństwa, cache stron odpowiadający na każde żądanie bez uruchamiania WordPressa albo hosting, który wyłącza harmonogram, nie dając nic w zamian.',
 
 	// Layout and the horizontal slider.
 	'What the table does on a phone'             => 'Co tabela robi na telefonie',
@@ -208,6 +214,10 @@ return array(
 	'Blocks at every width, a wide screen included. Right for a sheet of profiles or listings — wrong for figures somebody wants to compare down a column.'
 		=> 'Bloki przy każdej szerokości, także na szerokim ekranie. Dobre dla arkusza z profilami albo ogłoszeniami — złe dla liczb, które ktoś chce porównywać w dół kolumny.',
 	'Suggested'                                  => 'Sugerowane',
+	'Keep the headings in view while the page scrolls down'
+		=> 'Trzymaj nagłówki na widoku podczas przewijania strony w dół',
+	'Past the first screenful of a long table nobody can remember which column is which. The heading row follows you down instead. Turn it off if your theme already pins something to the top of the screen, or on a table wide enough to need the sideways slider, where the headings stay with the table rather than with the screen.'
+		=> 'Po pierwszym ekranie długiej tabeli nikt już nie pamięta, która kolumna jest która. Wiersz nagłówka podąża wtedy za tobą w dół. Wyłącz to, jeśli twój motyw już przypina coś do góry ekranu, albo przy tabeli na tyle szerokiej, że potrzebuje suwaka w bok — tam nagłówki zostają przy tabeli, a nie przy ekranie.',
 	'Table style'                                => 'Styl tabeli',
 	'Table with a slider'                        => 'Tabela z suwakiem',
 	'Stack into cards when narrow'               => 'Karty, gdy wąsko',

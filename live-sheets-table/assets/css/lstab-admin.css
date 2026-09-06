@@ -642,6 +642,35 @@
 	font-variant-numeric: tabular-nums;
 }
 
+/*
+ * The scheduling warning, folded. Everything past the first line is advice
+ * about hosting, which is worth reading once and then never again.
+ */
+.lstab-cron-line-one {
+	margin: 0.5rem 0;
+}
+
+.lstab-cron-more {
+	margin: 0 0 0.6rem;
+}
+
+.lstab-cron-more > summary {
+	cursor: pointer;
+	color: var( --lstab-a-deep );
+	font-size: 0.86rem;
+	font-weight: 600;
+	list-style-position: outside;
+}
+
+.lstab-cron-more > summary:focus-visible {
+	outline: 2px solid var( --lstab-a );
+	outline-offset: 2px;
+}
+
+.lstab-cron-more[open] > summary {
+	margin-bottom: 0.4rem;
+}
+
 .lstab-cron-row {
 	display: flex;
 	flex-wrap: wrap;

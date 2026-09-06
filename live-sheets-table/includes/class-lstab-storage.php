@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class LSTAB_Storage {
 
-	const DB_VERSION     = '1.9.0';
+	const DB_VERSION     = '1.10.0';
 	const DB_VERSION_OPT = 'lstab_db_version';
 
 	/**
@@ -65,6 +65,7 @@ class LSTAB_Storage {
 			style_preset varchar(50) NOT NULL DEFAULT 'clean',
 			layout varchar(20) NOT NULL DEFAULT 'table',
 			sticky_first tinyint(1) NOT NULL DEFAULT 1,
+			sticky_head tinyint(1) NOT NULL DEFAULT 1,
 			link_cells tinyint(1) NOT NULL DEFAULT 1,
 			per_page int(10) unsigned NOT NULL DEFAULT 0,
 			columns_config text NULL,
@@ -165,6 +166,7 @@ class LSTAB_Storage {
 			'style_preset'     => LSTAB_Styles::sanitize( (string) LSTAB_Settings::get( 'default_style', 'clean' ) ),
 			'layout'           => 'table',
 			'sticky_first'     => 1,
+			'sticky_head'      => 1,
 			'link_cells'       => 1,
 			'per_page'         => 0,
 			'columns_config'   => array(),
@@ -198,6 +200,7 @@ class LSTAB_Storage {
 			'style_preset'     => (string) $data['style_preset'],
 			'layout'           => (string) $data['layout'],
 			'sticky_first'     => empty( $data['sticky_first'] ) ? 0 : 1,
+			'sticky_head'      => empty( $data['sticky_head'] ) ? 0 : 1,
 			'link_cells'       => empty( $data['link_cells'] ) ? 0 : 1,
 			'per_page'         => max( 0, (int) $data['per_page'] ),
 			'columns_config'   => wp_json_encode( LSTAB_Columns::sanitize( $data['columns_config'] ) ),
@@ -231,6 +234,7 @@ class LSTAB_Storage {
 			'sync_interval',
 			'first_row_header',
 			'sticky_first',
+			'sticky_head',
 			'link_cells',
 			'per_page',
 			'row_count',
@@ -274,6 +278,7 @@ class LSTAB_Storage {
 			'style_preset'     => '%s',
 			'layout'           => '%s',
 			'sticky_first'     => '%d',
+			'sticky_head'      => '%d',
 			'link_cells'       => '%d',
 			'per_page'         => '%d',
 			'columns_config'   => '%s',
@@ -599,7 +604,7 @@ class LSTAB_Storage {
 	 */
 	protected static function meta_columns() {
 		return 'id, title, sheet_url, sheet_id, sheet_kind, gid, tab_name, sync_interval, '
-			. 'first_row_header, style_preset, layout, sticky_first, link_cells, per_page, columns_config, hidden_rows, style_vars, custom_css, '
+			. 'first_row_header, style_preset, layout, sticky_first, sticky_head, link_cells, per_page, columns_config, hidden_rows, style_vars, custom_css, '
 			. 'snapshot_hash, row_count, col_count, sync_log, '
 			. 'last_status, last_error, last_ragged, last_attempt_gmt, last_success_gmt, created_gmt, updated_gmt';
 	}
@@ -699,6 +704,7 @@ class LSTAB_Storage {
 		$row['col_count']        = (int) $row['col_count'];
 
 		$row['sticky_first'] = ! isset( $row['sticky_first'] ) || (bool) $row['sticky_first'];
+		$row['sticky_head']  = ! isset( $row['sticky_head'] ) || (bool) $row['sticky_head'];
 		$row['link_cells']   = ! isset( $row['link_cells'] ) || (bool) $row['link_cells'];
 		$row['per_page']     = isset( $row['per_page'] ) ? max( 0, (int) $row['per_page'] ) : 0;
 
