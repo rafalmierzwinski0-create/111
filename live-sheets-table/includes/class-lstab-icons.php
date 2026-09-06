@@ -81,6 +81,64 @@ class LSTAB_Icons {
 	}
 
 	/**
+	 * The product's own mark.
+	 *
+	 * A selected range with the handle you drag it by — the same frame the
+	 * dashboard puts around every block, which is why the mark and the screen
+	 * around it read as one thing rather than as a logo dropped on top of an
+	 * interface.
+	 *
+	 * Drawn rather than fetched: an inline SVG needs no request, takes the
+	 * page's own colours where it should, and cannot arrive late.
+	 *
+	 * @param int $size Pixel size.
+	 * @return string
+	 */
+	public static function mark( $size = 34 ) {
+		$size = (int) $size;
+
+		return sprintf(
+			'<svg class="lstab-mark" width="%1$d" height="%1$d" viewBox="0 0 32 32" role="img" aria-hidden="true" focusable="false">'
+				. '<defs><linearGradient id="lstab-mark-%1$d" x1="0" y1="0" x2="0" y2="1">'
+				. '<stop offset="0" stop-color="#12928a"></stop><stop offset="1" stop-color="#0a5a54"></stop>'
+				. '</linearGradient></defs>'
+				. '<rect x="1" y="1" width="26" height="26" rx="7" fill="url(#lstab-mark-%1$d)"></rect>'
+				. '<path d="M6 11.5h16" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".95"></path>'
+				. '<path d="M6 17.5h16M6 22.5h16" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".5"></path>'
+				. '<path d="M13.2 11.5v11" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".5"></path>'
+				// The handle, half on and half off the corner, exactly as a
+				// spreadsheet draws it.
+				. '<rect x="23.5" y="23.5" width="7" height="7" rx="2" fill="#fff"></rect>'
+				. '<rect x="24.9" y="24.9" width="4.2" height="4.2" rx="1" fill="#0a5a54"></rect>'
+				. '</svg>',
+			$size
+		);
+	}
+
+	/**
+	 * The same mark in one colour, for the admin menu.
+	 *
+	 * WordPress paints a menu icon as a background image, which cannot be
+	 * recoloured from a stylesheet — so the colour is baked in, and the shape
+	 * is simplified because it is only ever drawn at 20 pixels.
+	 *
+	 * @param string $colour Any CSS colour.
+	 * @return string A data URI.
+	 */
+	public static function menu_mark( $colour = '#a7aaad' ) {
+		$svg = sprintf(
+			'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke="%1$s" stroke-width="2.4" stroke-linecap="round">'
+				. '<rect x="3" y="4" width="21" height="21" rx="5"></rect>'
+				. '<path d="M3.6 11.4h19.8M12 11.4v13.2"></path>'
+				. '<rect x="23" y="23" width="7.4" height="7.4" rx="2.2" fill="%1$s" stroke="none"></rect>'
+				. '</svg>',
+			$colour
+		);
+
+		return 'data:image/svg+xml;base64,' . base64_encode( $svg );
+	}
+
+	/**
 	 * The line work, one entry per icon.
 	 *
 	 * Kept as plain path data on a 24-unit grid with one stroke weight, so the

@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.15.0
+Stable tag: 3.16.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.16.0 =
+* Changed: the plugin has a mark of its own — a selected range with the handle you drag it by, which is the same frame the dashboard draws around every block. It replaces the borrowed table icon in the masthead, in the admin menu and in the block inserter.
 
 = 3.15.0 =
 * Added: searching marks the part of each cell that matched. A search answers “which rows” and used to leave “why these rows” — which on a wide table of long descriptions is a real hunt, and the answer is often in a column nobody was looking at. It works on both kinds of search: the one in the browser, and the one a paged table does on the server across the whole sheet.
@@ -399,6 +402,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.16.0 =
+A mark of its own, in place of the borrowed table icon.
 
 = 3.15.0 =
 Searching now shows you what it matched.

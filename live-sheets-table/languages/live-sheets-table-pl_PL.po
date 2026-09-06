@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-06 12:25+0000\n"
-"PO-Revision-Date: 2026-09-06 12:25+0000\n"
+"POT-Creation-Date: 2026-09-06 17:43+0000\n"
+"PO-Revision-Date: 2026-09-06 17:43+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -106,7 +106,7 @@ msgstr "Na komputerze zwykła tabela. Na telefonie każdy wiersz zamienia się w
 msgid "A wide table becomes one card per row once its column gets too narrow. Use these to check both before you publish."
 msgstr "Szeroka tabela zamienia się w jedną kartę na wiersz, gdy jej kolumna staje się zbyt wąska. Sprawdź oba warianty, zanim opublikujesz."
 
-#: blocks/sheet-table/index.js:147
+#: blocks/sheet-table/index.js:161
 msgid "A wide table keeps its shape and gains a draggable slider. Card layouts stack each row instead, which suits tables of long text."
 msgstr "Szeroka tabela zachowuje swój kształt i zyskuje przeciągany suwak. Układy kartowe zamiast tego układają wiersze pionowo, co pasuje do tabel z długim tekstem."
 
@@ -122,7 +122,7 @@ msgstr "Dostęp"
 msgid "Add a sheet"
 msgstr "Dodaj arkusz"
 
-#: blocks/sheet-table/index.js:200
+#: blocks/sheet-table/index.js:214
 msgid "Add a sheet source"
 msgstr "Dodaj źródło arkusza"
 
@@ -229,7 +229,7 @@ msgid "Cancel"
 msgstr "Anuluj"
 
 #: includes/elementor/class-lstab-elementor-widget.php:176
-#: blocks/sheet-table/index.js:163
+#: blocks/sheet-table/index.js:177
 msgid "Caption"
 msgstr "Podpis"
 
@@ -245,7 +245,7 @@ msgstr "Sprawdzaj zmiany w Google"
 msgid "Checking Google"
 msgstr "Sprawdzanie Google"
 
-#: blocks/sheet-table/index.js:208
+#: blocks/sheet-table/index.js:222
 msgid "Choose which saved sheet to show."
 msgstr "Wybierz, który zapisany arkusz pokazać."
 
@@ -423,7 +423,7 @@ msgid "Failing since the last good sync %s ago"
 msgstr "Błąd od ostatniej udanej synchronizacji %s temu"
 
 #: includes/elementor/class-lstab-elementor-widget.php:194
-#: blocks/sheet-table/index.js:177
+#: blocks/sheet-table/index.js:191
 msgid "Filter"
 msgstr "Filtr"
 
@@ -464,8 +464,8 @@ msgid "Google Sheets"
 msgstr "Arkusze Google"
 
 #: includes/elementor/class-lstab-elementor-widget.php:32
-#: blocks/sheet-table/index.js:191 blocks/sheet-table/index.js:197
-#: blocks/sheet-table/index.js:207
+#: blocks/sheet-table/index.js:205 blocks/sheet-table/index.js:211
+#: blocks/sheet-table/index.js:221
 msgid "Google Sheets Table"
 msgstr "Tabela z Arkuszy Google"
 
@@ -596,7 +596,7 @@ msgid "Last sync OK (%s ago)"
 msgstr "Ostatnia synchronizacja OK (%s temu)"
 
 #: includes/elementor/class-lstab-elementor-widget.php:151
-#: blocks/sheet-table/index.js:144
+#: blocks/sheet-table/index.js:158
 msgid "Layout"
 msgstr "Układ"
 
@@ -654,7 +654,7 @@ msgstr "Zobacz wiersz %1$s: wrócił z inną liczbą komórek niż reszta."
 msgid "Make web and e-mail addresses in cells clickable"
 msgstr "Zamieniaj adresy WWW i e-mail w komórkach na klikalne linki"
 
-#: blocks/sheet-table/index.js:112
+#: blocks/sheet-table/index.js:126
 msgid "Manage sheet sources"
 msgstr "Zarządzaj źródłami arkuszy"
 
@@ -702,7 +702,7 @@ msgstr "Żaden wiersz nie pasuje do wyszukiwania."
 msgid "No sheet selected yet."
 msgstr "Nie wybrano jeszcze arkusza."
 
-#: blocks/sheet-table/index.js:198
+#: blocks/sheet-table/index.js:212
 msgid "No sheet sources yet. Add one in the dashboard, then pick it here."
 msgstr "Nie ma jeszcze żadnych źródeł arkuszy. Dodaj jedno w kokpicie, a potem wybierz je tutaj."
 
@@ -968,7 +968,7 @@ msgid "Save this source first. It is read straight away, and your real columns a
 msgstr "Najpierw zapisz to źródło. Arkusz zostanie od razu odczytany, a Twoje prawdziwe kolumny pojawią się tutaj."
 
 #: includes/elementor/class-lstab-elementor-widget.php:94
-#: blocks/sheet-table/index.js:98
+#: blocks/sheet-table/index.js:112
 msgid "Saved source"
 msgstr "Zapisane źródło"
 
@@ -986,7 +986,7 @@ msgid "Search"
 msgstr "Szukaj"
 
 #: includes/elementor/class-lstab-elementor-widget.php:124
-#: blocks/sheet-table/index.js:120
+#: blocks/sheet-table/index.js:134
 msgid "Search box"
 msgstr "Pole wyszukiwania"
 
@@ -1018,7 +1018,7 @@ msgstr "Zobacz, co daje Pro"
 msgid "See what is hidden, and what will come back"
 msgstr "Zobacz, co jest ukryte i co wróci"
 
-#: includes/class-lstab-elementor.php:79 blocks/sheet-table/index.js:82
+#: includes/class-lstab-elementor.php:79 blocks/sheet-table/index.js:96
 msgid "Select a sheet…"
 msgstr "Wybierz arkusz…"
 
@@ -1058,7 +1058,7 @@ msgstr "Arkusz"
 msgid "Sheet refreshed from Google."
 msgstr "Arkusz odświeżony z Google."
 
-#: blocks/sheet-table/index.js:96
+#: blocks/sheet-table/index.js:110
 msgid "Sheet source"
 msgstr "Źródło arkusza"
 
@@ -1097,12 +1097,12 @@ msgid "Show me the table"
 msgstr "Pokaż tabelę"
 
 #: includes/elementor/class-lstab-elementor-widget.php:196
-#: blocks/sheet-table/index.js:178
+#: blocks/sheet-table/index.js:192
 msgid "Show only matching rows, for example: Kategoria is Rowery. Join conditions with “and”. Operators: is, is not, has, gt, gte, lt, lte."
 msgstr "Pokaż tylko pasujące wiersze, na przykład: Kategoria is Rowery. Warunki łącz słowem „and”. Operatory: is, is not, has, gt, gte, lt, lte."
 
 #: includes/elementor/class-lstab-elementor-widget.php:142
-#: blocks/sheet-table/index.js:136
+#: blocks/sheet-table/index.js:150
 msgid "Show “updated … ago”"
 msgstr "Pokaż „zaktualizowano … temu”"
 
@@ -1136,7 +1136,7 @@ msgid "Sort by %s"
 msgstr "Sortuj według: %s"
 
 #: includes/elementor/class-lstab-elementor-widget.php:133
-#: blocks/sheet-table/index.js:128
+#: blocks/sheet-table/index.js:142
 msgid "Sortable columns"
 msgstr "Sortowalne kolumny"
 
@@ -1162,7 +1162,7 @@ msgid "Striped rows"
 msgstr "Naprzemienne wiersze"
 
 #: includes/elementor/class-lstab-elementor-widget.php:166
-#: blocks/sheet-table/index.js:154
+#: blocks/sheet-table/index.js:168
 msgid "Style preset"
 msgstr "Preset stylu"
 
@@ -1182,7 +1182,7 @@ msgstr "Błąd synchronizacji — nie ma jeszcze czego pokazać"
 msgid "Sync error — visitors still see the last good copy"
 msgstr "Błąd synchronizacji — odwiedzający wciąż widzą ostatnią poprawną kopię"
 
-#: blocks/sheet-table/index.js:118
+#: blocks/sheet-table/index.js:132
 msgid "Table options"
 msgstr "Opcje tabeli"
 
@@ -1421,7 +1421,7 @@ msgid "When this plugin is deleted"
 msgstr "Gdy ta wtyczka zostanie usunięta"
 
 #: includes/elementor/class-lstab-elementor-widget.php:188
-#: blocks/sheet-table/index.js:175
+#: blocks/sheet-table/index.js:189
 msgid "Which rows"
 msgstr "Które wiersze"
 
@@ -1507,7 +1507,7 @@ msgstr "następne sprawdzenie za %s"
 msgid "nothing"
 msgstr "nic"
 
-#: blocks/sheet-table/index.js:86
+#: blocks/sheet-table/index.js:100
 msgid "rows"
 msgstr "wierszy"
 

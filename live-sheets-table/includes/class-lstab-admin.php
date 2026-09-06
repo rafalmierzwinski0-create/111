@@ -69,7 +69,7 @@ class LSTAB_Admin {
 			$capability,
 			self::MENU_SLUG,
 			array( $this, 'render_list_page' ),
-			'dashicons-editor-table',
+			LSTAB_Icons::menu_mark(),
 			58
 		);
 
@@ -941,7 +941,7 @@ class LSTAB_Admin {
 	public static function render_masthead( $sub = '', $actions = '' ) {
 		?>
 		<div class="lstab-masthead">
-			<span class="lstab-logo"><?php echo LSTAB_Icons::icon( 'grid' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG from the plugin. ?></span>
+			<span class="lstab-logo"><?php echo LSTAB_Icons::mark( 38 ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG from the plugin. ?></span>
 			<span class="lstab-masthead-text">
 				<h1>
 					<?php esc_html_e( 'Live Sheets Table', 'live-sheets-table' ); ?>

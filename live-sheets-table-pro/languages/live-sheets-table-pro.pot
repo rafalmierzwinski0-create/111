@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-06 12:25+0000\n"
+"POT-Creation-Date: 2026-09-06 17:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -12,9 +12,20 @@ msgstr ""
 "X-Domain: live-sheets-table-pro\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#. translators: 1: how many different values, 2: how many rows hold one.
+#: includes/views/facets-card.php:84
+msgid "%1$s different values across %2$s rows — barely more than one row behind each. A search box does this better."
+msgstr ""
+
+#. translators: 1: how many different values, 2: rows behind each one on
+#. average, 3: the commonest few, already counted.
+#: includes/views/facets-card.php:97
+msgid "%1$s different values, about %2$s rows behind each — a good filter, but a long list. Visitors can type to narrow it. Commonest: %3$s"
+msgstr ""
+
 #. translators: 1: how many different values, 2: the commonest few, already
 #. counted.
-#: includes/views/facets-card.php:69
+#: includes/views/facets-card.php:105
 msgid "%1$s different values: %2$s"
 msgstr ""
 
@@ -76,7 +87,7 @@ msgid "Buttons under the table: one Excel file, one CSV, and Print. The file hol
 msgstr ""
 
 #. translators: %s: how many rows the table holds unfiltered.
-#: includes/class-lstabp-facets.php:421
+#: includes/class-lstabp-facets.php:486
 msgid "Clear filters — show all %s"
 msgstr ""
 
@@ -171,11 +182,11 @@ msgstr ""
 msgid "Enable the Google Sheets API for it."
 msgstr ""
 
-#: includes/views/facets-card.php:65
+#: includes/views/facets-card.php:80
 msgid "Every row is different, so each choice would leave one row. A search box does this better."
 msgstr ""
 
-#: includes/views/facets-card.php:63
+#: includes/views/facets-card.php:78
 msgid "Every row says the same thing, so a filter here could not narrow anything."
 msgstr ""
 
@@ -183,8 +194,12 @@ msgstr ""
 msgid "Filtered views"
 msgstr ""
 
-#: includes/views/facets-card.php:103
+#: includes/views/facets-card.php:130
 msgid "Filters appear above the table as buttons a visitor opens. Each one is an ordinary link, so a filtered table has an address of its own that can be shared — and it works with searching and pages, over the whole sheet rather than the page on screen."
+msgstr ""
+
+#: includes/class-lstabp-facets.php:443
+msgid "Find a value"
 msgstr ""
 
 #: includes/class-lstabp-google-auth.php:198
@@ -297,6 +312,10 @@ msgstr ""
 
 #: includes/views/settings-page.php:103
 msgid "Not connected yet"
+msgstr ""
+
+#: includes/class-lstabp-facets.php:470
+msgid "Nothing here matches that."
 msgstr ""
 
 #. translators: %s: number of rules.
@@ -421,7 +440,7 @@ msgstr ""
 msgid "Sheet source"
 msgstr ""
 
-#: includes/class-lstabp-facets.php:369
+#: includes/class-lstabp-facets.php:404
 msgid "Show only:"
 msgstr ""
 
@@ -446,7 +465,7 @@ msgstr ""
 msgid "Struck through"
 msgstr ""
 
-#: includes/views/facets-card.php:93
+#: includes/views/facets-card.php:120
 msgid "Suits a filter"
 msgstr ""
 
@@ -466,6 +485,11 @@ msgstr ""
 msgid "That sign-in did not match the request that started it, so it was discarded. Please try connecting again."
 msgstr ""
 
+#. translators: 1: how many values are listed, 2: how many the column holds.
+#: includes/class-lstabp-facets.php:462
+msgid "The %1$s commonest of %2$s values."
+msgstr ""
+
 #: includes/views/settings-page.php:84
 msgid "The connected account"
 msgstr ""
@@ -474,7 +498,7 @@ msgstr ""
 msgid "The empty line at the bottom is the next rule; save to get another one. To take a rule away, set its column back to “remove this rule”."
 msgstr ""
 
-#: includes/views/facets-card.php:61
+#: includes/views/facets-card.php:76
 msgid "This column is empty."
 msgstr ""
 
@@ -500,6 +524,10 @@ msgstr ""
 
 #: includes/views/settings-page.php:33
 msgid "To read sheets that are not shared publicly, this site signs in to Google as you. That needs an OAuth client from your own Google Cloud project — your own, deliberately, so your spreadsheets are never routed through anyone else's credentials."
+msgstr ""
+
+#: includes/class-lstabp-facets.php:442
+msgid "Type to narrow this list…"
 msgstr ""
 
 #: includes/views/settings-page.php:93
@@ -559,7 +587,7 @@ msgstr ""
 msgid "Your subscription"
 msgstr ""
 
-#: includes/class-lstabp-facets.php:389
+#: includes/class-lstabp-facets.php:424
 msgid "any"
 msgstr ""
 

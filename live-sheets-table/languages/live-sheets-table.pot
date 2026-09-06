@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-06 12:25+0000\n"
+"POT-Creation-Date: 2026-09-06 17:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -104,7 +104,7 @@ msgstr ""
 msgid "A wide table becomes one card per row once its column gets too narrow. Use these to check both before you publish."
 msgstr ""
 
-#: blocks/sheet-table/index.js:147
+#: blocks/sheet-table/index.js:161
 msgid "A wide table keeps its shape and gains a draggable slider. Card layouts stack each row instead, which suits tables of long text."
 msgstr ""
 
@@ -120,7 +120,7 @@ msgstr ""
 msgid "Add a sheet"
 msgstr ""
 
-#: blocks/sheet-table/index.js:200
+#: blocks/sheet-table/index.js:214
 msgid "Add a sheet source"
 msgstr ""
 
@@ -227,7 +227,7 @@ msgid "Cancel"
 msgstr ""
 
 #: includes/elementor/class-lstab-elementor-widget.php:176
-#: blocks/sheet-table/index.js:163
+#: blocks/sheet-table/index.js:177
 msgid "Caption"
 msgstr ""
 
@@ -243,7 +243,7 @@ msgstr ""
 msgid "Checking Google"
 msgstr ""
 
-#: blocks/sheet-table/index.js:208
+#: blocks/sheet-table/index.js:222
 msgid "Choose which saved sheet to show."
 msgstr ""
 
@@ -421,7 +421,7 @@ msgid "Failing since the last good sync %s ago"
 msgstr ""
 
 #: includes/elementor/class-lstab-elementor-widget.php:194
-#: blocks/sheet-table/index.js:177
+#: blocks/sheet-table/index.js:191
 msgid "Filter"
 msgstr ""
 
@@ -462,8 +462,8 @@ msgid "Google Sheets"
 msgstr ""
 
 #: includes/elementor/class-lstab-elementor-widget.php:32
-#: blocks/sheet-table/index.js:191 blocks/sheet-table/index.js:197
-#: blocks/sheet-table/index.js:207
+#: blocks/sheet-table/index.js:205 blocks/sheet-table/index.js:211
+#: blocks/sheet-table/index.js:221
 msgid "Google Sheets Table"
 msgstr ""
 
@@ -594,7 +594,7 @@ msgid "Last sync OK (%s ago)"
 msgstr ""
 
 #: includes/elementor/class-lstab-elementor-widget.php:151
-#: blocks/sheet-table/index.js:144
+#: blocks/sheet-table/index.js:158
 msgid "Layout"
 msgstr ""
 
@@ -652,7 +652,7 @@ msgstr ""
 msgid "Make web and e-mail addresses in cells clickable"
 msgstr ""
 
-#: blocks/sheet-table/index.js:112
+#: blocks/sheet-table/index.js:126
 msgid "Manage sheet sources"
 msgstr ""
 
@@ -700,7 +700,7 @@ msgstr ""
 msgid "No sheet selected yet."
 msgstr ""
 
-#: blocks/sheet-table/index.js:198
+#: blocks/sheet-table/index.js:212
 msgid "No sheet sources yet. Add one in the dashboard, then pick it here."
 msgstr ""
 
@@ -964,7 +964,7 @@ msgid "Save this source first. It is read straight away, and your real columns a
 msgstr ""
 
 #: includes/elementor/class-lstab-elementor-widget.php:94
-#: blocks/sheet-table/index.js:98
+#: blocks/sheet-table/index.js:112
 msgid "Saved source"
 msgstr ""
 
@@ -982,7 +982,7 @@ msgid "Search"
 msgstr ""
 
 #: includes/elementor/class-lstab-elementor-widget.php:124
-#: blocks/sheet-table/index.js:120
+#: blocks/sheet-table/index.js:134
 msgid "Search box"
 msgstr ""
 
@@ -1014,7 +1014,7 @@ msgstr ""
 msgid "See what is hidden, and what will come back"
 msgstr ""
 
-#: includes/class-lstab-elementor.php:79 blocks/sheet-table/index.js:82
+#: includes/class-lstab-elementor.php:79 blocks/sheet-table/index.js:96
 msgid "Select a sheet…"
 msgstr ""
 
@@ -1054,7 +1054,7 @@ msgstr ""
 msgid "Sheet refreshed from Google."
 msgstr ""
 
-#: blocks/sheet-table/index.js:96
+#: blocks/sheet-table/index.js:110
 msgid "Sheet source"
 msgstr ""
 
@@ -1093,12 +1093,12 @@ msgid "Show me the table"
 msgstr ""
 
 #: includes/elementor/class-lstab-elementor-widget.php:196
-#: blocks/sheet-table/index.js:178
+#: blocks/sheet-table/index.js:192
 msgid "Show only matching rows, for example: Kategoria is Rowery. Join conditions with “and”. Operators: is, is not, has, gt, gte, lt, lte."
 msgstr ""
 
 #: includes/elementor/class-lstab-elementor-widget.php:142
-#: blocks/sheet-table/index.js:136
+#: blocks/sheet-table/index.js:150
 msgid "Show “updated … ago”"
 msgstr ""
 
@@ -1132,7 +1132,7 @@ msgid "Sort by %s"
 msgstr ""
 
 #: includes/elementor/class-lstab-elementor-widget.php:133
-#: blocks/sheet-table/index.js:128
+#: blocks/sheet-table/index.js:142
 msgid "Sortable columns"
 msgstr ""
 
@@ -1158,7 +1158,7 @@ msgid "Striped rows"
 msgstr ""
 
 #: includes/elementor/class-lstab-elementor-widget.php:166
-#: blocks/sheet-table/index.js:154
+#: blocks/sheet-table/index.js:168
 msgid "Style preset"
 msgstr ""
 
@@ -1178,7 +1178,7 @@ msgstr ""
 msgid "Sync error — visitors still see the last good copy"
 msgstr ""
 
-#: blocks/sheet-table/index.js:118
+#: blocks/sheet-table/index.js:132
 msgid "Table options"
 msgstr ""
 
@@ -1415,7 +1415,7 @@ msgid "When this plugin is deleted"
 msgstr ""
 
 #: includes/elementor/class-lstab-elementor-widget.php:188
-#: blocks/sheet-table/index.js:175
+#: blocks/sheet-table/index.js:189
 msgid "Which rows"
 msgstr ""
 
@@ -1501,7 +1501,7 @@ msgstr ""
 msgid "nothing"
 msgstr ""
 
-#: blocks/sheet-table/index.js:86
+#: blocks/sheet-table/index.js:100
 msgid "rows"
 msgstr ""
 

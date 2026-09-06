@@ -1079,6 +1079,30 @@ lstabp_assert(
 	count( $lstabp_names ) . '/' . count( $lstabp_rows )
 );
 
+/*
+ * The question the card exists to answer is a ratio, not a count. Forty towns
+ * across five hundred rows is twelve rows behind every choice and a fine
+ * filter; four values across seven rows is not. And the counting must never be
+ * capped by what the menu can show — a card describing a column of five hundred
+ * different values as having sixty would be reporting its own limit.
+ */
+$lstabp_many = array();
+for ( $lstabp_i = 0; $lstabp_i < 500; $lstabp_i++ ) {
+	$lstabp_many[] = array( 'Wiersz ' . $lstabp_i, 'Miasto ' . ( $lstabp_i % 40 ), 'Nr ' . $lstabp_i );
+}
+
+$lstabp_towns = LSTABP_Facets::tally( $lstabp_many, 1 );
+lstabp_assert( 40 === count( $lstabp_towns ), 'A column of forty repeated values counts forty', (string) count( $lstabp_towns ) );
+lstabp_assert( 500 === array_sum( $lstabp_towns ), 'Across every row, not just the ones that fit a menu', (string) array_sum( $lstabp_towns ) );
+
+$lstabp_unique = LSTABP_Facets::tally( $lstabp_many, 2 );
+lstabp_assert(
+	500 === count( $lstabp_unique ),
+	'A column where every row differs says so, rather than stopping at the menu limit',
+	(string) count( $lstabp_unique )
+);
+lstabp_assert( LSTABP_Facets::MAX_VALUES < count( $lstabp_unique ), 'Which is more than a menu would ever show' );
+
 update_option( LSTABP_Facets::OPTION, array( $source_id => array( 'Dostępność' ) ), false );
 
 $lstabp_unfiltered = do_shortcode( '[sheet_table id="' . $source_id . '"]' );

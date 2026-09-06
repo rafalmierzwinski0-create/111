@@ -1318,6 +1318,33 @@
 	font-variant-numeric: tabular-nums;
 }
 
+/* Typing narrows a long menu; the box only appears once the script is there. */
+.lstabp-facet-find {
+	inline-size: 100%;
+	margin: 0.15em 0 0.35em;
+	padding: 0.42em 0.6em;
+	border: 1px solid var(--lstab-border-strong);
+	border-radius: 7px;
+	background: var(--lstab-bg);
+	color: var(--lstab-fg);
+	font: inherit;
+	font-size: 0.88em;
+}
+
+.lstabp-facet-find:focus {
+	outline: 2px solid var(--lstab-accent);
+	outline-offset: -1px;
+}
+
+.lstabp-facet-value[hidden] { display: none; }
+
+.lstabp-facet-more,
+.lstabp-facet-none {
+	margin: 0.3em 0.5em 0.15em;
+	color: var(--lstab-fg-faint);
+	font-size: 0.82em;
+}
+
 .lstabp-facets-clear {
 	color: var(--lstab-accent);
 	font-size: 0.86em;

@@ -67,21 +67,20 @@
 	margin: 0.4rem 0 1rem;
 }
 
+/*
+ * The mark carries its own tile now, so this is only the box it sits in. The
+ * shadow stays here rather than in the SVG: it belongs to the page's lighting,
+ * not to the logo, and a mark exported for anywhere else should not bring it.
+ */
 .lstab-logo {
-	inline-size: 2.3rem;
-	block-size: 2.3rem;
-	border-radius: 9px;
 	display: grid;
 	place-items: center;
-	background: linear-gradient( 155deg, var( --lstab-a ) 0%, var( --lstab-a-deep ) 100% );
-	box-shadow: 0 4px 12px -4px var( --lstab-a-glow ), inset 0 1px 0 rgba( 255, 255, 255, 0.3 );
-	color: #fff;
 	flex: none;
+	filter: drop-shadow( 0 4px 12px var( --lstab-a-glow ) );
 }
 
-.lstab-logo .lstab-icon {
-	inline-size: 1.25rem;
-	block-size: 1.25rem;
+.lstab-logo .lstab-mark {
+	display: block;
 }
 
 .lstab-masthead-text { min-inline-size: 0; }

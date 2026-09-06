@@ -34,11 +34,19 @@ class LSTABP_Facets {
 	const OPTION = 'lstabp_facets';
 
 	/**
-	 * How many distinct values one filter will offer.
+	 * How many distinct values one filter's menu will offer.
 	 *
 	 * Past this the menu has stopped being a choice and become a second table.
+	 * It caps the menu, never the counting: a card that said "60 different
+	 * values" about a column holding five hundred would be describing its own
+	 * limit rather than the sheet.
 	 */
 	const MAX_VALUES = 60;
+
+	/**
+	 * How long a menu can get before it wants a way to search it.
+	 */
+	const LONG_MENU = 12;
 
 	/**
 	 * What each table on this page worked out, keyed by source ID.
@@ -60,11 +68,25 @@ class LSTABP_Facets {
 		 */
 		add_filter( 'lstab_source_rows', array( $this, 'narrow' ), 12, 4 );
 		add_action( 'lstab_before_table', array( $this, 'render_bar' ), 10, 2 );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue' ) );
 
 		// The Appearance tab, beside the other things a visitor is given.
 		add_action( 'lstab_edit_pane_cards', array( $this, 'render_pane_card' ), 15, 3 );
 		add_action( 'lstab_source_saved', array( $this, 'save' ) );
 		add_action( 'lstab_source_deleted', array( $this, 'forget' ) );
+	}
+
+	/**
+	 * Register the script that makes a long menu searchable.
+	 *
+	 * Registered rather than enqueued: it is only wanted by a page that
+	 * actually prints a filter bar, and only when one of the menus is long
+	 * enough to need it.
+	 *
+	 * @return void
+	 */
+	public function enqueue() {
+		wp_register_script( 'lstabp-facets', LSTABP_URL . 'assets/js/lstabp-facets.js', array(), LSTABP_VERSION, true );
 	}
 
 	/**
@@ -159,7 +181,10 @@ class LSTABP_Facets {
 
 			$facets[ $position ] = array(
 				'heading' => $heading,
-				'values'  => $tally,
+				// The whole tally decides what a chosen value means; only the
+				// menu is cut down to a length somebody can read.
+				'values'  => array_slice( $tally, 0, self::MAX_VALUES, true ),
+				'kinds'   => count( $tally ),
 				'chosen'  => self::chosen( $source_id, $position, array_keys( $tally ) ),
 			);
 		}
@@ -266,7 +291,7 @@ class LSTABP_Facets {
 			}
 		);
 
-		return array_slice( $counts, 0, self::MAX_VALUES, true );
+		return $counts;
 	}
 
 	/**
@@ -361,8 +386,18 @@ class LSTABP_Facets {
 		}
 
 		$clear = array( 'page' => null );
-		foreach ( array_keys( $facets ) as $position ) {
+		$long  = false;
+
+		foreach ( $facets as $position => $facet ) {
 			$clear[ self::arg( $position ) ] = null;
+
+			if ( $facet['kinds'] > self::LONG_MENU ) {
+				$long = true;
+			}
+		}
+
+		if ( $long ) {
+			wp_enqueue_script( 'lstabp-facets' );
 		}
 		?>
 		<div class="lstabp-facets">
@@ -393,6 +428,21 @@ class LSTABP_Facets {
 					</summary>
 
 					<div class="lstabp-facet-menu">
+						<?php if ( $lstabp_facet['kinds'] > self::LONG_MENU ) : ?>
+							<?php
+							/*
+							 * A column of forty towns is a perfectly good
+							 * filter and an unreadable list. Typing narrows it
+							 * — and the box is hidden until the script shows
+							 * it, because a search box that cannot search is
+							 * worse than a long list.
+							 */
+							?>
+							<input type="search" class="lstabp-facet-find" hidden
+								placeholder="<?php esc_attr_e( 'Type to narrow this list…', 'live-sheets-table-pro' ); ?>"
+								aria-label="<?php esc_attr_e( 'Find a value', 'live-sheets-table-pro' ); ?>">
+						<?php endif; ?>
+
 						<?php foreach ( $lstabp_facet['values'] as $lstabp_value => $lstabp_count ) : ?>
 							<?php $lstabp_picked = in_array( (string) $lstabp_value, $lstabp_facet['chosen'], true ); ?>
 							<a class="lstabp-facet-value<?php echo $lstabp_picked ? ' is-picked' : ''; ?>"
@@ -403,6 +453,21 @@ class LSTABP_Facets {
 								<span class="lstabp-facet-count"><?php echo esc_html( number_format_i18n( $lstabp_count ) ); ?></span>
 							</a>
 						<?php endforeach; ?>
+
+						<?php if ( $lstabp_facet['kinds'] > count( $lstabp_facet['values'] ) ) : ?>
+							<p class="lstabp-facet-more">
+								<?php
+								printf(
+									/* translators: 1: how many values are listed, 2: how many the column holds. */
+									esc_html__( 'The %1$s commonest of %2$s values.', 'live-sheets-table-pro' ),
+									esc_html( number_format_i18n( count( $lstabp_facet['values'] ) ) ),
+									esc_html( number_format_i18n( $lstabp_facet['kinds'] ) )
+								);
+								?>
+							</p>
+						<?php endif; ?>
+
+						<p class="lstabp-facet-none" hidden><?php esc_html_e( 'Nothing here matches that.', 'live-sheets-table-pro' ); ?></p>
 					</div>
 				</details>
 			<?php endforeach; ?>

@@ -50,12 +50,27 @@ $lstabp_total   = count( $rows );
 				$lstabp_on     = in_array( (string) $lstabp_heading, $chosen, true );
 
 				/*
-				 * Worth offering when the values repeat: several rows behind
-				 * each answer. A column where every row differs offers as many
-				 * choices as it has rows and narrows the table to one of them,
-				 * which is a worse search box.
+				 * Worth offering when the values repeat — which is a ratio, not
+				 * a count. Forty towns across five hundred rows is twelve rows
+				 * behind every choice and a fine filter; four values across
+				 * seven rows is not. A column where every row differs offers as
+				 * many choices as it has rows and narrows the table to one of
+				 * them, which is a worse search box.
 				 */
-				$lstabp_suits = $lstabp_kinds >= 2 && $lstabp_kinds <= max( 2, (int) floor( $lstabp_filled / 2 ) );
+				$lstabp_each  = $lstabp_kinds > 0 ? $lstabp_filled / $lstabp_kinds : 0;
+				$lstabp_suits = $lstabp_kinds >= 2 && $lstabp_each >= 2;
+				$lstabp_long  = $lstabp_kinds > LSTABP_Facets::LONG_MENU;
+
+				$lstabp_top = implode(
+					', ',
+					array_map(
+						static function ( $lstabp_value, $lstabp_count ) {
+							return $lstabp_value . ' (' . number_format_i18n( $lstabp_count ) . ')';
+						},
+						array_slice( array_keys( $lstabp_tally ), 0, 3 ),
+						array_slice( array_values( $lstabp_tally ), 0, 3 )
+					)
+				) . ( $lstabp_kinds > 3 ? ' …' : '' );
 
 				if ( 0 === $lstabp_kinds ) {
 					$lstabp_says = __( 'This column is empty.', 'live-sheets-table-pro' );
@@ -63,21 +78,33 @@ $lstabp_total   = count( $rows );
 					$lstabp_says = __( 'Every row says the same thing, so a filter here could not narrow anything.', 'live-sheets-table-pro' );
 				} elseif ( $lstabp_kinds === $lstabp_filled ) {
 					$lstabp_says = __( 'Every row is different, so each choice would leave one row. A search box does this better.', 'live-sheets-table-pro' );
+				} elseif ( ! $lstabp_suits ) {
+					$lstabp_says = sprintf(
+						/* translators: 1: how many different values, 2: how many rows hold one. */
+						__( '%1$s different values across %2$s rows — barely more than one row behind each. A search box does this better.', 'live-sheets-table-pro' ),
+						number_format_i18n( $lstabp_kinds ),
+						number_format_i18n( $lstabp_filled )
+					);
+				} elseif ( $lstabp_long ) {
+					/*
+					 * The case this card used to have nothing to say about: a
+					 * column that filters well and has too many values to read
+					 * at a glance. It is a good filter and a long menu, and
+					 * both halves of that are worth knowing before you tick it.
+					 */
+					$lstabp_says = sprintf(
+						/* translators: 1: how many different values, 2: rows behind each one on average, 3: the commonest few, already counted. */
+						__( '%1$s different values, about %2$s rows behind each — a good filter, but a long list. Visitors can type to narrow it. Commonest: %3$s', 'live-sheets-table-pro' ),
+						number_format_i18n( $lstabp_kinds ),
+						number_format_i18n( (int) round( $lstabp_each ) ),
+						$lstabp_top
+					);
 				} else {
 					$lstabp_says = sprintf(
 						/* translators: 1: how many different values, 2: the commonest few, already counted. */
 						__( '%1$s different values: %2$s', 'live-sheets-table-pro' ),
 						number_format_i18n( $lstabp_kinds ),
-						implode(
-							', ',
-							array_map(
-								static function ( $lstabp_value, $lstabp_count ) {
-									return $lstabp_value . ' (' . number_format_i18n( $lstabp_count ) . ')';
-								},
-								array_slice( array_keys( $lstabp_tally ), 0, 3 ),
-								array_slice( array_values( $lstabp_tally ), 0, 3 )
-							)
-						) . ( $lstabp_kinds > 3 ? ' …' : '' )
+						$lstabp_top
 					);
 				}
 				?>

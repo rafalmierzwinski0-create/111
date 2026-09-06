@@ -72,7 +72,21 @@
 		return { sources: sources, loading: null === sources };
 	}
 
+	/*
+	 * The product's mark, drawn rather than named: block.json can only name a
+	 * dashicon, and the inserter is the one place a visitor to the editor meets
+	 * this plugin before it has done anything.
+	 */
+	var blockIcon = el(
+		'svg',
+		{ viewBox: '0 0 32 32', width: 24, height: 24, xmlns: 'http://www.w3.org/2000/svg' },
+		el( 'rect', { x: 3, y: 4, width: 21, height: 21, rx: 5, fill: 'none', stroke: 'currentColor', strokeWidth: 2.2 } ),
+		el( 'path', { d: 'M3.6 11.4h19.8M12 11.4v13.2', fill: 'none', stroke: 'currentColor', strokeWidth: 2.2, strokeLinecap: 'round' } ),
+		el( 'rect', { x: 23, y: 23, width: 7.4, height: 7.4, rx: 2.2, fill: 'currentColor' } )
+	);
+
 	registerBlockType( 'live-sheets-table/sheet-table', {
+		icon: blockIcon,
 		edit: function ( props ) {
 			var attributes = props.attributes;
 			var setAttributes = props.setAttributes;
@@ -193,7 +207,7 @@
 				body = el(
 					Placeholder,
 					{
-						icon: 'editor-table',
+						icon: blockIcon,
 						label: __( 'Google Sheets Table', 'live-sheets-table' ),
 						instructions: __( 'No sheet sources yet. Add one in the dashboard, then pick it here.', 'live-sheets-table' )
 					},
@@ -203,7 +217,7 @@
 				body = el(
 					Placeholder,
 					{
-						icon: 'editor-table',
+						icon: blockIcon,
 						label: __( 'Google Sheets Table', 'live-sheets-table' ),
 						instructions: __( 'Choose which saved sheet to show.', 'live-sheets-table' )
 					},
