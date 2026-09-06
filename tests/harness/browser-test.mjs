@@ -1258,6 +1258,95 @@ await columnRows.nth( 0 ).locator( 'input[type=text]' ).fill( '' );
 await page.locator( '.lstab-submit button[type=submit]' ).click();
 await page.waitForLoadState( 'networkidle' );
 
+// -------------------------------------------- text on the page's own paper
+section( '5d1. Nothing disappears against the page behind it' );
+
+/*
+ * A theme can be light while the visitor's system is set to dark, which is
+ * about half of all visits. The table paints itself dark for them — and the
+ * three pieces that sit outside its frame, the title, the row count and the
+ * fetched-at line, are on the page's white paper. They used to take the
+ * table's near-white ink out there with them: the title measured 1.17 to 1,
+ * which is not low contrast but invisible.
+ */
+{
+	const darkEyes = await browser.newContext( { viewport: { width: 1200, height: 900 }, colorScheme: 'dark' } );
+	const dpage = await darkEyes.newPage();
+	await dpage.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
+	await dpage.waitForTimeout( 400 );
+
+	const thin = await dpage.evaluate( () => {
+		const light = ( colour ) => {
+			const parts = ( colour.match( /[\d.]+/g ) || [ 0, 0, 0 ] ).map( Number ).slice( 0, 3 );
+			const linear = parts.map( ( channel ) => {
+				channel /= 255;
+				return channel <= 0.03928 ? channel / 12.92 : Math.pow( ( channel + 0.055 ) / 1.055, 2.4 );
+			} );
+			return 0.2126 * linear[ 0 ] + 0.7152 * linear[ 1 ] + 0.0722 * linear[ 2 ];
+		};
+		const ratio = ( one, two ) => {
+			const a = light( one ), b = light( two );
+			return +( ( Math.max( a, b ) + 0.05 ) / ( Math.min( a, b ) + 0.05 ) ).toFixed( 2 );
+		};
+		const paper = getComputedStyle( document.body ).backgroundColor;
+		const out = [];
+
+		document.querySelectorAll( '.lstab-caption, .lstab-count, .lstab-meta, .lstabp-facets-label' ).forEach( ( el ) => {
+			if ( ! el.getBoundingClientRect().height ) { return; }
+			const seen = ratio( getComputedStyle( el ).color, paper );
+			if ( seen < 4.5 ) { out.push( `${ el.className } ${ seen }` ); }
+		} );
+
+		return out;
+	} );
+
+	check( 0 === thin.length, 'Everything outside the frame is readable on the page behind it', thin.join( ' | ' ) );
+	await darkEyes.close();
+}
+
+/*
+ * And the labels a card layout repeats beside every value are content, not
+ * decoration: they name the figure next to them, so they answer to the same
+ * bar as the figure does. They were #848d94, which is 3.38 to 1.
+ */
+{
+	const phone = await browser.newContext( { viewport: { width: 420, height: 900 } } );
+	const ppage = await phone.newPage();
+	await ppage.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
+	await ppage.waitForTimeout( 400 );
+
+	const worst = await ppage.evaluate( () => {
+		const light = ( colour ) => {
+			const parts = ( colour.match( /[\d.]+/g ) || [ 0, 0, 0 ] ).map( Number ).slice( 0, 3 );
+			const linear = parts.map( ( channel ) => {
+				channel /= 255;
+				return channel <= 0.03928 ? channel / 12.92 : Math.pow( ( channel + 0.055 ) / 1.055, 2.4 );
+			} );
+			return 0.2126 * linear[ 0 ] + 0.7152 * linear[ 1 ] + 0.0722 * linear[ 2 ];
+		};
+		const ratio = ( one, two ) => {
+			const a = light( one ), b = light( two );
+			return +( ( Math.max( a, b ) + 0.05 ) / ( Math.min( a, b ) + 0.05 ) ).toFixed( 2 );
+		};
+		const behind = ( el ) => {
+			for ( let e = el; e; e = e.parentElement ) {
+				const colour = getComputedStyle( e ).backgroundColor;
+				if ( colour && ! /rgba\(0, 0, 0, 0\)|transparent/.test( colour ) ) { return colour; }
+			}
+			return 'rgb(255,255,255)';
+		};
+		let low = 21;
+		document.querySelectorAll( '.lstab-cell-label' ).forEach( ( el ) => {
+			if ( ! el.getBoundingClientRect().height ) { return; }
+			low = Math.min( low, ratio( getComputedStyle( el ).color, behind( el ) ) );
+		} );
+		return low;
+	} );
+
+	check( worst >= 4.5, 'The label beside every value on a phone is as readable as the value', String( worst ) );
+	await phone.close();
+}
+
 // ------------------------------------------------------- what matched
 section( '5d2. The search says what it matched' );
 

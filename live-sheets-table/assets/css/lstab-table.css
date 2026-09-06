@@ -23,7 +23,10 @@
 	/* Palette */
 	--lstab-fg: #1c2024;
 	--lstab-fg-muted: #61696f;
-	--lstab-fg-faint: #848d94;
+	/* 4.76 to 1 on the table's paper. It was #848d94, which is 3.38 — under
+	   the readability bar, and the card layout puts this colour on the label
+	   naming every value, which is content rather than decoration. */
+	--lstab-fg-faint: #6b747b;
 	--lstab-bg: #fff;
 	/* Opaque by default rather than transparent: the pinned first column would
 	   otherwise let the scrolling content show through the header. Same colour
@@ -69,9 +72,25 @@
 	--lstab-frame-border: 1px solid var(--lstab-border);
 	--lstab-frame-shadow: var(--lstab-shadow);
 
-	color: var(--lstab-fg);
+	/*
+	 * The page's ink, not the table's. The frame below takes the table's, and
+	 * everything inside it inherits from there — which leaves the title, the
+	 * row count and the fetched-at line, all of which sit outside the frame on
+	 * the page's own paper, taking the page's own colour.
+	 *
+	 * They used to take the table's: on a light theme seen by somebody whose
+	 * system is set to dark, the table paints itself dark and the title went
+	 * with it — near-white text on white paper, 1.17 to 1, which is not low
+	 * contrast but invisible.
+	 */
+	color: inherit;
 	font-size: var(--lstab-font-size);
 	margin-block: 1.4em;
+}
+
+/* The frame owns the table's palette. */
+.lstab-scroll {
+	color: var(--lstab-fg);
 }
 
 .lstab *,
@@ -128,7 +147,9 @@
 
 .lstab-count {
 	font-size: 0.86em;
-	color: var(--lstab-fg-muted);
+	/* Also outside the frame: see the note on the caption above. */
+	color: inherit;
+	opacity: 0.72;
 	font-variant-numeric: tabular-nums;
 	white-space: nowrap;
 }
@@ -179,13 +200,23 @@
 	font-variant-numeric: tabular-nums;
 }
 
+/*
+ * The three pieces that sit outside the table's frame — its title, the row
+ * count and the line saying when it was fetched — are on the page's own
+ * background, so they take the page's own ink.
+ *
+ * They used to take the table's. On a light theme seen by somebody whose
+ * system is set to dark, the table paints itself dark and those three took its
+ * near-white text out onto a white page: the title measured 1.17 to 1 against
+ * the paper behind it, which is not low contrast, it is invisible.
+ */
 .lstab-caption {
 	margin: 0 0 0.6em;
 	text-align: left;
 	font-weight: 600;
 	font-size: 1.02em;
 	line-height: 1.35;
-	color: var(--lstab-fg);
+	color: inherit;
 }
 
 .lstab-table thead {
@@ -598,7 +629,10 @@
 .lstab-meta {
 	margin: 0.75em 0 0;
 	font-size: 0.82em;
-	color: var(--lstab-fg-faint);
+	/* Quieter than the page's text, but made of it: see the note on the
+	   caption above. */
+	color: inherit;
+	opacity: 0.66;
 }
 
 .lstab-no-results {
@@ -1198,7 +1232,9 @@
 }
 
 .lstabp-facets-label {
-	color: var(--lstab-fg-muted);
+	/* Outside the frame, so the page's ink: see the note on the caption. */
+	color: inherit;
+	opacity: 0.7;
 	font-size: 0.88em;
 }
 

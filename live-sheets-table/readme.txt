@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.16.0
+Stable tag: 3.16.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,10 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.16.1 =
+* Fixed: on a light theme seen by somebody whose system is set to dark — about half of all visits — the table's title, its row count and its “updated” line vanished. They sit outside the table's frame, on the page's own paper, and were taking the table's near-white ink out there with them: the title measured 1.17 to 1 against the white behind it. Everything outside the frame now takes the page's own colour, whatever the table is wearing.
+* Fixed: the label printed beside every value in the card layout was too faint to reach the readability bar — 3.38 to 1, where 4.5 is the line for text this size. It names the figure next to it, so it now reads as well as the figure does.
 
 = 3.16.0 =
 * Changed: the plugin has a mark of its own — a selected range with the handle you drag it by, which is the same frame the dashboard draws around every block. It replaces the borrowed table icon in the masthead, in the admin menu and in the block inserter.
@@ -402,6 +406,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.16.1 =
+Text that vanished on a light site seen in dark mode.
 
 = 3.16.0 =
 A mark of its own, in place of the borrowed table icon.

@@ -42,8 +42,11 @@ run_suite() {
 
 # The free plugin's suite asserts the free tier, so Pro must be off before it —
 # not merely off by the end of the previous run. A site left with Pro active by
-# hand would otherwise fail six free-tier assertions for no reason of the code's.
+# hand would otherwise fail ten free-tier assertions for no reason of the code's.
+# Both sites the suite runs on, because a Pro zip tested by hand lands on the
+# clean one and stays there.
 php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null
+php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wpzip" 8090 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null 2>&1 || true
 
 run_suite wp    "WordPress 6.8 (minimum supported)"
 run_suite wp71  "WordPress 7.1 (current)"
@@ -76,6 +79,9 @@ echo " Reinstalling the clean site from the zip"
 echo "=============================================="
 rm -rf "$SCRATCH/wpzip/wp-content/plugins/live-sheets-table"
 unzip -q "$REPO/build/live-sheets-table.zip" -d "$SCRATCH/wpzip/wp-content/plugins/"
+# Again here: the deactivation above happened before the packaging step, and
+# this is the last moment before the free tier is asserted.
+php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wpzip" 8090 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null 2>&1 || true
 echo "  Installed $( find "$SCRATCH/wpzip/wp-content/plugins/live-sheets-table" -type f | wc -l ) files from the archive"
 php "$REPO/tests/harness/activate.php" "$SCRATCH/wpzip" 8090
 
