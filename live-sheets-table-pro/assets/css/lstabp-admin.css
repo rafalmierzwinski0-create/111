@@ -250,3 +250,69 @@
 	border-color: #e3b778;
 	background: #fffaf2;
 }
+
+/* ─────────────────────────────────────────── choosing the visitor's filters */
+
+.lstabp-facet-picks {
+	list-style: none;
+	margin: 0.6rem 0 0.9rem;
+	padding: 0;
+	display: grid;
+	gap: 0.4rem;
+}
+
+.lstabp-facet-pick {
+	border: 1px solid var( --lstab-line, #dbe5e3 );
+	border-radius: 9px;
+	background: #fff;
+}
+
+.lstabp-facet-pick label {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	align-items: baseline;
+	gap: 0.1rem 0.55rem;
+	padding: 0.6rem 0.8rem;
+	cursor: pointer;
+}
+
+.lstabp-facet-pick input[type="checkbox"] {
+	grid-row: 1 / span 2;
+	margin: 0.15rem 0 0;
+}
+
+.lstabp-facet-name {
+	font-weight: 600;
+	color: var( --lstab-ink, #101d1b );
+}
+
+/*
+ * Said on the columns worth offering, rather than greying out the rest: which
+ * ones make a useful filter is a judgement about the sheet, and the person
+ * whose sheet it is knows things the counting does not.
+ */
+.lstabp-facet-flag {
+	display: inline-block;
+	margin-inline-start: 0.4rem;
+	padding: 0.05rem 0.4rem;
+	border-radius: 999px;
+	background: var( --lstab-a-wash, #e2f1ef );
+	color: var( --lstab-a-deep, #0a5a54 );
+	font-size: 0.66rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	vertical-align: 0.1em;
+}
+
+.lstabp-facet-says {
+	grid-column: 2;
+	color: var( --lstab-ink-2, #556764 );
+	font-size: 0.84rem;
+	line-height: 1.45;
+}
+
+.lstabp-facet-pick.is-suited {
+	border-color: #c6ded9;
+	background: #fbfdfc;
+}

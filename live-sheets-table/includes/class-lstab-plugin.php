@@ -55,6 +55,13 @@ class LSTAB_Plugin {
 	public $links;
 
 	/**
+	 * Marking what a search matched.
+	 *
+	 * @var LSTAB_Highlight
+	 */
+	public $highlight;
+
+	/**
 	 * Server-side paging.
 	 *
 	 * @var LSTAB_Paging
@@ -122,6 +129,7 @@ class LSTAB_Plugin {
 		$this->rest      = new LSTAB_Rest();
 		$this->shortcode = new LSTAB_Shortcode();
 		$this->links     = new LSTAB_Links();
+		$this->highlight = new LSTAB_Highlight();
 		$this->paging    = new LSTAB_Paging();
 		$this->hidden_rows = new LSTAB_Hidden_Rows();
 		$this->settings    = new LSTAB_Settings();
@@ -140,6 +148,7 @@ class LSTAB_Plugin {
 		$this->rest->register();
 		$this->shortcode->register();
 		$this->links->register();
+		$this->highlight->register();
 		$this->paging->register();
 		$this->hidden_rows->register();
 		$this->settings->register();

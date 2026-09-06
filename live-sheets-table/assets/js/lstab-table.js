@@ -407,6 +407,85 @@
 				.replace( '%2$s', String( rows.length ) );
 		}
 
+		/**
+		 * Take the marking off, leaving the text as it was.
+		 *
+		 * @param {Element} scope Row or drawer.
+		 * @return {void}
+		 */
+		function unmark( scope ) {
+			var marks = scope.querySelectorAll( 'mark.lstab-hit' );
+
+			Array.prototype.forEach.call( marks, function ( hit ) {
+				hit.parentNode.replaceChild( document.createTextNode( hit.textContent ), hit );
+			} );
+
+			// Otherwise the text either side of a removed mark stays split into
+			// separate nodes, and the next search cannot find a term that
+			// happens to span the join.
+			if ( marks.length ) {
+				scope.normalize();
+			}
+		}
+
+		/**
+		 * Mark every occurrence of the search term inside one row.
+		 *
+		 * Only the text is touched — never the markup around it — so a cell
+		 * holding a link keeps its link and gets the match marked inside it.
+		 * The labels a card layout repeats beside every value are left alone:
+		 * they are the column's name, not the row's answer.
+		 *
+		 * @param {Element} scope Row or drawer.
+		 * @param {string}  term  Lower-cased search term.
+		 * @return {void}
+		 */
+		function mark( scope, term ) {
+			var walker = document.createTreeWalker( scope, NodeFilter.SHOW_TEXT, null );
+			var targets = [];
+			var node;
+
+			while ( ( node = walker.nextNode() ) ) {
+				if ( ! node.nodeValue || node.nodeValue.toLowerCase().indexOf( term ) === -1 ) {
+					continue;
+				}
+
+				if ( node.parentNode && node.parentNode.closest( '.lstab-cell-label, .lstab-detail-key, .screen-reader-text' ) ) {
+					continue;
+				}
+
+				targets.push( node );
+			}
+
+			targets.forEach( function ( text ) {
+				var value = text.nodeValue;
+				var lower = value.toLowerCase();
+				var piece = document.createDocumentFragment();
+				var at = 0;
+				var found = lower.indexOf( term );
+
+				while ( found !== -1 ) {
+					if ( found > at ) {
+						piece.appendChild( document.createTextNode( value.slice( at, found ) ) );
+					}
+
+					var hit = document.createElement( 'mark' );
+					hit.className = 'lstab-hit';
+					hit.textContent = value.slice( found, found + term.length );
+					piece.appendChild( hit );
+
+					at = found + term.length;
+					found = lower.indexOf( term, at );
+				}
+
+				if ( at < value.length ) {
+					piece.appendChild( document.createTextNode( value.slice( at ) ) );
+				}
+
+				text.parentNode.replaceChild( piece, text );
+			} );
+		}
+
 		function filter() {
 			var term = input ? input.value.trim().toLowerCase() : '';
 			var visible = 0;
@@ -419,6 +498,25 @@
 				// because the row happened to be open — would read as broken.
 				var haystack = row.textContent + ( detail ? ' ' + detail.textContent : '' );
 				var match = ! term || haystack.toLowerCase().indexOf( term ) !== -1;
+
+				/*
+				 * Cleared first, always: the previous term's marks are wrong
+				 * the moment a letter is added, and a row that no longer
+				 * matches must not keep the marking that says it did.
+				 */
+				unmark( row );
+
+				if ( detail ) {
+					unmark( detail );
+				}
+
+				if ( match && term ) {
+					mark( row, term );
+
+					if ( detail ) {
+						mark( detail, term );
+					}
+				}
 
 				row.hidden = ! match;
 

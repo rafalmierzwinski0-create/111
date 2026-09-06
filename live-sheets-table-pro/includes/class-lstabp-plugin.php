@@ -34,6 +34,7 @@ class LSTABP_Plugin {
 		( new LSTABP_Filters() )->register();
 		( new LSTABP_Rules() )->register();
 		( new LSTABP_Export() )->register();
+		( new LSTABP_Facets() )->register();
 		( new LSTABP_Picker() )->register();
 		( new LSTABP_Settings() )->register();
 

@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.14.0
+Stable tag: 3.15.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,11 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.15.0 =
+* Added: searching marks the part of each cell that matched. A search answers “which rows” and used to leave “why these rows” — which on a wide table of long descriptions is a real hunt, and the answer is often in a column nobody was looking at. It works on both kinds of search: the one in the browser, and the one a paged table does on the server across the whole sheet.
+* Fixed: a paged table too wide for its column was clipped with no slider (also in 3.14.0, restated here because the fix reached the built zip in this release).
+* Added: `lstab_before_table`, an action inside the table's wrapper and above the table, for anything that narrows what the table shows. The Pro add-on's column filters use it.
 
 = 3.14.0 =
 * Added: the headings stay where you can read them. On a table that fits its column they follow the screen down; on one wide enough to need the sideways slider, a long table becomes a pane that holds its headings at the top. A table shorter than a screenful is untouched. There is a switch for it beside the pinned first column.
@@ -394,6 +399,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.15.0 =
+Searching now shows you what it matched.
 
 = 3.14.0 =
 Headings that stay put, and the pinned-column setting finally showing in the preview.

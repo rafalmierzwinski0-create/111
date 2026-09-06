@@ -316,6 +316,97 @@ check(
 	'And setting its column back to "remove this rule" takes the colour off again'
 );
 
+// ------------------------------------------------ filters for the visitor
+section( 'Letting a visitor narrow the table' );
+
+await page.goto( editHref, { waitUntil: 'networkidle' } );
+await page.locator( '[data-lstab-goto="look"]' ).click();
+await page.waitForTimeout( 300 );
+
+check( await page.locator( '.lstabp-facets-card' ).isVisible(), 'The add-on offers the filters card on the Appearance tab' );
+
+/*
+ * The card counts the sheet and says what each column would offer, because
+ * that is the whole decision: a filter on a column where every row differs
+ * gives as many choices as there are rows and each one leaves a single row.
+ */
+const suited = await page.locator( '.lstabp-facet-pick.is-suited .lstabp-facet-name' ).allInnerTexts();
+check(
+	1 === suited.length && /Dostępność/.test( suited[ 0 ] ),
+	'It marks the column whose values repeat, and only that one',
+	JSON.stringify( suited )
+);
+check(
+	/3 different values|3 różne/.test( await page.locator( '.lstabp-facet-pick.is-suited' ).innerText() ),
+	'And says what that column actually holds',
+	( await page.locator( '.lstabp-facet-pick.is-suited' ).innerText() ).replace( /\n/g, ' ' )
+);
+await page.locator( '.lstabp-facets-card' ).screenshot( { path: `${ SHOTS }/46-facets-card.png` } );
+
+await page.locator( '.lstabp-facet-pick input[value="Dostępność"]' ).check();
+await Promise.all( [
+	page.waitForLoadState( 'networkidle' ),
+	page.locator( '.lstab-submit button[type=submit]' ).first().click()
+] );
+await page.waitForTimeout( 800 );
+
+await front.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
+await front.waitForTimeout( 300 );
+
+const bar = front.locator( '.lstabp-facets' ).first();
+check( await bar.isVisible(), 'The chosen column becomes a filter above the table' );
+
+const before = await front.locator( '.lstab' ).first().locator( 'tbody tr' ).count();
+await bar.locator( 'summary' ).first().click();
+await front.waitForTimeout( 200 );
+const values = await bar.locator( '.lstabp-facet-value' ).allInnerTexts();
+check( 3 === values.length, 'It offers every value the column holds', JSON.stringify( values ) );
+check( /5/.test( values[ 0 ] ), 'With the number of rows behind each one', values[ 0 ] );
+await front.locator( '.lstab' ).first().screenshot( { path: `${ SHOTS }/47-facets-open.png` } );
+
+await Promise.all( [
+	front.waitForNavigation(),
+	bar.locator( '.lstabp-facet-value' ).first().click()
+] );
+await front.waitForTimeout( 300 );
+
+const after = await front.locator( '.lstab' ).first().locator( 'tbody tr' ).count();
+check( after === 5 && after < before, 'Choosing a value narrows the table', `${ before } → ${ after }` );
+check(
+	/lstab-f2-1=/.test( decodeURIComponent( front.url() ) ),
+	'And the filtered table has an address of its own, so it can be shared',
+	decodeURIComponent( front.url() )
+);
+check(
+	await front.locator( '.lstabp-facets-clear' ).first().isVisible(),
+	'A filter in use offers a way out of it'
+);
+check(
+	/7/.test( await front.locator( '.lstabp-facets-clear' ).first().innerText() ),
+	'Which says how many rows that gives back — the counter beside the search box only sees what is left',
+	await front.locator( '.lstabp-facets-clear' ).first().innerText()
+);
+
+// Two values at once, and the way back.
+await Promise.all( [
+	front.waitForNavigation(),
+	front.locator( '.lstabp-facets-clear' ).first().click()
+] );
+check(
+	7 === ( await front.locator( '.lstab' ).first().locator( 'tbody tr' ).count() ),
+	'Clearing gives the whole table back'
+);
+
+// Put the source back the way the rest of the suite expects it.
+await page.goto( editHref, { waitUntil: 'networkidle' } );
+await page.locator( '[data-lstab-goto="look"]' ).click();
+await page.waitForTimeout( 250 );
+await page.locator( '.lstabp-facet-pick input[value="Dostępność"]' ).uncheck();
+await Promise.all( [
+	page.waitForLoadState( 'networkidle' ),
+	page.locator( '.lstab-submit button[type=submit]' ).first().click()
+] );
+
 check( errors.length === 0, 'No script errors anywhere in the run', errors.join( '\n' ) );
 
 console.log( '\n' + '─'.repeat( 60 ) );

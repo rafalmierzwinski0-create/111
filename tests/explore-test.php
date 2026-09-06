@@ -371,6 +371,15 @@ foreach ( LSTAB_Paging::apply( LSTAB_Storage::get( $source_id )['data']['rows'],
 $_GET = array();
 ex_assert( '' === end( $reversed ), 'A blank cell stays at the bottom when the order is reversed', wp_json_encode( $reversed ) );
 
+/*
+ * Paging back off, because this file is not the last thing to run against this
+ * site. Left on, it turned the next suite's table into a paged one — where
+ * searching is a form to the server rather than a box in the browser — and
+ * three checks about the box in the browser failed for a reason that had
+ * nothing to do with them.
+ */
+LSTAB_Storage::update( $source_id, array( 'per_page' => 0 ) );
+
 // ---------------------------------------------------------------------------
 
 ex_section( 'F. The source disappears underneath a page' );

@@ -1058,6 +1058,78 @@ lstabp_assert( false !== strpos( $orphan_card, 'Coś, czego już nie ma' ), 'And
 
 // ---------------------------------------------------------------------------
 
+lstabp_section( '5f2. Letting a visitor narrow the table' );
+
+/*
+ * A filter is only worth offering on a column whose values repeat. The card
+ * counts rather than guesses, and the counting is what decides which columns it
+ * marks as worth it — so the counting is what gets tested.
+ */
+$lstabp_rows = LSTAB_Storage::get( $source_id )['data']['rows'];
+
+$lstabp_stock = LSTABP_Facets::tally( $lstabp_rows, 2 );
+lstabp_assert( 3 === count( $lstabp_stock ), 'A column of repeated values offers each of them once', (string) count( $lstabp_stock ) );
+lstabp_assert( 'W magazynie' === array_key_first( $lstabp_stock ), 'Commonest first, because that is what somebody is most likely to want', array_key_first( $lstabp_stock ) );
+lstabp_assert( 5 === $lstabp_stock['W magazynie'], 'And each value says how many rows are behind it', (string) $lstabp_stock['W magazynie'] );
+
+$lstabp_names = LSTABP_Facets::tally( $lstabp_rows, 0 );
+lstabp_assert(
+	count( $lstabp_names ) === count( $lstabp_rows ),
+	'A column where every row differs offers as many choices as it has rows — which the card says out loud',
+	count( $lstabp_names ) . '/' . count( $lstabp_rows )
+);
+
+update_option( LSTABP_Facets::OPTION, array( $source_id => array( 'Dostępność' ) ), false );
+
+$lstabp_unfiltered = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstabp_assert( false !== strpos( $lstabp_unfiltered, 'lstabp-facets' ), 'A chosen column puts a filter above the table' );
+lstabp_assert( 7 === substr_count( $lstabp_unfiltered, '<tr role="row"' ) - 1, 'And changes nothing until it is used', (string) ( substr_count( $lstabp_unfiltered, '<tr role="row"' ) - 1 ) );
+lstabp_assert( false === strpos( $lstabp_unfiltered, 'lstabp-facets-clear' ), 'With nothing to clear, there is no clearing link' );
+
+$_GET[ 'lstab-f2-' . $source_id ] = 'W magazynie';
+$lstabp_filtered                  = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstabp_assert( 5 === substr_count( $lstabp_filtered, '<tr role="row"' ) - 1, 'Choosing a value narrows the table to it', (string) ( substr_count( $lstabp_filtered, '<tr role="row"' ) - 1 ) );
+// Named by their product rather than by the value filtered on, which is also
+// printed in the menu of the filter itself.
+lstabp_assert( false === strpos( $lstabp_filtered, 'Rękawiczki' ), 'And the rows it excludes really are gone' );
+lstabp_assert( false !== strpos( $lstabp_filtered, 'lstabp-facets-clear' ), 'A filter in use offers a way out of it' );
+lstabp_assert( false !== strpos( $lstabp_filtered, '7' ), 'Which says how many rows clearing it gives back' );
+
+$_GET[ 'lstab-f2-' . $source_id ] = 'W magazynie|Brak';
+$lstabp_two                       = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstabp_assert( 6 === substr_count( $lstabp_two, '<tr role="row"' ) - 1, 'Two values are both let through', (string) ( substr_count( $lstabp_two, '<tr role="row"' ) - 1 ) );
+
+/*
+ * The value arrives from the address, so it is the one thing here a stranger
+ * controls. A value the column does not hold is not a filter that matches
+ * nothing — it is not a filter at all, or a mistyped link would show an empty
+ * table and read as a broken page.
+ */
+$_GET[ 'lstab-f2-' . $source_id ] = '<script>alert(1)</script>';
+$lstabp_bogus                     = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstabp_assert( 7 === substr_count( $lstabp_bogus, '<tr role="row"' ) - 1, 'A value the column does not hold is ignored, not obeyed', (string) ( substr_count( $lstabp_bogus, '<tr role="row"' ) - 1 ) );
+lstabp_assert( false === strpos( $lstabp_bogus, '<script>alert' ), 'And cannot reach the page as markup' );
+
+// A column renamed in Google takes its filter with it, rather than filtering on
+// whatever column has ended up in that position.
+update_option( LSTABP_Facets::OPTION, array( $source_id => array( 'Kolumna, której nie ma' ) ), false );
+$_GET[ 'lstab-f2-' . $source_id ] = 'W magazynie';
+$lstabp_gone                      = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstabp_assert( false === strpos( $lstabp_gone, 'lstabp-facets' ), 'A filter on a column the sheet no longer has shows nothing' );
+lstabp_assert( 7 === substr_count( $lstabp_gone, '<tr role="row"' ) - 1, 'And narrows nothing', (string) ( substr_count( $lstabp_gone, '<tr role="row"' ) - 1 ) );
+
+unset( $_GET[ 'lstab-f2-' . $source_id ] );
+
+// Deleting a source takes its filters with it.
+update_option( LSTABP_Facets::OPTION, array( $source_id => array( 'Dostępność' ), 999 => array( 'Cokolwiek' ) ), false );
+do_action( 'lstab_source_deleted', 999 );
+lstabp_assert( ! array_key_exists( 999, LSTABP_Facets::all() ), 'Deleting a source deletes its filters' );
+lstabp_assert( array_key_exists( $source_id, LSTABP_Facets::all() ), 'And leaves everybody else alone' );
+
+delete_option( LSTABP_Facets::OPTION );
+
+// ---------------------------------------------------------------------------
+
 lstabp_section( '5g. Where the add-on lives, and how to leave' );
 
 // The add-on is a tab across the top of the plugin's own screens rather than a

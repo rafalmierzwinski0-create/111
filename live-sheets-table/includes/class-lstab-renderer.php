@@ -324,6 +324,16 @@ class LSTAB_Renderer {
 			$classes[] = 'lstab-paged';
 		}
 
+		/*
+		 * A paged table is searched on the server, so the marking of what was
+		 * matched has to be written into the page it sends back. A table short
+		 * enough to search in the browser marks its own hits there, and would
+		 * be marked twice if this ran for it as well.
+		 */
+		if ( $paged && '' !== $paging['request']['q'] ) {
+			LSTAB_Highlight::begin( $paging['request']['q'] );
+		}
+
 		self::enqueue_assets();
 
 		// Whatever the author wrote for this table, confined to it. Printed
@@ -396,6 +406,21 @@ class LSTAB_Renderer {
 					<span class="lstab-count" data-lstab-count-template="<?php echo esc_attr__( '%1$s of %2$s rows', 'live-sheets-table' ); ?>"></span>
 				</div>
 			<?php endif; ?>
+
+			<?php
+			/**
+			 * Fires inside the table's wrapper, above the table itself.
+			 *
+			 * Below the search box and above the caption, which is where
+			 * anything that narrows what the table shows belongs: a visitor
+			 * reads it before the rows rather than discovering it underneath
+			 * them. The Pro add-on prints its column filters here.
+			 *
+			 * @param array $source Source row.
+			 * @param array $args   Rendering options.
+			 */
+			do_action( 'lstab_before_table', $source, $args );
+			?>
 
 			<?php if ( $args['caption'] ) : ?>
 				<p class="lstab-caption" id="<?php echo esc_attr( $caption_id ); ?>">
@@ -713,6 +738,9 @@ class LSTAB_Renderer {
 		<?php
 
 		$html = (string) ob_get_clean();
+
+		// One table's search term must not leak into the next table on the page.
+		LSTAB_Highlight::end();
 
 		/**
 		 * Filters the complete rendered table HTML.

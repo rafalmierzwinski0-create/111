@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-06 11:57+0000\n"
+"POT-Creation-Date: 2026-09-06 12:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11,6 +11,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Domain: live-sheets-table-pro\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. translators: 1: how many different values, 2: the commonest few, already
+#. counted.
+#: includes/views/facets-card.php:69
+msgid "%1$s different values: %2$s"
+msgstr ""
 
 #. translators: %s: the heading a rule names.
 #: includes/views/rules-card.php:151
@@ -27,6 +33,10 @@ msgstr ""
 
 #: includes/views/picker-card.php:37
 msgid "A hidden column is matched to its heading, and a hidden row to its line number. Reordering columns, renaming a heading, or inserting a row above a hidden one breaks that match."
+msgstr ""
+
+#: includes/views/facets-card.php:27
+msgid "A search box asks somebody to guess the words in your sheet. A filter shows them what is in it: “Dostępność: in stock (4), none (1)”. Choose the columns worth offering — the counts below are from the copy the plugin holds now."
 msgstr ""
 
 #: includes/views/rules-card.php:270
@@ -63,6 +73,11 @@ msgstr ""
 
 #: includes/class-lstabp-export.php:303
 msgid "Buttons under the table: one Excel file, one CSV, and Print. The file holds exactly what the page shows — the same rows after any filter, and only the columns you left in — and never reaches past them. The Excel file opens in one click with the numbers already numbers, whatever language the person opening it uses. Printing uses the browser, so there is no extra software and no watermark."
+msgstr ""
+
+#. translators: %s: how many rows the table holds unfiltered.
+#: includes/class-lstabp-facets.php:421
+msgid "Clear filters — show all %s"
 msgstr ""
 
 #: includes/views/picker-card.php:45
@@ -156,8 +171,20 @@ msgstr ""
 msgid "Enable the Google Sheets API for it."
 msgstr ""
 
+#: includes/views/facets-card.php:65
+msgid "Every row is different, so each choice would leave one row. A search box does this better."
+msgstr ""
+
+#: includes/views/facets-card.php:63
+msgid "Every row says the same thing, so a filter here could not narrow anything."
+msgstr ""
+
 #: includes/views/settings-page.php:196
 msgid "Filtered views"
+msgstr ""
+
+#: includes/views/facets-card.php:103
+msgid "Filters appear above the table as buttons a visitor opens. Each one is an ordinary link, so a filtered table has an address of its own that can be shared — and it works with searching and pages, over the whole sheet rather than the page on screen."
 msgstr ""
 
 #: includes/class-lstabp-google-auth.php:198
@@ -215,6 +242,10 @@ msgstr ""
 msgid "Let visitors download or print this table"
 msgstr ""
 
+#: includes/views/facets-card.php:25
+msgid "Let visitors narrow the table"
+msgstr ""
+
 #: includes/class-lstabp-export.php:295
 msgid "Let visitors take it away"
 msgstr ""
@@ -223,8 +254,12 @@ msgstr ""
 msgid "Line"
 msgstr ""
 
-#: includes/class-lstabp-plugin.php:85
+#: includes/class-lstabp-plugin.php:86
 msgid "Live Sheets Table Pro needs the free Live Sheets Table plugin to be installed and active. Pro adds to it rather than replacing it."
+msgstr ""
+
+#: includes/views/facets-card.php:36
+msgid "Load the preview first. Once the columns are known you can offer filters on them."
 msgstr ""
 
 #: includes/views/rules-card.php:110
@@ -386,6 +421,10 @@ msgstr ""
 msgid "Sheet source"
 msgstr ""
 
+#: includes/class-lstabp-facets.php:369
+msgid "Show only:"
+msgstr ""
+
 #: includes/class-lstabp-picker.php:74
 msgid "Show this row again"
 msgstr ""
@@ -405,6 +444,10 @@ msgstr ""
 
 #: includes/class-lstabp-rules.php:128
 msgid "Struck through"
+msgstr ""
+
+#: includes/views/facets-card.php:93
+msgid "Suits a filter"
 msgstr ""
 
 #: includes/views/settings-page.php:238
@@ -429,6 +472,10 @@ msgstr ""
 
 #: includes/views/rules-card.php:278
 msgid "The empty line at the bottom is the next rule; save to get another one. To take a rule away, set its column back to “remove this rule”."
+msgstr ""
+
+#: includes/views/facets-card.php:61
+msgid "This column is empty."
 msgstr ""
 
 #: includes/class-lstabp-export.php:172
@@ -459,7 +506,7 @@ msgstr ""
 msgid "Waiting for a client above"
 msgstr ""
 
-#: includes/views/rules-card.php:109
+#: includes/views/facets-card.php:35 includes/views/rules-card.php:109
 msgid "Waiting for a first look at the sheet, so there are no columns to choose from yet."
 msgstr ""
 
@@ -510,6 +557,10 @@ msgstr ""
 
 #: includes/class-lstabp-settings.php:84
 msgid "Your subscription"
+msgstr ""
+
+#: includes/class-lstabp-facets.php:389
+msgid "any"
 msgstr ""
 
 #: includes/views/settings-page.php:222 includes/class-lstabp-rules.php:433

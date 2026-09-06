@@ -416,6 +416,25 @@
 	box-shadow: 1px 0 0 var(--lstab-border), 6px 0 8px -6px rgba( 16, 24, 40, 0.22 );
 }
 
+/* ------------------------------------------------------ what matched */
+
+/*
+ * A search answers "which rows", and leaves "why these rows" — which on a wide
+ * table of long descriptions is a real hunt, and often ends in a column nobody
+ * was looking at. The mark is the answer.
+ *
+ * Given a colour rather than left to the browser's default: browsers paint
+ * mark black on bright yellow, which on a table with a dark preset is a hole
+ * punched in the page.
+ */
+.lstab-hit {
+	background-color: var(--lstab-hit-bg, #ffe9a8);
+	color: var(--lstab-hit-fg, #3f3010);
+	border-radius: 3px;
+	padding: 0 0.12em;
+	box-shadow: 0 0 0 1px var(--lstab-hit-edge, rgba(150, 116, 22, 0.45)) inset;
+}
+
 /* ------------------------------------------------- headings that follow you */
 
 /*
@@ -653,6 +672,11 @@
 	--lstab-stripe: #121922;
 	--lstab-hover: #1b2635;
 	--lstab-accent: #7ab4ff;
+	/* Bright yellow on a dark table is a hole punched in the page; a deep
+	   amber says the same thing without shouting it. */
+	--lstab-hit-bg: #6a4c0d;
+	--lstab-hit-fg: #ffeec4;
+	--lstab-hit-edge: rgba(255, 213, 128, 0.4);
 	--lstab-shadow: 0 2px 6px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(122, 180, 255, 0.06);
 }
 
@@ -728,6 +752,9 @@
 		--lstab-stripe: #161d26;
 		--lstab-hover: #1c2634;
 		--lstab-accent: #6aa8ff;
+		--lstab-hit-bg: #6a4c0d;
+		--lstab-hit-fg: #ffeec4;
+		--lstab-hit-edge: rgba(255, 213, 128, 0.4);
 		--lstab-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
 	}
 
@@ -1154,6 +1181,148 @@
 	color: inherit;
 }
 
+/* ------------------------------------------------------- column filters */
+
+/*
+ * The Pro add-on's filter bar. Its markup is a details element per column with
+ * links inside, so it opens, closes and filters with no script at all — which
+ * is also why the styling lives here, in the table's own stylesheet, where it
+ * inherits the table's colours and its dark scheme.
+ */
+.lstabp-facets {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.45em;
+	margin: 0 0 0.85em;
+}
+
+.lstabp-facets-label {
+	color: var(--lstab-fg-muted);
+	font-size: 0.88em;
+}
+
+.lstabp-facet {
+	position: relative;
+}
+
+.lstabp-facet > summary {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35em;
+	padding: 0.36em 0.8em;
+	border: 1px solid var(--lstab-border-strong);
+	border-radius: 999px;
+	background: var(--lstab-bg);
+	color: var(--lstab-fg-muted);
+	font-size: 0.88em;
+	line-height: 1.4;
+	cursor: pointer;
+	white-space: nowrap;
+	list-style: none;
+}
+
+.lstabp-facet > summary::-webkit-details-marker { display: none; }
+
+.lstabp-facet > summary::after {
+	content: "";
+	inline-size: 0.4em;
+	block-size: 0.4em;
+	margin-inline-start: 0.15em;
+	border-right: 1.5px solid currentColor;
+	border-bottom: 1.5px solid currentColor;
+	transform: rotate( 45deg ) translate( -0.1em, -0.1em );
+	opacity: 0.65;
+}
+
+.lstabp-facet[open] > summary::after {
+	transform: rotate( -135deg ) translate( -0.05em, -0.05em );
+}
+
+.lstabp-facet > summary:hover {
+	border-color: var(--lstab-accent);
+}
+
+.lstabp-facet > summary b {
+	color: var(--lstab-fg);
+	font-weight: 600;
+}
+
+/* A filter doing something has to look different from one that is not. */
+.lstabp-facet.is-on > summary {
+	border-color: var(--lstab-accent);
+	color: var(--lstab-accent);
+	box-shadow: inset 0 0 0 1px var(--lstab-accent);
+}
+
+.lstabp-facet.is-on > summary b {
+	color: var(--lstab-accent);
+}
+
+.lstabp-facet-menu {
+	position: absolute;
+	z-index: 6;
+	inset-inline-start: 0;
+	margin-block-start: 0.4em;
+	min-inline-size: 13em;
+	max-inline-size: min( 22em, 80vw );
+	max-block-size: 60vh;
+	overflow: auto;
+	padding: 0.3em;
+	border: 1px solid var(--lstab-border-strong);
+	border-radius: 10px;
+	background: var(--lstab-bg);
+	box-shadow: 0 12px 28px -14px rgba( 16, 24, 24, 0.5 );
+}
+
+.lstabp-facet-value {
+	display: flex;
+	align-items: center;
+	gap: 0.55em;
+	padding: 0.4em 0.5em;
+	border-radius: 7px;
+	color: var(--lstab-fg);
+	font-size: 0.9em;
+	text-decoration: none;
+}
+
+.lstabp-facet-value:hover {
+	background: var(--lstab-hover);
+}
+
+.lstabp-facet-box {
+	inline-size: 0.95em;
+	block-size: 0.95em;
+	flex: none;
+	border: 1.5px solid var(--lstab-border-strong);
+	border-radius: 4px;
+}
+
+.lstabp-facet-value.is-picked .lstabp-facet-box {
+	border-color: var(--lstab-accent);
+	background: var(--lstab-accent);
+	/* A tick drawn rather than fetched, so it needs no font and no image. */
+	background-image:
+		linear-gradient( to bottom right, transparent 45%, var(--lstab-bg) 45%, var(--lstab-bg) 58%, transparent 58% ),
+		linear-gradient( to bottom left, transparent 62%, var(--lstab-bg) 62%, var(--lstab-bg) 75%, transparent 75% );
+}
+
+.lstabp-facet-text {
+	flex: 1 1 auto;
+	overflow-wrap: anywhere;
+}
+
+.lstabp-facet-count {
+	color: var(--lstab-fg-faint);
+	font-size: 0.85em;
+	font-variant-numeric: tabular-nums;
+}
+
+.lstabp-facets-clear {
+	color: var(--lstab-accent);
+	font-size: 0.86em;
+}
+
 /* ------------------------------------------------------------- export, print */
 
 .lstabp-export {
@@ -1188,6 +1357,7 @@
 	.lstab-controls,
 	.lstab-scrollbar,
 	.lstab-pager,
+	.lstabp-facets,
 	.lstabp-export {
 		display: none !important;
 	}

@@ -1258,6 +1258,64 @@ await columnRows.nth( 0 ).locator( 'input[type=text]' ).fill( '' );
 await page.locator( '.lstab-submit button[type=submit]' ).click();
 await page.waitForLoadState( 'networkidle' );
 
+// ------------------------------------------------------- what matched
+section( '5d2. The search says what it matched' );
+
+{
+	const hpage = await ( await browser.newContext( { viewport: { width: 1400, height: 900 } } ) ).newPage();
+	await hpage.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
+	await hpage.waitForTimeout( 400 );
+
+	const box = hpage.locator( '.lstab-search-input' ).first();
+	const table = hpage.locator( '.lstab' ).first();
+	const whole = ( await table.locator( 'tbody tr' ).first().innerText() ).replace( /\s+/g, ' ' ).trim();
+
+	await box.fill( 'maga' );
+	await hpage.waitForTimeout( 350 );
+	const hits = await hpage.locator( '.lstab-hit' ).allInnerTexts();
+	check( hits.length > 0, 'Searching marks the part of the cell that matched', String( hits.length ) );
+	check( hits.every( ( t ) => t.toLowerCase() === 'maga' ), 'And marks the matched fragment, not the whole cell', JSON.stringify( hits.slice( 0, 3 ) ) );
+	check(
+		! ( await hpage.locator( '.lstab-cell-label .lstab-hit, .lstab-detail-key .lstab-hit' ).count() ),
+		'A column name is never marked: it is the question, not the answer'
+	);
+
+	// Typing on: the previous term's marks are wrong the moment a letter lands.
+	await box.fill( 'magazynie' );
+	await hpage.waitForTimeout( 350 );
+	const grown = await hpage.locator( '.lstab-hit' ).allInnerTexts();
+	check( grown.every( ( t ) => t.toLowerCase() === 'magazynie' ), 'Marks follow the term as it is typed', JSON.stringify( grown.slice( 0, 2 ) ) );
+
+	await box.fill( '' );
+	await hpage.waitForTimeout( 350 );
+	check( 0 === ( await hpage.locator( '.lstab-hit' ).count() ), 'Clearing the search takes the marks away' );
+	check(
+		whole === ( await table.locator( 'tbody tr' ).first().innerText() ).replace( /\s+/g, ' ' ).trim(),
+		'And leaves the row exactly as it found it',
+		( await table.locator( 'tbody tr' ).first().innerText() ).replace( /\s+/g, ' ' ).trim()
+	);
+
+	/*
+	 * The term reaches the page as text, never as markup — including the two
+	 * that would show it if it did not: one that would open a tag, and one
+	 * that only exists inside the tags around the value.
+	 */
+	await box.fill( '<b>' );
+	await hpage.waitForTimeout( 300 );
+	check( 2 === ( await hpage.locator( '.lstab-table' ).count() ), 'A search for a tag leaves the table standing' );
+	await box.fill( 'class' );
+	await hpage.waitForTimeout( 300 );
+	check(
+		0 === ( await hpage.locator( '.lstab-hit' ).count() ),
+		'A word that only appears inside the markup is not a match',
+		String( await hpage.locator( '.lstab-hit' ).count() )
+	);
+	await box.fill( 'maga' );
+	await hpage.waitForTimeout( 300 );
+	await hpage.locator( '.lstab' ).first().screenshot( { path: `${ SHOTS }/17-search-hits.png` } );
+	await hpage.context().close();
+}
+
 // ------------------------------------------------ headings that follow you
 section( '5e. The headings stay where you can read them' );
 
@@ -1440,6 +1498,28 @@ check(
 	await apage.locator( '.lstab-pager' ).count() > 0,
 	'A table switched to pages arrives with page numbers under it'
 );
+
+/*
+ * Searching a paged table happens on the server across the whole sheet, so the
+ * marking has to be written into the page it sends back — the browser never
+ * sees the rows that did not match.
+ */
+await apage.goto( `${ BASE }/cennik/?${ encodeURIComponent( `lstab-q-${ sourceId }` ) }=maga`, { waitUntil: 'networkidle' } );
+check(
+	await apage.locator( '.lstab-hit' ).count() > 0,
+	'A paged table marks what the server matched',
+	String( await apage.locator( '.lstab-hit' ).count() )
+);
+check(
+	( await apage.locator( '.lstab-hit' ).allInnerTexts() ).every( ( t ) => t.toLowerCase() === 'maga' ),
+	'And marks only the fragment there too'
+);
+await apage.goto( `${ BASE }/cennik/?${ encodeURIComponent( `lstab-q-${ sourceId }` ) }=${ encodeURIComponent( '<script>alert(1)</script>' ) }`, { waitUntil: 'networkidle' } );
+check(
+	2 === ( await apage.locator( '.lstab-table' ).count() ) && ! ( await apage.evaluate( () => !! window.__lstabXss ) ),
+	'A search term cannot reach the page as markup'
+);
+await apage.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
 
 /*
  * Paging turns searching and sorting over to the server, and the script used
