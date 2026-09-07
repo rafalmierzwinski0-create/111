@@ -1258,6 +1258,69 @@ await columnRows.nth( 0 ).locator( 'input[type=text]' ).fill( '' );
 await page.locator( '.lstab-submit button[type=submit]' ).click();
 await page.waitForLoadState( 'networkidle' );
 
+// ---------------------------------------------------- dark, when the page is
+section( "5d0. The table follows the page's colours, not the visitor's system" );
+
+/*
+ * Two different questions, and answering the second was wrong twice over: a
+ * light theme seen by a visitor whose system is dark got a black table on a
+ * white page, and a theme that is dark for everybody got a white one, because
+ * that visitor's system happened to be set to light.
+ */
+{
+	const themes = {
+		declaresNothing: '',
+		declaresBoth: ':root{color-scheme:light dark}',
+		declaresDark: ':root{color-scheme:dark}html,body{background:#0b0f14}',
+		darkWithoutSaying: 'html,body,.wp-site-blocks{background:#0b0f14}',
+	};
+
+	const shade = async ( theme, scheme ) => {
+		const ctx = await browser.newContext( { viewport: { width: 1100, height: 800 }, colorScheme: scheme } );
+		const tab = await ctx.newPage();
+
+		if ( themes[ theme ] ) {
+			// Put in before anything of ours runs, the way a theme's own
+			// stylesheet is there first.
+			await tab.addInitScript( ( rules ) => {
+				const put = () => {
+					const tag = document.createElement( 'style' );
+					tag.textContent = rules;
+					( document.head || document.documentElement ).appendChild( tag );
+				};
+				if ( document.documentElement ) { put(); } else { document.addEventListener( 'readystatechange', put, { once: true } ); }
+			}, themes[ theme ] );
+		}
+
+		await tab.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
+		await tab.waitForTimeout( 500 );
+
+		const seen = await tab.evaluate( () => {
+			const frame = document.querySelector( '.lstab-scroll' );
+			const parts = ( getComputedStyle( frame ).backgroundColor.match( /[\d.]+/g ) || [] ).map( Number );
+			return ( 0.2126 * parts[ 0 ] + 0.7152 * parts[ 1 ] + 0.0722 * parts[ 2 ] ) / 255 > 0.5 ? 'light' : 'dark';
+		} );
+
+		await ctx.close();
+		return seen;
+	};
+
+	const wanted = [
+		[ 'declaresNothing', 'light', 'light', 'A light theme stays light for a visitor set to light' ],
+		[ 'declaresNothing', 'dark', 'light', 'A light theme stays light for a visitor set to dark' ],
+		[ 'declaresBoth', 'light', 'light', 'A theme offering both follows the visitor into light' ],
+		[ 'declaresBoth', 'dark', 'dark', 'And follows the visitor into dark' ],
+		[ 'declaresDark', 'light', 'dark', 'A theme that is dark for everybody gets a dark table' ],
+		[ 'declaresDark', 'dark', 'dark', 'However the visitor has their system set' ],
+		[ 'darkWithoutSaying', 'light', 'dark', 'A page that went dark without declaring it is matched by its colour' ],
+	];
+
+	for ( const [ theme, scheme, expected, label ] of wanted ) {
+		const seen = await shade( theme, scheme );
+		check( seen === expected, label, `${ theme } + ${ scheme } → ${ seen }, wanted ${ expected }` );
+	}
+}
+
 // -------------------------------------------- text on the page's own paper
 section( '5d1. Nothing disappears against the page behind it' );
 

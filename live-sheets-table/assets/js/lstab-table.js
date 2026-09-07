@@ -63,6 +63,59 @@
 	}
 
 	/**
+	 * Follow a page that went dark without saying so.
+	 *
+	 * The stylesheet reads the `color-scheme` a theme declares, which is the
+	 * right question and the one a theme with a dark mode usually answers. Some
+	 * do not: they paint themselves dark in their own media query and never
+	 * mention it, and against those the table would sit as a white card on a
+	 * black page.
+	 *
+	 * So the page is measured. If what is actually painted behind the table is
+	 * dark while the table is light, the table is told to consider itself dark
+	 * — one property, which is all `light-dark()` needs to change its mind
+	 * about every colour at once.
+	 *
+	 * Only ever in that direction. A light page is left alone, which is the
+	 * common case and the one where a change of mind after the page is drawn
+	 * would be visible as a flicker.
+	 *
+	 * @param {HTMLElement} root Wrapper element.
+	 * @return {void}
+	 */
+	function followPage( root ) {
+		/**
+		 * How much light a colour puts out, roughly enough to sort dark from
+		 * light.
+		 *
+		 * @param {string} colour Any computed colour.
+		 * @return {number|null} 0 to 1, or null if it is see-through.
+		 */
+		function brightness( colour ) {
+			var parts = ( String( colour ).match( /[\d.]+/g ) || [] ).map( Number );
+
+			if ( parts.length < 3 || ( parts.length > 3 && parts[ 3 ] < 0.5 ) ) {
+				return null;
+			}
+
+			return ( 0.2126 * parts[ 0 ] + 0.7152 * parts[ 1 ] + 0.0722 * parts[ 2 ] ) / 255;
+		}
+
+		var behind = null;
+
+		for ( var el = root.parentElement; el && behind === null; el = el.parentElement ) {
+			behind = brightness( window.getComputedStyle( el ).backgroundColor );
+		}
+
+		var frame = root.querySelector( '.lstab-scroll' );
+		var mine = frame ? brightness( window.getComputedStyle( frame ).backgroundColor ) : null;
+
+		if ( null !== behind && behind < 0.35 && null !== mine && mine > 0.5 ) {
+			root.style.colorScheme = 'dark';
+		}
+	}
+
+	/**
 	 * Give a scrollable table a visible, draggable slider.
 	 *
 	 * Native horizontal scrollbars are overlay-only on macOS, iOS and Android:
@@ -336,6 +389,8 @@
 			return;
 		}
 		root.dataset.lstabReady = '1';
+
+		followPage( root );
 
 		/*
 		 * The slider first, and outside the check below, because it is about

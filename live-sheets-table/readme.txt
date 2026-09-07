@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.16.1
+Stable tag: 3.17.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,10 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.17.0 =
+* Changed: the table is dark when the page is dark, rather than when the visitor's system is. Those are two different questions and the old answer was wrong on both sides of it: a light theme seen by somebody whose system is set to dark — about half of all visits — got a black table on a white page, and a theme that is dark for everybody got a white one whenever the visitor's system happened to be set to light. The table now reads the colour scheme the theme itself declares, and falls back to matching the page's own background for a theme that turned dark without saying so.
+* The Midnight preset and any colour set by hand are untouched by all of this: a choice beats a guess.
 
 = 3.16.1 =
 * Fixed: on a light theme seen by somebody whose system is set to dark — about half of all visits — the table's title, its row count and its “updated” line vanished. They sit outside the table's frame, on the page's own paper, and were taking the table's near-white ink out there with them: the title measured 1.17 to 1 against the white behind it. Everything outside the frame now takes the page's own colour, whatever the table is wearing.
@@ -406,6 +410,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.17.0 =
+Dark when the page is dark, not when the visitor's laptop is.
 
 = 3.16.1 =
 Text that vanished on a light site seen in dark mode.

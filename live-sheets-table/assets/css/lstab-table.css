@@ -38,7 +38,15 @@
 	--lstab-stripe: #f7f9fa;
 	--lstab-hover: #eef4f9;
 	--lstab-accent: #2563eb;
-	--lstab-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+	/* Split out so the scheme can change the colour without restating the
+	   geometry: a shadow list has commas of its own, and light-dark() reads
+	   commas as the boundary between its two answers. */
+	--lstab-shadow-near: rgba(16, 24, 40, 0.04);
+	--lstab-shadow-far: rgba(16, 24, 40, 0.06);
+	--lstab-shadow: 0 1px 2px var(--lstab-shadow-near), 0 1px 3px var(--lstab-shadow-far);
+	/* The transparent end of the edge fade, and the shadow it casts. */
+	--lstab-bg-fade: rgba(255, 255, 255, 0);
+	--lstab-edge-shadow: rgba(16, 24, 40, 0.14);
 
 	/* Metrics */
 	--lstab-radius: 10px;
@@ -170,10 +178,10 @@
 	border-radius: var(--lstab-radius);
 	box-shadow: var(--lstab-frame-shadow);
 	background:
-		linear-gradient(to right, var(--lstab-bg) 30%, rgba(255, 255, 255, 0)) left center,
-		linear-gradient(to left, var(--lstab-bg) 30%, rgba(255, 255, 255, 0)) right center,
-		radial-gradient(farthest-side at 0 50%, rgba(16, 24, 40, 0.14), rgba(16, 24, 40, 0)) left center,
-		radial-gradient(farthest-side at 100% 50%, rgba(16, 24, 40, 0.14), rgba(16, 24, 40, 0)) right center;
+		linear-gradient(to right, var(--lstab-bg) 30%, var(--lstab-bg-fade)) left center,
+		linear-gradient(to left, var(--lstab-bg) 30%, var(--lstab-bg-fade)) right center,
+		radial-gradient(farthest-side at 0 50%, var(--lstab-edge-shadow), transparent) left center,
+		radial-gradient(farthest-side at 100% 50%, var(--lstab-edge-shadow), transparent) right center;
 	background-color: var(--lstab-bg);
 	background-repeat: no-repeat;
 	background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
@@ -648,8 +656,8 @@
 .lstab-notice {
 	padding: 0.9em 1.1em;
 	border-left: 4px solid #d97706;
-	background: #fffbeb;
-	color: #7c2d12;
+	background: var(--lstab-notice-bg, #fffbeb);
+	color: var(--lstab-notice-fg, #7c2d12);
 	border-radius: 6px;
 	font-size: 0.9em;
 }
@@ -771,44 +779,53 @@
 	border-bottom-color: var(--lstab-border-strong);
 }
 
-/* Presets that follow the reader's colour scheme. */
-@media (prefers-color-scheme: dark) {
-	.lstab-style-clean,
-	.lstab-style-striped,
-	.lstab-style-bordered {
-		--lstab-fg: #e8eef4;
-		--lstab-fg-muted: #a3b0bd;
-		--lstab-fg-faint: #7f8b98;
-		--lstab-bg: #12171e;
-		--lstab-head-fg: #a3b0bd;
-		--lstab-border: #242d39;
-		--lstab-border-strong: #36414f;
-		--lstab-stripe: #161d26;
-		--lstab-hover: #1c2634;
-		--lstab-accent: #6aa8ff;
-		--lstab-hit-bg: #6a4c0d;
-		--lstab-hit-fg: #ffeec4;
-		--lstab-hit-edge: rgba(255, 213, 128, 0.4);
-		--lstab-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
-	}
+/*
+ * Dark when the page is dark — not when the visitor's system is.
+ *
+ * These two are different questions, and answering the second was wrong twice
+ * over. About half of all visits come from a system set to dark; on a light
+ * theme those visitors were getting a black table on a white page. And the
+ * mirror image was just as broken: a theme that is dark for everybody got a
+ * white table, because the visitor's system happened to be set to light.
+ *
+ * light-dark() answers the right question. It reads the `color-scheme` the
+ * page has declared — a theme that supports a dark mode says so in one line of
+ * CSS, and that line inherits down to here. A theme that declares nothing is
+ * treated as light, which is what its author sees when they look at it.
+ *
+ * A browser too old to know the function drops these declarations and keeps
+ * the light values set further up, which is the same answer for anybody whose
+ * theme never mentioned the matter.
+ *
+ * Midnight and any colour the author picked by hand override all of this, as
+ * they should: a choice beats a guess.
+ */
+.lstab-style-clean,
+.lstab-style-striped,
+.lstab-style-bordered {
+	--lstab-fg: light-dark(#1c2024, #e8eef4);
+	--lstab-fg-muted: light-dark(#61696f, #a3b0bd);
+	--lstab-fg-faint: light-dark(#6b747b, #95a1ae);
+	--lstab-bg: light-dark(#fff, #12171e);
+	--lstab-head-fg: light-dark(#61696f, #a3b0bd);
+	--lstab-border: light-dark(#e3e8ec, #242d39);
+	--lstab-border-strong: light-dark(#cdd5db, #36414f);
+	--lstab-stripe: light-dark(#f7f9fa, #161d26);
+	--lstab-hover: light-dark(#eef4f9, #1c2634);
+	--lstab-accent: light-dark(#2563eb, #6aa8ff);
+	--lstab-hit-bg: light-dark(#ffe9a8, #6a4c0d);
+	--lstab-hit-fg: light-dark(#3f3010, #ffeec4);
+	--lstab-hit-edge: light-dark(rgba(150, 116, 22, 0.45), rgba(255, 213, 128, 0.4));
+	--lstab-shadow-near: light-dark(rgba(16, 24, 40, 0.04), rgba(0, 0, 0, 0.25));
+	--lstab-shadow-far: light-dark(rgba(16, 24, 40, 0.06), rgba(0, 0, 0, 0.45));
+	--lstab-bg-fade: light-dark(rgba(255, 255, 255, 0), rgba(18, 23, 30, 0));
+	--lstab-edge-shadow: light-dark(rgba(16, 24, 40, 0.14), rgba(0, 0, 0, 0.5));
+	--lstab-notice-bg: light-dark(#fffbeb, #2a2113);
+	--lstab-notice-fg: light-dark(#7c2d12, #fbd9a5);
+}
 
-	.lstab-style-bordered {
-		--lstab-head-bg: #171e27;
-	}
-
-	.lstab-scroll {
-		background-image:
-			linear-gradient(to right, var(--lstab-bg) 30%, rgba(18, 23, 30, 0)) ,
-			linear-gradient(to left, var(--lstab-bg) 30%, rgba(18, 23, 30, 0)),
-			radial-gradient(farthest-side at 0 50%, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0)),
-			radial-gradient(farthest-side at 100% 50%, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
-		background-position: left center, right center, left center, right center;
-	}
-
-	.lstab-notice {
-		background: #2a2113;
-		color: #fbd9a5;
-	}
+.lstab-style-bordered {
+	--lstab-head-bg: light-dark(#f7f9fa, #171e27);
 }
 
 /* --------------------------------------------------- stacked "card" layout */
