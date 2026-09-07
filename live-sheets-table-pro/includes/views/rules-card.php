@@ -51,7 +51,7 @@ $lstabp_rows    = array_merge(
 <div class="lstab-card lstabp-rules-card<?php echo $lstabp_waiting ? ' is-waiting' : ''; ?>">
 	<h2 class="lstab-card-title"><?php esc_html_e( 'Colour rules', 'live-sheets-table-pro' ); ?></h2>
 	<p class="lstab-help">
-		<?php esc_html_e( 'Colour a cell, or its whole row, by what the cell says. Every row of your sheet is checked against every rule here, and the colour is worked out on the server — so it is already in the page a visitor receives rather than painted on afterwards by script.', 'live-sheets-table-pro' ); ?>
+		<?php esc_html_e( 'Colour a cell, or its whole row, according to the cell\'s value. Colours are worked out on the server, so they are already in the page a visitor receives.', 'live-sheets-table-pro' ); ?>
 	</p>
 
 	<?php
@@ -64,15 +64,15 @@ $lstabp_rows    = array_merge(
 	<ul class="lstabp-rules-how">
 		<li>
 			<?php echo LSTAB_Icons::icon( 'layers' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-			<?php esc_html_e( 'Rules are read from the top down. If two of them colour the same place, the lower one wins — so put the general rule first and the exception under it.', 'live-sheets-table-pro' ); ?>
+			<?php esc_html_e( 'Rules are read from the top down. If two of them colour the same place, the lower one wins, so put the general rule first.', 'live-sheets-table-pro' ); ?>
 		</li>
 		<li>
 			<?php echo LSTAB_Icons::icon( 'brush' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-			<?php esc_html_e( 'A colour on one cell sits on top of a colour on its row, so “the whole row grey, that one cell red” is two rules and works as it reads.', 'live-sheets-table-pro' ); ?>
+			<?php esc_html_e( 'A colour on a cell sits on top of a colour on its row, so “grey row, one red cell” is two rules.', 'live-sheets-table-pro' ); ?>
 		</li>
 		<li>
 			<?php echo LSTAB_Icons::icon( 'sliders' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-			<?php esc_html_e( '“is” and “is not” compare text and ignore case and spacing. The four number comparisons read a price as a number, so 1 215,50 and 1215.5 are the same figure and a currency after it makes no difference.', 'live-sheets-table-pro' ); ?>
+			<?php esc_html_e( '“is” and “is not” compare text, ignoring case and spacing. The number comparisons read a price as a number, so 1 215,50 and 1215.5 are the same figure.', 'live-sheets-table-pro' ); ?>
 		</li>
 	</ul>
 
@@ -93,7 +93,7 @@ $lstabp_rows    = array_merge(
 				<?php
 				printf(
 					/* translators: %s: the headings a rule names, comma separated. */
-					esc_html__( 'Renaming a heading in Google is enough to do it. Nothing is coloured by %s until you point the rule at a heading that is there — the rule is kept until you do.', 'live-sheets-table-pro' ),
+					esc_html__( 'Nothing is coloured by %s until the rule points at a heading that exists. The rule is kept until you change it.', 'live-sheets-table-pro' ),
 					esc_html( implode( ', ', array_map( static function ( $lstabp_name ) { return '“' . $lstabp_name . '”'; }, $lstabp_orphans ) ) )
 				);
 				?>
@@ -275,6 +275,6 @@ $lstabp_rows    = array_merge(
 	</ol>
 
 	<p class="lstab-help">
-		<?php esc_html_e( 'The empty line at the bottom is the next rule; save to get another one. To take a rule away, set its column back to “remove this rule”.', 'live-sheets-table-pro' ); ?>
+		<?php esc_html_e( 'The empty line at the bottom is the next rule; save to add another. To remove a rule, set its column back to “remove this rule”.', 'live-sheets-table-pro' ); ?>
 	</p>
 </div>

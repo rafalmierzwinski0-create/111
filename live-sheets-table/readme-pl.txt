@@ -4,7 +4,7 @@ Tags: arkusze google, tabela, arkusz kalkulacyjny, csv, tabela danych
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.5.0
+Stable tag: 3.18.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -137,6 +137,23 @@ Wersja darmowa przechowuje trzy źródła arkuszy. Pro znosi ten limit.
 Tak. Wszystko z arkusza jest escapowane przy wyjściu, więc komórka zawierająca HTML albo znacznik `<script>` pokazuje się jako tekst i nie może niczego wstrzyknąć na Twoją stronę.
 
 == Changelog ==
+
+Pełna historia wydań znajduje się w pliku readme.txt.
+
+= 3.18.0 =
+* Zmiana: przepisano wszystkie etykiety, podpowiedzi i komunikaty w kokpicie. Etykieta nazywa ustawienie, a podpowiedź w jednym zdaniu mówi, co ono robi.
+* Poprawka: przy niskim oknie przeglądarki tekst pomocy w panelu podglądu edytora nachodził na wiersz poniżej.
+* Poprawka: poziomy suwak tabeli jest teraz widoczny przy każdej pozycji przewijania, a nie dopiero po dojechaniu na dół długiej tabeli.
+
+= 3.17.0 =
+* Zmiana: tabela jest ciemna wtedy, gdy ciemna jest strona, a nie gdy ciemny jest system odwiedzającego. Wybrany ręcznie kolor i preset Midnight pozostają bez zmian.
+
+= 3.16.1 =
+* Poprawka: na jasnym motywie oglądanym przy ciemnym ustawieniu systemu znikał tytuł tabeli, liczba wierszy i wiersz „zaktualizowano”.
+* Poprawka: etykieta obok każdej wartości w układzie kart była zbyt jasna, by spełnić próg czytelności.
+
+= 3.16.0 =
+* Zmiana: wtyczka ma własny znak graficzny w kokpicie, menu i wstawiaczu bloków.
 
 = 1.5.0 =
 * Nowość: zmiana nazwy kolumny dla odwiedzających albo pominięcie jej w tabeli. Nic nie jest zapisywane do Google, więc arkusz zachowuje własne nagłówki — także kolumny robocze, których nikt nie powinien widzieć.

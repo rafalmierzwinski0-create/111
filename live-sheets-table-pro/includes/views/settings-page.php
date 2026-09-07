@@ -30,7 +30,7 @@ defined( 'ABSPATH' ) || exit;
 		<div class="lstab-row lstab-row--wide">
 		<div class="lstab-row-say">
 		<p class="lstab-row-help">
-			<?php esc_html_e( 'To read sheets that are not shared publicly, this site signs in to Google as you. That needs an OAuth client from your own Google Cloud project — your own, deliberately, so your spreadsheets are never routed through anyone else\'s credentials.', 'live-sheets-table-pro' ); ?>
+			<?php esc_html_e( 'To read sheets that are not shared publicly, this site signs in to Google as you. That requires an OAuth client from your own Google Cloud project.', 'live-sheets-table-pro' ); ?>
 		</p>
 		</p>
 		<ol class="lstab-steps">
@@ -109,7 +109,7 @@ defined( 'ABSPATH' ) || exit;
 			<div class="lstab-row-say">
 				<p class="lstab-row-title"><?php esc_html_e( 'Sign in to Google', 'live-sheets-table-pro' ); ?></p>
 				<p class="lstab-row-help">
-					<?php esc_html_e( 'Only read access to spreadsheets is requested, so this connection cannot change or delete anything in your Google account. Disconnecting takes effect immediately; any sheet still marked private simply stops being readable until you connect again.', 'live-sheets-table-pro' ); ?>
+					<?php esc_html_e( 'Only read access to spreadsheets is requested; this connection cannot change or delete anything in your Google account. Disconnecting takes effect immediately.', 'live-sheets-table-pro' ); ?>
 				</p>
 			</div>
 			<div class="lstab-row-do">
@@ -152,7 +152,7 @@ defined( 'ABSPATH' ) || exit;
 			<p class="lstab-help"><?php esc_html_e( 'No sheet sources yet.', 'live-sheets-table-pro' ); ?></p>
 		<?php else : ?>
 			<p class="lstab-help">
-				<?php esc_html_e( 'Tick a sheet to read it through the connected account instead of its public link. You can then remove link sharing in Google entirely — the spreadsheet becomes private again while the table keeps working.', 'live-sheets-table-pro' ); ?>
+				<?php esc_html_e( 'Tick a sheet to read it through the connected account instead of its public link. You can then turn off link sharing in Google.', 'live-sheets-table-pro' ); ?>
 			</p>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 				<?php wp_nonce_field( 'lstabp_save_sources' ); ?>
@@ -200,7 +200,7 @@ defined( 'ABSPATH' ) || exit;
 
 		<div class="lstab-panel-body">
 		<p class="lstab-help">
-			<?php esc_html_e( 'One saved sheet can feed as many pages as you like. Add a filter to the shortcode and each page shows only the rows it is about — the spreadsheet stays single.', 'live-sheets-table-pro' ); ?>
+			<?php esc_html_e( 'One saved sheet can feed as many pages as you like. Add a filter to the shortcode and each page shows only the rows it needs.', 'live-sheets-table-pro' ); ?>
 		</p>
 		<p><code class="lstab-shortcode">[sheet_table id="1" filter="Kategoria is Rowery"]</code></p>
 		<p><code class="lstab-shortcode">[sheet_table id="1" filter="Cena netto lt 500, Dostępność is W magazynie"]</code></p>
@@ -235,7 +235,7 @@ defined( 'ABSPATH' ) || exit;
 			</tbody>
 		</table>
 		<p class="lstab-help">
-			<?php esc_html_e( 'Symbols such as = and > work too, but WordPress removes a “less than” sign from a shortcode attribute before the plugin ever sees it, so the words above are the form that always works.', 'live-sheets-table-pro' ); ?>
+			<?php esc_html_e( 'Symbols such as = and > also work, but WordPress strips a “less than” sign from shortcode attributes, so the words above are the safer form.', 'live-sheets-table-pro' ); ?>
 		</p>
 		</div>
 	</div>

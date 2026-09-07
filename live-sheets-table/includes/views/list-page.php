@@ -308,7 +308,7 @@ $lstab_add_button = $lstab_can_add
 				<input type="hidden" name="action" value="lstab_add_example">
 				<?php wp_nonce_field( 'lstab_add_example' ); ?>
 				<?php echo LSTAB_Icons::icon( 'play' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-				<span><?php esc_html_e( 'Want somewhere safe to try the settings? Add the built-in example price list — it never touches Google.', 'live-sheets-table' ); ?></span>
+				<span><?php esc_html_e( 'Add the built-in example price list to try the settings out. It never contacts Google.', 'live-sheets-table' ); ?></span>
 				<button type="submit" class="lstab-mini lstab-mini--strong"><?php esc_html_e( 'Add the example', 'live-sheets-table' ); ?></button>
 			</form>
 		<?php endif; ?>
@@ -317,7 +317,7 @@ $lstab_add_button = $lstab_can_add
 			<div class="lstab-upsell">
 				<h3><?php esc_html_e( 'Need more than one sheet?', 'live-sheets-table' ); ?></h3>
 				<p>
-					<?php esc_html_e( 'Pro adds unlimited sources, one-minute syncing, conditional cell formatting, filtered views, premium presets and private-sheet support.', 'live-sheets-table' ); ?>
+					<?php esc_html_e( 'Pro adds unlimited sources, one-minute syncing, colour rules, filtered views, extra styles and private sheets.', 'live-sheets-table' ); ?>
 				</p>
 				<a class="lstab-btn lstab-btn--quiet" href="<?php echo esc_url( LSTAB_Limits::upgrade_url() ); ?>" target="_blank" rel="noopener noreferrer">
 					<?php esc_html_e( 'Compare Free and Pro', 'live-sheets-table' ); ?>

@@ -67,8 +67,6 @@ return array(
 	'1. Point at your sheet'                     => '1. Wskaż swój arkusz',
 	'2. Name it and set the schedule'            => '2. Nazwij go i ustaw harmonogram',
 	'3. Pick a look'                             => '3. Wybierz wygląd',
-	'In Google Sheets choose Share → General access → “Anyone with the link”, role “Viewer”, then copy the link from your browser. No API key or Google Cloud project is needed.'
-		=> 'W Arkuszach Google wybierz Udostępnij → Dostęp ogólny → „Każdy, kto ma link”, rola „Przeglądający”, a następnie skopiuj adres z przeglądarki. Klucz API ani projekt Google Cloud nie są potrzebne.',
 	'Google Sheets link'                         => 'Link do arkusza Google',
 	'Load preview'                               => 'Wczytaj podgląd',
 	'Sheet tab'                                  => 'Zakładka arkusza',
@@ -79,29 +77,17 @@ return array(
 		=> 'Widoczne tylko w kokpicie, żeby odróżnić źródła.',
 	'Check Google for changes'                   => 'Sprawdzaj zmiany w Google',
 	'Pro syncs as often as every minute.'        => 'Pro synchronizuje nawet co minutę.',
-	'Whoever opens the page sees data no older than this. Checking normally happens in the background; if it has not run — a quiet site, or a host that blocks WordPress schedules — the check happens as the page is drawn instead, waits at most %d seconds, and falls back to the copy you already have.'
-		=> 'Kto otworzy stronę, zobaczy dane nie starsze niż tyle. Sprawdzanie zwykle odbywa się w tle; jeśli się nie wykonało — witryna bez ruchu albo hosting blokujący harmonogramy WordPressa — sprawdzenie następuje w trakcie rysowania strony, czeka najwyżej %d sekund i wraca do kopii, którą już masz.',
 	'“%1$s” has not been refreshed for %2$s.'
 		=> 'Arkusz „%1$s” nie był odświeżany od %2$s.',
 	'Your pages are still showing the last copy that arrived, so nothing is broken for visitors. But WordPress runs scheduled work only when someone visits the site, so a quiet site falls behind — and on a site that should be busy this usually means something is stopping it: a security plugin, a page cache answering every request without running WordPress, or a host that switches scheduling off without replacing it.'
 		=> 'Twoje strony nadal pokazują ostatnią kopię, która dotarła, więc dla odwiedzających nic nie jest zepsute. Ale WordPress wykonuje zaplanowane zadania tylko wtedy, gdy ktoś odwiedzi witrynę, więc strona bez ruchu zostaje w tyle — a na stronie, która powinna mieć ruch, zwykle oznacza to, że coś to blokuje: wtyczka bezpieczeństwa, cache stron odpowiadający na każde żądanie bez uruchamiania WordPressa albo hosting, który wyłącza harmonogram i nie daje nic w zamian.',
 	'Meanwhile you can update any sheet by hand with “Refresh now”.'
 		=> 'W międzyczasie każdy arkusz zaktualizujesz ręcznie przyciskiem „Odśwież teraz”.',
-	'To check sheets even when nobody visits'
-		=> 'Aby sprawdzać arkusze nawet wtedy, gdy nikt nie wchodzi na stronę',
-	'WordPress has no clock of its own — its schedule only runs when a page is requested, so a quiet site checks nothing. Give your host a real clock instead. Most hosting panels have a “Cron jobs” screen; paste this line into it:'
-		=> 'WordPress nie ma własnego zegara — jego harmonogram rusza dopiero wtedy, gdy ktoś otworzy stronę, więc witryna bez ruchu nie sprawdza niczego. Zegar może dać mu hosting. Większość paneli hostingowych ma ekran „Cron jobs” albo „Zadania cron”; wklej tam tę linię:',
-	'No cron screen on your hosting? A free uptime monitor pointed at your home page does the same job, because every visit it makes runs the schedule.'
-		=> 'Twój hosting nie ma ekranu z cronem? Darmowy monitor dostępności skierowany na Twoją stronę główną zrobi to samo — każde jego wejście uruchamia harmonogram.',
 	'In the table'                               => 'W tabeli',
 	'Shown'                                      => 'Widoczna',
 	'Hidden'                                     => 'Ukryta',
-	'Leaving a column or a row out of the table is part of Pro, where you choose it by clicking your own sheet.'
-		=> 'Pomijanie kolumny lub wiersza w tabeli jest częścią Pro — wybierasz je, klikając we własny arkusz.',
 	'Columns and rows you hid will start showing again in %s.'
 		=> 'Ukryte przez Ciebie kolumny i wiersze zaczną znów się pokazywać za %s.',
-	'Choosing what to leave out of a table is part of Pro, and Pro is not active on this site. Your choices are still being honoured for now, so nothing on your pages has changed yet.'
-		=> 'Wybieranie, co pominąć w tabeli, jest częścią Pro, a Pro nie jest aktywne na tej witrynie. Twoje wybory są na razie respektowane, więc na stronach nic się jeszcze nie zmieniło.',
 	// Settings screen.
 	'Sheet sources'                              => 'Źródła arkuszy',
 	'Settings'                                   => 'Ustawienia',
@@ -109,19 +95,13 @@ return array(
 	'Settings saved.'                            => 'Ustawienia zapisane.',
 	'Save settings'                              => 'Zapisz ustawienia',
 	'Who can manage tables'                      => 'Kto może zarządzać tabelami',
-	'Whoever can manage tables can also read every sheet they point at, including any column left out of the published table. Editors are the default because they are the people publishing the pages these tables go on.'
-		=> 'Kto może zarządzać tabelami, może też odczytać każdy wskazany arkusz — łącznie z kolumnami pominiętymi w opublikowanej tabeli. Domyślnie są to redaktorzy, bo to oni publikują strony, na których te tabele stoją.',
 	'Editors and above'                          => 'Redaktorzy i wyżej',
 	'Administrators only'                        => 'Tylko administratorzy',
 	'How often new tables check Google'          => 'Jak często nowe tabele sprawdzają Google',
-	'Every table has its own “Check Google for changes” setting. This is only the value a table is given the moment you add it, so that you are not choosing the same thing over and over. It changes nothing about the tables you already have, and any table can be set differently afterwards.'
-		=> 'Każda tabela ma własne ustawienie „Sprawdzaj zmiany w Google”. To jest tylko wartość, którą tabela dostaje w chwili dodania — żebyś nie wybierał w kółko tego samego. Nie zmienia niczego w tabelach, które już masz, i każdą tabelę można potem ustawić inaczej.',
 	'As often as allowed — every %s at present'  => 'Tak często, jak wolno — obecnie co %s',
 	'Every %s'                                   => 'Co %s',
 	'When this plugin is deleted'                => 'Gdy ta wtyczka zostanie usunięta',
 	'Also delete every sheet source and setting' => 'Usuń też wszystkie źródła arkuszy i ustawienia',
-	'Off by default, because deleting a plugin to reinstall it is a normal thing to do and losing every table for it would not be. This only applies when the plugin is deleted from the Plugins screen, not when it is deactivated. Your spreadsheets in Google are never touched either way.'
-		=> 'Domyślnie wyłączone, bo usunięcie wtyczki po to, żeby zainstalować ją ponownie, jest czymś normalnym, a utrata przy tym wszystkich tabel nie byłaby. Dotyczy tylko usunięcia z ekranu Wtyczki, nie dezaktywacji. Twoje arkusze w Google i tak nigdy nie są ruszane.',
 	'You do not have permission to change these settings.'
 		=> 'Nie masz uprawnień do zmiany tych ustawień.',
 	'See what is hidden, and what will come back'
@@ -131,16 +111,8 @@ return array(
 		=> 'Coś, co usunąłeś z tabeli, jest znów na stronie.',
 	'Something you had taken out of a table is no longer in the sheet.'
 		=> 'Czegoś, co usunąłeś z tabeli, nie ma już w arkuszu.',
-	'The column you took out was headed “%1$s”. That position now holds “%2$s” instead, so nothing is being taken out and the column is on the page. Somebody has moved, renamed or removed a column in Google. Click the one you want and save.'
-		=> 'Kolumna, którą usunąłeś, miała nagłówek „%1$s”. W tym miejscu jest teraz „%2$s”, więc nic nie jest usuwane i ta kolumna jest na stronie. Ktoś przestawił, przemianował albo usunął kolumnę w Google. Kliknij tę, o którą Ci chodzi, i zapisz.',
-	'The column you renamed to “%2$s” was headed “%1$s”. That position now holds “%3$s” instead, so it is showing the sheet\'s own heading again. Somebody has moved, renamed or removed a column in Google.'
-		=> 'Kolumna, którą przemianowałeś na „%2$s”, miała nagłówek „%1$s”. W tym miejscu jest teraz „%3$s”, więc pokazuje znów własny nagłówek z arkusza. Ktoś przestawił, przemianował albo usunął kolumnę w Google.',
 	'nothing'                                    => 'nic',
 	'the empty row'                              => 'pusty wiersz',
-	'Line %1$d is not “%2$s” any more, so nothing is being taken out there and that row is on the page. Somebody has inserted, removed or reordered rows in Google. Click the row you want and save.'
-		=> 'W linii %1$d nie ma już „%2$s”, więc nic nie jest tam usuwane i ten wiersz jest na stronie. Ktoś dodał, usunął albo przestawił wiersze w Google. Kliknij wiersz, o który Ci chodzi, i zapisz.',
-	'The sheet no longer reaches line %1$d, where “%2$s” was taken out. Nothing is on the page that should not be. The setting is left alone: if the sheet grows back to that line, whatever is there will be taken out, so check it then.'
-		=> 'Arkusz nie sięga już linii %1$d, w której usunięto „%2$s”. Na stronie nie ma nic, czego nie powinno być. Ustawienie zostaje nietknięte: jeśli arkusz znów urośnie do tej linii, to, co się tam znajdzie, zostanie usunięte — sprawdź to wtedy.',
 	'Open this table'                            => 'Otwórz tę tabelę',
 	'I have read this'                           => 'Przeczytałem',
 	'You do not have permission to do that.'     => 'Nie masz do tego uprawnień.',
@@ -156,37 +128,23 @@ return array(
 	'Full width'                                 => 'Pełna szerokość',
 	'Narrow column'                              => 'Wąska kolumna',
 	'Phone'                                      => 'Telefon',
-	'A wide table becomes one card per row once its column gets too narrow. Use these to check both before you publish.'
-		=> 'Szeroka tabela zamienia się w jedną kartę na wiersz, gdy jej kolumna staje się zbyt wąska. Sprawdź oba warianty, zanim opublikujesz.',
-	'This is exactly what the parser sees. Check the headings and a few rows before you save — wrong tab, merged cells or a shifted header row show up here, not on your live page.'
-		=> 'Dokładnie to widzi parser. Sprawdź nagłówki i kilka wierszy przed zapisaniem — zła zakładka, scalone komórki czy przesunięty wiersz nagłówka widać tutaj, a nie na działającej stronie.',
 	'Paste a link and choose “Load preview”.'    => 'Wklej link i wybierz „Wczytaj podgląd”.',
 	'Loading preview…'                           => 'Wczytywanie podglądu…',
 	'Preview failed'                             => 'Podgląd nie powiódł się',
 	'Found %1$s rows across %2$s columns.'       => 'Znaleziono %1$s wierszy w %2$s kolumnach.',
 	'Showing the first 25 rows.'                 => 'Pokazano pierwsze 25 wierszy.',
 	'Pick the tab you want to publish:'          => 'Wybierz zakładkę, którą chcesz opublikować:',
-	'Could not read the tab list — the tab from your link will be used.'
-		=> 'Nie udało się odczytać listy zakładek — zostanie użyta zakładka z Twojego linku.',
 	'Paste a Google Sheets link first.'          => 'Najpierw wklej link do arkusza Google.',
 
 	// Columns and the pinned first column.
 	'Columns'                                    => 'Kolumny',
-	'Rename a column for your visitors. Nothing here is written back to Google — your spreadsheet keeps its own headings, including working names nobody should see.'
-		=> 'Zmień nazwę kolumny dla odwiedzających albo w ogóle pomiń ją w tabeli. Nic z tego nie jest zapisywane do Google — Twój arkusz zachowuje własne nagłówki, także robocze nazwy, których nikt nie powinien widzieć.',
 	'In your sheet'                              => 'W Twoim arkuszu',
 	'Shown as'                                   => 'Wyświetlane jako',
 	'Include'                                    => 'Pokaż',
 	'Show this column'                           => 'Pokaż tę kolumnę',
 	'The columns in your sheet have moved.'      => 'Kolumny w Twoim arkuszu się przesunęły.',
-	'Settings below are matched by position, so a column added or removed in Google shifts them. Check that each row still points at the right column:'
-		=> 'Ustawienia poniżej dopasowują się po pozycji, więc kolumna dodana lub usunięta w Google je przesuwa. Sprawdź, czy każdy wiersz nadal wskazuje właściwą kolumnę:',
 	'Column %1$d was “%2$s”, now “%3$s”'         => 'Kolumna %1$d była „%2$s”, teraz jest „%3$s”',
 	'(no longer there)'                          => '(już jej nie ma)',
-	'Keep the first column in view while the table scrolls sideways'
-		=> 'Zachowaj pierwszą kolumnę w widoku, gdy tabela przewija się w bok',
-	'Useful when the first column names the row — a product, a person, a date. Turn it off if your first column is long text, where pinning it would take up most of a phone screen.'
-		=> 'Przydatne, gdy pierwsza kolumna nazywa wiersz — produkt, osobę, datę. Wyłącz, jeśli pierwsza kolumna to długi tekst, bo przyklejona zajęłaby większość ekranu telefonu.',
 
 	// Scheduler health.
 	'Meanwhile you can update any sheet by hand with “Refresh now”. %s'
@@ -197,27 +155,9 @@ return array(
 		=> 'Dlaczego tak się dzieje i jak to naprawić na stałe',
 	'Your pages still show the last copy that arrived, so nothing is broken for visitors.'
 		=> 'Twoje strony nadal pokazują ostatnią kopię, która dotarła, więc dla odwiedzających nic nie jest zepsute.',
-	'WordPress runs scheduled work only when someone visits the site, so a quiet site falls behind — and on a site that should be busy this usually means something is stopping it: a security plugin, a page cache answering every request without running WordPress, or a host that switches scheduling off without replacing it.'
-		=> 'WordPress wykonuje zaplanowane zadania tylko wtedy, gdy ktoś odwiedza witrynę, więc cicha strona zostaje w tyle — a na stronie, która powinna mieć ruch, zwykle znaczy to, że coś to blokuje: wtyczka bezpieczeństwa, cache stron odpowiadający na każde żądanie bez uruchamiania WordPressa albo hosting, który wyłącza harmonogram, nie dając nic w zamian.',
 
 	// Layout and the horizontal slider.
-	'What the table does on a phone'             => 'Co tabela robi na telefonie',
-	'Pick one and the preview jumps to the width that shows the difference. The slider stays visible while there is more table to see, unlike the browser\'s own scrollbar.'
-		=> 'Wybierz jedną, a podgląd przeskoczy na szerokość, przy której widać różnicę. Suwak jest widoczny zawsze, gdy tabela ma coś jeszcze do pokazania — inaczej niż pasek przewijania przeglądarki.',
-	'Stay a table and slide sideways'            => 'Zostań tabelą i przesuwaj się w bok',
-	'The columns stay columns at every width, and a slider under the table pushes it left and right. Nothing is ever cut off — but a wide sheet is a lot of sliding on a phone.'
-		=> 'Kolumny pozostają kolumnami przy każdej szerokości, a suwak pod tabelą przesuwa ją w lewo i w prawo. Nic nigdy nie zostaje ucięte — ale szeroki arkusz to na telefonie sporo przesuwania.',
-	'Become cards once it stops fitting'         => 'Zamień się w karty, gdy przestanie się mieścić',
-	'A normal table on a computer. On a phone each row turns into its own block with the heading printed beside every value, so nothing has to be slid sideways to be read.'
-		=> 'Na komputerze zwykła tabela. Na telefonie każdy wiersz zamienia się we własny blok, z nagłówkiem wypisanym obok każdej wartości — więc nic nie trzeba przesuwać w bok, żeby to przeczytać.',
-	'Always cards, never a table'                => 'Zawsze karty, nigdy tabela',
-	'Blocks at every width, a wide screen included. Right for a sheet of profiles or listings — wrong for figures somebody wants to compare down a column.'
-		=> 'Bloki przy każdej szerokości, także na szerokim ekranie. Dobre dla arkusza z profilami albo ogłoszeniami — złe dla liczb, które ktoś chce porównywać w dół kolumny.',
 	'Suggested'                                  => 'Sugerowane',
-	'Keep the headings in view while the page scrolls down'
-		=> 'Trzymaj nagłówki na widoku podczas przewijania strony w dół',
-	'Past the first screenful of a long table nobody can remember which column is which. The heading row follows you down instead. Turn it off if your theme already pins something to the top of the screen, or on a table wide enough to need the sideways slider, where the headings stay with the table rather than with the screen.'
-		=> 'Po pierwszym ekranie długiej tabeli nikt już nie pamięta, która kolumna jest która. Wiersz nagłówka podąża wtedy za tobą w dół. Wyłącz to, jeśli twój motyw już przypina coś do góry ekranu, albo przy tabeli na tyle szerokiej, że potrzebuje suwaka w bok — tam nagłówki zostają przy tabeli, a nie przy ekranie.',
 	'Table style'                                => 'Styl tabeli',
 	'Table with a slider'                        => 'Tabela z suwakiem',
 	'Stack into cards when narrow'               => 'Karty, gdy wąsko',
@@ -228,8 +168,6 @@ return array(
 
 	// Visual appearance editor.
 	'4. Fine-tune the look'                      => '4. Dopracuj wygląd',
-	'Optional. Anything you leave untouched follows the preset above, so you can change one colour without redefining the rest. The preview updates as you go.'
-		=> 'Opcjonalne. Wszystko, czego nie ruszysz, podąża za presetem powyżej, więc możesz zmienić jeden kolor bez definiowania reszty. Podgląd aktualizuje się na bieżąco.',
 	'Text'                                       => 'Tekst',
 	'Background'                                 => 'Tło',
 	'Header text'                                => 'Tekst nagłówka',
@@ -270,8 +208,6 @@ return array(
 
 	// Usage panel.
 	'Put it on a page'                           => 'Umieść na stronie',
-	'Use the “Google Sheets Table” block, or paste this shortcode into any editor, widget or page builder:'
-		=> 'Użyj bloku „Tabela z Arkuszy Google” albo wklej ten shortcode w dowolnym edytorze, widżecie lub kreatorze stron:',
 	'Optional attributes: search="no", sort="no", meta="no", style="striped", caption="My table".'
 		=> 'Opcjonalne atrybuty: search="no", sort="no", meta="no", style="striped", caption="Moja tabela".',
 
@@ -351,43 +287,25 @@ return array(
 
 	// Upsell.
 	'Need more than one sheet?'                  => 'Potrzebujesz więcej niż jednego arkusza?',
-	'Pro adds unlimited sources, one-minute syncing, conditional cell formatting, filtered views, premium presets and private-sheet support.'
-		=> 'Pro dodaje nielimitowaną liczbę źródeł, synchronizację co minutę, formatowanie warunkowe komórek, widoki filtrowane, presety premium i obsługę arkuszy prywatnych.',
 	'Compare Free and Pro'                       => 'Porównaj wersję darmową i Pro',
 	'See what Pro adds'                          => 'Zobacz, co daje Pro',
 	'Pro'                                        => 'Pro',
-	'Rows are never limited — a source can hold as many rows as your sheet does. To publish several different sheets at once, upgrade to Pro.'
-		=> 'Liczba wierszy nigdy nie jest ograniczona — źródło pomieści tyle wierszy, ile ma Twój arkusz. Aby publikować kilka różnych arkuszy naraz, przejdź na Pro.',
 	'Waiting for a first look at the sheet. Choose “Refresh now” on the sources list, and your real columns will appear here.'
 		=> 'Czekamy na pierwsze odczytanie arkusza. Kliknij „Odśwież teraz” na liście źródeł, a pojawią się tutaj Twoje prawdziwe kolumny.',
 	'Save this source first. It is read straight away, and your real columns appear here.'
 		=> 'Najpierw zapisz to źródło. Arkusz zostanie od razu odczytany, a Twoje prawdziwe kolumny pojawią się tutaj.',
-	'Make web and e-mail addresses in cells clickable' => 'Zamieniaj adresy WWW i e-mail w komórkach na klikalne linki',
-	'A link in a cell is otherwise plain text a visitor has to select and copy, which on a phone is close to impossible. Only http, https and e-mail addresses are linked.'
-		=> 'Bez tego link w komórce jest zwykłym tekstem, który odwiedzający musi zaznaczyć i skopiować — na telefonie to praktycznie niewykonalne. Linkowane są wyłącznie adresy http, https i e-mail.',
 	'This sheet did not come back cleanly.'      => 'Ten arkusz wrócił uszkodzony.',
-	'The table below still renders from the copy that arrived, so nothing on your site is broken. Fix the rows in Google and choose “Save changes and sync”.'
-		=> 'Tabela poniżej nadal renderuje się z kopii, która dotarła, więc nic na Twojej stronie nie jest zepsute. Popraw te wiersze w Google i kliknij „Zapisz zmiany i zsynchronizuj”.',
-	'The usual cause is a value that runs two cells together — a lone quotation mark, or a comma inside a value that was not quoted. It can also be a cell holding a line break, or a copy of the sheet edited by hand rather than exported by Google. Open those rows in your sheet and compare them against the ones around them.'
-		=> 'Najczęstsza przyczyna to wartość, która skleiła dwie komórki w jedną — pojedynczy cudzysłów albo przecinek w wartości, która nie została ujęta w cudzysłów. Bywa też, że komórka zawiera znak nowej linii, albo że arkusz był edytowany ręcznie zamiast wyeksportowany przez Google. Otwórz te wiersze w arkuszu i porównaj je z sąsiednimi.',
 	'Filter'                                     => 'Filtr',
 	'Which rows'                                 => 'Które wiersze',
 	'Show only matching rows, for example: Kategoria is Rowery. Join conditions with “and”. Operators: is, is not, has, gt, gte, lt, lte.'
 		=> 'Pokaż tylko pasujące wiersze, na przykład: Kategoria is Rowery. Warunki łącz słowem „and”. Operatory: is, is not, has, gt, gte, lt, lte.',
 	'Live Sheets Table: a sheet did not come back cleanly.' => 'Live Sheets Table: arkusz wrócił uszkodzony.',
 	'Hide this until it happens again'           => 'Ukryj do następnego razu',
-	'This table is set to show only some of its rows, but the add-on that does the filtering is not active. Nothing is shown rather than every row, which is not what this page asked for. Activate the add-on, or remove the filter from the block or shortcode.'
-		=> 'Ta tabela ma pokazywać tylko część wierszy, ale dodatek odpowiedzialny za filtrowanie nie jest aktywny. Zamiast wszystkich wierszy nie pokazujemy żadnego — bo to nie jest to, o co prosiła ta strona. Włącz dodatek albo usuń filtr z bloku lub shortcode’u.',
 	'What Google actually sent'                  => 'Co dokładnie przysłał Google',
-	'The exported text, exactly as it arrived, before the plugin read it. If a value looks wrong in the table above, find it here: if it is already wrong here, the sheet is where to fix it. Copy this if you need to send it to support.'
-		=> 'Wyeksportowany tekst dokładnie w takiej postaci, w jakiej dotarł — zanim wtyczka go odczytała. Jeśli jakaś wartość wygląda źle w tabeli powyżej, znajdź ją tutaj: jeśli już tu jest zła, to arkusz jest miejscem do poprawki. Skopiuj to, jeśli musisz wysłać do wsparcia.',
 	'%1$s characters received.'                  => 'Odebrano %1$s znaków.',
 	'Look at row %1$s: it came back with a different number of cells than the rest.'
 		=> 'Zobacz wiersz %1$s: wrócił z inną liczbą komórek niż reszta.',
 	'Pagination'                                 => 'Paginacja',
-	'Break a long sheet into numbered pages'     => 'Podziel długi arkusz na numerowane strony',
-	'Off, the whole sheet is on the page at once — fine up to a few hundred rows, heavy going beyond that. On, the visitor gets page numbers under the table, and searching and sorting move to the server across the whole sheet rather than the page in front of them, so a search still finds a row on page nine.'
-		=> 'Wyłączona — cały arkusz jest na stronie naraz, co jest w porządku do kilkuset wierszy, a powyżej robi się ciężko. Włączona — odwiedzający dostaje numery stron pod tabelą, a wyszukiwanie i sortowanie przenoszą się na serwer i obejmują cały arkusz, a nie tylko stronę, którą ma przed sobą, więc wyszukiwarka nadal znajdzie wiersz ze strony dziewiątej.',
 	'Rows on each page'                          => 'Wierszy na każdej stronie',
 	'Search the whole sheet…'                    => 'Szukaj w całym arkuszu…',
 	'Search'                                     => 'Szukaj',
@@ -512,8 +430,6 @@ return array(
 		=> 'Uwagi',
 	'Nothing to show yet'
 		=> 'Nie ma jeszcze czego pokazać',
-	'Open your sheet, copy the address from the browser bar, paste it here. You will see the table straight away — before anything is saved and before we ask you anything else.'
-		=> 'Otwórz arkusz, skopiuj adres z paska przeglądarki i wklej go tutaj. Tabelę zobaczysz od razu — zanim cokolwiek zapiszesz i zanim zapytamy Cię o cokolwiek innego.',
 	'Organic or metallic compound'
 		=> 'Okładziny organiczne lub metaliczne',
 	'Part on back order'
@@ -534,8 +450,6 @@ return array(
 		=> 'Usługa',
 	'Settings for the whole site'
 		=> 'Ustawienia dla całej witryny',
-	'Sharing by link is all the free version needs. Connecting a Google account, for sheets that cannot be shared at all, is part of Pro.'
-		=> 'Wersji darmowej wystarczy udostępnienie linkiem. Połączenie konta Google — dla arkuszy, których nie da się udostępnić w ogóle — jest częścią Pro.',
 	'Show me the table'
 		=> 'Pokaż tabelę',
 	'Suspension overhaul'
@@ -556,14 +470,6 @@ return array(
 		=> 'Termin do 5 dni roboczych',
 	'Used on'
 		=> 'Użyty na',
-	'Visitors are seeing the last good copy, so nothing on your pages is broken. We will try again shortly.'
-		=> 'Odwiedzający widzą ostatnią dobrą kopię, więc nic na Twoich stronach nie jest zepsute. Spróbujemy ponownie za chwilę.',
-	'Waiting for a first look at the sheet. Choose “Refresh” on the sources list, and your real columns will appear here.'
-		=> 'Czekamy na pierwsze spojrzenie na arkusz. Wybierz „Odśwież” na liście źródeł, a pojawią się tu Twoje prawdziwe kolumny.',
-	'Want somewhere safe to try the settings? Add the built-in example price list — it never touches Google.'
-		=> 'Chcesz mieć gdzie bezpiecznie sprawdzić ustawienia? Dodaj wbudowany przykładowy cennik — nigdy nie sięga do Google.',
-	'We only ever read. Never write'
-		=> 'Tylko czytamy. Nigdy nie zapisujemy',
 	'Wheel truing'
 		=> 'Centrowanie koła',
 	'Your price list on the page in ten seconds'
@@ -582,8 +488,6 @@ return array(
 		=> 'Wygląd',
 	'Save changes'
 		=> 'Zapisz zmiany',
-	'It lives inside the plugin, so there is no link to point at and nothing to fetch. Everything else works exactly as it does for a real sheet — change the look, rename a column, hide a row, put it on a page. Delete it whenever you like.'
-		=> 'Mieszka wewnątrz wtyczki, więc nie ma tu żadnego linku ani niczego do pobrania. Cała reszta działa dokładnie tak jak przy prawdziwym arkuszu — zmień wygląd, przemianuj kolumnę, ukryj wiersz, wstaw na stronę. Usuń go, kiedy zechcesz.',
 	'Name it and set the schedule'
 		=> 'Nazwij i ustaw harmonogram',
 	'Pick a look'
@@ -598,10 +502,6 @@ return array(
 		=> 'Jak długo czekać na Google',
 	'How new tables look'
 		=> 'Jak wyglądają nowe tabele',
-	'Only ever applies when the schedule has not run and a visitor arrives to a table that is due a check. The page waits this long, then gives up and shows the copy it already has — so the visitor always gets a table either way. Raise it only if you have a very large sheet on slow hosting; every extra second is a second somebody waits.'
-		=> 'Dotyczy wyłącznie sytuacji, gdy harmonogram nie zadziałał, a odwiedzający trafia na tabelę, której należy się sprawdzenie. Strona czeka tyle, po czym odpuszcza i pokazuje kopię, którą już ma — więc odwiedzający i tak zawsze dostaje tabelę. Zwiększaj tylko przy bardzo dużym arkuszu na wolnym hostingu; każda dodatkowa sekunda to sekunda czyjegoś czekania.',
-	'The style a table is given the moment you add it. Every table can still be changed afterwards; this is only so that somebody who has settled on one look is not choosing it again for every sheet.'
-		=> 'Styl, który tabela dostaje w chwili dodania. Każdą tabelę da się potem zmienić; chodzi tylko o to, żeby ktoś, kto wybrał już swój wygląd, nie wskazywał go od nowa przy każdym arkuszu.',
 	'seconds'
 		=> 'sekund',
 
@@ -622,8 +522,6 @@ return array(
 		=> 'Komu powierzasz tabele na tej witrynie',
 	'Your own CSS'
 		=> 'Własny CSS',
-	'For the last thing the settings above do not cover. Write ordinary rules — the plugin puts this table’s own selector in front of each one, so nothing written here can reach the rest of the page. Where you mean the table itself rather than something inside it, write & — as in &.lstab-paged.'
-		=> 'Na to jedno, czego nie obejmują ustawienia powyżej. Pisz zwykłe reguły — wtyczka sama dopisuje przed każdą z nich selektor tej tabeli, więc nic stąd nie sięgnie reszty strony. Gdy chodzi Ci o samą tabelę, a nie o coś w środku, napisz & — na przykład &.lstab-paged.',
 	'Every rule is saved as %s followed by what you wrote.'
 		=> 'Każda reguła zapisuje się jako %s, a po nim to, co napisałeś.',
 	'You are not allowed to write CSS on this site.'
@@ -659,4 +557,159 @@ return array(
 		=> 'Ten arkusz nie został jeszcze pobrany, więc nie ma czego przerysować.',
 	'Column %1$s'
 		=> 'Kolumna %1$s',
+	'In Google Sheets: Share → General access → “Anyone with the link”, role “Viewer”. Then copy the address from the browser. No API key needed.'
+		=> 'W Arkuszach Google: Udostępnij → Ogólny dostęp → „Każdy, kto ma link”, rola „Przeglądający”. Potem skopiuj adres z przeglądarki. Klucz API nie jest potrzebny.',
+	'How old the data on your page may be. Checks run in the background; a table that is due one is also checked as the page is drawn.'
+		=> 'Jak stare mogą być dane na twojej stronie. Sprawdzanie działa w tle; tabela, której termin minął, jest sprawdzana także przy wyświetlaniu strony.',
+	'A built-in sheet with nothing to fetch. Every other setting works as it does for a real one. Delete it whenever you like.'
+		=> 'Wbudowany arkusz, którego nie trzeba pobierać. Wszystkie pozostałe ustawienia działają jak przy prawdziwym. Możesz go usunąć w dowolnej chwili.',
+	'Usually an unclosed quotation mark, or a comma inside a value that was not quoted. Open those rows in your sheet and compare them with the rest.'
+		=> 'Zwykle niedomknięty cudzysłów albo przecinek w wartości bez cudzysłowów. Otwórz te wiersze w arkuszu i porównaj z pozostałymi.',
+	'Your page still shows the copy that arrived. Fix the rows in Google, then choose “Save changes and sync”.'
+		=> 'Twoja strona nadal pokazuje kopię, która dotarła. Popraw wiersze w arkuszu, a potem wybierz „Zapisz zmiany i synchronizuj”.',
+	'Behaviour on narrow screens'
+		=> 'Zachowanie na wąskich ekranach',
+	'The preview switches to the width at which the difference is visible.'
+		=> 'Podgląd przełącza się na szerokość, przy której widać różnicę.',
+	'Table with a slider'
+		=> 'Tabela z suwakiem',
+	'Columns stay columns at every width. A slider under the table moves it sideways.'
+		=> 'Kolumny pozostają kolumnami przy każdej szerokości. Suwak pod tabelą przesuwa ją w bok.',
+	'Cards when it stops fitting'
+		=> 'Karty, gdy przestaje się mieścić',
+	'A table on a computer. On a phone each row becomes a block with its heading beside every value.'
+		=> 'Na komputerze tabela. Na telefonie każdy wiersz staje się blokiem z nagłówkiem obok każdej wartości.',
+	'Always cards'
+		=> 'Zawsze karty',
+	'Blocks at every width, including wide screens. Suits profiles and listings rather than figures to compare.'
+		=> 'Bloki przy każdej szerokości, także na szerokich ekranach. Pasuje do profili i ogłoszeń, nie do liczb do porównywania.',
+	'Keep the first column in view'
+		=> 'Trzymaj pierwszą kolumnę na widoku',
+	'Useful when the first column names the row. Turn it off if that column holds long text.'
+		=> 'Przydatne, gdy pierwsza kolumna nazywa wiersz. Wyłącz, jeśli zawiera długi tekst.',
+	'Keep the headings in view'
+		=> 'Trzymaj nagłówki na widoku',
+	'The heading row stays visible while the page scrolls. Turn it off if your theme already pins something to the top of the screen.'
+		=> 'Wiersz nagłówka pozostaje widoczny podczas przewijania strony. Wyłącz, jeśli twój motyw już przypina coś do góry ekranu.',
+	'Turn addresses in cells into links'
+		=> 'Zamieniaj adresy w komórkach na odnośniki',
+	'Applies to http, https and e-mail addresses only.'
+		=> 'Dotyczy wyłącznie adresów http, https i e-mail.',
+	'Split the table into pages'
+		=> 'Podziel tabelę na strony',
+	'Page numbers appear under the table. Searching and sorting then cover the whole sheet, not only the page on screen.'
+		=> 'Pod tabelą pojawiają się numery stron. Wyszukiwanie i sortowanie obejmują wtedy cały arkusz, a nie tylko stronę na ekranie.',
+	'Optional. Anything left empty follows the preset above.'
+		=> 'Opcjonalne. Wszystko, co zostawisz puste, podąża za presetem powyżej.',
+	'Ordinary CSS rules, confined to this table automatically. Write & for the table element itself, as in &.lstab-paged.'
+		=> 'Zwykłe reguły CSS, automatycznie ograniczone do tej tabeli. Wpisz &, gdy chodzi o sam element tabeli — jak w &.lstab-paged.',
+	'Renames a column for visitors. Your spreadsheet keeps its own headings.'
+		=> 'Zmienia nazwę kolumny dla odwiedzających. Twój arkusz zachowuje własne nagłówki.',
+	'Settings are matched by position, so a column added or removed in Google shifts them. Check each row:'
+		=> 'Ustawienia są dopasowywane po pozycji, więc kolumna dodana lub usunięta w Google je przesuwa. Sprawdź każdy wiersz:',
+	'Waiting for the first look at the sheet. Choose “Refresh” on the sources list.'
+		=> 'Czekam na pierwsze spojrzenie na arkusz. Wybierz „Odśwież” na liście źródeł.',
+	'Exactly what the parser sees. Check the headings and a few rows before saving.'
+		=> 'Dokładnie to, co widzi parser. Sprawdź nagłówki i kilka wierszy przed zapisaniem.',
+	'A wide table becomes one card per row when its column is too narrow.'
+		=> 'Szeroka tabela zamienia się w jedną kartę na wiersz, gdy jej kolumna jest za wąska.',
+	'The exported text as it arrived, before the plugin read it. If a value is wrong here too, fix it in the sheet.'
+		=> 'Wyeksportowany tekst w postaci, w jakiej dotarł, zanim wtyczka go odczytała. Jeśli wartość jest błędna także tutaj, popraw ją w arkuszu.',
+	'Use the “Google Sheets Table” block, or paste this shortcode:'
+		=> 'Użyj bloku „Tabela z Arkuszy Google” albo wklej ten shortcode:',
+
+	// Wording pass.
+	'Excel, CSV and Print buttons under the table. A download contains exactly what the visitor sees: the rows left after filtering, and the columns you kept.'
+		=> 'Przyciski Excel, CSV i Drukuj pod tabelą. Pobrany plik zawiera dokładnie to, co widzi odwiedzający: wiersze po filtrowaniu i pozostawione kolumny.',
+	'Applies only when a visitor opens a table that is overdue for a check. After this time the table is drawn from the copy already stored.'
+		=> 'Dotyczy tylko sytuacji, gdy odwiedzający otwiera tabelę zaległą do sprawdzenia. Po tym czasie tabela zostaje narysowana z zapisanej kopii.',
+	'WordPress runs scheduled work only when a page is requested, so a quiet site falls behind. On a busy site the usual causes are a page cache, a security plugin, or scheduling disabled by the host.'
+		=> 'WordPress uruchamia zadania cykliczne tylko przy żądaniu strony, więc rzadko odwiedzana witryna zostaje w tyle. Na ruchliwej witrynie typowe przyczyny to pamięć podręczna stron, wtyczka zabezpieczająca lub wyłączony harmonogram po stronie hostingu.',
+	'The value given to each new table. Existing tables are not affected, and every table can be set separately.'
+		=> 'Wartość nadawana każdej nowej tabeli. Istniejące tabele pozostają bez zmian, a każdą tabelę można ustawić osobno.',
+	'Applies only when the plugin is deleted from the Plugins screen, not when it is deactivated. Your spreadsheets in Google are never touched.'
+		=> 'Dotyczy wyłącznie usunięcia wtyczki na ekranie Wtyczki, a nie jej wyłączenia. Arkusze w Google nigdy nie są zmieniane.',
+	'Colour a cell, or its whole row, according to the cell\'s value. Colours are worked out on the server, so they are already in the page a visitor receives.'
+		=> 'Pokoloruj komórkę lub cały wiersz na podstawie jej wartości. Kolory są wyliczane na serwerze, więc trafiają do strony przed jej wysłaniem.',
+	'This table shows only some of its rows, but the add-on that filters them is not active. No rows are shown rather than all of them. Activate the add-on, or remove the filter from the block or shortcode.'
+		=> 'Ta tabela pokazuje tylko część wierszy, ale dodatek odpowiedzialny za filtrowanie nie jest aktywny. Zamiast wszystkich wierszy nie pokazano żadnego. Włącz dodatek albo usuń filtr z bloku lub shortcode’u.',
+	'Filters appear above the table as menus. Each choice has an address of its own that can be shared, and works together with search and pages across the whole sheet.'
+		=> 'Filtry pojawiają się nad tabelą jako rozwijane menu. Każdy wybór ma własny adres, który można udostępnić, i działa razem z wyszukiwaniem oraz stronami w obrębie całego arkusza.',
+	'Only read access to spreadsheets is requested; this connection cannot change or delete anything in your Google account. Disconnecting takes effect immediately.'
+		=> 'Wymagany jest wyłącznie dostęp do odczytu arkuszy; to połączenie nie może niczego zmienić ani usunąć na Twoim koncie Google. Rozłączenie działa natychmiast.',
+	'To read sheets that are not shared publicly, this site signs in to Google as you. That requires an OAuth client from your own Google Cloud project.'
+		=> 'Aby odczytywać arkusze nieudostępnione publicznie, witryna loguje się do Google jako Ty. Wymaga to klienta OAuth z Twojego własnego projektu Google Cloud.',
+	'The column you hid was headed “%1$s”; that position now holds “%2$s”, so the column is back on the page. Select the column you want and save.'
+		=> 'Ukryta kolumna nosiła nagłówek „%1$s”; w tym miejscu jest teraz „%2$s”, więc kolumna wróciła na stronę. Wskaż właściwą kolumnę i zapisz.',
+	'When a match breaks, the column or row is shown again rather than the wrong one being hidden. A notice in the dashboard names the table, and you can hide it again here.'
+		=> 'Gdy dopasowanie przestaje pasować, kolumna lub wiersz wraca na stronę, zamiast ukryć niewłaściwy element. Powiadomienie w kokpicie wskaże tabelę, a ukryć ją można ponownie na tym ekranie.',
+	'The sheet no longer reaches line %1$d, where “%2$s” was hidden. The setting is kept: if the sheet grows back to that line, whatever is there will be hidden.'
+		=> 'Arkusz nie sięga już wiersza %1$d, w którym ukryto „%2$s”. Ustawienie pozostaje: jeśli arkusz znów urośnie do tego wiersza, ukryta zostanie jego ówczesna zawartość.',
+	'A filter shows visitors what a column contains, instead of asking them to guess the words. The counts below come from the copy stored now.'
+		=> 'Filtr pokazuje odwiedzającym, co zawiera kolumna, zamiast kazać im zgadywać słowa. Liczby poniżej pochodzą z aktualnie zapisanej kopii.',
+	'WordPress has no clock of its own: its schedule runs only when a page is requested. Most hosting panels have a “Cron jobs” screen. Paste this line into it:'
+		=> 'WordPress nie ma własnego zegara: harmonogram działa tylko przy żądaniu strony. Większość paneli hostingowych ma ekran „Cron jobs”. Wklej do niego tę linię:',
+	'Click a heading to hide that column, or a line number to hide that row. Click again to bring it back. Nothing is written to Google.'
+		=> 'Kliknij nagłówek, aby ukryć kolumnę, albo numer wiersza, aby ukryć wiersz. Kliknij ponownie, aby przywrócić. Nic nie jest zapisywane w Google.',
+	'Anyone who can manage tables can also read every sheet they point at, including columns left out of the published table.'
+		=> 'Każdy, kto może zarządzać tabelami, może też odczytać każdy wskazany arkusz, łącznie z kolumnami pominiętymi w opublikowanej tabeli.',
+	'Tick a sheet to read it through the connected account instead of its public link. You can then turn off link sharing in Google.'
+		=> 'Zaznacz arkusz, aby odczytywać go przez połączone konto zamiast publicznego linku. Możesz wtedy wyłączyć udostępnianie linkiem w Google.',
+	'“is” and “is not” compare text, ignoring case and spacing. The number comparisons read a price as a number, so 1 215,50 and 1215.5 are the same figure.'
+		=> '„is” i „is not” porównują tekst, pomijając wielkość liter i odstępy. Porównania liczbowe czytają cenę jako liczbę, więc 1 215,50 i 1215.5 to ta sama wartość.',
+	'The column you renamed to “%2$s” was headed “%1$s”; that position now holds “%3$s”, so the sheet\'s own heading is shown again.'
+		=> 'Kolumna przemianowana na „%2$s” nosiła nagłówek „%1$s”; w tym miejscu jest teraz „%3$s”, więc pokazywany jest nagłówek z arkusza.',
+	'The style given to each new table. Every table can still be changed afterwards.'
+		=> 'Styl nadawany każdej nowej tabeli. Każdą tabelę można później zmienić.',
+	'Line %1$d is no longer “%2$s”, so that row is back on the page. Rows have been inserted, removed or reordered in Google. Select the row you want and save.'
+		=> 'Wiersz %1$d to już nie „%2$s”, więc wrócił on na stronę. W Google wstawiono, usunięto lub przestawiono wiersze. Wskaż właściwy wiersz i zapisz.',
+	'Billing is handled in your account, not on this site. Cancelling takes effect at the end of the period you have paid for.'
+		=> 'Płatnościami zarządzasz na swoim koncie, nie w witrynie. Rezygnacja działa od końca opłaconego okresu.',
+	'Symbols such as = and > also work, but WordPress strips a “less than” sign from shortcode attributes, so the words above are the safer form.'
+		=> 'Symbole takie jak = i > również działają, ale WordPress usuwa znak „mniejszości” z atrybutów shortcode’u, dlatego powyższe słowa są formą bezpieczniejszą.',
+	'Hiding columns and rows is a Pro feature, and Pro is not active on this site. Your choices are still applied for now.'
+		=> 'Ukrywanie kolumn i wierszy to funkcja Pro, która nie jest aktywna w tej witrynie. Twoje ustawienia są na razie nadal stosowane.',
+	'A hidden column is matched by its heading, a hidden row by its line number. Reordering columns, renaming a heading or inserting a row above breaks that match.'
+		=> 'Ukryta kolumna jest dopasowywana po nagłówku, a ukryty wiersz po numerze wiersza. Przestawienie kolumn, zmiana nagłówka lub wstawienie wiersza powyżej przerywa to dopasowanie.',
+	'Open your sheet, copy the address from the browser bar and paste it here. The table appears straight away, before anything is saved.'
+		=> 'Otwórz arkusz, skopiuj adres z paska przeglądarki i wklej go tutaj. Tabela pojawi się od razu, zanim cokolwiek zostanie zapisane.',
+	'One saved sheet can feed as many pages as you like. Add a filter to the shortcode and each page shows only the rows it needs.'
+		=> 'Jeden zapisany arkusz może zasilać dowolnie wiele stron. Dodaj filtr do shortcode’u, a każda strona pokaże tylko potrzebne wiersze.',
+	'Nothing is coloured by %s until the rule points at a heading that exists. The rule is kept until you change it.'
+		=> 'Nic nie jest kolorowane przez %s, dopóki reguła nie wskaże istniejącego nagłówka. Reguła pozostaje zapisana.',
+	'Rules are read from the top down. If two of them colour the same place, the lower one wins, so put the general rule first.'
+		=> 'Reguły są czytane od góry. Jeśli dwie kolorują to samo miejsce, wygrywa niższa, więc regułę ogólną umieść wyżej.',
+	'If your hosting has no cron screen, a free uptime monitor pointed at your home page does the same job: every visit it makes runs the schedule.'
+		=> 'Jeśli hosting nie ma ekranu cron, tę samą rolę spełni bezpłatny monitor dostępności wskazujący na stronę główną: każde jego wejście uruchamia harmonogram.',
+	'A colour on a cell sits on top of a colour on its row, so “grey row, one red cell” is two rules.'
+		=> 'Kolor komórki nakłada się na kolor wiersza, więc „szary wiersz, jedna czerwona komórka” to dwie reguły.',
+	'The empty line at the bottom is the next rule; save to add another. To remove a rule, set its column back to “remove this rule”.'
+		=> 'Pusty wiersz na dole to kolejna reguła; zapisz, aby dodać następną. Aby usunąć regułę, ustaw jej kolumnę z powrotem na „usuń tę regułę”.',
+	'Showing the first %1$d of %2$d rows. Beyond that, use the filter above rather than picking rows one at a time.'
+		=> 'Pokazano pierwsze %1$d z %2$d wierszy. Powyżej tej liczby użyj filtra zamiast wybierać wiersze pojedynczo.',
+	'%1$s different values, about %2$s rows each. A useful filter, but a long list; visitors can type to narrow it. Commonest: %3$s'
+		=> '%1$s różnych wartości, około %2$s wierszy na każdą. Filtr przydatny, ale lista długa; odwiedzający mogą ją zawężać, pisząc. Najczęstsze: %3$s',
+	'Sharing by link is all the free version needs. Connecting a Google account, for sheets that cannot be shared, is part of Pro.'
+		=> 'Wersja bezpłatna potrzebuje tylko udostępnienia linkiem. Łączenie konta Google, dla arkuszy, których nie można udostępnić, to funkcja Pro.',
+	'The number of rows is never limited. To publish several different sheets at once, upgrade to Pro.'
+		=> 'Liczba wierszy nigdy nie jest ograniczona. Aby publikować kilka różnych arkuszy naraz, przejdź na Pro.',
+
+	'Could not read the tab list; the tab from your link will be used.'
+		=> 'Nie udało się odczytać listy kart; zostanie użyta karta z podanego adresu.',
+	'To run checks without waiting for a visitor'
+		=> 'Aby uruchamiać sprawdzanie bez czekania na odwiedzającego',
+	'Visitors see the last copy that arrived, so nothing on your pages is broken. The next check runs shortly.'
+		=> 'Odwiedzający widzą ostatnią pobraną kopię, więc nic na stronach nie jest zepsute. Kolejne sprawdzenie nastąpi wkrótce.',
+	'Add the built-in example price list to try the settings out. It never contacts Google.'
+		=> 'Dodaj wbudowany przykładowy cennik, aby wypróbować ustawienia. Nigdy nie łączy się z Google.',
+	'Read-only access. Nothing is written'
+		=> 'Dostęp tylko do odczytu. Nic nie jest zapisywane',
+	'Every row holds the same value, so a filter here would narrow nothing.'
+		=> 'Każdy wiersz ma tę samą wartość, więc filtr niczego by tu nie zawęził.',
+	'%1$s different values across %2$s rows, close to one per row. A search box suits this column better.'
+		=> '%1$s różnych wartości w %2$s wierszach, blisko jednej na wiersz. Do tej kolumny lepiej nadaje się wyszukiwarka.',
+	'Pro adds unlimited sources, one-minute syncing, colour rules, filtered views, extra styles and private sheets.'
+		=> 'Pro dodaje nieograniczoną liczbę źródeł, synchronizację co minutę, reguły kolorów, widoki filtrowane, dodatkowe style i arkusze prywatne.',
+	'Hiding columns and rows is part of Pro; you choose them by clicking your own sheet.'
+		=> 'Ukrywanie kolumn i wierszy to funkcja Pro; wybierasz je, klikając własny arkusz.',
 );

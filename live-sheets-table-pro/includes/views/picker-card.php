@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
 <div class="lstab-card lstabp-picker-card">
 	<h2 class="lstab-card-title"><?php esc_html_e( 'Hide columns and rows', 'live-sheets-table-pro' ); ?></h2>
 	<p class="lstab-help">
-		<?php esc_html_e( 'Click a heading to take that column out of the table, or a line number to take that row out. Click again to put it back. Nothing is written to Google — your spreadsheet keeps everything, the table just stops showing it.', 'live-sheets-table-pro' ); ?>
+		<?php esc_html_e( 'Click a heading to hide that column, or a line number to hide that row. Click again to bring it back. Nothing is written to Google.', 'live-sheets-table-pro' ); ?>
 	</p>
 
 	<?php
@@ -34,10 +34,10 @@ defined( 'ABSPATH' ) || exit;
 			<strong><?php esc_html_e( 'Moving a column or row in Google will show it again', 'live-sheets-table-pro' ); ?></strong>
 		</p>
 		<p>
-			<?php esc_html_e( 'A hidden column is matched to its heading, and a hidden row to its line number. Reordering columns, renaming a heading, or inserting a row above a hidden one breaks that match.', 'live-sheets-table-pro' ); ?>
+			<?php esc_html_e( 'A hidden column is matched by its heading, a hidden row by its line number. Reordering columns, renaming a heading or inserting a row above breaks that match.', 'live-sheets-table-pro' ); ?>
 		</p>
 		<p>
-			<?php esc_html_e( 'When a match breaks, the column or row is shown again — the plugin will not risk hiding the wrong one in its place. A notice in your dashboard tells you which table is affected, and you can hide it again from this screen in one click.', 'live-sheets-table-pro' ); ?>
+			<?php esc_html_e( 'When a match breaks, the column or row is shown again rather than the wrong one being hidden. A notice in the dashboard names the table, and you can hide it again here.', 'live-sheets-table-pro' ); ?>
 		</p>
 	</div>
 
@@ -143,7 +143,7 @@ defined( 'ABSPATH' ) || exit;
 			<?php
 			printf(
 				/* translators: 1: rows shown here, 2: rows in the sheet. */
-				esc_html__( 'Showing the first %1$d of %2$d rows. Picking rows one at a time past that point is not really the tool for the job — the filter above is.', 'live-sheets-table-pro' ),
+				esc_html__( 'Showing the first %1$d of %2$d rows. Beyond that, use the filter above rather than picking rows one at a time.', 'live-sheets-table-pro' ),
 				(int) LSTABP_Picker::MAX_ROWS,
 				count( $rows )
 			);

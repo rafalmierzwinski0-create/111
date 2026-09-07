@@ -300,7 +300,7 @@ class LSTABP_Export {
 					<?php esc_html_e( 'Let visitors download or print this table', 'live-sheets-table-pro' ); ?>
 				</label>
 				<span class="lstab-help">
-					<?php esc_html_e( 'Buttons under the table: one Excel file, one CSV, and Print. The file holds exactly what the page shows — the same rows after any filter, and only the columns you left in — and never reaches past them. The Excel file opens in one click with the numbers already numbers, whatever language the person opening it uses. Printing uses the browser, so there is no extra software and no watermark.', 'live-sheets-table-pro' ); ?>
+					<?php esc_html_e( 'Excel, CSV and Print buttons under the table. A download contains exactly what the visitor sees: the rows left after filtering, and the columns you kept.', 'live-sheets-table-pro' ); ?>
 				</span>
 			</p>
 		</div>

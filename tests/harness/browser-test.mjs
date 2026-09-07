@@ -1051,7 +1051,7 @@ const failedStatus = await page.locator( '.lstab-state' ).first().innerText();
 check( /Google did not answer/.test( failedStatus ), 'Dashboard shows the sync error', failedStatus );
 
 const detail = await page.locator( '.lstab-src-note' ).first().innerText();
-check( /last good copy/.test( detail ), 'Dashboard says the public page is unaffected', detail );
+check( /last copy that arrived/.test( detail ), 'Dashboard says the public page is unaffected', detail );
 // The reassurance must not cost the diagnosis: a fault with no stated cause is
 // how a sheet stays broken for a week.
 check( /403|Share/.test( detail ), 'Dashboard explains what to do about it', detail );

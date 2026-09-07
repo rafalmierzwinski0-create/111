@@ -247,13 +247,13 @@ class LSTAB_Hidden_Alerts {
 								$lstab_column['hidden']
 									? sprintf(
 										/* translators: 1: heading that was taken out, 2: heading in that position now. */
-										__( 'The column you took out was headed “%1$s”. That position now holds “%2$s” instead, so nothing is being taken out and the column is on the page. Somebody has moved, renamed or removed a column in Google. Click the one you want and save.', 'live-sheets-table' ),
+										__( 'The column you hid was headed “%1$s”; that position now holds “%2$s”, so the column is back on the page. Select the column you want and save.', 'live-sheets-table' ),
 										$lstab_column['was'],
 										'' === $lstab_column['now'] ? __( 'nothing', 'live-sheets-table' ) : $lstab_column['now']
 									)
 									: sprintf(
 										/* translators: 1: heading that was renamed, 2: the name it was shown under, 3: heading in that position now. */
-										__( 'The column you renamed to “%2$s” was headed “%1$s”. That position now holds “%3$s” instead, so it is showing the sheet\'s own heading again. Somebody has moved, renamed or removed a column in Google.', 'live-sheets-table' ),
+										__( 'The column you renamed to “%2$s” was headed “%1$s”; that position now holds “%3$s”, so the sheet\'s own heading is shown again.', 'live-sheets-table' ),
 										$lstab_column['was'],
 										$lstab_column['label'],
 										'' === $lstab_column['now'] ? __( 'nothing', 'live-sheets-table' ) : $lstab_column['now']
@@ -277,13 +277,13 @@ class LSTAB_Hidden_Alerts {
 								'moved' === $lstab_row['reason']
 									? sprintf(
 										/* translators: 1: the sheet line, 2: the first few things the row said. */
-										__( 'Line %1$d is not “%2$s” any more, so nothing is being taken out there and that row is on the page. Somebody has inserted, removed or reordered rows in Google. Click the row you want and save.', 'live-sheets-table' ),
+										__( 'Line %1$d is no longer “%2$s”, so that row is back on the page. Rows have been inserted, removed or reordered in Google. Select the row you want and save.', 'live-sheets-table' ),
 										(int) $lstab_row['line'],
 										$lstab_said
 									)
 									: sprintf(
 										/* translators: 1: the sheet line, 2: the first few things the row said. */
-										__( 'The sheet no longer reaches line %1$d, where “%2$s” was taken out. Nothing is on the page that should not be. The setting is left alone: if the sheet grows back to that line, whatever is there will be taken out, so check it then.', 'live-sheets-table' ),
+										__( 'The sheet no longer reaches line %1$d, where “%2$s” was hidden. The setting is kept: if the sheet grows back to that line, whatever is there will be hidden.', 'live-sheets-table' ),
 										(int) $lstab_row['line'],
 										$lstab_said
 									)

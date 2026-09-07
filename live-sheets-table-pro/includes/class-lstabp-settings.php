@@ -115,7 +115,7 @@ class LSTABP_Settings {
 				<div class="lstab-row-say">
 					<p class="lstab-row-title"><?php esc_html_e( 'Billing and cancellation', 'live-sheets-table-pro' ); ?></p>
 					<p class="lstab-row-help">
-						<?php esc_html_e( 'Billing lives in your account, not on your site, so cancelling is done there and takes effect at the end of the period you have paid for. Nothing on your pages changes on the day you cancel.', 'live-sheets-table-pro' ); ?>
+						<?php esc_html_e( 'Billing is handled in your account, not on this site. Cancelling takes effect at the end of the period you have paid for.', 'live-sheets-table-pro' ); ?>
 					</p>
 				</div>
 				<div class="lstab-row-do">

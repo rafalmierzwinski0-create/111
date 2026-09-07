@@ -572,10 +572,25 @@
  * .lstab-has-slider so the native bar can step aside and leave just one.
  */
 
+/*
+ * The slider stays on screen for as long as the table does. It used to sit
+ * under the last row, which on a table of forty rows means the control for
+ * moving sideways is only reachable once you have scrolled past everything it
+ * was meant to help you read.
+ *
+ * Sticky to the bottom rather than fixed: it floats above the rows while the
+ * table runs past the bottom of the screen, and settles into its own place the
+ * moment the end of the table comes into view. It needs its own background for
+ * the stretch where it is floating over rows.
+ */
 .lstab-scrollbar {
 	display: var(--lstab-slider-display, block);
+	position: sticky;
+	bottom: 0;
+	z-index: 2;
 	margin-top: 0.7em;
-	padding: 0.15em 0;
+	padding: 0.5em 0 0.45em;
+	background: linear-gradient(to top, var(--lstab-bg) 65%, transparent);
 	touch-action: none;
 }
 

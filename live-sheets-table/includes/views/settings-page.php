@@ -43,7 +43,7 @@ defined( 'ABSPATH' ) || exit;
 				<div class="lstab-row-say">
 					<p class="lstab-row-title"><?php esc_html_e( 'Who can manage tables', 'live-sheets-table' ); ?></p>
 					<p class="lstab-row-help">
-						<?php esc_html_e( 'Whoever can manage tables can also read every sheet they point at, including any column left out of the published table. Editors are the default because they are the people publishing the pages these tables go on.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'Anyone who can manage tables can also read every sheet they point at, including columns left out of the published table.', 'live-sheets-table' ); ?>
 					</p>
 				</div>
 				<div class="lstab-row-do">
@@ -71,7 +71,7 @@ defined( 'ABSPATH' ) || exit;
 				<div class="lstab-row-say">
 					<p class="lstab-row-title"><?php esc_html_e( 'How often new tables check Google', 'live-sheets-table' ); ?></p>
 					<p class="lstab-row-help">
-						<?php esc_html_e( 'Every table has its own “Check Google for changes” setting. This is only the value a table is given the moment you add it, so that you are not choosing the same thing over and over. It changes nothing about the tables you already have, and any table can be set differently afterwards.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'The value given to each new table. Existing tables are not affected, and every table can be set separately.', 'live-sheets-table' ); ?>
 					</p>
 				</div>
 				<div class="lstab-row-do">
@@ -107,7 +107,7 @@ defined( 'ABSPATH' ) || exit;
 				<div class="lstab-row-say">
 					<p class="lstab-row-title"><?php esc_html_e( 'How long to wait for Google', 'live-sheets-table' ); ?></p>
 					<p class="lstab-row-help">
-						<?php esc_html_e( 'Only ever applies when the schedule has not run and a visitor arrives to a table that is due a check. The page waits this long, then gives up and shows the copy it already has — so the visitor always gets a table either way. Raise it only if you have a very large sheet on slow hosting; every extra second is a second somebody waits.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'Applies only when a visitor opens a table that is overdue for a check. After this time the table is drawn from the copy already stored.', 'live-sheets-table' ); ?>
 					</p>
 				</div>
 				<div class="lstab-row-do">
@@ -135,7 +135,7 @@ defined( 'ABSPATH' ) || exit;
 				<div class="lstab-row-say">
 					<p class="lstab-row-title"><?php esc_html_e( 'How new tables look', 'live-sheets-table' ); ?></p>
 					<p class="lstab-row-help">
-						<?php esc_html_e( 'The style a table is given the moment you add it. Every table can still be changed afterwards; this is only so that somebody who has settled on one look is not choosing it again for every sheet.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'The style given to each new table. Every table can still be changed afterwards.', 'live-sheets-table' ); ?>
 					</p>
 				</div>
 				<div class="lstab-row-do">
@@ -179,7 +179,7 @@ defined( 'ABSPATH' ) || exit;
 				<div class="lstab-row-say">
 					<p class="lstab-row-title"><?php esc_html_e( 'Also delete every sheet source and setting', 'live-sheets-table' ); ?></p>
 					<p class="lstab-row-help">
-						<?php esc_html_e( 'Off by default, because deleting a plugin to reinstall it is a normal thing to do and losing every table for it would not be. This only applies when the plugin is deleted from the Plugins screen, not when it is deactivated. Your spreadsheets in Google are never touched either way.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'Applies only when the plugin is deleted from the Plugins screen, not when it is deactivated. Your spreadsheets in Google are never touched.', 'live-sheets-table' ); ?>
 					</p>
 				</div>
 				<div class="lstab-row-do">

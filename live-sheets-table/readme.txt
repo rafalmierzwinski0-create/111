@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.17.0
+Stable tag: 3.18.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -156,44 +156,50 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 
 == Changelog ==
 
+= 3.18.0 =
+* Changed: every label, help line and notice in the dashboard has been rewritten. A label now names the setting; a help line says what it does in one sentence, without the reasoning behind it. The Polish translation was rewritten to match.
+* Changed: the changelog below has been condensed to what each release changed.
+* Fixed: on a short browser window the help text in the editor's preview panel was squeezed until its lines printed over the row beneath it.
+* Fixed: the table's sideways slider now stays in view at every scroll position, instead of appearing only once the bottom of a long table is reached.
+
 = 3.17.0 =
-* Changed: the table is dark when the page is dark, rather than when the visitor's system is. Those are two different questions and the old answer was wrong on both sides of it: a light theme seen by somebody whose system is set to dark — about half of all visits — got a black table on a white page, and a theme that is dark for everybody got a white one whenever the visitor's system happened to be set to light. The table now reads the colour scheme the theme itself declares, and falls back to matching the page's own background for a theme that turned dark without saying so.
+* Changed: the table is dark when the page is dark, rather than when the visitor's system is.
 * The Midnight preset and any colour set by hand are untouched by all of this: a choice beats a guess.
 
 = 3.16.1 =
-* Fixed: on a light theme seen by somebody whose system is set to dark — about half of all visits — the table's title, its row count and its “updated” line vanished. They sit outside the table's frame, on the page's own paper, and were taking the table's near-white ink out there with them: the title measured 1.17 to 1 against the white behind it. Everything outside the frame now takes the page's own colour, whatever the table is wearing.
-* Fixed: the label printed beside every value in the card layout was too faint to reach the readability bar — 3.38 to 1, where 4.5 is the line for text this size. It names the figure next to it, so it now reads as well as the figure does.
+* Fixed: on a light theme seen by somebody whose system is set to dark — about half of all visits — the table's title, its row count and its “updated” line vanished.
+* Fixed: the label printed beside every value in the card layout was too faint to reach the readability bar — 3.38 to 1, where 4.5 is the line for text this size.
 
 = 3.16.0 =
-* Changed: the plugin has a mark of its own — a selected range with the handle you drag it by, which is the same frame the dashboard draws around every block. It replaces the borrowed table icon in the masthead, in the admin menu and in the block inserter.
+* Changed: the plugin has a mark of its own — a selected range with the handle you drag it by, which is the same frame the dashboard draws around every block.
 
 = 3.15.0 =
-* Added: searching marks the part of each cell that matched. A search answers “which rows” and used to leave “why these rows” — which on a wide table of long descriptions is a real hunt, and the answer is often in a column nobody was looking at. It works on both kinds of search: the one in the browser, and the one a paged table does on the server across the whole sheet.
+* Added: searching marks the part of each cell that matched. A search answers “which rows” and used to leave “why these rows” — which on a wide table of long descriptions is a real hunt, and the answer is often in a column nobody was looking at.
 * Fixed: a paged table too wide for its column was clipped with no slider (also in 3.14.0, restated here because the fix reached the built zip in this release).
-* Added: `lstab_before_table`, an action inside the table's wrapper and above the table, for anything that narrows what the table shows. The Pro add-on's column filters use it.
+* Added: `lstab_before_table`, an action inside the table's wrapper and above the table, for anything that narrows what the table shows.
 
 = 3.14.0 =
-* Added: the headings stay where you can read them. On a table that fits its column they follow the screen down; on one wide enough to need the sideways slider, a long table becomes a pane that holds its headings at the top. A table shorter than a screenful is untouched. There is a switch for it beside the pinned first column.
-* Fixed: “Keep the first column in view” did nothing in the editor's preview — the preview pinned the column whatever the setting said, because the settings were never handed to it. Both pinning settings now change the preview as you tick them.
-* Fixed: a paged table too wide for its column was clipped with no slider and no way to reach the columns past the edge. The slider is about width, and paging has nothing to do with width.
-* Changed: the scheduling warning is one line with the rest folded away. It took three hundred pixels at the top of a screen whose job is to list sheets, to say that nothing was broken for visitors.
+* Added: the headings stay where you can read them. On a table that fits its column they follow the screen down; on one wide enough to need the sideways slider, a long table becomes a pane that holds its headings at the top.
+* Fixed: “Keep the first column in view” did nothing in the editor's preview — the preview pinned the column whatever the setting said, because the settings were never handed to it.
+* Fixed: a paged table too wide for its column was clipped with no slider and no way to reach the columns past the edge.
+* Changed: the scheduling warning is one line with the rest folded away.
 
 = 3.13.0 =
-* Changed: the choice of what a table does on a phone is now three options side by side, each saying when it applies, instead of a dropdown whose two card options read as the same sentence twice. Picking one moves the preview to the width where that choice shows itself — at desk width two of the three drew exactly the same table, so the setting looked as though it did nothing.
-* Changed: paging has a switch of its own that says the word “pagination”, and only asks how many rows a page holds once it is on. It was a bare number box holding 0, which is a feature you can switch off by accident and then never find again.
+* Changed: the choice of what a table does on a phone is now three options side by side, each saying when it applies, instead of a dropdown whose two card options read as the same sentence twice.
+* Changed: paging has a switch of its own that says the word “pagination”, and only asks how many rows a page holds once it is on.
 * Fixed: the Columns tab's two blocks touched, with no gap between them — a side effect of levelling the blocks in 3.12.0.
 * Fixed: “Put it on a page” was narrower than the cards above it, leaving the column with a ragged edge.
 
 = 3.12.0 =
-* Fixed: the blocks in the editor now end level, not just the columns holding them. Making the two columns one grid row was not enough — the last block inside each still stopped where its own content did, so the boxes anybody actually looks at were 7 to 637 pixels apart depending on the tab.
+* Fixed: the blocks in the editor now end level, not just the columns holding them.
 * Changed: the “Columns and rows” tab takes the whole width. The small preview was no use there — the picker under it shows the entire sheet with what you have taken out struck through — and keeping it meant squeezing the picker into half the screen for nothing.
 * Added: an add-on can now show its own unsaved settings in the preview, which is what colour rules needed.
 
 = 3.11.1 =
-* Fixed: the editor's preview showed a column in the table that the published page put in the details drawer. The preview applied the column settings before handing the table over, which threw away the part of the work that decides where a column goes.
+* Fixed: the editor's preview showed a column in the table that the published page put in the details drawer.
 * Fixed: renaming a column wrote the new name onto the wrong heading when any column had been moved into the drawer.
 * Fixed: a row picked out by a colour rule opened onto a drawer that was not coloured.
-* Fixed: pressing Save on a table that is not on any page yet — which is every table, the first time — threw away the whole site's page cache. Nothing on any page could have gone stale, so nothing is cleared.
+* Fixed: pressing Save on a table that is not on any page yet — which is every table, the first time — threw away the whole site's page cache.
 * Fixed: a drawer's full-width cell is no longer treated as the pinned first column of a table that scrolls sideways.
 
 = 3.11.0 =
@@ -202,40 +208,41 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Added: an add-on can now print its cards on whichever tab of the editor they belong to, instead of all of them landing under “Columns and rows”.
 
 = 3.10.0 =
-* Changed: every block in the dashboard now carries the same frame the sheets list has — the edge takes the accent and the little square you drag from appears in the corner, the way a spreadsheet marks a selected range. The editor's cards and the preview box were still wearing WordPress grey; they are on the plugin's own colours now.
+* Changed: every block in the dashboard now carries the same frame the sheets list has — the edge takes the accent and the little square you drag from appears in the corner, the way a spreadsheet marks a selected range.
 * Added: a column can be renamed before the source has ever been saved. The list used to be three disabled placeholders and a note telling you to save first; it is now built from the preview that has already arrived, and typing a name changes the preview as you type.
 
 = 3.9.0 =
-* Added: a column can now live under its row instead of in the table. A wide sheet keeps the three or four columns worth scanning, and the rest open behind an arrow on the row itself. The values are in the page rather than fetched on the click, so searching finds them, a search engine reads them, and the drawer works with no JavaScript at all. Sorting keeps each drawer with its row. Set it from the add-on's picker, with a second mark beside the one that hides a column.
-* Fixed: opening the built-in example threw a JavaScript error that stopped the whole editor script, so nothing on the Appearance tab did anything on that table — colours, style, layout. The editor no longer reaches for the controls a sheetless table does not have.
-* Added: renaming a column shows in the preview as you type, without saving and without a request to Google. It redraws from the copy already stored.
-* Changed: the numbering starts from one again once the last table is deleted. The number is in the shortcode you paste into a page, so being handed [sheet_table id="7"] on a site with one table read like a fault.
-* Changed: there is no longer a setting for clearing the page cache. "Should the page a visitor sees match the sheet?" is not a question worth putting to anybody, and the people it would bite are the least likely to find the switch. Tables on a page it can name clear those pages; a table in a widget or a template, where no page can be named, clears the whole cache. A filter is there for a developer with a reason.
+* Added: a column can now live under its row instead of in the table. A wide sheet keeps the three or four columns worth scanning, and the rest open behind an arrow on the row itself.
+* Fixed: opening the built-in example threw a JavaScript error that stopped the whole editor script, so nothing on the Appearance tab did anything on that table — colours, style, layout.
+* Added: renaming a column shows in the preview as you type, without saving and without a request to Google.
+* Changed: the numbering starts from one again once the last table is deleted.
+* Changed: there is no longer a setting for clearing the page cache. "Should the page a visitor sees match the sheet?" is not a question worth putting to anybody, and the people it would bite are the least likely to find the switch.
 * Changed: in the add-on's picker, the line numbers now sit on the same tint as the headings above them, the way a spreadsheet's own gutters do.
 
 = 3.8.0 =
-* Added: the page cache is cleared when a sheet actually changes. A caching plugin clears a page when a post is edited, and a sheet arriving from Google is not that — which is why a table can update in the dashboard and keep showing yesterday's price to visitors. Only the pages the table is on are cleared, only when the fetched copy differs from the stored one, and the dashboard says what was cleared and when. WP Rocket, LiteSpeed, W3 Total Cache, WP Super Cache, WP Fastest Cache, Cache Enabler, Hummingbird, SiteGround, WP Engine, Nginx Helper and Breeze are called by name; anything else can listen for `lstab_purge_page_cache`.
-* Fixed: the CSS field could be made to end its own style block. Removing the sequence that closes it once was not enough, because removing it from certain inputs joins what was on either side back into the same sequence. It is now removed until the text stops changing, the result is checked once more before it is printed, and the exploratory suite attacks it eight different ways.
+* Added: the page cache is cleared when a sheet actually changes, so a table cannot update in the dashboard while visitors keep seeing yesterday's price.
+* WP Rocket, LiteSpeed, W3 Total Cache, WP Super Cache, WP Fastest Cache, Cache Enabler, Hummingbird, SiteGround, WP Engine, Nginx Helper and Breeze are cleared by name; any other cache can listen for `lstab_purge_page_cache`.
+* Fixed: the CSS field could be made to end its own style block. Removing the sequence that closes it once was not enough, because removing it from certain inputs joins what was on either side back into the same sequence.
 * Fixed: a brace or a comma inside a quoted CSS value — `content: "}"` — was read as the end of a rule, which mangled everything after it.
 
 = 3.7.0 =
-* Added: a CSS field on the Appearance tab, for the last thing the settings do not cover. Every rule is confined to the table it was written for, so nothing typed there can reach the rest of the page, and the preview shows it working as you type.
-* Fixed: a mismatch between the column list and the format list used when a source is first created, which stored a brand-new source's column settings as the number 0. Nothing visible went wrong, because a brand-new source has no column settings yet, but it would have the first time one was created with any.
+* Added: a CSS field on the Appearance tab, for the last thing the settings do not cover.
+* Fixed: a mismatch between the column list and the format list used when a source is first created, which stored a brand-new source's column settings as the number 0.
 
 = 3.6.1 =
-* Fixed: resetting a colour in the editor left the old colour sitting in the swatch beside it, so a reset that had worked still looked as though it had not. A cleared swatch now shows the colour the chosen style supplies in its place, and changing style updates the swatches that are following it.
+* Fixed: resetting a colour in the editor left the old colour sitting in the swatch beside it, so a reset that had worked still looked as though it had not.
 
 = 3.6.0 =
-* Fixed: the bundled example was counted when deciding whether the schedule had stalled, so a site whose schedule was working perfectly could be told it was not. The example is never fetched, so it is no longer counted.
-* Changed: the settings screen is one panel per subject with a row per decision, instead of a stack of identical white boxes. Each subject has its own coloured mark, so the dangerous one and the Google one can be found at a glance.
+* Fixed: the bundled example was counted when deciding whether the schedule had stalled, so a site whose schedule was working perfectly could be told it was not.
+* Changed: the settings screen is one panel per subject with a row per decision, instead of a stack of identical white boxes.
 * Added: two settings the competition charges for — the look every new table starts from, and how long a page may wait for Google before falling back to the stored copy.
-* Changed: the welcome screen now stays until there is a sheet of your own. The built-in example is ours, not yours, and hiding the one screen that explains what to do next left people looking at a demo with no way forward.
+* Changed: the welcome screen now stays until there is a sheet of your own.
 * Changed: the sheets sit on graph paper, and pointing at one marks it the way a spreadsheet marks a selected range.
-* Fixed: the wording of the scheduling notice, which used shell jargon in Polish and trailed its link off the end of a grey paragraph. The cron line now has a copy button.
+* Fixed: the wording of the scheduling notice, which used shell jargon in Polish and trailed its link off the end of a grey paragraph.
 
 = 3.5.0 =
-* Fixed: opening the built-in example showed an empty preview and could not be saved. The editor now draws its table from the copy already stored, so any sheet appears the moment the screen does — and the example no longer asks for a Google link it will never have.
-* Added: the editor is three tabs — General, Appearance, Columns and rows — instead of one long column. It is still one form and one save button, and reopening it returns you to the tab you were working in.
+* Fixed: opening the built-in example showed an empty preview and could not be saved.
+* Added: the editor is three tabs — General, Appearance, Columns and rows — instead of one long column.
 * Added: a copy button beside the shortcode on the editor as well as the list.
 * Fixed: the plugin's own buttons no longer come out in WordPress blue on screens that are otherwise the plugin's colour.
 
@@ -246,11 +253,11 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Added: each sheet now says which pages use it — and says plainly when nothing does, so an unused source can be deleted without guessing.
 * Added: the first few column names on each card, for telling similar sheets apart, and the last few sync results as a small bar chart.
 * Changed: the source list is a card per sheet instead of a table row, ordered by what people actually look for: is it working, which sheet is it, how do I put it on a page.
-* Changed: a sheet that is working normally is now stated in grey rather than green. Colour is kept for the things that need attention, so a real fault stands out.
+* Changed: a sheet that is working normally is now stated in grey rather than green.
 * Changed: the dashboard has its own heading, icons drawn in the page itself, and a colour scheme defined in one place rather than spread through the stylesheet.
 
 = 3.3.0 =
-* Changed: a hidden row is now remembered by the line it is on in Google, checked against everything that row said. Two rows that read exactly alike are two separate choices, so taking out a duplicate no longer takes out its twin somewhere else in the sheet.
+* Changed: a hidden row is now remembered by the line it is on in Google, checked against everything that row said.
 * Changed: a hidden or renamed column is remembered by its position, checked against the heading that was there when the choice was made — and a sync never quietly adopts a new heading in its place, which is what used to let a choice drift onto a different column.
 * Changed: when a line or a heading has moved, nothing is taken out. The row or column is on the page and the dashboard says which one and why, rather than the wrong one disappearing where nobody would see it.
 * Added: the Hide columns and rows screen says up front that moving a column or inserting a line above a hidden row in Google will bring it back, so it is not something to find out from a notice afterwards.
@@ -258,134 +265,135 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Fixed: a row that is blank in every cell can be taken out too.
 
 = 3.2.0 =
-* Fixed: the notice about a hidden thing no longer said what had happened. It announced that something was on the page again even when the row had simply been deleted, in which case nothing is on the page at all. A row that has gone and a row that is back are now told apart: one is a warning, the other is information.
+* Fixed: the notice about a hidden thing no longer said what had happened.
 * Changed: each message now says what was looked for, what was found instead, what it means for the page, and what to do about it — and names the likeliest cause, which for a column is almost always that its heading was renamed in Google rather than that the column vanished.
 
 = 3.1.2 =
-* Changed: a hidden row is now quoted by at most four of its cells, and named alongside the line it was last on. A row of twenty columns quoted in full is the row again, in a sentence, and nobody reads to the end of it.
+* Changed: a hidden row is now quoted by at most four of its cells, and named alongside the line it was last on.
 * Changed: a column is referred to by its heading alone.
 
 = 3.1.1 =
-* Changed: a hidden row is now referred to by what it says — “Kask · M · 120” — rather than by its first cell alone. A first cell is often a date, a code, or the number 3, which tells nobody which row is meant.
+* Changed: a hidden row is now referred to by what it says — “Kask · M · 120” — rather than by its first cell alone.
 * Fixed: a row whose first cell is empty can be hidden. It has no name to be known by, so it is recognised by everything else it says, which was already how an unedited row was found.
 
 = 3.1.0 =
-* Fixed: column settings follow their heading instead of their place in the row. Adding a column in Google used to shift every setting one place along — so the column you had left out of the table became a different column, and the one meant to be private was published. Nothing about the page looked wrong, which is what made it worth finding.
-* Added: when a change to your sheet means something you had left out is being shown again, the dashboard says so, names it, and links to the table. Every other fault here announces itself; this one looks exactly like everything being fine, so it has to come and find you.
-* Changed: a hidden row that has been edited is now recognised by how much of it still matches, rather than by its name alone. Deleting one of ten helmets used to leave its name unique, and the choice would then settle on a different helmet. A row is only taken when it is a clear winner and genuinely close; two rows equally like it, or none close enough, hides nothing and raises the notice above.
+* Fixed: column settings follow their heading instead of their place in the row.
+* Added: when a change to your sheet means something you had left out is being shown again, the dashboard says so, names it, and links to the table.
+* Changed: a hidden row that has been edited is now recognised by how much of it still matches, rather than by its name alone.
 
 = 3.0.0 =
 * Added: a Settings screen — who may manage tables, what schedule a new table starts on, and whether deleting the plugin should also delete your tables.
-* Changed: deleting the plugin no longer removes your tables unless you have said it should. Deleting a plugin in order to reinstall it is a normal thing to do; losing every table you had configured because of it is not.
-* Changed: the plugin's screens are now tabs across the top of one screen rather than separate entries in the sidebar. The Pro add-on adds its own tab there instead of a fourth line on the left.
+* Changed: deleting the plugin no longer removes your tables unless you have said it should.
+* Changed: the plugin's screens are now tabs across the top of one screen rather than separate entries in the sidebar.
 * Changed: the countdown that runs after Pro stops now appears at the top of any dashboard screen, not only this plugin's, and can be put away — it comes back for the last two days, when it stops being information and starts being the last chance to act on it.
-* Fixed: a hidden row now survives being edited even where its name is shared with others. Ten helmets all called "Kask" and one of them repriced used to be more than the rules could resolve, so the hidden one came back. Every choice is now written back against its row after each sync, which means where the row sat is evidence from the last reading of the sheet rather than from the day the choice was made — enough to follow one helmet of ten through a price change.
+* Fixed: a hidden row now survives being edited even where its name is shared with others.
 
 = 2.9.0 =
 * Changed: leaving a column out of a table is part of Pro. The list of columns still shows which are in and which are out, and still renames them, but the choice itself is made in Pro by clicking your own sheet.
-* Changed: choices only Pro can make keep working for ten days after Pro stops. A licence ending on a Tuesday should not rearrange a public page on the Tuesday, and ten quiet days followed by a page changing by itself would be worse than no grace at all — so the dashboard says how long is left while the countdown runs. A site that already had a column hidden gets the same ten days when it updates.
-* Fixed: a hidden row is now recognised by everything it says, not only by its name. Ten products all called "Kask" are ten separate rows, and any one of them can be hidden on its own. If a hidden row is later edited it is found by name instead — but only while just one row carries that name; where a name has become ambiguous nothing is hidden and the screen says why, because a row that should be hidden and is not is a mistake you can see, and the wrong row disappearing is not.
+* Changed: choices only Pro can make keep working for ten days after Pro stops.
+* Fixed: a hidden row is now recognised by everything it says, not only by its name.
 
 = 2.8.0 =
-* Changed: clicking your sheet to hide a column or a row moved to the Pro add-on. Columns can still be hidden here, from the list of checkboxes, exactly as before — nothing that was free has been taken away.
-* Rows that were hidden stay hidden whether or not the add-on is active. Hiding only ever removes something, so honouring the choice can never disclose anything and forgetting it could: a licence that lapses must not put rows back on a public page. What lapses is the ability to change the choice by pointing at it.
+* Changed: clicking your sheet to hide a column or a row moved to the Pro add-on.
+* Rows that were hidden stay hidden whether or not the add-on is active.
 
 = 2.7.0 =
-* Added: point at what you want gone. The edit screen now shows your sheet as a table you can click: a heading drops that column, a row drops that row, and a second click brings it back. The checkbox list is still there and the two stay in step, so whichever one you reach for, the other agrees.
+* Added: point at what you want gone. The edit screen now shows your sheet as a table you can click: a heading drops that column, a row drops that row, and a second click brings it back.
 * Added: hiding individual rows, which was not possible at all before — a row could only be excluded by a Pro filter, written as text.
-* A hidden row is remembered by what it says, not by where it sits. Remembering the row number is the obvious approach and it is wrong: the sheet is a live document, and someone inserting a line at the top would then silently hide a different row. Rows can be added, removed and reordered in Google without disturbing anything.
+* A hidden row is remembered by what it says, not by where it sits. Remembering the row number is the obvious approach and it is wrong: the sheet is a live document, and someone inserting a line at the top would then silently hide a different row.
 * Hidden rows and columns stay hidden everywhere: they are not counted, cannot be found by searching, do not take up a place on a page, and are not in the file when a Pro table is downloaded.
 
 = 2.6.0 =
-* Changed: the dashboard no longer warns about DISABLE_WP_CRON. That line in wp-config.php is the normal setup on any host running a real system cron, so the warning fired on perfectly healthy sites — and a warning that appears when nothing is wrong teaches people to ignore warnings. What matters is whether the tables are current, and that can simply be measured: the dashboard now says nothing at all unless a sheet has actually fallen well behind its own interval, and then it names which one and for how long.
-* Fixed: sorting a column that holds both numbers and words no longer treats every value as text. A single “brak” or “n/a” in a price list used to do that, and text sorting puts 1 000 000 below 1 215 because “1” sorts below “2”. Numbers now compare as numbers wherever both values are numbers, blanks sink to the bottom whichever way the column is sorted, and a paged table sorts exactly like an unpaged one — a visitor cannot see which is which, so the two must not disagree.
-* Fixed: control characters in a cell — a null byte pasted into a spreadsheet, most often — are dropped when the sheet is read. They are invisible in Google and invisible in a browser, but they make a feed or an export invalid, which is the kind of fault that surfaces months later as an unexplained blank.
+* Changed: the dashboard no longer warns about DISABLE_WP_CRON. That line in wp-config.php is the normal setup on any host running a real system cron, so the warning fired on perfectly healthy sites — and a warning that appears when nothing is wrong teaches people to ignore warnings.
+* Fixed: sorting a column that holds both numbers and words no longer treats every value as text.
+* Fixed: control characters in a cell — a null byte pasted into a spreadsheet, most often — are dropped when the sheet is read.
 
 = 2.5.0 =
-* Changed: checking a stale table before the page is drawn is no longer a setting — it is simply how the plugin works. Asking a site owner whether their prices should be current has one answer, and a checkbox that is only ever ticked is a question not worth putting on the screen. The schedule is now the only thing to configure: whoever opens the page sees data no older than the interval you chose, whether or not the schedule managed to run. On a site where it is running this costs nothing, because there is never anything to do.
-* Fixed: a check that ran out of time no longer costs a whole interval of stale data. Staleness is now measured from the last successful refresh rather than the last attempt, so a four-second timeout does not buy fifteen more minutes of the old copy — the visitor after the one who waited is better off for that waiting. A failed check instead holds off the next one for half a minute, doubling while it keeps failing, up to the interval.
-* Added: when a check runs out of its four seconds, the same fetch is queued to run in a request of its own, where the full twenty-second timeout is nobody's wait. A sheet too large to arrive in four seconds is no longer beyond the reach of a visit — whoever arrives next sees the result.
-* Fixed: the four-second cap now covers the whole check rather than each request inside it. A sheet whose sharing settings refuse the export endpoint is asked twice, and four seconds each would have been eight seconds of waiting — in exactly the case where Google is already being slow.
-* Removed: the per-table “also check when someone opens the page” checkbox, and the database column behind it. A site that would rather serve a day-old table than ever make one visitor wait has the lstab_refresh_on_view filter.
+* Changed: checking a stale table before the page is drawn is no longer a setting — it is simply how the plugin works.
+* Fixed: a check that ran out of time no longer costs a whole interval of stale data.
+* Added: when a check runs out of its four seconds, the same fetch is queued to run in a request of its own, where the full twenty-second timeout is nobody's wait.
+* Fixed: the four-second cap now covers the whole check rather than each request inside it.
+* Removed: the per-table “also check when someone opens the page” checkbox, and the database column behind it.
 
 = 2.4.0 =
-* Added: a per-table option to check Google before the page is drawn, when the local copy is older than that table's schedule. WordPress has no clock of its own — the schedule runs on a visit, in a request of its own, after the page has already been sent — so the visitor who triggers a check is the one who sees the old copy. Prices and stock levels can now be right for the visitor who waited. One request checks at a time, the wait is capped at four seconds, and a sheet that is slow, down or newly failing leaves the copy you already have on the page.
-* Added: the dashboard now hands you the exact cron line for your own host, built from your address and your own interval, whenever the schedule is switched off or has fallen behind. WordPress has no clock — its schedule only runs when a page is requested, so a site nobody visits checks nothing, and no plugin can fix that from inside PHP. Telling someone to “set up a system cron” and leaving them to work out what to type is most of that problem.
-* Changed: one page load buys one check, however many tables the page holds. Four tables that all wanted checking would otherwise be four four-second waits in a row, which is the fault this feature exists to avoid.
-* Changed: a check made while someone waits is never what reports a sheet as broken. It is given four seconds where the scheduler is given twenty, so a sheet that syncs perfectly well can miss the shorter deadline — and a red dashboard over a deadline of the plugin's own invention would be a fault it made up. Refusals, sign-in pages and empty replies mean the same thing at four seconds as at twenty, and are still reported.
+* Added: a per-table option to check Google before the page is drawn, when the local copy is older than that table's schedule.
+* One request checks at a time, the wait is capped at four seconds, and a sheet that is slow or down leaves the stored copy on the page. The `lstab_refresh_on_view` filter turns the check off.
+* Added: the dashboard now hands you the exact cron line for your own host, built from your address and your own interval, whenever the schedule is switched off or has fallen behind.
+* Changed: one page load buys one check, however many tables the page holds.
+* Changed: a check made while someone waits is never what reports a sheet as broken.
 
 = 2.3.0 =
-* Added: an Elementor widget, in a "Google Sheets" category of its own. Elementor keeps its own catalogue, so a plugin that is not in it is not there at all — its users had to paste a shortcode into a text widget and lose the live preview. The widget hands its settings to the same renderer the block and the shortcode use, so all three agree.
+* Added: an Elementor widget, in a "Google Sheets" category of its own. Elementor keeps its own catalogue, so a plugin that is not in it is not there at all — its users had to paste a shortcode into a text widget and lose the live preview.
 
 = 2.2.0 =
 * Added: paging, set per table as a number of rows per page. A sheet with no row limit eventually makes a page nobody wants to download; this splits it without capping anything.
-* Added: with paging on, searching and sorting move to the server and work across the whole sheet. Searching the rows that happen to be on screen and calling the result the table would be worse than not offering it — a search from page one still finds a row on page nine. Every control is an ordinary link or form, so each page has its own address and needs no JavaScript.
+* Added: with paging on, searching and sorting move to the server and work across the whole sheet.
 * Changed: a column left out of the table can no longer be reached by searching for its contents.
 
 = 2.1.0 =
-* Changed: the free version now keeps six sheet sources instead of three. Three turned people away at the third page they wanted to publish, which is not what the paid tier is for — rows are, and those have never been capped.
+* Changed: the free version now keeps six sheet sources instead of three.
 
 = 2.0.0 =
-* Fixed: sheet data is now downloaded from Google's CSV export endpoint instead of the query endpoint. The query endpoint decides a single type for each column and blanks every cell that disagrees with it, and it guesses how many leading rows are headings and runs them together into one label. A price list holding "1 215,50" as text among plain numbers lost that price and gained a two-row heading — and the payload arrived that way, before the plugin read a byte of it. Re-sync any table that looked wrong.
+* Fixed: sheet data is now downloaded from Google's CSV export endpoint instead of the query endpoint.
 * Added: the query endpoint is kept as a fallback for sheets whose sharing settings refuse the export, and is asked not to guess at headings when it is used.
 
 = 1.9.1 =
-* Fixed: a value ending in a quotation mark of its own — a product called Rower górski „Trek" — lost the rest of the sheet when the export failed to double that quote. The two characters sit exactly where the field ends, and reading them as an escaped quote swallowed every following row into one cell. A delimiter straight after the pair now settles it. Both spellings of such a sheet are covered by tests taken from a real one.
+* Fixed: a value ending in a quotation mark of its own — a product called Rower górski „Trek" — lost the rest of the sheet when the export failed to double that quote.
 
 = 1.9.0 =
-* Added: "What Google actually sent" on the source screen — the exported text exactly as it arrived, before the plugin reads it. When a table comes out wrong the first question is whether the sheet or the plugin is at fault, and nothing else answers it. A row that came back with the wrong number of cells is pointed at by number, so nobody has to count lines.
+* Added: "What Google actually sent" on the source screen — the exported text exactly as it arrived, before the plugin reads it.
 
 = 1.8.2 =
-* Changed: the malformed-sheet warning ends with the likely cause again — a lone quotation mark or a comma inside a value — but offered as likely rather than asserted, so a reader who looks and finds neither does not conclude the warning is wrong. Saying only what was wrong turned out to leave people with nowhere to start.
+* Changed: the malformed-sheet warning ends with the likely cause again — a lone quotation mark or a comma inside a value — but offered as likely rather than asserted, so a reader who looks and finds neither does not conclude the warning is wrong.
 
 = 1.8.1 =
 * Changed: the malformed-sheet warning no longer names one cause. A row can come back short for several reasons, and pointing at only one sends people looking for the wrong thing; it now says what is wrong and what it means for the table, with the likely causes listed on the source screen where there is room for them.
 * Fixed: a table that ends in a message for the site owner — not synced yet, source gone, filtering unavailable — did not load the stylesheet, so the message arrived as a bare paragraph that read like broken page content.
 
 = 1.8.0 =
-* Added: a table set to show only some of its rows now shows none of them when nothing is available to do the filtering, instead of falling back to every row. An add-on can be deactivated by an expired licence, a conflict or a tidy-up, and a page built to show one category would otherwise publish the whole sheet — working rows included — with nobody the wiser. An empty table is a gap someone fixes; a full one is a disclosure nobody notices.
-* Added: the message after a save or a manual refresh now says when the sheet arrived malformed, rather than reporting a plain success. The fetch working and the sheet arriving intact are two different things.
-* Added: that warning is now raised anywhere in the dashboard, not only on the plugin's own screens, with a link to the source and one to hide it. Hiding covers the fault that was found; a different one is raised again.
+* Added: a table set to show only some of its rows now shows none of them when nothing is available to do the filtering, instead of falling back to every row.
+* Added: the message after a save or a manual refresh now says when the sheet arrived malformed, rather than reporting a plain success.
+* Added: that warning is now raised anywhere in the dashboard, not only on the plugin's own screens, with a link to the source and one to hide it.
 
 = 1.7.0 =
-* Added: web and e-mail addresses in cells can be made clickable, per table. A link in a cell was otherwise plain text a visitor had to select and copy, which on a phone is close to impossible. Only http, https and e-mail become links, and they carry rel="nofollow ugc" because the sheet is not necessarily yours.
-* Added: the dashboard now says when a sheet fetched correctly but arrived malformed. Google gives every row the same number of cells, so a row that disagrees is a fault worth naming — with the row number to look at. Visitors see the table as usual; only someone who can fix it is told.
+* Added: web and e-mail addresses in cells can be made clickable, per table.
+* Added: the dashboard now says when a sheet fetched correctly but arrived malformed.
 * Added: linked addresses take the table's accent colour, so they read as links rather than as underlined body text.
 * Added: an lstab_edit_page_settings hook, so an add-on can put its own fields on the source screen and have them saved with everything else.
-* Fixed: row filtering ran after columns were hidden, so a filter naming a hidden column matched nothing and quietly returned every row. Filtering now runs first, which is also what makes "show one category, hide the category column" work.
+* Fixed: row filtering ran after columns were hidden, so a filter naming a hidden column matched nothing and quietly returned every row.
 
 = 1.6.0 =
-* Fixed: one stray quotation mark anywhere in a sheet used to consume everything after it, collapsing a whole table into a single cell of run-together text. A quote now opens a field only at the start of one and closes it only where a real closing quote can appear, so a stray mark costs one character instead of every row.
-* Fixed: the column settings sat outside the form, so renaming or hiding a column looked like it worked and then reverted on save. Nothing typed there was ever submitted.
+* Fixed: one stray quotation mark anywhere in a sheet used to consume everything after it, collapsing a whole table into a single cell of run-together text.
+* Fixed: the column settings sat outside the form, so renaming or hiding a column looked like it worked and then reverted on save.
 * Fixed: an unticked "include" box was read as "no answer" rather than as "hide this column", so a column switched off came back visible.
 * Changed: the column settings now appear from the start, greyed out and saying what they are waiting for, instead of materialising only after a sheet has been read once.
 * Changed: the preview now shows renamed and hidden columns, so it matches the published page rather than the raw sheet.
-* Changed: a table with room to spare now shares that room out equally between its columns instead of in proportion to what each already holds, which left one column sprawling beside several pinched ones. A column whose content genuinely needs more still takes it, and a table that has to scroll keeps its natural widths.
+* Changed: a table with room to spare now shares that room out equally between its columns instead of in proportion to what each already holds, which left one column sprawling beside several pinched ones.
 
 = 1.5.0 =
-* Added: rename a column for your visitors, or leave it out of the table. Nothing is written back to Google, so a spreadsheet keeps its own headings — including working columns nobody should see.
+* Added: rename a column for your visitors, or leave it out of the table.
 * Added: because columns are matched by position, a column added or removed in Google is now reported in the dashboard rather than quietly shifting every label along.
 * Added: pinning the first column can be switched off per table, for sheets whose first column is long text.
 
 = 1.4.0 =
-* Added: the first column stays pinned while a wide table scrolls sideways, so every row keeps its label. It is capped so it can never take up the whole screen, and shows a divider only once something is hidden behind it.
-* Added: the dashboard now says when scheduled syncing has stopped running. A blocked WP-Cron does not break anything — pages keep serving the stored copy — it just quietly stops updating, which is the kind of fault nobody notices until a customer does.
+* Added: the first column stays pinned while a wide table scrolls sideways, so every row keeps its label.
+* Added: the dashboard now says when scheduled syncing has stopped running.
 * Fixed: the header background colour was reported as the table background, which made that control in the appearance editor look inert.
 
 = 1.3.0 =
-* Added: a visible, draggable slider beneath any table wider than its column. Browsers hide the horizontal scrollbar until you scroll on macOS, iOS and Android, which made a wide table look cut off; this one stays on screen while there is more to see, and works by drag, click, touch and keyboard.
-* Changed: narrow screens now keep the table and scroll it, rather than stacking every row into a card. Text stays full size — the table moves, it does not shrink. The card layout is still available per source.
+* Added: a visible, draggable slider beneath any table wider than its column.
+* Changed: narrow screens now keep the table and scroll it, rather than stacking every row into a card.
 * Changed: the layout choice is now a setting on the source screen, so it is made once rather than repeated on every shortcode; the block and shortcode can still override it.
-* Fixed: a table too wide for its column collapsed its columns to the narrowest possible, making rows several lines tall for no benefit. Columns now keep their natural width and the slider does the work.
+* Fixed: a table too wide for its column collapsed its columns to the narrowest possible, making rows several lines tall for no benefit.
 
 = 1.2.0 =
-* Added: a visual appearance editor on the source screen. Colours, text size, row height and corner rounding can be set per table, and the preview updates live. Anything left untouched follows the chosen preset, so one colour can be changed without redefining the rest.
+* Added: a visual appearance editor on the source screen. Colours, text size, row height and corner rounding can be set per table, and the preview updates live.
 * Changed: refined the Midnight and Editorial presets.
 
 = 1.1.0 =
-* Fixed: wide tables could hide their last columns inside a narrow theme column, with no scrollbar and no switch to the card layout. The point at which a table becomes cards now depends on how many columns it has.
+* Fixed: wide tables could hide their last columns inside a narrow theme column, with no scrollbar and no switch to the card layout.
 * Fixed: choosing a style preset did not change the preview, and editing a saved source always previewed the default preset.
-* Fixed: stylesheets and scripts were served under a fixed version, so an upgrade could keep using the previous release's cached CSS. Asset URLs now change whenever the file does.
+* Fixed: stylesheets and scripts were served under a fixed version, so an upgrade could keep using the previous release's cached CSS.
 * Added: three saved sheet sources in the free version, up from one.
 * Added: a layout control (automatic, always a table, always cards) on the block and the shortcode.
 * Added: a preview width switcher, so the table and card layouts can both be checked before publishing.

@@ -24,7 +24,7 @@ $lstabp_total   = count( $rows );
 <div class="lstab-card lstabp-facets-card">
 	<h2 class="lstab-card-title"><?php esc_html_e( 'Let visitors narrow the table', 'live-sheets-table-pro' ); ?></h2>
 	<p class="lstab-help">
-		<?php esc_html_e( 'A search box asks somebody to guess the words in your sheet. A filter shows them what is in it: “Dostępność: in stock (4), none (1)”. Choose the columns worth offering — the counts below are from the copy the plugin holds now.', 'live-sheets-table-pro' ); ?>
+		<?php esc_html_e( 'A filter shows visitors what a column contains, instead of asking them to guess the words. The counts below come from the copy stored now.', 'live-sheets-table-pro' ); ?>
 	</p>
 
 	<?php if ( $lstabp_waiting ) : ?>
@@ -75,13 +75,13 @@ $lstabp_total   = count( $rows );
 				if ( 0 === $lstabp_kinds ) {
 					$lstabp_says = __( 'This column is empty.', 'live-sheets-table-pro' );
 				} elseif ( 1 === $lstabp_kinds ) {
-					$lstabp_says = __( 'Every row says the same thing, so a filter here could not narrow anything.', 'live-sheets-table-pro' );
+					$lstabp_says = __( 'Every row holds the same value, so a filter here would narrow nothing.', 'live-sheets-table-pro' );
 				} elseif ( $lstabp_kinds === $lstabp_filled ) {
 					$lstabp_says = __( 'Every row is different, so each choice would leave one row. A search box does this better.', 'live-sheets-table-pro' );
 				} elseif ( ! $lstabp_suits ) {
 					$lstabp_says = sprintf(
 						/* translators: 1: how many different values, 2: how many rows hold one. */
-						__( '%1$s different values across %2$s rows — barely more than one row behind each. A search box does this better.', 'live-sheets-table-pro' ),
+						__( '%1$s different values across %2$s rows, close to one per row. A search box suits this column better.', 'live-sheets-table-pro' ),
 						number_format_i18n( $lstabp_kinds ),
 						number_format_i18n( $lstabp_filled )
 					);
@@ -94,7 +94,7 @@ $lstabp_total   = count( $rows );
 					 */
 					$lstabp_says = sprintf(
 						/* translators: 1: how many different values, 2: rows behind each one on average, 3: the commonest few, already counted. */
-						__( '%1$s different values, about %2$s rows behind each — a good filter, but a long list. Visitors can type to narrow it. Commonest: %3$s', 'live-sheets-table-pro' ),
+						__( '%1$s different values, about %2$s rows each. A useful filter, but a long list; visitors can type to narrow it. Commonest: %3$s', 'live-sheets-table-pro' ),
 						number_format_i18n( $lstabp_kinds ),
 						number_format_i18n( (int) round( $lstabp_each ) ),
 						$lstabp_top
@@ -127,7 +127,7 @@ $lstabp_total   = count( $rows );
 		</ul>
 
 		<p class="lstab-help">
-			<?php esc_html_e( 'Filters appear above the table as buttons a visitor opens. Each one is an ordinary link, so a filtered table has an address of its own that can be shared — and it works with searching and pages, over the whole sheet rather than the page on screen.', 'live-sheets-table-pro' ); ?>
+			<?php esc_html_e( 'Filters appear above the table as menus. Each choice has an address of its own that can be shared, and works together with search and pages across the whole sheet.', 'live-sheets-table-pro' ); ?>
 		</p>
 	<?php endif; ?>
 </div>

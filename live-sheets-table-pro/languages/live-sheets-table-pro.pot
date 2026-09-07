@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
 "Report-Msgid-Bugs-To: https://example.com/live-sheets-table/support\n"
-"POT-Creation-Date: 2026-09-07 11:37+0000\n"
+"POT-Creation-Date: 2026-09-07 20:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14,13 +14,13 @@ msgstr ""
 
 #. translators: 1: how many different values, 2: how many rows hold one.
 #: includes/views/facets-card.php:84
-msgid "%1$s different values across %2$s rows — barely more than one row behind each. A search box does this better."
+msgid "%1$s different values across %2$s rows, close to one per row. A search box suits this column better."
 msgstr ""
 
 #. translators: 1: how many different values, 2: rows behind each one on
 #. average, 3: the commonest few, already counted.
 #: includes/views/facets-card.php:97
-msgid "%1$s different values, about %2$s rows behind each — a good filter, but a long list. Visitors can type to narrow it. Commonest: %3$s"
+msgid "%1$s different values, about %2$s rows each. A useful filter, but a long list; visitors can type to narrow it. Commonest: %3$s"
 msgstr ""
 
 #. translators: 1: how many different values, 2: the commonest few, already
@@ -39,15 +39,15 @@ msgid "A colour of your own"
 msgstr ""
 
 #: includes/views/rules-card.php:71
-msgid "A colour on one cell sits on top of a colour on its row, so “the whole row grey, that one cell red” is two rules and works as it reads."
-msgstr ""
-
-#: includes/views/picker-card.php:37
-msgid "A hidden column is matched to its heading, and a hidden row to its line number. Reordering columns, renaming a heading, or inserting a row above a hidden one breaks that match."
+msgid "A colour on a cell sits on top of a colour on its row, so “grey row, one red cell” is two rules."
 msgstr ""
 
 #: includes/views/facets-card.php:27
-msgid "A search box asks somebody to guess the words in your sheet. A filter shows them what is in it: “Dostępność: in stock (4), none (1)”. Choose the columns worth offering — the counts below are from the copy the plugin holds now."
+msgid "A filter shows visitors what a column contains, instead of asking them to guess the words. The counts below come from the copy stored now."
+msgstr ""
+
+#: includes/views/picker-card.php:37
+msgid "A hidden column is matched by its heading, a hidden row by its line number. Reordering columns, renaming a heading or inserting a row above breaks that match."
 msgstr ""
 
 #: includes/views/rules-card.php:270
@@ -71,7 +71,7 @@ msgid "Billing and cancellation"
 msgstr ""
 
 #: includes/class-lstabp-settings.php:118
-msgid "Billing lives in your account, not on your site, so cancelling is done there and takes effect at the end of the period you have paid for. Nothing on your pages changes on the day you cancel."
+msgid "Billing is handled in your account, not on this site. Cancelling takes effect at the end of the period you have paid for."
 msgstr ""
 
 #: includes/class-lstabp-rules.php:108
@@ -80,10 +80,6 @@ msgstr ""
 
 #: includes/class-lstabp-rules.php:123
 msgid "Bold text"
-msgstr ""
-
-#: includes/class-lstabp-export.php:303
-msgid "Buttons under the table: one Excel file, one CSV, and Print. The file holds exactly what the page shows — the same rows after any filter, and only the columns you left in — and never reaches past them. The Excel file opens in one click with the numbers already numbers, whatever language the person opening it uses. Printing uses the browser, so there is no extra software and no watermark."
 msgstr ""
 
 #. translators: %s: how many rows the table holds unfiltered.
@@ -96,7 +92,7 @@ msgid "Click a heading or a line number to take it out"
 msgstr ""
 
 #: includes/views/picker-card.php:21
-msgid "Click a heading to take that column out of the table, or a line number to take that row out. Click again to put it back. Nothing is written to Google — your spreadsheet keeps everything, the table just stops showing it."
+msgid "Click a heading to hide that column, or a line number to hide that row. Click again to bring it back. Nothing is written to Google."
 msgstr ""
 
 #: includes/views/picker-card.php:46
@@ -116,7 +112,7 @@ msgid "Client secret"
 msgstr ""
 
 #: includes/views/rules-card.php:54
-msgid "Colour a cell, or its whole row, by what the cell says. Every row of your sheet is checked against every rule here, and the colour is worked out on the server — so it is already in the page a visitor receives rather than painted on afterwards by script."
+msgid "Colour a cell, or its whole row, according to the cell's value. Colours are worked out on the server, so they are already in the page a visitor receives."
 msgstr ""
 
 #: includes/views/rules-card.php:52
@@ -182,12 +178,16 @@ msgstr ""
 msgid "Enable the Google Sheets API for it."
 msgstr ""
 
+#: includes/views/facets-card.php:78
+msgid "Every row holds the same value, so a filter here would narrow nothing."
+msgstr ""
+
 #: includes/views/facets-card.php:80
 msgid "Every row is different, so each choice would leave one row. A search box does this better."
 msgstr ""
 
-#: includes/views/facets-card.php:78
-msgid "Every row says the same thing, so a filter here could not narrow anything."
+#: includes/class-lstabp-export.php:303
+msgid "Excel, CSV and Print buttons under the table. A download contains exactly what the visitor sees: the rows left after filtering, and the columns you kept."
 msgstr ""
 
 #: includes/views/settings-page.php:196
@@ -195,7 +195,7 @@ msgid "Filtered views"
 msgstr ""
 
 #: includes/views/facets-card.php:130
-msgid "Filters appear above the table as buttons a visitor opens. Each one is an ordinary link, so a filtered table has an address of its own that can be shared — and it works with searching and pages, over the whole sheet rather than the page on screen."
+msgid "Filters appear above the table as menus. Each choice has an address of its own that can be shared, and works together with search and pages across the whole sheet."
 msgstr ""
 
 #: includes/class-lstabp-facets.php:443
@@ -318,6 +318,11 @@ msgstr ""
 msgid "Nothing here matches that."
 msgstr ""
 
+#. translators: %s: the headings a rule names, comma separated.
+#: includes/views/rules-card.php:96
+msgid "Nothing is coloured by %s until the rule points at a heading that exists. The rule is kept until you change it."
+msgstr ""
+
 #. translators: %s: number of rules.
 #: includes/views/rules-card.php:86
 msgid "One rule names a column your sheet no longer has."
@@ -326,7 +331,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: includes/views/settings-page.php:203
-msgid "One saved sheet can feed as many pages as you like. Add a filter to the shortcode and each page shows only the rows it is about — the spreadsheet stays single."
+msgid "One saved sheet can feed as many pages as you like. Add a filter to the shortcode and each page shows only the rows it needs."
 msgstr ""
 
 #: includes/views/settings-page.php:197
@@ -334,7 +339,7 @@ msgid "One sheet, as many pages as you like"
 msgstr ""
 
 #: includes/views/settings-page.php:112
-msgid "Only read access to spreadsheets is requested, so this connection cannot change or delete anything in your Google account. Disconnecting takes effect immediately; any sheet still marked private simply stops being readable until you connect again."
+msgid "Only read access to spreadsheets is requested; this connection cannot change or delete anything in your Google account. Disconnecting takes effect immediately."
 msgstr ""
 
 #: includes/views/settings-page.php:37
@@ -402,18 +407,13 @@ msgstr ""
 msgid "Red"
 msgstr ""
 
-#. translators: %s: the headings a rule names, comma separated.
-#: includes/views/rules-card.php:96
-msgid "Renaming a heading in Google is enough to do it. Nothing is coloured by %s until you point the rule at a heading that is there — the rule is kept until you do."
-msgstr ""
-
 #. translators: 1: page number, 2: number of pages, 3: total rows.
 #: includes/class-lstabp-picker.php:80
 msgid "Rows — page %1$s of %2$s (%3$s in all)"
 msgstr ""
 
 #: includes/views/rules-card.php:67
-msgid "Rules are read from the top down. If two of them colour the same place, the lower one wins — so put the general rule first and the exception under it."
+msgid "Rules are read from the top down. If two of them colour the same place, the lower one wins, so put the general rule first."
 msgstr ""
 
 #: includes/class-lstabp-rules.php:129
@@ -450,7 +450,7 @@ msgstr ""
 
 #. translators: 1: rows shown here, 2: rows in the sheet.
 #: includes/views/picker-card.php:146
-msgid "Showing the first %1$d of %2$d rows. Picking rows one at a time past that point is not really the tool for the job — the filter above is."
+msgid "Showing the first %1$d of %2$d rows. Beyond that, use the filter above rather than picking rows one at a time."
 msgstr ""
 
 #: includes/class-lstabp-picker.php:76
@@ -470,7 +470,7 @@ msgid "Suits a filter"
 msgstr ""
 
 #: includes/views/settings-page.php:238
-msgid "Symbols such as = and > work too, but WordPress removes a “less than” sign from a shortcode attribute before the plugin ever sees it, so the words above are the form that always works."
+msgid "Symbols such as = and > also work, but WordPress strips a “less than” sign from shortcode attributes, so the words above are the safer form."
 msgstr ""
 
 #: includes/class-lstabp-xlsx.php:305
@@ -495,7 +495,7 @@ msgid "The connected account"
 msgstr ""
 
 #: includes/views/rules-card.php:278
-msgid "The empty line at the bottom is the next rule; save to get another one. To take a rule away, set its column back to “remove this rule”."
+msgid "The empty line at the bottom is the next rule; save to add another. To remove a rule, set its column back to “remove this rule”."
 msgstr ""
 
 #: includes/views/facets-card.php:76
@@ -515,7 +515,7 @@ msgid "This table cannot be downloaded."
 msgstr ""
 
 #: includes/views/settings-page.php:155
-msgid "Tick a sheet to read it through the connected account instead of its public link. You can then remove link sharing in Google entirely — the spreadsheet becomes private again while the table keeps working."
+msgid "Tick a sheet to read it through the connected account instead of its public link. You can then turn off link sharing in Google."
 msgstr ""
 
 #: includes/views/settings-page.php:146
@@ -523,7 +523,7 @@ msgid "Tick one and you can remove link sharing in Google entirely"
 msgstr ""
 
 #: includes/views/settings-page.php:33
-msgid "To read sheets that are not shared publicly, this site signs in to Google as you. That needs an OAuth client from your own Google Cloud project — your own, deliberately, so your spreadsheets are never routed through anyone else's credentials."
+msgid "To read sheets that are not shared publicly, this site signs in to Google as you. That requires an OAuth client from your own Google Cloud project."
 msgstr ""
 
 #: includes/class-lstabp-facets.php:442
@@ -547,7 +547,7 @@ msgid "When"
 msgstr ""
 
 #: includes/views/picker-card.php:40
-msgid "When a match breaks, the column or row is shown again — the plugin will not risk hiding the wrong one in its place. A notice in your dashboard tells you which table is affected, and you can hide it again from this screen in one click."
+msgid "When a match breaks, the column or row is shown again rather than the wrong one being hidden. A notice in the dashboard names the table, and you can hide it again here."
 msgstr ""
 
 #: includes/views/settings-page.php:145
@@ -664,5 +664,5 @@ msgid "— remove this rule —"
 msgstr ""
 
 #: includes/views/rules-card.php:75
-msgid "“is” and “is not” compare text and ignore case and spacing. The four number comparisons read a price as a number, so 1 215,50 and 1215.5 are the same figure and a currency after it makes no difference."
+msgid "“is” and “is not” compare text, ignoring case and spacing. The number comparisons read a price as a number, so 1 215,50 and 1215.5 are the same figure."
 msgstr ""

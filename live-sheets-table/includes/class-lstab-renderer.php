@@ -71,7 +71,7 @@ class LSTAB_Renderer {
 		 */
 		if ( '' !== trim( (string) $args['filter'] ) && ! apply_filters( 'lstab_filter_supported', false ) ) {
 			return self::notice(
-				__( 'This table is set to show only some of its rows, but the add-on that does the filtering is not active. Nothing is shown rather than every row, which is not what this page asked for. Activate the add-on, or remove the filter from the block or shortcode.', 'live-sheets-table' )
+				__( 'This table shows only some of its rows, but the add-on that filters them is not active. No rows are shown rather than all of them. Activate the add-on, or remove the filter from the block or shortcode.', 'live-sheets-table' )
 			);
 		}
 

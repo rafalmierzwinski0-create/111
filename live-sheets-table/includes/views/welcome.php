@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 
 	<h2><?php esc_html_e( 'Your price list on the page in ten seconds', 'live-sheets-table' ); ?></h2>
 	<p class="lstab-welcome-lede">
-		<?php esc_html_e( 'Open your sheet, copy the address from the browser bar, paste it here. You will see the table straight away — before anything is saved and before we ask you anything else.', 'live-sheets-table' ); ?>
+		<?php esc_html_e( 'Open your sheet, copy the address from the browser bar and paste it here. The table appears straight away, before anything is saved.', 'live-sheets-table' ); ?>
 	</p>
 
 	<form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" class="lstab-welcome-form">
@@ -43,7 +43,7 @@ defined( 'ABSPATH' ) || exit;
 	<div class="lstab-sells">
 		<span><?php echo LSTAB_Icons::icon( 'bolt' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?><?php esc_html_e( 'Loads instantly — the page reads a local copy', 'live-sheets-table' ); ?></span>
 		<span><?php echo LSTAB_Icons::icon( 'refresh' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?><?php esc_html_e( 'A change in the sheet reaches the page by itself', 'live-sheets-table' ); ?></span>
-		<span><?php echo LSTAB_Icons::icon( 'shield' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?><?php esc_html_e( 'We only ever read. Never write', 'live-sheets-table' ); ?></span>
+		<span><?php echo LSTAB_Icons::icon( 'shield' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?><?php esc_html_e( 'Read-only access. Nothing is written', 'live-sheets-table' ); ?></span>
 	</div>
 
 	<div class="lstab-forks">
@@ -73,7 +73,7 @@ defined( 'ABSPATH' ) || exit;
 					<span class="lstab-tagpro">PRO</span>
 				</b>
 				<span>
-					<?php esc_html_e( 'Sharing by link is all the free version needs. Connecting a Google account, for sheets that cannot be shared at all, is part of Pro.', 'live-sheets-table' ); ?>
+					<?php esc_html_e( 'Sharing by link is all the free version needs. Connecting a Google account, for sheets that cannot be shared, is part of Pro.', 'live-sheets-table' ); ?>
 				</span>
 			</span>
 		</div>

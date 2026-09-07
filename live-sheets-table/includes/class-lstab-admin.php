@@ -305,7 +305,7 @@ class LSTAB_Admin {
 					'rowsFound'   => __( 'Found %1$s rows across %2$s columns.', 'live-sheets-table' ),
 					'truncated'   => __( 'Showing the first 25 rows.', 'live-sheets-table' ),
 					'pickTab'     => __( 'Pick the tab you want to publish:', 'live-sheets-table' ),
-					'noTabs'      => __( 'Could not read the tab list — the tab from your link will be used.', 'live-sheets-table' ),
+					'noTabs'      => __( 'Could not read the tab list; the tab from your link will be used.', 'live-sheets-table' ),
 					'emptyUrl'    => __( 'Paste a Google Sheets link first.', 'live-sheets-table' ),
 					// Used when the column list is built from a preview, for a
 					// sheet whose heading row has a blank in it.
@@ -810,7 +810,7 @@ class LSTAB_Admin {
 				</strong>
 			</p>
 			<p>
-				<?php esc_html_e( 'Choosing what to leave out of a table is part of Pro, and Pro is not active on this site. Your choices are still being honoured for now, so nothing on your pages has changed yet.', 'live-sheets-table' ); ?>
+				<?php esc_html_e( 'Hiding columns and rows is a Pro feature, and Pro is not active on this site. Your choices are still applied for now.', 'live-sheets-table' ); ?>
 			</p>
 			<p>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . self::SETTINGS_SLUG ) ); ?>">
@@ -866,8 +866,8 @@ class LSTAB_Admin {
 				</p>
 
 				<p>
-					<strong><?php esc_html_e( 'To check sheets even when nobody visits', 'live-sheets-table' ); ?></strong><br>
-					<?php esc_html_e( 'WordPress has no clock of its own — its schedule only runs when a page is requested, so a quiet site checks nothing. Give your host a real clock instead. Most hosting panels have a “Cron jobs” screen; paste this line into it:', 'live-sheets-table' ); ?>
+					<strong><?php esc_html_e( 'To run checks without waiting for a visitor', 'live-sheets-table' ); ?></strong><br>
+					<?php esc_html_e( 'WordPress has no clock of its own: its schedule runs only when a page is requested. Most hosting panels have a “Cron jobs” screen. Paste this line into it:', 'live-sheets-table' ); ?>
 				</p>
 				<p class="lstab-cron-row">
 					<code class="lstab-cron-line"><?php echo esc_html( LSTAB_Cron::system_cron_line() ); ?></code>
@@ -877,7 +877,7 @@ class LSTAB_Admin {
 					</button>
 				</p>
 				<p class="lstab-help">
-					<?php esc_html_e( 'No cron screen on your hosting? A free uptime monitor pointed at your home page does the same job, because every visit it makes runs the schedule.', 'live-sheets-table' ); ?>
+					<?php esc_html_e( 'If your hosting has no cron screen, a free uptime monitor pointed at your home page does the same job: every visit it makes runs the schedule.', 'live-sheets-table' ); ?>
 				</p>
 				<p>
 					<?php
@@ -1065,7 +1065,7 @@ class LSTAB_Admin {
 				'tone' => 'warn',
 				'icon' => 'alert',
 				'text' => __( 'Google did not answer', 'live-sheets-table' ),
-				'note' => __( 'Visitors are seeing the last good copy, so nothing on your pages is broken. We will try again shortly.', 'live-sheets-table' ) . $why,
+				'note' => __( 'Visitors see the last copy that arrived, so nothing on your pages is broken. The next check runs shortly.', 'live-sheets-table' ) . $why,
 			);
 		}
 

@@ -28,7 +28,7 @@ defined( 'ABSPATH' ) || exit;
 			?>
 		</h2>
 		<p>
-			<?php esc_html_e( 'Rows are never limited — a source can hold as many rows as your sheet does. To publish several different sheets at once, upgrade to Pro.', 'live-sheets-table' ); ?>
+			<?php esc_html_e( 'The number of rows is never limited. To publish several different sheets at once, upgrade to Pro.', 'live-sheets-table' ); ?>
 		</p>
 		<p>
 			<a class="button button-primary" href="<?php echo esc_url( LSTAB_Limits::upgrade_url() ); ?>" target="_blank" rel="noopener noreferrer">

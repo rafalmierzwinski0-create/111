@@ -241,7 +241,7 @@ class LSTAB_Cron {
 			// Said on the visible line, because it is the answer to the only
 			// urgent question a warning of this size provokes.
 			'calm'    => __( 'Your pages still show the last copy that arrived, so nothing is broken for visitors.', 'live-sheets-table' ),
-			'detail'  => __( 'WordPress runs scheduled work only when someone visits the site, so a quiet site falls behind — and on a site that should be busy this usually means something is stopping it: a security plugin, a page cache answering every request without running WordPress, or a host that switches scheduling off without replacing it.', 'live-sheets-table' ),
+			'detail'  => __( 'WordPress runs scheduled work only when a page is requested, so a quiet site falls behind. On a busy site the usual causes are a page cache, a security plugin, or scheduling disabled by the host.', 'live-sheets-table' ),
 		);
 	}
 
