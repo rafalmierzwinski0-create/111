@@ -1,7 +1,6 @@
 <?php
 /**
  * Plugin Name:       Live Sheets Table – Google Sheets to WordPress
- * Plugin URI:        https://example.com/live-sheets-table
  * Description:       Publish a Google Sheet as a fast, responsive, auto-refreshing table. Server-side rendered, cached locally, never breaks the page when Google is unreachable.
  * Version:           3.17.0
  * Requires at least: 6.0

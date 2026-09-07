@@ -16,6 +16,12 @@ live-sheets-table/
 | `icon-256x256.png` | The same, on a high-resolution screen |
 | `banner-772x250.png` | The top of the plugin's page in the directory |
 | `banner-1544x500.png` | The same, on a high-resolution screen |
+| `screenshot-1.png` … `screenshot-10.png` | The gallery on the plugin's page, in this order |
+
+The screenshots are numbered to match the captions under `== Screenshots ==`
+in `readme.txt`: caption 1 belongs to `screenshot-1.png` and so on. Change one
+and the other has to move with it, or the gallery starts describing the wrong
+picture.
 
 Both sizes of each are wanted: the directory picks by screen, and a listing
 with only the small one looks soft on every modern laptop.
