@@ -43,10 +43,16 @@ foreach ( $rules as $lstabp_i => $lstabp_stored ) {
 		$lstabp_orphans[ $lstabp_i ] = $lstabp_stored['column'];
 	}
 }
-$lstabp_rows    = array_merge(
-	$rules,
-	array_fill( 0, 2, array( 'column' => '', 'operator' => '=', 'value' => '', 'style' => LSTABP_Rules::DEFAULT_STYLE, 'scope' => 'cell' ) )
-);
+$lstabp_blank   = array( 'column' => '', 'operator' => '=', 'value' => '', 'style' => LSTABP_Rules::DEFAULT_STYLE, 'scope' => 'cell' );
+
+/*
+ * One blank line waiting rather than two. Two was a guess at how many more
+ * rules somebody wanted, and being wrong was the whole problem: a fourth rule
+ * meant filling both, saving, and coming back for two more. The button under
+ * the list adds them now, and the blank line is only there so a table with no
+ * rules yet has an obvious first one.
+ */
+$lstabp_rows    = array_merge( $rules, array( $lstabp_blank ) );
 ?>
 <div class="lstab-card lstabp-rules-card<?php echo $lstabp_waiting ? ' is-waiting' : ''; ?>">
 	<h2 class="lstab-card-title"><?php esc_html_e( 'Colour rules', 'live-sheets-table-pro' ); ?></h2>
@@ -127,160 +133,38 @@ $lstabp_rows    = array_merge(
 
 	<ol class="lstabp-rules">
 		<?php foreach ( $lstabp_rows as $lstabp_index => $lstabp_rule ) : ?>
-			<?php $lstabp_is_new = $lstabp_index >= $lstabp_saved; ?>
-			<li class="lstabp-rule<?php echo $lstabp_is_new ? ' is-new' : ''; ?><?php echo isset( $lstabp_orphans[ $lstabp_index ] ) ? ' is-orphan' : ''; ?>">
-				<span class="lstabp-rule-line">
-					<span class="lstabp-rule-word"><?php esc_html_e( 'When', 'live-sheets-table-pro' ); ?></span>
-
-					<select class="lstabp-rule-column" name="lstabp_rules[<?php echo esc_attr( (string) $lstabp_index ); ?>][column]" <?php disabled( $lstabp_waiting ); ?>>
-						<option value="">
-							<?php
-							echo esc_html(
-								$lstabp_is_new
-									? __( '— pick a column —', 'live-sheets-table-pro' )
-									: __( '— remove this rule —', 'live-sheets-table-pro' )
-							);
-							?>
-						</option>
-						<?php if ( isset( $lstabp_orphans[ $lstabp_index ] ) ) : ?>
-							<?php // Kept, and selected, so a save does not quietly delete the rule. ?>
-							<option value="<?php echo esc_attr( $lstabp_rule['column'] ); ?>" selected>
-								<?php
-								printf(
-									/* translators: %s: the heading a rule names. */
-									esc_html__( '%s — not in the sheet any more', 'live-sheets-table-pro' ),
-									esc_html( $lstabp_rule['column'] )
-								);
-								?>
-							</option>
-						<?php endif; ?>
-						<?php foreach ( $headers as $lstabp_heading ) : ?>
-							<option value="<?php echo esc_attr( $lstabp_heading ); ?>" <?php selected( $lstabp_rule['column'], $lstabp_heading ); ?>>
-								<?php echo esc_html( $lstabp_heading ); ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
-
-					<select name="lstabp_rules[<?php echo esc_attr( (string) $lstabp_index ); ?>][operator]" <?php disabled( $lstabp_waiting ); ?>>
-						<?php foreach ( $lstabp_operators as $lstabp_symbol => $lstabp_label ) : ?>
-							<option value="<?php echo esc_attr( $lstabp_symbol ); ?>" <?php selected( $lstabp_rule['operator'], $lstabp_symbol ); ?>>
-								<?php echo esc_html( $lstabp_label ); ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
-
-					<input type="text" class="lstabp-rule-value"
-						name="lstabp_rules[<?php echo esc_attr( (string) $lstabp_index ); ?>][value]"
-						value="<?php echo esc_attr( $lstabp_rule['value'] ); ?>"
-						placeholder="<?php esc_attr_e( 'the value to match', 'live-sheets-table-pro' ); ?>"
-						<?php disabled( $lstabp_waiting ); ?>>
-
-					<span class="lstabp-rule-word lstabp-rule-then"><?php esc_html_e( 'paint', 'live-sheets-table-pro' ); ?></span>
-
-					<select name="lstabp_rules[<?php echo esc_attr( (string) $lstabp_index ); ?>][scope]" <?php disabled( $lstabp_waiting ); ?>>
-						<option value="cell" <?php selected( $lstabp_rule['scope'], 'cell' ); ?>><?php esc_html_e( 'that cell', 'live-sheets-table-pro' ); ?></option>
-						<option value="row" <?php selected( $lstabp_rule['scope'], 'row' ); ?>><?php esc_html_e( 'the whole row', 'live-sheets-table-pro' ); ?></option>
-					</select>
-
-					<?php
-					/*
-					 * A palette of nine, then two looks that are not a
-					 * colour, then a picker for a colour of your own.
-					 * The dropdown this replaces asked somebody to choose
-					 * a colour by reading its name — which is the one way
-					 * of choosing a colour nobody does anywhere else.
-					 *
-					 * The picker submits into a field of its own rather than
-					 * into the radio's value, so choosing a colour of your own
-					 * works with JavaScript switched off too: the radio says
-					 * "custom" and the colour arrives beside it.
-					 */
-					$lstabp_style  = $lstabp_rule['style'];
-					$lstabp_owncol = ( ! isset( $lstabp_palette[ $lstabp_style ] ) && ! isset( $lstabp_effects[ $lstabp_style ] ) )
-						? $lstabp_style
-						: '';
-					$lstabp_field  = 'lstabp_rules[' . $lstabp_index . ']';
-					?>
-					<span class="lstabp-paint">
-						<?php foreach ( $lstabp_palette as $lstabp_hex => $lstabp_name ) : ?>
-							<label class="lstabp-paint-chip" title="<?php echo esc_attr( $lstabp_name ); ?>"
-								style="background-color: <?php echo esc_attr( $lstabp_hex ); ?>;">
-								<input type="radio"
-									class="lstabp-style-input"
-									name="<?php echo esc_attr( $lstabp_field ); ?>[style]"
-									value="<?php echo esc_attr( $lstabp_hex ); ?>"
-									<?php checked( $lstabp_style, $lstabp_hex ); ?>
-									<?php disabled( $lstabp_waiting ); ?>>
-								<span class="screen-reader-text"><?php echo esc_html( $lstabp_name ); ?></span>
-							</label>
-						<?php endforeach; ?>
-
-						<?php foreach ( $lstabp_effects as $lstabp_key => $lstabp_effect ) : ?>
-							<label class="lstabp-paint-chip lstabp-paint-effect-<?php echo esc_attr( $lstabp_key ); ?>"
-								title="<?php echo esc_attr( $lstabp_effect['label'] ); ?>">
-								<input type="radio"
-									class="lstabp-style-input"
-									name="<?php echo esc_attr( $lstabp_field ); ?>[style]"
-									value="<?php echo esc_attr( $lstabp_key ); ?>"
-									<?php checked( $lstabp_style, $lstabp_key ); ?>
-									<?php disabled( $lstabp_waiting ); ?>>
-								<span aria-hidden="true"><?php echo esc_html( $lstabp_effect['chip'] ); ?></span>
-								<span class="screen-reader-text"><?php echo esc_html( $lstabp_effect['label'] ); ?></span>
-							</label>
-						<?php endforeach; ?>
-
-						<?php
-						/*
-						 * One circle, not two. The picker used to sit beside
-						 * the wheel because a browser does not forward a click
-						 * on a colour input to a radio wrapping it — so people
-						 * clicked the wheel, which chose "my own colour"
-						 * without ever offering one. The colour input lies on
-						 * top of the wheel at nothing per cent instead: the
-						 * click lands on it, the browser opens its picker, and
-						 * the script ticks the radio underneath.
-						 */
-						$lstabp_own_face = '' !== $lstabp_owncol ? $lstabp_owncol : '';
-						?>
-					<span class="lstabp-paint-own-wrap<?php echo '' !== $lstabp_own_face ? ' has-colour' : ''; ?>">
-						<label class="lstabp-paint-chip lstabp-paint-own"
-							title="<?php esc_attr_e( 'A colour of your own', 'live-sheets-table-pro' ); ?>"
-							<?php echo '' !== $lstabp_own_face ? 'style="background-image: none; background-color: ' . esc_attr( $lstabp_own_face ) . ';"' : ''; ?>>
-							<input type="radio"
-								class="lstabp-style-input"
-								name="<?php echo esc_attr( $lstabp_field ); ?>[style]"
-								value="custom"
-								<?php checked( '' !== $lstabp_owncol ); ?>
-								<?php disabled( $lstabp_waiting ); ?>>
-							<span class="screen-reader-text"><?php esc_html_e( 'A colour of your own', 'live-sheets-table-pro' ); ?></span>
-						</label>
-
-						<input type="color"
-							class="lstabp-own-colour"
-							name="<?php echo esc_attr( $lstabp_field ); ?>[custom]"
-							value="<?php echo esc_attr( '' !== $lstabp_owncol ? $lstabp_owncol : '#c7e0f4' ); ?>"
-							aria-label="<?php esc_attr_e( 'Pick a colour of your own', 'live-sheets-table-pro' ); ?>"
-							<?php disabled( $lstabp_waiting ); ?>>
-					</span>
-					</span>
-
-					<?php
-					/*
-					 * What the choice looks like, rather than what it is
-					 * called. It says "Abc" rather than the rule's own
-					 * value: the point of the swatch is the colour, and a
-					 * long value stretched the line as it was typed.
-					 */
-					?>
-					<span class="lstabp-swatch" style="<?php echo esc_attr( LSTABP_Rules::css_for( $lstabp_style ) ); ?>">
-						<?php esc_html_e( 'Abc', 'live-sheets-table-pro' ); ?>
-					</span>
-					</span>
-			</li>
+			<?php
+			$lstabp_is_new = $lstabp_index >= $lstabp_saved;
+			require __DIR__ . '/rule-line.php';
+			?>
 		<?php endforeach; ?>
 	</ol>
 
+	<?php if ( ! $lstabp_waiting ) : ?>
+		<p class="lstabp-rules-add">
+			<button type="button" class="lstab-mini" id="lstabp-add-rule">
+				<?php echo LSTAB_Icons::icon( 'plus' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+				<?php esc_html_e( 'Add a rule', 'live-sheets-table-pro' ); ?>
+			</button>
+		</p>
+
+		<?php
+		/*
+		 * The line the button adds, kept out of the form until it is asked for.
+		 * Cloned from here rather than from the last line on screen, so a new
+		 * rule cannot arrive carrying somebody else's colour and value. The
+		 * placeholder in its field names is replaced with the next number.
+		 */
+		$lstabp_index  = LSTABP_Rules::INDEX_PLACEHOLDER;
+		$lstabp_rule   = $lstabp_blank;
+		$lstabp_is_new = true;
+		?>
+		<template id="lstabp-rule-template">
+			<?php require __DIR__ . '/rule-line.php'; ?>
+		</template>
+	<?php endif; ?>
+
 	<p class="lstab-help">
-		<?php esc_html_e( 'The empty line at the bottom is the next rule; save to add another. To remove a rule, set its column back to “remove this rule”.', 'live-sheets-table-pro' ); ?>
+		<?php esc_html_e( 'To remove a rule, set its column back to “remove this rule”.', 'live-sheets-table-pro' ); ?>
 	</p>
 </div>

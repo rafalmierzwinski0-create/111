@@ -4,7 +4,7 @@ Tags: arkusze google, tabela, arkusz kalkulacyjny, csv, tabela danych
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.23.0
+Stable tag: 3.24.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -139,6 +139,9 @@ Tak. Wszystko z arkusza jest escapowane przy wyjściu, więc komórka zawierają
 == Changelog ==
 
 Pełna historia wydań znajduje się w pliku readme.txt.
+
+= 3.24.0 =
+* Nowość (Pro): przycisk „Dodaj regułę” pod regułami kolorów. Dwie puste linijki były całą odpowiedzią na pytanie, ile reguł ktoś chce, więc czwarta oznaczała wypełnienie obu, zapis i powrót po kolejne dwie. Teraz czeka jedna pusta linijka, a resztę dodaje przycisk — i przestaje je oferować, gdy tabela ma już wszystkie dwadzieścia, zamiast pozwolić po cichu zgubić dwudziestą pierwszą.
 
 = 3.23.0 =
 * Poprawka: rządek słupków na karcie arkusza miał różne wysokości, czyli kształt pomiaru — a nic nie było mierzone. Wysokości brały się ze wzoru na liczniku pętli, więc jedyne pytanie, jakie ten obrazek nasuwał, nie miało odpowiedzi. Teraz to jeden znacznik na sprawdzenie, wszystkie tej samej wysokości, z podpisem „Ostatnie sprawdzenia” i liczbą nieudanych napisaną słowami, a nie tylko kolorem.

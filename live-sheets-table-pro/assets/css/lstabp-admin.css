@@ -423,3 +423,12 @@
 	font-size: 0.82rem;
 	color: #50575e;
 }
+
+/* The button that adds a rule, under the list it adds to. */
+.lstabp-rules-add {
+	margin: 0.55rem 0 0.2rem;
+}
+
+.lstabp-rules-add .lstab-mini[hidden] {
+	display: none;
+}

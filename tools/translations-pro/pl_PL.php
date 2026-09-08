@@ -130,8 +130,6 @@ return array(
 		=> 'Kolor komórki nakłada się na kolor wiersza, więc „szary wiersz, jedna czerwona komórka” to dwie reguły.',
 	'“is” and “is not” compare text, ignoring case and spacing. The number comparisons read a price as a number, so 1 215,50 and 1215.5 are the same figure.'
 		=> '„jest” i „nie jest” porównują tekst, pomijając wielkość liter i odstępy. Porównania liczbowe czytają cenę jako liczbę, więc 1 215,50 i 1215.5 to ta sama wartość.',
-	'The empty line at the bottom is the next rule; save to add another. To remove a rule, set its column back to “remove this rule”.'
-		=> 'Pusty wiersz na dole to kolejna reguła; zapisz, aby dodać następną. Aby usunąć regułę, ustaw jej kolumnę z powrotem na „usuń tę regułę”.',
 	'Nothing is coloured by %s until the rule points at a heading that exists. The rule is kept until you change it.'
 		=> 'Nic nie jest kolorowane przez %s, dopóki reguła nie wskaże istniejącego nagłówka. Reguła pozostaje zapisana.',
 	'One rule names a column your sheet no longer has.'
@@ -280,4 +278,7 @@ return array(
 		=> 'Dostępność',
 	'In stock'
 		=> 'W magazynie',
+	'Add a rule'                                 => 'Dodaj regułę',
+	'To remove a rule, set its column back to “remove this rule”.'
+		=> 'Aby usunąć regułę, ustaw jej kolumnę z powrotem na „usuń tę regułę”.',
 );

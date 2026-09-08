@@ -174,6 +174,14 @@ class LSTABP_Rules {
 	}
 
 	/**
+	 * What stands in for a rule's number in the template the add button clones.
+	 *
+	 * Not a number, so a template that somehow reached the form would be thrown
+	 * out by sanitize() rather than saved as rule zero.
+	 */
+	const INDEX_PLACEHOLDER = 'lstabp-new';
+
+	/**
 	 * The colour a rule falls back to.
 	 *
 	 * The palette's first entry: a rule with no colour yet is drawn on the
@@ -750,7 +758,10 @@ class LSTABP_Rules {
 			array(
 				// Only the ready-made looks. A colour of somebody's own is
 				// worked out in the browser, by the same reasoning as ink().
-				'styles' => $swatches,
+				'styles'   => $swatches,
+				// So the "Add a rule" button stops offering what the store
+				// would silently drop on the way in.
+				'maxRules' => self::MAX_RULES,
 			)
 		);
 	}

@@ -318,59 +318,124 @@
 			card.addEventListener( 'change', redraw );
 		}
 
-		Array.prototype.forEach.call(
-			document.querySelectorAll( '.lstabp-style-input' ),
-			function ( input ) {
-				input.addEventListener( 'change', function () {
-					paint( input );
-				} );
-			}
-		);
-
 		/*
-		 * Reaching for the picker is itself the choice: nobody sets a colour of
-		 * their own and then expects the rule to stay red because the circle
-		 * beside it was never clicked.
+		 * Delegated, all of it: the "Add a rule" button puts lines on the page
+		 * after this runs, and a listener bound to the controls that happened
+		 * to exist at load would leave every added line inert.
 		 */
-		Array.prototype.forEach.call(
-			document.querySelectorAll( '.lstabp-own-colour' ),
-			function ( picker ) {
-				var choose = function () {
-					var line = picker.closest( '.lstabp-rule' );
-					var own = line ? line.querySelector( '.lstabp-style-input[value="custom"]' ) : null;
+		if ( card ) {
+			card.addEventListener( 'change', function ( event ) {
+				var target = event.target;
 
-					if ( own ) {
-						own.checked = true;
-					}
+				if ( target.classList.contains( 'lstabp-style-input' ) ) {
+					paint( target );
+				}
 
-					paint( picker );
-				};
+				// A line being filled in is no longer one of the blank ones
+				// waiting at the bottom.
+				if ( target.classList.contains( 'lstabp-rule-value' ) ) {
+					var line = target.closest( '.lstabp-rule' );
 
-				/*
-				 * The picker lies on top of the wheel, so a click on it is a
-				 * click on the wheel: the choice is made whether or not the
-				 * dialogue that opens is then cancelled.
-				 */
-				picker.addEventListener( 'click', choose );
-				picker.addEventListener( 'input', choose );
-				picker.addEventListener( 'change', choose );
-			}
-		);
-
-		// A line being filled in is no longer one of the blank ones waiting at
-		// the bottom.
-		Array.prototype.forEach.call(
-			document.querySelectorAll( '.lstabp-rule-value' ),
-			function ( field ) {
-				field.addEventListener( 'change', function () {
-					var line = field.closest( '.lstabp-rule' );
-
-					if ( line && field.value.trim() ) {
+					if ( line && target.value.trim() ) {
 						line.classList.remove( 'is-new' );
 					}
-				} );
-			}
-		);
+				}
+			} );
+
+			/*
+			 * Reaching for the picker is itself the choice: nobody sets a
+			 * colour of their own and then expects the rule to stay red
+			 * because the circle beside it was never clicked. The picker lies
+			 * on top of the wheel, so a click on it is a click on the wheel,
+			 * and the choice is made whether or not the dialogue that opens is
+			 * then cancelled.
+			 */
+			var chooseOwn = function ( event ) {
+				var picker = event.target;
+
+				if ( ! picker.classList || ! picker.classList.contains( 'lstabp-own-colour' ) ) {
+					return;
+				}
+
+				var line = picker.closest( '.lstabp-rule' );
+				var own = line ? line.querySelector( '.lstabp-style-input[value="custom"]' ) : null;
+
+				if ( own ) {
+					own.checked = true;
+				}
+
+				paint( picker );
+			};
+
+			card.addEventListener( 'click', chooseOwn );
+			card.addEventListener( 'input', chooseOwn );
+			card.addEventListener( 'change', chooseOwn );
+		}
+
+		/*
+		 * "Add a rule". Three rules used to mean filling the two blank lines,
+		 * saving, and coming back for two more; the number of rules somebody
+		 * wants is not something a screen can guess.
+		 */
+		var addButton = document.getElementById( 'lstabp-add-rule' );
+		var template = document.getElementById( 'lstabp-rule-template' );
+		var list = document.querySelector( '.lstabp-rules' );
+
+		if ( addButton && template && list ) {
+			var maxRules = Number( settings.maxRules || 0 );
+
+			/**
+			 * Hide the button once the store would refuse the next rule.
+			 *
+			 * Silently dropping a twenty-first rule at save time is how
+			 * somebody loses an afternoon's work without being told.
+			 *
+			 * @return {void}
+			 */
+			var checkRoom = function () {
+				if ( ! maxRules ) {
+					return;
+				}
+
+				addButton.hidden = list.querySelectorAll( '.lstabp-rule' ).length >= maxRules;
+			};
+
+			checkRoom();
+
+			addButton.addEventListener( 'click', function () {
+				// One past the highest number on the page, so a line added
+				// after one was removed cannot land on a name already taken.
+				var used = Array.prototype.map.call(
+					list.querySelectorAll( '[name^="lstabp_rules["]' ),
+					function ( field ) {
+						var found = /lstabp_rules\[(\d+)\]/.exec( field.getAttribute( 'name' ) || '' );
+
+						return found ? Number( found[ 1 ] ) : -1;
+					}
+				);
+				var next = used.length ? Math.max.apply( null, used ) + 1 : 0;
+
+				var markup = template.innerHTML.split( 'lstabp-new' ).join( String( next ) );
+				var holder = document.createElement( 'div' );
+				holder.innerHTML = markup;
+
+				var line = holder.querySelector( '.lstabp-rule' );
+
+				if ( ! line ) {
+					return;
+				}
+
+				list.appendChild( line );
+
+				var column = line.querySelector( '.lstabp-rule-column' );
+
+				if ( column ) {
+					column.focus();
+				}
+
+				checkRoom();
+			} );
+		}
 	}
 
 	if ( 'loading' === document.readyState ) {

@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.23.0
+Stable tag: 3.24.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.24.0 =
+* Added (Pro): an "Add a rule" button under the colour rules. Two blank lines were the whole answer to how many rules somebody wanted, so a fourth meant filling both, saving, and coming back for two more. One blank line waits now and the button adds the rest; it stops offering when the twenty a table can hold are all there, rather than letting the twenty-first be dropped without a word on the way in.
 
 = 3.23.0 =
 * Fixed: the little row of bars on a sheet's card was drawn at varying heights, which is the shape of a measurement — and nothing was being measured. The heights came out of an arithmetic pattern on the loop counter, so the one question the picture invited had no answer. They are one mark per check now, all the same height, labelled "Last checks", with the number that failed said in words rather than only in colour.

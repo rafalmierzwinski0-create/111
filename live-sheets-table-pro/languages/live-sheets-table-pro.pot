@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
-"POT-Creation-Date: 2026-09-08 14:01+0000\n"
+"POT-Creation-Date: 2026-09-08 15:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,15 +29,15 @@ msgid "%1$s different values: %2$s"
 msgstr ""
 
 #. translators: %s: the heading a rule names.
-#: includes/views/rules-card.php:151
+#: includes/views/rule-line.php:45
 msgid "%s — not in the sheet any more"
 msgstr ""
 
-#: includes/views/rules-card.php:247 includes/views/rules-card.php:255
+#: includes/views/rule-line.php:141 includes/views/rule-line.php:149
 msgid "A colour of your own"
 msgstr ""
 
-#: includes/views/rules-card.php:71
+#: includes/views/rules-card.php:77
 msgid "A colour on a cell sits on top of a colour on its row, so “grey row, one red cell” is two rules."
 msgstr ""
 
@@ -49,8 +49,12 @@ msgstr ""
 msgid "A hidden column is matched by its heading, a hidden row by its line number. Reordering columns, renaming a heading or inserting a row above breaks that match."
 msgstr ""
 
-#: includes/views/rules-card.php:276
+#: includes/views/rule-line.php:170
 msgid "Abc"
+msgstr ""
+
+#: includes/views/rules-card.php:147
+msgid "Add a rule"
 msgstr ""
 
 #: includes/views/settings-page.php:42
@@ -114,11 +118,11 @@ msgstr ""
 msgid "Client secret"
 msgstr ""
 
-#: includes/views/rules-card.php:54
+#: includes/views/rules-card.php:60
 msgid "Colour a cell, or its whole row, according to the cell's value. Colours are worked out on the server, so they are already in the page a visitor receives."
 msgstr ""
 
-#: includes/views/rules-card.php:52
+#: includes/views/rules-card.php:58
 msgid "Colour rules"
 msgstr ""
 
@@ -284,7 +288,7 @@ msgstr ""
 msgid "Load the preview first. Once the columns are known you can offer filters on them."
 msgstr ""
 
-#: includes/views/rules-card.php:110
+#: includes/views/rules-card.php:116
 msgid "Load the preview first. Once the columns are known you can set rules on them."
 msgstr ""
 
@@ -330,12 +334,12 @@ msgid "Nothing here matches that."
 msgstr ""
 
 #. translators: %s: the headings a rule names, comma separated.
-#: includes/views/rules-card.php:96
+#: includes/views/rules-card.php:102
 msgid "Nothing is coloured by %s until the rule points at a heading that exists. The rule is kept until you change it."
 msgstr ""
 
 #. translators: %s: number of rules.
-#: includes/views/rules-card.php:86
+#: includes/views/rules-card.php:92
 msgid "One rule names a column your sheet no longer has."
 msgid_plural "%s rules name columns your sheet no longer has."
 msgstr[0] ""
@@ -353,7 +357,7 @@ msgstr ""
 msgid "Orange"
 msgstr ""
 
-#: includes/views/rules-card.php:262
+#: includes/views/rule-line.php:156
 msgid "Pick a colour of your own"
 msgstr ""
 
@@ -415,7 +419,7 @@ msgstr ""
 msgid "Rows — page %1$s of %2$s (%3$s in all)"
 msgstr ""
 
-#: includes/views/rules-card.php:67
+#: includes/views/rules-card.php:73
 msgid "Rules are read from the top down. If two of them colour the same place, the lower one wins, so put the general rule first."
 msgstr ""
 
@@ -505,10 +509,6 @@ msgstr ""
 msgid "The counts beside each column below come from the copy the plugin holds now."
 msgstr ""
 
-#: includes/views/rules-card.php:284
-msgid "The empty line at the bottom is the next rule; save to add another. To remove a rule, set its column back to “remove this rule”."
-msgstr ""
-
 #: includes/views/settings-page.php:203
 msgid "The filter attribute is listed with every other one beside the shortcode, on the sheet's own screen. This is what may go inside it."
 msgstr ""
@@ -521,7 +521,7 @@ msgstr ""
 msgid "The reference for the filter attribute, one sheet feeding several pages"
 msgstr ""
 
-#: includes/views/facets-card.php:133 includes/views/rules-card.php:109
+#: includes/views/facets-card.php:133 includes/views/rules-card.php:115
 msgid "The sheet has not been read yet, so there are no columns to choose from."
 msgstr ""
 
@@ -566,6 +566,10 @@ msgstr ""
 msgid "To read sheets that are not shared publicly, this site signs in to Google as you. That requires an OAuth client from your own Google Cloud project."
 msgstr ""
 
+#: includes/views/rules-card.php:168
+msgid "To remove a rule, set its column back to “remove this rule”."
+msgstr ""
+
 #: includes/class-lstabp-facets.php:442
 msgid "Type to narrow this list…"
 msgstr ""
@@ -574,7 +578,7 @@ msgstr ""
 msgid "What Pro is doing on this site, and how to stop paying for it"
 msgstr ""
 
-#: includes/views/rules-card.php:133
+#: includes/views/rule-line.php:27
 msgid "When"
 msgstr ""
 
@@ -627,7 +631,7 @@ msgstr ""
 msgid "any"
 msgstr ""
 
-#: includes/views/settings-page.php:225 includes/class-lstabp-rules.php:461
+#: includes/views/settings-page.php:225 includes/class-lstabp-rules.php:469
 msgid "contains"
 msgstr ""
 
@@ -635,7 +639,7 @@ msgstr ""
 msgid "filter=\"Column is value\""
 msgstr ""
 
-#: includes/class-lstabp-rules.php:459
+#: includes/class-lstabp-rules.php:467
 msgid "is"
 msgstr ""
 
@@ -643,11 +647,11 @@ msgstr ""
 msgid "is anything but"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:463
+#: includes/class-lstabp-rules.php:471
 msgid "is at least"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:465
+#: includes/class-lstabp-rules.php:473
 msgid "is at most"
 msgstr ""
 
@@ -655,7 +659,7 @@ msgstr ""
 msgid "is exactly"
 msgstr ""
 
-#: includes/views/settings-page.php:226 includes/class-lstabp-rules.php:462
+#: includes/views/settings-page.php:226 includes/class-lstabp-rules.php:470
 msgid "is greater than"
 msgstr ""
 
@@ -663,7 +667,7 @@ msgstr ""
 msgid "is greater than or equal to"
 msgstr ""
 
-#: includes/views/settings-page.php:228 includes/class-lstabp-rules.php:464
+#: includes/views/settings-page.php:228 includes/class-lstabp-rules.php:472
 msgid "is less than"
 msgstr ""
 
@@ -671,7 +675,7 @@ msgstr ""
 msgid "is less than or equal to"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:460
+#: includes/class-lstabp-rules.php:468
 msgid "is not"
 msgstr ""
 
@@ -679,30 +683,30 @@ msgstr ""
 msgid "not on that line now"
 msgstr ""
 
-#: includes/views/rules-card.php:178
+#: includes/views/rule-line.php:72
 msgid "paint"
 msgstr ""
 
-#: includes/views/rules-card.php:181
+#: includes/views/rule-line.php:75
 msgid "that cell"
 msgstr ""
 
-#: includes/views/rules-card.php:175
+#: includes/views/rule-line.php:69
 msgid "the value to match"
 msgstr ""
 
-#: includes/views/rules-card.php:182
+#: includes/views/rule-line.php:76
 msgid "the whole row"
 msgstr ""
 
-#: includes/views/rules-card.php:140
+#: includes/views/rule-line.php:34
 msgid "— pick a column —"
 msgstr ""
 
-#: includes/views/rules-card.php:141
+#: includes/views/rule-line.php:35
 msgid "— remove this rule —"
 msgstr ""
 
-#: includes/views/rules-card.php:75
+#: includes/views/rules-card.php:81
 msgid "“is” and “is not” compare text, ignoring case and spacing. The number comparisons read a price as a number, so 1 215,50 and 1215.5 are the same figure."
 msgstr ""

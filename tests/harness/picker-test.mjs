@@ -454,7 +454,77 @@ check(
 	'Choosing off the palette gives the wheel back'
 );
 
-section( '6. Where the add-on is in the sidebar' );
+section( '6. Adding a colour rule' );
+
+/*
+ * Two blank lines used to be the whole answer to "how many rules do you want",
+ * and a fourth rule meant filling both, saving, and coming back for two more.
+ */
+await page.goto( editHref, { waitUntil: 'networkidle' } );
+await page.locator( '[data-lstab-goto="look"]' ).click();
+await page.waitForTimeout( 400 );
+
+const ruleCount = () => page.locator( '.lstabp-rules .lstabp-rule' ).count();
+const started = await ruleCount();
+
+await page.locator( '#lstabp-add-rule' ).click();
+await page.waitForTimeout( 200 );
+await page.locator( '#lstabp-add-rule' ).click();
+await page.waitForTimeout( 200 );
+check( ( await ruleCount() ) === started + 2, 'The button adds a line each time it is pressed' );
+
+const fieldNames = await page.locator( '.lstabp-rules .lstabp-rule-column' )
+	.evaluateAll( ( els ) => els.map( ( el ) => el.getAttribute( 'name' ) ) );
+check(
+	new Set( fieldNames ).size === fieldNames.length,
+	'Every line has a number of its own',
+	JSON.stringify( fieldNames )
+);
+
+/*
+ * A line the button added is not a picture of a line: it has to work like the
+ * ones the page was drawn with, which it will not if the script bound its
+ * listeners to whatever happened to exist at load.
+ */
+const addedRule = page.locator( '.lstabp-rules .lstabp-rule' ).last();
+await addedRule.locator( '.lstabp-rule-column' ).selectOption( 'Dostępność' );
+await addedRule.locator( '.lstabp-rule-value' ).fill( 'Brak' );
+await addedRule.locator( '.lstabp-paint-chip' ).nth( 3 ).click();
+await page.waitForTimeout( 300 );
+check(
+	/background-color/.test( await addedRule.locator( '.lstabp-swatch' ).getAttribute( 'style' ) || '' ),
+	'And its colour chips repaint its swatch, like every other line'
+);
+
+await Promise.all( [
+	page.waitForLoadState( 'networkidle' ),
+	page.locator( '.lstab-submit button[type=submit]' ).first().click()
+] );
+await page.goto( editHref, { waitUntil: 'networkidle' } );
+await page.locator( '[data-lstab-goto="look"]' ).click();
+await page.waitForTimeout( 400 );
+
+const savedRule = page.locator( '.lstabp-rules .lstabp-rule' ).first();
+check(
+	'Dostępność' === ( await savedRule.locator( '.lstabp-rule-column' ).inputValue() ),
+	'A rule added that way is saved like any other',
+	await savedRule.locator( '.lstabp-rule-column' ).inputValue()
+);
+check(
+	'Brak' === ( await savedRule.locator( '.lstabp-rule-value' ).inputValue() ),
+	'With the value it was given'
+);
+
+// Put the source back the way the rest of the suite expects to find it.
+await savedRule.locator( '.lstabp-rule-column' ).selectOption( '' );
+await Promise.all( [
+	page.waitForLoadState( 'networkidle' ),
+	page.locator( '.lstab-submit button[type=submit]' ).first().click()
+] );
+
+section( '7. Where the add-on is in the sidebar' );
+
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
 
 /*
  * The tabs across the top say these are views of one plugin, which they are.
