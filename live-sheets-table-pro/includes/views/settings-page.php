@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
 			<?php echo LSTAB_Icons::badge( 'lock', 'indigo' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
 			<span>
 				<h2><?php esc_html_e( 'Your Google client', 'live-sheets-table-pro' ); ?></h2>
-				<span class="lstab-panel-sub"><?php esc_html_e( 'Your own credentials, so your spreadsheets never travel through anyone else\'s', 'live-sheets-table-pro' ); ?></span>
+				<span class="lstab-panel-sub"><?php esc_html_e( 'Your own credentials, so your spreadsheets are never read through anyone else\'s account', 'live-sheets-table-pro' ); ?></span>
 			</span>
 		</div>
 
@@ -90,7 +90,7 @@ defined( 'ABSPATH' ) || exit;
 			<?php if ( ! LSTABP_Google_Auth::has_client() ) : ?>
 				<span class="lstab-state lstab-state--idle">
 					<?php echo LSTAB_Icons::icon( 'clock' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-					<?php esc_html_e( 'Waiting for a client above', 'live-sheets-table-pro' ); ?>
+					<?php esc_html_e( 'No client saved yet', 'live-sheets-table-pro' ); ?>
 				</span>
 			<?php elseif ( $connected ) : ?>
 				<span class="lstab-state lstab-state--calm">

@@ -1,0 +1,95 @@
+{
+    "translation-revision-date": "2026-09-08 09:56+0000",
+    "generator": "tools/make-pot.php",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "pl_PL",
+                "plural-forms": "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);"
+            },
+            "A wide table keeps its shape and gains a draggable slider. Card layouts stack each row instead, which suits tables of long text.": [
+                "Szeroka tabela zachowuje swój kształt i zyskuje przeciągany suwak. Układy kartowe zamiast tego układają wiersze pionowo, co pasuje do tabel z długim tekstem."
+            ],
+            "Add a sheet source": [
+                "Dodaj źródło arkusza"
+            ],
+            "Always cards": [
+                "Zawsze karty"
+            ],
+            "Bordered": [
+                "Ramki"
+            ],
+            "Caption": [
+                "Podpis"
+            ],
+            "Choose which saved sheet to show.": [
+                "Wybierz, który zapisany arkusz pokazać."
+            ],
+            "Clean": [
+                "Czysty"
+            ],
+            "Filter": [
+                "Filtr"
+            ],
+            "Google Sheets Table": [
+                "Tabela z Arkuszy Google"
+            ],
+            "Layout": [
+                "Układ"
+            ],
+            "Manage sheet sources": [
+                "Zarządzaj źródłami arkuszy"
+            ],
+            "No sheet sources yet. Add one in the dashboard, then pick it here.": [
+                "Nie ma jeszcze żadnych źródeł arkuszy. Dodaj jedno w kokpicie, a potem wybierz je tutaj."
+            ],
+            "Saved source": [
+                "Zapisane źródło"
+            ],
+            "Search box": [
+                "Pole wyszukiwania"
+            ],
+            "Select a sheet…": [
+                "Wybierz arkusz…"
+            ],
+            "Sheet source": [
+                "Źródło arkusza"
+            ],
+            "Show only matching rows, for example: Kategoria is Rowery. Join conditions with “and”. Operators: is, is not, has, gt, gte, lt, lte.": [
+                "Pokaż tylko pasujące wiersze, na przykład: Kategoria is Rowery. Warunki łącz słowem „and”. Operatory: is, is not, has, gt, gte, lt, lte."
+            ],
+            "Show “updated … ago”": [
+                "Pokaż „zaktualizowano … temu”"
+            ],
+            "Sortable columns": [
+                "Sortowalne kolumny"
+            ],
+            "Stack into cards when narrow": [
+                "Karty, gdy wąsko"
+            ],
+            "Striped": [
+                "Paski"
+            ],
+            "Table options": [
+                "Opcje tabeli"
+            ],
+            "Table style": [
+                "Styl tabeli"
+            ],
+            "Table with a slider": [
+                "Tabela z suwakiem"
+            ],
+            "Use the source default": [
+                "Użyj domyślnego dla źródła"
+            ],
+            "Which rows": [
+                "Które wiersze"
+            ],
+            "rows": [
+                "wierszy"
+            ]
+        }
+    }
+}

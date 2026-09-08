@@ -106,7 +106,7 @@ $lstabp_rows    = array_merge(
 			<?php
 			echo esc_html(
 				$is_edit
-					? __( 'Waiting for a first look at the sheet, so there are no columns to choose from yet.', 'live-sheets-table-pro' )
+					? __( 'The sheet has not been read yet, so there are no columns to choose from.', 'live-sheets-table-pro' )
 					: __( 'Load the preview first. Once the columns are known you can set rules on them.', 'live-sheets-table-pro' )
 			);
 			?>

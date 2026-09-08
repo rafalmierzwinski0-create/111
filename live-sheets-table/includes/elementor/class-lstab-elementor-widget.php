@@ -163,7 +163,7 @@ class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'style_preset',
 			array(
-				'label'   => __( 'Style preset', 'live-sheets-table' ),
+				'label'   => __( 'Table style', 'live-sheets-table' ),
 				'type'    => \Elementor\Controls_Manager::SELECT,
 				'default' => '',
 				'options' => self::preset_options(),

@@ -29,6 +29,9 @@ class LSTAB_Settings {
 			// Editors publish the pages these tables go on, so they are the
 			// people who need them. Site owners who disagree can raise it.
 			'manage_capability' => 'edit_pages',
+			// Empty means "whatever the site is set to", which is right for
+			// almost everybody; it is here for the sites where it is not.
+			'locale'            => '',
 			'default_interval'  => 0,
 			// The look a table is given the moment it is added, so somebody who
 			// has settled on one is not choosing it again for every sheet.
@@ -75,6 +78,10 @@ class LSTAB_Settings {
 
 		if ( isset( $input['manage_capability'] ) && in_array( $input['manage_capability'], $capabilities, true ) ) {
 			$clean['manage_capability'] = (string) $input['manage_capability'];
+		}
+
+		if ( isset( $input['locale'] ) ) {
+			$clean['locale'] = LSTAB_Locale::sanitize( (string) $input['locale'] );
 		}
 
 		if ( isset( $input['default_interval'] ) ) {

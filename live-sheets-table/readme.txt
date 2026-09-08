@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.18.0
+Stable tag: 3.19.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,12 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.19.0 =
+* Fixed: half the dashboard could be in Polish and half in English. Three separate holes did it: the add-on shipped no Polish catalogue at all; the block's own panel in the editor was never handed its translations, because a .mo file is invisible to JavaScript; and the block's name and description come from block.json, which WordPress translates under a context of its own that was never extracted. All three are closed, so the screens agree.
+* Fixed: a length of time inside a translated sentence stayed in the site's language, which read as "za 1 week" on a Polish screen. Only this plugin's own durations changed; nobody else's dates are touched.
+* Added: a Language setting. The plugin and its add-on can be read in English or Polish whatever the site is set to, which suits an agency working in one language on sites published in another. Only this plugin's own text changes; the rest of the dashboard keeps WordPress's setting.
+* Changed: another pass over the wording, this time for the words rather than the length. "Exactly what the parser sees" is now "Exactly what the plugin read from your sheet"; "Style preset" is now "Table style"; "follows the preset above" is now "follows the style chosen above". Jargon a site owner has no reason to know is gone from the screens, in both languages.
 
 = 3.18.0 =
 * Changed: every label, help line and notice in the dashboard has been rewritten. A label now names the setting; a help line says what it does in one sentence, without the reasoning behind it. The Polish translation was rewritten to match.

@@ -139,6 +139,10 @@ class LSTAB_Plugin {
 		$this->example       = new LSTAB_Example();
 		$this->elementor = new LSTAB_Elementor();
 
+		// Before anything asks for a translation, so the choice is in place
+		// when the catalogue is loaded rather than after it.
+		LSTAB_Locale::register();
+
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 		add_action( 'init', array( $this, 'register_assets' ) );
 		add_action( 'plugins_loaded', array( LSTAB_Storage::class, 'maybe_upgrade' ) );

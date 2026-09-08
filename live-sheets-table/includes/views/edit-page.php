@@ -47,7 +47,7 @@ if ( ! $lstab_is_edit ) {
 
 	<?php if ( $lstab_is_edit && ! empty( $source['last_ragged'] ) ) : ?>
 		<div class="notice notice-warning inline lstab-ragged-notice">
-			<p><strong><?php esc_html_e( 'This sheet did not come back cleanly.', 'live-sheets-table' ); ?></strong></p>
+			<p><strong><?php esc_html_e( 'Some rows of this sheet could not be read.', 'live-sheets-table' ); ?></strong></p>
 			<p><?php echo esc_html( LSTAB_Admin::ragged_summary( $source['last_ragged'] ) ); ?></p>
 			<p>
 				<?php esc_html_e( 'Usually an unclosed quotation mark, or a comma inside a value that was not quoted. Open those rows in your sheet and compare them with the rest.', 'live-sheets-table' ); ?>
@@ -108,7 +108,7 @@ if ( ! $lstab_is_edit ) {
 				<div class="lstab-card">
 					<h2 class="lstab-card-title"><?php esc_html_e( 'This is the built-in example', 'live-sheets-table' ); ?></h2>
 					<p class="lstab-help">
-						<?php esc_html_e( 'A built-in sheet with nothing to fetch. Every other setting works as it does for a real one. Delete it whenever you like.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'A built-in sheet that never contacts Google. Every other setting works as it does for a real one.', 'live-sheets-table' ); ?>
 					</p>
 				</div>
 			<?php else : ?>
@@ -179,7 +179,7 @@ if ( ! $lstab_is_edit ) {
 						<?php
 						printf(
 							/* translators: %d: how many seconds a visitor may be made to wait. */
-							esc_html__( 'How old the data on your page may be. Checks run in the background; a table that is due one is also checked as the page is drawn.', 'live-sheets-table' ),
+							esc_html__( 'How old the data on your page may be. Checks run in the background, and a table past its time is also checked when somebody opens the page.', 'live-sheets-table' ),
 							(int) LSTAB_Sync::VIEW_TIMEOUT
 						);
 						?>
@@ -373,7 +373,7 @@ if ( ! $lstab_is_edit ) {
 				<div class="lstab-card lstab-appearance">
 					<h2 class="lstab-card-title"><?php esc_html_e( 'Fine-tune the look', 'live-sheets-table' ); ?></h2>
 					<p class="lstab-help">
-						<?php esc_html_e( 'Optional. Anything left empty follows the preset above.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'Optional. Anything left empty follows the style chosen above.', 'live-sheets-table' ); ?>
 					</p>
 
 					<div class="lstab-swatches">
@@ -425,7 +425,7 @@ if ( ! $lstab_is_edit ) {
 
 					<p>
 						<button type="button" class="lstab-mini" id="lstab-reset-appearance">
-							<?php esc_html_e( 'Reset everything to the preset', 'live-sheets-table' ); ?>
+							<?php esc_html_e( 'Reset everything to the chosen style', 'live-sheets-table' ); ?>
 						</button>
 					</p>
 				</div>
@@ -463,7 +463,7 @@ if ( ! $lstab_is_edit ) {
 						<?php
 						printf(
 							/* translators: %s: the CSS selector this table's rules are given, e.g. [data-lstab-id="7"]. */
-							esc_html__( 'Every rule is saved as %s followed by what you wrote.', 'live-sheets-table' ),
+							esc_html__( 'Each rule is saved with %s in front, so it only ever affects this table.', 'live-sheets-table' ),
 							'<code>' . esc_html( LSTAB_Custom_Css::selector( $lstab_is_edit ? (int) $source['id'] : 0 ) ) . '</code>'
 						);
 						?>
@@ -504,7 +504,7 @@ if ( ! $lstab_is_edit ) {
 							<?php
 							echo esc_html(
 								$lstab_is_edit
-									? __( 'Waiting for the first look at the sheet. Choose “Refresh” on the sources list.', 'live-sheets-table' )
+									? __( 'This sheet has not been read yet. Choose “Refresh” on the sources list.', 'live-sheets-table' )
 									: __( 'Save this source first. It is read straight away, and your real columns appear here.', 'live-sheets-table' )
 							);
 							?>
@@ -605,7 +605,7 @@ if ( ! $lstab_is_edit ) {
 			<div class="lstab-preview-stick">
 			<h2><?php esc_html_e( 'Preview', 'live-sheets-table' ); ?></h2>
 			<p class="lstab-help">
-				<?php esc_html_e( 'Exactly what the parser sees. Check the headings and a few rows before saving.', 'live-sheets-table' ); ?>
+				<?php esc_html_e( 'Exactly what the plugin read from your sheet. Check the headings and a few rows before saving.', 'live-sheets-table' ); ?>
 			</p>
 			<div id="lstab-preview-status" class="lstab-preview-status" role="status" aria-live="polite"></div>
 

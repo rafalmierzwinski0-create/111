@@ -36,10 +36,13 @@ if [ ! -f "$STAGE/languages/$SLUG.pot" ]; then
 	echo "ERROR: POT catalogue missing"; fail=1
 fi
 
+# Both plugins are shown on the same screens, so a Polish catalogue for one
+# and not the other is how half a dashboard ends up in English.
+if [ ! -f "$STAGE/languages/$SLUG-pl_PL.mo" ]; then
+	echo "ERROR: compiled Polish catalogue missing"; fail=1
+fi
+
 if [ "$SLUG" = "live-sheets-table" ]; then
-	if [ ! -f "$STAGE/languages/$SLUG-pl_PL.mo" ]; then
-		echo "ERROR: compiled Polish catalogue missing"; fail=1
-	fi
 
 	readme_version="$( grep -m1 '^Stable tag:' "$STAGE/readme.txt" | sed 's/.*Stable tag:[[:space:]]*//' )"
 	if [ "$readme_version" != "$VERSION" ]; then

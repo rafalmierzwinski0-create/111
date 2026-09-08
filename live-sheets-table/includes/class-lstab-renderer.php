@@ -727,7 +727,7 @@ class LSTAB_Renderer {
 						sprintf(
 							/* translators: %s: human readable time difference, e.g. "5 mins". */
 							__( 'Updated %s ago', 'live-sheets-table' ),
-							human_time_diff( $timestamp, time() )
+							LSTAB_Locale::span( $timestamp, time() )
 						)
 					);
 					?>

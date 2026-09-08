@@ -99,7 +99,7 @@ class LSTABP_Settings {
 						printf(
 							/* translators: %s: human readable time difference, e.g. "6 days". */
 							esc_html__( 'Pro is not running here. Columns and rows you hid will start showing again in %s.', 'live-sheets-table-pro' ),
-							esc_html( human_time_diff( time(), time() + $grace ) )
+							esc_html( LSTAB_Locale::span( time(), time() + $grace ) )
 						);
 						?>
 					</span>

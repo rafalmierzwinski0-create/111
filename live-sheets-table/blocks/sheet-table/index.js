@@ -165,7 +165,7 @@
 						__nextHasNoMarginBottom: true
 					} ),
 					el( SelectControl, {
-						label: __( 'Style preset', 'live-sheets-table' ),
+						label: __( 'Table style', 'live-sheets-table' ),
 						value: attributes.stylePreset,
 						options: PRESETS,
 						onChange: function ( value ) {

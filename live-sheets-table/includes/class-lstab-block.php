@@ -40,6 +40,18 @@ class LSTAB_Block {
 			return;
 		}
 
+		/*
+		 * A .mo file is invisible to JavaScript, so without this the block's
+		 * own panel stays in English on a translated site while everything
+		 * around it is not. The catalogue is the JSON tools/make-pot.php
+		 * writes beside the .mo.
+		 */
+		wp_set_script_translations(
+			$block->editor_script_handles[0],
+			'live-sheets-table',
+			LSTAB_PATH . 'languages'
+		);
+
 		wp_localize_script(
 			$block->editor_script_handles[0],
 			'lstabBlock',

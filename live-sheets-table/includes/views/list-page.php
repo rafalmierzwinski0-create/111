@@ -141,7 +141,7 @@ $lstab_add_button = $lstab_can_add
 											: sprintf(
 												/* translators: %s: duration. */
 												__( 'Every %s', 'live-sheets-table' ),
-												human_time_diff( 0, $lstab_source['sync_interval'] )
+												LSTAB_Locale::span( 0, $lstab_source['sync_interval'] )
 											)
 									);
 									?>
@@ -239,7 +239,7 @@ $lstab_add_button = $lstab_can_add
 									printf(
 										/* translators: %s: human readable duration, e.g. "5 minutes". */
 										esc_html__( 'Whole page cache cleared %s ago', 'live-sheets-table' ),
-										esc_html( human_time_diff( (int) $lstab_purge['time'] ) )
+										esc_html( LSTAB_Locale::span( (int) $lstab_purge['time'] ) )
 									);
 								} else {
 									printf(
@@ -253,7 +253,7 @@ $lstab_add_button = $lstab_can_add
 											)
 										),
 										esc_html( number_format_i18n( (int) $lstab_purge['posts'] ) ),
-										esc_html( human_time_diff( (int) $lstab_purge['time'] ) )
+										esc_html( LSTAB_Locale::span( (int) $lstab_purge['time'] ) )
 									);
 								}
 								?>

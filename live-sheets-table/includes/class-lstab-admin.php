@@ -804,7 +804,7 @@ class LSTAB_Admin {
 					printf(
 						/* translators: %s: human readable time difference, e.g. "6 days". */
 						esc_html__( 'Columns and rows you hid will start showing again in %s.', 'live-sheets-table' ),
-						esc_html( human_time_diff( time(), time() + $left ) )
+						esc_html( LSTAB_Locale::span( time(), time() + $left ) )
 					);
 					?>
 				</strong>
@@ -1005,7 +1005,7 @@ class LSTAB_Admin {
 			$line .= ' · ' . sprintf(
 				/* translators: %s: human readable duration, e.g. "13 minutes". */
 				__( 'next check in %s', 'live-sheets-table' ),
-				human_time_diff( time(), $next )
+				LSTAB_Locale::span( time(), $next )
 			);
 		}
 
@@ -1044,7 +1044,7 @@ class LSTAB_Admin {
 				'text' => sprintf(
 					/* translators: %s: human readable time difference, e.g. "2 minutes". */
 					__( 'Up to date — %s ago', 'live-sheets-table' ),
-					human_time_diff( strtotime( $source['last_success_gmt'] . ' UTC' ), time() )
+					LSTAB_Locale::span( strtotime( $source['last_success_gmt'] . ' UTC' ), time() )
 				),
 				'note' => '',
 			);
@@ -1135,7 +1135,7 @@ class LSTAB_Admin {
 				'text'   => sprintf(
 					/* translators: %s: human readable time difference. */
 					__( 'Last sync OK (%s ago)', 'live-sheets-table' ),
-					human_time_diff( strtotime( $source['last_success_gmt'] . ' UTC' ), time() )
+					LSTAB_Locale::span( strtotime( $source['last_success_gmt'] . ' UTC' ), time() )
 				),
 				'detail' => '',
 			);
@@ -1146,7 +1146,7 @@ class LSTAB_Admin {
 				? sprintf(
 					/* translators: %s: human readable time difference. */
 					__( 'Failing since the last good sync %s ago', 'live-sheets-table' ),
-					human_time_diff( strtotime( $source['last_success_gmt'] . ' UTC' ), time() )
+					LSTAB_Locale::span( strtotime( $source['last_success_gmt'] . ' UTC' ), time() )
 				)
 				: __( 'Never synced successfully', 'live-sheets-table' );
 

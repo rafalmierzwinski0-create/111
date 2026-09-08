@@ -2,666 +2,668 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
 "POT-Creation-Date: 2026-09-08 09:56+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2026-09-08 09:56+0000\n"
+"Last-Translator: Live Sheets Table\n"
+"Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Domain: live-sheets-table-pro\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+"Language: pl_PL\n"
 
 #. translators: 1: how many different values, 2: how many rows hold one.
 #: includes/views/facets-card.php:84
 msgid "%1$s different values across %2$s rows, close to one per row. A search box suits this column better."
-msgstr ""
+msgstr "%1$s różnych wartości w %2$s wierszach, blisko jednej na wiersz. Do tej kolumny lepiej nadaje się wyszukiwarka."
 
 #. translators: 1: how many different values, 2: rows behind each one on
 #. average, 3: the commonest few, already counted.
 #: includes/views/facets-card.php:97
 msgid "%1$s different values, about %2$s rows each. A useful filter, but a long list; visitors can type to narrow it. Commonest: %3$s"
-msgstr ""
+msgstr "%1$s różnych wartości, około %2$s wierszy na każdą. Filtr przydatny, ale lista długa; odwiedzający mogą ją zawężać, pisząc. Najczęstsze: %3$s"
 
 #. translators: 1: how many different values, 2: the commonest few, already
 #. counted.
 #: includes/views/facets-card.php:105
 msgid "%1$s different values: %2$s"
-msgstr ""
+msgstr "%1$s różnych wartości: %2$s"
 
 #. translators: %s: the heading a rule names.
 #: includes/views/rules-card.php:151
 msgid "%s — not in the sheet any more"
-msgstr ""
+msgstr "%s — już nie ma tego w arkuszu"
 
 #: includes/views/rules-card.php:243 includes/views/rules-card.php:250
 msgid "A colour of your own"
-msgstr ""
+msgstr "Własny kolor"
 
 #: includes/views/rules-card.php:71
 msgid "A colour on a cell sits on top of a colour on its row, so “grey row, one red cell” is two rules."
-msgstr ""
+msgstr "Kolor komórki nakłada się na kolor wiersza, więc „szary wiersz, jedna czerwona komórka” to dwie reguły."
 
 #: includes/views/facets-card.php:27
 msgid "A filter shows visitors what a column contains, instead of asking them to guess the words. The counts below come from the copy stored now."
-msgstr ""
+msgstr "Filtr pokazuje odwiedzającym, co zawiera kolumna, zamiast kazać im zgadywać słowa. Liczby poniżej pochodzą z aktualnie zapisanej kopii."
 
 #: includes/views/picker-card.php:37
 msgid "A hidden column is matched by its heading, a hidden row by its line number. Reordering columns, renaming a heading or inserting a row above breaks that match."
-msgstr ""
+msgstr "Ukryta kolumna jest dopasowywana po nagłówku, a ukryty wiersz po numerze wiersza. Przestawienie kolumn, zmiana nagłówka lub wstawienie wiersza powyżej przerywa to dopasowanie."
 
 #: includes/views/rules-card.php:270
 msgid "Abc"
-msgstr ""
+msgstr "Abc"
 
 #: includes/views/settings-page.php:42
 msgid "Add this exact address as an authorised redirect URI:"
-msgstr ""
+msgstr "Dodaj dokładnie ten adres jako autoryzowany URI przekierowania:"
 
 #: includes/class-lstabp-google-auth.php:139
 msgid "Add your Google client ID and secret first."
-msgstr ""
+msgstr "Najpierw podaj identyfikator klienta Google i klucz tajny."
 
 #: includes/class-lstabp-rules.php:124
 msgid "B"
-msgstr ""
+msgstr "B"
 
 #: includes/class-lstabp-settings.php:116
 msgid "Billing and cancellation"
-msgstr ""
+msgstr "Płatności i rezygnacja"
 
 #: includes/class-lstabp-settings.php:118
 msgid "Billing is handled in your account, not on this site. Cancelling takes effect at the end of the period you have paid for."
-msgstr ""
+msgstr "Płatnościami zarządzasz na swoim koncie, nie w witrynie. Rezygnacja działa od końca opłaconego okresu."
 
 #: includes/class-lstabp-rules.php:108
 msgid "Blue"
-msgstr ""
+msgstr "Niebieski"
 
 #: includes/class-lstabp-rules.php:123
 msgid "Bold text"
-msgstr ""
+msgstr "Pogrubienie"
 
 #. translators: %s: how many rows the table holds unfiltered.
 #: includes/class-lstabp-facets.php:486
 msgid "Clear filters — show all %s"
-msgstr ""
+msgstr "Wyczyść filtry — pokaż wszystkie: %s"
 
 #: includes/views/picker-card.php:45
 msgid "Click a heading or a line number to take it out"
-msgstr ""
+msgstr "Kliknij nagłówek albo numer wiersza, aby to usunąć z tabeli"
 
 #: includes/views/picker-card.php:21
 msgid "Click a heading to hide that column, or a line number to hide that row. Click again to bring it back. Nothing is written to Google."
-msgstr ""
+msgstr "Kliknij nagłówek, aby ukryć kolumnę, albo numer wiersza, aby ukryć wiersz. Kliknij ponownie, aby przywrócić. Nic nie jest zapisywane w Google."
 
 #: includes/views/picker-card.php:46
 msgid "Click it again to put it back"
-msgstr ""
+msgstr "Kliknij ponownie, aby przywrócić"
 
 #: includes/views/picker-card.php:47
 msgid "Click the arrow to move a column under the row instead"
-msgstr ""
+msgstr "Kliknij strzałkę, aby przenieść kolumnę pod wiersz"
 
 #: includes/views/settings-page.php:61
 msgid "Client ID"
-msgstr ""
+msgstr "Identyfikator klienta"
 
 #: includes/views/settings-page.php:67
 msgid "Client secret"
-msgstr ""
+msgstr "Klucz tajny klienta"
 
 #: includes/views/rules-card.php:54
 msgid "Colour a cell, or its whole row, according to the cell's value. Colours are worked out on the server, so they are already in the page a visitor receives."
-msgstr ""
+msgstr "Pokoloruj komórkę lub cały wiersz na podstawie jej wartości. Kolory są wyliczane na serwerze, więc trafiają do strony przed jej wysłaniem."
 
 #: includes/views/rules-card.php:52
 msgid "Colour rules"
-msgstr ""
+msgstr "Reguły kolorów"
 
 #. translators: %s: column letter, as Google labels it.
 #: includes/views/picker-card.php:63
 msgid "Column %s"
-msgstr ""
+msgstr "Kolumna %s"
 
 #. translators: 1: page number, 2: number of pages, 3: total columns.
 #: includes/class-lstabp-picker.php:82
 msgid "Columns — page %1$s of %2$s (%3$s in all)"
-msgstr ""
+msgstr "Kolumny — strona %1$s z %2$s (razem %3$s)"
 
 #: includes/views/settings-page.php:208
 msgid "Conditions are separated by commas and all must match. Column names match either the heading in your sheet or the name you gave it."
-msgstr ""
+msgstr "Warunki oddziela się przecinkami i wszystkie muszą pasować. Nazwa kolumny to nagłówek z arkusza albo nazwa, którą jej nadałeś."
 
 #: includes/views/settings-page.php:133
 msgid "Connect a Google account"
-msgstr ""
+msgstr "Połącz konto Google"
 
 #: includes/views/settings-page.php:98
 msgid "Connected. Private sheets can be read."
-msgstr ""
+msgstr "Połączono. Arkusze prywatne można odczytywać."
 
 #: includes/views/settings-page.php:47
 msgid "Copy"
-msgstr ""
+msgstr "Kopiuj"
 
 #: includes/class-lstabp-xlsx.php:73
 msgid "Could not build the Excel file."
-msgstr ""
+msgstr "Nie udało się utworzyć pliku Excela."
 
 #: includes/class-lstabp-xlsx.php:60
 msgid "Could not create a temporary file for the download."
-msgstr ""
+msgstr "Nie udało się utworzyć pliku tymczasowego do pobrania."
 
 #. translators: %s: transport error.
 #: includes/class-lstabp-google-auth.php:308
 msgid "Could not reach Google to complete sign-in: %s"
-msgstr ""
+msgstr "Nie udało się połączyć z Google, aby dokończyć logowanie: %s"
 
 #: includes/views/settings-page.php:39
 msgid "Create an OAuth client of type “Web application”."
-msgstr ""
+msgstr "Utwórz klienta OAuth typu „Aplikacja internetowa”."
 
 #: includes/views/settings-page.php:124
 msgid "Disconnect"
-msgstr ""
+msgstr "Rozłącz"
 
 #: includes/class-lstabp-export.php:129
 msgid "Download CSV"
-msgstr ""
+msgstr "Pobierz CSV"
 
 #: includes/class-lstabp-export.php:125
 msgid "Download for Excel"
-msgstr ""
+msgstr "Pobierz dla Excela"
 
 #: includes/views/settings-page.php:38
 msgid "Enable the Google Sheets API for it."
-msgstr ""
+msgstr "Włącz w nim Google Sheets API."
 
 #: includes/views/facets-card.php:78
 msgid "Every row holds the same value, so a filter here would narrow nothing."
-msgstr ""
+msgstr "Każdy wiersz ma tę samą wartość, więc filtr niczego by tu nie zawęził."
 
 #: includes/views/facets-card.php:80
 msgid "Every row is different, so each choice would leave one row. A search box does this better."
-msgstr ""
+msgstr "Każdy wiersz jest inny, więc każdy wybór zostawiłby jeden wiersz. Lepiej sprawdzi się wyszukiwarka."
 
 #: includes/class-lstabp-export.php:303
 msgid "Excel, CSV and Print buttons under the table. A download contains exactly what the visitor sees: the rows left after filtering, and the columns you kept."
-msgstr ""
+msgstr "Przyciski Excel, CSV i Drukuj pod tabelą. Pobrany plik zawiera dokładnie to, co widzi odwiedzający: wiersze po filtrowaniu i pozostawione kolumny."
 
 #: includes/views/settings-page.php:196
 msgid "Filtered views"
-msgstr ""
+msgstr "Widoki filtrowane"
 
 #: includes/views/facets-card.php:130
 msgid "Filters appear above the table as menus. Each choice has an address of its own that can be shared, and works together with search and pages across the whole sheet."
-msgstr ""
+msgstr "Filtry pojawiają się nad tabelą jako rozwijane menu. Każdy wybór ma własny adres, który można udostępnić, i działa razem z wyszukiwaniem oraz stronami w obrębie całego arkusza."
 
 #: includes/class-lstabp-facets.php:443
 msgid "Find a value"
-msgstr ""
+msgstr "Znajdź wartość"
 
 #: includes/class-lstabp-google-auth.php:198
 msgid "Google account connected. Private sheets can now be used as sources."
-msgstr ""
+msgstr "Konto Google połączone. Arkuszy prywatnych można teraz używać jako źródeł."
 
 #: includes/class-lstabp-google-auth.php:211
 msgid "Google account disconnected. Private sheets will stop updating."
-msgstr ""
+msgstr "Konto Google rozłączone. Arkusze prywatne przestaną się aktualizować."
 
 #: includes/class-lstabp-settings.php:174
 msgid "Google client saved."
-msgstr ""
+msgstr "Klient Google został zapisany."
 
 #: includes/class-lstabp-google-auth.php:189
 msgid "Google did not return an authorisation code."
-msgstr ""
+msgstr "Google nie zwróciło kodu autoryzacji."
 
 #. translators: %s: error reported by Google.
 #: includes/class-lstabp-google-auth.php:178
 msgid "Google refused the connection: %s"
-msgstr ""
+msgstr "Google odrzuciło połączenie: %s"
 
 #. translators: %s: reason reported by Google.
 #: includes/class-lstabp-google-auth.php:330
 msgid "Google rejected the sign-in: %s"
-msgstr ""
+msgstr "Google odrzuciło logowanie: %s"
 
 #: includes/class-lstabp-rules.php:106
 msgid "Green"
-msgstr ""
+msgstr "Zielony"
 
 #: includes/class-lstabp-rules.php:111
 msgid "Grey"
-msgstr ""
+msgstr "Szary"
 
 #. translators: %d: HTTP status code.
 #: includes/class-lstabp-google-auth.php:322
 msgid "HTTP %d"
-msgstr ""
+msgstr "HTTP %d"
 
 #: includes/class-lstabp-picker.php:77
 msgid "Hidden"
-msgstr ""
+msgstr "Ukryta"
 
 #: includes/views/picker-card.php:19
 msgid "Hide columns and rows"
-msgstr ""
+msgstr "Ukryj kolumny i wiersze"
 
 #: includes/class-lstabp-picker.php:78
 msgid "In the details"
-msgstr ""
+msgstr "W szczegółach"
 
 #: includes/class-lstabp-export.php:300
 msgid "Let visitors download or print this table"
-msgstr ""
+msgstr "Pozwól odwiedzającym pobrać lub wydrukować tę tabelę"
 
 #: includes/views/facets-card.php:25
 msgid "Let visitors narrow the table"
-msgstr ""
+msgstr "Pozwól odwiedzającym zawężać tabelę"
 
 #: includes/class-lstabp-export.php:295
 msgid "Let visitors take it away"
-msgstr ""
+msgstr "Pozwól odwiedzającym pobrać tabelę"
 
 #: includes/views/picker-card.php:55
 msgid "Line"
-msgstr ""
+msgstr "Wiersz"
 
 #: includes/class-lstabp-plugin.php:86
 msgid "Live Sheets Table Pro needs the free Live Sheets Table plugin to be installed and active. Pro adds to it rather than replacing it."
-msgstr ""
+msgstr "Live Sheets Table Pro wymaga zainstalowanej i aktywnej bezpłatnej wtyczki Live Sheets Table. Pro ją rozszerza, a nie zastępuje."
 
 #: includes/views/facets-card.php:36
 msgid "Load the preview first. Once the columns are known you can offer filters on them."
-msgstr ""
+msgstr "Najpierw wczytaj podgląd. Gdy kolumny będą znane, będzie można zaproponować na nich filtry."
 
 #: includes/views/rules-card.php:110
 msgid "Load the preview first. Once the columns are known you can set rules on them."
-msgstr ""
+msgstr "Najpierw wczytaj podgląd. Gdy kolumny będą znane, będzie można ustawić na nich reguły."
 
 #: includes/class-lstabp-settings.php:124
 msgid "Manage or cancel subscription"
-msgstr ""
+msgstr "Zarządzaj subskrypcją lub zrezygnuj"
 
 #: includes/views/settings-page.php:214
 msgid "Meaning"
-msgstr ""
+msgstr "Znaczenie"
 
 #. translators: %s: column name.
 #: includes/views/picker-card.php:88 includes/views/picker-card.php:93
 msgid "Move “%s” under the row, behind an arrow"
-msgstr ""
+msgstr "Przenieś „%s” pod wiersz, za strzałkę"
 
 #: includes/views/picker-card.php:34
 msgid "Moving a column or row in Google will show it again"
-msgstr ""
+msgstr "Przeniesienie kolumny lub wiersza w Google przywróci je na stronę"
 
 #: includes/class-lstabp-google-auth.php:251
 msgid "No Google account is connected, so private sheets cannot be read."
-msgstr ""
+msgstr "Nie połączono żadnego konta Google, więc arkuszy prywatnych nie da się odczytać."
 
 #: includes/views/settings-page.php:93
 msgid "No client saved yet"
-msgstr ""
+msgstr "Nie zapisano jeszcze klienta"
 
 #: includes/views/picker-card.php:169
 msgid "No rows taken out."
-msgstr ""
+msgstr "Nie usunięto żadnego wiersza."
 
 #: includes/views/settings-page.php:152
 msgid "No sheet sources yet."
-msgstr ""
+msgstr "Nie ma jeszcze żadnych źródeł arkuszy."
 
 #: includes/views/settings-page.php:103
 msgid "Not connected yet"
-msgstr ""
+msgstr "Jeszcze niepołączone"
 
 #: includes/class-lstabp-facets.php:470
 msgid "Nothing here matches that."
-msgstr ""
+msgstr "Nic tu nie pasuje."
 
 #. translators: %s: the headings a rule names, comma separated.
 #: includes/views/rules-card.php:96
 msgid "Nothing is coloured by %s until the rule points at a heading that exists. The rule is kept until you change it."
-msgstr ""
+msgstr "Nic nie jest kolorowane przez %s, dopóki reguła nie wskaże istniejącego nagłówka. Reguła pozostaje zapisana."
 
 #. translators: %s: number of rules.
 #: includes/views/rules-card.php:86
 msgid "One rule names a column your sheet no longer has."
 msgid_plural "%s rules name columns your sheet no longer has."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Jedna reguła wskazuje kolumnę, której nie ma już w arkuszu."
+msgstr[1] "%s reguły wskazują kolumny, których nie ma już w arkuszu."
+msgstr[2] "%s reguł wskazuje kolumny, których nie ma już w arkuszu."
 
 #: includes/views/settings-page.php:203
 msgid "One saved sheet can feed as many pages as you like. Add a filter to the shortcode and each page shows only the rows it needs."
-msgstr ""
+msgstr "Jeden zapisany arkusz może zasilać dowolnie wiele stron. Dodaj filtr do shortcode’u, a każda strona pokaże tylko potrzebne wiersze."
 
 #: includes/views/settings-page.php:197
 msgid "One sheet, as many pages as you like"
-msgstr ""
+msgstr "Jeden arkusz, dowolnie wiele stron"
 
 #: includes/views/settings-page.php:112
 msgid "Only read access to spreadsheets is requested; this connection cannot change or delete anything in your Google account. Disconnecting takes effect immediately."
-msgstr ""
+msgstr "Wymagany jest wyłącznie dostęp do odczytu arkuszy; to połączenie nie może niczego zmienić ani usunąć na Twoim koncie Google. Rozłączenie działa natychmiast."
 
 #: includes/views/settings-page.php:37
 msgid "Open Google Cloud Console and create a project."
-msgstr ""
+msgstr "Otwórz Google Cloud Console i utwórz projekt."
 
 #: includes/class-lstabp-rules.php:104
 msgid "Orange"
-msgstr ""
+msgstr "Pomarańczowy"
 
 #: includes/views/rules-card.php:257
 msgid "Pick a colour of your own"
-msgstr ""
+msgstr "Wybierz własny kolor"
 
 #: includes/class-lstabp-rules.php:110
 msgid "Pink"
-msgstr ""
+msgstr "Różowy"
 
 #: includes/class-lstabp-export.php:132
 msgid "Print"
-msgstr ""
+msgstr "Drukuj"
 
 #: includes/views/settings-page.php:165
 msgid "Private"
-msgstr ""
+msgstr "Prywatny"
 
 #: includes/views/settings-page.php:15
 msgid "Private sheets, filters and everything Pro adds"
-msgstr ""
+msgstr "Arkusze prywatne, filtry i wszystko, co dodaje Pro"
 
 #: includes/class-lstabp-settings.php:45 includes/class-lstabp-settings.php:60
 msgid "Pro"
-msgstr ""
+msgstr "Pro"
 
 #: includes/class-lstabp-settings.php:93
 msgid "Pro is active on this site."
-msgstr ""
+msgstr "Pro jest aktywne w tej witrynie."
 
 #: includes/class-lstabp-settings.php:109
 msgid "Pro is not running here."
-msgstr ""
+msgstr "Pro nie działa w tej witrynie."
 
 #. translators: %s: human readable time difference, e.g. "6 days".
 #: includes/class-lstabp-settings.php:101
 msgid "Pro is not running here. Columns and rows you hid will start showing again in %s."
-msgstr ""
+msgstr "Pro nie działa w tej witrynie. Ukryte kolumny i wiersze zaczną znów się pokazywać za %s."
 
 #: includes/class-lstabp-settings.php:44
 msgid "Pro settings"
-msgstr ""
+msgstr "Ustawienia Pro"
 
 #: includes/class-lstabp-rules.php:109
 msgid "Purple"
-msgstr ""
+msgstr "Fioletowy"
 
 #: includes/views/settings-page.php:85
 msgid "Read access only — this can never change anything in Google"
-msgstr ""
+msgstr "Tylko odczyt — to nigdy niczego nie zmieni w Google"
 
 #: includes/views/settings-page.php:176
 msgid "Read through the connected account"
-msgstr ""
+msgstr "Odczyt przez połączone konto"
 
 #: includes/class-lstabp-rules.php:103
 msgid "Red"
-msgstr ""
+msgstr "Czerwony"
 
 #. translators: 1: page number, 2: number of pages, 3: total rows.
 #: includes/class-lstabp-picker.php:80
 msgid "Rows — page %1$s of %2$s (%3$s in all)"
-msgstr ""
+msgstr "Wiersze — strona %1$s z %2$s (razem %3$s)"
 
 #: includes/views/rules-card.php:67
 msgid "Rules are read from the top down. If two of them colour the same place, the lower one wins, so put the general rule first."
-msgstr ""
+msgstr "Reguły są czytane od góry. Jeśli dwie kolorują to samo miejsce, wygrywa niższa, więc regułę ogólną umieść wyżej."
 
 #: includes/class-lstabp-rules.php:129
 msgid "S"
-msgstr ""
+msgstr "S"
 
 #: includes/views/settings-page.php:185
 msgid "Save"
-msgstr ""
+msgstr "Zapisz"
 
 #: includes/views/settings-page.php:117
 msgid "Save a client above first."
-msgstr ""
+msgstr "Najpierw zapisz klienta powyżej."
 
 #: includes/views/settings-page.php:73
 msgid "Save client"
-msgstr ""
+msgstr "Zapisz klienta"
 
 #: includes/class-lstabp-settings.php:195
 msgid "Sheet settings saved."
-msgstr ""
+msgstr "Ustawienia arkuszy zapisane."
 
 #: includes/views/settings-page.php:164
 msgid "Sheet source"
-msgstr ""
+msgstr "Źródło arkusza"
 
 #: includes/class-lstabp-facets.php:404
 msgid "Show only:"
-msgstr ""
+msgstr "Pokaż tylko:"
 
 #: includes/class-lstabp-picker.php:74
 msgid "Show this row again"
-msgstr ""
+msgstr "Pokaż ten wiersz ponownie"
 
 #. translators: 1: rows shown here, 2: rows in the sheet.
 #: includes/views/picker-card.php:146
 msgid "Showing the first %1$d of %2$d rows. Beyond that, use the filter above rather than picking rows one at a time."
-msgstr ""
+msgstr "Pokazano pierwsze %1$d z %2$d wierszy. Powyżej tej liczby użyj filtra zamiast wybierać wiersze pojedynczo."
 
 #: includes/class-lstabp-picker.php:76
 msgid "Shown"
-msgstr ""
+msgstr "Widoczna"
 
 #: includes/views/settings-page.php:110
 msgid "Sign in to Google"
-msgstr ""
+msgstr "Zaloguj się do Google"
 
 #: includes/class-lstabp-rules.php:128
 msgid "Struck through"
-msgstr ""
+msgstr "Przekreślenie"
 
 #: includes/views/facets-card.php:120
 msgid "Suits a filter"
-msgstr ""
+msgstr "Nadaje się na filtr"
 
 #: includes/views/settings-page.php:238
 msgid "Symbols such as = and > also work, but WordPress strips a “less than” sign from shortcode attributes, so the words above are the safer form."
-msgstr ""
+msgstr "Symbole takie jak = i > również działają, ale WordPress usuwa znak „mniejszości” z atrybutów shortcode’u, dlatego powyższe słowa są formą bezpieczniejszą."
 
 #: includes/class-lstabp-xlsx.php:305
 msgid "Table"
-msgstr ""
+msgstr "Tabela"
 
 #: includes/class-lstabp-rules.php:107
 msgid "Teal"
-msgstr ""
+msgstr "Morski"
 
 #: includes/class-lstabp-google-auth.php:169
 msgid "That sign-in did not match the request that started it, so it was discarded. Please try connecting again."
-msgstr ""
+msgstr "To logowanie nie pasowało do żądania, które je rozpoczęło, więc zostało odrzucone. Spróbuj połączyć się jeszcze raz."
 
 #. translators: 1: how many values are listed, 2: how many the column holds.
 #: includes/class-lstabp-facets.php:462
 msgid "The %1$s commonest of %2$s values."
-msgstr ""
+msgstr "%1$s najczęstszych spośród %2$s wartości."
 
 #: includes/views/settings-page.php:84
 msgid "The connected account"
-msgstr ""
+msgstr "Połączone konto"
 
 #: includes/views/rules-card.php:278
 msgid "The empty line at the bottom is the next rule; save to add another. To remove a rule, set its column back to “remove this rule”."
-msgstr ""
+msgstr "Pusty wiersz na dole to kolejna reguła; zapisz, aby dodać następną. Aby usunąć regułę, ustaw jej kolumnę z powrotem na „usuń tę regułę”."
 
 #: includes/views/facets-card.php:35 includes/views/rules-card.php:109
 msgid "The sheet has not been read yet, so there are no columns to choose from."
-msgstr ""
+msgstr "Arkusz nie został jeszcze odczytany, więc nie ma jeszcze kolumn do wyboru."
 
 #: includes/views/facets-card.php:76
 msgid "This column is empty."
-msgstr ""
+msgstr "Ta kolumna jest pusta."
 
 #: includes/class-lstabp-export.php:172
 msgid "This download link is not valid."
-msgstr ""
+msgstr "Ten link do pobrania jest nieprawidłowy."
 
 #: includes/class-lstabp-xlsx.php:48
 msgid "This server cannot build Excel files."
-msgstr ""
+msgstr "Ten serwer nie potrafi tworzyć plików Excela."
 
 #: includes/class-lstabp-export.php:168
 msgid "This table cannot be downloaded."
-msgstr ""
+msgstr "Tej tabeli nie można pobrać."
 
 #: includes/views/settings-page.php:155
 msgid "Tick a sheet to read it through the connected account instead of its public link. You can then turn off link sharing in Google."
-msgstr ""
+msgstr "Zaznacz arkusz, aby odczytywać go przez połączone konto zamiast publicznego linku. Możesz wtedy wyłączyć udostępnianie linkiem w Google."
 
 #: includes/views/settings-page.php:146
 msgid "Tick one and you can remove link sharing in Google entirely"
-msgstr ""
+msgstr "Zaznacz jeden, a udostępnianie linkiem w Google możesz całkiem wyłączyć"
 
 #: includes/views/settings-page.php:33
 msgid "To read sheets that are not shared publicly, this site signs in to Google as you. That requires an OAuth client from your own Google Cloud project."
-msgstr ""
+msgstr "Aby odczytywać arkusze nieudostępnione publicznie, witryna loguje się do Google jako Ty. Wymaga to klienta OAuth z Twojego własnego projektu Google Cloud."
 
 #: includes/class-lstabp-facets.php:442
 msgid "Type to narrow this list…"
-msgstr ""
+msgstr "Pisz, aby zawęzić listę…"
 
 #: includes/class-lstabp-settings.php:85
 msgid "What Pro is doing on this site, and how to stop paying for it"
-msgstr ""
+msgstr "Co Pro robi w tej witrynie i jak przestać za nie płacić"
 
 #: includes/views/rules-card.php:133
 msgid "When"
-msgstr ""
+msgstr "Gdy"
 
 #: includes/views/picker-card.php:40
 msgid "When a match breaks, the column or row is shown again rather than the wrong one being hidden. A notice in the dashboard names the table, and you can hide it again here."
-msgstr ""
+msgstr "Gdy dopasowanie przestaje działać, kolumna lub wiersz wraca na stronę, zamiast ukryć niewłaściwy element. Powiadomienie w kokpicie wskaże tabelę, a ukryć ją można ponownie na tym ekranie."
 
 #: includes/views/settings-page.php:145
 msgid "Which sheets are private"
-msgstr ""
+msgstr "Które arkusze są prywatne"
 
 #: includes/views/settings-page.php:213
 msgid "Write"
-msgstr ""
+msgstr "Wpisz"
 
 #: includes/class-lstabp-rules.php:105
 msgid "Yellow"
-msgstr ""
+msgstr "Żółty"
 
 #: includes/class-lstabp-google-auth.php:156
 msgid "You are not allowed to connect an account."
-msgstr ""
+msgstr "Nie masz uprawnień, aby połączyć konto."
 
 #: includes/class-lstabp-settings.php:245
 #: includes/class-lstabp-google-auth.php:366
 msgid "You are not allowed to do that."
-msgstr ""
+msgstr "Nie masz uprawnień, aby to zrobić."
 
 #: includes/class-lstabp-settings.php:205
 msgid "You are not allowed to view this page."
-msgstr ""
+msgstr "Nie masz uprawnień, aby zobaczyć tę stronę."
 
 #: includes/views/settings-page.php:25
 msgid "Your Google client"
-msgstr ""
+msgstr "Twój klient Google"
 
 #: includes/views/settings-page.php:26
 msgid "Your own credentials, so your spreadsheets are never read through anyone else's account"
-msgstr ""
+msgstr "Własne dane logowania, więc Twoje arkusze nigdy nie są odczytywane przez cudze konto"
 
 #: includes/class-lstabp-settings.php:84
 msgid "Your subscription"
-msgstr ""
+msgstr "Twoja subskrypcja"
 
 #: includes/class-lstabp-facets.php:424
 msgid "any"
-msgstr ""
+msgstr "dowolne"
 
 #: includes/views/settings-page.php:222 includes/class-lstabp-rules.php:433
 msgid "contains"
-msgstr ""
+msgstr "zawiera"
 
 #: includes/class-lstabp-rules.php:431
 msgid "is"
-msgstr ""
+msgstr "jest"
 
 #: includes/views/settings-page.php:221
 msgid "is anything but"
-msgstr ""
+msgstr "jest czymkolwiek poza"
 
 #: includes/class-lstabp-rules.php:435
 msgid "is at least"
-msgstr ""
+msgstr "jest co najmniej"
 
 #: includes/class-lstabp-rules.php:437
 msgid "is at most"
-msgstr ""
+msgstr "jest najwyżej"
 
 #: includes/views/settings-page.php:220
 msgid "is exactly"
-msgstr ""
+msgstr "jest dokładnie"
 
 #: includes/views/settings-page.php:223 includes/class-lstabp-rules.php:434
 msgid "is greater than"
-msgstr ""
+msgstr "jest większe niż"
 
 #: includes/views/settings-page.php:224
 msgid "is greater than or equal to"
-msgstr ""
+msgstr "jest większe lub równe"
 
 #: includes/views/settings-page.php:225 includes/class-lstabp-rules.php:436
 msgid "is less than"
-msgstr ""
+msgstr "jest mniejsze niż"
 
 #: includes/views/settings-page.php:226
 msgid "is less than or equal to"
-msgstr ""
+msgstr "jest mniejsze lub równe"
 
 #: includes/class-lstabp-rules.php:432
 msgid "is not"
-msgstr ""
+msgstr "nie jest"
 
 #: includes/class-lstabp-picker.php:75
 msgid "not on that line now"
-msgstr ""
+msgstr "nie ma tego teraz w tym wierszu"
 
 #: includes/views/rules-card.php:178
 msgid "paint"
-msgstr ""
+msgstr "pokoloruj"
 
 #: includes/views/rules-card.php:181
 msgid "that cell"
-msgstr ""
+msgstr "tę komórkę"
 
 #: includes/views/rules-card.php:182
 msgid "the whole row"
-msgstr ""
+msgstr "cały wiersz"
 
 #: includes/views/rules-card.php:175
 msgid "what it says"
-msgstr ""
+msgstr "co zawiera"
 
 #: includes/views/rules-card.php:140
 msgid "— pick a column —"
-msgstr ""
+msgstr "— wybierz kolumnę —"
 
 #: includes/views/rules-card.php:141
 msgid "— remove this rule —"
-msgstr ""
+msgstr "— usuń tę regułę —"
 
 #: includes/views/rules-card.php:75
 msgid "“is” and “is not” compare text, ignoring case and spacing. The number comparisons read a price as a number, so 1 215,50 and 1215.5 are the same figure."
-msgstr ""
+msgstr "„jest” i „nie jest” porównują tekst, pomijając wielkość liter i odstępy. Porównania liczbowe czytają cenę jako liczbę, więc 1 215,50 i 1215.5 to ta sama wartość."

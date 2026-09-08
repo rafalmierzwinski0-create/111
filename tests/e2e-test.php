@@ -2591,6 +2591,144 @@ lstab_assert( false !== strpos( $translated_html, 'Zaktualizowano' ), 'Front-end
 unload_textdomain( 'live-sheets-table' );
 lstab_assert( 'Refresh' === __( 'Refresh', 'live-sheets-table' ), 'Unloading restores the English source strings' );
 
+lstab_section( '15b. The language of the plugin itself' );
+
+// The site here is English, so a Polish choice has to override the source
+// strings and an English one has to override a Polish translation.
+$lstab_language_before = LSTAB_Settings::get( 'locale' );
+
+lstab_assert( '' === LSTAB_Locale::sanitize( 'de_DE' ), 'A language nobody offers is refused' );
+lstab_assert( 'pl_PL' === LSTAB_Locale::sanitize( 'pl_PL' ), 'A language on the list is kept' );
+lstab_assert( array_key_exists( '', LSTAB_Locale::choices() ), 'Following the site is one of the choices' );
+
+$lstab_settings_now           = LSTAB_Settings::all();
+$lstab_settings_now['locale'] = 'pl_PL';
+LSTAB_Settings::save( $lstab_settings_now );
+
+lstab_assert( 'pl_PL' === LSTAB_Locale::chosen(), 'The choice is stored' );
+lstab_assert(
+	'Zapisz ustawienia' === __( 'Save settings', 'live-sheets-table' ),
+	'Choosing Polish translates the free plugin on an English site',
+	__( 'Save settings', 'live-sheets-table' )
+);
+// The add-on is a separate download, so this site may not have it. Where it
+// does, the two must agree; where it does not, asking for its strings has to
+// give the English back rather than an error.
+$lstab_pro_mo = WP_PLUGIN_DIR . '/live-sheets-table-pro/languages/live-sheets-table-pro-pl_PL.mo';
+
+if ( is_readable( $lstab_pro_mo ) ) {
+	lstab_assert(
+		'Reguły kolorów' === __( 'Colour rules', 'live-sheets-table-pro' ),
+		'And the add-on with it, so the two screens do not disagree',
+		__( 'Colour rules', 'live-sheets-table-pro' )
+	);
+	$lstab_counted = sprintf(
+		_n( 'One rule names a column your sheet no longer has.', '%s rules name columns your sheet no longer has.', 3, 'live-sheets-table-pro' ),
+		3
+	);
+	lstab_assert(
+		'3 reguły wskazują kolumny, których nie ma już w arkuszu.' === $lstab_counted,
+		'Counted strings take the Polish plural form',
+		$lstab_counted
+	);
+} else {
+	lstab_assert(
+		'Colour rules' === __( 'Colour rules', 'live-sheets-table-pro' ),
+		'With no add-on installed, its strings simply stay in English',
+		__( 'Colour rules', 'live-sheets-table-pro' )
+	);
+}
+lstab_assert(
+	'Zapisz zmiany' === apply_filters( 'gettext', 'Zapisz zmiany', 'Save changes', 'some-other-plugin' ),
+	'Another plugin\'s translations are left alone'
+);
+
+// The block's own name and description live in block.json, which WordPress
+// translates with a context of its own; miss them and the block is the one
+// thing in the inserter still in English.
+lstab_assert(
+	'Tabela z Arkuszy Google' === _x( 'Google Sheets Table', 'block title', 'live-sheets-table' ),
+	'The block is named in the chosen language in the inserter',
+	_x( 'Google Sheets Table', 'block title', 'live-sheets-table' )
+);
+lstab_assert(
+	'Show a saved Google Sheet as a responsive, auto-refreshing table.'
+		!== _x( 'Show a saved Google Sheet as a responsive, auto-refreshing table.', 'block description', 'live-sheets-table' ),
+	'And described in it too'
+);
+
+// A length of time printed inside a translated sentence has to be translated
+// too, or a Polish screen says "za 1 week".
+lstab_assert(
+	'1 tydzień' === LSTAB_Locale::span( time(), time() + WEEK_IN_SECONDS ),
+	'Durations follow the chosen language',
+	LSTAB_Locale::span( time(), time() + WEEK_IN_SECONDS )
+);
+lstab_assert(
+	'3 minuty' === LSTAB_Locale::span( time(), time() + 3 * MINUTE_IN_SECONDS ),
+	'Including the Polish "few" form',
+	LSTAB_Locale::span( time(), time() + 3 * MINUTE_IN_SECONDS )
+);
+lstab_assert(
+	'15 minut' === LSTAB_Locale::span( 0, 15 * MINUTE_IN_SECONDS ),
+	'And the "many" form',
+	LSTAB_Locale::span( 0, 15 * MINUTE_IN_SECONDS )
+);
+
+$lstab_settings_now['locale'] = 'en_US';
+LSTAB_Settings::save( $lstab_settings_now );
+
+lstab_assert(
+	'1 week' === LSTAB_Locale::span( time(), time() + WEEK_IN_SECONDS ),
+	'And English when English is what was asked for',
+	LSTAB_Locale::span( time(), time() + WEEK_IN_SECONDS )
+);
+
+lstab_assert(
+	'Save settings' === apply_filters( 'gettext', 'Zapisz ustawienia', 'Save settings', 'live-sheets-table' ),
+	'Choosing English overrides a Polish site back to the source strings'
+);
+lstab_assert(
+	'Save changes' !== apply_filters( 'gettext', 'Zapisz zmiany', 'Save changes', 'some-other-plugin' ),
+	'Even then, only this plugin is put back into English'
+);
+
+// The block's panel is JavaScript, so it reads a JSON catalogue rather than
+// the .mo, and that file is found by an md5 of the script's path.
+$lstab_json = LSTAB_PATH . 'languages/live-sheets-table-pl_PL-' . md5( 'blocks/sheet-table/index.js' ) . '.json';
+lstab_assert( file_exists( $lstab_json ), 'The block ships a JSON catalogue under the name WordPress looks for' );
+
+$lstab_json_data = json_decode( (string) file_get_contents( $lstab_json ), true );
+lstab_assert(
+	isset( $lstab_json_data['locale_data']['messages']['Layout'][0] )
+		&& 'Układ' === $lstab_json_data['locale_data']['messages']['Layout'][0],
+	'And it holds the block panel\'s own labels'
+);
+lstab_assert(
+	! isset( $lstab_json_data['locale_data']['messages']['Save settings'] ),
+	'Without carrying every string the browser will never show'
+);
+
+$lstab_settings_now['locale'] = 'pl_PL';
+LSTAB_Settings::save( $lstab_settings_now );
+$lstab_script_file = apply_filters(
+	'load_script_translation_file',
+	LSTAB_PATH . 'languages/live-sheets-table-en_US-' . md5( 'blocks/sheet-table/index.js' ) . '.json',
+	'lstab-block',
+	'live-sheets-table'
+);
+lstab_assert(
+	basename( $lstab_script_file ) === basename( $lstab_json ),
+	'The choice reaches the block panel too',
+	basename( $lstab_script_file )
+);
+
+$lstab_settings_now['locale'] = $lstab_language_before;
+LSTAB_Settings::save( $lstab_settings_now );
+lstab_assert( '' === LSTAB_Locale::chosen(), 'Put back to following the site for the rest of the run' );
+
+// ---------------------------------------------------------------------------
+
 // Every user-facing string must actually be translatable.
 $untranslated = array();
 foreach ( glob( LSTAB_PATH . 'includes/views/*.php' ) as $view ) {

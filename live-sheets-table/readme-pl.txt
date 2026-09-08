@@ -4,7 +4,7 @@ Tags: arkusze google, tabela, arkusz kalkulacyjny, csv, tabela danych
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.18.0
+Stable tag: 3.19.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -139,6 +139,12 @@ Tak. Wszystko z arkusza jest escapowane przy wyjściu, więc komórka zawierają
 == Changelog ==
 
 Pełna historia wydań znajduje się w pliku readme.txt.
+
+= 3.19.0 =
+* Poprawka: połowa kokpitu mogła być po polsku, a połowa po angielsku. Złożyły się na to trzy luki: dodatek nie miał w ogóle polskiego tłumaczenia; panel bloku w edytorze nigdy nie dostawał swoich tłumaczeń, bo plik .mo jest niewidoczny dla JavaScriptu; a nazwa i opis bloku pochodzą z block.json, którego WordPress tłumaczy w osobnym kontekście, nigdy dotąd nieeksportowanym. Wszystkie trzy są zamknięte.
+* Poprawka: długość czasu wewnątrz przetłumaczonego zdania zostawała w języku witryny, co dawało „za 1 week” na polskim ekranie.
+* Nowość: ustawienie języka. Wtyczkę i dodatek można czytać po polsku albo po angielsku niezależnie od języka witryny. Zmienia się tylko tekst tej wtyczki; reszta kokpitu zachowuje ustawienie WordPressa.
+* Zmiana: kolejne przejście po opisach, tym razem pod kątem słów, a nie długości. Zniknął żargon, którego właściciel witryny nie ma powodu znać.
 
 = 3.18.0 =
 * Zmiana: przepisano wszystkie etykiety, podpowiedzi i komunikaty w kokpicie. Etykieta nazywa ustawienie, a podpowiedź w jednym zdaniu mówi, co ono robi.

@@ -234,6 +234,75 @@ function lstab_scan_js( $file, $relative, &$entries, $domain ) {
 }
 
 /**
+ * Pull the translatable parts out of a block.json.
+ *
+ * A block's title, description and keywords are read by WordPress from
+ * block.json and translated with a context of their own. Miss them and the
+ * block is the one thing in the inserter still in English on a translated
+ * site.
+ *
+ * @param string $file     Absolute path.
+ * @param string $relative Path shown in the catalogue.
+ * @param array  $entries  Accumulator, by reference.
+ * @return void
+ */
+function lstab_scan_block_json( $file, $relative, &$entries ) {
+	$block = json_decode( (string) file_get_contents( $file ), true );
+
+	if ( ! is_array( $block ) ) {
+		return;
+	}
+
+	// Core's own schema, from wp-includes/block-i18n.json.
+	$simple = array(
+		'title'       => 'block title',
+		'description' => 'block description',
+	);
+
+	foreach ( $simple as $key => $context ) {
+		if ( ! empty( $block[ $key ] ) && is_string( $block[ $key ] ) ) {
+			lstab_add_entry(
+				$entries,
+				array(
+					'singular'   => $block[ $key ],
+					'context'    => $context,
+					'references' => array( $relative ),
+					'comment'    => '',
+				)
+			);
+		}
+	}
+
+	foreach ( (array) ( $block['keywords'] ?? array() ) as $keyword ) {
+		if ( is_string( $keyword ) && '' !== $keyword ) {
+			lstab_add_entry(
+				$entries,
+				array(
+					'singular'   => $keyword,
+					'context'    => 'block keyword',
+					'references' => array( $relative ),
+					'comment'    => '',
+				)
+			);
+		}
+	}
+
+	foreach ( (array) ( $block['styles'] ?? array() ) as $style ) {
+		if ( ! empty( $style['label'] ) && is_string( $style['label'] ) ) {
+			lstab_add_entry(
+				$entries,
+				array(
+					'singular'   => $style['label'],
+					'context'    => 'block style label',
+					'references' => array( $relative ),
+					'comment'    => '',
+				)
+			);
+		}
+	}
+}
+
+/**
  * Build a PO object from the extracted entries.
  *
  * @param array $entries      Extracted entries.
@@ -272,6 +341,82 @@ function lstab_build_po( $entries, $headers, $translations = array() ) {
 	return $po;
 }
 
+/**
+ * Write the JSON catalogue a script needs.
+ *
+ * A .mo file is invisible to JavaScript: the block's own panel — its labels,
+ * its help lines — stays in English on a translated site unless the same
+ * strings are handed to the browser as JSON. WordPress looks for that file
+ * under an md5 of the script's path within the plugin, which is what this
+ * builds.
+ *
+ * @param string $languages    Directory to write into.
+ * @param string $domain       Text domain.
+ * @param string $locale       Locale code.
+ * @param array  $headers      Catalogue headers, for the plural rule.
+ * @param array  $entries      Every extracted string.
+ * @param array  $translations msgid => translation(s).
+ * @return int How many strings the file holds.
+ */
+function lstab_write_script_json( $languages, $domain, $locale, $headers, $entries, $translations ) {
+	$by_script = array();
+
+	foreach ( $entries as $key => $entry ) {
+		if ( ! isset( $translations[ $key ] ) ) {
+			continue;
+		}
+
+		foreach ( $entry['references'] as $reference ) {
+			$path = preg_replace( '/:\d+$/', '', $reference );
+
+			if ( ! preg_match( '/\.js$/', $path ) ) {
+				continue;
+			}
+
+			$by_script[ $path ][ $entry['singular'] ] = array_values( (array) $translations[ $key ] );
+		}
+	}
+
+	$written = 0;
+
+	foreach ( $by_script as $script => $messages ) {
+		// The empty msgid carries the metadata every Jed consumer reads first.
+		$messages = array_merge(
+			array(
+				'' => array(
+					'domain'       => 'messages',
+					'lang'         => $locale,
+					'plural-forms' => isset( $headers['Plural-Forms'] ) ? $headers['Plural-Forms'] : 'nplurals=2; plural=(n != 1);',
+				),
+			),
+			$messages
+		);
+
+		$payload = array(
+			'translation-revision-date' => gmdate( 'Y-m-d H:iO' ),
+			'generator'                 => 'tools/make-pot.php',
+			'domain'                    => 'messages',
+			'locale_data'               => array( 'messages' => $messages ),
+		);
+
+		$file = $languages . '/' . $domain . '-' . $locale . '-' . md5( $script ) . '.json';
+		file_put_contents( $file, wp_json_encode_fallback( $payload ) );
+		$written += count( $messages ) - 1;
+	}
+
+	return $written;
+}
+
+/**
+ * JSON encoding that does not depend on WordPress being loaded.
+ *
+ * @param mixed $value Anything encodable.
+ * @return string
+ */
+function wp_json_encode_fallback( $value ) {
+	return (string) json_encode( $value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT );
+}
+
 foreach ( $lstab_projects as $lstab_project ) {
 	if ( ! is_dir( $lstab_project['dir'] ) ) {
 		echo "Skipped {$lstab_project['name']}: no such directory\n";
@@ -307,6 +452,8 @@ function lstab_make_catalogues( $project ) {
 			lstab_scan_php( $path, $relative, $entries );
 		} elseif ( 'js' === $file->getExtension() ) {
 			lstab_scan_js( $path, $relative, $entries, $domain );
+		} elseif ( 'block.json' === $file->getFilename() ) {
+			lstab_scan_block_json( $path, $relative, $entries );
 		}
 	}
 
@@ -319,7 +466,6 @@ function lstab_make_catalogues( $project ) {
 
 	$pot_headers = array(
 		'Project-Id-Version'        => $project['name'] . ' 1.0.0',
-		'Report-Msgid-Bugs-To'      => 'https://example.com/live-sheets-table/support',
 		'POT-Creation-Date'         => gmdate( 'Y-m-d H:iO' ),
 		'PO-Revision-Date'          => 'YEAR-MO-DA HO:MI+ZONE',
 		'Last-Translator'           => 'FULL NAME <EMAIL@ADDRESS>',
@@ -362,12 +508,18 @@ function lstab_make_catalogues( $project ) {
 		}
 		$mo->export_to_file( $languages . '/' . $domain . '-' . $locale . '.mo' );
 
+		$in_script = lstab_write_script_json( $languages, $domain, $locale, $headers, $entries, $translations );
+
 		$done = 0;
 		foreach ( $entries as $key => $entry ) {
 			if ( isset( $translations[ $key ] ) ) {
 				$done++;
 			}
 		}
+		if ( $in_script ) {
+			printf( "  and %d of them into the block's JSON catalogue\n", $in_script );
+		}
+
 		printf(
 			"Wrote %s: %d/%d translated%s\n",
 			$locale,

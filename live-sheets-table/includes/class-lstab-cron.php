@@ -51,7 +51,7 @@ class LSTAB_Cron {
 				'display'  => sprintf(
 					/* translators: %s: human readable duration, e.g. "15 minutes". */
 					__( 'Live Sheets Table: every %s', 'live-sheets-table' ),
-					human_time_diff( 0, $seconds )
+					LSTAB_Locale::span( 0, $seconds )
 				),
 			);
 		}
@@ -236,7 +236,7 @@ class LSTAB_Cron {
 				/* translators: 1: source title, 2: human readable time difference, e.g. "2 hours". */
 				__( '“%1$s” has not been refreshed for %2$s.', 'live-sheets-table' ),
 				$worst['title'],
-				human_time_diff( time() - $worst_age, time() )
+				LSTAB_Locale::span( time() - $worst_age, time() )
 			),
 			// Said on the visible line, because it is the answer to the only
 			// urgent question a warning of this size provokes.
