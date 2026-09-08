@@ -151,16 +151,71 @@ $lstab_add_button = $lstab_can_add
 							<?php if ( $lstab_source['tab_name'] ) : ?>
 								<span class="lstab-fact">
 									<?php echo LSTAB_Icons::icon( 'layers' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-									<?php echo esc_html( $lstab_source['tab_name'] ); ?>
+									<?php
+									// A name on its own beside a stack of layers could be
+									// anything; a sheet has tabs, and this is which one.
+									printf(
+										/* translators: %s: the name of the tab inside the spreadsheet. */
+										esc_html__( 'Tab: %s', 'live-sheets-table' ),
+										'<b>' . esc_html( $lstab_source['tab_name'] ) . '</b>'
+									);
+									?>
 								</span>
 							<?php endif; ?>
 
 							<?php if ( count( $lstab_history ) > 1 ) : ?>
-								<span class="lstab-spark" title="<?php esc_attr_e( 'The last few checks, oldest first', 'live-sheets-table' ); ?>">
-									<?php foreach ( $lstab_history as $lstab_i => $lstab_mark ) : ?>
-										<i class="lstab-bar lstab-bar--<?php echo esc_attr( $lstab_mark ); ?>"
-											style="--lstab-bar-h: <?php echo esc_attr( (string) ( 45 + ( ( $lstab_i * 37 ) % 55 ) ) ); ?>%"></i>
-									<?php endforeach; ?>
+								<?php
+								/*
+								 * A row of marks, one per check, oldest first.
+								 * They used to be bars of varying height, which
+								 * is the shape of a measurement — and nothing
+								 * was being measured. The heights were an
+								 * arithmetic pattern on the loop counter, so
+								 * the one question the picture invited had no
+								 * answer. Same height now, and the label says
+								 * what they are.
+								 */
+								$lstab_failed = count( array_filter( $lstab_history, static function ( $lstab_mark ) {
+									return 'error' === $lstab_mark;
+								} ) );
+								?>
+								<span class="lstab-fact lstab-fact--checks">
+									<?php echo LSTAB_Icons::icon( 'refresh' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+									<?php esc_html_e( 'Last checks', 'live-sheets-table' ); ?>
+
+									<span class="lstab-spark" aria-hidden="true">
+										<?php foreach ( $lstab_history as $lstab_mark ) : ?>
+											<i class="lstab-bar lstab-bar--<?php echo esc_attr( $lstab_mark ); ?>"></i>
+										<?php endforeach; ?>
+									</span>
+
+									<?php if ( $lstab_failed ) : ?>
+										<b class="lstab-spark-failed">
+											<?php
+											printf(
+												/* translators: %s: how many of the last few checks failed. */
+												esc_html( _n( '%s failed', '%s failed', $lstab_failed, 'live-sheets-table' ) ),
+												esc_html( number_format_i18n( $lstab_failed ) )
+											);
+											?>
+										</b>
+									<?php endif; ?>
+
+									<span class="screen-reader-text">
+										<?php
+										printf(
+											/* translators: 1: how many checks are shown, 2: how many of them failed. */
+											esc_html( _n(
+												'The last %1$s check, oldest first. %2$s of them failed.',
+												'The last %1$s checks, oldest first. %2$s of them failed.',
+												count( $lstab_history ),
+												'live-sheets-table'
+											) ),
+											esc_html( number_format_i18n( count( $lstab_history ) ) ),
+											esc_html( number_format_i18n( $lstab_failed ) )
+										);
+										?>
+									</span>
 								</span>
 							<?php endif; ?>
 						</div>
@@ -182,7 +237,18 @@ $lstab_add_button = $lstab_can_add
 									<span class="lstab-colchip"><?php echo esc_html( $lstab_name ); ?></span>
 								<?php endforeach; ?>
 								<?php if ( $lstab_columns['extra'] > 0 ) : ?>
-									<span class="lstab-colchip lstab-colchip--more">+<?php echo esc_html( number_format_i18n( $lstab_columns['extra'] ) ); ?></span>
+									<span class="lstab-colchip lstab-colchip--more">
+										+<?php echo esc_html( number_format_i18n( $lstab_columns['extra'] ) ); ?>
+										<span class="screen-reader-text">
+											<?php
+											printf(
+												/* translators: %s: how many further columns the sheet has. */
+												esc_html( _n( '%s more column', '%s more columns', (int) $lstab_columns['extra'], 'live-sheets-table' ) ),
+												esc_html( number_format_i18n( $lstab_columns['extra'] ) )
+											);
+											?>
+										</span>
+									</span>
 								<?php endif; ?>
 							</div>
 						<?php endif; ?>

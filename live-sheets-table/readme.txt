@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.22.0
+Stable tag: 3.23.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,10 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.23.0 =
+* Fixed: the little row of bars on a sheet's card was drawn at varying heights, which is the shape of a measurement — and nothing was being measured. The heights came out of an arithmetic pattern on the loop counter, so the one question the picture invited had no answer. They are one mark per check now, all the same height, labelled "Last checks", with the number that failed said in words rather than only in colour.
+* Changed: the tab name on a card says it is one. A name on its own beside a stack of layers could have been anything.
 
 = 3.22.0 =
 * Fixed: "Add a sheet" opens at the beginning of the form, the same as opening a sheet you already have. The tab was remembered whenever one was clicked, so a new sheet opened wherever the last visit had ended up. It is remembered across a save now, and only across a save — which is what it was there for: a save that cannot go through comes back to the tab it was made from rather than throwing you to the front of the form.

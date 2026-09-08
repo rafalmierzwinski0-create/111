@@ -28,6 +28,18 @@ const setDetailColumn = ( column, on ) =>
 		on ? '1' : '0',
 	] ).toString().trim();
 
+/*
+ * Write a run of check results by hand. Producing one with a failure in it for
+ * real would mean six sync cycles for a picture.
+ */
+const setSyncLog = ( log ) =>
+	execFileSync( 'php', [
+		new URL( 'set-sync-log.php', import.meta.url ).pathname,
+		`${ SCRATCH }/wp71`,
+		String( sourceId ),
+		log,
+	] ).toString().trim();
+
 // Start every run from a known-good sheet.
 setMock( 'ok' );
 
@@ -1246,6 +1258,53 @@ check(
 	await page.locator( '.lstab-tabs .nav-tab-active' ).innerText() === 'Settings',
 	'And the tab you are on is the one marked'
 );
+
+/*
+ * The row of marks beside "Last checks". They used to be bars of varying
+ * height, which is the shape of a measurement, and nothing was being measured
+ * — the heights came out of an arithmetic pattern on the loop counter, so the
+ * one question the picture invited had no answer at all.
+ */
+setSyncLog( 'ooxoxo' );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+
+const checksFact = page.locator( '.lstab-fact--checks' ).first();
+check(
+	/Last checks/.test( await checksFact.innerText() ),
+	'The marks on a card say what they are',
+	await checksFact.innerText()
+);
+
+const marks = await checksFact.locator( '.lstab-bar' ).evaluateAll( ( els ) => els.map( ( el ) => ( {
+	failed: el.classList.contains( 'lstab-bar--error' ),
+	height: Math.round( el.getBoundingClientRect().height ),
+} ) ) );
+check( marks.length === 6, 'One mark per check', JSON.stringify( marks ) );
+check(
+	marks.filter( ( m ) => m.failed ).length === 2,
+	'A check that failed is marked as one',
+	JSON.stringify( marks )
+);
+check(
+	new Set( marks.map( ( m ) => m.height ) ).size === 1,
+	'Every mark is the same height, because nothing here is a measurement',
+	JSON.stringify( marks.map( ( m ) => m.height ) )
+);
+check(
+	/2/.test( await checksFact.locator( '.lstab-spark-failed' ).innerText() ),
+	'And how many failed is said in words, not only in colour',
+	await checksFact.innerText()
+);
+
+setSyncLog( 'oooooo' );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+check(
+	0 === ( await page.locator( '.lstab-fact--checks .lstab-spark-failed' ).count() ),
+	'A clean run says nothing about failures'
+);
+
+// Back to the screen this section is about.
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-settings`, { waitUntil: 'networkidle' } );
 
 /*
  * And in the sidebar too. The tabs say these are views of one plugin, which

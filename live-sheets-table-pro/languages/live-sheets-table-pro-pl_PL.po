@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
-"POT-Creation-Date: 2026-09-08 12:15+0000\n"
-"PO-Revision-Date: 2026-09-08 12:15+0000\n"
+"POT-Creation-Date: 2026-09-08 14:01+0000\n"
+"PO-Revision-Date: 2026-09-08 14:01+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -13,19 +13,19 @@ msgstr ""
 "Language: pl_PL\n"
 
 #. translators: 1: how many different values, 2: how many rows hold one.
-#: includes/views/facets-card.php:179
+#: includes/views/facets-card.php:182
 msgid "%1$s different values across %2$s rows, close to one per row. A search box suits this column better."
 msgstr "%1$s różnych wartości w %2$s wierszach, blisko jednej na wiersz. Do tej kolumny lepiej nadaje się wyszukiwarka."
 
 #. translators: 1: how many different values, 2: rows behind each one on
 #. average, 3: the commonest few, already counted.
-#: includes/views/facets-card.php:192
+#: includes/views/facets-card.php:195
 msgid "%1$s different values, about %2$s rows each. A useful filter, but a long list; visitors can type to narrow it. Commonest: %3$s"
 msgstr "%1$s różnych wartości, około %2$s wierszy na każdą. Filtr przydatny, ale lista długa; odwiedzający mogą ją zawężać, pisząc. Najczęstsze: %3$s"
 
 #. translators: 1: how many different values, 2: the commonest few, already
 #. counted.
-#: includes/views/facets-card.php:200
+#: includes/views/facets-card.php:203
 msgid "%1$s different values: %2$s"
 msgstr "%1$s różnych wartości: %2$s"
 
@@ -62,7 +62,7 @@ msgstr "Dodaj dokładnie ten adres jako autoryzowany URI przekierowania:"
 msgid "Add your Google client ID and secret first."
 msgstr "Najpierw podaj identyfikator klienta Google i klucz tajny."
 
-#: includes/views/facets-card.php:62
+#: includes/views/facets-card.php:65
 msgid "Availability"
 msgstr "Dostępność"
 
@@ -87,7 +87,7 @@ msgid "Bold text"
 msgstr "Pogrubienie"
 
 #. translators: %s: how many rows the table holds unfiltered.
-#: includes/class-lstabp-facets.php:486 includes/views/facets-card.php:95
+#: includes/class-lstabp-facets.php:486 includes/views/facets-card.php:98
 msgid "Clear filters — show all %s"
 msgstr "Wyczyść filtry — pokaż wszystkie: %s"
 
@@ -186,15 +186,15 @@ msgstr "Pobieranie i drukowanie"
 msgid "Enable the Google Sheets API for it."
 msgstr "Włącz w nim Google Sheets API."
 
-#: includes/views/facets-card.php:118
+#: includes/views/facets-card.php:121
 msgid "Every choice has an address of its own, so a filtered table can be sent to somebody as a link. Filters work together with the search box and with pages, over the whole sheet rather than the page on screen."
 msgstr "Każdy wybór ma własny adres, więc przefiltrowaną tabelę można komuś wysłać linkiem. Filtry działają razem z wyszukiwarką i stronami, w obrębie całego arkusza, a nie tylko strony na ekranie."
 
-#: includes/views/facets-card.php:173
+#: includes/views/facets-card.php:176
 msgid "Every row holds the same value, so a filter here would narrow nothing."
 msgstr "Każdy wiersz ma tę samą wartość, więc filtr niczego by tu nie zawęził."
 
-#: includes/views/facets-card.php:175
+#: includes/views/facets-card.php:178
 msgid "Every row is different, so each choice would leave one row. A search box does this better."
 msgstr "Każdy wiersz jest inny, więc każdy wybór zostawiłby jeden wiersz. Lepiej sprawdzi się wyszukiwarka."
 
@@ -253,7 +253,7 @@ msgstr "Ukryta"
 msgid "Hide columns and rows"
 msgstr "Ukryj kolumny i wiersze"
 
-#: includes/views/facets-card.php:63
+#: includes/views/facets-card.php:66
 msgid "In stock"
 msgstr "W magazynie"
 
@@ -281,7 +281,7 @@ msgstr "Wiersz"
 msgid "Live Sheets Table Pro needs the free Live Sheets Table plugin to be installed and active. Pro adds to it rather than replacing it."
 msgstr "Live Sheets Table Pro wymaga zainstalowanej i aktywnej bezpłatnej wtyczki Live Sheets Table. Pro ją rozszerza, a nie zastępuje."
 
-#: includes/views/facets-card.php:131
+#: includes/views/facets-card.php:134
 msgid "Load the preview first. Once the columns are known you can offer filters on them."
 msgstr "Najpierw wczytaj podgląd. Gdy kolumny będą znane, będzie można zaproponować na nich filtry."
 
@@ -449,7 +449,7 @@ msgstr "Źródło arkusza"
 msgid "Show only the rows that match, so one sheet can feed several pages"
 msgstr "Pokazuje tylko pasujące wiersze, więc jeden arkusz może zasilać kilka stron"
 
-#: includes/class-lstabp-facets.php:404 includes/views/facets-card.php:74
+#: includes/class-lstabp-facets.php:404 includes/views/facets-card.php:77
 msgid "Show only:"
 msgstr "Pokaż tylko:"
 
@@ -474,7 +474,7 @@ msgstr "Zaloguj się do Google"
 msgid "Struck through"
 msgstr "Przekreślenie"
 
-#: includes/views/facets-card.php:215
+#: includes/views/facets-card.php:218
 msgid "Suits a filter"
 msgstr "Nadaje się na filtr"
 
@@ -503,7 +503,7 @@ msgstr "%1$s najczęstszych spośród %2$s wartości."
 msgid "The connected account"
 msgstr "Połączone konto"
 
-#: includes/views/facets-card.php:122
+#: includes/views/facets-card.php:125
 msgid "The counts beside each column below come from the copy the plugin holds now."
 msgstr "Liczby przy kolumnach poniżej pochodzą z kopii, którą wtyczka ma teraz."
 
@@ -523,16 +523,16 @@ msgstr "Numery po lewej to numery wierszy w Twoim arkuszu, więc wiersz 1 to nag
 msgid "The reference for the filter attribute, one sheet feeding several pages"
 msgstr "Wykaz do atrybutu filter — jeden arkusz zasilający kilka stron"
 
-#: includes/views/facets-card.php:130 includes/views/rules-card.php:109
+#: includes/views/facets-card.php:133 includes/views/rules-card.php:109
 msgid "The sheet has not been read yet, so there are no columns to choose from."
 msgstr "Arkusz nie został jeszcze odczytany, więc nie ma jeszcze kolumn do wyboru."
 
 #. translators: 1: rows left after the filter, 2: rows in all.
-#: includes/views/facets-card.php:108
+#: includes/views/facets-card.php:111
 msgid "The table then shows %1$s of its %2$s rows."
 msgstr "Tabela pokazuje wtedy %1$s z %2$s wierszy."
 
-#: includes/views/facets-card.php:171
+#: includes/views/facets-card.php:174
 msgid "This column is empty."
 msgstr "Ta kolumna jest pusta."
 
@@ -540,7 +540,7 @@ msgstr "Ta kolumna jest pusta."
 msgid "This download link is not valid."
 msgstr "Ten link do pobrania jest nieprawidłowy."
 
-#: includes/views/facets-card.php:70
+#: includes/views/facets-card.php:73
 msgid "This is what a visitor sees above the table:"
 msgstr "Tak to widzi odwiedzający nad tabelą:"
 
@@ -625,11 +625,11 @@ msgstr "Własne dane logowania, więc Twoje arkusze nigdy nie są odczytywane pr
 msgid "Your subscription"
 msgstr "Twoja subskrypcja"
 
-#: includes/class-lstabp-facets.php:424 includes/views/facets-card.php:83
+#: includes/class-lstabp-facets.php:424 includes/views/facets-card.php:86
 msgid "any"
 msgstr "dowolne"
 
-#: includes/views/settings-page.php:225 includes/class-lstabp-rules.php:439
+#: includes/views/settings-page.php:225 includes/class-lstabp-rules.php:461
 msgid "contains"
 msgstr "zawiera"
 
@@ -637,7 +637,7 @@ msgstr "zawiera"
 msgid "filter=\"Column is value\""
 msgstr "filter=\"Kolumna is wartość\""
 
-#: includes/class-lstabp-rules.php:437
+#: includes/class-lstabp-rules.php:459
 msgid "is"
 msgstr "jest"
 
@@ -645,11 +645,11 @@ msgstr "jest"
 msgid "is anything but"
 msgstr "jest czymkolwiek poza"
 
-#: includes/class-lstabp-rules.php:441
+#: includes/class-lstabp-rules.php:463
 msgid "is at least"
 msgstr "jest co najmniej"
 
-#: includes/class-lstabp-rules.php:443
+#: includes/class-lstabp-rules.php:465
 msgid "is at most"
 msgstr "jest najwyżej"
 
@@ -657,7 +657,7 @@ msgstr "jest najwyżej"
 msgid "is exactly"
 msgstr "jest dokładnie"
 
-#: includes/views/settings-page.php:226 includes/class-lstabp-rules.php:440
+#: includes/views/settings-page.php:226 includes/class-lstabp-rules.php:462
 msgid "is greater than"
 msgstr "jest większe niż"
 
@@ -665,7 +665,7 @@ msgstr "jest większe niż"
 msgid "is greater than or equal to"
 msgstr "jest większe lub równe"
 
-#: includes/views/settings-page.php:228 includes/class-lstabp-rules.php:442
+#: includes/views/settings-page.php:228 includes/class-lstabp-rules.php:464
 msgid "is less than"
 msgstr "jest mniejsze niż"
 
@@ -673,7 +673,7 @@ msgstr "jest mniejsze niż"
 msgid "is less than or equal to"
 msgstr "jest mniejsze lub równe"
 
-#: includes/class-lstabp-rules.php:438
+#: includes/class-lstabp-rules.php:460
 msgid "is not"
 msgstr "nie jest"
 

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
-"POT-Creation-Date: 2026-09-08 12:15+0000\n"
+"POT-Creation-Date: 2026-09-08 14:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. translators: %s: number of further pages.
-#: includes/views/list-page.php:215
+#: includes/views/list-page.php:281
 msgid " and %s more"
 msgstr ""
 
@@ -21,7 +21,7 @@ msgstr ""
 msgid "%1$s (%2$s rows)"
 msgstr ""
 
-#: includes/class-lstab-admin.php:315
+#: includes/class-lstab-admin.php:305
 msgid "%1$s characters received."
 msgstr ""
 
@@ -36,7 +36,7 @@ msgid "%1$s rows × %2$s columns"
 msgstr ""
 
 #. translators: 1: number of sheets, 2: total number of rows.
-#: includes/class-lstab-admin.php:991
+#: includes/class-lstab-admin.php:981
 msgid "%1$s sheet · %2$s rows"
 msgid_plural "%1$s sheets · %2$s rows"
 msgstr[0] ""
@@ -51,6 +51,13 @@ msgstr ""
 #: includes/class-lstab-locale.php:402
 msgid "%s day"
 msgid_plural "%s days"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: how many of the last few checks failed.
+#: includes/views/list-page.php:197
+msgid "%s failed"
+msgid_plural "%s failed"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -72,6 +79,13 @@ msgstr[1] ""
 #: includes/class-lstab-locale.php:410
 msgid "%s month"
 msgid_plural "%s months"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: how many further columns the sheet has.
+#: includes/views/list-page.php:246
+msgid "%s more column"
+msgid_plural "%s more columns"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -180,19 +194,19 @@ msgstr ""
 msgid "Add a sheet source"
 msgstr ""
 
-#: includes/class-lstab-admin.php:88
+#: includes/class-lstab-admin.php:77
 msgid "Add new"
 msgstr ""
 
-#: includes/views/limit-reached.php:11 includes/class-lstab-admin.php:87
+#: includes/views/limit-reached.php:11 includes/class-lstab-admin.php:76
 msgid "Add new sheet source"
 msgstr ""
 
-#: includes/views/list-page.php:311
+#: includes/views/list-page.php:377
 msgid "Add the built-in example price list to try the settings out. It never contacts Google."
 msgstr ""
 
-#: includes/views/list-page.php:312
+#: includes/views/list-page.php:378
 msgid "Add the example"
 msgstr ""
 
@@ -204,11 +218,11 @@ msgstr ""
 msgid "Administrators only"
 msgstr ""
 
-#: includes/class-lstab-admin.php:78
+#: includes/class-lstab-admin.php:67
 msgid "All sheet sources"
 msgstr ""
 
-#: includes/class-lstab-admin.php:79
+#: includes/class-lstab-admin.php:68
 msgid "All sources"
 msgstr ""
 
@@ -282,7 +296,7 @@ msgstr ""
 msgid "Brake pads"
 msgstr ""
 
-#: includes/class-lstab-admin.php:1034
+#: includes/class-lstab-admin.php:1024
 msgid "Built into the plugin so you can try everything. Delete it whenever you like."
 msgstr ""
 
@@ -338,7 +352,7 @@ msgid "Column %1$d was “%2$s”, now “%3$s”"
 msgstr ""
 
 #. translators: %1$s: column number.
-#: includes/class-lstab-admin.php:313
+#: includes/class-lstab-admin.php:303
 msgid "Column %1$s"
 msgstr ""
 
@@ -349,7 +363,7 @@ msgid "Column %d"
 msgstr ""
 
 #. translators: %s: column letter, as Google labels it.
-#: includes/class-lstab-admin.php:1106
+#: includes/class-lstab-admin.php:1096
 msgid "Column %s"
 msgstr ""
 
@@ -362,7 +376,7 @@ msgid "Columns and rows"
 msgstr ""
 
 #. translators: %s: human readable time difference, e.g. "6 days".
-#: includes/class-lstab-admin.php:806
+#: includes/class-lstab-admin.php:796
 msgid "Columns and rows you hid will start showing again in %s."
 msgstr ""
 
@@ -374,16 +388,16 @@ msgstr ""
 msgid "Compact"
 msgstr ""
 
-#: includes/views/list-page.php:323
+#: includes/views/list-page.php:389
 msgid "Compare Free and Pro"
 msgstr ""
 
-#: includes/class-lstab-admin.php:276
+#: includes/class-lstab-admin.php:266
 msgid "Copied"
 msgstr ""
 
-#: includes/views/edit-page.php:206 includes/views/list-page.php:277
-#: includes/class-lstab-admin.php:275 includes/class-lstab-admin.php:876
+#: includes/views/edit-page.php:206 includes/views/list-page.php:343
+#: includes/class-lstab-admin.php:265 includes/class-lstab-admin.php:866
 msgid "Copy"
 msgstr ""
 
@@ -400,7 +414,7 @@ msgstr ""
 msgid "Could not read the tab list for this spreadsheet."
 msgstr ""
 
-#: includes/class-lstab-admin.php:308
+#: includes/class-lstab-admin.php:298
 msgid "Could not read the tab list; the tab from your link will be used."
 msgstr ""
 
@@ -416,7 +430,7 @@ msgstr ""
 msgid "Daily"
 msgstr ""
 
-#: includes/views/list-page.php:296
+#: includes/views/list-page.php:362
 msgid "Delete"
 msgstr ""
 
@@ -424,7 +438,7 @@ msgstr ""
 msgid "Delete everything"
 msgstr ""
 
-#: includes/views/list-page.php:290
+#: includes/views/list-page.php:356
 msgid "Delete this sheet source? Tables using it will stop rendering."
 msgstr ""
 
@@ -491,12 +505,12 @@ msgstr ""
 msgid "Example price list"
 msgstr ""
 
-#: includes/class-lstab-admin.php:1033
+#: includes/class-lstab-admin.php:1023
 msgid "Example — not from Google"
 msgstr ""
 
 #. translators: %s: human readable time difference.
-#: includes/class-lstab-admin.php:1148
+#: includes/class-lstab-admin.php:1138
 msgid "Failing since the last good sync %s ago"
 msgstr ""
 
@@ -509,7 +523,7 @@ msgstr ""
 msgid "Fine-tune the look"
 msgstr ""
 
-#: includes/class-lstab-admin.php:305
+#: includes/class-lstab-admin.php:295
 msgid "Found %1$s rows across %2$s columns."
 msgstr ""
 
@@ -547,7 +561,7 @@ msgstr ""
 msgid "Google could not find this spreadsheet (HTTP 404). Check that the link is correct and the file has not been deleted."
 msgstr ""
 
-#: includes/class-lstab-admin.php:1067
+#: includes/class-lstab-admin.php:1057
 msgid "Google did not answer"
 msgstr ""
 
@@ -592,11 +606,11 @@ msgstr ""
 msgid "Hide the “updated … ago” line"
 msgstr ""
 
-#: includes/class-lstab-admin.php:645
+#: includes/class-lstab-admin.php:635
 msgid "Hide this until it happens again"
 msgstr ""
 
-#: includes/class-lstab-admin.php:813
+#: includes/class-lstab-admin.php:803
 msgid "Hiding columns and rows is a Pro feature, and Pro is not active on this site. Your choices are still applied for now."
 msgstr ""
 
@@ -637,11 +651,11 @@ msgstr ""
 msgid "I have read this"
 msgstr ""
 
-#: includes/class-lstab-admin.php:880
+#: includes/class-lstab-admin.php:870
 msgid "If your hosting has no cron screen, a free uptime monitor pointed at your home page does the same job: every visit it makes runs the schedule."
 msgstr ""
 
-#: includes/views/list-page.php:285
+#: includes/views/list-page.php:351
 msgid "In Google"
 msgstr ""
 
@@ -689,8 +703,12 @@ msgstr ""
 msgid "Large"
 msgstr ""
 
+#: includes/views/list-page.php:184
+msgid "Last checks"
+msgstr ""
+
 #. translators: %s: human readable time difference.
-#: includes/class-lstab-admin.php:1137
+#: includes/class-lstab-admin.php:1127
 msgid "Last sync OK (%s ago)"
 msgstr ""
 
@@ -716,15 +734,15 @@ msgstr ""
 msgid "Links, sort arrows and page numbers"
 msgstr ""
 
-#: includes/class-lstab-admin.php:67 includes/class-lstab-admin.php:947
+#: includes/class-lstab-admin.php:56 includes/class-lstab-admin.php:937
 msgid "Live Sheets Table"
 msgstr ""
 
-#: includes/class-lstab-admin.php:102
+#: includes/class-lstab-admin.php:92
 msgid "Live Sheets Table settings"
 msgstr ""
 
-#: includes/class-lstab-admin.php:633
+#: includes/class-lstab-admin.php:623
 msgid "Live Sheets Table: a sheet did not come back cleanly."
 msgstr ""
 
@@ -737,7 +755,7 @@ msgstr ""
 msgid "Load preview"
 msgstr ""
 
-#: includes/class-lstab-admin.php:303
+#: includes/class-lstab-admin.php:293
 msgid "Loading preview…"
 msgstr ""
 
@@ -749,7 +767,7 @@ msgstr ""
 msgid "Look and behaviour"
 msgstr ""
 
-#: includes/class-lstab-admin.php:316
+#: includes/class-lstab-admin.php:306
 msgid "Look at row %1$s: it came back with a different number of cells than the rest."
 msgstr ""
 
@@ -757,7 +775,7 @@ msgstr ""
 msgid "Manage sheet sources"
 msgstr ""
 
-#: includes/class-lstab-admin.php:865
+#: includes/class-lstab-admin.php:855
 msgid "Meanwhile you can update any sheet by hand with “Refresh”."
 msgstr ""
 
@@ -773,11 +791,11 @@ msgstr ""
 msgid "Narrow column"
 msgstr ""
 
-#: includes/views/list-page.php:318
+#: includes/views/list-page.php:384
 msgid "Need more than one sheet?"
 msgstr ""
 
-#: includes/class-lstab-admin.php:1151
+#: includes/class-lstab-admin.php:1141
 msgid "Never synced successfully"
 msgstr ""
 
@@ -801,7 +819,7 @@ msgstr ""
 msgid "No sheet sources yet. Add one in the dashboard, then pick it here."
 msgstr ""
 
-#: includes/class-lstab-admin.php:981
+#: includes/class-lstab-admin.php:971
 msgid "No sheets yet"
 msgstr ""
 
@@ -818,15 +836,15 @@ msgstr ""
 msgid "Normal"
 msgstr ""
 
-#: includes/class-lstab-admin.php:1084
+#: includes/class-lstab-admin.php:1074
 msgid "Not checked yet"
 msgstr ""
 
-#: includes/views/list-page.php:222
+#: includes/views/list-page.php:288
 msgid "Not on any page yet — safe to delete"
 msgstr ""
 
-#: includes/class-lstab-admin.php:1166
+#: includes/class-lstab-admin.php:1156
 msgid "Not synced yet"
 msgstr ""
 
@@ -834,7 +852,7 @@ msgstr ""
 msgid "Notes"
 msgstr ""
 
-#: includes/class-lstab-admin.php:1076
+#: includes/class-lstab-admin.php:1066
 msgid "Nothing to show yet"
 msgstr ""
 
@@ -877,7 +895,7 @@ msgstr ""
 
 #. translators: 1: number of pages, 2: human readable duration, e.g. "5
 #. minutes".
-#: includes/views/list-page.php:248
+#: includes/views/list-page.php:314
 msgid "Page cache cleared on %1$s page, %2$s ago"
 msgid_plural "Page cache cleared on %1$s pages, %2$s ago"
 msgstr[0] ""
@@ -895,7 +913,7 @@ msgstr ""
 msgid "Part on back order"
 msgstr ""
 
-#: includes/class-lstab-admin.php:309
+#: includes/class-lstab-admin.php:299
 msgid "Paste a Google Sheets link first."
 msgstr ""
 
@@ -915,7 +933,7 @@ msgstr ""
 msgid "Phone"
 msgstr ""
 
-#: includes/class-lstab-admin.php:307
+#: includes/class-lstab-admin.php:297
 msgid "Pick the tab you want to publish:"
 msgstr ""
 
@@ -923,7 +941,7 @@ msgstr ""
 msgid "Point at your sheet"
 msgstr ""
 
-#: includes/class-lstab-admin.php:277
+#: includes/class-lstab-admin.php:267
 msgid "Press Ctrl+C"
 msgstr ""
 
@@ -931,7 +949,7 @@ msgstr ""
 msgid "Preview"
 msgstr ""
 
-#: includes/class-lstab-admin.php:304
+#: includes/class-lstab-admin.php:294
 msgid "Preview failed"
 msgstr ""
 
@@ -955,7 +973,7 @@ msgstr ""
 msgid "Pro"
 msgstr ""
 
-#: includes/views/list-page.php:320
+#: includes/views/list-page.php:386
 msgid "Pro adds unlimited sources, one-minute syncing, colour rules, filtered views, extra styles and private sheets."
 msgstr ""
 
@@ -984,7 +1002,7 @@ msgid "Refresh"
 msgstr ""
 
 #. translators: %s: error message.
-#: includes/class-lstab-admin.php:529
+#: includes/class-lstab-admin.php:519
 msgid "Refresh failed: %s"
 msgstr ""
 
@@ -1010,7 +1028,7 @@ msgstr ""
 
 #. translators: 1: number of rows, 2: expected column count, 3: list of row
 #. numbers.
-#: includes/class-lstab-admin.php:753
+#: includes/class-lstab-admin.php:743
 msgid "Row %3$s came back with a different number of cells than the other rows (%2$d), so a value in it may be missing or sitting in the wrong column. Most often a lone quotation mark or a comma inside a value has run two cells into one."
 msgid_plural "%1$d rows came back with a different number of cells than the rest (%2$d), so values in them may be missing or sitting in the wrong column. Most often a lone quotation mark or a comma inside a value has run two cells into one. Rows: %3$s."
 msgstr[0] ""
@@ -1058,7 +1076,7 @@ msgid "Saved source"
 msgstr ""
 
 #. translators: %s: error message.
-#: includes/class-lstab-admin.php:485
+#: includes/class-lstab-admin.php:475
 msgid "Saved, but the first sync failed: %s"
 msgstr ""
 
@@ -1099,7 +1117,7 @@ msgstr ""
 msgid "See what Pro adds"
 msgstr ""
 
-#: includes/class-lstab-admin.php:817
+#: includes/class-lstab-admin.php:807
 msgid "See what is hidden, and what will come back"
 msgstr ""
 
@@ -1115,7 +1133,7 @@ msgstr ""
 msgid "Service"
 msgstr ""
 
-#: includes/class-lstab-admin.php:103 includes/class-lstab-admin.php:121
+#: includes/class-lstab-admin.php:93 includes/class-lstab-admin.php:111
 msgid "Settings"
 msgstr ""
 
@@ -1139,7 +1157,7 @@ msgstr ""
 msgid "Sheet"
 msgstr ""
 
-#: includes/class-lstab-admin.php:536
+#: includes/class-lstab-admin.php:526
 msgid "Sheet refreshed from Google."
 msgstr ""
 
@@ -1147,15 +1165,15 @@ msgstr ""
 msgid "Sheet source"
 msgstr ""
 
-#: includes/class-lstab-admin.php:509
+#: includes/class-lstab-admin.php:499
 msgid "Sheet source deleted."
 msgstr ""
 
-#: includes/class-lstab-admin.php:491
+#: includes/class-lstab-admin.php:481
 msgid "Sheet source saved and synced."
 msgstr ""
 
-#: includes/class-lstab-admin.php:117 includes/class-lstab-admin.php:213
+#: includes/class-lstab-admin.php:107 includes/class-lstab-admin.php:203
 msgid "Sheet sources"
 msgstr ""
 
@@ -1163,7 +1181,7 @@ msgstr ""
 msgid "Sheet tab"
 msgstr ""
 
-#: includes/class-lstab-admin.php:68
+#: includes/class-lstab-admin.php:57
 #: includes/elementor/class-lstab-elementor-widget.php:108
 msgid "Sheets Tables"
 msgstr ""
@@ -1191,11 +1209,11 @@ msgstr ""
 msgid "Show “updated … ago”"
 msgstr ""
 
-#: includes/class-lstab-admin.php:306
+#: includes/class-lstab-admin.php:296
 msgid "Showing the first 25 rows."
 msgstr ""
 
-#: includes/views/edit-page.php:669 includes/class-lstab-admin.php:314
+#: includes/views/edit-page.php:669 includes/class-lstab-admin.php:304
 msgid "Shown"
 msgstr ""
 
@@ -1258,12 +1276,17 @@ msgstr ""
 msgid "Suspension overhaul"
 msgstr ""
 
-#: includes/class-lstab-admin.php:1158
+#: includes/class-lstab-admin.php:1148
 msgid "Sync error — nothing to show yet"
 msgstr ""
 
-#: includes/class-lstab-admin.php:1157
+#: includes/class-lstab-admin.php:1147
 msgid "Sync error — visitors still see the last good copy"
+msgstr ""
+
+#. translators: %s: the name of the tab inside the spreadsheet.
+#: includes/views/list-page.php:159
+msgid "Tab: %s"
 msgstr ""
 
 #: blocks/sheet-table/index.js:132
@@ -1306,7 +1329,7 @@ msgstr ""
 msgid "That sheet source no longer exists."
 msgstr ""
 
-#: includes/class-lstab-admin.php:892
+#: includes/class-lstab-admin.php:882
 msgid "The WordPress guide to system cron"
 msgstr ""
 
@@ -1346,7 +1369,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of sources allowed.
-#: includes/class-lstab-admin.php:397
+#: includes/class-lstab-admin.php:387
 msgid "The free version stores %d sheet source. Remove the existing one, or upgrade to add more."
 msgid_plural "The free version stores %d sheet sources. Remove one, or upgrade to add more."
 msgstr[0] ""
@@ -1356,9 +1379,12 @@ msgstr[1] ""
 msgid "The heading row stays visible while the page scrolls. Turn it off if your theme already pins something to the top of the screen."
 msgstr ""
 
-#: includes/views/list-page.php:159
-msgid "The last few checks, oldest first"
-msgstr ""
+#. translators: 1: how many checks are shown, 2: how many of them failed.
+#: includes/views/list-page.php:208
+msgid "The last %1$s check, oldest first. %2$s of them failed."
+msgid_plural "The last %1$s checks, oldest first. %2$s of them failed."
+msgstr[0] ""
+msgstr[1] ""
 
 #: includes/views/limit-reached.php:31
 msgid "The number of rows is never limited. To publish several different sheets at once, upgrade to Pro."
@@ -1394,7 +1420,7 @@ msgstr ""
 msgid "This is the built-in example"
 msgstr ""
 
-#: includes/class-lstab-admin.php:1077
+#: includes/class-lstab-admin.php:1067
 msgid "This sheet has never been read successfully."
 msgstr ""
 
@@ -1426,7 +1452,7 @@ msgstr ""
 msgid "To order"
 msgstr ""
 
-#: includes/class-lstab-admin.php:869
+#: includes/class-lstab-admin.php:859
 msgid "To run checks without waiting for a visitor"
 msgstr ""
 
@@ -1442,12 +1468,12 @@ msgstr ""
 msgid "Unavailable"
 msgstr ""
 
-#: includes/class-lstab-admin.php:462
+#: includes/class-lstab-admin.php:452
 msgid "Untitled sheet"
 msgstr ""
 
 #. translators: %s: human readable time difference, e.g. "2 minutes".
-#: includes/class-lstab-admin.php:1046
+#: includes/class-lstab-admin.php:1036
 msgid "Up to date — %s ago"
 msgstr ""
 
@@ -1474,7 +1500,7 @@ msgstr ""
 msgid "Use the “Google Sheets Table” block, or paste this shortcode:"
 msgstr ""
 
-#: includes/views/list-page.php:200
+#: includes/views/list-page.php:266
 msgid "Used on"
 msgstr ""
 
@@ -1490,7 +1516,7 @@ msgstr ""
 msgid "Very rounded"
 msgstr ""
 
-#: includes/class-lstab-admin.php:1068
+#: includes/class-lstab-admin.php:1058
 msgid "Visitors see the last copy that arrived, so nothing on your pages is broken. The next check runs shortly."
 msgstr ""
 
@@ -1532,11 +1558,11 @@ msgid "Who is trusted with the tables on this site"
 msgstr ""
 
 #. translators: %s: human readable duration, e.g. "5 minutes".
-#: includes/views/list-page.php:241
+#: includes/views/list-page.php:307
 msgid "Whole page cache cleared %s ago"
 msgstr ""
 
-#: includes/class-lstab-admin.php:861
+#: includes/class-lstab-admin.php:851
 msgid "Why it happens, and how to fix it for good"
 msgstr ""
 
@@ -1544,7 +1570,7 @@ msgstr ""
 msgid "Width:"
 msgstr ""
 
-#: includes/class-lstab-admin.php:870
+#: includes/class-lstab-admin.php:860
 msgid "WordPress has no clock of its own: its schedule runs only when a page is requested. Most hosting panels have a “Cron jobs” screen. Paste this line into it:"
 msgstr ""
 
@@ -1560,8 +1586,8 @@ msgstr ""
 msgid "You are not allowed to list sheet sources."
 msgstr ""
 
-#: includes/class-lstab-rest.php:194 includes/class-lstab-admin.php:329
-#: includes/class-lstab-admin.php:343 includes/class-lstab-admin.php:675
+#: includes/class-lstab-rest.php:194 includes/class-lstab-admin.php:319
+#: includes/class-lstab-admin.php:333 includes/class-lstab-admin.php:665
 msgid "You are not allowed to manage sheet sources."
 msgstr ""
 
@@ -1573,7 +1599,7 @@ msgstr ""
 msgid "You can add any of these inside the brackets:"
 msgstr ""
 
-#: includes/class-lstab-admin.php:196 includes/class-lstab-settings.php:154
+#: includes/class-lstab-admin.php:186 includes/class-lstab-settings.php:154
 msgid "You do not have permission to change these settings."
 msgstr ""
 
@@ -1640,7 +1666,7 @@ msgid "caption=\"My table\""
 msgstr ""
 
 #. translators: %s: human readable duration, e.g. "13 minutes".
-#: includes/class-lstab-admin.php:1007
+#: includes/class-lstab-admin.php:997
 msgid "next check in %s"
 msgstr ""
 

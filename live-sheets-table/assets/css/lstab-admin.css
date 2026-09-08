@@ -981,23 +981,37 @@
 
 /* The last few checks. One red bar is an accident; three in a row is a
    problem — and that difference is visible without reading anything. */
+/*
+ * One mark per check, oldest first. They were bars of varying height, which is
+ * the shape of a measurement — and nothing was being measured: the heights came
+ * out of an arithmetic pattern on the loop counter. All the same height now, so
+ * the picture answers the only question it raises, which is how the last few
+ * checks went.
+ */
 .lstab-spark {
 	display: inline-flex;
-	align-items: flex-end;
-	gap: 2px;
-	block-size: 1rem;
+	align-items: center;
+	gap: 3px;
+	margin-inline: 0.15rem 0.05rem;
 }
 
 .lstab-bar {
-	inline-size: 3px;
+	inline-size: 4px;
+	block-size: 0.8rem;
 	border-radius: 1px;
-	block-size: var( --lstab-bar-h, 60% );
 	background: var( --lstab-ok );
-	opacity: 0.42;
+	opacity: 0.5;
 }
 
-.lstab-bar:last-child { opacity: 1; inline-size: 4px; }
-.lstab-bar--error { background: var( --lstab-err ); }
+/* The newest check is the one being reported, so it is the one drawn solidly. */
+.lstab-bar:last-child { opacity: 1; inline-size: 5px; }
+.lstab-bar--error { background: var( --lstab-err ); opacity: 0.75; }
+.lstab-bar--error:last-child { opacity: 1; }
+
+.lstab-spark-failed {
+	font-weight: 600;
+	color: var( --lstab-err );
+}
 
 .lstab-admin .lstab-src-note {
 	margin: 0;

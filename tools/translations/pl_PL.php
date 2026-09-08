@@ -422,8 +422,6 @@ return array(
 		=> 'Pokaż tabelę',
 	'Suspension overhaul'
 		=> 'Serwis amortyzatora',
-	'The last few checks, oldest first'
-		=> 'Kilka ostatnich sprawdzeń, od najstarszego',
 	'This sheet has never been read successfully.'
 		=> 'Tego arkusza nie udało się jeszcze ani razu odczytać.',
 	'Time'
@@ -676,4 +674,16 @@ return array(
 		=> 'Do wyboru:',
 	'Use a table style other than this table\'s own'
 		=> 'Ustawia inny styl niż własny styl tej tabeli',
+
+	// The row of marks on a source card: one per check, oldest first.
+	'Last checks'                                => 'Ostatnie sprawdzenia',
+	'%s failed'                                  => array( '%s nieudane', '%s nieudane', '%s nieudanych' ),
+	'The last %1$s check, oldest first. %2$s of them failed.'
+		=> array(
+			'Ostatnie %1$s sprawdzenie, od najstarszego. Nieudanych: %2$s.',
+			'Ostatnie %1$s sprawdzenia, od najstarszego. Nieudanych: %2$s.',
+			'Ostatnie %1$s sprawdzeń, od najstarszego. Nieudanych: %2$s.',
+		),
+	'Tab: %s'                                    => 'Zakładka: %s',
+	'%s more column'                             => array( '%s kolumna więcej', '%s kolumny więcej', '%s kolumn więcej' ),
 );
