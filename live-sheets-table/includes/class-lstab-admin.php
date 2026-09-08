@@ -17,17 +17,6 @@ class LSTAB_Admin {
 	const SETTINGS_SLUG = 'live-sheets-table-settings';
 
 	/**
-	 * Parent slug for screens that exist without appearing in the sidebar.
-	 *
-	 * There is no menu of this name, which is the point: a page registered
-	 * under it can be opened and is allowed to be, but nothing draws it on the
-	 * left. remove_submenu_page() looks like the way to do this and is not —
-	 * it also removes the right to open the page, and the screen answers with
-	 * "Sorry, you are not allowed to access this page".
-	 */
-	const HIDDEN_PARENT = 'lstab-hidden';
-
-	/**
 	 * User meta: when this person last put the countdown away.
 	 */
 	const GRACE_DISMISSED = 'lstab_grace_dismissed';
@@ -92,13 +81,14 @@ class LSTAB_Admin {
 		);
 
 		/*
-		 * Reachable, and not on the list on the left. Sources, settings and the
-		 * add-on are three views of one plugin, and a row of tabs above them
-		 * says that better than three entries in a sidebar that also holds
-		 * every other plugin's.
+		 * In the sidebar as well as in the row of tabs. The tabs say these are
+		 * views of one plugin, which they are — but somebody who has just
+		 * installed this and is looking for its settings looks down the list of
+		 * plugins on the left, and finding nothing there is a worse answer than
+		 * a line that repeats itself.
 		 */
 		add_submenu_page(
-			self::HIDDEN_PARENT,
+			self::MENU_SLUG,
 			__( 'Live Sheets Table settings', 'live-sheets-table' ),
 			__( 'Settings', 'live-sheets-table' ),
 			'manage_options',

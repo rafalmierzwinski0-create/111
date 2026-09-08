@@ -35,12 +35,12 @@ class LSTABP_Settings {
 	 */
 	public function add_menu() {
 		/*
-		 * Under the free plugin's parent for hidden screens: the page exists
-		 * and can be opened, but belongs in the row of tabs above the other
-		 * screens rather than as a fourth line in the sidebar.
+		 * Under the free plugin's own menu, so the add-on's screen is where
+		 * somebody looks for it: in the sidebar with the rest of this plugin,
+		 * as well as in the row of tabs above the screens themselves.
 		 */
 		add_submenu_page(
-			LSTAB_Admin::HIDDEN_PARENT,
+			LSTAB_Admin::MENU_SLUG,
 			__( 'Pro settings', 'live-sheets-table-pro' ),
 			__( 'Pro', 'live-sheets-table-pro' ),
 			'manage_options',

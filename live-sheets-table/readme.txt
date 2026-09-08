@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.21.0
+Stable tag: 3.22.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,10 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.22.0 =
+* Fixed: "Add a sheet" opens at the beginning of the form, the same as opening a sheet you already have. The tab was remembered whenever one was clicked, so a new sheet opened wherever the last visit had ended up. It is remembered across a save now, and only across a save — which is what it was there for: a save that cannot go through comes back to the tab it was made from rather than throwing you to the front of the form.
+* Changed: Settings and Pro are lines in the sidebar under the plugin, as well as tabs across the top of its screens. The tabs say these are views of one plugin, which they are, but somebody looking for a plugin's settings looks down the list on the left, and finding nothing there is a worse answer than a line that repeats itself.
 
 = 3.21.0 =
 * Fixed: the sideways slider looked like a stray line drawn across the rows while it floated over them. It becomes a control of its own there — its own paper, edge and shadow — and gives all of that back the moment the end of the table comes into view, so nothing is painted over the page.

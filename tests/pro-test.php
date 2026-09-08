@@ -1160,13 +1160,27 @@ delete_option( LSTABP_Facets::OPTION );
 
 lstabp_section( '5g. Where the add-on lives, and how to leave' );
 
-// The add-on is a tab across the top of the plugin's own screens rather than a
-// fourth line in a sidebar that already holds every other plugin's.
+// The add-on is a tab across the top of the plugin's own screens, and a line
+// under it in the sidebar: somebody looking for what an add-on added looks
+// down the list of plugins on the left first.
 $lstabp_admin = get_users( array( 'role' => 'administrator', 'number' => 1, 'fields' => 'ID' ) );
 wp_set_current_user( $lstabp_admin ? (int) $lstabp_admin[0] : 1 );
 
 $tabs = LSTAB_Admin::tabs();
 lstabp_assert( isset( $tabs[ LSTABP_Settings::PAGE_SLUG ] ), 'The add-on adds itself to the row of tabs', wp_json_encode( array_keys( $tabs ) ) );
+
+global $submenu;
+$submenu = array();
+do_action( 'admin_menu' );
+$lstabp_lines = isset( $submenu[ LSTAB_Admin::MENU_SLUG ] ) ? wp_list_pluck( $submenu[ LSTAB_Admin::MENU_SLUG ], 2 ) : array();
+lstabp_assert(
+	in_array( LSTABP_Settings::PAGE_SLUG, $lstabp_lines, true ),
+	'And a line in the sidebar under the free plugin',
+	wp_json_encode( $lstabp_lines )
+);
+// The free plugin's own line is not visible from here: it registers its menu
+// only inside the dashboard, and this suite is not one. The browser run checks
+// the sidebar as somebody actually sees it.
 
 ob_start();
 LSTAB_Admin::render_tabs( LSTABP_Settings::PAGE_SLUG );

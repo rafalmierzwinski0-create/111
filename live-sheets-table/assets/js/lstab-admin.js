@@ -12,6 +12,18 @@
 
 	var form = document.getElementById( 'lstab-source-form' );
 	if ( ! form ) {
+		/*
+		 * A plugin screen with no editor on it — the list, the settings — is
+		 * the end of whatever a save was carrying. A save that works lands on
+		 * the list, so without this the tab it was made from would sit in
+		 * storage waiting to open the next sheet somewhere nobody asked for.
+		 */
+		try {
+			window.sessionStorage.removeItem( 'lstabPane' );
+		} catch ( error ) {
+			// Private windows and blocked storage: not worth a word.
+		}
+
 		return;
 	}
 
@@ -24,6 +36,7 @@
 	 * to the front of the form.
 	 */
 	( function panes() {
+		var PANE_KEY = 'lstabPane';
 		var nav = document.getElementById( 'lstab-panes' );
 
 		if ( ! nav ) {
@@ -86,31 +99,97 @@
 		/*
 		 * Saving reloads the page, and a hash never reaches the server, so
 		 * without this every save threw you back to the first pane — three
-		 * clicks to carry on where you were. The browser remembers instead.
+		 * clicks to carry on where you were.
+		 *
+		 * Written when the form is submitted rather than when a tab is
+		 * clicked, and read exactly once. Remembering the click meant "Add a
+		 * sheet" opened wherever the last person had been working, which is
+		 * not where a new sheet starts: a new one starts at the beginning,
+		 * the same as opening an existing sheet does.
 		 */
+		var sourceNow = function () {
+			var match = /[?&]source=(\d+)/.exec( window.location.search );
+
+			return match ? match[ 1 ] : 'new';
+		};
+
 		var remember = function ( name ) {
 			try {
-				window.sessionStorage.setItem( 'lstabPane', name );
+				window.sessionStorage.setItem(
+					PANE_KEY,
+					JSON.stringify( { pane: name, source: sourceNow(), at: Date.now() } )
+				);
 			} catch ( error ) {
 				// Private windows and blocked storage: not worth a word.
 			}
 		};
 
+		/**
+		 * The pane a save was made from, if this load is that save coming back.
+		 *
+		 * Taken once and thrown away, so opening the editor again later starts
+		 * at the beginning rather than somewhere a previous visit ended up.
+		 *
+		 * @return {string} Pane name, or an empty string.
+		 */
 		var remembered = function () {
+			var raw;
+
 			try {
-				return window.sessionStorage.getItem( 'lstabPane' ) || '';
+				raw = window.sessionStorage.getItem( PANE_KEY );
+				window.sessionStorage.removeItem( PANE_KEY );
 			} catch ( error ) {
 				return '';
 			}
+
+			if ( ! raw ) {
+				return '';
+			}
+
+			var saved;
+
+			try {
+				saved = JSON.parse( raw );
+			} catch ( error ) {
+				return '';
+			}
+
+			if ( ! saved || ! saved.pane ) {
+				return '';
+			}
+
+			// A save is a round trip of seconds. Anything older is a leftover
+			// from a flow that went somewhere else, and the tab it names has
+			// nothing to do with the screen now being opened.
+			if ( ! saved.at || Date.now() - saved.at > 120000 ) {
+				return '';
+			}
+
+			// Saving a new sheet arrives back with the id it was given, so
+			// that one change of address is the same sheet; any other is not.
+			var here = sourceNow();
+
+			if ( saved.source !== here && ! ( 'new' === saved.source && 'new' !== here ) ) {
+				return '';
+			}
+
+			return saved.pane;
 		};
 
-		Array.prototype.forEach.call( tabs, function ( tab ) {
-			tab.addEventListener( 'click', function () {
-				remember( tab.getAttribute( 'data-lstab-goto' ) );
-			} );
-		} );
+		var form = document.getElementById( 'lstab-source-form' );
 
-		var opening = ( window.location.hash || '' ).replace( '#', '' ) || remembered();
+		if ( form ) {
+			form.addEventListener( 'submit', function () {
+				var on = nav.querySelector( '[data-lstab-goto].is-on' );
+
+				remember( on ? on.getAttribute( 'data-lstab-goto' ) : '' );
+			} );
+		}
+
+		// Read first either way, so a load that already knows its pane from the
+		// address still clears what a save left behind.
+		var saved = remembered();
+		var opening = ( window.location.hash || '' ).replace( '#', '' ) || saved;
 
 		if ( opening && document.querySelector( '[data-lstab-pane="' + opening + '"]' ) ) {
 			show( opening );

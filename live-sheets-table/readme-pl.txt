@@ -4,7 +4,7 @@ Tags: arkusze google, tabela, arkusz kalkulacyjny, csv, tabela danych
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.21.0
+Stable tag: 3.22.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -139,6 +139,10 @@ Tak. Wszystko z arkusza jest escapowane przy wyjściu, więc komórka zawierają
 == Changelog ==
 
 Pełna historia wydań znajduje się w pliku readme.txt.
+
+= 3.22.0 =
+* Poprawka: „Dodaj arkusz” otwiera formularz od początku, tak samo jak otwarcie istniejącego arkusza. Zakładka była zapamiętywana przy każdym kliknięciu, więc nowy arkusz otwierał się tam, gdzie skończyła się poprzednia wizyta. Teraz jest zapamiętywana tylko na czas zapisu — i po to była: nieudany zapis wraca do zakładki, z której go zrobiono.
+* Zmiana: Ustawienia i Pro są pozycjami w bocznym menu pod wtyczką, a nie tylko zakładkami nad jej ekranami. Kto szuka ustawień wtyczki, patrzy najpierw na listę po lewej.
 
 = 3.21.0 =
 * Poprawka: poziomy suwak wyglądał jak przypadkowa kreska na wierszach, gdy nad nimi wisiał. Teraz staje się tam osobnym elementem — z własnym tłem, obramowaniem i cieniem — i oddaje to wszystko, gdy tylko widać koniec tabeli.

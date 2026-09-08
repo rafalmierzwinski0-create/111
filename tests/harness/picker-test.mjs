@@ -454,6 +454,28 @@ check(
 	'Choosing off the palette gives the wheel back'
 );
 
+section( '6. Where the add-on is in the sidebar' );
+
+/*
+ * The tabs across the top say these are views of one plugin, which they are.
+ * But somebody looking for what an add-on added looks down the list of plugins
+ * on the left first, and finding nothing there is a worse answer than a line
+ * that repeats itself.
+ */
+const menuHrefs = await page.locator( '#adminmenu a[href*="live-sheets-table"]' )
+	.evaluateAll( ( els ) => els.map( ( el ) => el.getAttribute( 'href' ) || '' ) );
+
+check(
+	menuHrefs.some( ( href ) => href.includes( 'page=live-sheets-table-settings' ) ),
+	'Settings is a line under the plugin',
+	JSON.stringify( menuHrefs )
+);
+check(
+	menuHrefs.some( ( href ) => href.includes( 'page=live-sheets-table-pro' ) ),
+	'And so is the add-on',
+	JSON.stringify( menuHrefs )
+);
+
 check( errors.length === 0, 'No script errors anywhere in the run', errors.join( '\n' ) );
 
 console.log( '\n' + '─'.repeat( 60 ) );

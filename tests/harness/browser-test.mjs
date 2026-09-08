@@ -1198,11 +1198,15 @@ await page.locator( '.lstab-submit button[type=submit]' ).click();
 await page.waitForLoadState( 'networkidle' );
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
 
-// Coming back should land on the pane you were working in, not throw you to
-// the front of the form. Stated here too, so the check does not depend on it.
+/*
+ * Opening a sheet starts at the beginning, wherever the last visit ended up.
+ * The tab used to be remembered on the click, which meant "Add a sheet" opened
+ * on whatever somebody had been working on last — see 9g for the pane a failed
+ * save does come back to.
+ */
 check(
-	await page.locator( '[data-lstab-goto="hide"]' ).evaluate( ( el ) => el.classList.contains( 'is-on' ) ),
-	'Reopening the editor returns to the pane you were on'
+	await page.locator( '[data-lstab-goto="general"]' ).evaluate( ( el ) => el.classList.contains( 'is-on' ) ),
+	'Reopening the editor starts at the beginning, not where the last visit ended'
 );
 await pane( 'hide' );
 
@@ -1243,10 +1247,16 @@ check(
 	'And the tab you are on is the one marked'
 );
 
+/*
+ * And in the sidebar too. The tabs say these are views of one plugin, which
+ * they are — but somebody looking for a plugin's settings looks down the list
+ * on the left, and finding nothing there is a worse answer than a line that
+ * repeats itself.
+ */
 const sidebar = await page.locator( '#adminmenu a[href*="live-sheets-table"]' ).evaluateAll( ( els ) => els.map( ( e ) => e.getAttribute( 'href' ) ) );
 check(
-	! sidebar.some( ( href ) => href && href.includes( 'live-sheets-table-settings' ) ),
-	'Settings is not also a line in the sidebar',
+	sidebar.some( ( href ) => href && href.includes( 'live-sheets-table-settings' ) ),
+	'Settings is a line in the sidebar as well as a tab',
 	JSON.stringify( sidebar )
 );
 
@@ -1303,8 +1313,10 @@ widthReport.filter( ( r ) => r.even ).forEach( ( r, i ) => {
 } );
 await apage.locator( '.lstab' ).first().screenshot( { path: `${ SHOTS }/14-even-columns.png` } );
 
-// Put the source back the way the rest of the run expects to find it.
+// Put the source back the way the rest of the run expects to find it. The
+// editor opens at the beginning now, so the column list has to be asked for.
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await pane( 'hide' );
 await columnRows.nth( 0 ).locator( 'input[type=text]' ).fill( '' );
 await page.locator( '.lstab-submit button[type=submit]' ).click();
 await page.waitForLoadState( 'networkidle' );
@@ -2082,6 +2094,68 @@ for ( const tab of [ 'general', 'look', 'hide' ] ) {
 }
 
 await page.setViewportSize( { width: 1500, height: 1000 } );
+
+// ------------------------------------------------- which tab the editor opens
+section( '9g. Where the editor opens' );
+
+const paneNow = () => page.evaluate( () => {
+	const on = document.querySelector( '#lstab-panes [data-lstab-goto].is-on' );
+
+	return on ? on.getAttribute( 'data-lstab-goto' ) : '(none)';
+} );
+
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.waitForTimeout( 600 );
+check( 'general' === ( await paneNow() ), 'Opening a sheet starts at the beginning', await paneNow() );
+
+await page.locator( '[data-lstab-goto="look"]' ).click();
+await page.waitForTimeout( 300 );
+check( 'look' === ( await paneNow() ), 'Clicking a tab moves to it' );
+
+/*
+ * The tab used to be remembered on the click, which meant "Add a sheet" opened
+ * wherever the last person had been working. A new sheet starts at the
+ * beginning, the same as opening an existing one.
+ */
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+await page.locator( 'a.lstab-btn:has-text("Add a sheet")' ).first().click();
+await page.waitForLoadState( 'networkidle' );
+await page.waitForTimeout( 600 );
+check( 'general' === ( await paneNow() ), 'And "Add a sheet" does too, wherever the last visit ended', await paneNow() );
+
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.waitForTimeout( 600 );
+check( 'general' === ( await paneNow() ), 'And so does opening that sheet again', await paneNow() );
+
+/*
+ * What the memory is actually for: a save that cannot go through comes back to
+ * the editor, and throwing somebody to the front of the form to read an error
+ * about the tab they were on is three clicks of nothing.
+ */
+// The link lives on the first pane, so it is broken before moving off it.
+const goodUrl = await page.locator( '#lstab-sheet-url' ).inputValue();
+await page.fill( '#lstab-sheet-url', 'https://example.com/not-a-sheet' );
+await page.locator( '[data-lstab-goto="look"]' ).click();
+await page.waitForTimeout( 200 );
+await Promise.all( [
+	page.waitForLoadState( 'networkidle' ),
+	page.locator( '.lstab-submit button[type=submit]' ).first().click()
+] );
+await page.waitForTimeout( 800 );
+check(
+	'look' === ( await paneNow() ),
+	'A save that fails comes back to the tab it was made from',
+	( await paneNow() ) + ' at ' + page.url()
+);
+
+// Put the link back, and leave the editor where the rest of the suite expects.
+await pane( 'general' );
+await page.fill( '#lstab-sheet-url', goodUrl );
+await Promise.all( [
+	page.waitForLoadState( 'networkidle' ),
+	page.locator( '.lstab-submit button[type=submit]' ).first().click()
+] );
+await page.waitForTimeout( 600 );
 
 // -------------------------------------------------------------- block editor
 section( '10. Block editor' );
