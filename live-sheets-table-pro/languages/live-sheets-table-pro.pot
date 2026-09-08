@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
-"POT-Creation-Date: 2026-09-08 09:56+0000\n"
+"POT-Creation-Date: 2026-09-08 11:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -87,7 +87,7 @@ msgid "Clear filters — show all %s"
 msgstr ""
 
 #: includes/views/picker-card.php:45
-msgid "Click a heading or a line number to take it out"
+msgid "Click a heading or a line number to hide it"
 msgstr ""
 
 #: includes/views/picker-card.php:21
@@ -119,7 +119,7 @@ msgid "Colour rules"
 msgstr ""
 
 #. translators: %s: column letter, as Google labels it.
-#: includes/views/picker-card.php:63
+#: includes/views/picker-card.php:74
 msgid "Column %s"
 msgstr ""
 
@@ -171,6 +171,10 @@ msgstr ""
 
 #: includes/class-lstabp-export.php:125
 msgid "Download for Excel"
+msgstr ""
+
+#: includes/class-lstabp-export.php:295
+msgid "Downloads and printing"
 msgstr ""
 
 #: includes/views/settings-page.php:38
@@ -260,11 +264,7 @@ msgstr ""
 msgid "Let visitors narrow the table"
 msgstr ""
 
-#: includes/class-lstabp-export.php:295
-msgid "Let visitors take it away"
-msgstr ""
-
-#: includes/views/picker-card.php:55
+#: includes/views/picker-card.php:66
 msgid "Line"
 msgstr ""
 
@@ -289,7 +289,7 @@ msgid "Meaning"
 msgstr ""
 
 #. translators: %s: column name.
-#: includes/views/picker-card.php:88 includes/views/picker-card.php:93
+#: includes/views/picker-card.php:99 includes/views/picker-card.php:104
 msgid "Move “%s” under the row, behind an arrow"
 msgstr ""
 
@@ -305,8 +305,8 @@ msgstr ""
 msgid "No client saved yet"
 msgstr ""
 
-#: includes/views/picker-card.php:169
-msgid "No rows taken out."
+#: includes/views/picker-card.php:180
+msgid "No rows hidden yet."
 msgstr ""
 
 #: includes/views/settings-page.php:152
@@ -452,7 +452,7 @@ msgid "Show this row again"
 msgstr ""
 
 #. translators: 1: rows shown here, 2: rows in the sheet.
-#: includes/views/picker-card.php:146
+#: includes/views/picker-card.php:157
 msgid "Showing the first %1$d of %2$d rows. Beyond that, use the filter above rather than picking rows one at a time."
 msgstr ""
 
@@ -499,6 +499,10 @@ msgstr ""
 
 #: includes/views/rules-card.php:278
 msgid "The empty line at the bottom is the next rule; save to add another. To remove a rule, set its column back to “remove this rule”."
+msgstr ""
+
+#: includes/views/picker-card.php:58
+msgid "The numbers down the left are the line numbers in your sheet, so line 1 is the headings."
 msgstr ""
 
 #: includes/views/facets-card.php:35 includes/views/rules-card.php:109
@@ -646,12 +650,12 @@ msgstr ""
 msgid "that cell"
 msgstr ""
 
-#: includes/views/rules-card.php:182
-msgid "the whole row"
+#: includes/views/rules-card.php:175
+msgid "the value to match"
 msgstr ""
 
-#: includes/views/rules-card.php:175
-msgid "what it says"
+#: includes/views/rules-card.php:182
+msgid "the whole row"
 msgstr ""
 
 #: includes/views/rules-card.php:140

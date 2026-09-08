@@ -42,9 +42,20 @@ defined( 'ABSPATH' ) || exit;
 	</div>
 
 	<p class="lstabp-picker-legend">
-		<span class="lstabp-legend-chip"><span class="lstabp-legend-mark" aria-hidden="true">×</span><?php esc_html_e( 'Click a heading or a line number to take it out', 'live-sheets-table-pro' ); ?></span>
+		<span class="lstabp-legend-chip"><span class="lstabp-legend-mark" aria-hidden="true">×</span><?php esc_html_e( 'Click a heading or a line number to hide it', 'live-sheets-table-pro' ); ?></span>
 		<span class="lstabp-legend-chip"><span class="lstabp-legend-mark lstabp-legend-mark--back" aria-hidden="true">↺</span><?php esc_html_e( 'Click it again to put it back', 'live-sheets-table-pro' ); ?></span>
 		<span class="lstabp-legend-chip"><span class="lstabp-legend-mark lstabp-legend-mark--detail" aria-hidden="true"></span><?php esc_html_e( 'Click the arrow to move a column under the row instead', 'live-sheets-table-pro' ); ?></span>
+	</p>
+
+	<?php
+	/*
+	 * The first data row is numbered 2, because line 1 is the headings. Nobody
+	 * counting rows in the table in front of them arrives at that on their own,
+	 * and the numbers are the whole way a hidden row is matched later.
+	 */
+	?>
+	<p class="lstab-help lstabp-picker-lines">
+		<?php esc_html_e( 'The numbers down the left are the line numbers in your sheet, so line 1 is the headings.', 'live-sheets-table-pro' ); ?>
 	</p>
 
 	<div class="lstabp-picker-scroll">
@@ -166,7 +177,7 @@ defined( 'ABSPATH' ) || exit;
 
 	<div class="lstabp-picker-summary">
 		<p class="lstabp-picker-empty"<?php echo $hidden ? ' hidden' : ''; ?>>
-			<?php esc_html_e( 'No rows taken out.', 'live-sheets-table-pro' ); ?>
+			<?php esc_html_e( 'No rows hidden yet.', 'live-sheets-table-pro' ); ?>
 		</p>
 		<ul class="lstabp-chips" id="lstabp-hidden-rows-chips"></ul>
 	</div>

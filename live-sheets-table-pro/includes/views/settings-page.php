@@ -207,7 +207,7 @@ defined( 'ABSPATH' ) || exit;
 		<p class="lstab-help">
 			<?php esc_html_e( 'Conditions are separated by commas and all must match. Column names match either the heading in your sheet or the name you gave it.', 'live-sheets-table-pro' ); ?>
 		</p>
-		<table class="lstab-column-list">
+		<table class="lstab-attribute-list">
 			<thead>
 				<tr>
 					<th scope="col"><?php esc_html_e( 'Write', 'live-sheets-table-pro' ); ?></th>

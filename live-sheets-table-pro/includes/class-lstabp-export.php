@@ -292,7 +292,7 @@ class LSTABP_Export {
 		$enabled = ( $is_edit && $source ) ? self::is_enabled( $source['id'] ) : false;
 		?>
 		<div class="lstab-card lstabp-export-card">
-			<h2 class="lstab-card-title"><?php esc_html_e( 'Let visitors take it away', 'live-sheets-table-pro' ); ?></h2>
+			<h2 class="lstab-card-title"><?php esc_html_e( 'Downloads and printing', 'live-sheets-table-pro' ); ?></h2>
 			<p class="lstab-checkbox">
 				<label>
 					<input type="hidden" name="lstabp_export_present" value="1">

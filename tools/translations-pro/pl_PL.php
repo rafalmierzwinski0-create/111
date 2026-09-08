@@ -145,7 +145,8 @@ return array(
 	'%s — not in the sheet any more'             => '%s — już nie ma tego w arkuszu',
 	'— pick a column —'                          => '— wybierz kolumnę —',
 	'— remove this rule —'                       => '— usuń tę regułę —',
-	'what it says'                               => 'co zawiera',
+	'the value to match'
+		=> 'szukana wartość',
 	'paint'
 		=> 'pokoloruj',
 	'that cell'                                  => 'tę komórkę',
@@ -206,9 +207,10 @@ return array(
 		=> 'Ukryta kolumna jest dopasowywana po nagłówku, a ukryty wiersz po numerze wiersza. Przestawienie kolumn, zmiana nagłówka lub wstawienie wiersza powyżej przerywa to dopasowanie.',
 	'When a match breaks, the column or row is shown again rather than the wrong one being hidden. A notice in the dashboard names the table, and you can hide it again here.'
 		=> 'Gdy dopasowanie przestaje działać, kolumna lub wiersz wraca na stronę, zamiast ukryć niewłaściwy element. Powiadomienie w kokpicie wskaże tabelę, a ukryć ją można ponownie na tym ekranie.',
-	'Click a heading or a line number to take it out'
-		=> 'Kliknij nagłówek albo numer wiersza, aby to usunąć z tabeli',
-	'Click it again to put it back'              => 'Kliknij ponownie, aby przywrócić',
+	'Click a heading or a line number to hide it'
+		=> 'Kliknij nagłówek albo numer wiersza, aby go ukryć',
+	'Click it again to put it back'
+		=> 'Kliknij ponownie, aby przywrócić',
 	'Click the arrow to move a column under the row instead'
 		=> 'Kliknij strzałkę, aby przenieść kolumnę pod wiersz',
 	'Move “%s” under the row, behind an arrow'   => 'Przenieś „%s” pod wiersz, za strzałkę',
@@ -217,7 +219,8 @@ return array(
 		=> 'Pokazano pierwsze %1$d z %2$d wierszy. Powyżej tej liczby użyj filtra zamiast wybierać wiersze pojedynczo.',
 	'Rows — page %1$s of %2$s (%3$s in all)'     => 'Wiersze — strona %1$s z %2$s (razem %3$s)',
 	'Columns — page %1$s of %2$s (%3$s in all)'  => 'Kolumny — strona %1$s z %2$s (razem %3$s)',
-	'No rows taken out.'                         => 'Nie usunięto żadnego wiersza.',
+	'No rows hidden yet.'
+		=> 'Nie ukryto jeszcze żadnego wiersza.',
 	'not on that line now'                       => 'nie ma tego teraz w tym wierszu',
 	'Line'                                       => 'Wiersz',
 	'Column %s'                                  => 'Kolumna %s',
@@ -228,7 +231,8 @@ return array(
 	'Write'                                      => 'Wpisz',
 
 	// Download and print.
-	'Let visitors take it away'                  => 'Pozwól odwiedzającym pobrać tabelę',
+	'Downloads and printing'
+		=> 'Pobieranie i drukowanie',
 	'Let visitors download or print this table'  => 'Pozwól odwiedzającym pobrać lub wydrukować tę tabelę',
 	'Excel, CSV and Print buttons under the table. A download contains exactly what the visitor sees: the rows left after filtering, and the columns you kept.'
 		=> 'Przyciski Excel, CSV i Drukuj pod tabelą. Pobrany plik zawiera dokładnie to, co widzi odwiedzający: wiersze po filtrowaniu i pozostawione kolumny.',
@@ -246,4 +250,6 @@ return array(
 	// Permissions.
 	'You are not allowed to do that.'            => 'Nie masz uprawnień, aby to zrobić.',
 	'You are not allowed to view this page.'     => 'Nie masz uprawnień, aby zobaczyć tę stronę.',
+	'The numbers down the left are the line numbers in your sheet, so line 1 is the headings.'
+		=> 'Numery po lewej to numery wierszy w Twoim arkuszu, więc wiersz 1 to nagłówki.',
 );

@@ -21,27 +21,27 @@ class LSTAB_Styles {
 		$presets = array(
 			'clean'     => array(
 				'label'       => __( 'Clean', 'live-sheets-table' ),
-				'description' => __( 'Light rules between rows, generous spacing. Inherits your theme fonts.', 'live-sheets-table' ),
+				'description' => __( 'Light lines between rows and generous spacing. Uses your theme\'s fonts.', 'live-sheets-table' ),
 				'pro'         => false,
 			),
 			'striped'   => array(
 				'label'       => __( 'Striped', 'live-sheets-table' ),
-				'description' => __( 'Alternating row tint for scanning long lists.', 'live-sheets-table' ),
+				'description' => __( 'Alternating row shading, which makes a long list easier to follow.', 'live-sheets-table' ),
 				'pro'         => false,
 			),
 			'bordered'  => array(
 				'label'       => __( 'Bordered', 'live-sheets-table' ),
-				'description' => __( 'Full grid with a shaded header. Good for dense numeric data.', 'live-sheets-table' ),
+				'description' => __( 'A full grid with a shaded heading row. Suits dense columns of numbers.', 'live-sheets-table' ),
 				'pro'         => false,
 			),
 			'midnight'  => array(
 				'label'       => __( 'Midnight', 'live-sheets-table' ),
-				'description' => __( 'High-contrast dark preset.', 'live-sheets-table' ),
+				'description' => __( 'A dark table with high contrast.', 'live-sheets-table' ),
 				'pro'         => true,
 			),
 			'editorial' => array(
 				'label'       => __( 'Editorial', 'live-sheets-table' ),
-				'description' => __( 'Serif headings and hairline rules, styled after print tables.', 'live-sheets-table' ),
+				'description' => __( 'Serif headings and very thin lines, in the manner of a printed table.', 'live-sheets-table' ),
 				'pro'         => true,
 			),
 		);

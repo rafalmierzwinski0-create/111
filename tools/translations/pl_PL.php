@@ -44,7 +44,7 @@ return array(
 		=> 'Błąd synchronizacji — odwiedzający wciąż widzą ostatnią poprawną kopię',
 	'Sync error — nothing to show yet'           => 'Błąd synchronizacji — nie ma jeszcze czego pokazać',
 	'Not synced yet'                             => 'Jeszcze nie zsynchronizowano',
-	'Failing since the last good sync %s ago'    => 'Błąd od ostatniej udanej synchronizacji %s temu',
+	'Failing since the last good sync %s ago'    => 'Ostatnia udana synchronizacja %s temu, od tego czasu błędy',
 	'Never synced successfully'                  => 'Nigdy nie zsynchronizowano poprawnie',
 
 	// Editor form.
@@ -59,7 +59,7 @@ return array(
 	'Check Google for changes'                   => 'Sprawdzaj zmiany w Google',
 	'Pro syncs as often as every minute.'        => 'Pro synchronizuje nawet co minutę.',
 	'“%1$s” has not been refreshed for %2$s.'
-		=> 'Arkusz „%1$s” nie był odświeżany od %2$s.',
+		=> 'Arkusz „%1$s” odświeżał się ostatnio %2$s temu.',
 	'In the table'                               => 'W tabeli',
 	'Shown'                                      => 'Widoczna',
 	'Hidden'                                     => 'Ukryta',
@@ -166,19 +166,21 @@ return array(
 
 	// Style presets.
 	'Clean'                                      => 'Czysty',
-	'Light rules between rows, generous spacing. Inherits your theme fonts.'
-		=> 'Delikatne linie między wierszami, sporo przestrzeni. Dziedziczy kroje pisma motywu.',
+	'Light lines between rows and generous spacing. Uses your theme\'s fonts.'
+		=> 'Delikatne linie między wierszami i sporo przestrzeni. Używa krojów pisma z Twojego motywu.',
 	'Striped'                                    => 'Paski',
-	'Alternating row tint for scanning long lists.'
-		=> 'Naprzemienne tło wierszy, ułatwia przeglądanie długich list.',
+	'Alternating row shading, which makes a long list easier to follow.'
+		=> 'Naprzemienne cieniowanie wierszy, które ułatwia śledzenie długiej listy.',
 	'Bordered'                                   => 'Ramki',
-	'Full grid with a shaded header. Good for dense numeric data.'
-		=> 'Pełna siatka z cieniowanym nagłówkiem. Dobre dla gęstych danych liczbowych.',
-	'Midnight'                                   => 'Północ',
-	'High-contrast dark preset.'                 => 'Ciemny preset o wysokim kontraście.',
+	'A full grid with a shaded heading row. Suits dense columns of numbers.'
+		=> 'Pełna siatka z przyciemnionym wierszem nagłówka. Pasuje do gęstych kolumn liczb.',
+	'Midnight'
+		=> 'Nocny',
+	'A dark table with high contrast.'
+		=> 'Ciemna tabela o wysokim kontraście.',
 	'Editorial'                                  => 'Redakcyjny',
-	'Serif headings and hairline rules, styled after print tables.'
-		=> 'Szeryfowe nagłówki i włosowe linie, stylizowane na tabele drukowane.',
+	'Serif headings and very thin lines, in the manner of a printed table.'
+		=> 'Szeryfowe nagłówki i bardzo cienkie linie, jak w tabeli drukowanej.',
 
 	// Usage panel.
 	'Put it on a page'                           => 'Umieść na stronie',
@@ -250,7 +252,6 @@ return array(
 	'Hourly'                                     => 'Co godzinę',
 	'Every 6 hours'                              => 'Co 6 godzin',
 	'Daily'                                      => 'Codziennie',
-	'Every %s'                                   => 'Co %s',
 	'Live Sheets Table: every %s'                => 'Live Sheets Table: co %s',
 
 	// Upsell.
@@ -457,8 +458,8 @@ return array(
 		=> 'Zapisz zmiany',
 	'Name it and set the schedule'
 		=> 'Nazwij i ustaw harmonogram',
-	'Pick a look'
-		=> 'Wybierz wygląd',
+	'Look and behaviour'
+		=> 'Wygląd i zachowanie',
 	'Point at your sheet'
 		=> 'Wskaż swój arkusz',
 	'This is the built-in example'
@@ -535,11 +536,11 @@ return array(
 	'Blocks at every width, including wide screens. Suits profiles and listings rather than figures to compare.'
 		=> 'Bloki przy każdej szerokości, także na szerokich ekranach. Pasuje do profili i ogłoszeń, nie do liczb do porównywania.',
 	'Keep the first column in view'
-		=> 'Trzymaj pierwszą kolumnę na widoku',
+		=> 'Pierwsza kolumna zawsze widoczna',
 	'Useful when the first column names the row. Turn it off if that column holds long text.'
 		=> 'Przydatne, gdy pierwsza kolumna nazywa wiersz. Wyłącz, jeśli zawiera długi tekst.',
 	'Keep the headings in view'
-		=> 'Trzymaj nagłówki na widoku',
+		=> 'Nagłówki zawsze widoczne',
 	'The heading row stays visible while the page scrolls. Turn it off if your theme already pins something to the top of the screen.'
 		=> 'Wiersz nagłówka pozostaje widoczny podczas przewijania strony. Wyłącz, jeśli twój motyw już przypina coś do góry ekranu.',
 	'Turn addresses in cells into links'
@@ -634,9 +635,11 @@ return array(
 
 	// Lengths of time, so a duration is not left in the site's language in the
 	// middle of a sentence this plugin has translated.
-	'%s second'                                  => array( '%s sekunda', '%s sekundy', '%s sekund' ),
-	'%s minute'                                  => array( '%s minuta', '%s minuty', '%s minut' ),
-	'%s hour'                                    => array( '%s godzina', '%s godziny', '%s godzin' ),
+	// Biernik, bo każde zdanie, w które te długości trafiają, rządzi tym
+	// przypadkiem: „co %s”, „za %s”, „%s temu”. Mianownik dawał „za 1 godzina”.
+	'%s second'                                  => array( '%s sekundę', '%s sekundy', '%s sekund' ),
+	'%s minute'                                  => array( '%s minutę', '%s minuty', '%s minut' ),
+	'%s hour'                                    => array( '%s godzinę', '%s godziny', '%s godzin' ),
 	'%s day'                                     => array( '%s dzień', '%s dni', '%s dni' ),
 	'%s week'                                    => array( '%s tydzień', '%s tygodnie', '%s tygodni' ),
 	'%s month'                                   => array( '%s miesiąc', '%s miesiące', '%s miesięcy' ),
@@ -651,4 +654,22 @@ return array(
 	"block keyword\4table"                    => 'tabela',
 	"block keyword\4csv"                      => 'csv',
 	"block keyword\4spreadsheet"              => 'arkusz kalkulacyjny',
+
+	// Colour swatches that name nothing a reader can point at.
+	'Between rows and around cells'              => 'Między wierszami i wokół komórek',
+	'Only used by the Striped style'             => 'Używane tylko w stylu Paski',
+	'When the mouse is over a row'               => 'Gdy myszka jest nad wierszem',
+	'Links, sort arrows and page numbers'        => 'Odnośniki, strzałki sortowania i numery stron',
+
+	// The shortcode's optional attributes, with what each one does.
+	'You can add any of these inside the brackets:'
+		=> 'W nawiasach możesz dopisać dowolne z poniższych:',
+	'Write'                                      => 'Wpisz',
+	'What it does'                               => 'Co robi',
+	'Hide the search box'                        => 'Ukrywa pole wyszukiwania',
+	'Turn off sorting by column'                 => 'Wyłącza sortowanie po kolumnach',
+	'Hide the “updated … ago” line'              => 'Ukrywa wiersz „zaktualizowano … temu”',
+	'Use a different table style'                => 'Ustawia inny styl tabeli',
+	'Put a caption above the table'              => 'Dodaje podpis nad tabelą',
+	'caption="My table"'                        => 'caption="Moja tabela"',
 );

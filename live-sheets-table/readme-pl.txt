@@ -4,7 +4,7 @@ Tags: arkusze google, tabela, arkusz kalkulacyjny, csv, tabela danych
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.19.0
+Stable tag: 3.20.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -139,6 +139,17 @@ Tak. Wszystko z arkusza jest escapowane przy wyjściu, więc komórka zawierają
 == Changelog ==
 
 Pełna historia wydań znajduje się w pliku readme.txt.
+
+= 3.20.0 =
+* Poprawka: polski ekran pisał „za 1 godzina” i „co 1 godzina”. Każde zdanie, w które trafia długość czasu, rządzi biernikiem, a tłumaczenie dawało mianownik; wszystkie siedem jednostek ma teraz formę, której wymaga zdanie.
+* Nowość: opcjonalne atrybuty shortcode’u to dwukolumnowy wykaz — co wpisać i co to robi — zamiast pięciu fragmentów kodu bez wyjaśnień.
+* Nowość: cztery próbki kolorów, których nazwa nie wskazywała niczego w tabeli, mówią teraz, co kolorują. „Akcent” to odnośniki, strzałki sortowania i numery stron.
+* Zmiana: „Wybierz wygląd” to teraz „Wygląd i zachowanie”, bo karta zawiera też paginację i zamianę adresów w komórkach na odnośniki.
+* Zmiana: opisy stylów straciły żargon — zniknęły „włosowe linie”, „preset” i „dziedziczy kroje pisma”.
+* Zmiana: ekran ukrywania kolumn i wierszy mówi wszędzie „ukryj”. Wcześniej pisał „usuń” tuż nad zdaniem obiecującym, że nic nie jest zapisywane w Google.
+* Zmiana: picker wyjaśnia, że numery po lewej to numery wierszy w arkuszu, więc pierwszy wiersz danych z numerem 2 nie jest zagadką.
+* Zmiana: styl Midnight nazywa się po polsku „Nocny”. „Północ” znaczy i midnight, i north, a nic w stylu tabeli nie mówi które.
+* Poprawka: wykazy na obu ekranach czytają się od lewej do prawej. Kolumna ze znaczeniami była wyśrodkowana, odziedziczona po tabeli, w której ostatnia kolumna to pole wyboru.
 
 = 3.19.0 =
 * Poprawka: połowa kokpitu mogła być po polsku, a połowa po angielsku. Złożyły się na to trzy luki: dodatek nie miał w ogóle polskiego tłumaczenia; panel bloku w edytorze nigdy nie dostawał swoich tłumaczeń, bo plik .mo jest niewidoczny dla JavaScriptu; a nazwa i opis bloku pochodzą z block.json, którego WordPress tłumaczy w osobnym kontekście, nigdy dotąd nieeksportowanym. Wszystkie trzy są zamknięte.

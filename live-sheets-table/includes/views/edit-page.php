@@ -206,9 +206,41 @@ if ( ! $lstab_is_edit ) {
 							<span class="lstab-copy-label"><?php esc_html_e( 'Copy', 'live-sheets-table' ); ?></span>
 						</button>
 					</p>
+					<?php
+					/*
+					 * The list used to be five pieces of code and no meanings,
+					 * which is a puzzle rather than a reference: nothing on the
+					 * screen said what meta="no" would do to the page. The same
+					 * two-column shape the add-on uses for its filter words.
+					 */
+					$lstab_attributes = array(
+						'search="no"'        => __( 'Hide the search box', 'live-sheets-table' ),
+						'sort="no"'          => __( 'Turn off sorting by column', 'live-sheets-table' ),
+						'meta="no"'          => __( 'Hide the “updated … ago” line', 'live-sheets-table' ),
+						'style="striped"'    => __( 'Use a different table style', 'live-sheets-table' ),
+						/* translators: the words inside the quotes are an example a reader replaces; keep the caption=" " around them. */
+						__( 'caption="My table"', 'live-sheets-table' ) => __( 'Put a caption above the table', 'live-sheets-table' ),
+					);
+					?>
 					<p class="lstab-help">
-						<?php esc_html_e( 'Optional attributes: search="no", sort="no", meta="no", style="striped", caption="My table".', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'You can add any of these inside the brackets:', 'live-sheets-table' ); ?>
 					</p>
+					<table class="lstab-attribute-list">
+						<thead>
+							<tr>
+								<th scope="col"><?php esc_html_e( 'Write', 'live-sheets-table' ); ?></th>
+								<th scope="col"><?php esc_html_e( 'What it does', 'live-sheets-table' ); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach ( $lstab_attributes as $lstab_attribute => $lstab_meaning ) : ?>
+								<tr>
+									<td><code><?php echo esc_html( $lstab_attribute ); ?></code></td>
+									<td><?php echo esc_html( $lstab_meaning ); ?></td>
+								</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
 				</div>
 			<?php endif; ?>
 
@@ -216,7 +248,7 @@ if ( ! $lstab_is_edit ) {
 
 			<div class="lstab-pane" data-lstab-pane="look" hidden>
 			<div class="lstab-card">
-				<h2 class="lstab-card-title"><?php esc_html_e( 'Pick a look', 'live-sheets-table' ); ?></h2>
+				<h2 class="lstab-card-title"><?php esc_html_e( 'Look and behaviour', 'live-sheets-table' ); ?></h2>
 
 				<?php
 				/*
@@ -383,6 +415,10 @@ if ( ! $lstab_is_edit ) {
 								<label for="lstab-color-<?php echo esc_attr( $lstab_key ); ?>">
 									<?php echo esc_html( $lstab_color['label'] ); ?>
 								</label>
+								<?php if ( ! empty( $lstab_color['note'] ) ) : ?>
+									<?php // "Accent" and "Lines" name nothing a reader can point at; the note says what they paint. ?>
+									<span class="lstab-swatch-note"><?php echo esc_html( $lstab_color['note'] ); ?></span>
+								<?php endif; ?>
 								<div class="lstab-swatch-controls">
 									<input type="color"
 										id="lstab-color-<?php echo esc_attr( $lstab_key ); ?>"

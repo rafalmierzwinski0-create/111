@@ -403,6 +403,51 @@
 .lstab-panel-body .lstab-column-list th:first-child,
 .lstab-panel-body .lstab-column-list td:first-child { inline-size: 8rem; }
 
+/*
+ * The same glossary shape on the source screen, where the shortcode's optional
+ * attributes live. They were a list of code with no meanings beside it, which
+ * is a puzzle rather than a reference.
+ */
+.lstab-attribute-list {
+	inline-size: 100%;
+	margin-block-start: 0.4rem;
+	border-collapse: collapse;
+	font-size: 0.85rem;
+}
+
+/* WordPress's own table styles right-align a second column; a glossary reads
+ * left to right or not at all. */
+.lstab-admin .lstab-attribute-list th,
+.lstab-admin .lstab-attribute-list td {
+	padding: 0.4rem 0.6rem 0.4rem 0;
+	text-align: start;
+	vertical-align: baseline;
+	border-block-end: 1px solid var( --lstab-line );
+}
+
+.lstab-admin .lstab-attribute-list td:first-child,
+.lstab-admin .lstab-attribute-list th:first-child { inline-size: 11rem; }
+
+.lstab-attribute-list th {
+	font-size: 0.72rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var( --lstab-ink-3 );
+}
+
+.lstab-attribute-list td:first-child { white-space: nowrap; }
+
+.lstab-attribute-list code {
+	padding: 0.1rem 0.35rem;
+	font-size: 0.82rem;
+	background: var( --lstab-tint );
+	border-radius: 4px;
+}
+
+.lstab-attribute-list tr:last-child th,
+.lstab-attribute-list tr:last-child td { border-block-end: 0; }
+
 /* A checkbox that reads as a switch, because "off by default" is the point. */
 .lstab-switch {
 	display: inline-flex;
@@ -1756,11 +1801,36 @@
 	margin-bottom: 1.1rem;
 }
 
+/*
+ * Some swatches carry a line saying what they paint and some do not, so the
+ * colour wells would sit at four different heights down the grid. Pushing them
+ * to the bottom of each cell puts them back on one line.
+ */
+.lstab-swatch {
+	display: flex;
+	flex-direction: column;
+}
+
+.lstab-swatch .lstab-swatch-controls { margin-block-start: auto; }
+
 .lstab-swatch label {
 	display: block;
 	margin-bottom: 0.25rem;
 	font-size: 0.86rem;
 	color: #50575e;
+}
+
+/*
+ * "Accent" and "Lines" name nothing a reader can point at on the table in
+ * front of them, so the swatches that need it say what they paint. Quieter
+ * than the label and tight under it, so the pair still reads as one field.
+ */
+.lstab-swatch-note {
+	display: block;
+	margin: -0.15rem 0 0.3rem;
+	font-size: 0.78rem;
+	line-height: 1.35;
+	color: #6b747b;
 }
 
 .lstab-swatch-controls {

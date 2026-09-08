@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.19.0
+Stable tag: 3.20.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,18 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.20.0 =
+* Fixed: a Polish screen said “za 1 godzina” and “co 1 godzina”. Every sentence a duration lands in governs the accusative and the translation gave the nominative; all seven units now take the form the sentence around them needs.
+* Added: the shortcode's optional attributes are a two-column reference — what to write, what it does — instead of five pieces of code with no meanings beside them.
+* Added: the four colour swatches whose name points at nothing on the table now say what they paint. “Accent” turns out to mean links, sort arrows and page numbers, which no reader could have known.
+* Changed: “Pick a look” is now “Look and behaviour”, because the card also holds pagination and what happens to addresses inside cells.
+* Changed: the style descriptions dropped their jargon. “Hairline rules” is “very thin lines”, “high-contrast dark preset” is “a dark table with high contrast”, “inherits your theme fonts” is “uses your theme's fonts”.
+* Changed: the screen for hiding columns and rows says “hide” throughout. It used to say “take out” and “removed” a line above a note promising nothing is written to Google.
+* Changed: the picker says that the numbers down its left are the sheet's own line numbers, so the first row of data being number 2 is not a puzzle.
+* Changed: the value box in a colour rule asks for “the value to match” rather than “what it says”, which named the cell instead of what to type.
+* Changed (Polish): the Midnight style is “Nocny”. “Północ” means both midnight and north, and nothing about a table style says which.
+* Fixed: the reference tables on both screens read left to right. Their meanings column was centred, inherited from a table whose last column is a checkbox.
 
 = 3.19.0 =
 * Fixed: half the dashboard could be in Polish and half in English. Three separate holes did it: the add-on shipped no Polish catalogue at all; the block's own panel in the editor was never handed its translations, because a .mo file is invisible to JavaScript; and the block's name and description come from block.json, which WordPress translates under a context of its own that was never extracted. All three are closed, so the screens agree.

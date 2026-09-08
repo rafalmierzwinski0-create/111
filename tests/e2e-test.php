@@ -2675,6 +2675,23 @@ lstab_assert(
 	LSTAB_Locale::span( 0, 15 * MINUTE_IN_SECONDS )
 );
 
+/*
+ * The case the three above cannot see: in Polish only the feminine singular
+ * changes shape, so "1 tydzień" and "3 minuty" read the same either way while
+ * "1 godzina" is wrong in every sentence the plugin puts it in — "co 1
+ * godzina", "za 1 godzina". Every one of those governs the accusative.
+ */
+lstab_assert(
+	'1 godzinę' === LSTAB_Locale::span( 0, HOUR_IN_SECONDS ),
+	'A single hour takes the case the sentence around it needs',
+	LSTAB_Locale::span( 0, HOUR_IN_SECONDS )
+);
+lstab_assert(
+	'1 minutę' === LSTAB_Locale::span( 0, MINUTE_IN_SECONDS ),
+	'And so does a single minute',
+	LSTAB_Locale::span( 0, MINUTE_IN_SECONDS )
+);
+
 $lstab_settings_now['locale'] = 'en_US';
 LSTAB_Settings::save( $lstab_settings_now );
 

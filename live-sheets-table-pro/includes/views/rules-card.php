@@ -172,7 +172,7 @@ $lstabp_rows    = array_merge(
 					<input type="text" class="lstabp-rule-value"
 						name="lstabp_rules[<?php echo esc_attr( (string) $lstabp_index ); ?>][value]"
 						value="<?php echo esc_attr( $lstabp_rule['value'] ); ?>"
-						placeholder="<?php esc_attr_e( 'what it says', 'live-sheets-table-pro' ); ?>"
+						placeholder="<?php esc_attr_e( 'the value to match', 'live-sheets-table-pro' ); ?>"
 						<?php disabled( $lstabp_waiting ); ?>>
 
 					<span class="lstabp-rule-word lstabp-rule-then"><?php esc_html_e( 'paint', 'live-sheets-table-pro' ); ?></span>

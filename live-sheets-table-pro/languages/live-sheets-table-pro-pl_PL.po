@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
-"POT-Creation-Date: 2026-09-08 09:56+0000\n"
-"PO-Revision-Date: 2026-09-08 09:56+0000\n"
+"POT-Creation-Date: 2026-09-08 11:16+0000\n"
+"PO-Revision-Date: 2026-09-08 11:16+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -88,8 +88,8 @@ msgid "Clear filters — show all %s"
 msgstr "Wyczyść filtry — pokaż wszystkie: %s"
 
 #: includes/views/picker-card.php:45
-msgid "Click a heading or a line number to take it out"
-msgstr "Kliknij nagłówek albo numer wiersza, aby to usunąć z tabeli"
+msgid "Click a heading or a line number to hide it"
+msgstr "Kliknij nagłówek albo numer wiersza, aby go ukryć"
 
 #: includes/views/picker-card.php:21
 msgid "Click a heading to hide that column, or a line number to hide that row. Click again to bring it back. Nothing is written to Google."
@@ -120,7 +120,7 @@ msgid "Colour rules"
 msgstr "Reguły kolorów"
 
 #. translators: %s: column letter, as Google labels it.
-#: includes/views/picker-card.php:63
+#: includes/views/picker-card.php:74
 msgid "Column %s"
 msgstr "Kolumna %s"
 
@@ -173,6 +173,10 @@ msgstr "Pobierz CSV"
 #: includes/class-lstabp-export.php:125
 msgid "Download for Excel"
 msgstr "Pobierz dla Excela"
+
+#: includes/class-lstabp-export.php:295
+msgid "Downloads and printing"
+msgstr "Pobieranie i drukowanie"
 
 #: includes/views/settings-page.php:38
 msgid "Enable the Google Sheets API for it."
@@ -261,11 +265,7 @@ msgstr "Pozwól odwiedzającym pobrać lub wydrukować tę tabelę"
 msgid "Let visitors narrow the table"
 msgstr "Pozwól odwiedzającym zawężać tabelę"
 
-#: includes/class-lstabp-export.php:295
-msgid "Let visitors take it away"
-msgstr "Pozwól odwiedzającym pobrać tabelę"
-
-#: includes/views/picker-card.php:55
+#: includes/views/picker-card.php:66
 msgid "Line"
 msgstr "Wiersz"
 
@@ -290,7 +290,7 @@ msgid "Meaning"
 msgstr "Znaczenie"
 
 #. translators: %s: column name.
-#: includes/views/picker-card.php:88 includes/views/picker-card.php:93
+#: includes/views/picker-card.php:99 includes/views/picker-card.php:104
 msgid "Move “%s” under the row, behind an arrow"
 msgstr "Przenieś „%s” pod wiersz, za strzałkę"
 
@@ -306,9 +306,9 @@ msgstr "Nie połączono żadnego konta Google, więc arkuszy prywatnych nie da s
 msgid "No client saved yet"
 msgstr "Nie zapisano jeszcze klienta"
 
-#: includes/views/picker-card.php:169
-msgid "No rows taken out."
-msgstr "Nie usunięto żadnego wiersza."
+#: includes/views/picker-card.php:180
+msgid "No rows hidden yet."
+msgstr "Nie ukryto jeszcze żadnego wiersza."
 
 #: includes/views/settings-page.php:152
 msgid "No sheet sources yet."
@@ -454,7 +454,7 @@ msgid "Show this row again"
 msgstr "Pokaż ten wiersz ponownie"
 
 #. translators: 1: rows shown here, 2: rows in the sheet.
-#: includes/views/picker-card.php:146
+#: includes/views/picker-card.php:157
 msgid "Showing the first %1$d of %2$d rows. Beyond that, use the filter above rather than picking rows one at a time."
 msgstr "Pokazano pierwsze %1$d z %2$d wierszy. Powyżej tej liczby użyj filtra zamiast wybierać wiersze pojedynczo."
 
@@ -502,6 +502,10 @@ msgstr "Połączone konto"
 #: includes/views/rules-card.php:278
 msgid "The empty line at the bottom is the next rule; save to add another. To remove a rule, set its column back to “remove this rule”."
 msgstr "Pusty wiersz na dole to kolejna reguła; zapisz, aby dodać następną. Aby usunąć regułę, ustaw jej kolumnę z powrotem na „usuń tę regułę”."
+
+#: includes/views/picker-card.php:58
+msgid "The numbers down the left are the line numbers in your sheet, so line 1 is the headings."
+msgstr "Numery po lewej to numery wierszy w Twoim arkuszu, więc wiersz 1 to nagłówki."
 
 #: includes/views/facets-card.php:35 includes/views/rules-card.php:109
 msgid "The sheet has not been read yet, so there are no columns to choose from."
@@ -648,13 +652,13 @@ msgstr "pokoloruj"
 msgid "that cell"
 msgstr "tę komórkę"
 
+#: includes/views/rules-card.php:175
+msgid "the value to match"
+msgstr "szukana wartość"
+
 #: includes/views/rules-card.php:182
 msgid "the whole row"
 msgstr "cały wiersz"
-
-#: includes/views/rules-card.php:175
-msgid "what it says"
-msgstr "co zawiera"
 
 #: includes/views/rules-card.php:140
 msgid "— pick a column —"

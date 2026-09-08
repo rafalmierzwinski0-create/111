@@ -32,7 +32,7 @@ class LSTAB_Customizer {
 	/**
 	 * Editable colour tokens.
 	 *
-	 * @return array<string,array{label:string,var:string,description:string}>
+	 * @return array<string,array{label:string,var:string,note?:string}>
 	 */
 	public static function colors() {
 		return (array) apply_filters(
@@ -56,18 +56,22 @@ class LSTAB_Customizer {
 				),
 				'border'     => array(
 					'label' => __( 'Lines', 'live-sheets-table' ),
+					'note'  => __( 'Between rows and around cells', 'live-sheets-table' ),
 					'var'   => '--lstab-border',
 				),
 				'stripe'     => array(
 					'label' => __( 'Striped rows', 'live-sheets-table' ),
+					'note'  => __( 'Only used by the Striped style', 'live-sheets-table' ),
 					'var'   => '--lstab-stripe',
 				),
 				'hover'      => array(
 					'label' => __( 'Row hover', 'live-sheets-table' ),
+					'note'  => __( 'When the mouse is over a row', 'live-sheets-table' ),
 					'var'   => '--lstab-hover',
 				),
 				'accent'     => array(
 					'label' => __( 'Accent', 'live-sheets-table' ),
+					'note'  => __( 'Links, sort arrows and page numbers', 'live-sheets-table' ),
 					'var'   => '--lstab-accent',
 				),
 			)
