@@ -438,6 +438,22 @@
 
 .lstab-attribute-list td:first-child { white-space: nowrap; }
 
+/*
+ * The words an attribute will accept, under what it does. style="striped" is
+ * no use to somebody who has no way of knowing what else may go in there.
+ */
+.lstab-attribute-values {
+	display: block;
+	margin-block-start: 0.15rem;
+	font-size: 0.78rem;
+	color: var( --lstab-ink-3 );
+}
+
+.lstab-attribute-values code {
+	margin-inline-end: 0.15rem;
+	font-size: 0.76rem;
+}
+
 .lstab-attribute-list code {
 	padding: 0.1rem 0.35rem;
 	font-size: 0.82rem;

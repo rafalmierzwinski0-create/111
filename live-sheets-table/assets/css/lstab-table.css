@@ -586,12 +586,35 @@
 .lstab-scrollbar {
 	display: var(--lstab-slider-display, block);
 	position: sticky;
-	bottom: 0;
+	bottom: 0.5em;
 	z-index: 2;
 	margin-top: 0.7em;
-	padding: 0.5em 0 0.45em;
-	background: linear-gradient(to top, var(--lstab-bg) 65%, transparent);
+	padding: 0.15em 0;
 	touch-action: none;
+	transition: padding 0.12s ease, background-color 0.12s ease;
+}
+
+/*
+ * While the end of the table is still below the window the bar is lying on top
+ * of rows, and a bare track there reads as a stray line drawn across the data.
+ * Floating, it becomes a control of its own: its own paper, its own edge, and
+ * a shadow to say it is above the table rather than part of it. The moment the
+ * end of the table comes into view it settles back into the page and drops all
+ * of that, so nothing is painted over the page's own background.
+ */
+.lstab-scrollbar.is-floating {
+	padding: 0.5em 0.7em;
+	border: 1px solid var(--lstab-border);
+	border-radius: 999px;
+	background-color: var(--lstab-bg);
+	box-shadow: 0 6px 16px -8px var(--lstab-edge-shadow);
+}
+
+/* Zero height: it exists to be watched, not seen. */
+.lstab-scrollbar-end {
+	height: 1px;
+	margin-top: -1px;
+	pointer-events: none;
 }
 
 .lstab-scrollbar[hidden] {

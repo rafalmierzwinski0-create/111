@@ -42,6 +42,45 @@ class LSTABP_Filters {
 		// filter was asked for even with this add-on gone. This says the ask
 		// can now be honoured.
 		add_filter( 'lstab_filter_supported', '__return_true' );
+		// One reference, beside the shortcode it belongs to, rather than a
+		// second nearly-identical list on a screen of the add-on's own.
+		add_filter( 'lstab_shortcode_attributes', array( $this, 'document_filter' ), 10, 2 );
+	}
+
+	/**
+	 * Add the filter attribute to the free plugin's shortcode reference.
+	 *
+	 * @param array $attributes Rows of write/means/values.
+	 * @param array $source     The source being edited.
+	 * @return array
+	 */
+	public function document_filter( $attributes, $source ) {
+		$example = __( 'filter="Column is value"', 'live-sheets-table-pro' );
+
+		// Written against a heading the reader can see, where there is one, so
+		// the example is a line they could paste rather than a shape to copy.
+		if ( ! empty( $source['columns'] ) && is_array( $source['columns'] ) ) {
+			foreach ( $source['columns'] as $column ) {
+				$heading = '';
+
+				if ( is_array( $column ) ) {
+					$heading = ! empty( $column['label'] ) ? $column['label'] : ( isset( $column['heading'] ) ? $column['heading'] : '' );
+				}
+
+				if ( '' !== trim( (string) $heading ) ) {
+					$example = sprintf( 'filter="%s is …"', $heading );
+					break;
+				}
+			}
+		}
+
+		$attributes[] = array(
+			'write' => $example,
+			'means' => __( 'Show only the rows that match, so one sheet can feed several pages', 'live-sheets-table-pro' ),
+			'note'  => __( 'Join conditions with a comma; the words to compare with are listed under Pro settings.', 'live-sheets-table-pro' ),
+		);
+
+		return $attributes;
 	}
 
 	/**

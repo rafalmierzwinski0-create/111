@@ -99,16 +99,22 @@ class LSTABP_Rules {
 	 * @return array<string,string> Hex colour to its name.
 	 */
 	public static function palette() {
+		/*
+		 * A notch deeper than the first set, which was pale enough that a
+		 * coloured cell read as a printing artefact rather than a decision.
+		 * Still light: the ink is chosen against whichever of these is picked,
+		 * so the value stays readable, and a table is not a highlighter pen.
+		 */
 		return array(
-			'#fdecec' => __( 'Red', 'live-sheets-table-pro' ),
-			'#ffe9d6' => __( 'Orange', 'live-sheets-table-pro' ),
-			'#fdf6cf' => __( 'Yellow', 'live-sheets-table-pro' ),
-			'#e9f7ee' => __( 'Green', 'live-sheets-table-pro' ),
-			'#dff2f0' => __( 'Teal', 'live-sheets-table-pro' ),
-			'#e8f1fd' => __( 'Blue', 'live-sheets-table-pro' ),
-			'#eee9fb' => __( 'Purple', 'live-sheets-table-pro' ),
-			'#fce9f1' => __( 'Pink', 'live-sheets-table-pro' ),
-			'#f1f2f4' => __( 'Grey', 'live-sheets-table-pro' ),
+			'#fbd5d5' => __( 'Red', 'live-sheets-table-pro' ),
+			'#fbdcbc' => __( 'Orange', 'live-sheets-table-pro' ),
+			'#f7ecac' => __( 'Yellow', 'live-sheets-table-pro' ),
+			'#cfebd9' => __( 'Green', 'live-sheets-table-pro' ),
+			'#c4e4e1' => __( 'Teal', 'live-sheets-table-pro' ),
+			'#d0e1f8' => __( 'Blue', 'live-sheets-table-pro' ),
+			'#dad0f3' => __( 'Purple', 'live-sheets-table-pro' ),
+			'#f6d2e2' => __( 'Pink', 'live-sheets-table-pro' ),
+			'#e1e5e9' => __( 'Grey', 'live-sheets-table-pro' ),
 		);
 	}
 
@@ -142,18 +148,40 @@ class LSTABP_Rules {
 	 */
 	protected static function legacy() {
 		return array(
-			'red'   => '#fdecec',
-			'amber' => '#ffe9d6',
-			'green' => '#e9f7ee',
-			'blue'  => '#e8f1fd',
-			'grey'  => '#f1f2f4',
+			'red'   => '#fbd5d5',
+			'amber' => '#fbdcbc',
+			'green' => '#cfebd9',
+			'blue'  => '#d0e1f8',
+			'grey'  => '#e1e5e9',
+
+			/*
+			 * The palette's own first set, which was pale enough that a
+			 * coloured cell read as a printing artefact. A rule saved then
+			 * still holds one of these; without this it would come back as a
+			 * colour of its own, off the palette, which is not what anybody
+			 * chose. The colour a page shows barely moves.
+			 */
+			'#fdecec' => '#fbd5d5',
+			'#ffe9d6' => '#fbdcbc',
+			'#fdf6cf' => '#f7ecac',
+			'#e9f7ee' => '#cfebd9',
+			'#dff2f0' => '#c4e4e1',
+			'#e8f1fd' => '#d0e1f8',
+			'#eee9fb' => '#dad0f3',
+			'#fce9f1' => '#f6d2e2',
+			'#f1f2f4' => '#e1e5e9',
 		);
 	}
 
 	/**
 	 * The colour a rule falls back to.
+	 *
+	 * The palette's first entry: a rule with no colour yet is drawn on the
+	 * first swatch, so the row of chips shows one of its own selected rather
+	 * than the wheel at the end, which would say "a colour of your own" about
+	 * a choice nobody has made.
 	 */
-	const DEFAULT_STYLE = '#fdecec';
+	const DEFAULT_STYLE = '#fbd5d5';
 
 	/**
 	 * Every look that can be chosen, named and drawn.

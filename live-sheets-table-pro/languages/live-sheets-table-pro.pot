@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
-"POT-Creation-Date: 2026-09-08 11:16+0000\n"
+"POT-Creation-Date: 2026-09-08 12:15+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -12,19 +12,19 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. translators: 1: how many different values, 2: how many rows hold one.
-#: includes/views/facets-card.php:84
+#: includes/views/facets-card.php:179
 msgid "%1$s different values across %2$s rows, close to one per row. A search box suits this column better."
 msgstr ""
 
 #. translators: 1: how many different values, 2: rows behind each one on
 #. average, 3: the commonest few, already counted.
-#: includes/views/facets-card.php:97
+#: includes/views/facets-card.php:192
 msgid "%1$s different values, about %2$s rows each. A useful filter, but a long list; visitors can type to narrow it. Commonest: %3$s"
 msgstr ""
 
 #. translators: 1: how many different values, 2: the commonest few, already
 #. counted.
-#: includes/views/facets-card.php:105
+#: includes/views/facets-card.php:200
 msgid "%1$s different values: %2$s"
 msgstr ""
 
@@ -33,7 +33,7 @@ msgstr ""
 msgid "%s — not in the sheet any more"
 msgstr ""
 
-#: includes/views/rules-card.php:243 includes/views/rules-card.php:250
+#: includes/views/rules-card.php:247 includes/views/rules-card.php:255
 msgid "A colour of your own"
 msgstr ""
 
@@ -41,15 +41,15 @@ msgstr ""
 msgid "A colour on a cell sits on top of a colour on its row, so “grey row, one red cell” is two rules."
 msgstr ""
 
-#: includes/views/facets-card.php:27
-msgid "A filter shows visitors what a column contains, instead of asking them to guess the words. The counts below come from the copy stored now."
+#: includes/views/settings-page.php:211
+msgid "A filter chooses rows, not columns. Which columns a table shows is decided once for the whole sheet, on its own screen, and every page using that sheet shows the same ones."
 msgstr ""
 
 #: includes/views/picker-card.php:37
 msgid "A hidden column is matched by its heading, a hidden row by its line number. Reordering columns, renaming a heading or inserting a row above breaks that match."
 msgstr ""
 
-#: includes/views/rules-card.php:270
+#: includes/views/rules-card.php:276
 msgid "Abc"
 msgstr ""
 
@@ -61,7 +61,11 @@ msgstr ""
 msgid "Add your Google client ID and secret first."
 msgstr ""
 
-#: includes/class-lstabp-rules.php:124
+#: includes/views/facets-card.php:62
+msgid "Availability"
+msgstr ""
+
+#: includes/class-lstabp-rules.php:130
 msgid "B"
 msgstr ""
 
@@ -73,16 +77,16 @@ msgstr ""
 msgid "Billing is handled in your account, not on this site. Cancelling takes effect at the end of the period you have paid for."
 msgstr ""
 
-#: includes/class-lstabp-rules.php:108
+#: includes/class-lstabp-rules.php:114
 msgid "Blue"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:123
+#: includes/class-lstabp-rules.php:129
 msgid "Bold text"
 msgstr ""
 
 #. translators: %s: how many rows the table holds unfiltered.
-#: includes/class-lstabp-facets.php:486
+#: includes/class-lstabp-facets.php:486 includes/views/facets-card.php:95
 msgid "Clear filters — show all %s"
 msgstr ""
 
@@ -181,24 +185,20 @@ msgstr ""
 msgid "Enable the Google Sheets API for it."
 msgstr ""
 
-#: includes/views/facets-card.php:78
+#: includes/views/facets-card.php:118
+msgid "Every choice has an address of its own, so a filtered table can be sent to somebody as a link. Filters work together with the search box and with pages, over the whole sheet rather than the page on screen."
+msgstr ""
+
+#: includes/views/facets-card.php:173
 msgid "Every row holds the same value, so a filter here would narrow nothing."
 msgstr ""
 
-#: includes/views/facets-card.php:80
+#: includes/views/facets-card.php:175
 msgid "Every row is different, so each choice would leave one row. A search box does this better."
 msgstr ""
 
 #: includes/class-lstabp-export.php:303
 msgid "Excel, CSV and Print buttons under the table. A download contains exactly what the visitor sees: the rows left after filtering, and the columns you kept."
-msgstr ""
-
-#: includes/views/settings-page.php:196
-msgid "Filtered views"
-msgstr ""
-
-#: includes/views/facets-card.php:130
-msgid "Filters appear above the table as menus. Each choice has an address of its own that can be shared, and works together with search and pages across the whole sheet."
 msgstr ""
 
 #: includes/class-lstabp-facets.php:443
@@ -231,11 +231,11 @@ msgstr ""
 msgid "Google rejected the sign-in: %s"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:106
+#: includes/class-lstabp-rules.php:112
 msgid "Green"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:111
+#: includes/class-lstabp-rules.php:117
 msgid "Grey"
 msgstr ""
 
@@ -252,8 +252,16 @@ msgstr ""
 msgid "Hide columns and rows"
 msgstr ""
 
+#: includes/views/facets-card.php:63
+msgid "In stock"
+msgstr ""
+
 #: includes/class-lstabp-picker.php:78
 msgid "In the details"
+msgstr ""
+
+#: includes/class-lstabp-filters.php:80
+msgid "Join conditions with a comma; the words to compare with are listed under Pro settings."
 msgstr ""
 
 #: includes/class-lstabp-export.php:300
@@ -272,7 +280,7 @@ msgstr ""
 msgid "Live Sheets Table Pro needs the free Live Sheets Table plugin to be installed and active. Pro adds to it rather than replacing it."
 msgstr ""
 
-#: includes/views/facets-card.php:36
+#: includes/views/facets-card.php:131
 msgid "Load the preview first. Once the columns are known you can offer filters on them."
 msgstr ""
 
@@ -284,7 +292,7 @@ msgstr ""
 msgid "Manage or cancel subscription"
 msgstr ""
 
-#: includes/views/settings-page.php:214
+#: includes/views/settings-page.php:217
 msgid "Meaning"
 msgstr ""
 
@@ -333,14 +341,6 @@ msgid_plural "%s rules name columns your sheet no longer has."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/views/settings-page.php:203
-msgid "One saved sheet can feed as many pages as you like. Add a filter to the shortcode and each page shows only the rows it needs."
-msgstr ""
-
-#: includes/views/settings-page.php:197
-msgid "One sheet, as many pages as you like"
-msgstr ""
-
 #: includes/views/settings-page.php:112
 msgid "Only read access to spreadsheets is requested; this connection cannot change or delete anything in your Google account. Disconnecting takes effect immediately."
 msgstr ""
@@ -349,15 +349,15 @@ msgstr ""
 msgid "Open Google Cloud Console and create a project."
 msgstr ""
 
-#: includes/class-lstabp-rules.php:104
+#: includes/class-lstabp-rules.php:110
 msgid "Orange"
 msgstr ""
 
-#: includes/views/rules-card.php:257
+#: includes/views/rules-card.php:262
 msgid "Pick a colour of your own"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:110
+#: includes/class-lstabp-rules.php:116
 msgid "Pink"
 msgstr ""
 
@@ -394,7 +394,7 @@ msgstr ""
 msgid "Pro settings"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:109
+#: includes/class-lstabp-rules.php:115
 msgid "Purple"
 msgstr ""
 
@@ -406,7 +406,7 @@ msgstr ""
 msgid "Read through the connected account"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:103
+#: includes/class-lstabp-rules.php:109
 msgid "Red"
 msgstr ""
 
@@ -419,7 +419,7 @@ msgstr ""
 msgid "Rules are read from the top down. If two of them colour the same place, the lower one wins, so put the general rule first."
 msgstr ""
 
-#: includes/class-lstabp-rules.php:129
+#: includes/class-lstabp-rules.php:135
 msgid "S"
 msgstr ""
 
@@ -443,7 +443,11 @@ msgstr ""
 msgid "Sheet source"
 msgstr ""
 
-#: includes/class-lstabp-facets.php:404
+#: includes/class-lstabp-filters.php:79
+msgid "Show only the rows that match, so one sheet can feed several pages"
+msgstr ""
+
+#: includes/class-lstabp-facets.php:404 includes/views/facets-card.php:74
 msgid "Show only:"
 msgstr ""
 
@@ -464,15 +468,15 @@ msgstr ""
 msgid "Sign in to Google"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:128
+#: includes/class-lstabp-rules.php:134
 msgid "Struck through"
 msgstr ""
 
-#: includes/views/facets-card.php:120
+#: includes/views/facets-card.php:215
 msgid "Suits a filter"
 msgstr ""
 
-#: includes/views/settings-page.php:238
+#: includes/views/settings-page.php:241
 msgid "Symbols such as = and > also work, but WordPress strips a “less than” sign from shortcode attributes, so the words above are the safer form."
 msgstr ""
 
@@ -480,7 +484,7 @@ msgstr ""
 msgid "Table"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:107
+#: includes/class-lstabp-rules.php:113
 msgid "Teal"
 msgstr ""
 
@@ -497,24 +501,45 @@ msgstr ""
 msgid "The connected account"
 msgstr ""
 
-#: includes/views/rules-card.php:278
+#: includes/views/facets-card.php:122
+msgid "The counts beside each column below come from the copy the plugin holds now."
+msgstr ""
+
+#: includes/views/rules-card.php:284
 msgid "The empty line at the bottom is the next rule; save to add another. To remove a rule, set its column back to “remove this rule”."
+msgstr ""
+
+#: includes/views/settings-page.php:203
+msgid "The filter attribute is listed with every other one beside the shortcode, on the sheet's own screen. This is what may go inside it."
 msgstr ""
 
 #: includes/views/picker-card.php:58
 msgid "The numbers down the left are the line numbers in your sheet, so line 1 is the headings."
 msgstr ""
 
-#: includes/views/facets-card.php:35 includes/views/rules-card.php:109
+#: includes/views/settings-page.php:197
+msgid "The reference for the filter attribute, one sheet feeding several pages"
+msgstr ""
+
+#: includes/views/facets-card.php:130 includes/views/rules-card.php:109
 msgid "The sheet has not been read yet, so there are no columns to choose from."
 msgstr ""
 
-#: includes/views/facets-card.php:76
+#. translators: 1: rows left after the filter, 2: rows in all.
+#: includes/views/facets-card.php:108
+msgid "The table then shows %1$s of its %2$s rows."
+msgstr ""
+
+#: includes/views/facets-card.php:171
 msgid "This column is empty."
 msgstr ""
 
 #: includes/class-lstabp-export.php:172
 msgid "This download link is not valid."
+msgstr ""
+
+#: includes/views/facets-card.php:70
+msgid "This is what a visitor sees above the table:"
 msgstr ""
 
 #: includes/class-lstabp-xlsx.php:48
@@ -523,6 +548,10 @@ msgstr ""
 
 #: includes/class-lstabp-export.php:168
 msgid "This table cannot be downloaded."
+msgstr ""
+
+#: includes/views/facets-card.php:27
+msgid "Tick a column and a menu of its values appears above the table. A visitor opens the menu, picks a value, and the table keeps only the rows that match."
 msgstr ""
 
 #: includes/views/settings-page.php:155
@@ -557,11 +586,15 @@ msgstr ""
 msgid "Which sheets are private"
 msgstr ""
 
-#: includes/views/settings-page.php:213
+#: includes/views/settings-page.php:196
+msgid "Words a filter understands"
+msgstr ""
+
+#: includes/views/settings-page.php:216
 msgid "Write"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:105
+#: includes/class-lstabp-rules.php:111
 msgid "Yellow"
 msgstr ""
 
@@ -590,51 +623,55 @@ msgstr ""
 msgid "Your subscription"
 msgstr ""
 
-#: includes/class-lstabp-facets.php:424
+#: includes/class-lstabp-facets.php:424 includes/views/facets-card.php:83
 msgid "any"
 msgstr ""
 
-#: includes/views/settings-page.php:222 includes/class-lstabp-rules.php:433
+#: includes/views/settings-page.php:225 includes/class-lstabp-rules.php:439
 msgid "contains"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:431
-msgid "is"
-msgstr ""
-
-#: includes/views/settings-page.php:221
-msgid "is anything but"
-msgstr ""
-
-#: includes/class-lstabp-rules.php:435
-msgid "is at least"
+#: includes/class-lstabp-filters.php:58
+msgid "filter=\"Column is value\""
 msgstr ""
 
 #: includes/class-lstabp-rules.php:437
-msgid "is at most"
-msgstr ""
-
-#: includes/views/settings-page.php:220
-msgid "is exactly"
-msgstr ""
-
-#: includes/views/settings-page.php:223 includes/class-lstabp-rules.php:434
-msgid "is greater than"
+msgid "is"
 msgstr ""
 
 #: includes/views/settings-page.php:224
+msgid "is anything but"
+msgstr ""
+
+#: includes/class-lstabp-rules.php:441
+msgid "is at least"
+msgstr ""
+
+#: includes/class-lstabp-rules.php:443
+msgid "is at most"
+msgstr ""
+
+#: includes/views/settings-page.php:223
+msgid "is exactly"
+msgstr ""
+
+#: includes/views/settings-page.php:226 includes/class-lstabp-rules.php:440
+msgid "is greater than"
+msgstr ""
+
+#: includes/views/settings-page.php:227
 msgid "is greater than or equal to"
 msgstr ""
 
-#: includes/views/settings-page.php:225 includes/class-lstabp-rules.php:436
+#: includes/views/settings-page.php:228 includes/class-lstabp-rules.php:442
 msgid "is less than"
 msgstr ""
 
-#: includes/views/settings-page.php:226
+#: includes/views/settings-page.php:229
 msgid "is less than or equal to"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:432
+#: includes/class-lstabp-rules.php:438
 msgid "is not"
 msgstr ""
 

@@ -193,19 +193,22 @@ defined( 'ABSPATH' ) || exit;
 		<div class="lstab-panel-head">
 			<?php echo LSTAB_Icons::badge( 'sliders', 'teal' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
 			<span>
-				<h2><?php esc_html_e( 'Filtered views', 'live-sheets-table-pro' ); ?></h2>
-				<span class="lstab-panel-sub"><?php esc_html_e( 'One sheet, as many pages as you like', 'live-sheets-table-pro' ); ?></span>
+				<h2><?php esc_html_e( 'Words a filter understands', 'live-sheets-table-pro' ); ?></h2>
+				<span class="lstab-panel-sub"><?php esc_html_e( 'The reference for the filter attribute, one sheet feeding several pages', 'live-sheets-table-pro' ); ?></span>
 			</span>
 		</div>
 
 		<div class="lstab-panel-body">
 		<p class="lstab-help">
-			<?php esc_html_e( 'One saved sheet can feed as many pages as you like. Add a filter to the shortcode and each page shows only the rows it needs.', 'live-sheets-table-pro' ); ?>
+			<?php esc_html_e( 'The filter attribute is listed with every other one beside the shortcode, on the sheet\'s own screen. This is what may go inside it.', 'live-sheets-table-pro' ); ?>
 		</p>
 		<p><code class="lstab-shortcode">[sheet_table id="1" filter="Kategoria is Rowery"]</code></p>
 		<p><code class="lstab-shortcode">[sheet_table id="1" filter="Cena netto lt 500, Dostępność is W magazynie"]</code></p>
 		<p class="lstab-help">
 			<?php esc_html_e( 'Conditions are separated by commas and all must match. Column names match either the heading in your sheet or the name you gave it.', 'live-sheets-table-pro' ); ?>
+		</p>
+		<p class="lstab-help">
+			<?php esc_html_e( 'A filter chooses rows, not columns. Which columns a table shows is decided once for the whole sheet, on its own screen, and every page using that sheet shows the same ones.', 'live-sheets-table-pro' ); ?>
 		</p>
 		<table class="lstab-attribute-list">
 			<thead>

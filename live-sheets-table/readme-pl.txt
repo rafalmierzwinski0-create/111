@@ -4,7 +4,7 @@ Tags: arkusze google, tabela, arkusz kalkulacyjny, csv, tabela danych
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.20.0
+Stable tag: 3.21.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -139,6 +139,15 @@ Tak. Wszystko z arkusza jest escapowane przy wyjściu, więc komórka zawierają
 == Changelog ==
 
 Pełna historia wydań znajduje się w pliku readme.txt.
+
+= 3.21.0 =
+* Poprawka: poziomy suwak wyglądał jak przypadkowa kreska na wierszach, gdy nad nimi wisiał. Teraz staje się tam osobnym elementem — z własnym tłem, obramowaniem i cieniem — i oddaje to wszystko, gdy tylko widać koniec tabeli.
+* Nowość: atrybut, który przyjmuje jedno z ustalonych słów, wypisuje teraz te słowa. style="striped" nic nie mówiło komuś, kto nie mógł wiedzieć, co jeszcze da się tam wpisać.
+* Zmiana: atrybut filter z dodatku jest wymieniony razem z pozostałymi przy shortcode’zie, a nie na osobnym ekranie. W ustawieniach Pro został wykaz tego, co może się w nim znaleźć, i wprost napisane, że filtr wybiera wiersze — o kolumnach decyduje się raz dla całego arkusza.
+* Zmiana: dziewięć kolorów reguł jest o ton głębszych. Poprzednie były tak blade, że pokolorowana komórka wyglądała jak wada druku, a nie jak decyzja. Każdy nadal spełnia próg czytelności tekstu, a reguły zapisane na starej palecie przechodzą na kolor, który je zastąpił.
+* Zmiana: dwa znaczniki, które nie są kolorem, pokazują, co robią — litera w grubości, jaką nada komórce, i litera z przekreśleniem — zamiast „B” i „S” złożonych jak wszystko inne.
+* Poprawka: kółko „własny kolor” otwiera teraz paletę po kliknięciu. Wcześniej stało obok próbnika, więc kliknięcie w nie wybierało „mój kolor”, nie proponując żadnego. Teraz jest jedno kółko i przyjmuje wybrany kolor.
+* Nowość: karta zawężania tabeli pokazuje pasek tak, jak wygląda na stronie — z nagłówkami z Twojego arkusza i liczbą wierszy, jaka zostanie. To pytanie padało najczęściej, a odpowiadało na nie jedno zdanie.
 
 = 3.20.0 =
 * Poprawka: polski ekran pisał „za 1 godzina” i „co 1 godzina”. Każde zdanie, w które trafia długość czasu, rządzi biernikiem, a tłumaczenie dawało mianownik; wszystkie siedem jednostek ma teraz formę, której wymaga zdanie.

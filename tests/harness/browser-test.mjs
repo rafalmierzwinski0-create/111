@@ -935,6 +935,57 @@ const syncResult = await mpage.evaluate( async () => {
 } );
 check( syncResult.valuenow === '0', 'Scrolling the table moves the slider back', JSON.stringify( syncResult ) );
 
+/*
+ * The bar is sticky, so most of the time it is lying on top of rows. Bare, it
+ * reads as a line drawn across the data; it has to become a control of its own
+ * while it floats, and give all of that back when the end of the table arrives.
+ */
+// Short enough that the end of the table cannot be on screen with the top of
+// it, which is the only state where the question arises at all.
+const roomy = mpage.viewportSize();
+await mpage.setViewportSize( { width: roomy.width, height: 320 } );
+await mpage.evaluate( () => {
+	const bar = document.querySelector( '.lstab-style-striped .lstab-scrollbar' );
+	window.scrollTo( 0, window.scrollY + bar.getBoundingClientRect().top - 260 );
+} );
+await mpage.waitForTimeout( 600 );
+const floating = await mpage.evaluate( () => {
+	const bar = document.querySelector( '.lstab-style-striped .lstab-scrollbar' );
+	const seen = getComputedStyle( bar );
+
+	return {
+		floating: bar.classList.contains( 'is-floating' ),
+		background: seen.backgroundColor,
+		shadow: seen.boxShadow,
+	};
+} );
+check( floating.floating, 'The slider knows it is floating over the rows', JSON.stringify( floating ) );
+check(
+	'rgba(0, 0, 0, 0)' !== floating.background && 'none' !== floating.shadow,
+	'And gives itself paper and a shadow so it is not a line lying on the data',
+	JSON.stringify( floating )
+);
+
+await mpage.evaluate( () => window.scrollTo( 0, document.body.scrollHeight ) );
+await mpage.waitForTimeout( 500 );
+const settled = await mpage.evaluate( () => {
+	const bar = document.querySelector( '.lstab-style-striped .lstab-scrollbar' );
+
+	return {
+		floating: bar.classList.contains( 'is-floating' ),
+		background: getComputedStyle( bar ).backgroundColor,
+	};
+} );
+check( ! settled.floating, 'It settles once the end of the table is in view', JSON.stringify( settled ) );
+check(
+	'rgba(0, 0, 0, 0)' === settled.background,
+	'And paints nothing over the page there',
+	JSON.stringify( settled )
+);
+await mpage.setViewportSize( roomy );
+await mpage.evaluate( () => window.scrollTo( 0, 0 ) );
+await mpage.waitForTimeout( 400 );
+
 // Keyboard users need it too.
 const keyboardResult = await mpage.evaluate( async () => {
 	const root = document.querySelector( '.lstab-style-striped' );

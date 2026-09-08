@@ -24,7 +24,105 @@ $lstabp_total   = count( $rows );
 <div class="lstab-card lstabp-facets-card">
 	<h2 class="lstab-card-title"><?php esc_html_e( 'Let visitors narrow the table', 'live-sheets-table-pro' ); ?></h2>
 	<p class="lstab-help">
-		<?php esc_html_e( 'A filter shows visitors what a column contains, instead of asking them to guess the words. The counts below come from the copy stored now.', 'live-sheets-table-pro' ); ?>
+		<?php esc_html_e( 'Tick a column and a menu of its values appears above the table. A visitor opens the menu, picks a value, and the table keeps only the rows that match.', 'live-sheets-table-pro' ); ?>
+	</p>
+
+	<?php
+	/*
+	 * Told in words, this is the feature people asked what it was for. Shown,
+	 * it explains itself in a second: this is the bar, these are the menus,
+	 * this is the count changing. Built from the sheet's own headings where
+	 * there are any, so it is their table rather than an imaginary one.
+	 */
+	$lstabp_demo = array();
+
+	foreach ( $headers as $lstabp_demo_index => $lstabp_demo_head ) {
+		if ( count( $lstabp_demo ) >= 2 ) {
+			break;
+		}
+
+		$lstabp_demo_tally = LSTABP_Facets::tally( $rows, $lstabp_demo_index );
+		$lstabp_demo_kinds = count( $lstabp_demo_tally );
+		$lstabp_demo_each  = $lstabp_demo_kinds > 0 ? array_sum( $lstabp_demo_tally ) / $lstabp_demo_kinds : 0;
+
+		// The same test the badge below uses, so the illustration cannot be
+		// drawn with the very columns the list then advises against.
+		if ( $lstabp_demo_kinds < 2 || $lstabp_demo_each < 2 || $lstabp_demo_kinds > LSTABP_Facets::LONG_MENU ) {
+			continue;
+		}
+
+		arsort( $lstabp_demo_tally );
+
+		$lstabp_demo[] = array(
+			'heading' => (string) $lstabp_demo_head,
+			'value'   => (string) key( $lstabp_demo_tally ),
+			'rows'    => (int) current( $lstabp_demo_tally ),
+		);
+	}
+
+	if ( ! $lstabp_demo ) {
+		$lstabp_demo[] = array(
+			'heading' => __( 'Availability', 'live-sheets-table-pro' ),
+			'value'   => __( 'In stock', 'live-sheets-table-pro' ),
+			'rows'    => 0,
+		);
+	}
+	?>
+	<div class="lstabp-facets-demo">
+		<span class="lstabp-facets-demo-caption">
+			<?php esc_html_e( 'This is what a visitor sees above the table:', 'live-sheets-table-pro' ); ?>
+		</span>
+
+		<span class="lstabp-facets-demo-bar" aria-hidden="true">
+			<span class="lstabp-facets-demo-label"><?php esc_html_e( 'Show only:', 'live-sheets-table-pro' ); ?></span>
+
+			<?php foreach ( $lstabp_demo as $lstabp_demo_at => $lstabp_demo_facet ) : ?>
+				<span class="lstabp-facets-demo-pick<?php echo 0 === $lstabp_demo_at ? ' is-on' : ''; ?>">
+					<b><?php echo esc_html( $lstabp_demo_facet['heading'] ); ?>:</b>
+					<?php
+					echo esc_html(
+						0 === $lstabp_demo_at
+							? $lstabp_demo_facet['value']
+							: __( 'any', 'live-sheets-table-pro' )
+					);
+					?>
+					<span class="lstabp-facets-demo-arrow">▾</span>
+				</span>
+			<?php endforeach; ?>
+
+			<?php if ( $lstabp_demo[0]['rows'] ) : ?>
+				<span class="lstabp-facets-demo-clear">
+					<?php
+					printf(
+						/* translators: %s: how many rows the table holds in all. */
+						esc_html__( 'Clear filters — show all %s', 'live-sheets-table-pro' ),
+						esc_html( number_format_i18n( $lstabp_total ) )
+					);
+					?>
+				</span>
+			<?php endif; ?>
+		</span>
+
+		<?php if ( $lstabp_demo[0]['rows'] ) : ?>
+			<span class="lstabp-facets-demo-rows">
+				<?php
+				printf(
+					/* translators: 1: rows left after the filter, 2: rows in all. */
+					esc_html__( 'The table then shows %1$s of its %2$s rows.', 'live-sheets-table-pro' ),
+					esc_html( number_format_i18n( $lstabp_demo[0]['rows'] ) ),
+					esc_html( number_format_i18n( $lstabp_total ) )
+				);
+				?>
+			</span>
+		<?php endif; ?>
+	</div>
+
+	<p class="lstab-help">
+		<?php esc_html_e( 'Every choice has an address of its own, so a filtered table can be sent to somebody as a link. Filters work together with the search box and with pages, over the whole sheet rather than the page on screen.', 'live-sheets-table-pro' ); ?>
+	</p>
+
+	<p class="lstab-help">
+		<?php esc_html_e( 'The counts beside each column below come from the copy the plugin holds now.', 'live-sheets-table-pro' ); ?>
 	</p>
 
 	<?php if ( $lstabp_waiting ) : ?>
@@ -126,8 +224,5 @@ $lstabp_total   = count( $rows );
 			<?php endforeach; ?>
 		</ul>
 
-		<p class="lstab-help">
-			<?php esc_html_e( 'Filters appear above the table as menus. Each choice has an address of its own that can be shared, and works together with search and pages across the whole sheet.', 'live-sheets-table-pro' ); ?>
-		</p>
 	<?php endif; ?>
 </div>

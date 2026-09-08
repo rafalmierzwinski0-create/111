@@ -247,10 +247,10 @@ check(
 	String( await firstRule.locator( '.lstabp-paint-chip' ).count() )
 );
 
-await firstRule.locator( '.lstabp-paint-chip input[value="#e9f7ee"]' ).check();
+await firstRule.locator( '.lstabp-paint-chip input[value="#cfebd9"]' ).check();
 await page.waitForTimeout( 200 );
 const swatchStyle = await firstRule.locator( '.lstabp-swatch' ).getAttribute( 'style' );
-check( /#e9f7ee/.test( swatchStyle || '' ), 'And repaints itself when the colour changes', String( swatchStyle ) );
+check( /#cfebd9/.test( swatchStyle || '' ), 'And repaints itself when the colour changes', String( swatchStyle ) );
 
 // A colour of somebody's own, which the palette cannot have anticipated. The
 // text colour is worked out here and on the server, and the two have to agree
@@ -406,6 +406,53 @@ await Promise.all( [
 	page.waitForLoadState( 'networkidle' ),
 	page.locator( '.lstab-submit button[type=submit]' ).first().click()
 ] );
+
+section( '5. The wheel that says "a colour of my own"' );
+
+await page.goto( editHref, { waitUntil: 'networkidle' } );
+await page.locator( '[data-lstab-goto="look"]' ).click();
+await page.waitForTimeout( 400 );
+
+const wheel = page.locator( '.lstabp-rule .lstabp-paint-own' ).first();
+const picker = page.locator( '.lstabp-rule .lstabp-own-colour' ).first();
+
+// The two used to sit side by side, and everybody clicked the wheel — which
+// chose "a colour of my own" without ever offering one.
+const over = await page.evaluate( () => {
+	const line = document.querySelector( '.lstabp-rule' );
+	const a = line.querySelector( '.lstabp-own-colour' ).getBoundingClientRect();
+	const b = line.querySelector( '.lstabp-paint-own' ).getBoundingClientRect();
+	return Math.abs( a.x - b.x ) < 3 && Math.abs( a.y - b.y ) < 3 && Math.abs( a.width - b.width ) < 5;
+} );
+check( over, 'The colour picker lies on the wheel rather than beside it' );
+
+check(
+	false === ( await page.locator( '.lstabp-rule .lstabp-style-input[value="custom"]' ).first().isChecked() ),
+	'A rule starts on a palette colour, not on one of its own'
+);
+
+await picker.click( { force: true } );
+await page.waitForTimeout( 300 );
+
+check(
+	true === ( await page.locator( '.lstabp-rule .lstabp-style-input[value="custom"]' ).first().isChecked() ),
+	'Clicking the wheel is itself the choice'
+);
+
+const worn = await wheel.evaluate( ( el ) => el.style.backgroundColor );
+check( '' !== worn, 'And the wheel then wears the colour it stands for', worn );
+
+const swatch = await page.locator( '.lstabp-rule .lstabp-swatch' ).first().getAttribute( 'style' );
+check( /background-color/.test( swatch || '' ), 'The preview beside it follows', swatch || '(none)' );
+
+// Back to a palette colour, so the source is left as the rest of the suite
+// expects to find it.
+await page.locator( '.lstabp-rule .lstabp-paint-chip' ).first().click();
+await page.waitForTimeout( 200 );
+check(
+	'' === ( await wheel.evaluate( ( el ) => el.style.backgroundColor ) ),
+	'Choosing off the palette gives the wheel back'
+);
 
 check( errors.length === 0, 'No script errors anywhere in the run', errors.join( '\n' ) );
 

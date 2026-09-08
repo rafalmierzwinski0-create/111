@@ -409,11 +409,11 @@ update_option(
 );
 
 $ruled = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
-lstabp_assert( false !== strpos( $ruled, 'background-color:#fdecec' ), 'A cell rule colours its cell' );
+lstabp_assert( false !== strpos( $ruled, 'background-color:#fbd5d5' ), 'A cell rule colours its cell' );
 lstabp_assert( false !== strpos( $ruled, 'lstab-ruled' ), 'Styled cells are marked with a class as well' );
 
 // The one "Brak" row, and only it.
-lstabp_assert( 1 === substr_count( $ruled, 'background-color:#fdecec' ), 'Only matching cells are coloured', (string) substr_count( $ruled, 'background-color:#fdecec' ) );
+lstabp_assert( 1 === substr_count( $ruled, 'background-color:#fbd5d5' ), 'Only matching cells are coloured', (string) substr_count( $ruled, 'background-color:#fbd5d5' ) );
 
 // Two rows are over 1000, five columns each.
 lstabp_assert( 10 === substr_count( $ruled, 'font-weight:700' ), 'A row rule reaches every cell in the row', (string) substr_count( $ruled, 'font-weight:700' ) );
@@ -448,18 +448,22 @@ $lstabp_picked = LSTABP_Rules::sanitize(
 	array(
 		array( 'column' => 'Produkt', 'value' => 'a', 'style' => 'custom', 'custom' => '#7C3AED' ),
 		array( 'column' => 'Produkt', 'value' => 'b', 'style' => 'custom', 'custom' => 'javascript:alert(1)' ),
-		array( 'column' => 'Produkt', 'value' => 'c', 'style' => '#e9f7ee' ),
+		array( 'column' => 'Produkt', 'value' => 'c', 'style' => '#cfebd9' ),
 		array( 'column' => 'Produkt', 'value' => 'd', 'style' => 'strike' ),
 		array( 'column' => 'Produkt', 'value' => 'e', 'style' => 'amber' ),
 		array( 'column' => 'Produkt', 'value' => 'f', 'style' => '#fff' ),
+		array( 'column' => 'Produkt', 'value' => 'g', 'style' => '#e9f7ee' ),
 	)
 );
 lstabp_assert( '#7c3aed' === $lstabp_picked[0]['style'], 'A colour of your own is kept, in lower case', $lstabp_picked[0]['style'] );
 lstabp_assert( LSTABP_Rules::DEFAULT_STYLE === $lstabp_picked[1]['style'], 'Anything that is not a colour is not stored as one', $lstabp_picked[1]['style'] );
-lstabp_assert( '#e9f7ee' === $lstabp_picked[2]['style'], 'A palette colour is kept as itself', $lstabp_picked[2]['style'] );
+lstabp_assert( '#cfebd9' === $lstabp_picked[2]['style'], 'A palette colour is kept as itself', $lstabp_picked[2]['style'] );
 lstabp_assert( 'strike' === $lstabp_picked[3]['style'], 'A look that is not a colour survives', $lstabp_picked[3]['style'] );
-lstabp_assert( '#ffe9d6' === $lstabp_picked[4]['style'], 'A colour stored by its old name still means that colour', $lstabp_picked[4]['style'] );
+lstabp_assert( '#fbdcbc' === $lstabp_picked[4]['style'], 'A colour stored by its old name still means that colour', $lstabp_picked[4]['style'] );
 lstabp_assert( '#ffffff' === $lstabp_picked[5]['style'], 'A three-digit colour is written out in full', $lstabp_picked[5]['style'] );
+// A rule saved against the palette's own first, paler set moves to the swatch
+// that replaced it rather than coming back as a colour off the palette.
+lstabp_assert( '#cfebd9' === $lstabp_picked[6]['style'], 'A colour from the first palette moves to the one that replaced it', $lstabp_picked[6]['style'] );
 
 /*
  * Text has to be readable on whatever background somebody picks, including the
@@ -570,7 +574,7 @@ $previewed = LSTAB_Renderer::render_preview(
 	),
 	array( 'source_id' => $source_id )
 );
-lstabp_assert( false !== strpos( $previewed, 'background-color:#fdecec' ), 'The admin preview applies the colour rules' );
+lstabp_assert( false !== strpos( $previewed, 'background-color:#fbd5d5' ), 'The admin preview applies the colour rules' );
 
 $anonymous = LSTAB_Renderer::render_preview(
 	array(
@@ -578,7 +582,7 @@ $anonymous = LSTAB_Renderer::render_preview(
 		'rows'    => array( array( 'Kask', 'Brak' ) ),
 	)
 );
-lstabp_assert( false === strpos( $anonymous, 'background-color:#fdecec' ), 'A preview of no particular source has no rules to apply' );
+lstabp_assert( false === strpos( $anonymous, 'background-color:#fbd5d5' ), 'A preview of no particular source has no rules to apply' );
 
 // A save from a screen that never showed the card must leave the rules alone.
 // The card is disabled until a sheet has been read, and its fields then submit

@@ -210,17 +210,55 @@ if ( ! $lstab_is_edit ) {
 					/*
 					 * The list used to be five pieces of code and no meanings,
 					 * which is a puzzle rather than a reference: nothing on the
-					 * screen said what meta="no" would do to the page. The same
-					 * two-column shape the add-on uses for its filter words.
+					 * screen said what meta="no" would do to the page. Where an
+					 * attribute takes one of a fixed set of words, those words
+					 * are printed too — style="striped" is no use to somebody
+					 * who cannot know what else may go in there.
 					 */
+					$lstab_style_words = array();
+					foreach ( LSTAB_Styles::all() as $lstab_slug => $lstab_preset ) {
+						if ( empty( $lstab_preset['pro'] ) || LSTAB_Limits::is_pro() ) {
+							$lstab_style_words[] = $lstab_slug;
+						}
+					}
+
 					$lstab_attributes = array(
-						'search="no"'        => __( 'Hide the search box', 'live-sheets-table' ),
-						'sort="no"'          => __( 'Turn off sorting by column', 'live-sheets-table' ),
-						'meta="no"'          => __( 'Hide the “updated … ago” line', 'live-sheets-table' ),
-						'style="striped"'    => __( 'Use a different table style', 'live-sheets-table' ),
-						/* translators: the words inside the quotes are an example a reader replaces; keep the caption=" " around them. */
-						__( 'caption="My table"', 'live-sheets-table' ) => __( 'Put a caption above the table', 'live-sheets-table' ),
+						array(
+							'write' => 'search="no"',
+							'means' => __( 'Hide the search box', 'live-sheets-table' ),
+						),
+						array(
+							'write' => 'sort="no"',
+							'means' => __( 'Turn off sorting by column', 'live-sheets-table' ),
+						),
+						array(
+							'write' => 'meta="no"',
+							'means' => __( 'Hide the “updated … ago” line', 'live-sheets-table' ),
+						),
+						array(
+							'write'  => 'style="striped"',
+							'means'  => __( 'Use a table style other than this table\'s own', 'live-sheets-table' ),
+							'values' => $lstab_style_words,
+						),
+						array(
+							/* translators: the words inside the quotes are an example a reader replaces; keep the caption=" " around them. */
+							'write' => __( 'caption="My table"', 'live-sheets-table' ),
+							'means' => __( 'Put a caption above the table', 'live-sheets-table' ),
+						),
 					);
+
+					/**
+					 * Attributes the shortcode understands, for the reference
+					 * on this screen.
+					 *
+					 * The add-on adds its own here rather than documenting them
+					 * on a screen of its own, so there is one list to read and
+					 * it is beside the shortcode it belongs to.
+					 *
+					 * @param array $lstab_attributes Rows of write/means/values.
+					 * @param array $source           The source being edited.
+					 */
+					$lstab_attributes = apply_filters( 'lstab_shortcode_attributes', $lstab_attributes, $source );
 					?>
 					<p class="lstab-help">
 						<?php esc_html_e( 'You can add any of these inside the brackets:', 'live-sheets-table' ); ?>
@@ -233,10 +271,23 @@ if ( ! $lstab_is_edit ) {
 							</tr>
 						</thead>
 						<tbody>
-							<?php foreach ( $lstab_attributes as $lstab_attribute => $lstab_meaning ) : ?>
+							<?php foreach ( $lstab_attributes as $lstab_row ) : ?>
 								<tr>
-									<td><code><?php echo esc_html( $lstab_attribute ); ?></code></td>
-									<td><?php echo esc_html( $lstab_meaning ); ?></td>
+									<td><code><?php echo esc_html( $lstab_row['write'] ); ?></code></td>
+									<td>
+										<?php echo esc_html( $lstab_row['means'] ); ?>
+										<?php if ( ! empty( $lstab_row['values'] ) ) : ?>
+											<span class="lstab-attribute-values">
+												<?php esc_html_e( 'Choose from:', 'live-sheets-table' ); ?>
+												<?php foreach ( $lstab_row['values'] as $lstab_word ) : ?>
+													<code><?php echo esc_html( $lstab_word ); ?></code>
+												<?php endforeach; ?>
+											</span>
+										<?php endif; ?>
+										<?php if ( ! empty( $lstab_row['note'] ) ) : ?>
+											<span class="lstab-attribute-values"><?php echo esc_html( $lstab_row['note'] ); ?></span>
+										<?php endif; ?>
+									</td>
 								</tr>
 							<?php endforeach; ?>
 						</tbody>

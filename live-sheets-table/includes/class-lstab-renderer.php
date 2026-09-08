@@ -677,6 +677,15 @@ class LSTAB_Renderer {
 						aria-valuenow="0"></div>
 				</div>
 			</div>
+			<?php
+			/*
+			 * Watched by the script to tell a floating slider from a settled
+			 * one: while this line is off the bottom of the window, the bar
+			 * above it is lying on top of rows and has to look like a control
+			 * rather than a rule drawn across the data.
+			 */
+			?>
+			<div class="lstab-scrollbar-end" aria-hidden="true"></div>
 
 			<?php if ( $paged && $paging['pages'] > 1 ) : ?>
 				<nav class="lstab-pager" aria-label="<?php esc_attr_e( 'Table pages', 'live-sheets-table' ); ?>">

@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
-"POT-Creation-Date: 2026-09-08 11:16+0000\n"
-"PO-Revision-Date: 2026-09-08 11:16+0000\n"
+"POT-Creation-Date: 2026-09-08 12:15+0000\n"
+"PO-Revision-Date: 2026-09-08 12:15+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -13,19 +13,19 @@ msgstr ""
 "Language: pl_PL\n"
 
 #. translators: 1: how many different values, 2: how many rows hold one.
-#: includes/views/facets-card.php:84
+#: includes/views/facets-card.php:179
 msgid "%1$s different values across %2$s rows, close to one per row. A search box suits this column better."
 msgstr "%1$s różnych wartości w %2$s wierszach, blisko jednej na wiersz. Do tej kolumny lepiej nadaje się wyszukiwarka."
 
 #. translators: 1: how many different values, 2: rows behind each one on
 #. average, 3: the commonest few, already counted.
-#: includes/views/facets-card.php:97
+#: includes/views/facets-card.php:192
 msgid "%1$s different values, about %2$s rows each. A useful filter, but a long list; visitors can type to narrow it. Commonest: %3$s"
 msgstr "%1$s różnych wartości, około %2$s wierszy na każdą. Filtr przydatny, ale lista długa; odwiedzający mogą ją zawężać, pisząc. Najczęstsze: %3$s"
 
 #. translators: 1: how many different values, 2: the commonest few, already
 #. counted.
-#: includes/views/facets-card.php:105
+#: includes/views/facets-card.php:200
 msgid "%1$s different values: %2$s"
 msgstr "%1$s różnych wartości: %2$s"
 
@@ -34,7 +34,7 @@ msgstr "%1$s różnych wartości: %2$s"
 msgid "%s — not in the sheet any more"
 msgstr "%s — już nie ma tego w arkuszu"
 
-#: includes/views/rules-card.php:243 includes/views/rules-card.php:250
+#: includes/views/rules-card.php:247 includes/views/rules-card.php:255
 msgid "A colour of your own"
 msgstr "Własny kolor"
 
@@ -42,15 +42,15 @@ msgstr "Własny kolor"
 msgid "A colour on a cell sits on top of a colour on its row, so “grey row, one red cell” is two rules."
 msgstr "Kolor komórki nakłada się na kolor wiersza, więc „szary wiersz, jedna czerwona komórka” to dwie reguły."
 
-#: includes/views/facets-card.php:27
-msgid "A filter shows visitors what a column contains, instead of asking them to guess the words. The counts below come from the copy stored now."
-msgstr "Filtr pokazuje odwiedzającym, co zawiera kolumna, zamiast kazać im zgadywać słowa. Liczby poniżej pochodzą z aktualnie zapisanej kopii."
+#: includes/views/settings-page.php:211
+msgid "A filter chooses rows, not columns. Which columns a table shows is decided once for the whole sheet, on its own screen, and every page using that sheet shows the same ones."
+msgstr "Filtr wybiera wiersze, nie kolumny. To, które kolumny pokazuje tabela, ustala się raz dla całego arkusza, na jego własnym ekranie, i każda strona używająca tego arkusza pokazuje te same."
 
 #: includes/views/picker-card.php:37
 msgid "A hidden column is matched by its heading, a hidden row by its line number. Reordering columns, renaming a heading or inserting a row above breaks that match."
 msgstr "Ukryta kolumna jest dopasowywana po nagłówku, a ukryty wiersz po numerze wiersza. Przestawienie kolumn, zmiana nagłówka lub wstawienie wiersza powyżej przerywa to dopasowanie."
 
-#: includes/views/rules-card.php:270
+#: includes/views/rules-card.php:276
 msgid "Abc"
 msgstr "Abc"
 
@@ -62,7 +62,11 @@ msgstr "Dodaj dokładnie ten adres jako autoryzowany URI przekierowania:"
 msgid "Add your Google client ID and secret first."
 msgstr "Najpierw podaj identyfikator klienta Google i klucz tajny."
 
-#: includes/class-lstabp-rules.php:124
+#: includes/views/facets-card.php:62
+msgid "Availability"
+msgstr "Dostępność"
+
+#: includes/class-lstabp-rules.php:130
 msgid "B"
 msgstr "B"
 
@@ -74,16 +78,16 @@ msgstr "Płatności i rezygnacja"
 msgid "Billing is handled in your account, not on this site. Cancelling takes effect at the end of the period you have paid for."
 msgstr "Płatnościami zarządzasz na swoim koncie, nie w witrynie. Rezygnacja działa od końca opłaconego okresu."
 
-#: includes/class-lstabp-rules.php:108
+#: includes/class-lstabp-rules.php:114
 msgid "Blue"
 msgstr "Niebieski"
 
-#: includes/class-lstabp-rules.php:123
+#: includes/class-lstabp-rules.php:129
 msgid "Bold text"
 msgstr "Pogrubienie"
 
 #. translators: %s: how many rows the table holds unfiltered.
-#: includes/class-lstabp-facets.php:486
+#: includes/class-lstabp-facets.php:486 includes/views/facets-card.php:95
 msgid "Clear filters — show all %s"
 msgstr "Wyczyść filtry — pokaż wszystkie: %s"
 
@@ -182,25 +186,21 @@ msgstr "Pobieranie i drukowanie"
 msgid "Enable the Google Sheets API for it."
 msgstr "Włącz w nim Google Sheets API."
 
-#: includes/views/facets-card.php:78
+#: includes/views/facets-card.php:118
+msgid "Every choice has an address of its own, so a filtered table can be sent to somebody as a link. Filters work together with the search box and with pages, over the whole sheet rather than the page on screen."
+msgstr "Każdy wybór ma własny adres, więc przefiltrowaną tabelę można komuś wysłać linkiem. Filtry działają razem z wyszukiwarką i stronami, w obrębie całego arkusza, a nie tylko strony na ekranie."
+
+#: includes/views/facets-card.php:173
 msgid "Every row holds the same value, so a filter here would narrow nothing."
 msgstr "Każdy wiersz ma tę samą wartość, więc filtr niczego by tu nie zawęził."
 
-#: includes/views/facets-card.php:80
+#: includes/views/facets-card.php:175
 msgid "Every row is different, so each choice would leave one row. A search box does this better."
 msgstr "Każdy wiersz jest inny, więc każdy wybór zostawiłby jeden wiersz. Lepiej sprawdzi się wyszukiwarka."
 
 #: includes/class-lstabp-export.php:303
 msgid "Excel, CSV and Print buttons under the table. A download contains exactly what the visitor sees: the rows left after filtering, and the columns you kept."
 msgstr "Przyciski Excel, CSV i Drukuj pod tabelą. Pobrany plik zawiera dokładnie to, co widzi odwiedzający: wiersze po filtrowaniu i pozostawione kolumny."
-
-#: includes/views/settings-page.php:196
-msgid "Filtered views"
-msgstr "Widoki filtrowane"
-
-#: includes/views/facets-card.php:130
-msgid "Filters appear above the table as menus. Each choice has an address of its own that can be shared, and works together with search and pages across the whole sheet."
-msgstr "Filtry pojawiają się nad tabelą jako rozwijane menu. Każdy wybór ma własny adres, który można udostępnić, i działa razem z wyszukiwaniem oraz stronami w obrębie całego arkusza."
 
 #: includes/class-lstabp-facets.php:443
 msgid "Find a value"
@@ -232,11 +232,11 @@ msgstr "Google odrzuciło połączenie: %s"
 msgid "Google rejected the sign-in: %s"
 msgstr "Google odrzuciło logowanie: %s"
 
-#: includes/class-lstabp-rules.php:106
+#: includes/class-lstabp-rules.php:112
 msgid "Green"
 msgstr "Zielony"
 
-#: includes/class-lstabp-rules.php:111
+#: includes/class-lstabp-rules.php:117
 msgid "Grey"
 msgstr "Szary"
 
@@ -253,9 +253,17 @@ msgstr "Ukryta"
 msgid "Hide columns and rows"
 msgstr "Ukryj kolumny i wiersze"
 
+#: includes/views/facets-card.php:63
+msgid "In stock"
+msgstr "W magazynie"
+
 #: includes/class-lstabp-picker.php:78
 msgid "In the details"
 msgstr "W szczegółach"
+
+#: includes/class-lstabp-filters.php:80
+msgid "Join conditions with a comma; the words to compare with are listed under Pro settings."
+msgstr "Warunki łączy się przecinkiem; słowa porównań są wypisane w ustawieniach Pro."
 
 #: includes/class-lstabp-export.php:300
 msgid "Let visitors download or print this table"
@@ -273,7 +281,7 @@ msgstr "Wiersz"
 msgid "Live Sheets Table Pro needs the free Live Sheets Table plugin to be installed and active. Pro adds to it rather than replacing it."
 msgstr "Live Sheets Table Pro wymaga zainstalowanej i aktywnej bezpłatnej wtyczki Live Sheets Table. Pro ją rozszerza, a nie zastępuje."
 
-#: includes/views/facets-card.php:36
+#: includes/views/facets-card.php:131
 msgid "Load the preview first. Once the columns are known you can offer filters on them."
 msgstr "Najpierw wczytaj podgląd. Gdy kolumny będą znane, będzie można zaproponować na nich filtry."
 
@@ -285,7 +293,7 @@ msgstr "Najpierw wczytaj podgląd. Gdy kolumny będą znane, będzie można usta
 msgid "Manage or cancel subscription"
 msgstr "Zarządzaj subskrypcją lub zrezygnuj"
 
-#: includes/views/settings-page.php:214
+#: includes/views/settings-page.php:217
 msgid "Meaning"
 msgstr "Znaczenie"
 
@@ -335,14 +343,6 @@ msgstr[0] "Jedna reguła wskazuje kolumnę, której nie ma już w arkuszu."
 msgstr[1] "%s reguły wskazują kolumny, których nie ma już w arkuszu."
 msgstr[2] "%s reguł wskazuje kolumny, których nie ma już w arkuszu."
 
-#: includes/views/settings-page.php:203
-msgid "One saved sheet can feed as many pages as you like. Add a filter to the shortcode and each page shows only the rows it needs."
-msgstr "Jeden zapisany arkusz może zasilać dowolnie wiele stron. Dodaj filtr do shortcode’u, a każda strona pokaże tylko potrzebne wiersze."
-
-#: includes/views/settings-page.php:197
-msgid "One sheet, as many pages as you like"
-msgstr "Jeden arkusz, dowolnie wiele stron"
-
 #: includes/views/settings-page.php:112
 msgid "Only read access to spreadsheets is requested; this connection cannot change or delete anything in your Google account. Disconnecting takes effect immediately."
 msgstr "Wymagany jest wyłącznie dostęp do odczytu arkuszy; to połączenie nie może niczego zmienić ani usunąć na Twoim koncie Google. Rozłączenie działa natychmiast."
@@ -351,15 +351,15 @@ msgstr "Wymagany jest wyłącznie dostęp do odczytu arkuszy; to połączenie ni
 msgid "Open Google Cloud Console and create a project."
 msgstr "Otwórz Google Cloud Console i utwórz projekt."
 
-#: includes/class-lstabp-rules.php:104
+#: includes/class-lstabp-rules.php:110
 msgid "Orange"
 msgstr "Pomarańczowy"
 
-#: includes/views/rules-card.php:257
+#: includes/views/rules-card.php:262
 msgid "Pick a colour of your own"
 msgstr "Wybierz własny kolor"
 
-#: includes/class-lstabp-rules.php:110
+#: includes/class-lstabp-rules.php:116
 msgid "Pink"
 msgstr "Różowy"
 
@@ -396,7 +396,7 @@ msgstr "Pro nie działa w tej witrynie. Ukryte kolumny i wiersze zaczną znów s
 msgid "Pro settings"
 msgstr "Ustawienia Pro"
 
-#: includes/class-lstabp-rules.php:109
+#: includes/class-lstabp-rules.php:115
 msgid "Purple"
 msgstr "Fioletowy"
 
@@ -408,7 +408,7 @@ msgstr "Tylko odczyt — to nigdy niczego nie zmieni w Google"
 msgid "Read through the connected account"
 msgstr "Odczyt przez połączone konto"
 
-#: includes/class-lstabp-rules.php:103
+#: includes/class-lstabp-rules.php:109
 msgid "Red"
 msgstr "Czerwony"
 
@@ -421,7 +421,7 @@ msgstr "Wiersze — strona %1$s z %2$s (razem %3$s)"
 msgid "Rules are read from the top down. If two of them colour the same place, the lower one wins, so put the general rule first."
 msgstr "Reguły są czytane od góry. Jeśli dwie kolorują to samo miejsce, wygrywa niższa, więc regułę ogólną umieść wyżej."
 
-#: includes/class-lstabp-rules.php:129
+#: includes/class-lstabp-rules.php:135
 msgid "S"
 msgstr "S"
 
@@ -445,7 +445,11 @@ msgstr "Ustawienia arkuszy zapisane."
 msgid "Sheet source"
 msgstr "Źródło arkusza"
 
-#: includes/class-lstabp-facets.php:404
+#: includes/class-lstabp-filters.php:79
+msgid "Show only the rows that match, so one sheet can feed several pages"
+msgstr "Pokazuje tylko pasujące wiersze, więc jeden arkusz może zasilać kilka stron"
+
+#: includes/class-lstabp-facets.php:404 includes/views/facets-card.php:74
 msgid "Show only:"
 msgstr "Pokaż tylko:"
 
@@ -466,15 +470,15 @@ msgstr "Widoczna"
 msgid "Sign in to Google"
 msgstr "Zaloguj się do Google"
 
-#: includes/class-lstabp-rules.php:128
+#: includes/class-lstabp-rules.php:134
 msgid "Struck through"
 msgstr "Przekreślenie"
 
-#: includes/views/facets-card.php:120
+#: includes/views/facets-card.php:215
 msgid "Suits a filter"
 msgstr "Nadaje się na filtr"
 
-#: includes/views/settings-page.php:238
+#: includes/views/settings-page.php:241
 msgid "Symbols such as = and > also work, but WordPress strips a “less than” sign from shortcode attributes, so the words above are the safer form."
 msgstr "Symbole takie jak = i > również działają, ale WordPress usuwa znak „mniejszości” z atrybutów shortcode’u, dlatego powyższe słowa są formą bezpieczniejszą."
 
@@ -482,7 +486,7 @@ msgstr "Symbole takie jak = i > również działają, ale WordPress usuwa znak �
 msgid "Table"
 msgstr "Tabela"
 
-#: includes/class-lstabp-rules.php:107
+#: includes/class-lstabp-rules.php:113
 msgid "Teal"
 msgstr "Morski"
 
@@ -499,25 +503,46 @@ msgstr "%1$s najczęstszych spośród %2$s wartości."
 msgid "The connected account"
 msgstr "Połączone konto"
 
-#: includes/views/rules-card.php:278
+#: includes/views/facets-card.php:122
+msgid "The counts beside each column below come from the copy the plugin holds now."
+msgstr "Liczby przy kolumnach poniżej pochodzą z kopii, którą wtyczka ma teraz."
+
+#: includes/views/rules-card.php:284
 msgid "The empty line at the bottom is the next rule; save to add another. To remove a rule, set its column back to “remove this rule”."
 msgstr "Pusty wiersz na dole to kolejna reguła; zapisz, aby dodać następną. Aby usunąć regułę, ustaw jej kolumnę z powrotem na „usuń tę regułę”."
+
+#: includes/views/settings-page.php:203
+msgid "The filter attribute is listed with every other one beside the shortcode, on the sheet's own screen. This is what may go inside it."
+msgstr "Atrybut filter jest wymieniony razem z pozostałymi przy shortcode’zie, na ekranie danego arkusza. Tutaj jest to, co może się w nim znaleźć."
 
 #: includes/views/picker-card.php:58
 msgid "The numbers down the left are the line numbers in your sheet, so line 1 is the headings."
 msgstr "Numery po lewej to numery wierszy w Twoim arkuszu, więc wiersz 1 to nagłówki."
 
-#: includes/views/facets-card.php:35 includes/views/rules-card.php:109
+#: includes/views/settings-page.php:197
+msgid "The reference for the filter attribute, one sheet feeding several pages"
+msgstr "Wykaz do atrybutu filter — jeden arkusz zasilający kilka stron"
+
+#: includes/views/facets-card.php:130 includes/views/rules-card.php:109
 msgid "The sheet has not been read yet, so there are no columns to choose from."
 msgstr "Arkusz nie został jeszcze odczytany, więc nie ma jeszcze kolumn do wyboru."
 
-#: includes/views/facets-card.php:76
+#. translators: 1: rows left after the filter, 2: rows in all.
+#: includes/views/facets-card.php:108
+msgid "The table then shows %1$s of its %2$s rows."
+msgstr "Tabela pokazuje wtedy %1$s z %2$s wierszy."
+
+#: includes/views/facets-card.php:171
 msgid "This column is empty."
 msgstr "Ta kolumna jest pusta."
 
 #: includes/class-lstabp-export.php:172
 msgid "This download link is not valid."
 msgstr "Ten link do pobrania jest nieprawidłowy."
+
+#: includes/views/facets-card.php:70
+msgid "This is what a visitor sees above the table:"
+msgstr "Tak to widzi odwiedzający nad tabelą:"
 
 #: includes/class-lstabp-xlsx.php:48
 msgid "This server cannot build Excel files."
@@ -526,6 +551,10 @@ msgstr "Ten serwer nie potrafi tworzyć plików Excela."
 #: includes/class-lstabp-export.php:168
 msgid "This table cannot be downloaded."
 msgstr "Tej tabeli nie można pobrać."
+
+#: includes/views/facets-card.php:27
+msgid "Tick a column and a menu of its values appears above the table. A visitor opens the menu, picks a value, and the table keeps only the rows that match."
+msgstr "Zaznacz kolumnę, a nad tabelą pojawi się menu z jej wartościami. Odwiedzający otwiera menu, wybiera wartość, a tabela zostawia tylko pasujące wiersze."
 
 #: includes/views/settings-page.php:155
 msgid "Tick a sheet to read it through the connected account instead of its public link. You can then turn off link sharing in Google."
@@ -559,11 +588,15 @@ msgstr "Gdy dopasowanie przestaje działać, kolumna lub wiersz wraca na stronę
 msgid "Which sheets are private"
 msgstr "Które arkusze są prywatne"
 
-#: includes/views/settings-page.php:213
+#: includes/views/settings-page.php:196
+msgid "Words a filter understands"
+msgstr "Słowa, które rozumie filtr"
+
+#: includes/views/settings-page.php:216
 msgid "Write"
 msgstr "Wpisz"
 
-#: includes/class-lstabp-rules.php:105
+#: includes/class-lstabp-rules.php:111
 msgid "Yellow"
 msgstr "Żółty"
 
@@ -592,51 +625,55 @@ msgstr "Własne dane logowania, więc Twoje arkusze nigdy nie są odczytywane pr
 msgid "Your subscription"
 msgstr "Twoja subskrypcja"
 
-#: includes/class-lstabp-facets.php:424
+#: includes/class-lstabp-facets.php:424 includes/views/facets-card.php:83
 msgid "any"
 msgstr "dowolne"
 
-#: includes/views/settings-page.php:222 includes/class-lstabp-rules.php:433
+#: includes/views/settings-page.php:225 includes/class-lstabp-rules.php:439
 msgid "contains"
 msgstr "zawiera"
 
-#: includes/class-lstabp-rules.php:431
+#: includes/class-lstabp-filters.php:58
+msgid "filter=\"Column is value\""
+msgstr "filter=\"Kolumna is wartość\""
+
+#: includes/class-lstabp-rules.php:437
 msgid "is"
 msgstr "jest"
 
-#: includes/views/settings-page.php:221
+#: includes/views/settings-page.php:224
 msgid "is anything but"
 msgstr "jest czymkolwiek poza"
 
-#: includes/class-lstabp-rules.php:435
+#: includes/class-lstabp-rules.php:441
 msgid "is at least"
 msgstr "jest co najmniej"
 
-#: includes/class-lstabp-rules.php:437
+#: includes/class-lstabp-rules.php:443
 msgid "is at most"
 msgstr "jest najwyżej"
 
-#: includes/views/settings-page.php:220
+#: includes/views/settings-page.php:223
 msgid "is exactly"
 msgstr "jest dokładnie"
 
-#: includes/views/settings-page.php:223 includes/class-lstabp-rules.php:434
+#: includes/views/settings-page.php:226 includes/class-lstabp-rules.php:440
 msgid "is greater than"
 msgstr "jest większe niż"
 
-#: includes/views/settings-page.php:224
+#: includes/views/settings-page.php:227
 msgid "is greater than or equal to"
 msgstr "jest większe lub równe"
 
-#: includes/views/settings-page.php:225 includes/class-lstabp-rules.php:436
+#: includes/views/settings-page.php:228 includes/class-lstabp-rules.php:442
 msgid "is less than"
 msgstr "jest mniejsze niż"
 
-#: includes/views/settings-page.php:226
+#: includes/views/settings-page.php:229
 msgid "is less than or equal to"
 msgstr "jest mniejsze lub równe"
 
-#: includes/class-lstabp-rules.php:432
+#: includes/class-lstabp-rules.php:438
 msgid "is not"
 msgstr "nie jest"
 

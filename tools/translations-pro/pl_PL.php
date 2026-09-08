@@ -252,4 +252,32 @@ return array(
 	'You are not allowed to view this page.'     => 'Nie masz uprawnień, aby zobaczyć tę stronę.',
 	'The numbers down the left are the line numbers in your sheet, so line 1 is the headings.'
 		=> 'Numery po lewej to numery wierszy w Twoim arkuszu, więc wiersz 1 to nagłówki.',
+	'Words a filter understands'
+		=> 'Słowa, które rozumie filtr',
+	'The reference for the filter attribute, one sheet feeding several pages'
+		=> 'Wykaz do atrybutu filter — jeden arkusz zasilający kilka stron',
+	'The filter attribute is listed with every other one beside the shortcode, on the sheet\'s own screen. This is what may go inside it.'
+		=> 'Atrybut filter jest wymieniony razem z pozostałymi przy shortcode’zie, na ekranie danego arkusza. Tutaj jest to, co może się w nim znaleźć.',
+	'A filter chooses rows, not columns. Which columns a table shows is decided once for the whole sheet, on its own screen, and every page using that sheet shows the same ones.'
+		=> 'Filtr wybiera wiersze, nie kolumny. To, które kolumny pokazuje tabela, ustala się raz dla całego arkusza, na jego własnym ekranie, i każda strona używająca tego arkusza pokazuje te same.',
+	'filter="Column is value"'
+		=> 'filter="Kolumna is wartość"',
+	'Show only the rows that match, so one sheet can feed several pages'
+		=> 'Pokazuje tylko pasujące wiersze, więc jeden arkusz może zasilać kilka stron',
+	'Join conditions with a comma; the words to compare with are listed under Pro settings.'
+		=> 'Warunki łączy się przecinkiem; słowa porównań są wypisane w ustawieniach Pro.',
+	'Tick a column and a menu of its values appears above the table. A visitor opens the menu, picks a value, and the table keeps only the rows that match.'
+		=> 'Zaznacz kolumnę, a nad tabelą pojawi się menu z jej wartościami. Odwiedzający otwiera menu, wybiera wartość, a tabela zostawia tylko pasujące wiersze.',
+	'This is what a visitor sees above the table:'
+		=> 'Tak to widzi odwiedzający nad tabelą:',
+	'The table then shows %1$s of its %2$s rows.'
+		=> 'Tabela pokazuje wtedy %1$s z %2$s wierszy.',
+	'Every choice has an address of its own, so a filtered table can be sent to somebody as a link. Filters work together with the search box and with pages, over the whole sheet rather than the page on screen.'
+		=> 'Każdy wybór ma własny adres, więc przefiltrowaną tabelę można komuś wysłać linkiem. Filtry działają razem z wyszukiwarką i stronami, w obrębie całego arkusza, a nie tylko strony na ekranie.',
+	'The counts beside each column below come from the copy the plugin holds now.'
+		=> 'Liczby przy kolumnach poniżej pochodzą z kopii, którą wtyczka ma teraz.',
+	'Availability'
+		=> 'Dostępność',
+	'In stock'
+		=> 'W magazynie',
 );

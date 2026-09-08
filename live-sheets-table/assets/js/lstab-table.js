@@ -358,6 +358,46 @@
 			sync();
 		}
 
+		/*
+		 * A sticky element cannot tell CSS whether it is currently stuck, and
+		 * the two states want to look different: floating over rows it needs
+		 * its own paper and edge, settled under the table it should disappear
+		 * into the page. The line after the bar answers it — while that line
+		 * is below the window, the bar is floating.
+		 *
+		 * Measured on scroll rather than watched with an IntersectionObserver:
+		 * an observer reports threshold crossings, and a jump straight to the
+		 * foot of the page takes the line from below the window to above it
+		 * without ever crossing, so the bar stayed dressed for a float it was
+		 * no longer doing.
+		 */
+		var end = root.querySelector( '.lstab-scrollbar-end' );
+
+		if ( end ) {
+			var pending = false;
+
+			var readFloat = function () {
+				pending = false;
+				bar.classList.toggle(
+					'is-floating',
+					! bar.hidden && end.getBoundingClientRect().top > window.innerHeight
+				);
+			};
+
+			var queueFloat = function () {
+				if ( pending ) {
+					return;
+				}
+
+				pending = true;
+				window.requestAnimationFrame( readFloat );
+			};
+
+			window.addEventListener( 'scroll', queueFloat, { passive: true } );
+			window.addEventListener( 'resize', queueFloat, { passive: true } );
+			readFloat();
+		}
+
 		// Scrolling cannot change what fits, so it only moves the thumb.
 		scroller.addEventListener( 'scroll', sync, { passive: true } );
 

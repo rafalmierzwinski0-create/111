@@ -231,31 +231,37 @@ $lstabp_rows    = array_merge(
 
 						<?php
 						/*
-						 * Two circles, not one: the left says "a colour of my
-						 * own" and the right is the colour. They have to be
-						 * separate,
-						 * because a browser does not forward a click on a
-						 * colour picker to the radio button wrapping it — so a
-						 * single combined chip would either choose without
-						 * letting you pick or pick without being chosen.
+						 * One circle, not two. The picker used to sit beside
+						 * the wheel because a browser does not forward a click
+						 * on a colour input to a radio wrapping it — so people
+						 * clicked the wheel, which chose "my own colour"
+						 * without ever offering one. The colour input lies on
+						 * top of the wheel at nothing per cent instead: the
+						 * click lands on it, the browser opens its picker, and
+						 * the script ticks the radio underneath.
 						 */
+						$lstabp_own_face = '' !== $lstabp_owncol ? $lstabp_owncol : '';
 						?>
-					<label class="lstabp-paint-chip lstabp-paint-own" title="<?php esc_attr_e( 'A colour of your own', 'live-sheets-table-pro' ); ?>">
-						<input type="radio"
-							class="lstabp-style-input"
-							name="<?php echo esc_attr( $lstabp_field ); ?>[style]"
-							value="custom"
-							<?php checked( '' !== $lstabp_owncol ); ?>
-							<?php disabled( $lstabp_waiting ); ?>>
-						<span class="screen-reader-text"><?php esc_html_e( 'A colour of your own', 'live-sheets-table-pro' ); ?></span>
-					</label>
+					<span class="lstabp-paint-own-wrap<?php echo '' !== $lstabp_own_face ? ' has-colour' : ''; ?>">
+						<label class="lstabp-paint-chip lstabp-paint-own"
+							title="<?php esc_attr_e( 'A colour of your own', 'live-sheets-table-pro' ); ?>"
+							<?php echo '' !== $lstabp_own_face ? 'style="background-image: none; background-color: ' . esc_attr( $lstabp_own_face ) . ';"' : ''; ?>>
+							<input type="radio"
+								class="lstabp-style-input"
+								name="<?php echo esc_attr( $lstabp_field ); ?>[style]"
+								value="custom"
+								<?php checked( '' !== $lstabp_owncol ); ?>
+								<?php disabled( $lstabp_waiting ); ?>>
+							<span class="screen-reader-text"><?php esc_html_e( 'A colour of your own', 'live-sheets-table-pro' ); ?></span>
+						</label>
 
-					<input type="color"
-						class="lstabp-own-colour"
-						name="<?php echo esc_attr( $lstabp_field ); ?>[custom]"
-						value="<?php echo esc_attr( '' !== $lstabp_owncol ? $lstabp_owncol : '#c7e0f4' ); ?>"
-						aria-label="<?php esc_attr_e( 'Pick a colour of your own', 'live-sheets-table-pro' ); ?>"
-						<?php disabled( $lstabp_waiting ); ?>>
+						<input type="color"
+							class="lstabp-own-colour"
+							name="<?php echo esc_attr( $lstabp_field ); ?>[custom]"
+							value="<?php echo esc_attr( '' !== $lstabp_owncol ? $lstabp_owncol : '#c7e0f4' ); ?>"
+							aria-label="<?php esc_attr_e( 'Pick a colour of your own', 'live-sheets-table-pro' ); ?>"
+							<?php disabled( $lstabp_waiting ); ?>>
+					</span>
 					</span>
 
 					<?php

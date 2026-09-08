@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.20.0
+Stable tag: 3.21.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,15 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.21.0 =
+* Fixed: the sideways slider looked like a stray line drawn across the rows while it floated over them. It becomes a control of its own there — its own paper, edge and shadow — and gives all of that back the moment the end of the table comes into view, so nothing is painted over the page.
+* Added: an attribute that takes one of a fixed set of words now prints those words. style="striped" was no use to anybody who had no way of knowing what else could go in there.
+* Changed: the add-on's filter attribute is listed with all the others beside the shortcode, instead of on a screen of its own. What is left under Pro settings is the reference for what may go inside it, and it says plainly that a filter chooses rows — which columns a table shows is settled once for the whole sheet.
+* Changed: the nine colours a rule can paint with are a notch deeper. The first set was pale enough that a coloured cell read as a printing artefact rather than a decision; every one still clears the readability bar for the text on it, and rules saved against the old set move to the colour that replaced it.
+* Changed: the two chips that are not a colour show what they do — a letter in the weight it would give the cell, and a letter with the line through it — instead of a "B" and an "S" set like everything else.
+* Fixed: the wheel that says "a colour of your own" now opens the colour picker when it is clicked. It used to sit beside the picker, so clicking it chose "my own colour" without ever offering one; there is one circle now, and it wears the colour once one is picked.
+* Added: the card for letting visitors narrow a table shows the bar as it appears on the page, drawn from the sheet's own headings, with the row count it would leave. It is the question people asked about most and a sentence was answering it slowly.
 
 = 3.20.0 =
 * Fixed: a Polish screen said “za 1 godzina” and “co 1 godzina”. Every sentence a duration lands in governs the accusative and the translation gave the nominative; all seven units now take the form the sentence around them needs.

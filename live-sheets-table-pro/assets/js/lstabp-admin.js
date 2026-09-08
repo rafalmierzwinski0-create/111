@@ -226,6 +226,23 @@
 		// Written as a whole rather than tweaked property by property, so a
 		// look that sets no background clears the previous one's.
 		swatch.setAttribute( 'style', chosen ? cssFor( chosen.value, line ) : '' );
+
+		/*
+		 * The wheel wears the colour it stands for once one has been picked,
+		 * so the row of chips shows which is the custom one at a glance. It
+		 * goes back to the wheel when a palette colour is chosen instead.
+		 */
+		var wheel = line ? line.querySelector( '.lstabp-paint-own' ) : null;
+		var own = line ? line.querySelector( '.lstabp-own-colour' ) : null;
+		var wrap = line ? line.querySelector( '.lstabp-paint-own-wrap' ) : null;
+
+		if ( wheel && own && wrap ) {
+			var mine = chosen && 'custom' === chosen.value;
+
+			wrap.classList.toggle( 'has-colour', !! mine );
+			wheel.style.backgroundImage = mine ? 'none' : '';
+			wheel.style.backgroundColor = mine ? own.value : '';
+		}
 	}
 
 	/**
@@ -329,6 +346,12 @@
 					paint( picker );
 				};
 
+				/*
+				 * The picker lies on top of the wheel, so a click on it is a
+				 * click on the wheel: the choice is made whether or not the
+				 * dialogue that opens is then cancelled.
+				 */
+				picker.addEventListener( 'click', choose );
 				picker.addEventListener( 'input', choose );
 				picker.addEventListener( 'change', choose );
 			}

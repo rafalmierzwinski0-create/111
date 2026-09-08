@@ -672,4 +672,8 @@ return array(
 	'Use a different table style'                => 'Ustawia inny styl tabeli',
 	'Put a caption above the table'              => 'Dodaje podpis nad tabelą',
 	'caption="My table"'                        => 'caption="Moja tabela"',
+	'Choose from:'
+		=> 'Do wyboru:',
+	'Use a table style other than this table\'s own'
+		=> 'Ustawia inny styl niż własny styl tej tabeli',
 );

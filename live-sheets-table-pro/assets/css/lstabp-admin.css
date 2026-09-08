@@ -90,37 +90,71 @@
 	box-shadow: 0 0 0 2px #fff, 0 0 0 4px var( --lstab-a-deep, #0a5a54 );
 }
 
+/*
+ * The two chips that are not a colour show what they do rather than name it: a
+ * letter in the weight it would give the cell, and a letter with the line drawn
+ * through it. A "B" set in the same weight as everything else is a letter, not
+ * a promise.
+ */
+.lstabp-paint-effect-bold span[aria-hidden],
 .lstabp-paint-effect-strike span[aria-hidden] {
-	text-decoration: line-through;
+	font-size: 0.86rem;
+	color: #1d2327;
 }
 
-/* The circle that says "a colour of your own", showing the one chosen. */
+.lstabp-paint-effect-bold span[aria-hidden] {
+	font-weight: 900;
+	letter-spacing: -0.02em;
+}
+
+.lstabp-paint-effect-strike span[aria-hidden] {
+	font-weight: 500;
+	text-decoration: line-through;
+	text-decoration-thickness: 2px;
+	text-decoration-color: #1d2327;
+}
+
+/*
+ * One circle for "a colour of your own": the wheel, with the chosen colour
+ * painted over it once there is one. The colour input lies on top of it at
+ * nothing per cent, so clicking the wheel opens the browser's picker — which
+ * is what everybody tried to do with the two-circle version.
+ */
+.lstabp-paint-own-wrap {
+	position: relative;
+	display: inline-flex;
+	flex: none;
+}
+
 .lstabp-paint-own {
-	background-image: conic-gradient( #f4b8b8, #f7dfb4, #f3f0b0, #b8e6c6, #b6dfe0, #bcd2f4, #d5c8f2, #f2c4da, #f4b8b8 );
+	background-image: conic-gradient( #ef8f8f, #f2c98a, #eee78a, #8ed6a8, #8ccbc9, #94b8ef, #b8a6ea, #eaa1c2, #ef8f8f );
 	background-blend-mode: normal;
 }
 
-/* The picker beside it, made round to match. */
 .lstabp-own-colour {
-	inline-size: 1.35rem;
-	block-size: 1.35rem;
+	position: absolute;
+	inset: 0;
+	inline-size: 100%;
+	block-size: 100%;
+	margin: 0;
 	padding: 0;
-	border: 1px solid rgba( 16, 24, 24, 0.16 );
+	border: 0;
 	border-radius: 50%;
 	background: none;
+	opacity: 0;
 	cursor: pointer;
-	overflow: hidden;
-	flex: none;
+	z-index: 2;
 	appearance: none;
 	-webkit-appearance: none;
 }
 
-.lstabp-own-colour::-webkit-color-swatch-wrapper { padding: 0; }
-.lstabp-own-colour::-webkit-color-swatch { border: 0; border-radius: 50%; }
-.lstabp-own-colour::-moz-color-swatch { border: 0; border-radius: 50%; }
+/* The wheel grows with the chip under it, so the pair still reads as one. */
+.lstabp-paint-own-wrap:hover .lstabp-paint-own {
+	transform: scale( 1.12 );
+}
 
-.lstabp-rules-card.is-waiting .lstabp-paint,
-.lstabp-rules-card.is-waiting .lstabp-own-colour {
+/* The colour input is invisible on purpose now, so it is not dimmed twice. */
+.lstabp-rules-card.is-waiting .lstabp-paint {
 	opacity: 0.5;
 	pointer-events: none;
 }
@@ -315,4 +349,77 @@
 .lstabp-facet-pick.is-suited {
 	border-color: #c6ded9;
 	background: #fbfdfc;
+}
+
+/*
+ * A picture of the filter bar as it appears on the page. People asked what the
+ * feature was for; a sentence answered it slowly and this answers it at a
+ * glance. Deliberately flat and unclickable — it is an illustration, not a
+ * control that has stopped working.
+ */
+.lstabp-facets-demo {
+	display: block;
+	margin: 0.2rem 0 0.9rem;
+	padding: 0.75rem 0.9rem 0.8rem;
+	border: 1px dashed var( --lstab-line, #dbe5e3 );
+	border-radius: 10px;
+	background: var( --lstab-tint, #f9fcfb );
+}
+
+.lstabp-facets-demo-caption {
+	display: block;
+	margin-block-end: 0.55rem;
+	font-size: 0.76rem;
+	font-weight: 600;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
+	color: var( --lstab-ink-3, #7b8a88 );
+}
+
+.lstabp-facets-demo-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.4rem;
+	font-size: 0.85rem;
+	color: #1d2327;
+}
+
+.lstabp-facets-demo-label {
+	color: #50575e;
+}
+
+.lstabp-facets-demo-pick {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	padding: 0.25rem 0.6rem;
+	border: 1px solid #cdd5db;
+	border-radius: 999px;
+	background: #fff;
+}
+
+.lstabp-facets-demo-pick.is-on {
+	border-color: var( --lstab-a, #0e7c74 );
+	box-shadow: inset 0 0 0 1px var( --lstab-a, #0e7c74 );
+}
+
+.lstabp-facets-demo-arrow {
+	font-size: 0.7em;
+	color: #7b8a88;
+}
+
+.lstabp-facets-demo-clear {
+	padding: 0.25rem 0.5rem;
+	font-size: 0.8rem;
+	color: var( --lstab-a, #0e7c74 );
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.lstabp-facets-demo-rows {
+	display: block;
+	margin-block-start: 0.55rem;
+	font-size: 0.82rem;
+	color: #50575e;
 }
