@@ -81,6 +81,12 @@ const pane = async ( name ) => {
 const browser = await chromium.launch( { executablePath: CHROMIUM, args: [ '--no-sandbox' ] } );
 const context = await browser.newContext( { viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 2, locale: 'pl-PL' } );
 
+// Writing to the clipboard is a permission, and a context that has not been
+// granted it refuses the write — which sends the copy button down its "press
+// Ctrl+C" path and makes a working button look broken. Granted once here so
+// the button under test is the one a logged-in administrator would press.
+await context.grantPermissions( [ 'clipboard-read', 'clipboard-write' ], { origin: BASE } );
+
 const consoleErrors = [];
 context.on( 'weberror', ( e ) => consoleErrors.push( String( e.error() ) ) );
 
@@ -127,32 +133,39 @@ check( await page.locator( '.lstab-src .lstab-copy' ).first().isVisible(), 'And 
 // Scoped to the card: the cron notice offers its own copy button, and "the
 // first one on the page" stopped meaning the shortcode the moment it did.
 const cardCopy = page.locator( '.lstab-src .lstab-copy' ).first();
+
+// Watched rather than polled, and watched *before* the click. The button says
+// "Copied" for 1.8 seconds and then puts its own label back, so a watcher
+// installed after the click can arrive to find the answer already gone and
+// call a working button broken — which is what this test did about one run in
+// ten. The promise is parked on the window so the click happens between
+// setting the trap and reading it.
+await cardCopy.evaluate( ( el ) => {
+	window.lstabCopyWatch = new Promise( ( resolve ) => {
+		if ( el.classList.contains( 'is-done' ) ) {
+			resolve( true );
+			return;
+		}
+
+		const observer = new MutationObserver( () => {
+			if ( el.classList.contains( 'is-done' ) ) {
+				observer.disconnect();
+				resolve( true );
+			}
+		} );
+
+		observer.observe( el, { attributes: true, attributeFilter: [ 'class' ] } );
+
+		setTimeout( () => {
+			observer.disconnect();
+			resolve( false );
+		}, 5000 );
+	} );
+} );
+
 await cardCopy.click();
 
-// Watched rather than polled. The button says "Copied" for 1.8 seconds and then
-// puts its own label back, so a check that arrives late reads the label after it
-// has already reverted and calls a working button broken — which is what this
-// test did about one run in ten.
-const copyConfirmed = await cardCopy.evaluate( ( el ) => new Promise( ( resolve ) => {
-	if ( el.classList.contains( 'is-done' ) ) {
-		resolve( true );
-		return;
-	}
-
-	const observer = new MutationObserver( () => {
-		if ( el.classList.contains( 'is-done' ) ) {
-			observer.disconnect();
-			resolve( true );
-		}
-	} );
-
-	observer.observe( el, { attributes: true, attributeFilter: [ 'class' ] } );
-
-	setTimeout( () => {
-		observer.disconnect();
-		resolve( false );
-	}, 5000 );
-} ) );
+const copyConfirmed = await page.evaluate( () => window.lstabCopyWatch );
 check( copyConfirmed, 'Clicking it confirms the shortcode was copied' );
 
 check(
