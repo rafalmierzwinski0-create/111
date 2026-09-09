@@ -12,7 +12,9 @@ Publish a Google Sheet as a fast, responsive, auto-refreshing table. No row limi
 
 == Description ==
 
-Live Sheets Table turns a Google Sheet into a real table on your WordPress site. Share the sheet as "Anyone with the link – Viewer", paste the link, check the preview, and drop it on a page with a block or a shortcode. Edit the spreadsheet and your site follows.
+Live Sheets Table turns a Google Sheet into a real table on your WordPress site. Share the sheet as "Anyone with the link – Viewer", paste the link, check the preview, and drop it on a page with a block, an Elementor widget or a shortcode. Edit the spreadsheet and your site follows.
+
+No API key. No Google Cloud project. No account with us.
 
 = No row limit =
 
@@ -39,30 +41,53 @@ On a narrow screen the table reorganises into one card per row, each field label
 
 = Check before you publish =
 
-Paste your link and the parser shows you exactly what it read — headings, rows, merged-cell damage, the wrong tab — in the dashboard, before anything is saved. Multi-tab spreadsheets get a tab picker.
+Paste your link and the dashboard shows you exactly what it read — headings, rows, merged-cell damage, the wrong tab — before anything is saved. A spreadsheet with several tabs offers a tab picker, already set to the tab your link points at.
 
-= What you get =
+= Getting the data in =
 
-* Unlimited rows.
 * Six saved sheet sources.
-* Optional paging for long sheets, with searching and sorting that still cover every row.
-* A "Google Sheets Table" block, an Elementor widget, and a `[sheet_table id="123"]` shortcode for everything else — all three driven by the same renderer.
+* Unlimited rows in every one of them.
+* A tab picker for spreadsheets with more than one tab.
 * Background sync every 15 minutes, plus a "Refresh now" button.
 * A guarantee that whoever opens the page sees data no older than the interval you set — if the schedule has not run, the check happens as the page is drawn, capped at four seconds and falling back to the copy you already have.
-* Optional search box and sortable columns (numeric-aware, so 1 215,50 sorts above 349,00).
-* Numeric columns detected and right-aligned with tabular figures, so decimals line up.
-* Three polished style presets, each following the reader's light or dark colour scheme.
-* A visual appearance editor: set colours, text size, row height and corners per table, with the preview updating as you go.
-* A visible, draggable slider under any table too wide for its column, so nothing is ever hidden behind an invisible scrollbar.
-* The first column stays pinned while the rest scrolls, so a price never stops belonging to a product — and can be switched off per table.
-* Rename columns for your visitors without touching the spreadsheet.
+* A warning in the dashboard when a sheet parses ragged — a row with more cells than there are headings, usually a merged cell — naming the row to look at.
+
+= Putting it on a page =
+
+* A "Google Sheets Table" block, an Elementor widget, and a `[sheet_table id="123"]` shortcode — all three driven by the same renderer, so the three routes cannot drift apart.
+* A caption above the table, in your words rather than the sheet's.
+* Rename a column for your visitors without touching the spreadsheet.
 * A layout control per source: scroll the table sideways, or stack each row into a card.
 * An "updated N minutes ago" label you can switch off.
-* Full translation support.
+* Web and e-mail addresses in cells become links, safely, and can be turned off per table.
 
-= Pro =
+= Reading a long or wide table =
 
-Live Sheets Table Pro adds unlimited sheet sources, syncing as often as every minute, hiding columns and rows by clicking them in your own sheet, conditional cell formatting, filtered views, Excel, CSV and print export for visitors, premium presets, private-sheet support through an authenticated connection, a multi-site licence and priority support.
+* An optional search box, which highlights what it matched rather than leaving you to find it.
+* Sortable columns, numeric-aware, so 1 215,50 sorts above 349,00.
+* Numeric columns detected and right-aligned with tabular figures, so decimals line up.
+* Optional paging, up to 500 rows a page — and searching and sorting still cover the whole sheet, not just the page you are looking at.
+* Column headings stay in view while the page scrolls past them.
+* The first column stays put while the rest scrolls sideways, so a price never stops belonging to a product — and can be switched off per table.
+* A visible, draggable slider under any table too wide for its column, so nothing is ever hidden behind an invisible scrollbar. The End key jumps to the far edge.
+
+= Making it look like your site =
+
+* Three style presets, each following the reader's light or dark colour scheme.
+* A visual appearance editor: colours, text size, row height and corners per table, with the preview updating as you go.
+* Your own CSS per table, for administrators allowed to write it, checked before it is saved.
+
+= In your dashboard =
+
+* A card per sheet saying when it last synced, whether the last checks succeeded, how many rows and columns it holds, and which pages use it.
+* Errors are shown to administrators only, with what to do about them.
+* A Language setting: read the plugin in English or Polish whatever the site itself is set to. Only this plugin's own text changes.
+* Full translation support, with Polish included.
+* Nothing is deleted when you remove the plugin unless you ask for that on the settings screen.
+
+= What Pro adds =
+
+Live Sheets Table Pro adds unlimited sheet sources, syncing as often as every minute, hiding columns and rows by clicking them in a picture of your own sheet, moving columns into an expandable panel under each row, conditional cell colouring, fixed filtered views, filters your visitors can use themselves, Excel, CSV and print export for visitors, two premium presets, private sheets through an authenticated Google connection, a multi-site licence and priority support.
 
 = Privacy =
 
@@ -103,7 +128,7 @@ Your page keeps showing the last successfully fetched version. The dashboard fla
 
 = Will it work with my page builder? =
 
-Yes. The shortcode `[sheet_table id="123"]` works anywhere shortcodes are run — Elementor, Divi, Beaver Builder, classic editor, widgets. The block and the shortcode share one renderer, so they always produce the same table.
+Yes. The shortcode `[sheet_table id="123"]` works anywhere shortcodes are run — Elementor, Divi, Beaver Builder, classic editor, widgets. Elementor also gets a widget of its own. The block, the widget and the shortcode share one renderer, so they always produce the same table.
 
 = My table is very wide. What happens on phones? =
 
@@ -115,9 +140,9 @@ By default the table keeps its shape and gains a slider you can drag, so the tex
 
 = Can I hide a column, or give it a different name? =
 
-Yes, on the source screen. Renaming is display only: the plugin never writes to your spreadsheet, so a column can be called `cena_netto_bez_rabatu` in Google and simply "Price" on your page, and your formulas carry on working.
+Renaming is free and lives on the source screen. It is display only: the plugin never writes to your spreadsheet, so a column can be called `cena_netto_bez_rabatu` in Google and simply "Price" on your page, and your formulas carry on working.
 
-Hiding removes the column from the headings and from every row, so a working column is not just visually gone — its values never reach the page at all.
+Hiding a column is part of Pro, where you choose it by clicking a picture of your own sheet. Hiding removes the column from the headings and from every row, so a working column is not just visually gone — its values never reach the page at all.
 
 Columns are matched by position, so inserting one in Google shifts the settings. The plugin remembers which heading each position held and tells you when they no longer line up, instead of silently mislabelling data.
 

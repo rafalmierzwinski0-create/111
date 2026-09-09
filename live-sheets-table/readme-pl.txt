@@ -12,7 +12,9 @@ Publikuj arkusz Google jako szybką, responsywną, automatycznie odświeżaną t
 
 == Description ==
 
-Live Sheets Table zamienia arkusz Google w prawdziwą tabelę na Twojej stronie WordPress. Udostępnij arkusz jako „Każdy, kto ma link – Przeglądający”, wklej link, sprawdź podgląd i umieść go na stronie blokiem albo shortcodem. Edytujesz arkusz — strona nadąża.
+Live Sheets Table zamienia arkusz Google w prawdziwą tabelę na Twojej stronie WordPress. Udostępnij arkusz jako „Każdy, kto ma link – Przeglądający”, wklej link, sprawdź podgląd i umieść go na stronie blokiem, widżetem Elementora albo shortcodem. Edytujesz arkusz — strona nadąża.
+
+Bez klucza API. Bez projektu w Google Cloud. Bez konta u nas.
 
 = Bez limitu wierszy =
 
@@ -24,6 +26,7 @@ Większość wtyczek do arkuszy pobiera dane z Google, gdy Twój odwiedzający c
 
 * Zaplanowane zadanie pobiera arkusz w tle i zapisuje go w Twojej bazie danych.
 * Strony renderują tę lokalną kopię w PHP, jako prawdziwy element `<table>`.
+* Tabela starsza niż jej odstęp jest sprawdzana, zanim strona zostanie narysowana — z twardym limitem czterech sekund i zapisaną kopią jako zabezpieczeniem. Dzięki temu witryna, której nikt nie odwiedza, albo serwer blokujący harmonogram WordPressa, nie opublikuje po cichu zeszłotygodniowych cen.
 * Nic nie zależy od JavaScriptu przy rysowaniu tabeli, więc jest czytelna dla wyszukiwarek i dla przeglądarek, w których jakiś skrypt zawiódł.
 
 = Działa dalej, nawet gdy arkusz przestaje =
@@ -38,28 +41,53 @@ Na wąskim ekranie tabela przeorganizowuje się w jedną kartę na wiersz, z ety
 
 = Sprawdź, zanim opublikujesz =
 
-Wklejasz link, a parser pokazuje dokładnie to, co odczytał — nagłówki, wiersze, skutki scalonych komórek, złą zakładkę — w kokpicie, zanim cokolwiek zostanie zapisane. Arkusze z wieloma zakładkami dostają listę wyboru zakładki.
+Wklejasz link, a kokpit pokazuje dokładnie to, co odczytał — nagłówki, wiersze, skutki scalonych komórek, złą zakładkę — zanim cokolwiek zostanie zapisane. Arkusz z kilkoma zakładkami dostaje listę wyboru, od razu ustawioną na zakładkę, na którą wskazuje Twój link.
 
-= Co dostajesz =
+= Wciąganie danych =
 
-* Nielimitowaną liczbę wierszy.
-* Trzy zapisane źródła arkuszy.
-* Blok „Tabela z Arkuszy Google” oraz shortcode `[sheet_table id="123"]`, oba oparte na tym samym rendererze.
-* Synchronizację w tle co 15 minut i przycisk „Odśwież teraz”.
-* Opcjonalne pole wyszukiwania i sortowanie kolumn (świadome liczb, więc 1 215,50 sortuje się nad 349,00).
-* Wykrywanie kolumn liczbowych i wyrównanie ich do prawej cyframi tabelarycznymi, dzięki czemu przecinki dziesiętne są w jednej linii.
-* Trzy dopracowane presety stylu, każdy podąża za jasnym lub ciemnym schematem kolorów czytelnika.
-* Wizualny edytor wyglądu: kolory, wielkość tekstu, wysokość wiersza i zaokrąglenie narożników per tabela, z podglądem aktualizowanym na bieżąco.
-* Widoczny, przeciągany suwak pod każdą tabelą szerszą od swojej kolumny, więc nic nigdy nie chowa się za niewidocznym paskiem przewijania.
-* Pierwsza kolumna zostaje przyklejona, gdy reszta się przewija, więc cena nigdy nie przestaje należeć do produktu — i można to wyłączyć per tabela.
-* Zmiana nazw kolumn dla odwiedzających albo całkowite pominięcie kolumny, bez ruszania arkusza.
+* Sześć zapisanych źródeł arkuszy.
+* Nielimitowana liczba wierszy w każdym z nich.
+* Wybór zakładki dla arkuszy, które mają ich więcej niż jedną.
+* Synchronizacja w tle co 15 minut i przycisk „Odśwież teraz”.
+* Gwarancja, że kto otworzy stronę, zobaczy dane nie starsze niż ustawiony przez Ciebie odstęp — jeśli harmonogram nie zadziałał, sprawdzenie odbywa się w trakcie rysowania strony, z limitem czterech sekund i powrotem do kopii, którą już masz.
+* Ostrzeżenie w kokpicie, gdy arkusz wczytuje się poszarpany — wiersz ma więcej komórek niż jest nagłówków, zwykle przez scaloną komórkę — ze wskazaniem numeru wiersza do sprawdzenia.
+
+= Umieszczanie na stronie =
+
+* Blok „Tabela z Arkuszy Google”, widżet Elementora i shortcode `[sheet_table id="123"]` — wszystkie trzy oparte na tym samym rendererze, więc nie mogą się rozjechać.
+* Podpis nad tabelą, Twoimi słowami, a nie słowami arkusza.
+* Zmiana nazwy kolumny dla odwiedzających, bez ruszania arkusza.
 * Sterowanie układem per źródło: przewijaj tabelę w bok albo układaj każdy wiersz jako kartę.
-* Etykietę „zaktualizowano N minut temu”, którą można wyłączyć.
+* Etykieta „zaktualizowano N minut temu”, którą można wyłączyć.
+* Adresy stron i adresy e-mail w komórkach stają się linkami, bezpiecznie, i da się to wyłączyć per tabela.
+
+= Czytanie długiej albo szerokiej tabeli =
+
+* Opcjonalne pole wyszukiwania, które podświetla to, co znalazło, zamiast zostawiać Cię z szukaniem tego wzrokiem.
+* Sortowanie kolumn świadome liczb, więc 1 215,50 sortuje się nad 349,00.
+* Wykrywanie kolumn liczbowych i wyrównanie ich do prawej cyframi tabelarycznymi, dzięki czemu przecinki dziesiętne są w jednej linii.
+* Opcjonalne stronicowanie, do 500 wierszy na stronę — a wyszukiwanie i sortowanie i tak obejmują cały arkusz, nie tylko oglądaną stronę.
+* Nagłówki kolumn zostają widoczne, gdy strona przewija się obok nich.
+* Pierwsza kolumna zostaje na miejscu, gdy reszta przewija się w bok, więc cena nigdy nie przestaje należeć do produktu — i można to wyłączyć per tabela.
+* Widoczny, przeciągany suwak pod każdą tabelą szerszą od swojej kolumny, więc nic nigdy nie chowa się za niewidocznym paskiem przewijania. Klawisz End przeskakuje na sam koniec.
+
+= Dopasowanie do wyglądu witryny =
+
+* Trzy style tabeli, każdy podąża za jasnym albo ciemnym schematem kolorów czytelnika.
+* Wizualny edytor wyglądu: kolory, wielkość tekstu, wysokość wiersza i zaokrąglenie narożników per tabela, z podglądem aktualizowanym na bieżąco.
+* Własny CSS per tabela, dla administratorów, którzy mają prawo go pisać, sprawdzany przed zapisem.
+
+= W kokpicie =
+
+* Karta na każdy arkusz: kiedy ostatnio się zsynchronizował, czy ostatnie sprawdzenia się udały, ile ma wierszy i kolumn oraz które strony go używają.
+* Błędy widzą wyłącznie administratorzy, razem z tym, co z nimi zrobić.
+* Ustawienie języka: wtyczkę można czytać po polsku albo po angielsku niezależnie od języka samej witryny. Zmienia się tylko tekst tej wtyczki.
 * Pełne wsparcie tłumaczeń, z polskim w komplecie.
+* Przy usunięciu wtyczki nic nie jest kasowane, chyba że sam o to poprosisz na ekranie ustawień.
 
-= Pro =
+= Co dodaje Pro =
 
-Live Sheets Table Pro dodaje nielimitowaną liczbę źródeł, synchronizację nawet co minutę, formatowanie warunkowe komórek, paginację dużych tabel, presety premium i własny CSS, obsługę arkuszy prywatnych przez połączenie uwierzytelnione, licencję na kilka witryn oraz priorytetowe wsparcie.
+Live Sheets Table Pro dodaje nielimitowaną liczbę źródeł, synchronizację nawet co minutę, ukrywanie kolumn i wierszy przez klikanie ich na obrazku własnego arkusza, przenoszenie kolumn do rozwijanego panelu pod wierszem, warunkowe kolorowanie komórek, stałe widoki filtrowane, filtry, z których odwiedzający korzystają sami, eksport do Excela, CSV i do druku dla odwiedzających, dwa style premium, arkusze prywatne przez uwierzytelnione połączenie z Google, licencję na kilka witryn oraz priorytetowe wsparcie.
 
 = Prywatność =
 
@@ -100,7 +128,7 @@ Twoja strona nadal pokazuje ostatnią poprawnie pobraną wersję. Kokpit sygnali
 
 = Czy zadziała z moim kreatorem stron? =
 
-Tak. Shortcode `[sheet_table id="123"]` działa wszędzie tam, gdzie wykonywane są shortcode'y — Elementor, Divi, Beaver Builder, klasyczny edytor, widżety. Blok i shortcode korzystają z jednego renderera, więc zawsze dają tę samą tabelę.
+Tak. Shortcode `[sheet_table id="123"]` działa wszędzie tam, gdzie wykonywane są shortcode'y — Elementor, Divi, Beaver Builder, klasyczny edytor, widżety. Elementor ma też własny widżet. Blok, widżet i shortcode korzystają z jednego renderera, więc zawsze dają tę samą tabelę.
 
 = Moja tabela jest bardzo szeroka. Co się dzieje na telefonach? =
 
@@ -108,13 +136,13 @@ Zostaje tabelą, w pełnym rozmiarze tekstu, a pod nią pojawia się suwak, któ
 
 Suwak rysuje wtyczka, a nie przeglądarka, bo macOS, iOS i Android chowają poziomy pasek przewijania, dopóki już nie przewijasz — czyli dokładnie wtedy, gdy jest za późno, by się przydał.
 
-Domyślnie tabela zachowuje swój kształt i zyskuje suwak, który można przeciągać, więc tekst zostaje w pełnym rozmiarze i nic się nie chowa. Aby zamiast tego układać wiersze jako karty, zmień „Na ekranach zbyt wąskich dla całej tabeli" na ekranie źródła albo przekaż `layout="cards"` do shortcode. Często jeszcze lepiej jest nadać blokowi szerokie lub pełne wyrównanie, bo daje tabeli miejsce, którego potrzebuje.
+Domyślnie tabela zachowuje swój kształt i zyskuje suwak, który można przeciągać, więc tekst zostaje w pełnym rozmiarze i nic się nie chowa. Aby zamiast tego układać wiersze jako karty, zmień „Na ekranach zbyt wąskich dla całej tabeli” na ekranie źródła albo przekaż `layout="cards"` do shortcode. Często jeszcze lepiej jest nadać blokowi szerokie lub pełne wyrównanie, bo daje tabeli miejsce, którego potrzebuje.
 
 = Czy mogę ukryć kolumnę albo nadać jej inną nazwę? =
 
-Tak, na ekranie źródła. Zmiana nazwy dotyczy wyłącznie wyświetlania: wtyczka nigdy nie zapisuje do Twojego arkusza, więc kolumna może nazywać się `cena_netto_bez_rabatu` w Google i po prostu „Cena” na Twojej stronie, a formuły działają dalej.
+Zmiana nazwy jest darmowa i jest na ekranie źródła. Dotyczy wyłącznie wyświetlania: wtyczka nigdy nie zapisuje do Twojego arkusza, więc kolumna może nazywać się `cena_netto_bez_rabatu` w Google i po prostu „Cena” na Twojej stronie, a formuły działają dalej.
 
-Ukrycie usuwa kolumnę z nagłówków i z każdego wiersza, więc kolumna robocza nie znika tylko wizualnie — jej wartości w ogóle nie trafiają na stronę.
+Ukrywanie kolumn to część Pro — wybiera się je, klikając na obrazku własnego arkusza. Ukrycie usuwa kolumnę z nagłówków i z każdego wiersza, więc kolumna robocza nie znika tylko wizualnie — jej wartości w ogóle nie trafiają na stronę.
 
 Kolumny dopasowują się po pozycji, więc wstawienie jednej w Google przesuwa ustawienia. Wtyczka pamięta, jaki nagłówek miała każda pozycja, i informuje, gdy przestają się zgadzać, zamiast po cichu podpisać dane nie tą etykietą.
 
@@ -122,7 +150,7 @@ Kolumny dopasowują się po pozycji, więc wstawienie jednej w Google przesuwa u
 
 Wybierz jeden z trzech presetów, a potem dopracuj go: ekran źródła ma próbniki kolorów dla tekstu, tła, nagłówków, linii, naprzemiennych wierszy, podświetlenia i akcentu, a także wielkość tekstu, wysokość wiersza i zaokrąglenie narożników. To, czego nie ruszysz, nadal podąża za presetem, więc zmiana jednego koloru nie oznacza definiowania wszystkich.
 
-Każda wartość jest własnością niestandardową CSS na `.lstab`, więc te same rzeczy można nadpisać z arkusza motywu. Dodatkowe presety i pole na dowolny własny CSS to funkcje Pro.
+Każda wartość jest własnością niestandardową CSS na `.lstab`, więc te same rzeczy można nadpisać z arkusza motywu. Jest też pole na Twój własny CSS per tabela. Dodatkowe style tabeli to funkcja Pro.
 
 = Czy WP-Cron musi działać? =
 
@@ -130,7 +158,7 @@ Zaplanowane odświeżanie korzysta z WP-Cron. Jeśli go wyłączyłeś, użyj sy
 
 = Czy mogę pokazać kilka różnych arkuszy? =
 
-Wersja darmowa przechowuje trzy źródła arkuszy. Pro znosi ten limit.
+Wersja darmowa przechowuje sześć źródeł arkuszy. Pro znosi ten limit.
 
 = Czy zawartość arkusza jest bezpieczna do wyświetlenia? =
 
