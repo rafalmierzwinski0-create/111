@@ -4,7 +4,7 @@ Tags: arkusze google, tabela, arkusz kalkulacyjny, csv, tabela danych
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.24.0
+Stable tag: 3.25.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -139,6 +139,10 @@ Tak. Wszystko z arkusza jest escapowane przy wyjściu, więc komórka zawierają
 == Changelog ==
 
 Pełna historia wydań znajduje się w pliku readme.txt.
+
+= 3.25.0 =
+* Poprawka: pole wyboru zakładki arkusza jest na ekranie od razu po otwarciu edytora i od razu pokazuje zakładkę, na którą arkusz jest ustawiony. Wcześniej było schowane, dopóki Google nie odpowiedziało listą zakładek — kilka sekund później — więc kto patrzył na formularz w trakcie wczytywania, nie widział sposobu na zmianę zakładki ani powodu, by sądzić, że taki się pojawi.
+* Poprawka: gdy listy zakładek nie da się odczytać, pole zostaje na miejscu z zakładką z Twojego linku i obok pisze, dlaczego pozostałych nie ma. Wcześniej znikało bez słowa, co wyglądało, jakby wtyczka odebrała to ustawienie.
 
 = 3.24.0 =
 * Nowość (Pro): przycisk „Dodaj regułę” pod regułami kolorów. Dwie puste linijki były całą odpowiedzią na pytanie, ile reguł ktoś chce, więc czwarta oznaczała wypełnienie obu, zapis i powrót po kolejne dwie. Teraz czeka jedna pusta linijka, a resztę dodaje przycisk — i przestaje je oferować, gdy tabela ma już wszystkie dwadzieścia, zamiast pozwolić po cichu zgubić dwudziestą pierwszą.

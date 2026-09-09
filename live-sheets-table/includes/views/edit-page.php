@@ -137,9 +137,27 @@ if ( ! $lstab_is_edit ) {
 					<span class="spinner lstab-spinner" id="lstab-spinner"></span>
 				</p>
 
-				<div id="lstab-tabs-wrap" class="lstab-tabs" hidden>
+				<?php
+				/*
+				 * Drawn already carrying the tab this source is set to, rather
+				 * than hidden until Google answers with the list of them. The
+				 * editor re-reads the sheet on opening, so the field used to
+				 * appear a second or three after the screen did — below the
+				 * button somebody had just finished looking at, which is a
+				 * good way of never being found. The rest of the tabs are put
+				 * into it when the answer arrives.
+				 */
+				$lstab_tab_known = '' !== trim( (string) $lstab_values['tab_name'] );
+				?>
+				<div id="lstab-tabs-wrap" class="lstab-tabs" <?php echo $lstab_tab_known ? '' : 'hidden'; ?>>
 					<label for="lstab-tabs"><strong><?php esc_html_e( 'Sheet tab', 'live-sheets-table' ); ?></strong></label>
-					<select id="lstab-tabs"></select>
+					<select id="lstab-tabs">
+						<?php if ( $lstab_tab_known ) : ?>
+							<?php // On one line: an option's text is whatever is between the tags, indentation included. ?>
+							<option value="<?php echo esc_attr( (string) $lstab_values['gid'] ); ?>" selected><?php echo esc_html( $lstab_values['tab_name'] ); ?></option>
+						<?php endif; ?>
+					</select>
+					<p class="lstab-help lstab-tabs-note" id="lstab-tabs-note" hidden></p>
 				</div>
 
 				<p class="lstab-checkbox">

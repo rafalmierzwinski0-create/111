@@ -308,9 +308,33 @@
 		spinner.classList.toggle( 'is-active', busy );
 	}
 
+	var tabsNote = document.getElementById( 'lstab-tabs-note' );
+
+	/**
+	 * Fill the tab picker from a sheet's list of tabs.
+	 *
+	 * The field is drawn by the page already carrying the tab this source is
+	 * set to, so this only ever adds the others. When the list cannot be read
+	 * it says so beside the field rather than taking the field away: a sheet
+	 * still has the tab it was saved with, and hiding the one control that
+	 * could change it is not an answer to Google being slow.
+	 *
+	 * @param {Array}  tabs        Tabs as the sheet reports them.
+	 * @param {string} selectedGid The tab being previewed.
+	 * @return {void}
+	 */
 	function renderTabs( tabs, selectedGid ) {
+		var known = tabNameField && tabNameField.value;
+
 		if ( ! tabs || ! tabs.length ) {
-			tabsWrap.hidden = true;
+			// Nothing to choose from. Keep whatever the source already has.
+			tabsWrap.hidden = ! known;
+
+			if ( tabsNote ) {
+				tabsNote.textContent = known ? i18n.noTabs || '' : '';
+				tabsNote.hidden = ! known;
+			}
+
 			return;
 		}
 
@@ -327,6 +351,11 @@
 		} );
 
 		tabsWrap.hidden = false;
+
+		if ( tabsNote ) {
+			tabsNote.hidden = true;
+			tabsNote.textContent = '';
+		}
 
 		var selected = tabsSelect.options[ tabsSelect.selectedIndex ];
 		if ( selected ) {
@@ -607,11 +636,10 @@
 			}
 			setStatus( message, 'ok' );
 
+			// renderTabs() owns that decision: a sheet still has the tab it
+			// was saved with, and hiding the one control that could change it
+			// is not an answer to a list that did not come back.
 			renderTabs( response.tabs, response.gid );
-
-			if ( ! response.tabs || ! response.tabs.length ) {
-				tabsWrap.hidden = true;
-			}
 
 			// Offer a sensible default title once we know the tab name.
 			if ( titleField && ! titleField.value && tabNameField.value ) {
@@ -621,7 +649,10 @@
 			setBusy( false );
 			stage.innerHTML = '';
 			setStatus( ( error && error.message ) || i18n.failed, 'error' );
-			tabsWrap.hidden = true;
+
+			// Same reasoning: keep the tab the source already has. Only a
+			// source that never had one has nothing to show here.
+			tabsWrap.hidden = ! ( tabNameField && tabNameField.value );
 		} );
 	}
 

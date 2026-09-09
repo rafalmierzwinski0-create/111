@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.24.0
+Stable tag: 3.25.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,10 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.25.0 =
+* Fixed: the picker for which tab of the sheet to publish is on the screen the moment the editor opens, already naming the tab this sheet is set to. It used to stay hidden until Google answered with the list of tabs a few seconds later, so anybody who looked at the form as it loaded saw no way to choose a tab and no reason to think one was coming.
+* Fixed: when the list of tabs cannot be read, the picker stays where it is, holding the tab the link points at, and says beside it why the others are missing. It used to disappear without a word, which read as the plugin having taken the setting away.
 
 = 3.24.0 =
 * Added (Pro): an "Add a rule" button under the colour rules. Two blank lines were the whole answer to how many rules somebody wanted, so a fourth meant filling both, saving, and coming back for two more. One blank line waits now and the button adds the rest; it stops offering when the twenty a table can hold are all there, rather than letting the twenty-first be dropped without a word on the way in.

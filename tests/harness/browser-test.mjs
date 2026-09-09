@@ -2154,6 +2154,72 @@ for ( const tab of [ 'general', 'look', 'hide' ] ) {
 
 await page.setViewportSize( { width: 1500, height: 1000 } );
 
+// -------------------------------------------------------- the sheet-tab picker
+section( '9f2. Choosing which tab of the sheet to publish' );
+
+/*
+ * The editor re-reads the sheet on opening, and the picker used to be hidden
+ * until that answer arrived — so it appeared a second or three after the screen
+ * did, below the button somebody had just finished looking at. It is drawn
+ * carrying the tab the source is set to, and the rest are added when they come.
+ */
+await page.route( '**live-sheets-table/v1/preview**', async ( route ) => {
+	await new Promise( ( r ) => setTimeout( r, 2500 ) );
+
+	// The page may have moved on by the time this wakes up; that is the point
+	// of holding it, not a failure of the test.
+	await route.continue().catch( () => {} );
+} );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'domcontentloaded' } );
+await page.waitForTimeout( 700 );
+
+const tabsWaiting = await page.evaluate( () => {
+	const wrap = document.getElementById( 'lstab-tabs-wrap' );
+	const select = document.getElementById( 'lstab-tabs' );
+
+	return {
+		hidden: wrap.hidden,
+		options: Array.from( select.options ).map( ( o ) => o.textContent ),
+	};
+} );
+check( ! tabsWaiting.hidden, 'The tab picker is on the screen before the sheet has been read', JSON.stringify( tabsWaiting ) );
+check(
+	1 === tabsWaiting.options.length && '' !== tabsWaiting.options[ 0 ].trim(),
+	'Carrying the tab this sheet is set to, named',
+	JSON.stringify( tabsWaiting )
+);
+// Let the held request finish before taking the handler away.
+await page.waitForTimeout( 2500 );
+await page.unroute( '**live-sheets-table/v1/preview**' );
+
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.waitForTimeout( 2500 );
+const tabsThere = await page.locator( '#lstab-tabs option' ).allInnerTexts();
+check( tabsThere.length > 1, 'And the sheet\'s other tabs once it has been read', JSON.stringify( tabsThere ) );
+
+/*
+ * A tab list that cannot be read is not a reason to take away the one control
+ * that could change the tab: the sheet still has the one it was saved with.
+ */
+await page.route( '**live-sheets-table/v1/preview**', async ( route ) => {
+	const response = await route.fetch();
+	const body = await response.json();
+	body.tabs = [];
+	await route.fulfill( { response, body: JSON.stringify( body ) } );
+} );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.waitForTimeout( 2500 );
+
+const tabsUnread = await page.evaluate( () => {
+	const wrap = document.getElementById( 'lstab-tabs-wrap' );
+	const note = document.getElementById( 'lstab-tabs-note' );
+
+	return { hidden: wrap.hidden, note: note.hidden ? '' : note.textContent.trim() };
+} );
+check( ! tabsUnread.hidden, 'A tab list that cannot be read leaves the picker in place', JSON.stringify( tabsUnread ) );
+check( '' !== tabsUnread.note, 'And says why, beside it', JSON.stringify( tabsUnread ) );
+await page.unroute( '**live-sheets-table/v1/preview**' );
+
 // ------------------------------------------------- which tab the editor opens
 section( '9g. Where the editor opens' );
 

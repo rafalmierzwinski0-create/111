@@ -2155,3 +2155,17 @@
 	background: rgba( 14, 124, 116, 0.08 );
 	font-size: 0.82em;
 }
+
+/*
+ * Said beside the tab picker when the list of tabs could not be read. The
+ * field stays: a sheet still has the tab it was saved with, and taking away
+ * the one control that could change it is not an answer to Google being slow.
+ */
+.lstab-tabs-note {
+	margin: 0.3rem 0 0;
+	max-inline-size: 42ch;
+}
+
+.lstab-tabs-note[hidden] {
+	display: none;
+}
