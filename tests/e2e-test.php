@@ -2785,6 +2785,89 @@ lstab_assert( ! $untranslated, 'No hard-coded literals echoed from the views', i
 
 // ---------------------------------------------------------------------------
 
+lstab_section( '16. Pages offered for a sheet too long to read in one go' );
+
+$lstab_paging_threshold = LSTAB_Paging::auto_threshold();
+lstab_assert( 200 === $lstab_paging_threshold, 'Pages start being offered at two hundred rows', (string) $lstab_paging_threshold );
+lstab_assert( 50 === LSTAB_Paging::auto_per_page(), 'And a page holds fifty of them' );
+
+// Both are opinions, not laws: a site that disagrees can say so.
+add_filter( 'lstab_auto_paging_threshold', static function () {
+	return 1000;
+} );
+lstab_assert( 1000 === LSTAB_Paging::auto_threshold(), 'A site can move the point at which they are offered' );
+remove_all_filters( 'lstab_auto_paging_threshold' );
+
+add_filter( 'lstab_auto_paging_per_page', static function () {
+	return 9999;
+} );
+lstab_assert(
+	LSTAB_Paging::MAX_PER_PAGE === LSTAB_Paging::auto_per_page(),
+	'But not past the point where a page has stopped being a page',
+	(string) LSTAB_Paging::auto_per_page()
+);
+remove_all_filters( 'lstab_auto_paging_per_page' );
+
+$lstab_short = array( 'id' => 91, 'row_count' => 199, 'per_page' => 0 );
+$lstab_long  = array( 'id' => 92, 'row_count' => 200, 'per_page' => 0 );
+$lstab_done  = array( 'id' => 93, 'row_count' => 5000, 'per_page' => 25 );
+
+lstab_assert( ! LSTAB_Paging::is_long( $lstab_short ), 'A sheet just under the mark is not long' );
+lstab_assert( LSTAB_Paging::is_long( $lstab_long ), 'One on it is' );
+
+lstab_assert( ! LSTAB_Paging::should_offer( $lstab_short ), 'A short sheet is not asked about' );
+lstab_assert( LSTAB_Paging::should_offer( $lstab_long ), 'A long one is' );
+lstab_assert( ! LSTAB_Paging::should_offer( $lstab_done ), 'A sheet that already has pages is not asked to have them again' );
+lstab_assert( ! LSTAB_Paging::should_offer( array( 'row_count' => 5000, 'per_page' => 0 ) ), 'Nor is a sheet that has not been saved yet' );
+
+// "No" has to stick, or the offer is nagging.
+LSTAB_Paging::decline( 92 );
+lstab_assert( ! LSTAB_Paging::should_offer( $lstab_long ), 'Saying no is remembered' );
+lstab_assert( LSTAB_Paging::should_offer( array( 'id' => 94, 'row_count' => 900, 'per_page' => 0 ) ), 'And is remembered for that sheet alone' );
+
+// Otherwise the next sheet to be given that ID inherits an answer nobody gave.
+LSTAB_Paging::forget( 92 );
+lstab_assert( LSTAB_Paging::should_offer( $lstab_long ), 'A deleted sheet takes its answer with it' );
+
+// The offer is drawn by the list screen, so it has to survive being rendered.
+$lstab_offer_source = LSTAB_Storage::get( $source_id );
+LSTAB_Storage::update( $source_id, array( 'per_page' => 0 ) );
+$lstab_before_count = (int) LSTAB_Storage::get( $source_id )['row_count'];
+
+add_filter( 'lstab_auto_paging_threshold', static function () {
+	return 1;
+} );
+
+// The screen refuses to draw for somebody who may not manage sheets, which is
+// the right answer and not the one being tested here.
+wp_set_current_user( 1 );
+
+ob_start();
+$lstab_admin_screen = new LSTAB_Admin();
+$lstab_admin_screen->render_list_page();
+$lstab_list_html = (string) ob_get_clean();
+
+lstab_assert( false !== strpos( $lstab_list_html, 'lstab-src-offer' ), 'The offer reaches the sheet list' );
+lstab_assert( false !== strpos( $lstab_list_html, 'lstab_page_source' ), 'With a way to say yes' );
+lstab_assert( false !== strpos( $lstab_list_html, 'lstab_keep_one_page' ), 'And a way to say no' );
+lstab_assert(
+	false !== strpos( $lstab_list_html, esc_html( number_format_i18n( $lstab_before_count ) ) ),
+	'And says how long the sheet actually is, rather than just calling it long'
+);
+
+LSTAB_Paging::decline( $source_id );
+ob_start();
+$lstab_admin_screen->render_list_page();
+$lstab_declined_html = (string) ob_get_clean();
+lstab_assert( false === strpos( $lstab_declined_html, 'lstab-src-offer' ), 'And is gone for good once turned down' );
+
+LSTAB_Paging::forget( $source_id );
+remove_all_filters( 'lstab_auto_paging_threshold' );
+LSTAB_Storage::update( $source_id, array( 'per_page' => (int) $lstab_offer_source['per_page'] ) );
+wp_set_current_user( 0 );
+
+// ---------------------------------------------------------------------------
+
 echo "\n";
 echo str_repeat( '─', 60 ) . "\n";
 printf(

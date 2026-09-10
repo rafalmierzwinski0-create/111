@@ -231,6 +231,62 @@ $lstab_add_button = $lstab_can_add
 							</p>
 						<?php endif; ?>
 
+						<?php
+						/*
+						 * A sheet that grew past the point where one page is
+						 * comfortable. Nothing is changed for it — it is on a
+						 * published page and rearranging that unasked would be
+						 * the worst thing this screen could do — so it is an
+						 * offer, with the answer either way one click away and
+						 * "no" remembered. An offer that cannot be declined is
+						 * not an offer.
+						 */
+						?>
+						<?php if ( LSTAB_Paging::should_offer( $lstab_source ) ) : ?>
+							<div class="lstab-src-offer">
+								<p class="lstab-src-offer-say">
+									<?php echo LSTAB_Icons::icon( 'pages' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+									<span>
+										<?php
+										printf(
+											/* translators: 1: number of rows, 2: rows a page would hold. */
+											esc_html__( 'This sheet has grown to %1$s rows. Shall it be shown %2$s at a time? Visitors get page buttons, the page loads quicker, and searching and sorting still cover every row.', 'live-sheets-table' ),
+											esc_html( number_format_i18n( (int) $lstab_source['row_count'] ) ),
+											esc_html( number_format_i18n( LSTAB_Paging::auto_per_page() ) )
+										);
+										?>
+									</span>
+								</p>
+
+								<span class="lstab-src-offer-do">
+									<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="lstab-inline-form">
+										<?php wp_nonce_field( 'lstab_page_source' ); ?>
+										<input type="hidden" name="action" value="lstab_page_source">
+										<input type="hidden" name="source_id" value="<?php echo esc_attr( (string) $lstab_source['id'] ); ?>">
+										<button type="submit" class="lstab-mini lstab-mini--strong">
+											<?php
+											printf(
+												/* translators: %s: rows a page would hold. */
+												esc_html__( 'Yes, %s at a time', 'live-sheets-table' ),
+												esc_html( number_format_i18n( LSTAB_Paging::auto_per_page() ) )
+											);
+											?>
+										</button>
+									</form>
+
+									<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="lstab-inline-form">
+										<?php wp_nonce_field( 'lstab_keep_one_page' ); ?>
+										<input type="hidden" name="action" value="lstab_keep_one_page">
+										<input type="hidden" name="source_id" value="<?php echo esc_attr( (string) $lstab_source['id'] ); ?>">
+										<?php // A real answer, so it looks like one. Grey text beside a button reads as disabled, and an offer with only one pressable answer is not an offer. ?>
+										<button type="submit" class="lstab-mini">
+											<?php esc_html_e( 'No, keep one long table', 'live-sheets-table' ); ?>
+										</button>
+									</form>
+								</span>
+							</div>
+						<?php endif; ?>
+
 						<?php if ( $lstab_columns['names'] ) : ?>
 							<div class="lstab-colchips">
 								<?php foreach ( $lstab_columns['names'] as $lstab_name ) : ?>

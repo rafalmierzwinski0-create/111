@@ -433,6 +433,17 @@ if ( ! $lstab_is_edit ) {
 				<div class="lstab-paging">
 					<h3 class="lstab-subhead"><?php esc_html_e( 'Pagination', 'live-sheets-table' ); ?></h3>
 
+					<?php
+					/*
+					 * Set by the screen the moment either control below is
+					 * touched. A long sheet being created with nobody having
+					 * looked at this gets pages turned on for it; a long sheet
+					 * created with the switch deliberately left off does not.
+					 * Without this the two are the same submission.
+					 */
+					?>
+					<input type="hidden" name="paging_touched" id="lstab-paging-touched" value="">
+
 					<p class="lstab-checkbox">
 						<label>
 							<input type="checkbox" name="paging" id="lstab-paging" value="1" <?php checked( $lstab_per_page > 0 ); ?>>

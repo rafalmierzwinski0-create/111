@@ -1034,6 +1034,28 @@
 		} );
 	}
 
+	/*
+	 * Record that somebody made a decision here, either way. A long sheet
+	 * created without anyone touching these controls has pages turned on for it
+	 * and is told so; one created with the switch deliberately left off keeps
+	 * that answer. To the server the two submissions are otherwise identical.
+	 */
+	var pagingTouched = document.getElementById( 'lstab-paging-touched' );
+
+	if ( pagingTouched ) {
+		[ pagingToggle, document.getElementById( 'lstab-per-page' ) ].forEach( function ( control ) {
+			if ( ! control ) {
+				return;
+			}
+
+			[ 'change', 'input' ].forEach( function ( event ) {
+				control.addEventListener( event, function () {
+					pagingTouched.value = '1';
+				} );
+			} );
+		} );
+	}
+
 	// Hiding or renaming changes the markup itself, so the preview is rebuilt
 	// rather than restyled. A text field only fires this on blur, so a rename
 	// costs one round trip, not one per keystroke.

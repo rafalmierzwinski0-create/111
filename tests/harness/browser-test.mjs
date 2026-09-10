@@ -173,6 +173,7 @@ await cardCopy.evaluate( ( el ) => {
 		 */
 		const answer = ( why ) => resolve( {
 			ok: el.classList.contains( 'is-done' ),
+			answered: !! label && label.textContent.trim() !== before,
 			why,
 			reached,
 			before,
@@ -190,13 +191,15 @@ await cardCopy.evaluate( ( el ) => {
 		}
 
 		const observer = new MutationObserver( () => {
-			if ( el.classList.contains( 'is-done' ) ) {
+			if ( el.classList.contains( 'is-done' ) || label.textContent.trim() !== before ) {
 				observer.disconnect();
-				answer( 'confirmed' );
+				answer( 'answered' );
 			}
 		} );
 
-		observer.observe( el, { attributes: true, attributeFilter: [ 'class' ] } );
+		// Characters as well as classes: the button's other answer — "press
+		// Ctrl+C", for a browser that refused the write — changes only the text.
+		observer.observe( el, { attributes: true, attributeFilter: [ 'class' ], childList: true, subtree: true, characterData: true } );
 
 		setTimeout( () => {
 			observer.disconnect();
@@ -208,8 +211,17 @@ await cardCopy.evaluate( ( el ) => {
 await cardCopy.click();
 
 const copyResult = await page.evaluate( () => window.lstabCopyWatch );
-const copyConfirmed = copyResult.ok;
-check( copyConfirmed, 'Clicking it confirms the shortcode was copied', JSON.stringify( copyResult ) );
+
+/*
+ * What is being checked is that the button answers, not which answer it gives.
+ * Whether the operating system's clipboard accepts the text is the browser's
+ * business — it can refuse, and does, for a page it thinks is not in front of
+ * the person — but the button saying nothing at all is ours, and used to be
+ * possible: the modern clipboard call can hang for ever rather than fail.
+ */
+const copyConfirmed = copyResult.answered;
+check( copyConfirmed, 'Clicking it always answers, rather than sitting there', JSON.stringify( copyResult ) );
+check( copyResult.reached, 'And the click reaches the button in the first place', JSON.stringify( copyResult ) );
 
 check(
 	await page.locator( '.lstab-masthead h1' ).first().isVisible(),
@@ -2363,6 +2375,117 @@ await Promise.all( [
 await page.waitForTimeout( 600 );
 
 // -------------------------------------------------------------- block editor
+// -------------------------------------------------- a sheet too long for one page
+section( '9h. A sheet long enough to need pages' );
+
+/*
+ * Nothing here is simulated: a 260-row sheet is handed to the plugin through
+ * the same mock every other test uses, and the source is created by filling in
+ * the real form and pressing Save. What is being checked is the one decision
+ * the plugin makes on somebody's behalf, so it had better be made on real
+ * numbers.
+ */
+const longSheet = [ 'Produkt,Cena netto,Dostępność' ]
+	.concat( Array.from( { length: 260 }, ( _, i ) => `Pozycja ${ i + 1 },${ 100 + i },W magazynie` ) )
+	.join( '\n' );
+
+fs.writeFileSync( `${ SITE_PATH }/wp-content/lstab-mock-custom.csv`, longSheet );
+setMock( 'custom' );
+
+const addLongSheet = async ( title ) => {
+	await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit`, { waitUntil: 'networkidle' } );
+	await page.fill( '#lstab-sheet-url', 'https://docs.google.com/spreadsheets/d/1LongSheetForPagingTest0000000000000000/edit#gid=0' );
+	await page.click( '#lstab-preview-button' );
+	await awaitPreview( 20000 );
+	await page.fill( '#lstab-title', title );
+};
+
+await addLongSheet( 'Długi cennik' );
+await Promise.all( [
+	page.waitForURL( /lstab-saved|page=live-sheets-table/ ),
+	page.locator( '.lstab-submit button[type=submit]' ).click(),
+] );
+await page.waitForLoadState( 'networkidle' );
+
+const pagedNotice = await page.locator( '.notice, .lstab-notice' ).allInnerTexts();
+const pagedSaid = pagedNotice.join( ' | ' );
+check( /260/.test( pagedSaid ), 'The screen says how long the sheet turned out to be', pagedSaid.slice( 0, 200 ) );
+check( /50/.test( pagedSaid ), 'And how many rows it is showing at a time', pagedSaid.slice( 0, 200 ) );
+check( /Columns and rows/.test( pagedSaid ), 'And where to change its mind', pagedSaid.slice( 0, 200 ) );
+
+/*
+ * From the card, not the address bar: a save lands on the list, so the URL
+ * afterwards names no sheet at all. Reading 0 out of it and opening the "add a
+ * sheet" screen is a test that always passes when the answer should be "off"
+ * and always fails when it should be "on" — which is exactly what it did.
+ */
+const cardOfSheet = ( title ) =>
+	page.locator( '.lstab-src' ).filter( { has: page.getByRole( 'heading', { name: title, exact: true } ) } );
+
+const idOfSheet = async ( title ) => {
+	const href = await cardOfSheet( title ).locator( 'a:has-text("Edit")' ).first().getAttribute( 'href' );
+
+	return Number( ( ( href || '' ).match( /source=(\d+)/ ) || [] )[ 1 ] || 0 );
+};
+
+const longId = await idOfSheet( 'Długi cennik' );
+check( longId > 0, 'The new sheet is on the list', String( longId ) );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ longId }`, { waitUntil: 'networkidle' } );
+await pane( 'look' );
+check( await page.locator( '#lstab-paging' ).isChecked(), 'Pages really are on, not merely announced' );
+check( '50' === await page.locator( '#lstab-per-page' ).inputValue(), 'Fifty rows to a page' );
+
+// A decision somebody made themselves is never overruled.
+await addLongSheet( 'Długi cennik bez stron' );
+await pane( 'look' );
+await page.locator( '#lstab-paging' ).check();
+await page.locator( '#lstab-paging' ).uncheck();
+await Promise.all( [
+	page.waitForURL( /lstab-saved|page=live-sheets-table/ ),
+	page.locator( '.lstab-submit button[type=submit]' ).click(),
+] );
+await page.waitForLoadState( 'networkidle' );
+
+const declinedId = await idOfSheet( 'Długi cennik bez stron' );
+check( declinedId > 0 && declinedId !== longId, 'And so is the second one', String( declinedId ) );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ declinedId }`, { waitUntil: 'networkidle' } );
+await pane( 'look' );
+check( ! ( await page.locator( '#lstab-paging' ).isChecked() ), 'Switching pages off on the way in is respected' );
+
+// And the sheet that was already there is asked rather than changed.
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+const offer = cardOfSheet( 'Długi cennik bez stron' ).locator( '.lstab-src-offer' ).first();
+check( await offer.count() > 0, 'A long sheet already saved is offered pages on its card' );
+const offerSaid = await offer.innerText();
+check( /260/.test( offerSaid ), 'The offer names the number that prompted it', offerSaid.replace( /\n/g, ' ' ) );
+await offer.screenshot( { path: `${ SHOTS }/26-paging-offer.png` } ).catch( () => {} );
+
+await Promise.all( [
+	page.waitForURL( /page=live-sheets-table/ ),
+	offer.locator( 'button:has-text("Yes")' ).click(),
+] );
+await page.waitForLoadState( 'networkidle' );
+
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ declinedId }`, { waitUntil: 'networkidle' } );
+await pane( 'look' );
+check( await page.locator( '#lstab-paging' ).isChecked(), 'Saying yes on the card turns them on' );
+
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+check(
+	0 === await cardOfSheet( 'Długi cennik bez stron' ).locator( '.lstab-src-offer' ).count(),
+	'And the card stops asking'
+);
+
+// Clean up: the rest of the run expects the demo sheet and nothing else.
+for ( const id of [ longId, declinedId ] ) {
+	if ( id ) {
+		execFileSync( 'php', [ new URL( 'drop-source.php', import.meta.url ).pathname, SITE_PATH, String( id ) ] );
+	}
+}
+
+setMock( 'ok' );
+
+// ---------------------------------------------------------------- block editor
 section( '10. Block editor' );
 setMock( 'ok' );
 

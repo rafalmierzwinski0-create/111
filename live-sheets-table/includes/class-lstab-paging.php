@@ -29,6 +29,112 @@ class LSTAB_Paging {
 	const MAX_PER_PAGE = 500;
 
 	/**
+	 * How long a sheet has to be before pages are offered without being asked for.
+	 *
+	 * Not a limit — nothing refuses to render a longer table. It is the length
+	 * at which a table stops being something you read and becomes something you
+	 * scroll past: the argument here is the reader's patience rather than the
+	 * page's weight, which is why the number is this low.
+	 */
+	const AUTO_THRESHOLD = 200;
+
+	/**
+	 * How many rows a page gets when it was turned on rather than chosen.
+	 *
+	 * Comfortably more than a screenful, so the pager is not in the way, and
+	 * small enough that the page is quick on a phone.
+	 */
+	const AUTO_PER_PAGE = 50;
+
+	/**
+	 * Sources whose owner has said they do not want pages here.
+	 */
+	const DECLINED_OPT = 'lstab_paging_declined';
+
+	/**
+	 * The length at which pages start being suggested.
+	 *
+	 * @return int
+	 */
+	public static function auto_threshold() {
+		return max( 1, (int) apply_filters( 'lstab_auto_paging_threshold', self::AUTO_THRESHOLD ) );
+	}
+
+	/**
+	 * The page size used when nobody chose one.
+	 *
+	 * @return int
+	 */
+	public static function auto_per_page() {
+		$rows = (int) apply_filters( 'lstab_auto_paging_per_page', self::AUTO_PER_PAGE );
+
+		return min( self::MAX_PER_PAGE, max( 1, $rows ) );
+	}
+
+	/**
+	 * Whether a sheet is long enough to be worth paging.
+	 *
+	 * @param array<string,mixed> $source Source row.
+	 * @return bool
+	 */
+	public static function is_long( $source ) {
+		return isset( $source['row_count'] ) && (int) $source['row_count'] >= self::auto_threshold();
+	}
+
+	/**
+	 * Whether this sheet's card should offer to turn pages on.
+	 *
+	 * Only for a sheet already saved without them: a sheet being created gets
+	 * them turned on and is told so, and one somebody has said no to is not
+	 * asked again. A suggestion that cannot be got rid of is nagging.
+	 *
+	 * @param array<string,mixed> $source Source row.
+	 * @return bool
+	 */
+	public static function should_offer( $source ) {
+		if ( empty( $source['id'] ) || ! empty( $source['per_page'] ) || ! self::is_long( $source ) ) {
+			return false;
+		}
+
+		return ! in_array( (int) $source['id'], self::declined(), true );
+	}
+
+	/**
+	 * Sources whose owner has turned the suggestion down.
+	 *
+	 * @return array<int,int>
+	 */
+	public static function declined() {
+		return array_map( 'absint', (array) get_option( self::DECLINED_OPT, array() ) );
+	}
+
+	/**
+	 * Remember that this sheet was offered pages and did not want them.
+	 *
+	 * @param int $source_id Source ID.
+	 * @return void
+	 */
+	public static function decline( $source_id ) {
+		$declined = self::declined();
+
+		if ( ! in_array( (int) $source_id, $declined, true ) ) {
+			$declined[] = (int) $source_id;
+			update_option( self::DECLINED_OPT, $declined, true );
+		}
+	}
+
+	/**
+	 * Forget a sheet that has gone.
+	 *
+	 * @param int $source_id Source ID.
+	 * @return void
+	 */
+	public static function forget( $source_id ) {
+		$declined = array_values( array_diff( self::declined(), array( (int) $source_id ) ) );
+		update_option( self::DECLINED_OPT, $declined, true );
+	}
+
+	/**
 	 * What each table on this page worked out, keyed by source ID.
 	 *
 	 * @var array<int,array<string,mixed>>
@@ -47,6 +153,10 @@ class LSTAB_Paging {
 		 * anything keyed by position has to see the result, not the input.
 		 */
 		add_filter( 'lstab_source_rows', array( __CLASS__, 'filter_rows' ), 15, 4 );
+
+		// A deleted sheet takes its "no thanks" with it, so the next sheet to
+		// be given that ID does not inherit an answer nobody gave.
+		add_action( 'lstab_source_deleted', array( __CLASS__, 'forget' ) );
 	}
 
 	/**

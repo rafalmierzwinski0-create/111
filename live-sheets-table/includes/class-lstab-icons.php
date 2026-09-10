@@ -157,6 +157,8 @@ class LSTAB_Icons {
 			'copy'     => '<rect x="9" y="9" width="11.5" height="11.5" rx="2.4"></rect><path d="M15 6.2V5.4A2 2 0 0 0 13 3.4H5.6a2 2 0 0 0-2 2V13a2 2 0 0 0 2 2h.9"></path>',
 			'clock'    => '<circle cx="12" cy="12" r="8.6"></circle><path d="M12 7v5.3l3.4 2"></path>',
 			'plus'     => '<path d="M12 5.2v13.6M5.2 12h13.6"></path>',
+			// A stack of pages, for the offer to split a long table into them.
+			'pages'    => '<rect x="3.4" y="3.4" width="12.4" height="15.2" rx="1.8"></rect><path d="M18.2 6.6a1.8 1.8 0 0 1 1.8 1.8v10a2.2 2.2 0 0 1-2.2 2.2H7.4"></path><path d="M6.6 7.6h6M6.6 11h6M6.6 14.4h3.4"></path>',
 			'sliders'  => '<path d="M4 7.4h14.6M4 16.6h11"></path><circle cx="16.2" cy="7.4" r="2.3"></circle><circle cx="8.6" cy="16.6" r="2.3"></circle>',
 			'spark'    => '<path d="m12 3.6 2 5.6 5.6 2-5.6 2-2 5.6-2-5.6-5.6-2 5.6-2z"></path>',
 			'pencil'   => '<path d="M4 20.1h4.1L20 8.2a2.1 2.1 0 0 0 0-3l-1.2-1.2a2.1 2.1 0 0 0-3 0L4 15.9z"></path>',

@@ -686,4 +686,17 @@ return array(
 		),
 	'Tab: %s'                                    => 'Zakładka: %s',
 	'%s more column'                             => array( '%s kolumna więcej', '%s kolumny więcej', '%s kolumn więcej' ),
+
+	// Pages offered for a sheet too long to read in one go.
+	'Saved. This sheet has %1$s rows, so it is being shown %2$s at a time — the whole thing on one page would be slow to load and hard to read. Your visitors get a search box and page buttons, and both look through every row, not just the page on screen. To show it all at once instead, turn pages off under “%3$s”.'
+		=> 'Zapisano. Ten arkusz ma %1$s wierszy, więc pokazujemy go po %2$s naraz — całość na jednej stronie ładowałaby się wolno i źle się czytało. Odwiedzający dostają pole wyszukiwania i przyciski stron, a jedno i drugie przeszukuje wszystkie wiersze, nie tylko tę stronę, którą widać. Aby pokazać całość naraz, wyłącz strony w zakładce „%3$s”.',
+	'This sheet has grown to %1$s rows. Shall it be shown %2$s at a time? Visitors get page buttons, the page loads quicker, and searching and sorting still cover every row.'
+		=> 'Ten arkusz urósł do %1$s wierszy. Pokazywać go po %2$s naraz? Odwiedzający dostaną przyciski stron, strona wczyta się szybciej, a wyszukiwanie i sortowanie nadal obejmą wszystkie wiersze.',
+	'Yes, %s at a time'                          => 'Tak, po %s naraz',
+	'No, keep one long table'                    => 'Nie, zostaw jedną długą tabelę',
+	'Kept as one long table. You will not be asked about this sheet again.'
+		=> 'Zostaje jedna długa tabela. Nie zapytamy więcej o ten arkusz.',
+	'“%1$s” is now shown %2$s rows at a time. Change the number, or go back to one long table, under “%3$s” on its own screen.'
+		=> '„%1$s” jest teraz pokazywany po %2$s wierszy naraz. Liczbę zmienisz — albo wrócisz do jednej długiej tabeli — w zakładce „%3$s” na ekranie tego arkusza.',
+	'That sheet is gone.'                        => 'Tego arkusza już nie ma.',
 );

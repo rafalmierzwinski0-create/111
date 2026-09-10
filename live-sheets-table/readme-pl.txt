@@ -4,7 +4,7 @@ Tags: arkusze google, tabela, arkusz kalkulacyjny, csv, tabela danych
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.26.0
+Stable tag: 3.27.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -167,6 +167,11 @@ Tak. Wszystko z arkusza jest escapowane przy wyjściu, więc komórka zawierają
 == Changelog ==
 
 Pełna historia wydań znajduje się w pliku readme.txt.
+
+= 3.27.0 =
+* Nowość: arkusz mający dwieście wierszy lub więcej dostaje strony już przy zakładaniu i od razu jest o tym mowa w zdaniu, które Cię wita — ile wierszy arkusz ostatecznie ma, po ile jest pokazywany i gdzie to zmienić. Nic nie dzieje się po cichu: jeśli sam dotknąłeś przełącznika stron, w jedną czy w drugą stronę, Twoja decyzja zostaje.
+* Nowość: arkusz, który już miałeś i który urósł powyżej dwustu wierszy, jest pytany, a nie zmieniany. Jego karta proponuje strony, mówi, ile wierszy skłoniło ją do tego pytania, i przyjmuje „tak” albo „nie” jednym kliknięciem — opublikowana strona nie ma prawa przestawiać się za plecami autora. „Nie” jest zapamiętywane, bo propozycja, która wraca w kółko, przestaje być propozycją.
+* Poprawka: przycisk kopiowania obok shortcode'u potrafił w nieskończoność stać z napisem „Kopiuj”. Nowoczesne wywołanie schowka nie zawsze odpowiada — przeglądarka, która uzna, że strona nie jest przed Tobą, zawiesza je zamiast odmówić — więc dostaje teraz półtorej sekundy, po czym shortcode zostaje zaznaczony, a przycisk mówi, żeby nacisnąć Ctrl+C. Przycisk, który nie odpowiada wcale, jest gorszy od takiego, który przyznaje się, że nie dał rady.
 
 = 3.26.0 =
 * Poprawka: język wybrany na witrynie, która nigdy wcześniej nie zapisała ustawień wtyczki, nie zaczynał działać, dopóki ktoś nie zapisał ich po raz drugi. Pierwszy zapis tworzy ustawienia, a nie je zmienia, i WordPress ogłasza te dwie rzeczy inaczej; wtyczka nasłuchiwała tylko jednej z nich, więc odpowiadała na zapis w języku, z którego właśnie zrezygnowałeś. Wykryte przez odbudowanie witryny testowej od zera — używane wcześniej środowisko tego nie pokaże — a teraz pilnuje tego test, który świeżej instalacji nie potrzebuje.

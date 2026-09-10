@@ -36,6 +36,8 @@ class LSTAB_Admin {
 		add_action( 'admin_post_lstab_delete_source', array( $this, 'handle_delete' ) );
 		add_action( 'admin_post_lstab_refresh_source', array( $this, 'handle_refresh' ) );
 		add_action( 'admin_post_lstab_dismiss_ragged', array( $this, 'handle_dismiss_ragged' ) );
+		add_action( 'admin_post_lstab_page_source', array( $this, 'handle_page_source' ) );
+		add_action( 'admin_post_lstab_keep_one_page', array( $this, 'handle_keep_one_page' ) );
 		add_action( 'admin_notices', array( $this, 'print_global_notice' ) );
 		// At the very top of every screen, not only ours: a countdown to a
 		// public page changing is not something to find only if you go looking.
@@ -452,6 +454,16 @@ class LSTAB_Admin {
 			$data['title'] = $data['tab_name'] ? $data['tab_name'] : __( 'Untitled sheet', 'live-sheets-table' );
 		}
 
+		/*
+		 * Both read before the row is written, because afterwards there is no
+		 * telling a sheet that was just created from one that already existed,
+		 * nor a paging box nobody looked at from one deliberately left off.
+		 * The screen sets the second when the switch or the number is touched.
+		 */
+		$is_new = ! $source_id;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce and capability checked at the top of this handler.
+		$paging_chosen = ! empty( $_POST['paging_touched'] );
+
 		if ( $source_id ) {
 			LSTAB_Storage::update( $source_id, $data );
 		} else {
@@ -478,7 +490,14 @@ class LSTAB_Admin {
 			);
 		}
 
+		$paged_for_you = $is_new ? $this->page_a_long_new_sheet( $source_id, $paging_chosen ) : '';
+
 		list( $lstab_type, $lstab_message ) = $this->sync_outcome( $source_id, __( 'Sheet source saved and synced.', 'live-sheets-table' ) );
+
+		if ( '' !== $paged_for_you && 'error' !== $lstab_type ) {
+			$lstab_message = $paged_for_you;
+		}
+
 		$this->redirect_with_notice( $source_id, $lstab_type, $lstab_message, true );
 	}
 
@@ -1165,6 +1184,96 @@ class LSTAB_Admin {
 	 *
 	 * @return int Rows per page, or 0 for the whole sheet on one page.
 	 */
+	/**
+	 * Take up the offer of pages on a sheet that already exists.
+	 *
+	 * @return void
+	 */
+	public function handle_page_source() {
+		$this->guard( 'lstab_page_source' );
+
+		$source_id = isset( $_POST['source_id'] ) ? absint( wp_unslash( $_POST['source_id'] ) ) : 0;
+		$source    = $source_id ? LSTAB_Storage::get( $source_id ) : null;
+
+		if ( ! $source ) {
+			$this->redirect_with_notice( 0, 'error', __( 'That sheet is gone.', 'live-sheets-table' ), true );
+		}
+
+		$per_page = LSTAB_Paging::auto_per_page();
+		LSTAB_Storage::update( $source_id, array( 'per_page' => $per_page ) );
+		LSTAB_Cache::purge( $source_id );
+
+		$this->redirect_with_notice(
+			0,
+			'success',
+			sprintf(
+				/* translators: 1: sheet title, 2: rows per page, 3: name of the tab holding the setting. */
+				__( '“%1$s” is now shown %2$s rows at a time. Change the number, or go back to one long table, under “%3$s” on its own screen.', 'live-sheets-table' ),
+				$source['title'],
+				number_format_i18n( $per_page ),
+				__( 'Columns and rows', 'live-sheets-table' )
+			),
+			true
+		);
+	}
+
+	/**
+	 * Turn the offer of pages down, and stop being asked.
+	 *
+	 * @return void
+	 */
+	public function handle_keep_one_page() {
+		$this->guard( 'lstab_keep_one_page' );
+
+		$source_id = isset( $_POST['source_id'] ) ? absint( wp_unslash( $_POST['source_id'] ) ) : 0;
+
+		if ( $source_id ) {
+			LSTAB_Paging::decline( $source_id );
+		}
+
+		$this->redirect_with_notice( 0, 'success', __( 'Kept as one long table. You will not be asked about this sheet again.', 'live-sheets-table' ), true );
+	}
+
+	/**
+	 * Turn pages on for a newly created sheet that turned out to be long.
+	 *
+	 * Only ever on creation, and only when nobody touched the paging control:
+	 * a sheet already on a page must not rearrange itself behind its author's
+	 * back, and somebody who deliberately left paging off has answered the
+	 * question already.
+	 *
+	 * The decision is not hidden. It is the sentence the screen greets you
+	 * with, it names the number that caused it, and it says where to undo it —
+	 * because a setting that changed itself and did not say so is worse than
+	 * no setting at all.
+	 *
+	 * @param int  $source_id     The sheet just created.
+	 * @param bool $paging_chosen Whether the author touched the paging control.
+	 * @return string Message to greet them with, or '' to leave the usual one.
+	 */
+	protected function page_a_long_new_sheet( $source_id, $paging_chosen ) {
+		if ( $paging_chosen ) {
+			return '';
+		}
+
+		$source = LSTAB_Storage::get( $source_id );
+
+		if ( ! $source || ! empty( $source['per_page'] ) || ! LSTAB_Paging::is_long( $source ) ) {
+			return '';
+		}
+
+		$per_page = LSTAB_Paging::auto_per_page();
+		LSTAB_Storage::update( $source_id, array( 'per_page' => $per_page ) );
+
+		return sprintf(
+			/* translators: 1: number of rows in the sheet, 2: rows per page, 3: name of the tab holding the setting. */
+			__( 'Saved. This sheet has %1$s rows, so it is being shown %2$s at a time — the whole thing on one page would be slow to load and hard to read. Your visitors get a search box and page buttons, and both look through every row, not just the page on screen. To show it all at once instead, turn pages off under “%3$s”.', 'live-sheets-table' ),
+			number_format_i18n( (int) $source['row_count'] ),
+			number_format_i18n( $per_page ),
+			__( 'Columns and rows', 'live-sheets-table' )
+		);
+	}
+
 	protected static function per_page_from_post() {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- The caller has already checked the nonce and the capability.
 		if ( empty( $_POST['paging'] ) ) {

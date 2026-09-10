@@ -22,7 +22,21 @@
 	 */
 	function copyText( text ) {
 		if ( navigator.clipboard && navigator.clipboard.writeText ) {
-			return navigator.clipboard.writeText( text );
+			/*
+			 * Raced against the clock, because the modern API does not always
+			 * answer. Chromium leaves the promise hanging for ever when the
+			 * page loses focus between the click and the write — no success,
+			 * no error — and a button that answers neither is a button that
+			 * sits there saying "Copy" while the person wonders whether it
+			 * worked. After a second and a half we stop waiting and take the
+			 * old path, which selects the shortcode and says to press Ctrl+C.
+			 */
+			return Promise.race( [
+				navigator.clipboard.writeText( text ),
+				new Promise( function ( resolve, reject ) {
+					window.setTimeout( reject, 1500 );
+				} ),
+			] );
 		}
 
 		return new Promise( function ( resolve, reject ) {

@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.26.0
+Stable tag: 3.27.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -180,6 +180,11 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.27.0 =
+* Added: a sheet of two hundred rows or more gets pages the moment it is created, and is told so in the sentence that greets you — how long the sheet turned out to be, how many rows a page is holding, and where to change it. Nothing is decided quietly: if you touched the paging switch yourself, on either setting, that answer stands.
+* Added: a sheet you already had that has grown past two hundred rows is asked rather than changed. Its card offers pages, says how many rows prompted the question, and takes yes or no in one click — a published page must not rearrange itself behind its author's back. "No" is remembered, because an offer that keeps coming back is not an offer.
+* Fixed: the copy button beside a shortcode could sit there saying "Copy" for ever. The modern clipboard call does not always answer — a browser that decides the page is not in front of you leaves it hanging rather than refusing — so it is now given a second and a half, after which the shortcode is selected for you and the button says to press Ctrl+C. A button that answers neither way is worse than one that admits it could not.
 
 = 3.26.0 =
 * Fixed: a language chosen on a site that had never saved the plugin's settings did not take hold until something saved them a second time. The very first save creates the settings rather than changing them, and WordPress announces those two things differently; the plugin was listening for only one of them, so it answered the save in the language you had just stopped using. Found by rebuilding the test site from nothing — an environment that has been used before cannot show this, and now a test proves it without needing one.
