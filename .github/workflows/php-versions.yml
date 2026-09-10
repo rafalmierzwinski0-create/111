@@ -1,0 +1,81 @@
+name: PHP versions
+
+# What this answers: the plugin's headers promise it runs on PHP 7.4, and
+# nothing was ever checking that. The suite is developed on one PHP, so a
+# construct that needs a newer one would pass every local run and fail on the
+# customer's shared host, where WordPress simply refuses to activate.
+#
+# Each version in the matrix builds the real WordPress test sites and runs the
+# real end-to-end suites against them, exactly as tests/run-all.sh does locally,
+# minus the browser run: what is being checked here is the language the code is
+# written in, not what a browser does with it.
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'claude/**'
+      - main
+  pull_request:
+
+jobs:
+  suite:
+    name: PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # The oldest the plugin claims, the oldest still receiving security
+        # fixes, and the newest. Anything between these three that broke would
+        # have to break in a way none of them noticed.
+        php: [ '7.4', '8.2', '8.4' ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: sqlite3, pdo_sqlite, mbstring, xml, curl, zip, gd
+          coverage: none
+
+      - name: Report what is actually running
+        run: php -v
+
+      # A parse error is version-specific, so this alone catches anything
+      # written in a PHP newer than the one under test.
+      - name: Check every file parses
+        run: |
+          set -e
+          find live-sheets-table live-sheets-table-pro tools tests -name '*.php' -print0 \
+            | xargs -0 -n1 php -l > /dev/null
+
+      - name: Build the WordPress test sites
+        run: bash tests/setup-env.sh
+
+      - name: Free plugin — WordPress 6.7
+        run: php tests/e2e-test.php /tmp/lstab-env/wp
+
+      - name: Free plugin — WordPress 7.1
+        run: php tests/e2e-test.php /tmp/lstab-env/wp71
+
+      - name: Sheets and requests nobody would write on purpose
+        run: php tests/explore-test.php /tmp/lstab-env/wp71
+
+      - name: Pro add-on
+        run: |
+          php tests/harness/activate.php /tmp/lstab-env/wp71 8089 live-sheets-table-pro/live-sheets-table-pro.php
+          php tests/pro-test.php /tmp/lstab-env/wp71
+
+      - name: PHP notices raised by the plugin
+        run: |
+          log=/tmp/lstab-env/wp71/wp-content/debug.log
+          if [ -f "$log" ] && grep -v 'wordpress.org\|wp_version_check\|wp_update_plugins\|wp_update_themes' "$log" | grep -q .; then
+            echo "The plugin raised these:"
+            grep -v 'wordpress.org\|wp_version_check\|wp_update_plugins\|wp_update_themes' "$log"
+            exit 1
+          fi
+          echo "none"
