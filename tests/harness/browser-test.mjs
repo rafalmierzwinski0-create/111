@@ -8,7 +8,23 @@ import { execFileSync } from 'node:child_process';
 const BASE = process.env.LSTAB_BASE || 'http://127.0.0.1:8089';
 const SHOTS = process.env.LSTAB_SHOTS || new URL( '../../screenshots', import.meta.url ).pathname;
 const SCRATCH = process.env.LSTAB_SCRATCH || '/tmp/lstab-env';
-const MOCK_STATE = `${ SCRATCH }/wp71/wp-content/lstab-mock-state.json`;
+
+/*
+ * Which of the scratch sites BASE is serving. This used to be the string
+ * 'wp71' in three places, which meant the suite drove the 7.1 site's Google
+ * mock and settings no matter which site it was actually looking at: pointed
+ * at the 6.7 site it forced a failure on 7.1, saw 6.7 still working, and
+ * reported the dashboard as broken. Derived from the port, so pointing the
+ * suite at another site is one environment variable and no edits.
+ */
+const SITE = process.env.LSTAB_SITE || ( {
+	'8088': 'wp',
+	'8089': 'wp71',
+	'8090': 'wpzip',
+}[ new URL( BASE ).port ] || 'wp71' );
+
+const SITE_PATH = `${ SCRATCH }/${ SITE }`;
+const MOCK_STATE = `${ SITE_PATH }/wp-content/lstab-mock-state.json`;
 const CHROMIUM = process.env.LSTAB_CHROMIUM || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 fs.mkdirSync( SHOTS, { recursive: true } );
 
@@ -22,7 +38,7 @@ const setMock = ( mode, tab = 'main' ) =>
 const setDetailColumn = ( column, on ) =>
 	execFileSync( 'php', [
 		new URL( 'set-detail.php', import.meta.url ).pathname,
-		`${ SCRATCH }/wp71`,
+		SITE_PATH,
 		String( sourceId ),
 		String( column ),
 		on ? '1' : '0',
@@ -35,7 +51,7 @@ const setDetailColumn = ( column, on ) =>
 const setSyncLog = ( log ) =>
 	execFileSync( 'php', [
 		new URL( 'set-sync-log.php', import.meta.url ).pathname,
-		`${ SCRATCH }/wp71`,
+		SITE_PATH,
 		String( sourceId ),
 		log,
 	] ).toString().trim();
@@ -2356,8 +2372,15 @@ const pageId = await page.evaluate( async ( base ) => {
 	return json.length ? json[ 0 ].id : 0;
 }, BASE );
 
-await page.goto( `${ BASE }/wp-admin/post.php?post=${ pageId }&action=edit`, { waitUntil: 'networkidle' } );
-await page.waitForTimeout( 4000 );
+/*
+ * Not networkidle. The block editor keeps talking — and on a machine with no
+ * way out to the internet one of those requests hangs until it times out, so
+ * the network never goes idle and a working editor is reported as a thirty
+ * second failure. What matters is that the block drew its table, so that is
+ * what is waited for.
+ */
+await page.goto( `${ BASE }/wp-admin/post.php?post=${ pageId }&action=edit`, { waitUntil: 'domcontentloaded' } );
+await page.waitForTimeout( 9000 );
 
 // Dismiss the welcome modal if it appears.
 const modalClose = page.locator( '.components-modal__header button[aria-label]' );

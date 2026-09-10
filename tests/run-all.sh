@@ -21,6 +21,14 @@ REPO="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 # Warnings WordPress itself raises because this sandbox cannot reach wordpress.org.
 NOISE='wordpress.org\|wp_version_check\|wp_update_plugins\|wp_update_themes'
 
+# A long-lived sandbox reaps idle background processes, so the servers built by
+# setup-env.sh are often gone by the time anybody runs this. Three whole runs
+# have failed that way, every one of them reported as a broken plugin. They are
+# checked, and restarted if need be, before a single assertion is made.
+# shellcheck source=harness/servers.sh
+. "$REPO/tests/harness/servers.sh"
+lstab_start_servers
+
 run_suite() {
 	local site="$1" label="$2"
 	echo
@@ -152,6 +160,38 @@ php "$SCRATCH/seed71.php" > /dev/null
 cp "$REPO/tests/harness/picker-test.mjs" "$SCRATCH/picker-test.mjs"
 cd "$SCRATCH" && LSTAB_SHOTS="$REPO/screenshots" node picker-test.mjs
 php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null
+
+echo
+echo "=============================================="
+echo " Pro add-on suite — WordPress 6.7"
+echo "=============================================="
+# The oldest branch the plugin claims, exercised as thoroughly as the newest.
+# Running the add-on here is what caught add_submenu_page() being absent from a
+# command-line WordPress 6.7 — on 7.1 it happens to be loaded, so a suite that
+# only ever ran on 7.1 could not have seen it.
+php "$REPO/tests/harness/activate.php" "$SCRATCH/wp" 8088 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null
+rm -f "$SCRATCH/wp/wp-content/debug.log"
+php "$REPO/tests/pro-test.php" "$SCRATCH/wp"
+
+if [ -f "$SCRATCH/wp/wp-content/debug.log" ] && grep -v "$NOISE" "$SCRATCH/wp/wp-content/debug.log" | grep -q .; then
+	echo
+	echo "  PHP notices raised by the Pro add-on on 6.7:"
+	grep -v "$NOISE" "$SCRATCH/wp/wp-content/debug.log" | sed 's/^/    /'
+	exit 1
+fi
+echo "  PHP notices raised by the Pro add-on on 6.7: none"
+
+php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp" 8088 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null
+
+echo
+echo "=============================================="
+echo " Browser suite — WordPress 6.7"
+echo "=============================================="
+# Same run, oldest supported WordPress. The screenshots stay the 7.1 ones: they
+# are the plugin's shop window, not a record of this run.
+php "$SCRATCH/seed67.php" > /dev/null
+cd "$SCRATCH" && LSTAB_SCRATCH="$SCRATCH" LSTAB_BASE="http://127.0.0.1:8088" \
+	LSTAB_SHOTS="$SCRATCH/shots67" node browser-test.mjs
 
 echo
 echo "All suites passed."

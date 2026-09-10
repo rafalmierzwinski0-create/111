@@ -113,29 +113,22 @@ make_site wp71  wp-core-new 8089 yes
 echo "Building the clean site for zip installs on port 8090…"
 make_site wpzip wp-core-new 8090 no
 
-# The seed script needs to know where the 7.1 site lives.
+# A seed script per site that a browser suite runs against. The oldest branch
+# gets one too: it is the version the plugin claims to support, and until it had
+# a seed of its own the browser suite could only ever be pointed at 7.1.
 sed -e "s#__SITE__#$SCRATCH/wp71#" -e "s#__PORT__#8089#" \
 	"$REPO/tests/harness/seed.template.php" > "$SCRATCH/seed71.php"
+sed -e "s#__SITE__#$SCRATCH/wp#" -e "s#__PORT__#8088#" \
+	"$REPO/tests/harness/seed.template.php" > "$SCRATCH/seed67.php"
 
 # ---------------------------------------------------------------- servers
 
-start_server() {
-	local dir="$1" port="$2"
-	if curl -s -o /dev/null --noproxy '*' --max-time 3 "http://127.0.0.1:$port/"; then
-		echo "  port $port already serving"
-		return
-	fi
-	setsid nohup php -S "127.0.0.1:$port" -t "$SCRATCH/$dir" "$SCRATCH/router-$dir.php" \
-		> "$SCRATCH/server-$dir.log" 2>&1 < /dev/null &
-	sleep 1
-	echo "  started $dir on port $port"
-}
+# shellcheck source=harness/servers.sh
+. "$REPO/tests/harness/servers.sh"
 
 echo
 echo "Starting web servers…"
-start_server wp    8088
-start_server wp71  8089
-start_server wpzip 8090
+lstab_start_servers
 
 # ------------------------------------------------------------- node deps
 

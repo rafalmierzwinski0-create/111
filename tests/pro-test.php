@@ -26,6 +26,15 @@ $_SERVER['REQUEST_METHOD'] = 'GET';
 
 require_once $wp_root . '/wp-load.php';
 
+/*
+ * The menu functions live in the admin, and this suite fires admin_menu from
+ * the command line. WordPress 7.1 happens to have add_submenu_page() loaded by
+ * then and 6.7 does not, so leaving this out passed on one version and died
+ * with a fatal on the other — a difference in the test, not in the plugin,
+ * which is exactly the kind of thing that makes a real difference hard to see.
+ */
+require_once $wp_root . '/wp-admin/includes/plugin.php';
+
 $GLOBALS['lstab_passed'] = 0;
 $GLOBALS['lstab_failed'] = 0;
 
