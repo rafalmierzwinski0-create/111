@@ -2601,6 +2601,32 @@ lstab_assert( '' === LSTAB_Locale::sanitize( 'de_DE' ), 'A language nobody offer
 lstab_assert( 'pl_PL' === LSTAB_Locale::sanitize( 'pl_PL' ), 'A language on the list is kept' );
 lstab_assert( array_key_exists( '', LSTAB_Locale::choices() ), 'Following the site is one of the choices' );
 
+/*
+ * The first save a site ever makes *creates* the settings option; every save
+ * after that updates one. WordPress fires a different hook for each, and
+ * listening only for the update meant a brand-new site chose a language, saved,
+ * and was answered in the old one — the single occasion the remembered answer
+ * exists to get right. Done here rather than left to a fresh install, so a test
+ * environment that has been used before cannot hide it again.
+ */
+$lstab_settings_whole = LSTAB_Settings::all();
+delete_option( LSTAB_Settings::OPTION );
+LSTAB_Locale::forget();
+LSTAB_Locale::chosen();
+
+$lstab_first_save           = LSTAB_Settings::all();
+$lstab_first_save['locale'] = 'pl_PL';
+LSTAB_Settings::save( $lstab_first_save );
+
+lstab_assert(
+	'pl_PL' === LSTAB_Locale::chosen(),
+	'A language chosen on a site that has never saved settings takes effect at once',
+	var_export( LSTAB_Locale::chosen(), true )
+);
+
+LSTAB_Settings::save( $lstab_settings_whole );
+LSTAB_Locale::forget();
+
 $lstab_settings_now           = LSTAB_Settings::all();
 $lstab_settings_now['locale'] = 'pl_PL';
 LSTAB_Settings::save( $lstab_settings_now );

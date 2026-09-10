@@ -120,6 +120,15 @@ class LSTAB_Locale {
 	 * @return void
 	 */
 	public static function register() {
+		/*
+		 * Both, because WordPress fires one or the other and never both: the
+		 * very first save on a new site *creates* the option, and only a
+		 * later one updates it. Listening for the update alone meant a site
+		 * that had never opened the settings screen chose a language, saved,
+		 * and was answered in the old one — the single occasion this cache
+		 * exists to get right.
+		 */
+		add_action( 'add_option_' . LSTAB_Settings::OPTION, array( __CLASS__, 'forget' ) );
 		add_action( 'update_option_' . LSTAB_Settings::OPTION, array( __CLASS__, 'forget' ) );
 
 		add_filter( 'gettext', array( __CLASS__, 'single' ), 10, 3 );

@@ -1225,6 +1225,77 @@ lstabp_assert( is_array( get_option( LSTABP_Private_Sheets::META_OPTION, array()
 
 // ---------------------------------------------------------------------------
 
+lstabp_section( '7. Deleting the add-on takes the key to Google with it' );
+
+/*
+ * A refresh token opens the connected account's spreadsheets for as long as it
+ * exists, so it must not outlive the code that used it. Everything else here
+ * is somebody's configuration and follows the free plugin's "delete everything"
+ * setting, because deleting a plugin to reinstall it is a normal thing to do.
+ *
+ * The real uninstall.php runs, in its own process, exactly as WordPress runs
+ * it — asserting on the file's contents would prove nothing.
+ */
+$lstabp_seed_options = static function () {
+	update_option( 'lstabp_google_token', array( 'refresh_token' => 'test-refresh-token', 'access_token' => 'test-access', 'expires_at' => time() + 3600 ), false );
+	update_option( 'lstabp_google_client', array( 'client_id' => 'test.apps.googleusercontent.com', 'client_secret' => 'test-secret' ) );
+	update_option( 'lstabp_rules', array( 1 => array( array( 'column' => 'Cena', 'op' => 'gt', 'value' => '10', 'style' => '#fbd5d5' ) ) ) );
+	update_option( 'lstabp_facets', array( 1 => array( 'Cena' ) ) );
+	update_option( 'lstabp_export_sources', array( 1 => array( 'csv' ) ) );
+	update_option( 'lstabp_private_sources', array( 1 => true ) );
+	set_transient( 'lstabp_oauth_state_1', 'half-finished-handshake', HOUR_IN_SECONDS );
+};
+
+$lstabp_uninstall = static function () use ( $wp_root ) {
+	$command = escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( dirname( __FILE__ ) . '/harness/run-uninstall.php' )
+		. ' ' . escapeshellarg( $wp_root ) . ' ' . escapeshellarg( 'live-sheets-table-pro/live-sheets-table-pro.php' ) . ' 2>&1';
+
+	exec( $command, $output, $status );
+
+	wp_cache_flush();
+
+	return 0 === $status;
+};
+
+// First: nobody asked for their settings to be removed.
+$lstabp_settings = get_option( LSTAB_Settings::OPTION, array() );
+$lstabp_settings['delete_on_uninstall'] = false;
+update_option( LSTAB_Settings::OPTION, $lstabp_settings );
+
+$lstabp_seed_options();
+lstabp_assert( $lstabp_uninstall(), 'The add-on has an uninstall routine, and it runs' );
+
+lstabp_assert( false === get_option( 'lstabp_google_token' ), 'The key to Google is gone even though nothing else was asked for' );
+lstabp_assert( false === get_transient( 'lstabp_oauth_state_1' ), 'And so is a half-finished connection' );
+lstabp_assert( false !== get_option( 'lstabp_google_client' ), 'The Google application details are kept, because nobody asked to lose them' );
+lstabp_assert( false !== get_option( 'lstabp_rules' ), 'Colour rules survive a plugin being reinstalled' );
+lstabp_assert( false !== get_option( 'lstabp_facets' ), 'So do the filters visitors use' );
+lstabp_assert( false !== get_option( 'lstabp_export_sources' ), 'So does which sheets may be exported' );
+lstabp_assert( false !== get_option( 'lstabp_private_sources' ), 'So does which sheets are private' );
+
+// Then: the site said it wants everything gone.
+$lstabp_settings['delete_on_uninstall'] = true;
+update_option( LSTAB_Settings::OPTION, $lstabp_settings );
+
+$lstabp_seed_options();
+$lstabp_uninstall();
+
+lstabp_assert( false === get_option( 'lstabp_google_token' ), 'Asked to remove everything, the key goes' );
+lstabp_assert( false === get_option( 'lstabp_google_client' ), 'And the Google application details' );
+lstabp_assert( false === get_option( 'lstabp_rules' ), 'And the colour rules' );
+lstabp_assert( false === get_option( 'lstabp_facets' ), 'And the filters' );
+lstabp_assert( false === get_option( 'lstabp_export_sources' ), 'And the export settings' );
+lstabp_assert( false === get_option( 'lstabp_private_sources' ), 'And which sheets were private' );
+
+// Nothing of the free plugin's is this file's to touch, either way.
+lstabp_assert( false !== get_option( LSTAB_Settings::OPTION ), 'The free plugin\'s own settings are left alone' );
+lstabp_assert( ! empty( $wpdb->get_col( 'DESC ' . LSTAB_Storage::table(), 0 ) ), 'And its table is still standing' );
+
+$lstabp_settings['delete_on_uninstall'] = false;
+update_option( LSTAB_Settings::OPTION, $lstabp_settings );
+
+// ---------------------------------------------------------------------------
+
 echo "\n";
 echo str_repeat( '─', 60 ) . "\n";
 printf(

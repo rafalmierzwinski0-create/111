@@ -1,10 +1,10 @@
 === Live Sheets Table – Arkusze Google w WordPressie ===
 Contributors: livesheetstable
 Tags: arkusze google, tabela, arkusz kalkulacyjny, csv, tabela danych
-Requires at least: 6.0
+Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.25.0
+Stable tag: 3.26.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -167,6 +167,12 @@ Tak. Wszystko z arkusza jest escapowane przy wyjściu, więc komórka zawierają
 == Changelog ==
 
 Pełna historia wydań znajduje się w pliku readme.txt.
+
+= 3.26.0 =
+* Poprawka: język wybrany na witrynie, która nigdy wcześniej nie zapisała ustawień wtyczki, nie zaczynał działać, dopóki ktoś nie zapisał ich po raz drugi. Pierwszy zapis tworzy ustawienia, a nie je zmienia, i WordPress ogłasza te dwie rzeczy inaczej; wtyczka nasłuchiwała tylko jednej z nich, więc odpowiadała na zapis w języku, z którego właśnie zrezygnowałeś. Wykryte przez odbudowanie witryny testowej od zera — używane wcześniej środowisko tego nie pokaże — a teraz pilnuje tego test, który świeżej instalacji nie potrzebuje.
+* Poprawka (Pro): usunięcie dodatku zabiera ze sobą klucz do Twojego konta Google. Podłączenie arkusza prywatnego zostawia w bazie poświadczenie, które otwiera te arkusze tak długo, jak długo istnieje, a nic go nie kasowało — usunięcie wtyczki zostawiało je tam na zawsze. Teraz znika razem z dodatkiem, na każdej witrynie sieci, niezależnie od tego, co kazałeś zachować. Wszystko, co jest Twoją pracą — dane aplikacji Google, reguły kolorów, filtry, informacja, które arkusze są prywatne albo do pobrania — nadal podlega ustawieniu „usuń wszystko”, bo usunięcie wtyczki po to, by zainstalować ją ponownie, jest rzeczą normalną.
+* Poprawka: zdanie obok pola wyboru zakładki, tłumaczące, dlaczego lista jest krótka, jest teraz odczytywane razem z samym polem, a nie leży obok, gdzie czytnik ekranu nigdy by go z nim nie połączył.
+* Zmiana: wtyczka wymaga WordPressa 6.7 lub nowszego. Deklarowała 6.0, czego jej własny blok nie mógł dotrzymać — blok mówi wersją języka edytora, która pojawiła się w 6.3 — a nic poniżej 6.8 nigdy nie było na niej uruchamiane. Teraz 6.7 to zarazem to, co deklaruje, i to, na czym jest testowana.
 
 = 3.25.0 =
 * Poprawka: pole wyboru zakładki arkusza jest na ekranie od razu po otwarciu edytora i od razu pokazuje zakładkę, na którą arkusz jest ustawiony. Wcześniej było schowane, dopóki Google nie odpowiedziało listą zakładek — kilka sekund później — więc kto patrzył na formularz w trakcie wczytywania, nie widział sposobu na zmianę zakładki ani powodu, by sądzić, że taki się pojawi.

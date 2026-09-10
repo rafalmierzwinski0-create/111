@@ -142,15 +142,41 @@ const cardCopy = page.locator( '.lstab-src .lstab-copy' ).first();
 // setting the trap and reading it.
 await cardCopy.evaluate( ( el ) => {
 	window.lstabCopyWatch = new Promise( ( resolve ) => {
+		const label = el.querySelector( '.lstab-copy-label' );
+		const before = label ? label.textContent.trim() : '(no label)';
+		let reached = false;
+
+		/*
+		 * Everything a failure here could mean, gathered while it is still
+		 * true. This check has been intermittent twice, and each time the
+		 * bare "it did not say Copied" sent somebody hunting: whether the
+		 * click reached the button at all, whether the browser refused the
+		 * write, and whether the page had focus (Chromium refuses a clipboard
+		 * write to an unfocused document) are three different faults with one
+		 * symptom.
+		 */
+		const answer = ( why ) => resolve( {
+			ok: el.classList.contains( 'is-done' ),
+			why,
+			reached,
+			before,
+			after: label ? label.textContent.trim() : '(no label)',
+			focused: document.hasFocus(),
+		} );
+
+		el.addEventListener( 'click', () => {
+			reached = true;
+		}, { once: true } );
+
 		if ( el.classList.contains( 'is-done' ) ) {
-			resolve( true );
+			answer( 'already confirmed' );
 			return;
 		}
 
 		const observer = new MutationObserver( () => {
 			if ( el.classList.contains( 'is-done' ) ) {
 				observer.disconnect();
-				resolve( true );
+				answer( 'confirmed' );
 			}
 		} );
 
@@ -158,15 +184,16 @@ await cardCopy.evaluate( ( el ) => {
 
 		setTimeout( () => {
 			observer.disconnect();
-			resolve( false );
+			answer( 'nothing happened within five seconds' );
 		}, 5000 );
 	} );
 } );
 
 await cardCopy.click();
 
-const copyConfirmed = await page.evaluate( () => window.lstabCopyWatch );
-check( copyConfirmed, 'Clicking it confirms the shortcode was copied' );
+const copyResult = await page.evaluate( () => window.lstabCopyWatch );
+const copyConfirmed = copyResult.ok;
+check( copyConfirmed, 'Clicking it confirms the shortcode was copied', JSON.stringify( copyResult ) );
 
 check(
 	await page.locator( '.lstab-masthead h1' ).first().isVisible(),
@@ -2210,6 +2237,11 @@ await page.waitForTimeout( 2500 );
 const tabsThere = await page.locator( '#lstab-tabs option' ).allInnerTexts();
 check( tabsThere.length > 1, 'And the sheet\'s other tabs once it has been read', JSON.stringify( tabsThere ) );
 
+// The description is always attached; it is only spoken while there is
+// something to say. A working tab list must not drag an explanation along.
+const tabsQuiet = await page.locator( '#lstab-tabs-note' ).evaluate( ( el ) => el.hidden );
+check( tabsQuiet, 'With nothing wrong, nothing extra is read out either' );
+
 /*
  * A tab list that cannot be read is not a reason to take away the one control
  * that could change the tab: the sheet still has the one it was saved with.
@@ -2226,11 +2258,30 @@ await page.waitForTimeout( 2500 );
 const tabsUnread = await page.evaluate( () => {
 	const wrap = document.getElementById( 'lstab-tabs-wrap' );
 	const note = document.getElementById( 'lstab-tabs-note' );
+	const select = document.getElementById( 'lstab-tabs' );
 
-	return { hidden: wrap.hidden, note: note.hidden ? '' : note.textContent.trim() };
+	// What a screen reader would read out with the field: the label, then
+	// whatever aria-describedby points at, skipping it if it is hidden.
+	const describedBy = ( select.getAttribute( 'aria-describedby' ) || '' )
+		.split( /\s+/ )
+		.filter( Boolean )
+		.map( ( id ) => document.getElementById( id ) )
+		.filter( ( el ) => el && ! el.hidden && null !== el.offsetParent )
+		.map( ( el ) => el.textContent.trim() )
+		.join( ' ' );
+
+	return {
+		hidden: wrap.hidden,
+		note: note.hidden ? '' : note.textContent.trim(),
+		describedBy,
+	};
 } );
 check( ! tabsUnread.hidden, 'A tab list that cannot be read leaves the picker in place', JSON.stringify( tabsUnread ) );
 check( '' !== tabsUnread.note, 'And says why, beside it', JSON.stringify( tabsUnread ) );
+
+// Seeing the sentence is not the same as being told it. Without this, somebody
+// on a screen reader hears a list holding one tab and no reason for it.
+check( tabsUnread.describedBy === tabsUnread.note, 'And a screen reader is told the same thing, with the field', JSON.stringify( tabsUnread ) );
 await page.unroute( '**live-sheets-table/v1/preview**' );
 
 // ------------------------------------------------- which tab the editor opens

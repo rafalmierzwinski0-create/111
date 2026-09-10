@@ -1,10 +1,10 @@
 === Live Sheets Table – Google Sheets to WordPress ===
 Contributors: livesheetstable
 Tags: google sheets, table, spreadsheet, csv, data table
-Requires at least: 6.0
+Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.25.0
+Stable tag: 3.26.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -180,6 +180,12 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.26.0 =
+* Fixed: a language chosen on a site that had never saved the plugin's settings did not take hold until something saved them a second time. The very first save creates the settings rather than changing them, and WordPress announces those two things differently; the plugin was listening for only one of them, so it answered the save in the language you had just stopped using. Found by rebuilding the test site from nothing — an environment that has been used before cannot show this, and now a test proves it without needing one.
+* Fixed (Pro): deleting the add-on takes the key to your Google account with it. Connecting a private sheet leaves a credential in the database that opens those spreadsheets for as long as it exists, and nothing was removing it — deleting the plugin left it there for good. It is now deleted whenever the add-on is, on every site of a network, whatever else you have asked to keep. Everything that is your own work — the Google application's details, colour rules, filters, which sheets are private or exportable — still follows the "delete everything" setting, because deleting a plugin to reinstall it is a normal thing to do.
+* Fixed: the sentence beside the sheet-tab picker explaining why the list is short is now read out with the field itself, not left lying beside it where a screen reader would never connect the two.
+* Changed: the plugin asks for WordPress 6.7 or newer. It had been claiming 6.0, which its own block could not have honoured — the block speaks a version of the editor's language that arrived in 6.3 — and nothing below 6.8 was ever run against it. 6.7 is now both what it says and what it is tested on.
 
 = 3.25.0 =
 * Fixed: the picker for which tab of the sheet to publish is on the screen the moment the editor opens, already naming the tab this sheet is set to. It used to stay hidden until Google answered with the list of tabs a few seconds later, so anybody who looked at the form as it loaded saw no way to choose a tab and no reason to think one was coming.

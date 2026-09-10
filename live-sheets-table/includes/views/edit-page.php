@@ -151,7 +151,18 @@ if ( ! $lstab_is_edit ) {
 				?>
 				<div id="lstab-tabs-wrap" class="lstab-tabs" <?php echo $lstab_tab_known ? '' : 'hidden'; ?>>
 					<label for="lstab-tabs"><strong><?php esc_html_e( 'Sheet tab', 'live-sheets-table' ); ?></strong></label>
-					<select id="lstab-tabs">
+					<?php
+					/*
+					 * Pointed at the note below whether or not there is one to
+					 * read. A screen reader skips a description that is hidden,
+					 * so the attribute costs nothing while the list is fine and
+					 * means the reason is read out with the field on the one
+					 * occasion it matters — otherwise somebody who cannot see
+					 * the sentence beside the field hears a list of one tab and
+					 * no explanation of why.
+					 */
+					?>
+					<select id="lstab-tabs" aria-describedby="lstab-tabs-note">
 						<?php if ( $lstab_tab_known ) : ?>
 							<?php // On one line: an option's text is whatever is between the tags, indentation included. ?>
 							<option value="<?php echo esc_attr( (string) $lstab_values['gid'] ); ?>" selected><?php echo esc_html( $lstab_values['tab_name'] ); ?></option>

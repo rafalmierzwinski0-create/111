@@ -2,7 +2,7 @@
 #
 # Builds the local WordPress test environment from scratch:
 #
-#   $LSTAB_SCRATCH/wp     — WordPress 6.8, the oldest branch the plugin claims
+#   $LSTAB_SCRATCH/wp     — WordPress 6.7, the oldest release the plugin claims
 #   $LSTAB_SCRATCH/wp71   — WordPress 7.1, the current release
 #   $LSTAB_SCRATCH/wpzip  — empty site used to install the built zip into
 #
@@ -21,7 +21,7 @@ set -euo pipefail
 SCRATCH="${LSTAB_SCRATCH:-/tmp/lstab-env}"
 REPO="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
-WP_OLD_TAG="${LSTAB_WP_OLD:-6.8}"
+WP_OLD_TAG="${LSTAB_WP_OLD:-6.7}"
 WP_NEW_TAG="${LSTAB_WP_NEW:-7.1}"
 
 mkdir -p "$SCRATCH"

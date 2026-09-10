@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
-"POT-Creation-Date: 2026-09-09 11:40+0000\n"
+"POT-Creation-Date: 2026-09-10 16:17+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"

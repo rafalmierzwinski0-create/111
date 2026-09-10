@@ -2,7 +2,7 @@
 #
 # Full verification run.
 #
-#   1. PHP end-to-end suite against WordPress 6.8 (minimum supported branch)
+#   1. PHP end-to-end suite against WordPress 6.7 (the minimum the plugin claims)
 #   2. PHP end-to-end suite against WordPress 7.1 (current)
 #   3. Build the distributable zip
 #   4. PHP end-to-end suite against a clean site installed *from that zip*
@@ -48,7 +48,7 @@ run_suite() {
 php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null
 php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wpzip" 8090 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null 2>&1 || true
 
-run_suite wp    "WordPress 6.8 (minimum supported)"
+run_suite wp    "WordPress 6.7 (the minimum the plugin claims)"
 run_suite wp71  "WordPress 7.1 (current)"
 
 echo
