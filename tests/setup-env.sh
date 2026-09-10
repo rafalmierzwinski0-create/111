@@ -76,6 +76,14 @@ make_site() {
 	# tests/run-all.sh activates it for the Pro suite and deactivates it after.
 	ln -sfn "$REPO/live-sheets-table-pro" "$SCRATCH/$dir/wp-content/plugins/live-sheets-table-pro"
 
+	# Elementor, when it has been fetched. Rebuilding a site used to drop the
+	# link and take the Elementor suite with it — silently, because run-all.sh
+	# skips that suite when the plugin is absent. A suite that quietly stops
+	# running is worse than one that fails.
+	if [ -d "$SCRATCH/elementor" ]; then
+		ln -sfn "$SCRATCH/elementor" "$SCRATCH/$dir/wp-content/plugins/elementor"
+	fi
+
 	# wp and wp71 run the plugin straight from the working tree; wpzip gets the
 	# built archive installed into it instead.
 	if [ "$link_plugin" = "yes" ]; then
