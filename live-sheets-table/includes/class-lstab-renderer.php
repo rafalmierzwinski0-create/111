@@ -26,7 +26,7 @@ class LSTAB_Renderer {
 			'source_id'   => 0,
 			'search'      => true,
 			'sort'        => true,
-			'show_meta'   => true,
+			'show_meta'   => false,
 			'style'       => '',
 			'caption'     => '',
 			'class'       => '',

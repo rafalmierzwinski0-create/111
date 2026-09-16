@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.28.0
+Stable tag: 3.29.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -180,6 +180,11 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.29.0 =
+* Added: the row of column names has a text size of its own, apart from the rows. A dense table often wants quiet headings and a short one wants loud ones, and until now both had to take whatever the table's own text size gave them.
+* Added: the page buttons can sit under the left edge, in the middle, or under the right. Centred is still what a table does if nobody says otherwise.
+* Changed: the "updated … ago" line is off unless a page asks for it. It reads as housekeeping to a visitor and took a whole line of the page to say so; `meta="yes"` on the shortcode, or the switch in the block, brings it back where it earns its room.
 
 = 3.28.0 =
 * Fixed: the slider under a wide table went back to being a bare line lying across the rows. Two faults, one symptom. It worked out whether it was floating by measuring against the bottom of the window, which assumed the page itself was the thing scrolling — true on a published page, false in the editor's preview, where the table sits in a box that scrolls inside a window it never reaches the bottom of. And the decision waited for the first scroll, so a table already under the slider when the page opened showed a bare line until somebody moved the page. It now asks the rows directly — while any part of the table is below the top of the slider, the slider is on the data and dresses itself — and asks the moment it appears.

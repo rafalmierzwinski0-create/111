@@ -442,7 +442,15 @@ lstab_assert(
 	(bool) preg_match( '#<th[^>]*data-lstab-col="4"[^>]*data-lstab-align="start"#', $html ),
 	'A date column is not mistaken for a number'
 );
-lstab_assert( false !== strpos( $html, 'Updated' ), 'Freshness label rendered' );
+/*
+ * The "updated … ago" line is off unless a page asks for it. It reads as
+ * housekeeping to a visitor and cost more vertical room than it was worth, so
+ * the default was turned round: absent by default, one attribute away.
+ */
+lstab_assert( false === strpos( $html, 'lstab-meta' ), 'Freshness label is absent unless asked for' );
+$html_meta = do_shortcode( '[sheet_table id="' . $source_id . '" meta="yes"]' );
+lstab_assert( false !== strpos( $html_meta, 'lstab-meta' ), 'And is rendered when a page asks for it' );
+lstab_assert( false !== strpos( $html_meta, 'Updated' ), 'With the freshness wording in it' );
 lstab_assert( false !== strpos( $html, 'lstab-search-input' ), 'Search control rendered' );
 lstab_assert( false !== strpos( $html, 'class="lstab-sort"' ), 'Sortable column buttons rendered' );
 
@@ -2011,6 +2019,55 @@ lstab_assert(
 	(bool) preg_match( '#<div class="lstab [^"]*"[^>]*style="[^"]*--lstab-accent#s', $customised ),
 	'The override lands on the table wrapper, not somewhere else'
 );
+
+/*
+ * The heading row and the page buttons are settings of their own: a table can
+ * want small column names over roomy rows, and page buttons under the left edge
+ * rather than in the middle. Both are metrics like any other, so the test is
+ * that they travel the same road — registry, database, style attribute, page.
+ */
+lstab_assert( array_key_exists( 'headFontSize', LSTAB_Customizer::metrics() ), 'Heading text size is offered' );
+lstab_assert( array_key_exists( 'pagerAlign', LSTAB_Customizer::metrics() ), 'Page button placement is offered' );
+
+$typo = LSTAB_Customizer::inline_style(
+	LSTAB_Customizer::sanitize(
+		array(
+			'headFontSize' => 'small',
+			'pagerAlign'   => 'right',
+		)
+	)
+);
+lstab_assert( false !== strpos( $typo, '--lstab-head-font-size:0.72em' ), 'Small headings map onto their own size', $typo );
+lstab_assert( false !== strpos( $typo, '--lstab-pager-justify:flex-end' ), 'Page buttons can be sent to the right', $typo );
+lstab_assert( false === strpos( $typo, '--lstab-font-size' ), 'And heading size leaves the row size alone', $typo );
+
+$typo_left = LSTAB_Customizer::inline_style( LSTAB_Customizer::sanitize( array( 'pagerAlign' => 'left' ) ) );
+lstab_assert( false !== strpos( $typo_left, '--lstab-pager-justify:flex-start' ), 'Or to the left', $typo_left );
+
+$typo_mid = LSTAB_Customizer::inline_style( LSTAB_Customizer::sanitize( array( 'pagerAlign' => 'normal' ) ) );
+lstab_assert( '' === $typo_mid, 'Centred is the default and writes nothing', $typo_mid );
+
+$typo_junk = LSTAB_Customizer::sanitize( array( 'pagerAlign' => 'sideways', 'headFontSize' => '9999px' ) );
+lstab_assert( 'normal' === $typo_junk['pagerAlign'], 'An invented placement falls back to centred' );
+lstab_assert( 'normal' === $typo_junk['headFontSize'], 'An invented heading size falls back to normal' );
+
+LSTAB_Storage::update(
+	$source_id,
+	array(
+		'style_vars' => array(
+			'headFontSize' => 'large',
+			'pagerAlign'   => 'left',
+		),
+	)
+);
+$typo_page = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false !== strpos( $typo_page, '--lstab-head-font-size:0.95em' ), 'Large headings reach the page' );
+lstab_assert( false !== strpos( $typo_page, '--lstab-pager-justify:flex-start' ), 'And the placement travels with them' );
+
+// The stylesheet has to actually read what the style attribute sets.
+$sheet_css = file_get_contents( LSTAB_PATH . 'assets/css/lstab-table.css' );
+lstab_assert( false !== strpos( $sheet_css, 'font-size: var(--lstab-head-font-size)' ), 'The heading row reads the heading size' );
+lstab_assert( false !== strpos( $sheet_css, 'justify-content: var(--lstab-pager-justify)' ), 'The pager reads the placement' );
 
 // Clearing them must actually clear them.
 LSTAB_Storage::update( $source_id, array( 'style_vars' => LSTAB_Customizer::defaults() ) );

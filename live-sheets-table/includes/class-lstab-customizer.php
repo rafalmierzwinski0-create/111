@@ -102,6 +102,19 @@ class LSTAB_Customizer {
 						'large'  => array( '--lstab-font-size' => '1.04em' ),
 					),
 				),
+				'headFontSize' => array(
+					'label'   => __( 'Heading text size', 'live-sheets-table' ),
+					'choices' => array(
+						'small'  => __( 'Small', 'live-sheets-table' ),
+						'normal' => __( 'Normal', 'live-sheets-table' ),
+						'large'  => __( 'Large', 'live-sheets-table' ),
+					),
+					'vars'    => array(
+						'small'  => array( '--lstab-head-font-size' => '0.72em' ),
+						'normal' => array(),
+						'large'  => array( '--lstab-head-font-size' => '0.95em' ),
+					),
+				),
 				'density'  => array(
 					'label'   => __( 'Row height', 'live-sheets-table' ),
 					'choices' => array(
@@ -119,6 +132,19 @@ class LSTAB_Customizer {
 							'--lstab-pad-y' => '1.05em',
 							'--lstab-pad-x' => '1.2em',
 						),
+					),
+				),
+				'pagerAlign' => array(
+					'label'   => __( 'Page buttons', 'live-sheets-table' ),
+					'choices' => array(
+						'left'   => __( 'Left', 'live-sheets-table' ),
+						'normal' => __( 'Centred', 'live-sheets-table' ),
+						'right'  => __( 'Right', 'live-sheets-table' ),
+					),
+					'vars'    => array(
+						'left'   => array( '--lstab-pager-justify' => 'flex-start' ),
+						'normal' => array(),
+						'right'  => array( '--lstab-pager-justify' => 'flex-end' ),
 					),
 				),
 				'corners'  => array(

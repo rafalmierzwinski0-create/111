@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
-"POT-Creation-Date: 2026-09-16 11:38+0000\n"
-"PO-Revision-Date: 2026-09-16 11:38+0000\n"
+"POT-Creation-Date: 2026-09-16 20:06+0000\n"
+"PO-Revision-Date: 2026-09-16 20:06+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -328,6 +328,10 @@ msgstr "Podpis"
 msgid "Cards when it stops fitting"
 msgstr "Karty, gdy przestaje się mieścić"
 
+#: includes/class-lstab-customizer.php:141
+msgid "Centred"
+msgstr "Na środku"
+
 #: includes/class-lstab-example.php:119
 msgid "Chain replacement"
 msgstr "Wymiana łańcucha"
@@ -396,7 +400,7 @@ msgstr "Ukryte przez Ciebie kolumny i wiersze zaczną znów się pokazywać za %
 msgid "Columns stay columns at every width. A slider under the table moves it sideways."
 msgstr "Kolumny pozostają kolumnami przy każdej szerokości. Suwak pod tabelą przesuwa ją w bok."
 
-#: includes/class-lstab-customizer.php:108
+#: includes/class-lstab-customizer.php:121
 msgid "Compact"
 msgstr "Zwarta"
 
@@ -413,7 +417,7 @@ msgstr "Skopiowane"
 msgid "Copy"
 msgstr "Kopiuj"
 
-#: includes/class-lstab-customizer.php:125
+#: includes/class-lstab-customizer.php:151
 msgid "Corners"
 msgstr "Narożniki"
 
@@ -606,6 +610,10 @@ msgstr "Tło nagłówka"
 msgid "Header text"
 msgstr "Tekst nagłówka"
 
+#: includes/class-lstab-customizer.php:106
+msgid "Heading text size"
+msgstr "Wielkość tekstu nagłówków"
+
 #: includes/views/edit-page.php:719
 msgid "Hidden"
 msgstr "Ukryta"
@@ -613,10 +621,6 @@ msgstr "Ukryta"
 #: includes/views/edit-page.php:257
 msgid "Hide the search box"
 msgstr "Ukrywa pole wyszukiwania"
-
-#: includes/views/edit-page.php:265
-msgid "Hide the “updated … ago” line"
-msgstr "Ukrywa wiersz „zaktualizowano … temu”"
 
 #: includes/class-lstab-admin.php:654
 msgid "Hide this until it happens again"
@@ -716,6 +720,7 @@ msgid "Language of this plugin"
 msgstr "Język tej wtyczki"
 
 #: includes/class-lstab-customizer.php:97
+#: includes/class-lstab-customizer.php:110
 msgid "Large"
 msgstr "Duża"
 
@@ -732,6 +737,10 @@ msgstr "Ostatnia synchronizacja OK (%s temu)"
 #: blocks/sheet-table/index.js:158
 msgid "Layout"
 msgstr "Układ"
+
+#: includes/class-lstab-customizer.php:140
+msgid "Left"
+msgstr "Do lewej"
 
 #: includes/class-lstab-styles.php:24
 msgid "Light lines between rows and generous spacing. Uses your theme's fonts."
@@ -853,6 +862,7 @@ msgstr "Nie, zostaw jedną długą tabelę"
 
 #: includes/class-lstab-customizer.php:96
 #: includes/class-lstab-customizer.php:109
+#: includes/class-lstab-customizer.php:122
 msgid "Normal"
 msgstr "Normalna"
 
@@ -912,6 +922,10 @@ msgstr "Okładziny organiczne lub metaliczne"
 #: includes/class-lstab-renderer.php:705
 msgid "Page %1$s of %2$s"
 msgstr "Strona %1$s z %2$s"
+
+#: includes/class-lstab-customizer.php:138
+msgid "Page buttons"
+msgstr "Przyciski stron"
 
 #. translators: 1: number of pages, 2: human readable duration, e.g. "5
 #. minutes".
@@ -1039,11 +1053,15 @@ msgstr "Wyczyść"
 msgid "Reset everything to the chosen style"
 msgstr "Przywróć wszystko do wybranego stylu"
 
-#: includes/class-lstab-customizer.php:110
+#: includes/class-lstab-customizer.php:142
+msgid "Right"
+msgstr "Do prawej"
+
+#: includes/class-lstab-customizer.php:123
 msgid "Roomy"
 msgstr "Przestronna"
 
-#: includes/class-lstab-customizer.php:128
+#: includes/class-lstab-customizer.php:154
 msgid "Rounded"
 msgstr "Zaokrąglone"
 
@@ -1056,7 +1074,7 @@ msgstr[0] "Wiersz %3$s wrócił z inną liczbą komórek niż pozostałe (%2$d),
 msgstr[1] "%1$d wiersze wróciły z inną liczbą komórek niż reszta (%2$d), więc jakieś wartości mogą być pominięte albo trafić do złych kolumn. Najczęściej odpowiada za to pojedynczy cudzysłów albo przecinek w wartości, który skleił dwie komórki w jedną. Wiersze: %3$s."
 msgstr[2] "%1$d wierszy wróciło z inną liczbą komórek niż reszta (%2$d), więc jakieś wartości mogą być pominięte albo trafić do złych kolumn. Najczęściej odpowiada za to pojedynczy cudzysłów albo przecinek w wartości, który skleił dwie komórki w jedną. Wiersze: %3$s."
 
-#: includes/class-lstab-customizer.php:106
+#: includes/class-lstab-customizer.php:119
 msgid "Row height"
 msgstr "Wysokość wiersza"
 
@@ -1219,6 +1237,10 @@ msgstr "Tabele z arkuszy"
 msgid "Sheets are added and refreshed in %s."
 msgstr "Arkusze dodaje się i odświeża w %s."
 
+#: includes/views/edit-page.php:265
+msgid "Show an “updated … ago” line under the table"
+msgstr "Dodaje pod tabelą wiersz „zaktualizowano … temu”"
+
 #: includes/class-lstab-renderer.php:564
 msgid "Show details"
 msgstr "Pokaż szczegóły"
@@ -1250,6 +1272,7 @@ msgid "Shown as"
 msgstr "Wyświetlane jako"
 
 #: includes/class-lstab-customizer.php:95
+#: includes/class-lstab-customizer.php:108
 msgid "Small"
 msgstr "Mała"
 
@@ -1279,7 +1302,7 @@ msgstr "Sortowalne kolumny"
 msgid "Split the table into pages"
 msgstr "Podziel tabelę na strony"
 
-#: includes/class-lstab-customizer.php:127
+#: includes/class-lstab-customizer.php:153
 msgid "Square"
 msgstr "Proste"
 
@@ -1552,7 +1575,7 @@ msgstr "Przydatne, gdy pierwsza kolumna nazywa wiersz. Wyłącz, jeśli zawiera 
 msgid "Usually an unclosed quotation mark, or a comma inside a value that was not quoted. Open those rows in your sheet and compare them with the rest."
 msgstr "Zwykle niedomknięty cudzysłów albo przecinek w wartości bez cudzysłowów. Otwórz te wiersze w arkuszu i porównaj z pozostałymi."
 
-#: includes/class-lstab-customizer.php:129
+#: includes/class-lstab-customizer.php:155
 msgid "Very rounded"
 msgstr "Mocno zaokrąglone"
 
