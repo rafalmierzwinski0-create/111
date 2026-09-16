@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.29.0
+Stable tag: 3.29.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -180,6 +180,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.29.1 =
+* Fixed: on a site whose theme adds "smooth scrolling", the page buttons, column sorting and the Pro filters did nothing at all. Every one of them is a link ending in a fragment so that clicking it lands on the table; a great many themes bind a handler to every link containing a fragment, compare the fragment alone, decide it points at this page, and cancel it. The plugin now takes those clicks in the capture phase, ahead of such handlers, and leaves the browser to follow the link — a middle click or one with a modifier held is still the browser's own.
 
 = 3.29.0 =
 * Added: the row of column names has a text size of its own, apart from the rows. A dense table often wants quiet headings and a short one wants loud ones, and until now both had to take whatever the table's own text size gave them.
