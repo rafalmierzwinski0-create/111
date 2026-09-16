@@ -146,6 +146,13 @@ echo "=============================================="
 # copy there has to be refreshed or an edited test silently runs its old self —
 # which is worse than no test, because it reports a pass.
 cp "$REPO/tests/harness/browser-test.mjs" "$SCRATCH/browser-test.mjs"
+# The suites call these through paths relative to their own file, so the copies
+# in the scratch directory are the ones that run. Refreshed beside the suite for
+# the same reason the suite itself is: an edited helper that never reaches the
+# scratch reports a pass from its old self.
+for helper in drop-source set-detail set-paging set-sync-log; do
+	cp "$REPO/tests/harness/$helper.php" "$SCRATCH/$helper.php"
+done
 
 cd "$SCRATCH" && LSTAB_SCRATCH="$SCRATCH" LSTAB_SHOTS="$REPO/screenshots" node browser-test.mjs
 

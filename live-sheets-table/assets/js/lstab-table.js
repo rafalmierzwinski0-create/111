@@ -7,6 +7,52 @@
 ( function () {
 	'use strict';
 
+	/*
+	 * Page buttons, column sorting and the Pro filters are all ordinary links,
+	 * and every one of them ends in a fragment (#lstab-table-7) so it lands on
+	 * the table rather than the top of the page.
+	 *
+	 * A great many themes — Divi among them — bind a "smooth scrolling"
+	 * handler to every link whose address contains a fragment, compare the
+	 * fragment alone, decide the link points at this page, and cancel the
+	 * navigation. All three controls then scroll an inch and do nothing. It is
+	 * the worst kind of fault to look at: the markup is correct, the console is
+	 * silent, the address never changes, and the plugin looks broken rather
+	 * than hijacked.
+	 *
+	 * Listening in the capture phase puts this ahead of those handlers, which
+	 * are delegated on the document and therefore run while the click bubbles
+	 * back up. The click stops travelling before any of them sees it. Nothing
+	 * is prevented here, so the browser is left to follow the link the ordinary
+	 * way — which is all these links ever needed.
+	 */
+	var NAV_LINKS = 'a.lstab-page-link, a.lstab-sort, a.lstabp-facet-value, a.lstabp-facets-clear';
+
+	document.addEventListener(
+		'click',
+		function ( event ) {
+			// A middle click, or one with a modifier held, belongs to the
+			// browser: opening one of these in a new tab is a reasonable thing
+			// to want, and the theme cannot break that anyway.
+			if ( event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey ) {
+				return;
+			}
+
+			var target = event.target;
+
+			if ( ! target || ! target.closest ) {
+				return;
+			}
+
+			var link = target.closest( NAV_LINKS );
+
+			if ( link && link.href ) {
+				event.stopPropagation();
+			}
+		},
+		true
+	);
+
 	var COLLATOR = typeof Intl !== 'undefined' && Intl.Collator
 		? new Intl.Collator( undefined, { numeric: true, sensitivity: 'base' } )
 		: null;

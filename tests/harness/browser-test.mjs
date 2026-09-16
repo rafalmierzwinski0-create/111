@@ -2485,6 +2485,88 @@ for ( const id of [ longId, declinedId ] ) {
 
 setMock( 'ok' );
 
+// ------------------------------------- a theme that swallows the clicks
+section( '9i. A theme that cancels clicks on links with a fragment' );
+
+/*
+ * Every page button, sort and filter is a link ending in #lstab-table-N, so it
+ * lands on the table rather than the top of the page. A great many themes bind
+ * a "smooth scrolling" handler to every link containing a fragment, compare the
+ * fragment alone, decide the link points at this page, and cancel it.
+ *
+ * Nothing about that is visible from inside the plugin: the markup is right,
+ * the console is silent, and the address simply never changes. It arrived as
+ * "filtering does nothing, sorting does nothing" — two reports of one fault.
+ *
+ * The suite could not have caught it, because everywhere else the query
+ * parameter is set directly instead of clicking the link the page renders.
+ * This section clicks, with such a handler installed.
+ *
+ * It runs on a page of its own: an init script cannot be taken off again, and
+ * the sections after this one have no business being run under a hostile theme.
+ */
+execFileSync( 'php', [ new URL( 'set-paging.php', import.meta.url ).pathname, SITE_PATH, String( sourceId ), '2' ] );
+
+const tpage = await context.newPage();
+
+await tpage.addInitScript( () => {
+	document.addEventListener( 'click', ( event ) => {
+		const link = event.target.closest && event.target.closest( 'a[href*="#"]' );
+
+		if ( ! link ) {
+			return;
+		}
+
+		const wanted = new URL( link.href, location.href );
+
+		if ( wanted.pathname === location.pathname && wanted.hash ) {
+			event.preventDefault();
+		}
+	} );
+} );
+
+await tpage.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
+
+/*
+ * Prove the trap is armed before trusting anything that survives it. A link of
+ * the page's own making, not one of the plugin's, is clicked and asked whether
+ * it was cancelled — without this the section could pass by testing a page
+ * where nothing was ever installed to break.
+ */
+const armed = await tpage.evaluate( () => {
+	const bait = document.createElement( 'a' );
+	bait.href = location.pathname + '#lstab-table-999999';
+	document.body.appendChild( bait );
+
+	const click = new MouseEvent( 'click', { bubbles: true, cancelable: true } );
+	bait.dispatchEvent( click );
+	bait.remove();
+
+	return click.defaultPrevented;
+} );
+check( armed, 'The theme handler is installed and really does cancel such links' );
+
+const pagerLink = tpage.locator( '.lstab-pager a.lstab-page-link' ).first();
+check( await pagerLink.count() > 0, 'The paged table renders page links at all', String( await pagerLink.count() ) );
+
+const beforePage = tpage.url();
+await pagerLink.click();
+await tpage.waitForTimeout( 900 );
+check( tpage.url() !== beforePage, 'A page button still goes somewhere under that theme', tpage.url() );
+check( /lstab-page/.test( tpage.url() ), 'And to the page it said it would', tpage.url() );
+
+const sortLink = tpage.locator( 'th a.lstab-sort' ).first();
+check( await sortLink.count() > 0, 'A paged table sorts through links rather than script', String( await sortLink.count() ) );
+
+const beforeSort = tpage.url();
+await sortLink.click();
+await tpage.waitForTimeout( 900 );
+check( tpage.url() !== beforeSort, 'Sorting a column still goes somewhere too', tpage.url() );
+check( /lstab-sort/.test( tpage.url() ), 'And asks for the column it was told to sort by', tpage.url() );
+
+await tpage.close();
+execFileSync( 'php', [ new URL( 'set-paging.php', import.meta.url ).pathname, SITE_PATH, String( sourceId ), '0' ] );
+
 // ---------------------------------------------------------------- block editor
 section( '10. Block editor' );
 setMock( 'ok' );
