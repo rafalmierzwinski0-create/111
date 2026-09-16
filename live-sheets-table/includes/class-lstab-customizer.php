@@ -136,15 +136,32 @@ class LSTAB_Customizer {
 				),
 				'pagerAlign' => array(
 					'label'   => __( 'Page buttons', 'live-sheets-table' ),
+					'note'    => __( 'The “updated … ago” line takes the other side', 'live-sheets-table' ),
 					'choices' => array(
 						'left'   => __( 'Left', 'live-sheets-table' ),
 						'normal' => __( 'Centred', 'live-sheets-table' ),
 						'right'  => __( 'Right', 'live-sheets-table' ),
 					),
 					'vars'    => array(
-						'left'   => array( '--lstab-pager-justify' => 'flex-start' ),
+						/*
+						 * Each choice places both things in the strip, and
+						 * places them apart: the freshness line keeps left
+						 * unless the buttons are already there, in which case
+						 * it goes to the far side rather than under them.
+						 */
+						'left'   => array(
+							'--lstab-pager-col'   => '1',
+							'--lstab-pager-place' => 'start',
+							'--lstab-meta-col'    => '3',
+							'--lstab-meta-place'  => 'end',
+						),
 						'normal' => array(),
-						'right'  => array( '--lstab-pager-justify' => 'flex-end' ),
+						'right'  => array(
+							'--lstab-pager-col'   => '3',
+							'--lstab-pager-place' => 'end',
+							'--lstab-meta-col'    => '1',
+							'--lstab-meta-place'  => 'start',
+						),
 					),
 				),
 				'corners'  => array(

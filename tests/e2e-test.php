@@ -443,14 +443,17 @@ lstab_assert(
 	'A date column is not mistaken for a number'
 );
 /*
- * The "updated … ago" line is off unless a page asks for it. It reads as
- * housekeeping to a visitor and cost more vertical room than it was worth, so
- * the default was turned round: absent by default, one attribute away.
+ * The freshness line costs nothing now that it shares the strip with the page
+ * buttons, so it is on again — and it has to be *in* that strip, not loose
+ * under the table, or the setting that places the two of them means nothing.
  */
-lstab_assert( false === strpos( $html, 'lstab-meta' ), 'Freshness label is absent unless asked for' );
-$html_meta = do_shortcode( '[sheet_table id="' . $source_id . '" meta="yes"]' );
-lstab_assert( false !== strpos( $html_meta, 'lstab-meta' ), 'And is rendered when a page asks for it' );
-lstab_assert( false !== strpos( $html_meta, 'Updated' ), 'With the freshness wording in it' );
+lstab_assert( false !== strpos( $html, 'Updated' ), 'Freshness label rendered' );
+lstab_assert(
+	(bool) preg_match( '#<div class="lstab-foot">.*?class="lstab-meta"#s', $html ),
+	'And it sits inside the strip under the table'
+);
+$html_no_meta = do_shortcode( '[sheet_table id="' . $source_id . '" meta="no"]' );
+lstab_assert( false === strpos( $html_no_meta, 'lstab-meta' ), 'A page can still turn it off' );
 lstab_assert( false !== strpos( $html, 'lstab-search-input' ), 'Search control rendered' );
 lstab_assert( false !== strpos( $html, 'class="lstab-sort"' ), 'Sortable column buttons rendered' );
 
@@ -2038,11 +2041,11 @@ $typo = LSTAB_Customizer::inline_style(
 	)
 );
 lstab_assert( false !== strpos( $typo, '--lstab-head-font-size:0.72em' ), 'Small headings map onto their own size', $typo );
-lstab_assert( false !== strpos( $typo, '--lstab-pager-justify:flex-end' ), 'Page buttons can be sent to the right', $typo );
+lstab_assert( false !== strpos( $typo, '--lstab-pager-place:end' ), 'Page buttons can be sent to the right', $typo );
 lstab_assert( false === strpos( $typo, '--lstab-font-size' ), 'And heading size leaves the row size alone', $typo );
 
 $typo_left = LSTAB_Customizer::inline_style( LSTAB_Customizer::sanitize( array( 'pagerAlign' => 'left' ) ) );
-lstab_assert( false !== strpos( $typo_left, '--lstab-pager-justify:flex-start' ), 'Or to the left', $typo_left );
+lstab_assert( false !== strpos( $typo_left, '--lstab-pager-place:start' ), 'Or to the left', $typo_left );
 
 $typo_mid = LSTAB_Customizer::inline_style( LSTAB_Customizer::sanitize( array( 'pagerAlign' => 'normal' ) ) );
 lstab_assert( '' === $typo_mid, 'Centred is the default and writes nothing', $typo_mid );
@@ -2062,12 +2065,31 @@ LSTAB_Storage::update(
 );
 $typo_page = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
 lstab_assert( false !== strpos( $typo_page, '--lstab-head-font-size:0.95em' ), 'Large headings reach the page' );
-lstab_assert( false !== strpos( $typo_page, '--lstab-pager-justify:flex-start' ), 'And the placement travels with them' );
+lstab_assert( false !== strpos( $typo_page, '--lstab-pager-place:start' ), 'And the placement travels with them' );
+
+/*
+ * One setting, two things placed, and never on the same side. The buttons take
+ * the track they were sent to; the freshness line takes the far one, except in
+ * the middle case, where there is no far side and it keeps to the left.
+ */
+$foot_left  = LSTAB_Customizer::inline_style( LSTAB_Customizer::sanitize( array( 'pagerAlign' => 'left' ) ) );
+$foot_right = LSTAB_Customizer::inline_style( LSTAB_Customizer::sanitize( array( 'pagerAlign' => 'right' ) ) );
+
+lstab_assert( false !== strpos( $foot_left, '--lstab-pager-col:1' ), 'Buttons on the left take the first track', $foot_left );
+lstab_assert( false !== strpos( $foot_left, '--lstab-meta-col:3' ), 'And the freshness line is sent to the far one', $foot_left );
+lstab_assert( false !== strpos( $foot_left, '--lstab-meta-place:end' ), 'Where it sits against the edge', $foot_left );
+
+lstab_assert( false !== strpos( $foot_right, '--lstab-pager-col:3' ), 'Buttons on the right take the third track', $foot_right );
+lstab_assert( false !== strpos( $foot_right, '--lstab-meta-col:1' ), 'And the freshness line stays on the left', $foot_right );
+
+lstab_assert( '' === LSTAB_Customizer::inline_style( LSTAB_Customizer::sanitize( array( 'pagerAlign' => 'normal' ) ) ), 'Centred writes nothing, because it is what the stylesheet already does' );
 
 // The stylesheet has to actually read what the style attribute sets.
 $sheet_css = file_get_contents( LSTAB_PATH . 'assets/css/lstab-table.css' );
 lstab_assert( false !== strpos( $sheet_css, 'font-size: var(--lstab-head-font-size)' ), 'The heading row reads the heading size' );
-lstab_assert( false !== strpos( $sheet_css, 'justify-content: var(--lstab-pager-justify)' ), 'The pager reads the placement' );
+lstab_assert( false !== strpos( $sheet_css, 'grid-column: var(--lstab-pager-col)' ), 'The pager reads its track' );
+lstab_assert( false !== strpos( $sheet_css, 'grid-column: var(--lstab-meta-col)' ), 'And so does the freshness line' );
+lstab_assert( false !== strpos( $sheet_css, 'grid-template-columns: 1fr auto 1fr' ), 'The strip really has three tracks' );
 
 // Clearing them must actually clear them.
 LSTAB_Storage::update( $source_id, array( 'style_vars' => LSTAB_Customizer::defaults() ) );

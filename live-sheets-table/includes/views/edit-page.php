@@ -239,7 +239,7 @@ if ( ! $lstab_is_edit ) {
 					/*
 					 * The list used to be five pieces of code and no meanings,
 					 * which is a puzzle rather than a reference: nothing on the
-					 * screen said what meta="yes" would do to the page. Where an
+					 * screen said what meta="no" would do to the page. Where an
 					 * attribute takes one of a fixed set of words, those words
 					 * are printed too — style="striped" is no use to somebody
 					 * who cannot know what else may go in there.
@@ -261,8 +261,8 @@ if ( ! $lstab_is_edit ) {
 							'means' => __( 'Turn off sorting by column', 'live-sheets-table' ),
 						),
 						array(
-							'write' => 'meta="yes"',
-							'means' => __( 'Show an “updated … ago” line under the table', 'live-sheets-table' ),
+							'write' => 'meta="no"',
+							'means' => __( 'Hide the “updated … ago” line', 'live-sheets-table' ),
 						),
 						array(
 							'write'  => 'style="striped"',
@@ -549,6 +549,10 @@ if ( ! $lstab_is_edit ) {
 								<label for="lstab-metric-<?php echo esc_attr( $lstab_key ); ?>">
 									<strong><?php echo esc_html( $lstab_metric['label'] ); ?></strong>
 								</label>
+								<?php if ( ! empty( $lstab_metric['note'] ) ) : ?>
+									<?php // Some settings move more than their name says: the note is where that is admitted. ?>
+									<span class="lstab-swatch-note"><?php echo esc_html( $lstab_metric['note'] ); ?></span>
+								<?php endif; ?>
 								<select id="lstab-metric-<?php echo esc_attr( $lstab_key ); ?>"
 									class="lstab-metric-input"
 									name="style_vars[<?php echo esc_attr( $lstab_key ); ?>]"

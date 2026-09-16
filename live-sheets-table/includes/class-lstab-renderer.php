@@ -26,7 +26,7 @@ class LSTAB_Renderer {
 			'source_id'   => 0,
 			'search'      => true,
 			'sort'        => true,
-			'show_meta'   => false,
+			'show_meta'   => true,
 			'style'       => '',
 			'caption'     => '',
 			'class'       => '',
@@ -687,39 +687,6 @@ class LSTAB_Renderer {
 			?>
 			<div class="lstab-scrollbar-end" aria-hidden="true"></div>
 
-			<?php if ( $paged && $paging['pages'] > 1 ) : ?>
-				<nav class="lstab-pager" aria-label="<?php esc_attr_e( 'Table pages', 'live-sheets-table' ); ?>">
-					<?php if ( $paging['page'] > 1 ) : ?>
-						<a class="lstab-page-link" rel="prev" href="<?php echo esc_url( LSTAB_Paging::url( $source_id, array( 'page' => $paging['page'] - 1 ) ) ); ?>">
-							<?php esc_html_e( 'Previous', 'live-sheets-table' ); ?>
-						</a>
-					<?php else : ?>
-						<span class="lstab-page-link is-disabled"><?php esc_html_e( 'Previous', 'live-sheets-table' ); ?></span>
-					<?php endif; ?>
-
-					<span class="lstab-page-of">
-						<?php
-						echo esc_html(
-							sprintf(
-								/* translators: 1: current page, 2: number of pages. */
-								__( 'Page %1$s of %2$s', 'live-sheets-table' ),
-								number_format_i18n( $paging['page'] ),
-								number_format_i18n( $paging['pages'] )
-							)
-						);
-						?>
-					</span>
-
-					<?php if ( $paging['page'] < $paging['pages'] ) : ?>
-						<a class="lstab-page-link" rel="next" href="<?php echo esc_url( LSTAB_Paging::url( $source_id, array( 'page' => $paging['page'] + 1 ) ) ); ?>">
-							<?php esc_html_e( 'Next', 'live-sheets-table' ); ?>
-						</a>
-					<?php else : ?>
-						<span class="lstab-page-link is-disabled"><?php esc_html_e( 'Next', 'live-sheets-table' ); ?></span>
-					<?php endif; ?>
-				</nav>
-			<?php endif; ?>
-
 			<?php if ( $paged && 0 === $paging['matched'] ) : ?>
 				<p class="lstab-no-results"><?php esc_html_e( 'No rows match your search.', 'live-sheets-table' ); ?></p>
 			<?php elseif ( $searchable ) : ?>
@@ -727,20 +694,68 @@ class LSTAB_Renderer {
 			<?php endif; ?>
 
 			<?php
-			if ( ! empty( $args['show_meta'] ) && ! empty( $source['last_success_gmt'] ) ) :
-				$timestamp = strtotime( $source['last_success_gmt'] . ' UTC' );
-				?>
-				<p class="lstab-meta">
-					<?php
-					echo esc_html(
-						sprintf(
-							/* translators: %s: human readable time difference, e.g. "5 mins". */
-							__( 'Updated %s ago', 'live-sheets-table' ),
-							LSTAB_Locale::span( $timestamp, time() )
-						)
-					);
-					?>
-				</p>
+			/*
+			 * The page buttons and the freshness line share one strip rather
+			 * than taking a line each. Three tracks, because that is the only
+			 * way to have the buttons exactly in the middle of the table while
+			 * something else sits against an edge; which track each one lands
+			 * in is an appearance setting, so they never collide.
+			 */
+			$lstab_has_pager = $paged && $paging['pages'] > 1;
+			$lstab_fresh     = ( ! empty( $args['show_meta'] ) && ! empty( $source['last_success_gmt'] ) )
+				? strtotime( $source['last_success_gmt'] . ' UTC' )
+				: 0;
+			?>
+
+			<?php if ( $lstab_has_pager || $lstab_fresh ) : ?>
+				<div class="lstab-foot">
+					<?php if ( $lstab_has_pager ) : ?>
+						<nav class="lstab-pager" aria-label="<?php esc_attr_e( 'Table pages', 'live-sheets-table' ); ?>">
+							<?php if ( $paging['page'] > 1 ) : ?>
+								<a class="lstab-page-link" rel="prev" href="<?php echo esc_url( LSTAB_Paging::url( $source_id, array( 'page' => $paging['page'] - 1 ) ) ); ?>">
+									<?php esc_html_e( 'Previous', 'live-sheets-table' ); ?>
+								</a>
+							<?php else : ?>
+								<span class="lstab-page-link is-disabled"><?php esc_html_e( 'Previous', 'live-sheets-table' ); ?></span>
+							<?php endif; ?>
+
+							<span class="lstab-page-of">
+								<?php
+								echo esc_html(
+									sprintf(
+										/* translators: 1: current page, 2: number of pages. */
+										__( 'Page %1$s of %2$s', 'live-sheets-table' ),
+										number_format_i18n( $paging['page'] ),
+										number_format_i18n( $paging['pages'] )
+									)
+								);
+								?>
+							</span>
+
+							<?php if ( $paging['page'] < $paging['pages'] ) : ?>
+								<a class="lstab-page-link" rel="next" href="<?php echo esc_url( LSTAB_Paging::url( $source_id, array( 'page' => $paging['page'] + 1 ) ) ); ?>">
+									<?php esc_html_e( 'Next', 'live-sheets-table' ); ?>
+								</a>
+							<?php else : ?>
+								<span class="lstab-page-link is-disabled"><?php esc_html_e( 'Next', 'live-sheets-table' ); ?></span>
+							<?php endif; ?>
+						</nav>
+					<?php endif; ?>
+
+					<?php if ( $lstab_fresh ) : ?>
+						<p class="lstab-meta">
+							<?php
+							echo esc_html(
+								sprintf(
+									/* translators: %s: human readable time difference, e.g. "5 mins". */
+									__( 'Updated %s ago', 'live-sheets-table' ),
+									LSTAB_Locale::span( $lstab_fresh, time() )
+								)
+							);
+							?>
+						</p>
+					<?php endif; ?>
+				</div>
 			<?php endif; ?>
 		</div>
 		</div>

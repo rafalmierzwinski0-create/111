@@ -40,7 +40,7 @@
 		},
 		"showUpdated": {
 			"type": "boolean",
-			"default": false
+			"default": true
 		},
 		"stylePreset": {
 			"type": "string",

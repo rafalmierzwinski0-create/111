@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
-"POT-Creation-Date: 2026-09-16 20:06+0000\n"
+"POT-Creation-Date: 2026-09-16 20:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -110,7 +110,7 @@ msgid_plural "%s years"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/views/edit-page.php:670
+#: includes/views/edit-page.php:674
 msgid "(no longer there)"
 msgstr ""
 
@@ -170,7 +170,7 @@ msgstr ""
 msgid "A table on a computer. On a phone each row becomes a block with its heading beside every value."
 msgstr ""
 
-#: includes/views/edit-page.php:773
+#: includes/views/edit-page.php:777
 msgid "A wide table becomes one card per row when its column is too narrow."
 msgstr ""
 
@@ -304,7 +304,7 @@ msgstr ""
 msgid "Cables included, housing extra"
 msgstr ""
 
-#: includes/views/edit-page.php:870
+#: includes/views/edit-page.php:874
 msgid "Cancel"
 msgstr ""
 
@@ -317,7 +317,7 @@ msgstr ""
 msgid "Cards when it stops fitting"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:141
+#: includes/class-lstab-customizer.php:142
 msgid "Centred"
 msgstr ""
 
@@ -351,7 +351,7 @@ msgstr ""
 
 #. translators: 1: column number, 2: heading that used to be there, 3: heading
 #. there now.
-#: includes/views/edit-page.php:667
+#: includes/views/edit-page.php:671
 msgid "Column %1$d was “%2$s”, now “%3$s”"
 msgstr ""
 
@@ -361,7 +361,7 @@ msgid "Column %1$s"
 msgstr ""
 
 #. translators: %d: column number.
-#: includes/views/edit-page.php:691 includes/class-lstab-csv-parser.php:371
+#: includes/views/edit-page.php:695 includes/class-lstab-csv-parser.php:371
 #: includes/class-lstab-csv-parser.php:398
 msgid "Column %d"
 msgstr ""
@@ -371,7 +371,7 @@ msgstr ""
 msgid "Column %s"
 msgstr ""
 
-#: includes/views/edit-page.php:635
+#: includes/views/edit-page.php:639
 msgid "Columns"
 msgstr ""
 
@@ -406,7 +406,7 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:151
+#: includes/class-lstab-customizer.php:168
 msgid "Corners"
 msgstr ""
 
@@ -453,7 +453,7 @@ msgstr ""
 
 #. translators: %s: the CSS selector this table's rules are given, e.g.
 #. [data-lstab-id="7"].
-#: includes/views/edit-page.php:607
+#: includes/views/edit-page.php:611
 msgid "Each rule is saved with %s in front, so it only ever affects this table."
 msgstr ""
 
@@ -498,7 +498,7 @@ msgstr ""
 msgid "Every minute"
 msgstr ""
 
-#: includes/views/edit-page.php:749
+#: includes/views/edit-page.php:753
 msgid "Exactly what the plugin read from your sheet. Check the headings and a few rows before saving."
 msgstr ""
 
@@ -536,7 +536,7 @@ msgstr ""
 msgid "Full check, wash and lubrication"
 msgstr ""
 
-#: includes/views/edit-page.php:757
+#: includes/views/edit-page.php:761
 msgid "Full width"
 msgstr ""
 
@@ -603,12 +603,16 @@ msgstr ""
 msgid "Heading text size"
 msgstr ""
 
-#: includes/views/edit-page.php:719
+#: includes/views/edit-page.php:723
 msgid "Hidden"
 msgstr ""
 
 #: includes/views/edit-page.php:257
 msgid "Hide the search box"
+msgstr ""
+
+#: includes/views/edit-page.php:265
+msgid "Hide the “updated … ago” line"
 msgstr ""
 
 #: includes/class-lstab-admin.php:654
@@ -619,7 +623,7 @@ msgstr ""
 msgid "Hiding columns and rows is a Pro feature, and Pro is not active on this site. Your choices are still applied for now."
 msgstr ""
 
-#: includes/views/edit-page.php:639
+#: includes/views/edit-page.php:643
 msgid "Hiding columns and rows is part of Pro; you choose them by clicking your own sheet."
 msgstr ""
 
@@ -672,15 +676,15 @@ msgstr ""
 msgid "In stock"
 msgstr ""
 
-#: includes/views/edit-page.php:721
+#: includes/views/edit-page.php:725
 msgid "In the details"
 msgstr ""
 
-#: includes/views/edit-page.php:684
+#: includes/views/edit-page.php:688
 msgid "In the table"
 msgstr ""
 
-#: includes/views/edit-page.php:682
+#: includes/views/edit-page.php:686
 msgid "In your sheet"
 msgstr ""
 
@@ -727,7 +731,7 @@ msgstr ""
 msgid "Layout"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:140
+#: includes/class-lstab-customizer.php:141
 msgid "Left"
 msgstr ""
 
@@ -801,7 +805,7 @@ msgstr ""
 msgid "Name it and set the schedule"
 msgstr ""
 
-#: includes/views/edit-page.php:758
+#: includes/views/edit-page.php:762
 msgid "Narrow column"
 msgstr ""
 
@@ -813,7 +817,7 @@ msgstr ""
 msgid "Never synced successfully"
 msgstr ""
 
-#: includes/class-lstab-renderer.php:715 includes/class-lstab-renderer.php:718
+#: includes/class-lstab-renderer.php:737 includes/class-lstab-renderer.php:740
 msgid "Next"
 msgstr ""
 
@@ -821,7 +825,7 @@ msgstr ""
 msgid "No parts replaced"
 msgstr ""
 
-#: includes/class-lstab-renderer.php:724 includes/class-lstab-renderer.php:726
+#: includes/class-lstab-renderer.php:691 includes/class-lstab-renderer.php:693
 msgid "No rows match your search."
 msgstr ""
 
@@ -899,7 +903,7 @@ msgstr ""
 msgid "Optional. Anything left empty follows the style chosen above."
 msgstr ""
 
-#: includes/views/edit-page.php:590
+#: includes/views/edit-page.php:594
 msgid "Ordinary CSS rules, confined to this table automatically. Write & for the table element itself, as in &.lstab-paged."
 msgstr ""
 
@@ -908,7 +912,7 @@ msgid "Organic or metallic compound"
 msgstr ""
 
 #. translators: 1: current page, 2: number of pages.
-#: includes/class-lstab-renderer.php:705
+#: includes/class-lstab-renderer.php:727
 msgid "Page %1$s of %2$s"
 msgstr ""
 
@@ -940,7 +944,7 @@ msgstr ""
 msgid "Paste a Google Sheets link first."
 msgstr ""
 
-#: includes/views/edit-page.php:805
+#: includes/views/edit-page.php:809
 msgid "Paste a link and choose “Load preview”."
 msgstr ""
 
@@ -952,7 +956,7 @@ msgstr ""
 msgid "Paste the link to your Google Sheet first."
 msgstr ""
 
-#: includes/views/edit-page.php:759
+#: includes/views/edit-page.php:763
 msgid "Phone"
 msgstr ""
 
@@ -968,7 +972,7 @@ msgstr ""
 msgid "Press Ctrl+C"
 msgstr ""
 
-#: includes/views/edit-page.php:747
+#: includes/views/edit-page.php:751
 msgid "Preview"
 msgstr ""
 
@@ -976,11 +980,11 @@ msgstr ""
 msgid "Preview failed"
 msgstr ""
 
-#: includes/views/edit-page.php:753
+#: includes/views/edit-page.php:757
 msgid "Preview width"
 msgstr ""
 
-#: includes/class-lstab-renderer.php:694 includes/class-lstab-renderer.php:697
+#: includes/class-lstab-renderer.php:716 includes/class-lstab-renderer.php:719
 msgid "Previous"
 msgstr ""
 
@@ -1029,7 +1033,7 @@ msgstr ""
 msgid "Refresh failed: %s"
 msgstr ""
 
-#: includes/views/edit-page.php:637
+#: includes/views/edit-page.php:641
 msgid "Renames a column for visitors. Your spreadsheet keeps its own headings."
 msgstr ""
 
@@ -1037,11 +1041,11 @@ msgstr ""
 msgid "Reset"
 msgstr ""
 
-#: includes/views/edit-page.php:569
+#: includes/views/edit-page.php:573
 msgid "Reset everything to the chosen style"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:142
+#: includes/class-lstab-customizer.php:143
 msgid "Right"
 msgstr ""
 
@@ -1049,7 +1053,7 @@ msgstr ""
 msgid "Roomy"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:154
+#: includes/class-lstab-customizer.php:171
 msgid "Rounded"
 msgstr ""
 
@@ -1077,11 +1081,11 @@ msgstr ""
 msgid "Same as the site"
 msgstr ""
 
-#: includes/views/edit-page.php:861
+#: includes/views/edit-page.php:865
 msgid "Save changes"
 msgstr ""
 
-#: includes/views/edit-page.php:864
+#: includes/views/edit-page.php:868
 msgid "Save changes and sync"
 msgstr ""
 
@@ -1089,11 +1093,11 @@ msgstr ""
 msgid "Save settings"
 msgstr ""
 
-#: includes/views/edit-page.php:865
+#: includes/views/edit-page.php:869
 msgid "Save source and sync"
 msgstr ""
 
-#: includes/views/edit-page.php:649
+#: includes/views/edit-page.php:653
 msgid "Save this source first. It is read straight away, and your real columns appear here."
 msgstr ""
 
@@ -1170,7 +1174,7 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: includes/views/edit-page.php:659
+#: includes/views/edit-page.php:663
 msgid "Settings are matched by position, so a column added or removed in Google shifts them. Check each row:"
 msgstr ""
 
@@ -1224,10 +1228,6 @@ msgstr ""
 msgid "Sheets are added and refreshed in %s."
 msgstr ""
 
-#: includes/views/edit-page.php:265
-msgid "Show an “updated … ago” line under the table"
-msgstr ""
-
 #: includes/class-lstab-renderer.php:564
 msgid "Show details"
 msgstr ""
@@ -1250,11 +1250,11 @@ msgstr ""
 msgid "Showing the first 25 rows."
 msgstr ""
 
-#: includes/views/edit-page.php:723 includes/class-lstab-admin.php:306
+#: includes/views/edit-page.php:727 includes/class-lstab-admin.php:306
 msgid "Shown"
 msgstr ""
 
-#: includes/views/edit-page.php:683
+#: includes/views/edit-page.php:687
 msgid "Shown as"
 msgstr ""
 
@@ -1289,7 +1289,7 @@ msgstr ""
 msgid "Split the table into pages"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:153
+#: includes/class-lstab-customizer.php:170
 msgid "Square"
 msgstr ""
 
@@ -1331,7 +1331,7 @@ msgstr ""
 msgid "Table options"
 msgstr ""
 
-#: includes/class-lstab-renderer.php:691
+#: includes/class-lstab-renderer.php:713
 msgid "Table pages"
 msgstr ""
 
@@ -1386,11 +1386,11 @@ msgstr ""
 msgid "The column you renamed to “%2$s” was headed “%1$s”; that position now holds “%3$s”, so the sheet's own heading is shown again."
 msgstr ""
 
-#: includes/views/edit-page.php:657
+#: includes/views/edit-page.php:661
 msgid "The columns in your sheet have moved."
 msgstr ""
 
-#: includes/views/edit-page.php:823
+#: includes/views/edit-page.php:827
 msgid "The exported text as it arrived, before the plugin read it. If a value is wrong here too, fix it in the sheet."
 msgstr ""
 
@@ -1458,6 +1458,10 @@ msgstr ""
 msgid "The value given to each new table. Existing tables are not affected, and every table can be set separately."
 msgstr ""
 
+#: includes/class-lstab-customizer.php:139
+msgid "The “updated … ago” line takes the other side"
+msgstr ""
+
 #: includes/views/edit-page.php:109
 msgid "This is the built-in example"
 msgstr ""
@@ -1475,7 +1479,7 @@ msgstr ""
 msgid "This sheet has not been fetched yet, so there is nothing to redraw."
 msgstr ""
 
-#: includes/views/edit-page.php:648
+#: includes/views/edit-page.php:652
 msgid "This sheet has not been read yet. Choose “Refresh” on the sources list."
 msgstr ""
 
@@ -1529,7 +1533,7 @@ msgid "Up to five working days"
 msgstr ""
 
 #. translators: %s: human readable time difference, e.g. "5 mins".
-#: includes/class-lstab-renderer.php:738
+#: includes/class-lstab-renderer.php:751
 msgid "Updated %s ago"
 msgstr ""
 
@@ -1559,7 +1563,7 @@ msgstr ""
 msgid "Usually an unclosed quotation mark, or a comma inside a value that was not quoted. Open those rows in your sheet and compare them with the rest."
 msgstr ""
 
-#: includes/class-lstab-customizer.php:155
+#: includes/class-lstab-customizer.php:172
 msgid "Very rounded"
 msgstr ""
 
@@ -1567,7 +1571,7 @@ msgstr ""
 msgid "Visitors see the last copy that arrived, so nothing on your pages is broken. The next check runs shortly."
 msgstr ""
 
-#: includes/views/edit-page.php:821
+#: includes/views/edit-page.php:825
 msgid "What Google actually sent"
 msgstr ""
 
@@ -1613,7 +1617,7 @@ msgstr ""
 msgid "Why it happens, and how to fix it for good"
 msgstr ""
 
-#: includes/views/edit-page.php:754
+#: includes/views/edit-page.php:758
 msgid "Width:"
 msgstr ""
 
@@ -1660,7 +1664,7 @@ msgstr ""
 msgid "You do not have permission to do that."
 msgstr ""
 
-#: includes/views/edit-page.php:588
+#: includes/views/edit-page.php:592
 msgid "Your own CSS"
 msgstr ""
 

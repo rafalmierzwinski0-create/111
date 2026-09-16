@@ -153,6 +153,8 @@ return array(
 	'Heading text size'                          => 'Wielkość tekstu nagłówków',
 	'Row height'                                 => 'Wysokość wiersza',
 	'Page buttons'                               => 'Przyciski stron',
+	'The “updated … ago” line takes the other side'
+		=> 'Napis „zaktualizowano … temu” staje po drugiej stronie',
 	'Left'                                       => 'Do lewej',
 	'Centred'                                    => 'Na środku',
 	'Right'                                      => 'Do prawej',
@@ -671,8 +673,7 @@ return array(
 	'What it does'                               => 'Co robi',
 	'Hide the search box'                        => 'Ukrywa pole wyszukiwania',
 	'Turn off sorting by column'                 => 'Wyłącza sortowanie po kolumnach',
-	'Show an “updated … ago” line under the table'
-		=> 'Dodaje pod tabelą wiersz „zaktualizowano … temu”',
+	'Hide the “updated … ago” line'              => 'Ukrywa wiersz „zaktualizowano … temu”',
 	'Use a different table style'                => 'Ustawia inny styl tabeli',
 	'Put a caption above the table'              => 'Dodaje podpis nad tabelą',
 	'caption="My table"'                        => 'caption="Moja tabela"',

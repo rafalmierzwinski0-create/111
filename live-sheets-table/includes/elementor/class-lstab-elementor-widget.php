@@ -141,7 +141,7 @@ class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
 			array(
 				'label'   => __( 'Show “updated … ago”', 'live-sheets-table' ),
 				'type'    => \Elementor\Controls_Manager::SWITCHER,
-				'default' => '',
+				'default' => 'yes',
 			)
 		);
 
@@ -229,7 +229,7 @@ class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
 				'source_id' => absint( isset( $settings['source_id'] ) ? $settings['source_id'] : 0 ),
 				'search'    => 'yes' === ( isset( $settings['show_search'] ) ? $settings['show_search'] : 'yes' ),
 				'sort'      => 'yes' === ( isset( $settings['show_sort'] ) ? $settings['show_sort'] : 'yes' ),
-				'show_meta' => 'yes' === ( isset( $settings['show_updated'] ) ? $settings['show_updated'] : '' ),
+				'show_meta' => 'yes' === ( isset( $settings['show_updated'] ) ? $settings['show_updated'] : 'yes' ),
 				'style'     => sanitize_key( isset( $settings['style_preset'] ) ? $settings['style_preset'] : '' ),
 				'layout'    => sanitize_key( isset( $settings['layout'] ) ? $settings['layout'] : 'inherit' ),
 				'caption'   => sanitize_text_field( isset( $settings['caption'] ) ? $settings['caption'] : '' ),

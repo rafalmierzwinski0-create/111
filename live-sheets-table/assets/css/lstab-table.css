@@ -56,8 +56,13 @@
 	/* The row of column names, sized apart from the rows so a heading can be
 	   quiet on a dense table and loud on a short one. */
 	--lstab-head-font-size: 0.82em;
-	/* Where the page buttons sit under the table. */
-	--lstab-pager-justify: center;
+	/* The strip under the table has three tracks. One setting moves both of
+	   the things in it, and it moves them apart: the freshness line keeps to
+	   the left unless the page buttons are already there. */
+	--lstab-pager-col: 2;
+	--lstab-pager-place: center;
+	--lstab-meta-col: 1;
+	--lstab-meta-place: start;
 
 	/* Layout switches — overridden by the container queries at the bottom. */
 	--lstab-table-display: table;
@@ -906,6 +911,7 @@
 }
 
 @container lstab (max-width: 420px) {
+
 	.lstab-cols-3 {
 		--lstab-table-display: block;
 		--lstab-tbody-display: block;
@@ -1237,11 +1243,57 @@
 	font-size: 0.9em;
 }
 
+/*
+ * Page buttons and the freshness line on one line. A three-track grid rather
+ * than flexbox with margins, because the middle track is the only way to have
+ * the buttons truly centred on the table while something else sits against an
+ * edge — with margin: auto they centre on whatever space is left over, which
+ * on a table with a freshness line is not the middle of anything.
+ *
+ * Below 420px the three tracks stop fitting and the strip stacks; that rule
+ * lives with the other narrow-width rules further down.
+ */
+.lstab-foot {
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	align-items: center;
+	gap: 0.35em 0.9em;
+	margin-top: 0.9em;
+}
+
+.lstab-foot .lstab-pager {
+	grid-column: var(--lstab-pager-col);
+	justify-self: var(--lstab-pager-place);
+	margin-top: 0;
+}
+
+.lstab-foot .lstab-meta {
+	grid-column: var(--lstab-meta-col);
+	justify-self: var(--lstab-meta-place);
+	margin-top: 0;
+}
+
+/* Three tracks need room. Narrower than this the strip stacks, both lines
+   centred — which is the only honest thing a phone can do with it. Placed
+   after the rules above rather than with the other width rules further up,
+   because these have the same weight and the later one is the one that wins. */
+@container lstab (max-width: 420px) {
+	.lstab-foot {
+		grid-template-columns: 1fr;
+	}
+
+	.lstab-foot .lstab-pager,
+	.lstab-foot .lstab-meta {
+		grid-column: 1;
+		justify-self: center;
+	}
+}
+
 .lstab-pager {
 	display: flex;
 	gap: 0.9em;
 	align-items: center;
-	justify-content: var(--lstab-pager-justify);
+	justify-content: center;
 	margin-top: 0.9em;
 	font-size: 0.92em;
 }
