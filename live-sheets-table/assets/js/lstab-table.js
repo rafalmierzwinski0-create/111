@@ -133,6 +133,23 @@
 			return;
 		}
 
+		/**
+		 * Dress the bar when it is lying on the rows, undress it when it is not.
+		 *
+		 * While any part of the table is still below the top of the bar, the
+		 * bar is on top of the data and has to look like a control rather than
+		 * a rule drawn across it. Once the table ends above the bar, it is
+		 * sitting on the page and gives the paper back.
+		 *
+		 * @return {void}
+		 */
+		function dressBar() {
+			// A pixel of slack: sub-pixel layout must not read as overlap.
+			var onTheRows = scroller.getBoundingClientRect().bottom - bar.getBoundingClientRect().top > 1;
+
+			bar.classList.toggle( 'is-floating', ! bar.hidden && onTheRows );
+		}
+
 		var track = bar.querySelector( '.lstab-scrollbar-track' );
 		var thumb = bar.querySelector( '.lstab-scrollbar-thumb' );
 
@@ -224,6 +241,7 @@
 			// slider that cannot move.
 			if ( scrollable <= 2 ) {
 				bar.hidden = true;
+				dressBar();
 				root.classList.remove( 'lstab-has-slider' );
 				root.classList.remove( 'lstab-is-scrolled' );
 				// Measured, not assumed: only now can the frame stop being a
@@ -234,6 +252,15 @@
 			}
 
 			bar.hidden = false;
+
+			/*
+			 * Without this the dressing waited for the first scroll: a table
+			 * already lying under the bar when the page opened showed a bare
+			 * line across its rows until somebody moved the page — which is
+			 * the one fault this measurement exists to prevent.
+			 */
+			dressBar();
+
 			root.classList.remove( 'lstab-fits' );
 			root.classList.add( 'lstab-has-slider' );
 
@@ -362,41 +389,48 @@
 		 * A sticky element cannot tell CSS whether it is currently stuck, and
 		 * the two states want to look different: floating over rows it needs
 		 * its own paper and edge, settled under the table it should disappear
-		 * into the page. The line after the bar answers it — while that line
-		 * is below the window, the bar is floating.
+		 * into the page — so ask the rows. While any part of the table is still
+		 * below the top of the bar, the bar is lying on the data and has to
+		 * look like a control rather than a rule drawn across it. Once the
+		 * table ends above the bar, it is sitting on the page and gives the
+		 * paper back.
+		 *
+		 * This used to compare a marker line against the bottom of the window,
+		 * which assumed the page itself was the thing scrolling. True on a
+		 * published page; false in the editor's preview, where the table sits
+		 * in a box that scrolls inside a window it never reaches the bottom
+		 * of. There the bar rode over the rows undressed — the one state it
+		 * exists to avoid. Overlap means the same thing in either place, and
+		 * needs no marker.
 		 *
 		 * Measured on scroll rather than watched with an IntersectionObserver:
 		 * an observer reports threshold crossings, and a jump straight to the
-		 * foot of the page takes the line from below the window to above it
-		 * without ever crossing, so the bar stayed dressed for a float it was
+		 * foot of the page can move the boundary from one side to the other
+		 * without ever crossing, leaving the bar dressed for a float it was
 		 * no longer doing.
 		 */
-		var end = root.querySelector( '.lstab-scrollbar-end' );
+		var pending = false;
 
-		if ( end ) {
-			var pending = false;
+		var queueFloat = function () {
+			if ( pending ) {
+				return;
+			}
 
-			var readFloat = function () {
+			pending = true;
+			window.requestAnimationFrame( function () {
 				pending = false;
-				bar.classList.toggle(
-					'is-floating',
-					! bar.hidden && end.getBoundingClientRect().top > window.innerHeight
-				);
-			};
+				dressBar();
+			} );
+		};
 
-			var queueFloat = function () {
-				if ( pending ) {
-					return;
-				}
-
-				pending = true;
-				window.requestAnimationFrame( readFloat );
-			};
-
-			window.addEventListener( 'scroll', queueFloat, { passive: true } );
-			window.addEventListener( 'resize', queueFloat, { passive: true } );
-			readFloat();
-		}
+		/*
+		 * Capture, so a scroll inside any box between the table and the window
+		 * counts too — the editor's preview is exactly that box, and its
+		 * scrolling never reaches the window to be heard.
+		 */
+		window.addEventListener( 'scroll', queueFloat, { passive: true, capture: true } );
+		window.addEventListener( 'resize', queueFloat, { passive: true } );
+		dressBar();
 
 		// Scrolling cannot change what fits, so it only moves the thumb.
 		scroller.addEventListener( 'scroll', sync, { passive: true } );

@@ -212,7 +212,18 @@ await page.locator( '[data-lstab-goto="look"]' ).click();
 await page.waitForTimeout( 300 );
 
 check( await page.locator( '.lstabp-rules-card' ).isVisible(), 'Colour rules are on the Appearance tab, where a colour belongs' );
-check( await page.locator( '.lstabp-export-card' ).isVisible(), 'So is the download card, which is also about what a visitor sees' );
+
+/*
+ * The download card used to be here too, filed under "things a visitor sees".
+ * Nobody looks for "can people download this?" under how the table is
+ * coloured, so it moved to General — and until it did, the General tab was the
+ * one pane an add-on could not put anything on at all.
+ */
+check( ! ( await page.locator( '.lstabp-export-card' ).isVisible() ), 'The download card is not on Appearance any more' );
+
+await page.locator( '[data-lstab-goto="general"]' ).click();
+await page.waitForTimeout( 300 );
+check( await page.locator( '.lstabp-export-card' ).isVisible(), 'It is on General, where somebody would go looking for it' );
 
 await page.locator( '[data-lstab-goto="hide"]' ).click();
 await page.waitForTimeout( 300 );

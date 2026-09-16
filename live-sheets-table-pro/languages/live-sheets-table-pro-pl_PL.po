@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
-"POT-Creation-Date: 2026-09-10 21:40+0000\n"
-"PO-Revision-Date: 2026-09-10 21:40+0000\n"
+"POT-Creation-Date: 2026-09-16 11:38+0000\n"
+"PO-Revision-Date: 2026-09-16 11:38+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -174,15 +174,15 @@ msgstr "Utwórz klienta OAuth typu „Aplikacja internetowa”."
 msgid "Disconnect"
 msgstr "Rozłącz"
 
-#: includes/class-lstabp-export.php:129
+#: includes/class-lstabp-export.php:130
 msgid "Download CSV"
 msgstr "Pobierz CSV"
 
-#: includes/class-lstabp-export.php:125
+#: includes/class-lstabp-export.php:126
 msgid "Download for Excel"
 msgstr "Pobierz dla Excela"
 
-#: includes/class-lstabp-export.php:295
+#: includes/class-lstabp-export.php:296
 msgid "Downloads and printing"
 msgstr "Pobieranie i drukowanie"
 
@@ -202,7 +202,7 @@ msgstr "Każdy wiersz ma tę samą wartość, więc filtr niczego by tu nie zaw�
 msgid "Every row is different, so each choice would leave one row. A search box does this better."
 msgstr "Każdy wiersz jest inny, więc każdy wybór zostawiłby jeden wiersz. Lepiej sprawdzi się wyszukiwarka."
 
-#: includes/class-lstabp-export.php:303
+#: includes/class-lstabp-export.php:304
 msgid "Excel, CSV and Print buttons under the table. A download contains exactly what the visitor sees: the rows left after filtering, and the columns you kept."
 msgstr "Przyciski Excel, CSV i Drukuj pod tabelą. Pobrany plik zawiera dokładnie to, co widzi odwiedzający: wiersze po filtrowaniu i pozostawione kolumny."
 
@@ -269,7 +269,7 @@ msgstr "W szczegółach"
 msgid "Join conditions with a comma; the words to compare with are listed under Pro settings."
 msgstr "Warunki łączy się przecinkiem; słowa porównań są wypisane w ustawieniach Pro."
 
-#: includes/class-lstabp-export.php:300
+#: includes/class-lstabp-export.php:301
 msgid "Let visitors download or print this table"
 msgstr "Pozwól odwiedzającym pobrać lub wydrukować tę tabelę"
 
@@ -367,7 +367,7 @@ msgstr "Wybierz własny kolor"
 msgid "Pink"
 msgstr "Różowy"
 
-#: includes/class-lstabp-export.php:132
+#: includes/class-lstabp-export.php:133
 msgid "Print"
 msgstr "Drukuj"
 
@@ -536,7 +536,7 @@ msgstr "Tabela pokazuje wtedy %1$s z %2$s wierszy."
 msgid "This column is empty."
 msgstr "Ta kolumna jest pusta."
 
-#: includes/class-lstabp-export.php:172
+#: includes/class-lstabp-export.php:173
 msgid "This download link is not valid."
 msgstr "Ten link do pobrania jest nieprawidłowy."
 
@@ -548,7 +548,7 @@ msgstr "Tak to widzi odwiedzający nad tabelą:"
 msgid "This server cannot build Excel files."
 msgstr "Ten serwer nie potrafi tworzyć plików Excela."
 
-#: includes/class-lstabp-export.php:168
+#: includes/class-lstabp-export.php:169
 msgid "This table cannot be downloaded."
 msgstr "Tej tabeli nie można pobrać."
 

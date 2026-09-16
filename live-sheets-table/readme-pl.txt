@@ -4,7 +4,7 @@ Tags: arkusze google, tabela, arkusz kalkulacyjny, csv, tabela danych
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.27.0
+Stable tag: 3.28.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -167,6 +167,10 @@ Tak. Wszystko z arkusza jest escapowane przy wyjściu, więc komórka zawierają
 == Changelog ==
 
 Pełna historia wydań znajduje się w pliku readme.txt.
+
+= 3.28.0 =
+* Poprawka: suwak pod szeroką tabelą znów był gołą kreską leżącą na wierszach. Dwie usterki, jeden objaw. To, czy suwak unosi się nad danymi, było liczone względem dolnej krawędzi okna — a to zakłada, że przewija się sama strona. Na opublikowanej stronie prawda; w podglądzie w kokpicie nie, bo tabela siedzi tam w pudełku, które przewija się wewnątrz okna i nigdy nie dojeżdża do jego dołu. Do tego decyzja czekała na pierwsze przewinięcie, więc tabela, która już przy wczytaniu leżała pod suwakiem, dostawała gołą kreskę, dopóki ktoś nie ruszył strony. Teraz suwak pyta wprost wierszy — dopóki choć kawałek tabeli jest poniżej jego górnej krawędzi, leży na danych i ubiera się w tło — i pyta o to w chwili, w której się pojawia.
+* Zmiana (Pro): „Pobieranie i drukowanie” jest w zakładce Ogólne. Było w Wyglądzie, bo to przyciski, które widzi odwiedzający — ale nikt nie szuka odpowiedzi na „czy ludzie mogą to pobrać?” pod tym, jak tabela jest pokolorowana. Ogólne były też jedyną zakładką, na której dodatek nie mógł umieścić niczego; teraz przyjmuje karty jak dwie pozostałe.
 
 = 3.27.0 =
 * Nowość: arkusz mający dwieście wierszy lub więcej dostaje strony już przy zakładaniu i od razu jest o tym mowa w zdaniu, które Cię wita — ile wierszy arkusz ostatecznie ma, po ile jest pokazywany i gdzie to zmienić. Nic nie dzieje się po cichu: jeśli sam dotknąłeś przełącznika stron, w jedną czy w drugą stronę, Twoja decyzja zostaje.

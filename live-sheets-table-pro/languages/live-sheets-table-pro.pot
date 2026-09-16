@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
-"POT-Creation-Date: 2026-09-10 21:40+0000\n"
+"POT-Creation-Date: 2026-09-16 11:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -173,15 +173,15 @@ msgstr ""
 msgid "Disconnect"
 msgstr ""
 
-#: includes/class-lstabp-export.php:129
+#: includes/class-lstabp-export.php:130
 msgid "Download CSV"
 msgstr ""
 
-#: includes/class-lstabp-export.php:125
+#: includes/class-lstabp-export.php:126
 msgid "Download for Excel"
 msgstr ""
 
-#: includes/class-lstabp-export.php:295
+#: includes/class-lstabp-export.php:296
 msgid "Downloads and printing"
 msgstr ""
 
@@ -201,7 +201,7 @@ msgstr ""
 msgid "Every row is different, so each choice would leave one row. A search box does this better."
 msgstr ""
 
-#: includes/class-lstabp-export.php:303
+#: includes/class-lstabp-export.php:304
 msgid "Excel, CSV and Print buttons under the table. A download contains exactly what the visitor sees: the rows left after filtering, and the columns you kept."
 msgstr ""
 
@@ -268,7 +268,7 @@ msgstr ""
 msgid "Join conditions with a comma; the words to compare with are listed under Pro settings."
 msgstr ""
 
-#: includes/class-lstabp-export.php:300
+#: includes/class-lstabp-export.php:301
 msgid "Let visitors download or print this table"
 msgstr ""
 
@@ -365,7 +365,7 @@ msgstr ""
 msgid "Pink"
 msgstr ""
 
-#: includes/class-lstabp-export.php:132
+#: includes/class-lstabp-export.php:133
 msgid "Print"
 msgstr ""
 
@@ -534,7 +534,7 @@ msgstr ""
 msgid "This column is empty."
 msgstr ""
 
-#: includes/class-lstabp-export.php:172
+#: includes/class-lstabp-export.php:173
 msgid "This download link is not valid."
 msgstr ""
 
@@ -546,7 +546,7 @@ msgstr ""
 msgid "This server cannot build Excel files."
 msgstr ""
 
-#: includes/class-lstabp-export.php:168
+#: includes/class-lstabp-export.php:169
 msgid "This table cannot be downloaded."
 msgstr ""
 

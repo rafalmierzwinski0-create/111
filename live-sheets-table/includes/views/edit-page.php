@@ -324,6 +324,20 @@ if ( ! $lstab_is_edit ) {
 				</div>
 			<?php endif; ?>
 
+			<?php
+			/*
+			 * The general tab was the one pane the add-on could not reach, so
+			 * anything belonging here had to go on Appearance instead — which
+			 * is where "let visitors download this table" ended up, filed
+			 * under how the table looks. All three panes take cards now.
+			 *
+			 * @param string     $pane    Pane slug: 'general', 'look' or 'hide'.
+			 * @param array|null $source  Source row, or null while adding.
+			 * @param bool       $is_edit Whether an existing source is open.
+			 */
+			do_action( 'lstab_edit_pane_cards', 'general', $lstab_is_edit ? $source : null, $lstab_is_edit );
+			?>
+
 			</div><!-- /pane general -->
 
 			<div class="lstab-pane" data-lstab-pane="look" hidden>

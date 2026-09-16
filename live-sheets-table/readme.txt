@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.27.0
+Stable tag: 3.28.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -180,6 +180,10 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.28.0 =
+* Fixed: the slider under a wide table went back to being a bare line lying across the rows. Two faults, one symptom. It worked out whether it was floating by measuring against the bottom of the window, which assumed the page itself was the thing scrolling — true on a published page, false in the editor's preview, where the table sits in a box that scrolls inside a window it never reaches the bottom of. And the decision waited for the first scroll, so a table already under the slider when the page opened showed a bare line until somebody moved the page. It now asks the rows directly — while any part of the table is below the top of the slider, the slider is on the data and dresses itself — and asks the moment it appears.
+* Changed (Pro): "Downloads and printing" is on the General tab. It was on Appearance, on the reasoning that these are buttons a visitor sees; but nobody looks for "can people download this?" under how the table is coloured. General was also the one tab the add-on could not put anything on at all — it takes cards now, like the other two.
 
 = 3.27.0 =
 * Added: a sheet of two hundred rows or more gets pages the moment it is created, and is told so in the sentence that greets you — how long the sheet turned out to be, how many rows a page is holding, and where to change it. Nothing is decided quietly: if you touched the paging switch yourself, on either setting, that answer stands.

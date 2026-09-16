@@ -31,8 +31,9 @@ class LSTABP_Export {
 		add_action( 'admin_post_' . self::ACTION, array( $this, 'serve' ) );
 		add_action( 'admin_post_nopriv_' . self::ACTION, array( $this, 'serve' ) );
 
-		// Also the Appearance tab: these are buttons a visitor sees under the
-		// table, not a decision about which columns it holds.
+		// The General tab. It was on Appearance, on the reasoning that these
+		// are buttons a visitor sees — but nobody looks for "can people
+		// download this?" under how the table is coloured.
 		add_action( 'lstab_edit_pane_cards', array( $this, 'render_pane_card' ), 20, 3 );
 		add_action( 'lstab_source_saved', array( $this, 'save' ) );
 		add_action( 'lstab_source_deleted', array( $this, 'forget' ) );
@@ -274,7 +275,7 @@ class LSTABP_Export {
 	 * @return void
 	 */
 	public function render_pane_card( $pane, $source, $is_edit ) {
-		if ( 'look' !== $pane ) {
+		if ( 'general' !== $pane ) {
 			return;
 		}
 
