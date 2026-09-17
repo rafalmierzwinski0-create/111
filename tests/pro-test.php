@@ -431,6 +431,67 @@ lstabp_assert( 10 === substr_count( $ruled, 'font-weight:700' ), 'A row rule rea
 // afterwards — the same promise the rest of the plugin makes.
 lstabp_assert( false === strpos( $ruled, 'lstabp-rules.js' ), 'No script is needed to colour a table' );
 
+/*
+ * The same colour, worn as words instead of a fill. A column where most rows
+ * are marked becomes a wall of colour when every one of them is filled in, and
+ * then nothing stands out; colouring the words says the same thing quietly and
+ * leaves the row's own background alone.
+ */
+update_option(
+	LSTABP_Rules::OPTION,
+	array(
+		$source_id => array(
+			array(
+				'column'   => 'Dostępność',
+				'operator' => '=',
+				'value'    => 'Brak',
+				'style'    => '#d9a441',
+				'scope'    => 'text',
+			),
+		),
+	),
+	false
+);
+
+$worded = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstabp_assert( false !== strpos( $worded, 'color:#d9a441' ), 'A words-only rule colours the words' );
+lstabp_assert( false === strpos( $worded, 'background-color:#d9a441' ), 'And leaves the cell its own background' );
+lstabp_assert( 1 === substr_count( $worded, 'color:#d9a441' ), 'On the matching cell alone', (string) substr_count( $worded, 'color:#d9a441' ) );
+lstabp_assert( false !== strpos( $worded, 'lstab-ruled' ), 'Marked with the same class as any other rule' );
+
+// The choice has to survive being stored, or it is a setting that forgets.
+$kept = LSTABP_Rules::sanitize(
+	array( array( 'column' => 'Dostępność', 'operator' => '=', 'value' => 'Brak', 'style' => '#d9a441', 'scope' => 'text' ) )
+);
+lstabp_assert( 'text' === $kept[0]['scope'], 'Words-only is a scope the plugin keeps', $kept[0]['scope'] );
+
+// Bold has no background to leave out, so it reads the same either way.
+lstabp_assert(
+	LSTABP_Rules::css_for( 'bold', 'text' ) === LSTABP_Rules::css_for( 'bold', 'cell' ),
+	'An effect means the same thing whichever way it is worn',
+	LSTABP_Rules::css_for( 'bold', 'text' )
+);
+
+// And the swatch in the dashboard has to show the difference, or the setting is
+// one nobody can check without saving and going to look.
+lstabp_assert(
+	false === strpos( LSTABP_Rules::css_for( '#d9a441', 'text' ), 'background-color' ),
+	'The swatch for a words-only rule carries no fill',
+	LSTABP_Rules::css_for( '#d9a441', 'text' )
+);
+
+delete_option( LSTABP_Rules::OPTION );
+update_option(
+	LSTABP_Rules::OPTION,
+	array(
+		$source_id => array(
+			array( 'column' => 'Dostępność', 'operator' => '=', 'value' => 'Brak', 'style' => 'red', 'scope' => 'cell' ),
+			array( 'column' => 'Cena netto', 'operator' => '>', 'value' => '1000', 'style' => 'bold', 'scope' => 'row' ),
+		),
+	),
+	false
+);
+
 // A rule reads the sheet, so hiding a column changes what is on screen but not
 // what the rule can see.
 LSTAB_Storage::update( $source_id, array( 'columns_config' => array( 2 => array( 'hidden' => true ) ) ) );

@@ -222,10 +222,20 @@ class LSTABP_Rules {
 	/**
 	 * The CSS one look is made of.
 	 *
+	 * A colour can be worn two ways. Filling the cell is loud, which is right
+	 * for "this one is a problem" and wrong for a column where most rows are
+	 * marked: a price list where half the values are flagged becomes a wall of
+	 * colour and nothing stands out. Colouring the words says the same thing
+	 * quietly, and keeps the row's own background.
+	 *
+	 * An effect — bold, struck through — is the same either way; there is no
+	 * background in it to leave out.
+	 *
 	 * @param string $style A hex colour, or the key of an effect.
+	 * @param string $scope Where the colour goes: 'cell', 'row' or 'text'.
 	 * @return string Declarations, ending in a semicolon.
 	 */
-	public static function css_for( $style ) {
+	public static function css_for( $style, $scope = 'cell' ) {
 		$effects = self::effects();
 
 		if ( isset( $effects[ $style ] ) ) {
@@ -236,6 +246,10 @@ class LSTABP_Rules {
 
 		if ( '' === $hex ) {
 			$hex = self::DEFAULT_STYLE;
+		}
+
+		if ( 'text' === $scope ) {
+			return 'color:' . $hex . ';';
 		}
 
 		return 'background-color:' . $hex . ';color:' . self::ink( $hex ) . ';';
@@ -558,7 +572,9 @@ class LSTABP_Rules {
 					isset( $rule['style'] ) ? $rule['style'] : '',
 					isset( $rule['custom'] ) ? $rule['custom'] : ''
 				),
-				'scope'    => ( isset( $rule['scope'] ) && 'row' === $rule['scope'] ) ? 'row' : 'cell',
+				'scope'    => ( isset( $rule['scope'] ) && in_array( $rule['scope'], array( 'row', 'text' ), true ) )
+					? $rule['scope']
+					: 'cell',
 			);
 
 			if ( count( $clean ) >= self::MAX_RULES ) {
@@ -610,7 +626,7 @@ class LSTABP_Rules {
 					continue;
 				}
 
-				$css = self::css_for( $rule['style'] );
+				$css = self::css_for( $rule['style'], $rule['scope'] );
 
 				if ( 'row' === $rule['scope'] ) {
 					$this->rows[ $row_index ] = $css;

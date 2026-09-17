@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
-"POT-Creation-Date: 2026-09-16 20:18+0000\n"
+"POT-Creation-Date: 2026-09-17 15:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -317,7 +317,7 @@ msgstr ""
 msgid "Cards when it stops fitting"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:142
+#: includes/class-lstab-customizer.php:141
 msgid "Centred"
 msgstr ""
 
@@ -406,7 +406,7 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:168
+#: includes/class-lstab-customizer.php:167
 msgid "Corners"
 msgstr ""
 
@@ -731,7 +731,7 @@ msgstr ""
 msgid "Layout"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:141
+#: includes/class-lstab-customizer.php:140
 msgid "Left"
 msgstr ""
 
@@ -1045,7 +1045,7 @@ msgstr ""
 msgid "Reset everything to the chosen style"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:143
+#: includes/class-lstab-customizer.php:142
 msgid "Right"
 msgstr ""
 
@@ -1053,7 +1053,7 @@ msgstr ""
 msgid "Roomy"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:171
+#: includes/class-lstab-customizer.php:170
 msgid "Rounded"
 msgstr ""
 
@@ -1289,7 +1289,7 @@ msgstr ""
 msgid "Split the table into pages"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:170
+#: includes/class-lstab-customizer.php:169
 msgid "Square"
 msgstr ""
 
@@ -1458,10 +1458,6 @@ msgstr ""
 msgid "The value given to each new table. Existing tables are not affected, and every table can be set separately."
 msgstr ""
 
-#: includes/class-lstab-customizer.php:139
-msgid "The “updated … ago” line takes the other side"
-msgstr ""
-
 #: includes/views/edit-page.php:109
 msgid "This is the built-in example"
 msgstr ""
@@ -1563,7 +1559,7 @@ msgstr ""
 msgid "Usually an unclosed quotation mark, or a comma inside a value that was not quoted. Open those rows in your sheet and compare them with the rest."
 msgstr ""
 
-#: includes/class-lstab-customizer.php:172
+#: includes/class-lstab-customizer.php:171
 msgid "Very rounded"
 msgstr ""
 

@@ -149,6 +149,7 @@ return array(
 		=> 'pokoloruj',
 	'that cell'                                  => 'tę komórkę',
 	'the whole row'                              => 'cały wiersz',
+	'just the words in that cell'                => 'sam napis w tej komórce',
 	'Abc'                                        => 'Abc',
 	'Bold text'                                  => 'Pogrubienie',
 	'Struck through'                             => 'Przekreślenie',

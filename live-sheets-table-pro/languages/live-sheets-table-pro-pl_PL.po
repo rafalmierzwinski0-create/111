@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
-"POT-Creation-Date: 2026-09-16 20:18+0000\n"
-"PO-Revision-Date: 2026-09-16 20:18+0000\n"
+"POT-Creation-Date: 2026-09-17 15:00+0000\n"
+"PO-Revision-Date: 2026-09-17 15:00+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -34,7 +34,7 @@ msgstr "%1$s różnych wartości: %2$s"
 msgid "%s — not in the sheet any more"
 msgstr "%s — już nie ma tego w arkuszu"
 
-#: includes/views/rule-line.php:141 includes/views/rule-line.php:149
+#: includes/views/rule-line.php:142 includes/views/rule-line.php:150
 msgid "A colour of your own"
 msgstr "Własny kolor"
 
@@ -50,7 +50,7 @@ msgstr "Filtr wybiera wiersze, nie kolumny. To, które kolumny pokazuje tabela, 
 msgid "A hidden column is matched by its heading, a hidden row by its line number. Reordering columns, renaming a heading or inserting a row above breaks that match."
 msgstr "Ukryta kolumna jest dopasowywana po nagłówku, a ukryty wiersz po numerze wiersza. Przestawienie kolumn, zmiana nagłówka lub wstawienie wiersza powyżej przerywa to dopasowanie."
 
-#: includes/views/rule-line.php:170
+#: includes/views/rule-line.php:171
 msgid "Abc"
 msgstr "Abc"
 
@@ -359,7 +359,7 @@ msgstr "Otwórz Google Cloud Console i utwórz projekt."
 msgid "Orange"
 msgstr "Pomarańczowy"
 
-#: includes/views/rule-line.php:156
+#: includes/views/rule-line.php:157
 msgid "Pick a colour of your own"
 msgstr "Wybierz własny kolor"
 
@@ -633,7 +633,7 @@ msgstr "Twoja subskrypcja"
 msgid "any"
 msgstr "dowolne"
 
-#: includes/views/settings-page.php:225 includes/class-lstabp-rules.php:469
+#: includes/views/settings-page.php:225 includes/class-lstabp-rules.php:483
 msgid "contains"
 msgstr "zawiera"
 
@@ -641,7 +641,7 @@ msgstr "zawiera"
 msgid "filter=\"Column is value\""
 msgstr "filter=\"Kolumna is wartość\""
 
-#: includes/class-lstabp-rules.php:467
+#: includes/class-lstabp-rules.php:481
 msgid "is"
 msgstr "jest"
 
@@ -649,11 +649,11 @@ msgstr "jest"
 msgid "is anything but"
 msgstr "jest czymkolwiek poza"
 
-#: includes/class-lstabp-rules.php:471
+#: includes/class-lstabp-rules.php:485
 msgid "is at least"
 msgstr "jest co najmniej"
 
-#: includes/class-lstabp-rules.php:473
+#: includes/class-lstabp-rules.php:487
 msgid "is at most"
 msgstr "jest najwyżej"
 
@@ -661,7 +661,7 @@ msgstr "jest najwyżej"
 msgid "is exactly"
 msgstr "jest dokładnie"
 
-#: includes/views/settings-page.php:226 includes/class-lstabp-rules.php:470
+#: includes/views/settings-page.php:226 includes/class-lstabp-rules.php:484
 msgid "is greater than"
 msgstr "jest większe niż"
 
@@ -669,7 +669,7 @@ msgstr "jest większe niż"
 msgid "is greater than or equal to"
 msgstr "jest większe lub równe"
 
-#: includes/views/settings-page.php:228 includes/class-lstabp-rules.php:472
+#: includes/views/settings-page.php:228 includes/class-lstabp-rules.php:486
 msgid "is less than"
 msgstr "jest mniejsze niż"
 
@@ -677,9 +677,13 @@ msgstr "jest mniejsze niż"
 msgid "is less than or equal to"
 msgstr "jest mniejsze lub równe"
 
-#: includes/class-lstabp-rules.php:468
+#: includes/class-lstabp-rules.php:482
 msgid "is not"
 msgstr "nie jest"
+
+#: includes/views/rule-line.php:77
+msgid "just the words in that cell"
+msgstr "sam napis w tej komórce"
 
 #: includes/class-lstabp-picker.php:75
 msgid "not on that line now"

@@ -205,6 +205,18 @@
 			return '';
 		}
 
+		/*
+		 * The same colour worn two ways. Read from the rule's own control, so
+		 * the swatch shows what the rule will actually do rather than what the
+		 * palette looks like — the whole point of a swatch is that nobody has
+		 * to save and go and look.
+		 */
+		var where = line ? line.querySelector( 'select[name*="[scope]"]' ) : null;
+
+		if ( where && 'text' === where.value ) {
+			return 'color:' + style + ';';
+		}
+
 		return 'background-color:' + style + ';color:' + ink( style ) + ';';
 	}
 
@@ -328,6 +340,12 @@
 				var target = event.target;
 
 				if ( target.classList.contains( 'lstabp-style-input' ) ) {
+					paint( target );
+				}
+
+				// Changing where the colour goes changes what the colour looks
+				// like, so the swatch has to be redrawn for that too.
+				if ( 'SELECT' === target.tagName && -1 !== target.name.indexOf( '[scope]' ) ) {
 					paint( target );
 				}
 

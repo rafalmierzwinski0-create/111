@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.29.2
+Stable tag: 3.29.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -180,6 +180,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.29.3 =
+* Added (Pro): a colour rule can paint just the words in a cell instead of filling it. A fill is right for "this one is a problem" and wrong for a column where half the rows are marked, which becomes a wall of colour with nothing standing out. The choice is the third option in the rule's own sentence — "paint that cell / the whole row / just the words in that cell" — and the swatch beside it shows which it is before anything is saved.
 
 = 3.29.2 =
 * Fixed: the preview beside the CSS field ignored every colour typed into it. The rules were confined to the frame the preview is drawn in rather than to the table inside it; colours are custom properties the table sets on itself, and a value set on an element beats one inherited from its parent, so sizes and spacings worked while colours did nothing. The published page was right the whole time — only the preview lied.
