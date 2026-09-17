@@ -1272,6 +1272,41 @@ $bad->set_param( 'url', 'https://evil.example.com/spreadsheets/d/x/edit' );
 $bad_response = $server->dispatch( $bad );
 lstab_assert( 400 === $bad_response->get_status(), 'Preview rejects a non-Google host', (string) $bad_response->get_status() );
 
+/*
+ * The CSS field's live preview. What it confines the rules to decides whether
+ * half the field works: colours are custom properties the table sets on itself,
+ * so rules aimed at the frame around the table are inherited into an element
+ * that overrides every one of them. Naming the table is the whole fix, and it
+ * is one word in one string — worth a test that says so out loud.
+ */
+$scoped = new WP_REST_Request( 'POST', '/live-sheets-table/v1/scoped-css' );
+$scoped->set_param( 'selector', '[data-lstab-preview="stage"]' );
+$scoped->set_param( 'css', '& { --lstab-fg: #123456 } td { padding: 2em }' );
+$scoped_css = $server->dispatch( $scoped )->get_data()['css'];
+
+lstab_assert(
+	false !== strpos( $scoped_css, '[data-lstab-preview="stage"] .lstab{--lstab-fg: #123456}' ),
+	'The preview confines the CSS field to the table, not the frame around it',
+	$scoped_css
+);
+lstab_assert(
+	false !== strpos( $scoped_css, '[data-lstab-preview="stage"] .lstab td{' ),
+	'And rules naming something inside it still reach it',
+	$scoped_css
+);
+
+// A selector of somebody else's choosing must not become a way to style the
+// dashboard around the preview.
+$hostile_scope = new WP_REST_Request( 'POST', '/live-sheets-table/v1/scoped-css' );
+$hostile_scope->set_param( 'selector', 'body' );
+$hostile_scope->set_param( 'css', 'td { color: red }' );
+$hostile_css = $server->dispatch( $hostile_scope )->get_data()['css'];
+lstab_assert(
+	0 === strpos( $hostile_css, '[data-lstab-preview="none"]' ),
+	'A selector the plugin does not recognise is refused, not obeyed',
+	$hostile_css
+);
+
 $refresh  = new WP_REST_Request( 'POST', '/live-sheets-table/v1/sources/' . $source_id . '/refresh' );
 $refresh_response = $server->dispatch( $refresh );
 lstab_assert( 200 === $refresh_response->get_status(), 'Manual refresh endpoint works', (string) $refresh_response->get_status() );

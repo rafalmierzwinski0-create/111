@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.29.1
+Stable tag: 3.29.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -180,6 +180,10 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.29.2 =
+* Fixed: the preview beside the CSS field ignored every colour typed into it. The rules were confined to the frame the preview is drawn in rather than to the table inside it; colours are custom properties the table sets on itself, and a value set on an element beats one inherited from its parent, so sizes and spacings worked while colours did nothing. The published page was right the whole time — only the preview lied.
+* Fixed: anything the CSS field had put on the preview was thrown away whenever the preview was drawn again, which happens for reasons that have nothing to do with the field — a colour picked, a column renamed. The rules came back only when somebody typed in the field again; they now re-apply themselves.
 
 = 3.29.1 =
 * Fixed: on a site whose theme adds "smooth scrolling", the page buttons, column sorting and the Pro filters did nothing at all. Every one of them is a link ending in a fragment so that clicking it lands on the table; a great many themes bind a handler to every link containing a fragment, compare the fragment alone, decide it points at this page, and cancel it. The plugin now takes those clicks in the capture phase, ahead of such handlers, and leaves the browser to follow the link — a middle click or one with a modifier held is still the browser's own.
