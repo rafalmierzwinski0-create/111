@@ -307,11 +307,23 @@ class LSTAB_Rest {
 			$selector = '[data-lstab-preview="none"]';
 		}
 
+		/*
+		 * Confined to the table inside the preview, not to the frame around it.
+		 * The frame looked like the safer answer and quietly threw half the
+		 * field away: colours here are custom properties, the table sets those
+		 * properties on itself, and a value set on an element beats one
+		 * inherited from its parent. Sizes and spacings — which name elements
+		 * inside the table — worked, so the field looked alive while every
+		 * colour typed into it did nothing.
+		 *
+		 * Naming the table makes the preview agree with the published page,
+		 * where these rules are confined to that same element.
+		 */
 		return rest_ensure_response(
 			array(
 				'css' => LSTAB_Custom_Css::scope(
 					LSTAB_Custom_Css::sanitize( (string) $request->get_param( 'css' ) ),
-					$selector
+					$selector . ' .lstab'
 				),
 			)
 		);

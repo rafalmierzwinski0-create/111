@@ -673,8 +673,8 @@ await page.waitForTimeout( 1200 );
 
 const liveCss = await page.locator( 'style.lstab-live-css' ).evaluate( ( el ) => el.textContent );
 check(
-	liveCss.includes( '[data-lstab-preview="stage"] td' ),
-	'What is typed is confined to the preview, not let loose on the dashboard',
+	liveCss.includes( '[data-lstab-preview="stage"] .lstab td' ),
+	'What is typed is confined to the table in the preview, not let loose on the dashboard',
 	liveCss
 );
 
@@ -682,6 +682,45 @@ const previewOutline = await page.locator( '.lstab-preview tbody td' ).first().e
 	( el ) => getComputedStyle( el ).outlineColor
 );
 check( previewOutline.includes( 'rgb(4, 5, 6)' ), 'And it is visibly applied to the preview', previewOutline );
+
+/*
+ * Colours are custom properties, and the table sets them on itself. Confining
+ * the field to the frame around the table left those rules inheriting into an
+ * element that overrode every one of them, so sizes and spacings worked while
+ * every colour typed into the field did nothing at all. It looked like a field
+ * that was half alive, which is worse than one that is plainly broken.
+ */
+await cssField.fill( '& { --lstab-fg: rgb(9, 8, 7); }' );
+await page.waitForTimeout( 1200 );
+
+const previewInk = await page.locator( '.lstab-preview .lstab-table tbody td' ).first().evaluate(
+	( el ) => getComputedStyle( el ).color
+);
+check( previewInk.includes( 'rgb(9, 8, 7)' ), 'A colour set on the table itself reaches the preview', previewInk );
+
+/*
+ * And survives the preview being drawn again. A redraw happens for reasons
+ * that have nothing to do with the field — a colour picked, a tab switched —
+ * and it throws away the style block the field put there. Until this, the
+ * field's rules came back only when somebody typed in it again.
+ */
+await pane( 'columns' );
+await page.locator( 'input[name="columns[4][hidden]"]' ).click();
+await page.waitForTimeout( 2500 );
+await pane( 'look' );
+
+const inkAfterRedraw = await page.locator( '.lstab-preview .lstab-table tbody td' ).first().evaluate(
+	( el ) => getComputedStyle( el ).color
+);
+check( inkAfterRedraw.includes( 'rgb(9, 8, 7)' ), 'And is still there after the preview is drawn again', inkAfterRedraw );
+
+// Put the column back and restore the rule the checks below expect.
+await pane( 'columns' );
+await page.locator( 'input[name="columns[4][hidden]"]' ).click();
+await page.waitForTimeout( 2500 );
+await pane( 'look' );
+await cssField.fill( 'td { outline: 2px dotted rgb(4, 5, 6); }\n.nothing-here { color: red }' );
+await page.waitForTimeout( 1200 );
 
 // The point of scoping: a rule for "td" must not reach the dashboard's own
 // tables or anything else on the screen.

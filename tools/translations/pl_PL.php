@@ -153,8 +153,6 @@ return array(
 	'Heading text size'                          => 'Wielkość tekstu nagłówków',
 	'Row height'                                 => 'Wysokość wiersza',
 	'Page buttons'                               => 'Przyciski stron',
-	'The “updated … ago” line takes the other side'
-		=> 'Napis „zaktualizowano … temu” staje po drugiej stronie',
 	'Left'                                       => 'Do lewej',
 	'Centred'                                    => 'Na środku',
 	'Right'                                      => 'Do prawej',

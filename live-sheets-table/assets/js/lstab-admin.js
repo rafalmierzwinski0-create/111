@@ -202,6 +202,15 @@
 	var status = document.getElementById( 'lstab-preview-status' );
 	var preview = document.getElementById( 'lstab-preview' );
 	var stage = document.getElementById( 'lstab-preview-stage' ) || preview;
+
+	/*
+	 * Re-applies whatever is in the CSS field. Assigned by the module further
+	 * down; kept here because a redraw of the preview throws that module's
+	 * style block away with everything else, and a redraw happens for reasons
+	 * that have nothing to do with the field — a colour picked, a rule changed,
+	 * a tab switched.
+	 */
+	var refreshLiveCss = function () {};
 	var widthButtons = document.querySelectorAll( '.lstab-width-button' );
 	var tabsWrap = document.getElementById( 'lstab-tabs-wrap' );
 	var tabsSelect = document.getElementById( 'lstab-tabs' );
@@ -595,6 +604,7 @@
 
 			stage.innerHTML = response.html || '';
 			applyAppearance();
+			refreshLiveCss();
 			if ( window.lstabInit ) {
 				window.lstabInit();
 			}
@@ -756,6 +766,14 @@
 		} );
 
 		field.addEventListener( 'change', refresh );
+
+		// The guard that stops a repeated keystroke asking twice has to be
+		// lifted first: after a redraw the text is unchanged but the page it
+		// was applied to is gone.
+		refreshLiveCss = function () {
+			pending = null;
+			refresh();
+		};
 	}() );
 
 	// ---------------------------------------------------------- appearance
@@ -1092,6 +1110,7 @@
 			function ( response ) {
 				stage.innerHTML = response.html || '';
 				applyAppearance();
+				refreshLiveCss();
 				if ( window.lstabInit ) {
 					window.lstabInit();
 				}

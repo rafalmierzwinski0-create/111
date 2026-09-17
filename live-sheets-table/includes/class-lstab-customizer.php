@@ -136,7 +136,6 @@ class LSTAB_Customizer {
 				),
 				'pagerAlign' => array(
 					'label'   => __( 'Page buttons', 'live-sheets-table' ),
-					'note'    => __( 'The “updated … ago” line takes the other side', 'live-sheets-table' ),
 					'choices' => array(
 						'left'   => __( 'Left', 'live-sheets-table' ),
 						'normal' => __( 'Centred', 'live-sheets-table' ),
