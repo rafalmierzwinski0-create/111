@@ -704,8 +704,12 @@ check( previewInk.includes( 'rgb(9, 8, 7)' ), 'A colour set on the table itself 
  * and it throws away the style block the field put there. Until this, the
  * field's rules came back only when somebody typed in it again.
  */
-await pane( 'columns' );
-await page.locator( 'input[name="columns[4][hidden]"]' ).click();
+const nameField = page.locator( 'input[name="columns[0][label]"]' );
+const oldName = await nameField.inputValue();
+
+await pane( 'hide' );
+await nameField.fill( oldName + ' (przerysuj)' );
+await nameField.blur();
 await page.waitForTimeout( 2500 );
 await pane( 'look' );
 
@@ -714,9 +718,10 @@ const inkAfterRedraw = await page.locator( '.lstab-preview .lstab-table tbody td
 );
 check( inkAfterRedraw.includes( 'rgb(9, 8, 7)' ), 'And is still there after the preview is drawn again', inkAfterRedraw );
 
-// Put the column back and restore the rule the checks below expect.
-await pane( 'columns' );
-await page.locator( 'input[name="columns[4][hidden]"]' ).click();
+// Put the name back and restore the rule the checks below expect.
+await pane( 'hide' );
+await nameField.fill( oldName );
+await nameField.blur();
 await page.waitForTimeout( 2500 );
 await pane( 'look' );
 await cssField.fill( 'td { outline: 2px dotted rgb(4, 5, 6); }\n.nothing-here { color: red }' );
