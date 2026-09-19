@@ -32,6 +32,10 @@
 	   otherwise let the scrolling content show through the header. Same colour
 	   either way, since this is the table's own background. */
 	--lstab-head-bg: var(--lstab-bg);
+	/* What the pinned first column paints behind itself. Its own token so a
+	   see-through skin can hand the pinned column something solid without
+	   giving up the translucency everywhere else. */
+	--lstab-sticky-bg: var(--lstab-bg);
 	--lstab-head-fg: #61696f;
 	--lstab-border: #e3e8ec;
 	--lstab-border-strong: #cdd5db;
@@ -301,6 +305,10 @@
 }
 
 .lstab-table tbody tr:hover {
+	/* Also as a variable: the pinned column paints its own backdrop and has
+	   to repeat whatever tint the row is wearing, or it would lose the
+	   stripe and the hover the moment the table scrolls sideways. */
+	--lstab-row-tint: var(--lstab-hover);
 	background-color: var(--lstab-hover);
 }
 
@@ -412,6 +420,19 @@
 
 /* -------------------------------------------------------------- meta / misc */
 
+/*
+ * While a new page of rows is on its way. Deliberately quiet: the fetch is
+ * usually over in a blink, and a loud spinner would flash more than it informs.
+ */
+.lstab-is-loading .lstab-table {
+	opacity: 0.55;
+	transition: opacity 0.15s ease;
+}
+
+.lstab-is-loading .lstab-page-link {
+	pointer-events: none;
+}
+
 /* ---------------------------------------------------- pinned first column */
 
 /*
@@ -442,6 +463,36 @@
 
 .lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child {
 	background-color: inherit;
+}
+
+/*
+ * The cell also paints its own opaque backdrop, under its text and over the
+ * columns sliding past underneath.
+ *
+ * Inheriting the row's colour is not enough on its own. A row with no colour of
+ * its own — an unstriped table, or a skin that clears cell backgrounds to let a
+ * page show through — inherits nothing, and the pinned column turns into a
+ * window: the second column's text slides under the first one's and the two
+ * read as one illegible smear. That is the whole fault, and it only appears
+ * once somebody drags the table sideways.
+ *
+ * The backdrop is a layer of its own rather than a background on the cell, so
+ * a custom stylesheet clearing cell backgrounds cannot take it away. It repeats
+ * the row's tint on top of the solid colour, so stripes and hover survive.
+ */
+.lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child::before,
+.lstab-sticky-first .lstab-table thead th:first-child::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+	background-color: var(--lstab-sticky-bg, var(--lstab-bg));
+	background-image: linear-gradient( var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent) );
+}
+
+.lstab-sticky-first .lstab-table thead th:first-child::before {
+	background-color: var(--lstab-head-bg, var(--lstab-sticky-bg, var(--lstab-bg)));
 }
 
 .lstab-sticky-first .lstab-table thead th:first-child {
@@ -729,10 +780,12 @@
 /* ---------------------------------------------------------------- presets */
 
 .lstab-style-striped .lstab-table tbody tr:nth-child(even) {
+	--lstab-row-tint: var(--lstab-stripe);
 	background-color: var(--lstab-stripe);
 }
 
 .lstab-style-striped .lstab-table tbody tr:hover {
+	--lstab-row-tint: var(--lstab-hover);
 	background-color: var(--lstab-hover);
 }
 

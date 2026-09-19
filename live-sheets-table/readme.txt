@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.29.3
+Stable tag: 3.30.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -180,6 +180,11 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.30.0 =
+* Added: turning a page no longer reloads the whole page, and neither does sorting a column or picking a filter. The new rows are fetched on their own and put in place of the old ones, so the reader keeps their position, the theme's header and images are not fetched a second time, and a slow host no longer means a blank screen between page two and page three. The address bar and the back button both keep working, and if anything at all is unavailable — an old browser, a login wall, an error page — the link is left alone and the browser follows it the ordinary way.
+* Fixed: a pinned first column let the rest of the table show through it. The pinned cell took its colour from the row, which works for a striped table and fails for every other one: an unstriped table, or any custom CSS that clears cell backgrounds so a page background can show through, left the column see-through, and dragging the table sideways slid the second column's text under the first column's until the two read as one smear. The pinned cells now paint their own backdrop, which a custom stylesheet cannot take away, and still carry the stripe and the hover.
+* Added: --lstab-sticky-bg, for a skin whose table background is deliberately see-through. The pinned column needs something solid to hide the columns passing underneath; this is where to say what.
 
 = 3.29.3 =
 * Added (Pro): a colour rule can paint just the words in a cell instead of filling it. A fill is right for "this one is a problem" and wrong for a column where half the rows are marked, which becomes a wall of colour with nothing standing out. The choice is the third option in the rule's own sentence — "paint that cell / the whole row / just the words in that cell" — and the swatch beside it shows which it is before anything is saved.

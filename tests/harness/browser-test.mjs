@@ -2611,6 +2611,110 @@ check( /lstab-sort/.test( tpage.url() ), 'And asks for the column it was told to
 await tpage.close();
 execFileSync( 'php', [ new URL( 'set-paging.php', import.meta.url ).pathname, SITE_PATH, String( sourceId ), '0' ] );
 
+section( '9j. Turning a page without reloading the page' );
+
+/*
+ * The new rows are fetched on their own and put in place of the old ones. The
+ * test for that is a mark left on the window: a reload wipes it, so if it is
+ * still there afterwards the document was never replaced.
+ *
+ * The back button is checked in the same breath, because the first attempt at
+ * this passed the forward case and quietly broke the backward one — the rows
+ * stayed on page two while the address returned to page one.
+ */
+execFileSync( 'php', [ new URL( 'set-paging.php', import.meta.url ).pathname, SITE_PATH, String( sourceId ), '3' ] );
+
+await page.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
+
+const firstCell = () => page.evaluate( () => {
+	const table = document.querySelector( '.lstab-table' );
+	return table && table.tBodies[ 0 ] && table.tBodies[ 0 ].rows[ 0 ]
+		? table.tBodies[ 0 ].rows[ 0 ].cells[ 0 ].innerText.trim()
+		: '';
+} );
+
+const pageOne = await firstCell();
+check( pageOne !== '', 'The paged table has rows to begin with', pageOne );
+
+await page.evaluate( () => { window.lstabStillHere = 'yes'; } );
+const beforeTurn = page.url();
+
+await page.locator( '.lstab-pager a.lstab-page-link' ).first().click();
+await page.waitForFunction(
+	( was ) => {
+		const table = document.querySelector( '.lstab-table' );
+		return table && table.tBodies[ 0 ] && table.tBodies[ 0 ].rows[ 0 ].cells[ 0 ].innerText.trim() !== was;
+	},
+	pageOne,
+	{ timeout: 15000 }
+).catch( () => {} );
+
+const pageTwo = await firstCell();
+check( pageTwo !== pageOne, 'The second page of rows arrives', `${ pageOne } -> ${ pageTwo }` );
+check(
+	'yes' === await page.evaluate( () => window.lstabStillHere ),
+	'And the document was never reloaded to get them',
+	'the mark left on the window survived'
+);
+check( page.url() !== beforeTurn && /lstab-page/.test( page.url() ), 'The address bar followed along', page.url() );
+
+await page.evaluate( () => window.history.back() );
+await page.waitForFunction(
+	( was ) => {
+		const table = document.querySelector( '.lstab-table' );
+		return table && table.tBodies[ 0 ] && table.tBodies[ 0 ].rows[ 0 ].cells[ 0 ].innerText.trim() === was;
+	},
+	pageOne,
+	{ timeout: 15000 }
+).catch( () => {} );
+
+check( ( await firstCell() ) === pageOne, 'Back returns the first page of rows', await firstCell() );
+check(
+	'yes' === await page.evaluate( () => window.lstabStillHere ),
+	'And back does not reload the document either',
+	'the mark survived the back button too'
+);
+
+/*
+ * The pinned column has to hide what slides under it. Inheriting the row's
+ * colour is not enough: an unstriped table, or any custom CSS that clears cell
+ * backgrounds, leaves the column see-through and the second column's text
+ * slides under the first column's. The cells paint a backdrop of their own, and
+ * what matters is that it is opaque.
+ */
+const opaque = ( colour ) => {
+	const parts = String( colour ).match( /[\d.]+/g ) || [];
+	return 3 === parts.length || ( 4 === parts.length && parseFloat( parts[ 3 ] ) >= 0.99 );
+};
+
+const backdrop = await page.evaluate( () => {
+	const cell = document.querySelector( '.lstab-sticky-first .lstab-table tbody tr td:first-child' );
+	const head = document.querySelector( '.lstab-sticky-first .lstab-table thead th:first-child' );
+
+	if ( ! cell || ! head ) {
+		return null;
+	}
+
+	const read = ( el ) => {
+		const style = getComputedStyle( el, '::before' );
+		return { drawn: style.content, colour: style.backgroundColor, layer: style.zIndex };
+	};
+
+	return { cell: read( cell ), head: read( head ), position: getComputedStyle( cell ).position };
+} );
+
+check( backdrop !== null, 'The table pins its first column', String( backdrop !== null ) );
+
+if ( backdrop ) {
+	check( 'sticky' === backdrop.position, 'The first cell really is pinned', backdrop.position );
+	check( 'none' !== backdrop.cell.drawn, 'The pinned cell draws a backdrop', backdrop.cell.drawn );
+	check( opaque( backdrop.cell.colour ), 'And it is opaque, so nothing shows through', backdrop.cell.colour );
+	check( opaque( backdrop.head.colour ), 'The pinned heading is opaque too', backdrop.head.colour );
+	check( '-1' === backdrop.cell.layer, 'The backdrop sits under the text, not over it', backdrop.cell.layer );
+}
+
+execFileSync( 'php', [ new URL( 'set-paging.php', import.meta.url ).pathname, SITE_PATH, String( sourceId ), '0' ] );
+
 // ---------------------------------------------------------------- block editor
 section( '10. Block editor' );
 setMock( 'ok' );

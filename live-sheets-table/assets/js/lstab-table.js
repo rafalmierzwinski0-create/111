@@ -46,12 +46,166 @@
 
 			var link = target.closest( NAV_LINKS );
 
-			if ( link && link.href ) {
-				event.stopPropagation();
+			if ( ! link || ! link.href ) {
+				return;
+			}
+
+			event.stopPropagation();
+
+			// Fetching the new page and swapping the table in beats reloading
+			// the whole page: the reader keeps their place on the page, the
+			// theme's header and images are not fetched again, and a slow
+			// server no longer means a white screen between page two and
+			// page three. If any part of that is unavailable, the link is
+			// left alone and the browser follows it the ordinary way.
+			if ( swapInPlace( link.href, link ) ) {
+				event.preventDefault();
 			}
 		},
 		true
 	);
+
+	/* ------------------------------------------- turning pages without a reload */
+
+	/**
+	 * Every table wrapper on the page, in the order they appear.
+	 *
+	 * The wrappers are matched between the current page and the fetched one by
+	 * their position rather than by an id: a table's id is generated per render
+	 * and differs between the two documents, while the order they stand in does
+	 * not.
+	 *
+	 * @param {Document} doc Document to look in.
+	 * @return {Array} Wrapper elements.
+	 */
+	function containers( doc ) {
+		return Array.prototype.slice.call( doc.querySelectorAll( '.lstab-container' ) );
+	}
+
+	var loading = false;
+
+	/*
+	 * Whether a page has been turned in place yet. The back button is judged
+	 * by this rather than by what the history entry carries, because the
+	 * entry the reader started on belongs to the browser and holds no state
+	 * of ours. Marking it with replaceState first looks like the tidy answer
+	 * and is a trap: in Chrome a replaceState turns the next backward step
+	 * into a full document load, which is the very thing this avoids.
+	 */
+	var turned = false;
+
+	/**
+	 * Fetch a page and put its tables in place of the ones on screen.
+	 *
+	 * @param {string}      url  Address to fetch.
+	 * @param {HTMLElement} from The link that was clicked, if any.
+	 * @param {boolean}     push Whether to add an entry to the browser history.
+	 * @return {boolean} True if it took the job on.
+	 */
+	function swapInPlace( url, from, push ) {
+		if ( loading || ! window.fetch || ! window.DOMParser || ! window.history || ! window.history.pushState ) {
+			return false;
+		}
+
+		var here = containers( document );
+		var box = from && from.closest ? from.closest( '.lstab-container' ) : null;
+		/*
+		 * Which wrapper to keep an eye on. The back button arrives with no link
+		 * to go by, and watching none of them was a quiet fault: the element
+		 * measured afterwards had already been replaced, so it measured zero,
+		 * and the page jumped by the table's own offset on every step back.
+		 */
+		var at = box ? here.indexOf( box ) : 0;
+
+		if ( from && at < 0 ) {
+			return false;
+		}
+
+		var watched = box || here[ 0 ];
+
+		if ( ! watched ) {
+			return false;
+		}
+
+		loading = true;
+		watched.setAttribute( 'aria-busy', 'true' );
+		watched.classList.add( 'lstab-is-loading' );
+
+		// Where the table sat on screen, so the page can be nudged afterwards
+		// to leave it exactly there: a shorter page of rows would otherwise
+		// pull everything up and move the ground under the reader.
+		var wasAt = watched.getBoundingClientRect().top;
+
+		window.fetch( url, { credentials: 'same-origin' } )
+			.then( function ( response ) {
+				if ( ! response.ok ) {
+					throw new Error( String( response.status ) );
+				}
+
+				return response.text();
+			} )
+			.then( function ( html ) {
+				var fetched = containers( new DOMParser().parseFromString( html, 'text/html' ) );
+
+				if ( ! fetched.length || fetched.length !== here.length ) {
+					throw new Error( 'shape changed' );
+				}
+
+				here.forEach( function ( old, index ) {
+					var fresh = document.importNode( fetched[ index ], true );
+					old.parentNode.replaceChild( fresh, old );
+
+					if ( index === at ) {
+						watched = fresh;
+					}
+				} );
+
+				init();
+
+				if ( false !== push ) {
+					window.history.pushState( { lstab: true }, '', url );
+				}
+
+				// From here on the back button has pages of ours to return to.
+				turned = true;
+
+				window.scrollBy( 0, watched.getBoundingClientRect().top - wasAt );
+
+				// Keyboard and screen reader users were standing on a button
+				// that no longer exists. Put them on the table itself rather
+				// than back at the top of the document.
+				var landing = watched.querySelector( '.lstab' );
+
+				if ( landing && from ) {
+					landing.setAttribute( 'tabindex', '-1' );
+					landing.focus( { preventScroll: true } );
+				}
+			} )
+			.catch( function () {
+				// Anything unexpected — an error page, a login wall, a theme
+				// that renders tables differently for a fetch — and we hand the
+				// job back to the browser rather than leave a dead button.
+				window.location.href = url;
+			} )
+			.then( function () {
+				loading = false;
+
+				if ( watched && watched.isConnected ) {
+					watched.removeAttribute( 'aria-busy' );
+					watched.classList.remove( 'lstab-is-loading' );
+				}
+			} );
+
+		return true;
+	}
+
+	// The back button has to work as well as the page buttons, or turning
+	// pages without a reload trades one annoyance for a worse one.
+	window.addEventListener( 'popstate', function () {
+		if ( turned ) {
+			swapInPlace( window.location.href, null, false );
+		}
+	} );
 
 	var COLLATOR = typeof Intl !== 'undefined' && Intl.Collator
 		? new Intl.Collator( undefined, { numeric: true, sensitivity: 'base' } )
