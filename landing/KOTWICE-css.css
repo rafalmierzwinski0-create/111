@@ -1,0 +1,41 @@
+/* =========================================================================
+   SKAKANIE DO SEKCJI Z PASKA U GÓRY
+
+   Wklej to do: Divi → Opcje motywu → Ogólne → Własny CSS
+   (albo Wygląd → Dostosuj → Dodatkowy CSS).
+
+   Bez tego kliknięcie w menu przewija stronę tak, że górna krawędź sekcji
+   ląduje dokładnie pod górną krawędzią okna — czyli POD przyklejonym paskiem.
+   Tytuł sekcji znika za paskiem i wygląda, jakby link prowadził w złe miejsce.
+   ========================================================================= */
+
+/*
+ * Odstęp, jaki przeglądarka ma zostawić nad sekcją, do której skacze.
+ * 100 px = wysokość paska (80 px) plus odrobina powietrza.
+ *
+ * Jeśli Twój pasek ma inną wysokość, zmień tę jedną liczbę. Zmierzysz ją
+ * tak: kliknij pasek prawym przyciskiem → Zbadaj → w panelu po prawej
+ * zobaczysz jego wysokość.
+ */
+.et_pb_section {
+	scroll-margin-top: 100px;
+}
+
+/* Płynne przewijanie zamiast przeskoku. */
+html {
+	scroll-behavior: smooth;
+}
+
+/* Kto ma włączone „ogranicz animacje", dostaje przeskok — tak ma być. */
+@media ( prefers-reduced-motion: reduce ) {
+	html { scroll-behavior: auto; }
+}
+
+/*
+ * Divi zmniejsza pasek po przewinięciu (opcja „Zmniejszający się nagłówek").
+ * Jeśli ją masz włączoną, pasek po przewinięciu jest niższy — wtedy ten
+ * mniejszy odstęp pasuje lepiej.
+ */
+.et-fixed-header ~ #page-container .et_pb_section {
+	scroll-margin-top: 80px;
+}

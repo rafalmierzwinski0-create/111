@@ -1,0 +1,461 @@
+# -*- coding: utf-8 -*-
+"""
+Stopka jako dół arkusza kalkulacyjnego — jeden moduł Kod w Divi.
+
+Nagłówek strony udaje pasek formuły, więc stopka udaje to, co w arkuszu jest
+na samym dole: rząd zakładek z nazwami arkuszy i pasek stanu pod nimi.
+
+Bez skryptu. Sam styl i znacznikowanie — nie ma się co wyłożyć.
+"""
+
+import re
+
+EN = {
+	'opis': 'Publish a Google Sheet as a real table on your WordPress site. '
+	        'It refreshes itself, works on a phone, and holds up on the days Google does not.',
+	'zakladki': [
+		( 'Product', [
+			( 'How it works',       '#how' ),
+			( 'Why it&rsquo;s different', '#different' ),
+			( 'Free and Pro',       '#compare' ),
+			( 'Pricing',            '#pricing' ),
+			( 'Questions',          '#faq' ),
+		] ),
+		( 'Support', [
+			( 'Documentation',          '#' ),
+			( 'WordPress.org forum',    '#' ),
+			( 'Write to us',            '#' ),
+		] ),
+		( 'Legal', [
+			( 'Privacy and terms',                 '#' ),
+			( 'Licence &mdash; GPL&#8209;2.0&#8209;or&#8209;later', '#' ),
+		] ),
+	],
+	'przycisk': 'Download free',
+	'pod_przyciskiem': 'No account with us',
+	'stan': [ '&copy; 2026 Live Sheets Table', 'Requires WordPress 6.7+',
+	          'Not affiliated with Google LLC' ],
+}
+
+PL = {
+	'opis': 'Publikuj arkusz Google jako prawdziwą tabelę na swojej stronie WordPress. '
+	        'Odświeża się sama, działa na telefonie i trzyma się w dni, gdy Google nie działa.',
+	'zakladki': [
+		( 'Produkt', [
+			( 'Jak to działa',    '#jak' ),
+			( 'Czym się różni',   '#dlaczego' ),
+			( 'Darmowa i Pro',    '#porownanie' ),
+			( 'Cennik',           '#cennik' ),
+			( 'Pytania',          '#pytania' ),
+		] ),
+		( 'Pomoc', [
+			( 'Dokumentacja',          '#' ),
+			( 'Forum WordPress.org',   '#' ),
+			( 'Napisz do nas',         '#' ),
+		] ),
+		( 'Formalności', [
+			( 'Prywatność i regulamin',            '#' ),
+			( 'Licencja &mdash; GPL&#8209;2.0&#8209;lub&#8209;nowsza', '#' ),
+		] ),
+	],
+	'przycisk': 'Pobierz za darmo',
+	'pod_przyciskiem': 'Bez zakładania konta u nas',
+	'stan': [ '&copy; 2026 Live Sheets Table', 'Wymaga WordPressa 6.7+',
+	          'Niezwiązane z Google LLC' ],
+}
+
+
+ZNAK = ( '<span class="lst-st-znak" aria-hidden="true"><svg viewBox="0 0 32 32" focusable="false">'
+	'<rect x="1" y="1" width="26" height="26" rx="7" fill="#101c1a"/>'
+	'<rect x="1.5" y="1.5" width="25" height="25" rx="6.5" fill="none" stroke="#5fe3cf" stroke-opacity=".38"/>'
+	'<path d="M6 11.5h16" stroke="#5fe3cf" stroke-width="2" stroke-linecap="round"/>'
+	'<path d="M6 17.5h16M6 22.5h16" stroke="#5fe3cf" stroke-width="1.6" stroke-linecap="round" opacity=".45"/>'
+	'<path d="M13.2 11.5v11" stroke="#5fe3cf" stroke-width="1.6" stroke-linecap="round" opacity=".45"/>'
+	'<rect x="23.5" y="23.5" width="7" height="7" rx="2" fill="#5fe3cf"/>'
+	'<rect x="24.9" y="24.9" width="4.2" height="4.2" rx="1" fill="#06100f"/></svg></span>' )
+
+
+SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<div class="lst-st" id="lst-st">
+	<div class="lst-st-rama">
+		<div class="lst-st-gora">
+			<div class="lst-st-marka">
+				<p class="lst-st-nazwa">{ZNAK}<span><em>Live</em> Sheets Table</span></p>
+				<p class="lst-st-opis">{OPIS}</p>
+				<p class="lst-st-akcja"><a class="lst-st-guzik" href="#pricing">{PRZYCISK}</a><span class="lst-st-pod">{POD}</span></p>
+			</div>
+{KOLUMNY}
+		</div>
+		<div class="lst-st-pasek">{STAN}</div>
+	</div>
+</div>
+
+<style>
+.lst-st {
+	--lst-mieta: 95, 227, 207;
+	--lst-panel: #1b2221;
+	--lst-panel-dol: #161d1c;
+	--lst-zakladka: #1f2725;
+	--lst-linia: rgba( 138, 168, 163, .16 );
+	--lst-tekst: #eaf3f1;
+	--lst-tekst-2: #9db3b0;
+	--lst-tekst-3: #7b918e;
+	--lst-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+
+	font-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
+	color: var( --lst-tekst );
+
+	--lst-szerokosc: 90%;
+	--lst-max: 1800px;
+	--lst-pelna: 100vw;
+
+	/* Pełna szerokość okna, tak jak tabela i cennik — inaczej 90% liczyłoby
+	   się od wiersza Divi, który sam ma już 90%, i stopka byłaby węższa
+	   od reszty strony. */
+	width: var( --lst-pelna );
+	margin: 0 calc( 50% - var( --lst-pelna ) / 2 );
+	overflow-x: clip;
+	padding: clamp( 2.4rem, 5vw, 4rem ) 0 0;
+
+	/*
+	 * Nieprzezroczyste tło — inaczej prześwituje spod niej siatka strony,
+	 * która przy kursorze się rusza, i stopka zamiast domykać stronę,
+	 * zaczyna z nią konkurować. Delikatny spad ku dołowi „zamyka" stronę
+	 * wzrokowo, a kreska u góry oddziela ją od ostatniej sekcji.
+	 */
+	background: linear-gradient( #1b2221 0%, #131918 100% ) !important;
+}
+
+/* Zerujemy ramkę motywu, ale kreskę u góry zostawiamy — ta reguła ma
+   podwójną klasę, więc musi zawierać jedno i drugie. Ustawiona wyżej
+   pojedynczą klasą przegrywała tu i kreski w ogóle nie było widać. */
+.lst-st.lst-st {
+	border: 0 !important;
+	border-top: 1px solid var( --lst-linia ) !important;
+	outline: 0 !important;
+}
+.lst-st * { box-sizing: border-box; }
+.lst-st-gniazdo.lst-st-gniazdo { border: 0 !important; outline: 0 !important; }
+.lst-st br { display: none; }
+
+.lst-st :where( div, p, span, a, ul, li, em, svg ) {
+	margin: 0;
+	padding: 0;
+	background: none;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	text-align: left;
+	text-transform: none;
+	letter-spacing: normal;
+	font: inherit;
+	color: inherit;
+	list-style: none;
+	width: auto;
+	max-width: none;
+	min-width: 0;
+}
+
+.lst-st .lst-st-rama {
+	width: var( --lst-szerokosc );
+	max-width: var( --lst-max );
+	margin-inline: auto;
+}
+
+/* ---------- górna część: marka i kolumny ---------- */
+
+.lst-st .lst-st-gora {
+	display: grid;
+	grid-template-columns: minmax( 16rem, 1.6fr ) repeat( 3, minmax( 9rem, 1fr ) );
+	gap: clamp( 1.6rem, 3vw, 3rem );
+	align-items: start;
+	padding-bottom: clamp( 1.8rem, 3vw, 2.6rem );
+}
+
+.lst-st .lst-st-nazwa {
+	display: flex;
+	align-items: center;
+	gap: .6rem;
+	font-size: 1.5625rem;   /* 25 px — nazwa marki, jedyny wyjątek */
+	font-weight: 600;
+	margin-bottom: .8rem;
+}
+
+.lst-st .lst-st-nazwa em { font-style: normal; color: rgb( var( --lst-mieta ) ); }
+
+.lst-st .lst-st-znak { display: block; width: 26px; height: 26px; flex: none; }
+.lst-st .lst-st-znak svg { display: block; width: 100% !important; height: 100% !important; max-width: none !important; }
+
+.lst-st .lst-st-opis {
+	font-size: 1.125rem;   /* 18 px */
+	line-height: 1.6;
+	color: var( --lst-tekst-2 );
+	max-width: 30rem;
+	margin-bottom: 1.4rem;
+}
+
+.lst-st .lst-st-akcja { display: flex; align-items: center; gap: .9rem; flex-wrap: wrap; }
+
+.lst-st .lst-st-guzik {
+	display: inline-block;
+	padding: .85rem 1.3rem;
+	font-size: 1.125rem;   /* 18 px */
+	font-weight: 600;
+	color: #06100f;
+	background: rgb( var( --lst-mieta ) );
+	border-radius: 10px;
+	text-decoration: none !important;
+	transition: background-color .2s ease, transform .2s ease;
+}
+
+.lst-st .lst-st-guzik:hover { background: #7df0dd; transform: translateY( -1px ); }
+.lst-st .lst-st-guzik:focus-visible { outline: 2px solid rgb( var( --lst-mieta ) ) !important; outline-offset: 3px; }
+
+.lst-st .lst-st-pod { font-family: var( --lst-mono ); font-size: .875rem;   /* 14 px */ color: var( --lst-tekst-3 ); }
+
+/* ---------- kolumny: nagłówek wygląda jak zakładka arkusza ---------- */
+
+/*
+ * Zakładka „siedzi" na linii, która biegnie przez całą szerokość stopki —
+ * tak samo jak zakładki arkuszy siedzą na krawędzi okna. Linia jest jedna,
+ * wspólna dla wszystkich kolumn, więc rysuje ją kontener, a nie zakładki.
+ */
+.lst-st .lst-st-kol { position: relative; padding-top: 2.4rem; }
+
+.lst-st .lst-st-etykieta {
+	position: absolute;
+	top: 0;
+	left: 0;
+	/* Stała wysokość równa wcięciu kolumny — dzięki temu dolna krawędź
+	   zakładki wypada DOKŁADNIE na kresce, niezależnie od kroju pisma.
+	   Przy liczeniu z dopełnienia zostawała siedmiopikselowa szczelina. */
+	display: inline-flex;
+	align-items: center;
+	height: 2.4rem;
+	padding: 0 .85rem;
+	font-family: var( --lst-mono );
+	font-size: .875rem;   /* 14 px */
+	letter-spacing: .1em;
+	text-transform: uppercase;
+	color: var( --lst-tekst-2 );
+	background: var( --lst-zakladka );
+	border: 1px solid var( --lst-linia ) !important;
+	border-bottom: 0 !important;
+	border-radius: 8px 8px 0 0;
+}
+
+/* Kreska pod zakładkami — wspólna dla całego rzędu. */
+.lst-st .lst-st-kol::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: calc( -1 * clamp( 1.6rem, 3vw, 3rem ) );
+	top: 2.4rem;
+	height: 1px;
+	background: var( --lst-linia );
+}
+
+.lst-st .lst-st-kol:last-child::before { right: 0; }
+
+.lst-st .lst-st-lista { display: flex; flex-direction: column; gap: .55rem; padding-top: 1.1rem; }
+
+.lst-st .lst-st-lista a {
+	font-size: 1.125rem;   /* 18 px */
+	line-height: 1.35;
+	color: var( --lst-tekst-2 );
+	text-decoration: none !important;
+	transition: color .2s ease;
+}
+
+.lst-st .lst-st-lista a:hover { color: rgb( var( --lst-mieta ) ); }
+.lst-st .lst-st-lista a:focus-visible { outline: 2px solid rgb( var( --lst-mieta ) ) !important; outline-offset: 3px; border-radius: 3px; }
+
+/* ---------- utwardzenie na wrogie motywy ---------- */
+
+/*
+ * Reset :where() wyżej ma wagę zero i przegrywa z motywem, który pisze
+ * "a { text-decoration: underline !important }". Tu, na konkretnych
+ * elementach, przebijamy to wprost.
+ */
+.lst-st .lst-st-lista a,
+.lst-st .lst-st-guzik {
+	font-family: inherit !important;
+	text-transform: none !important;
+	letter-spacing: normal !important;
+	text-decoration: none !important;
+	border: 0 !important;
+}
+
+.lst-st .lst-st-lista a { color: var( --lst-tekst-2 ) !important; background: none !important; }
+.lst-st .lst-st-lista a:hover { color: rgb( var( --lst-mieta ) ) !important; }
+.lst-st .lst-st-guzik { color: #06100f !important; background: rgb( var( --lst-mieta ) ) !important; }
+.lst-st .lst-st-guzik:hover { background: #7df0dd !important; }
+
+.lst-st .lst-st-opis,
+.lst-st .lst-st-nazwa,
+.lst-st .lst-st-akcja {
+	margin-inline: 0 !important;
+	background: none !important;
+	border: 0 !important;
+	text-transform: none !important;
+}
+
+.lst-st .lst-st-opis { margin-top: 0 !important; margin-bottom: 1.4rem !important; }
+.lst-st .lst-st-nazwa { margin-top: 0 !important; margin-bottom: .8rem !important; }
+.lst-st .lst-st-akcja { margin-block: 0 !important; }
+
+.lst-st .lst-st-znak,
+.lst-st .lst-st-etykieta,
+.lst-st .lst-st-lista,
+.lst-st .lst-st-pasek span { background: none !important; }
+
+.lst-st .lst-st-znak { border: 0 !important; }
+.lst-st .lst-st-etykieta { text-transform: uppercase !important; }
+
+/*
+ * Obramowanie, które motyw albo Divi nadaje opakowaniu modułu, obrysowałoby
+ * stopkę i wyglądało, jakby należało do niej. Sięgamy po ":has", więc nie
+ * potrzeba do tego skryptu. Przeglądarka, która go nie zna, po prostu
+ * pominie tę regułę.
+ */
+.et_pb_module:has( .lst-st ),
+.et_pb_column:has( .lst-st ),
+.et_pb_row:has( .lst-st ) { border: 0 !important; outline: 0 !important; }
+
+/*
+ * Stopka ma kończyć stronę, a nie wisieć nad paskiem tła. Divi dokłada
+ * sekcji, wierszowi i kolumnie własne dopełnienie u dołu — spod stopki
+ * wyglądała przez nie siatka. Zdejmujemy je, znów przez ":has", więc bez
+ * skryptu i bez grzebania w ustawieniach modułu.
+ */
+.et_pb_section:has( .lst-st ),
+.et_pb_row:has( .lst-st ),
+.et_pb_column:has( .lst-st ),
+.et_pb_module:has( .lst-st ) {
+	padding-bottom: 0 !important;
+	margin-bottom: 0 !important;
+}
+
+/* ---------- pasek stanu na samym dole ---------- */
+
+.lst-st .lst-st-pasek {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: .5rem 1.4rem;
+	padding: 1.05rem 0 1.15rem;
+	border-top: 1px solid var( --lst-linia ) !important;
+	font-family: var( --lst-mono );
+	font-size: .875rem;   /* 14 px */
+	color: var( --lst-tekst-3 );
+}
+
+.lst-st .lst-st-pasek span { display: inline-flex; align-items: center; gap: .5rem; }
+
+/* Kropka rozdzielająca — jak w pasku stanu arkusza. */
+.lst-st .lst-st-pasek span + span::before {
+	content: "";
+	width: 3px;
+	height: 3px;
+	border-radius: 999px;
+	background: var( --lst-tekst-3 );
+	opacity: .6;
+}
+
+@media ( max-width: 980px ) {
+	.lst-st .lst-st-gora { grid-template-columns: repeat( 2, minmax( 9rem, 1fr ) ); }
+	.lst-st .lst-st-marka { grid-column: 1 / -1; }
+	.lst-st .lst-st-kol:nth-child( 2 )::before { right: calc( -1 * clamp( 1.6rem, 3vw, 3rem ) ); }
+	.lst-st .lst-st-kol:nth-child( 3 )::before { right: 0; }
+}
+
+@media ( max-width: 620px ) {
+	.lst-st .lst-st-gora { grid-template-columns: 1fr; }
+	.lst-st .lst-st-kol::before { right: 0; }
+
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+	.lst-st .lst-st-guzik, .lst-st .lst-st-lista a { transition: none; }
+}
+</style>
+
+'''
+
+
+def zbuduj( t, plik ):
+	kolumny = []
+
+	for nazwa, linki in t[ 'zakladki' ]:
+		pozycje = ''.join( '<a href="' + adres + '">' + napis + '</a>' for napis, adres in linki )
+		kolumny.append(
+			'\t\t\t<div class="lst-st-kol">'
+			'<span class="lst-st-etykieta">' + nazwa + '</span>'
+			'<span class="lst-st-lista">' + pozycje + '</span></div>' )
+
+	stan = ''.join( '<span>' + kawalek + '</span>' for kawalek in t[ 'stan' ] )
+
+	html = ( SZABLON
+		.replace( '{ZNAK}', ZNAK )
+		.replace( '{OPIS}', t[ 'opis' ] )
+		.replace( '{PRZYCISK}', t[ 'przycisk' ] )
+		.replace( '{POD}', t[ 'pod_przyciskiem' ] )
+		.replace( '{KOLUMNY}', '\n'.join( kolumny ) )
+		.replace( '{STAN}', stan ) )
+
+	sprawdz( html, plik )
+
+	with open( plik, 'w', encoding='utf-8' ) as f:
+		f.write( html )
+
+	print( plik + ' — kolumn: ' + str( len( kolumny ) ) + ', linii: ' + str( len( html.split( chr( 10 ) ) ) ) )
+
+
+def sprawdz( html, plik ):
+	"""To, co potrafi wyłożyć Kreator Wizualny albo psuje moduł po cichu."""
+
+	znacznikowanie = html[ : html.index( '<style>' ) ]
+
+	for co, opis in ( ( '<!--', 'komentarz HTML' ), ( '<section', 'znacznik <section>' ),
+	                  ( '[', 'nawias kwadratowy' ), ( ']', 'nawias kwadratowy' ) ):
+		if co in znacznikowanie:
+			raise SystemExit( plik + ': w znacznikowaniu jest ' + opis )
+
+	if 'script' in znacznikowanie.lower():
+		raise SystemExit( plik + ': w treści jest słowo „script"' )
+
+	for nr, linia in enumerate( znacznikowanie.split( '\n' ), 1 ):
+		if linia.count( '<' ) != linia.count( '>' ):
+			raise SystemExit( plik + ': znacznik rozbity na dwie linijki, wiersz ' + str( nr ) )
+
+	styl = re.search( r'<style>(.*?)</style>', html, re.S ).group( 1 )
+	bez_uwag = re.sub( r'/\*.*?\*/', '', styl, flags=re.S )
+
+	if bez_uwag.count( '{' ) != bez_uwag.count( '}' ):
+		raise SystemExit( plik + ': klamry w <style> się nie zgadzają' )
+
+	# reset :where() musi stać PRZED regułami, którym inaczej zabierze krój
+	if styl.index( ':where(' ) > styl.index( '.lst-st .lst-st-rama' ):
+		raise SystemExit( plik + ': reset :where() stoi po regułach' )
+
+	for musi in ( '.lst-st br { display: none; }', 'lst-st-gniazdo', 'prefers-reduced-motion',
+	              'background: linear-gradient( #1b2221', '.et_pb_section:has( .lst-st )' ):
+		if musi not in html:
+			raise SystemExit( plik + ': brakuje ' + musi )
+
+	# znaczniki muszą się domykać
+	otwarte = re.findall( r'<(\w+)(?:\s[^>]*)?>', znacznikowanie )
+	zamkniete = re.findall( r'</(\w+)>', znacznikowanie )
+
+	for znacznik in set( otwarte ):
+		if znacznik in ( 'br', 'link', 'rect', 'path' ):
+			continue
+
+		if otwarte.count( znacznik ) != zamkniete.count( znacznik ):
+			raise SystemExit( plik + ': <' + znacznik + '> otwarty ' + str( otwarte.count( znacznik ) ) +
+				', zamknięty ' + str( zamkniete.count( znacznik ) ) )
+
+
+zbuduj( EN, 'STOPKA-en.html' )
+zbuduj( PL, 'STOPKA-pl.html' )

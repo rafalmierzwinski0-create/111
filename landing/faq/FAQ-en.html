@@ -1,0 +1,411 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<div class="lst-faq" id="lst-faq">
+	<div class="lst-faq-rama">
+		<div class="lst-faq-glowa" aria-hidden="true"><span>#</span><span>Topic</span><span>Question</span></div>
+		<div class="lst-faq-wiersz">
+			<button class="lst-faq-pyt" type="button" aria-expanded="false" aria-controls="lst-faq-1"><span class="lst-faq-nr">1</span><span class="lst-faq-temat">API key</span><span class="lst-faq-tresc">Do I need a Google API key?</span></button>
+			<div class="lst-faq-zwoj" id="lst-faq-1" role="region"><p>No. The plugin reads the public export of the sheet, which works for any sheet shared as &bdquo;Anyone with the link &ndash; Viewer&rdquo;. No Google Cloud project, no account with us. Private sheets, over an authenticated connection, are a Pro feature.</p></div>
+		</div>
+		<div class="lst-faq-wiersz">
+			<button class="lst-faq-pyt" type="button" aria-expanded="false" aria-controls="lst-faq-2"><span class="lst-faq-nr">2</span><span class="lst-faq-temat">Refresh</span><span class="lst-faq-tresc">How soon does a change in the sheet show up?</span></button>
+			<div class="lst-faq-zwoj" id="lst-faq-2" role="region"><p>By default the plugin checks Google every 15 minutes, and you can force a refresh by hand at any moment. Pro shortens that gap to a minute. Because the page draws from a stored copy, your visitor never waits for Google &mdash; the trade is that a change appears at the next sync rather than in the same second.</p></div>
+		</div>
+		<div class="lst-faq-wiersz">
+			<button class="lst-faq-pyt" type="button" aria-expanded="false" aria-controls="lst-faq-3"><span class="lst-faq-nr">3</span><span class="lst-faq-temat">Phones</span><span class="lst-faq-tresc">My table is very wide. What happens on a phone?</span></button>
+			<div class="lst-faq-zwoj" id="lst-faq-3" role="region"><p>It stays a table, at full text size, with a slider underneath that moves it sideways. Nothing shrinks and nothing disappears. The plugin draws that slider itself, because macOS, iOS and Android hide the horizontal bar until you are already scrolling &mdash; exactly when it is too late to help.</p></div>
+		</div>
+		<div class="lst-faq-wiersz">
+			<button class="lst-faq-pyt" type="button" aria-expanded="false" aria-controls="lst-faq-4"><span class="lst-faq-nr">4</span><span class="lst-faq-temat">Safety</span><span class="lst-faq-tresc">Is the sheet content safe to display?</span></button>
+			<div class="lst-faq-zwoj" id="lst-faq-4" role="region"><p>Yes. Everything from the sheet is escaped on output, so a cell holding HTML &mdash; or anything that looks like code &mdash; shows up as plain text and cannot inject anything into your page.</p></div>
+		</div>
+		<div class="lst-faq-wiersz">
+			<button class="lst-faq-pyt" type="button" aria-expanded="false" aria-controls="lst-faq-5"><span class="lst-faq-nr">5</span><span class="lst-faq-temat">Scheduler</span><span class="lst-faq-tresc">What if my server has no working scheduler?</span></button>
+			<div class="lst-faq-zwoj" id="lst-faq-5" role="region"><p>A table older than the interval you set is checked while the page draws, with a hard four-second limit and the stored copy as the safety net. That way a site nobody visits &mdash; or a server that blocks WP-Cron &mdash; will not quietly publish last week&rsquo;s prices.</p></div>
+		</div>
+	</div>
+</div>
+
+<style>
+.lst-faq {
+	/* Po tej wartości skrypt poznaje, że arkusz stylów jest na stronie.
+	   Gdy go nie ma, skrypt NIE zwija odpowiedzi — lepiej, żeby wyglądały
+	   surowo, niż żeby zniknęły. */
+	--lst-faq-gotowy: 1;
+
+	--lst-mieta: 95, 227, 207;
+	--lst-panel: #1b2221;
+	--lst-panel-dol: #161d1c;
+	--lst-panel-glowa: #1f2725;
+	--lst-linia: rgba( 138, 168, 163, .16 );
+	--lst-tekst: #eaf3f1;
+	--lst-tekst-2: #9db3b0;
+	--lst-tekst-3: #7b918e;
+	--lst-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+
+	font-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
+	color: var( --lst-tekst );
+
+	/* ---- szerokość: tak jak wiersze na stronie ---- */
+	--lst-szerokosc: 90%;
+	--lst-max: 1800px;
+	--lst-pelna: 100vw;
+
+	width: var( --lst-pelna );
+	margin: 0 calc( 50% - var( --lst-pelna ) / 2 );
+	overflow-x: clip;
+	padding: clamp( 2rem, 4vw, 3.4rem ) 0;
+	background: none;
+}
+
+.lst-faq.lst-faq { border: 0 !important; outline: 0 !important; }
+
+.lst-faq * { box-sizing: border-box; }
+
+/* Opakowania Divi wokół TEGO modułu — klasę nadaje im skrypt. */
+.lst-faq-gniazdo.lst-faq-gniazdo { border: 0 !important; outline: 0 !important; }
+
+/* Divi wstawia <br /> w miejscu każdego złamanego wiersza. */
+.lst-faq br { display: none; }
+
+/*
+ * Zerowanie tego, co motyw nadaje zwykłym znacznikom. :where() celowo — nie
+ * dodaje wagi, więc przegrywa z każdą regułą poniżej. Reset MUSI stać przed
+ * nimi: przy równej wadze wygrywa reguła późniejsza, więc reset postawiony
+ * na końcu zabierałby krój i odstępy temu, co sam ustawiam.
+ */
+.lst-faq :where( div, p, span, h2, h3, h4, button, dl, dt, dd, ul, li ) {
+	margin: 0;
+	padding: 0;
+	background: none;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	text-shadow: none;
+	text-align: left;
+	text-transform: none;
+	letter-spacing: normal;
+	font: inherit;
+	color: inherit;
+	width: auto;
+	max-width: none;
+	min-width: 0;
+	list-style: none;
+}
+
+/* Ramka. Podwójna klasa celowo: motyw potrafi nadać obramowanie każdemu
+   <div> w module i wtedy dookoła pojawia się kreska, której nikt nie zamawiał. */
+.lst-faq .lst-faq-rama {
+	width: var( --lst-szerokosc );
+	max-width: var( --lst-max );
+	margin-inline: auto;
+	border: 1px solid var( --lst-linia ) !important;
+	border-radius: 14px;
+	overflow: hidden;
+	background: linear-gradient( var( --lst-panel ), var( --lst-panel-dol ) );
+	box-shadow: 0 30px 70px -52px rgba( var( --lst-mieta ), .5 );
+}
+
+.lst-faq .lst-faq-glowa {
+	display: grid;
+	grid-template-columns: 3.6rem 11rem 1fr;
+	background: var( --lst-panel-glowa );
+	border-bottom: 1px solid var( --lst-linia ) !important;
+	font-family: var( --lst-mono );
+	color: var( --lst-tekst-3 );
+}
+
+.lst-faq .lst-faq-glowa span {
+	padding: .85rem 1.1rem;
+	font-size: .875rem;   /* 14 px */
+	letter-spacing: .14em;
+	text-transform: uppercase;
+}
+
+/* Kreska TYLKO między wierszami. ":first-of-type" tu nie działa, bo pierwszym
+   <div> w ramce jest nagłówek kolumn — pierwszy wiersz nigdy nie był „pierwszy
+   swojego typu" i dostawał kreskę dublującą się z kreską pod nagłówkiem. */
+.lst-faq .lst-faq-wiersz + .lst-faq-wiersz { border-top: 1px solid var( --lst-linia ) !important; }
+
+.lst-faq .lst-faq-pyt {
+	display: grid;
+	grid-template-columns: 3.6rem 11rem 1fr;
+	width: 100%;
+	cursor: pointer;
+	text-decoration: none !important;
+	transition: background-color .2s ease;
+}
+
+/*
+ * Utwardzenie. Reset :where() wyżej ma wagę zero i przegrywa z motywem, który
+ * pisze "button { font-family: ... !important }" — a motywy WordPressa robią
+ * tak guzikom rutynowo. Tu, na samych elementach interaktywnych, przebijamy
+ * to wprost. Nie stosujemy tego do wszystkiego: !important rozlany po całym
+ * module byłby nie do nadpisania z Własnego CSS-a.
+ */
+.lst-faq .lst-faq-pyt {
+	font-family: inherit !important;
+	font-size: inherit !important;
+	font-weight: 400 !important;
+	line-height: inherit !important;
+	text-transform: none !important;
+	letter-spacing: normal !important;
+	background: none !important;
+	color: inherit !important;
+	padding: 0 !important;
+	border: 0 !important;
+	border-radius: 0 !important;
+	box-shadow: none !important;
+	min-height: 0 !important;
+}
+
+.lst-faq .lst-faq-nr,
+.lst-faq .lst-faq-temat,
+.lst-faq .lst-faq-tresc { border: 0 !important; background: none !important; }
+
+.lst-faq .lst-faq-zwoj > p {
+	margin: 0 !important;
+	background: none !important;
+	border: 0 !important;
+	text-transform: none !important;
+	letter-spacing: normal !important;
+}
+
+.lst-faq .lst-faq-pyt:hover { background: rgba( 255, 255, 255, .022 ); }
+.lst-faq .lst-faq-pyt:focus-visible { outline: 2px solid rgb( var( --lst-mieta ) ) !important; outline-offset: -2px; }
+
+.lst-faq .lst-faq-nr {
+	padding: 1rem 1.1rem;
+	font-family: var( --lst-mono );
+	font-size: .875rem;   /* 14 px */
+	color: var( --lst-tekst-3 );
+	transition: color .2s ease;
+}
+
+.lst-faq .lst-faq-temat {
+	padding: 1rem 1.1rem;
+	font-family: var( --lst-mono );
+	font-size: .875rem;   /* 14 px */
+	letter-spacing: .06em;
+	color: rgb( var( --lst-mieta ) );
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.lst-faq .lst-faq-tresc { padding: 1rem 1.2rem; font-size: 1.25rem; line-height: 1.4; }   /* 20 px */
+
+/* Kreski pionowe i tło kolumny numerów — po utwardzeniu, żeby je przebiły. */
+.lst-faq .lst-faq-nr { background: rgba( 255, 255, 255, .018 ) !important;
+	border-right: 1px solid var( --lst-linia ) !important; }
+.lst-faq .lst-faq-temat { border-right: 1px solid var( --lst-linia ) !important; }
+
+.lst-faq .lst-faq-wiersz.jest-otwarty .lst-faq-nr { color: rgb( var( --lst-mieta ) ); }
+
+/*
+ * Rozwijanie: wysokość liczy skrypt, bo "height: auto" nie da się animować.
+ * Bez skryptu odpowiedzi są po prostu widoczne — patrz reguła niżej.
+ */
+.lst-faq .lst-faq-zwoj {
+	overflow: hidden;
+	transition: height .32s cubic-bezier( .2, .75, .25, 1 );
+}
+
+.lst-faq.ma-skrypt .lst-faq-zwoj { height: 0; }
+
+.lst-faq .lst-faq-zwoj > p {
+	padding: .2rem 1.2rem 1.35rem calc( 3.6rem + 11rem + 1.2rem );
+	max-width: 64rem;
+	color: var( --lst-tekst-2 );
+	font-size: 1.125rem;   /* 18 px */
+	line-height: 1.6;
+}
+
+/* Bez skryptu wiersz nie jest przyciskiem — kursor nie może kłamać. */
+.lst-faq:not( .ma-skrypt ) .lst-faq-pyt { cursor: default; }
+
+@media ( max-width: 760px ) {
+	.lst-faq .lst-faq-glowa,
+	.lst-faq .lst-faq-pyt { grid-template-columns: 3rem 1fr; }
+
+	.lst-faq .lst-faq-glowa span:nth-child( 2 ),
+	.lst-faq .lst-faq-temat { display: none; }
+
+	.lst-faq .lst-faq-zwoj > p { padding-left: calc( 3rem + 1.2rem ); }
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+	.lst-faq .lst-faq-zwoj { transition: none; }
+	.lst-faq .lst-faq-pyt { transition: none; }
+}
+</style>
+
+<script>
+( function () {
+	'use strict';
+
+	/*
+	 * Skrypt może leżeć w zakładce Integracja, czyli tuż za otwarciem <body>
+	 * — wtedy w chwili jego uruchomienia FAQ jeszcze nie istnieje. Czekamy
+	 * więc na wczytanie treści strony. Gdy skrypt siedzi w module Kod, pod
+	 * sekcją, warunek jest już spełniony i rusza od razu.
+	 */
+	function start() {
+		var sekcja = document.getElementById( 'lst-faq' );
+
+		if ( ! sekcja ) {
+			return;
+		}
+
+		/*
+		 * Bez arkusza stylów nie przejmujemy sterowania. Skrypt zwija
+		 * odpowiedzi, ustawiając im wysokość zero — gdyby zrobił to bez
+		 * stylu, treść zniknęłaby ze strony całkowicie. Lepiej zostawić ją
+		 * surową i czytelną.
+		 */
+		if ( '1' !== window.getComputedStyle( sekcja ).getPropertyValue( '--lst-faq-gotowy' ).trim() ) {
+			return;
+		}
+
+		/*
+		 * Biała kreska dookoła sekcji bierze się czasem nie z niej samej, tylko
+		 * z obramowania, które motyw albo Divi nadaje modułowi, kolumnie lub
+		 * wierszowi, w którym sekcja siedzi. Nadajemy klasę TYLKO opakowaniom
+		 * tego modułu — reszta strony zostaje nietknięta.
+		 */
+		var rodzic = sekcja.parentNode;
+
+		while ( rodzic && rodzic !== document.body ) {
+			if ( rodzic.className && typeof rodzic.className === 'string' &&
+				/et_pb_(module|column|row|section)|et_pb_code/.test( rodzic.className ) ) {
+				rodzic.className += ' lst-faq-gniazdo';
+			}
+
+			rodzic = rodzic.parentNode;
+		}
+
+		/* Pełna szerokość okna BEZ paska przewijania — 100vw go wlicza i robi suwak. */
+		function szerokosc() {
+			sekcja.style.setProperty( '--lst-pelna', document.documentElement.clientWidth + 'px' );
+		}
+
+		szerokosc();
+		window.addEventListener( 'resize', szerokosc, { passive: true } );
+
+		/*
+		 * Dopiero teraz mówimy stylom, że skrypt działa. Do tej chwili wszystkie
+		 * odpowiedzi są otwarte — gdyby skrypt nie wystartował (błąd, wyłączony
+		 * JavaScript), treść i tak jest do przeczytania.
+		 */
+		sekcja.className += ' ma-skrypt';
+
+		var wiersze = sekcja.querySelectorAll( '.lst-faq-wiersz' );
+		var i;
+
+		for ( i = 0; i < wiersze.length; i++ ) {
+			wiersze[ i ].querySelector( '.lst-faq-zwoj' ).style.height = '0px';
+		}
+
+		/*
+		 * Rozwijanie i zwijanie.
+		 *
+		 * Pierwsza wersja miała błąd: po rozwinięciu zostawiała nasłuchiwanie na
+		 * koniec przejścia, które ustawiało wysokość na "auto". Gdy ktoś kliknął
+		 * ponownie, zanim przejście się skończyło, to STARE nasłuchiwanie odpalało
+		 * się po zakończeniu ZWIJANIA i przywracało "auto" — wiersz zostawał
+		 * widoczny, choć był już zamknięty, i nie dawało się go schować.
+		 *
+		 * Teraz każda animacja najpierw kasuje poprzednie nasłuchiwanie, startuje
+		 * od wysokości ZMIERZONEJ w tej chwili (a nie od zera albo od docelowej),
+		 * i radzi sobie z przypadkiem, w którym przejście w ogóle nie zachodzi.
+		 */
+
+		function przerwij( zwoj ) {
+			if ( zwoj.lstKoniec ) {
+				zwoj.removeEventListener( 'transitionend', zwoj.lstKoniec );
+				zwoj.lstKoniec = null;
+			}
+		}
+
+		function animuj( zwoj, otwieramy ) {
+			przerwij( zwoj );
+
+			var teraz = zwoj.getBoundingClientRect().height;
+
+			zwoj.style.height = teraz + 'px';
+			zwoj.offsetHeight;                      /* wymuszenie przeliczenia */
+
+			var cel = otwieramy ? zwoj.scrollHeight : 0;
+			var czas = parseFloat( window.getComputedStyle( zwoj ).transitionDuration ) || 0;
+
+			/*
+			 * Bez przejścia (ustawienie „ogranicz animacje") albo gdy nie ma czego
+			 * animować, kończymy od razu. Inaczej czekalibyśmy na zdarzenie, które
+			 * nigdy nie przyjdzie, i wysokość zostałaby zablokowana na sztywno.
+			 */
+			if ( 0 === czas || Math.abs( cel - teraz ) < 1 ) {
+				zwoj.style.height = otwieramy ? 'auto' : '0px';
+				return;
+			}
+
+			zwoj.style.height = cel + 'px';
+
+			if ( ! otwieramy ) {
+				return;   /* zostaje 0 — nie ma czego zdejmować */
+			}
+
+			/*
+			 * Po rozwinięciu zdejmujemy stałą wysokość, żeby odpowiedź mogła się
+			 * przelać na więcej wierszy przy zwężeniu okna. Zabezpieczenie: jeśli
+			 * w międzyczasie wiersz zdążył się zamknąć, nie ruszamy wysokości.
+			 */
+			zwoj.lstKoniec = function ( e ) {
+				if ( 'height' !== e.propertyName ) {
+					return;
+				}
+
+				przerwij( zwoj );
+
+				if ( zwoj.parentNode.className.indexOf( 'jest-otwarty' ) !== -1 ) {
+					zwoj.style.height = 'auto';
+				}
+			};
+
+			zwoj.addEventListener( 'transitionend', zwoj.lstKoniec );
+		}
+
+		sekcja.addEventListener( 'click', function ( e ) {
+			var guzik = e.target.closest ? e.target.closest( '.lst-faq-pyt' ) : null;
+
+			if ( ! guzik ) {
+				return;
+			}
+
+			var wiersz = guzik.parentNode;
+			var zwoj = wiersz.querySelector( '.lst-faq-zwoj' );
+			var otwarty = wiersz.className.indexOf( 'jest-otwarty' ) !== -1;
+			var j;
+
+			/* Jeden otwarty naraz — inaczej sekcja rośnie bez końca. */
+			for ( j = 0; j < wiersze.length; j++ ) {
+				if ( wiersze[ j ] !== wiersz && wiersze[ j ].className.indexOf( 'jest-otwarty' ) !== -1 ) {
+					wiersze[ j ].classList.remove( 'jest-otwarty' );
+					wiersze[ j ].querySelector( '.lst-faq-pyt' ).setAttribute( 'aria-expanded', 'false' );
+					animuj( wiersze[ j ].querySelector( '.lst-faq-zwoj' ), false );
+				}
+			}
+
+			wiersz.classList.toggle( 'jest-otwarty', ! otwarty );
+			guzik.setAttribute( 'aria-expanded', otwarty ? 'false' : 'true' );
+
+			animuj( zwoj, ! otwarty );
+		} );
+	}
+
+	if ( 'loading' === document.readyState ) {
+		document.addEventListener( 'DOMContentLoaded', start );
+	} else {
+		start();
+	}
+}() );
+</script>

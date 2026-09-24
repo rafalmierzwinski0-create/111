@@ -1,0 +1,284 @@
+<div class="lst-bar" id="lst-bar">
+	<div class="lst-top">
+		<!-- Logo w jednej linijce — patrz uwaga niżej: złamany wiersz w środku znacznika psuje rysunek. -->
+				<a class="lst-mark" href="#start"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="26" height="26" rx="7" fill="#101c1a"/><rect x="1.5" y="1.5" width="25" height="25" rx="6.5" fill="none" stroke="#5fe3cf" stroke-opacity=".38"/><path d="M6 11.5h16" stroke="#5fe3cf" stroke-width="2" stroke-linecap="round"/><path d="M6 17.5h16M6 22.5h16" stroke="#5fe3cf" stroke-width="1.6" stroke-linecap="round" opacity=".45"/><path d="M13.2 11.5v11" stroke="#5fe3cf" stroke-width="1.6" stroke-linecap="round" opacity=".45"/><rect x="23.5" y="23.5" width="7" height="7" rx="2" fill="#5fe3cf"/><rect x="24.9" y="24.9" width="4.2" height="4.2" rx="1" fill="#06100f"/></svg><span><em>Live</em> Sheets Table</span></a>
+
+		<div class="lst-fbar">
+			<span class="lst-ref" id="lst-ref">A1</span>
+			<span class="lst-say" id="lst-say">Wklejasz link do arkusza — dostajesz&nbsp;<em>prawdziwą tabelę</em>, nie obrazek.</span>
+		</div>
+
+		<div class="lst-cta"><a class="lst-btn" href="#cennik">Pobierz za darmo</a></div>
+	</div>
+
+	<!-- ===================================================================
+	     LISTA SEKCJI — JEDYNE MIEJSCE DO EDYCJI, gdy strona się zmieni.
+
+	     Jeden wiersz = jeden przycisk = jedna sekcja strony. W wierszu:
+
+	       href="#start"   identyfikator CSS sekcji (Divi → Zaawansowane)
+	       data-ref="A1"   numer komórki pokazywany po lewej
+	       data-say="…"    zdanie, które pasek mówi w tej sekcji
+	       <b>A</b> Start  litera i nazwa na przycisku
+
+	     Dopisujesz wiersz — przycisk jest. Kasujesz — znika. Nie ma drugiej
+	     listy w skrypcie: on czyta właśnie te wiersze.
+	     =================================================================== -->
+	<!-- ===================================================================
+	     LISTA SEKCJI — JEDYNE MIEJSCE DO EDYCJI, gdy strona się zmieni.
+
+	     Jeden wiersz = jeden przycisk = jedna sekcja strony:
+
+	       href="#start"   identyfikator CSS sekcji (Divi → Zaawansowane)
+	       data-ref="A1"   numer komórki pokazywany po lewej
+	       data-say="…"    zdanie, które pasek mówi w tej sekcji
+	       <b>A</b> Start  litera i nazwa na przycisku
+
+	     UWAGA: każdy przycisk MUSI zostać w jednej linijce. Divi wstawia
+	     w miejscu złamanego wiersza <br />, a to rozwala znacznik i zamiast
+	     przycisku widać goły tekst.
+	     =================================================================== -->
+	<nav class="lst-cols" id="lst-cols" aria-label="Sekcje">
+		<a class="lst-col" href="#start" data-ref="A1" data-say="Wklejasz link do arkusza — dostajesz&amp;nbsp;&lt;em&gt;prawdziwą tabelę&lt;/em&gt;, nie obrazek."><b>A</b> Start</a>
+		<a class="lst-col" href="#jak" data-ref="B9" data-say="Trzy kroki, około dwóch minut. &lt;em&gt;Bez klucza API&lt;/em&gt; i bez konta u nas."><b>B</b> Jak to działa</a>
+		<a class="lst-col" href="#dlaczego" data-ref="C17" data-say="Strona rysuje się z kopii, więc &lt;em&gt;awaria Google nie jest Twoją awarią&lt;/em&gt;."><b>C</b> Dlaczego inaczej</a>
+		<a class="lst-col" href="#porownanie" data-ref="D26" data-say="Darmowa wersja robi wszystko, czego potrzebuje &lt;em&gt;zwykły cennik&lt;/em&gt;."><b>D</b> Porównanie</a>
+		<a class="lst-col" href="#cennik" data-ref="E34" data-say="Zacznij za darmo. &lt;em&gt;Dopłacisz wtedy&lt;/em&gt;, gdy zabraknie."><b>E</b> Cennik</a>
+		<a class="lst-col" href="#pytania" data-ref="F41" data-say="Pytania, które wracają najczęściej — &lt;em&gt;z odpowiedziami&lt;/em&gt;."><b>F</b> Pytania</a>
+	</nav>
+</div>
+
+<style>
+/* ===========================================================================
+   Cały pasek w jednym module. Wszystko pod .lst- , więc Divi zostaje nietknięte
+   — i odwrotnie: żaden styl motywu tu nie wejdzie, bo każda reguła nazywa swój
+   element wprost.
+   =========================================================================== */
+.lst-bar {
+	/* ---- dwa pokrętła całego paska ----------------------------------- */
+
+	/* Szerokość zawartości. 100% = od krawędzi do krawędzi ekranu.
+	   Wpisz 1180px, jeśli wolisz, żeby trzymała się środka jak treść strony. */
+	--lst-szer: 100%;
+
+	/* Wielkość wszystkiego naraz. 1 = tak jak było, 1.3 = o trzydzieści
+	   procent większe. Zmieniasz tę jedną liczbę, a wysokości, odstępy i
+	   litery skalują się razem — nic się nie rozjeżdża względem reszty. */
+	--lst-skala: 1.3;
+
+	/* Wyliczone z powyższego. Tego nie trzeba ruszać. */
+	--lst-h-gora: calc( 52px * var( --lst-skala ) );
+	--lst-h-dol: calc( 41px * var( --lst-skala ) );
+	--lst-bok: calc( 20px * var( --lst-skala ) );
+
+	position: fixed; inset: 0 0 auto; z-index: 99999;
+	background: rgba( 5, 11, 10, .93 ); backdrop-filter: blur( 10px ); -webkit-backdrop-filter: blur( 10px );
+	border-bottom: 1px solid rgba( 120, 200, 190, .16 );
+	font-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif; }
+
+.lst-bar * { box-sizing: border-box; }
+
+/* Edytory lubią wstawiać <br /> w miejsca złamanych wierszy. W pasku taki
+   znacznik nie ma nic do roboty — gdyby się pojawił, ma być niewidoczny. */
+.lst-bar br { display: none; }
+
+.lst-top { display: flex; align-items: stretch; height: var( --lst-h-gora ); max-width: var( --lst-szer ); margin-inline: auto; }
+
+.lst-mark { display: flex; align-items: center; gap: calc( .55rem * var( --lst-skala ) );
+	padding-inline: var( --lst-bok ); flex: none;
+	font-weight: 600; font-size: calc( .93rem * var( --lst-skala ) ); letter-spacing: -.02em;
+	color: #edf6f4 !important; text-decoration: none !important; }
+.lst-mark svg { width: calc( 24px * var( --lst-skala ) ); height: calc( 24px * var( --lst-skala ) ); flex: none; display: block; }
+.lst-mark em { color: #5fe3cf; font-style: normal; }
+
+.lst-fbar { flex: 1 1 auto; min-width: 0; display: flex; align-items: stretch;
+	border-inline: 1px solid rgba( 120, 200, 190, .075 ); }
+
+.lst-ref { display: grid; place-items: center; min-width: calc( 58px * var( --lst-skala ) );
+	padding-inline: calc( .6rem * var( --lst-skala ) ); flex: none;
+	border-right: 1px solid rgba( 120, 200, 190, .075 );
+	font-family: ui-monospace, "IBM Plex Mono", Menlo, Consolas, monospace;
+	font-size: calc( .73rem * var( --lst-skala ) ); letter-spacing: .06em; color: #5fe3cf; }
+
+.lst-say { display: block; align-self: center; padding-inline: calc( .8rem * var( --lst-skala ) ); min-width: 0;
+	font-size: calc( .82rem * var( --lst-skala ) ); color: #9db3b0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+	transition: opacity .22s ease; }
+.lst-say em { color: #5fe3cf; font-style: normal; }
+.lst-say.is-swapping { opacity: 0; }
+
+.lst-cta { display: flex; align-items: center; padding-inline: var( --lst-bok ); flex: none; }
+.lst-btn { display: inline-flex; align-items: center;
+	padding: calc( .5rem * var( --lst-skala ) ) calc( 1.05rem * var( --lst-skala ) );
+	border-radius: calc( 8px * var( --lst-skala ) );
+	background: #5fe3cf; color: #04100e !important; font-size: calc( .87rem * var( --lst-skala ) ); font-weight: 600;
+	text-decoration: none !important; transition: box-shadow .2s ease; }
+.lst-btn:hover { box-shadow: 0 0 26px -4px rgba( 95, 227, 207, .3 ); }
+
+.lst-cols { display: flex; height: var( --lst-h-dol ); max-width: var( --lst-szer ); margin-inline: auto;
+	border-top: 1px solid rgba( 120, 200, 190, .075 ); overflow-x: auto; scrollbar-width: none; }
+.lst-cols::-webkit-scrollbar { display: none; }
+
+.lst-col { flex: 1 0 auto; min-width: calc( 108px * var( --lst-skala ) ); display: flex; align-items: center;
+	gap: calc( .5rem * var( --lst-skala ) );
+	padding-inline: calc( .85rem * var( --lst-skala ) ); border-right: 1px solid rgba( 120, 200, 190, .075 );
+	font-family: ui-monospace, "IBM Plex Mono", Menlo, Consolas, monospace;
+	font-size: calc( .71rem * var( --lst-skala ) );
+	color: #7b918e !important; text-decoration: none !important; white-space: nowrap;
+	transition: color .2s ease, background-color .3s ease; }
+.lst-col b { color: #7b918e; font-weight: 500; transition: color .2s ease; }
+.lst-col:hover { color: #9db3b0 !important; }
+.lst-col.is-on { color: #5fe3cf !important; background: linear-gradient( to bottom, rgba( 95, 227, 207, .1 ), transparent ); }
+.lst-col.is-on b { color: #5fe3cf; }
+
+/* Na wąskim ekranie zdanie ustępuje — logo i przycisk są ważniejsze. */
+@media ( max-width: 820px ) {
+	.lst-fbar { display: none; }
+	.lst-mark, .lst-cta { padding-inline: calc( 12px * var( --lst-skala ) ); }
+	.lst-mark span { display: none; }
+}
+</style>
+
+<script>
+( function () {
+	'use strict';
+
+	/*
+	 * Moduł stoi na samej górze strony, więc w chwili, gdy ten skrypt się
+	 * wykonuje, sekcji pod nim jeszcze nie ma — przeglądarka ich nie doczytała.
+	 * Budowanie przycisków teraz dałoby pasek bez ani jednego przycisku, bez
+	 * żadnego błędu w konsoli. Czekamy, aż strona będzie kompletna.
+	 */
+	function start() {
+
+	var pasek = document.getElementById( 'lst-bar' );
+	var ref = document.getElementById( 'lst-ref' );
+	var zdanie = document.getElementById( 'lst-say' );
+
+	if ( ! pasek || ! ref || ! zdanie ) {
+		return;
+	}
+
+	/*
+	 * Pasek stoi nad treścią, więc strona musi zacząć się pod nim. Mierzymy go
+	 * zamiast wpisywać wysokość na sztywno: zmieni się po dołożeniu siódmej
+	 * sekcji albo przy innym kroju pisma, a odstęp ma nadążyć.
+	 */
+	function odsun() {
+		document.body.style.paddingTop = pasek.offsetHeight + 'px';
+	}
+
+	odsun();
+	window.addEventListener( 'resize', odsun, { passive: true } );
+
+	/*
+	 * Motywy — Divi wśród nich — podpinają „płynne przewijanie" pod każdy
+	 * odnośnik z kratką i potrafią anulować kliknięcie. Tu przewijanie jest
+	 * tym, czego chcemy, więc robimy je sami i mamy pewność, że się wydarzy.
+	 */
+	pasek.addEventListener( 'click', function ( event ) {
+		var odnosnik = event.target.closest ? event.target.closest( 'a[href^="#"]' ) : null;
+
+		if ( ! odnosnik ) {
+			return;
+		}
+
+		var cel = document.getElementById( ( odnosnik.getAttribute( 'href' ) || '' ).slice( 1 ) );
+
+		if ( ! cel ) {
+			return;
+		}
+
+		event.preventDefault();
+		window.scrollTo( {
+			top: cel.getBoundingClientRect().top + window.pageYOffset - pasek.offsetHeight,
+			behavior: 'smooth'
+		} );
+	} );
+
+	/*
+	 * Lista sekcji — czytana z przycisków, które stoją wyżej w kodzie. Skrypt
+	 * niczego nie tworzy, więc przyciski są widoczne zawsze: w Kreatorze
+	 * motywu, w podglądzie, nawet gdyby skrypt się nie wykonał.
+	 */
+	var kolumny = Array.prototype.slice.call( pasek.querySelectorAll( '.lst-col' ) );
+
+	var SEKCJE = kolumny.map( function ( guzik ) {
+		return {
+			id: ( guzik.getAttribute( 'href' ) || '' ).slice( 1 ),
+			ref: guzik.getAttribute( 'data-ref' ) || '',
+			zdanie: guzik.getAttribute( 'data-say' ) || '',
+			guzik: guzik
+		};
+	} );
+
+	/*
+	 * Przycisk do sekcji, której na stronie nie ma, prowadziłby donikąd —
+	 * chowamy go. Ale tylko wtedy, gdy choć jedna sekcja się znalazła: gdy nie
+	 * ma żadnej, oglądamy sam nagłówek bez strony pod nim (Kreator motywu) i
+	 * wszystkie przyciski mają zostać widoczne.
+	 */
+	var znalezione = SEKCJE.filter( function ( s ) {
+		return !! document.getElementById( s.id );
+	} );
+
+	if ( znalezione.length ) {
+		SEKCJE.forEach( function ( s ) {
+			if ( ! document.getElementById( s.id ) ) {
+				s.guzik.style.display = 'none';
+			}
+		} );
+	}
+	var teraz = '';
+	var czeka = false;
+
+	function patrz() {
+		czeka = false;
+
+		var prog = window.innerHeight * 0.42;
+		var wybrana = SEKCJE[ 0 ];
+
+		SEKCJE.forEach( function ( sekcja ) {
+			var el = document.getElementById( sekcja.id );
+
+			if ( el && el.getBoundingClientRect().top <= prog ) {
+				wybrana = sekcja;
+			}
+		} );
+
+		if ( ! wybrana || wybrana.id === teraz ) {
+			return;
+		}
+
+		teraz = wybrana.id;
+		ref.textContent = wybrana.ref;
+
+		zdanie.classList.add( 'is-swapping' );
+
+		window.setTimeout( function () {
+			zdanie.innerHTML = wybrana.zdanie;
+			zdanie.classList.remove( 'is-swapping' );
+		}, 220 );
+
+		SEKCJE.forEach( function ( sekcja ) {
+			sekcja.guzik.classList.toggle( 'is-on', sekcja.id === teraz );
+		} );
+	}
+
+	window.addEventListener( 'scroll', function () {
+		if ( ! czeka ) {
+			czeka = true;
+			window.requestAnimationFrame( patrz );
+		}
+	}, { passive: true } );
+
+	patrz();
+
+	}
+
+	if ( 'loading' === document.readyState ) {
+		document.addEventListener( 'DOMContentLoaded', start );
+	} else {
+		start();
+	}
+}() );
+</script>

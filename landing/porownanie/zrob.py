@@ -1,0 +1,767 @@
+# -*- coding: utf-8 -*-
+"""Tabela porównania Free / Pro jako jeden moduł Kod w Divi."""
+
+TAK = 'tak'
+NIE = 'nie'
+
+EN = {
+ 'naglowki': ( 'Feature', 'Free', 'Pro' ),
+ 'jest': 'included',
+ 'brak': 'not included',
+ 'wiersze': [
+  ( 'Rows per table',                  'unlimited',          'unlimited' ),
+  ( 'Saved sheets',                    '6',                  'unlimited' ),
+  ( 'Background refresh',              'every 15 minutes',   'every minute' ),
+  ( 'Search, sorting, pagination',     TAK,                  TAK ),
+  ( 'Block, Elementor widget, shortcode', TAK,               TAK ),
+  ( 'Appearance editor and custom CSS', TAK,                 TAK ),
+  ( 'Hide columns and rows by clicking', NIE,                TAK ),
+  ( 'Colour cells by rules',           NIE,                  TAK ),
+  ( 'Filters for visitors',            NIE,                  TAK ),
+  ( 'Download to Excel, CSV and print', NIE,                 TAK ),
+  ( 'Private sheets (connect to Google)', NIE,               TAK ),
+ ],
+}
+
+PL = {
+ 'naglowki': ( 'Funkcja', 'Darmowa', 'Pro' ),
+ 'jest': 'jest',
+ 'brak': 'nie ma',
+ 'wiersze': [
+  ( 'Wierszy w tabeli',                'bez limitu',         'bez limitu' ),
+  ( 'Zapisanych arkuszy',              '6',                  'bez limitu' ),
+  ( 'Odświeżanie w tle',               'co 15 minut',        'co minutę' ),
+  ( 'Wyszukiwarka, sortowanie, strony', TAK,                 TAK ),
+  ( 'Blok, widget Elementora, shortcode', TAK,               TAK ),
+  ( 'Edytor wyglądu i własny CSS',     TAK,                  TAK ),
+  ( 'Ukrywanie kolumn i wierszy klikaniem', NIE,             TAK ),
+  ( 'Kolorowanie komórek regułami',    NIE,                  TAK ),
+  ( 'Filtry dla odwiedzających',       NIE,                  TAK ),
+  ( 'Pobieranie do Excela, CSV i druk', NIE,                 TAK ),
+  ( 'Prywatne arkusze (połączenie z Google)', NIE,           TAK ),
+ ],
+}
+
+
+# UWAGA: każdy znacznik MUSI zostać w jednej linijce — Divi wstawia w miejscu
+# złamanego wiersza <br />, co rozbija znacznik i wysypuje atrybuty na stronę.
+
+PTASZEK = '<span class="lst-por-znak lst-por-tak"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.6l4.6 4.6L19 7.4"/></svg><span class="lst-por-czyta">{JEST}</span></span>'
+KRESKA  = '<span class="lst-por-znak lst-por-nie"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 12h12"/></svg><span class="lst-por-czyta">{BRAK}</span></span>'
+
+SZABLON = r'''<!-- WERSJA 7 z 22.09 — jeśli pierwsza linijka w module mówi co innego, na stronie jest stary kod. -->
+<!-- =========================================================================
+     TABELA PORÓWNANIA DARMOWA / PRO — jeden moduł Kod w Divi.
+
+     Na wąskim ekranie każdy wiersz zamienia się w kartę, bo trzy kolumny
+     w szerokości dłoni robią się nieczytelne.
+
+     Szerokość sekcji ustawiasz dwiema wartościami na górze stylu:
+     --lst-szerokosc i --lst-max.
+
+     UWAGA: każdy znacznik musi zostać w jednej linijce — patrz wyżej.
+     ========================================================================= -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<section class="lst-por" id="lst-por">
+	<div class="lst-por-rama">
+		<span class="lst-por-swiatlo" aria-hidden="true"></span>
+		<div class="lst-por-srodek">
+		<table class="lst-por-tabela">
+			<thead>
+				<tr><th scope="col" class="lst-por-co">{N0}</th><th scope="col" class="lst-por-kol">{N1}</th><th scope="col" class="lst-por-kol lst-por-pro">{N2}</th></tr>
+			</thead>
+			<tbody>
+{WIERSZE}
+			</tbody>
+		</table>
+		</div>
+	</div>
+</section>
+
+<style>
+/* ===========================================================================
+   Wszystko pod .lst-por , więc Divi zostaje nietknięte — i odwrotnie.
+   =========================================================================== */
+.lst-por {
+	--lst-mieta: 95, 227, 207;
+	--lst-panel: #1b2221;
+	--lst-panel-glowa: #202827;
+	--lst-linia: rgba( 138, 168, 163, .14 );
+	--lst-ramka: rgba( 138, 168, 163, .14 );
+
+	/* Rdzeń światła. Jasna mięta, a nie biel: dioda LED świeci swoim kolorem
+	   od samego środka, a biały punkt czyta się jak odblask, nie jak dioda. */
+	--lst-rdzen: 168, 255, 238;
+	--lst-tekst: #eaf3f1;
+	--lst-tekst-2: #9db3b0;
+	--lst-tekst-3: #7b918e;
+	--lst-szary: #6f7d7b;
+	--lst-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+
+	font-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
+	color: var( --lst-tekst );
+
+	/* ---- szerokość: tak jak wiersze na stronie ---- */
+	--lst-szerokosc: 90%;
+	--lst-max: 1800px;
+	--lst-pelna: 100vw;
+
+	width: var( --lst-pelna );
+	margin: 0 calc( 50% - var( --lst-pelna ) / 2 );
+
+	/*
+	 * Lampa i jej poświata sięgają poza krawędź tabeli. Na wąskim ekranie
+	 * wystawały poza okno i strona dostawała poziomy suwak. "clip" ucina to
+	 * w poziomie i — w odróżnieniu od "hidden" — nie robi z sekcji pudełka
+	 * do przewijania, więc poświata w pionie zostaje nietknięta.
+	 */
+	overflow-x: clip;
+	padding: clamp( 2rem, 4vw, 3.4rem ) 0;
+	background: none;
+}
+
+.lst-por.lst-por { border: 0 !important; outline: 0 !important; }
+
+.lst-por * { box-sizing: border-box; }
+
+/*
+ * Opakowania Divi wokół TEGO modułu. Klasę nadaje im skrypt, więc reszta
+ * strony jest nietknięta. Powód: biała kreska dookoła tabeli bierze się
+ * czasem nie z samej tabeli, tylko z obramowania, które motyw albo Divi
+ * nadaje modułowi, kolumnie lub wierszowi, w którym tabela siedzi. Wtedy
+ * kreska obrysowuje tabelę i wygląda, jakby należała do niej.
+ */
+.lst-por-gniazdo.lst-por-gniazdo { border: 0 !important; outline: 0 !important; }
+
+/* Divi wstawia <br /> w miejscu każdego złamanego wiersza. */
+.lst-por br { display: none; }
+
+/*
+ * Zerowanie tego, co motyw nadaje zwykłym znacznikom. Przy tabelach to jest
+ * konieczne, a nie ostrożnościowe: motywy WordPressa stylują <table>, <th>
+ * i <td> rutynowo — własnymi ramkami, tłem co drugiego wiersza i odstępami.
+ *
+ * :where() celowo — nie dodaje wagi, więc przegrywa z każdą regułą poniżej.
+ */
+.lst-por :where( div, p, span, svg, table, thead, tbody, tr, th, td, caption ) {
+	margin: 0;
+	padding: 0;
+	background: none;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	text-shadow: none;
+	text-align: left;
+	text-transform: none;
+	letter-spacing: normal;
+	vertical-align: middle;
+	font: inherit;
+	color: inherit;
+	width: auto;
+	max-width: none;
+	min-width: 0;
+}
+
+/* Ramka wokół tabeli. Osobny element, bo <table> nie przycina zaokrągleń.
+ *
+ * Podwójna klasa celowo: motyw potrafi nadać ramkę każdemu <div> w module
+ * i wtedy dookoła tabeli pojawia się biała kreska, której nikt nie zamawiał.
+ */
+.lst-por .lst-por-rama {
+	width: var( --lst-szerokosc );
+	max-width: var( --lst-max );
+	margin-inline: auto;
+	border: 1px solid var( --lst-ramka );
+	border-radius: 14px;
+	background: var( --lst-panel );
+	padding: 0;
+	box-shadow: none;
+	position: relative;
+}
+
+.lst-por .lst-por-srodek { border-radius: 13px; overflow: hidden; background: transparent; }
+
+.lst-por .lst-por-tabela.lst-por-tabela { width: 100%; border: 0 !important; outline: 0 !important; border-collapse: collapse !important; border-spacing: 0 !important; }
+
+/* ---------- nagłówek ---------- */
+/*
+ * Podwójna klasa w selektorze nie jest ozdobą. Motywy pasują co drugi wiersz
+ * regułą w rodzaju "tbody tr:nth-child(odd) td", która jest mocniejsza od
+ * zerowania wyżej — i tło tabeli robiło się w paski nie w tym kolorze.
+ */
+.lst-por .lst-por-tabela thead th {
+	background: var( --lst-panel-glowa );
+	font-family: var( --lst-mono );
+	font-size: .92rem;
+	font-weight: 500;
+	letter-spacing: .14em;
+	text-transform: uppercase;
+	color: var( --lst-tekst-3 );
+	padding: 1.1rem 1.4rem;
+	border: 0 !important;
+	outline: 0 !important;
+	border-bottom: 1px solid var( --lst-linia ) !important;
+}
+
+/*
+ * Nagłówki kolumn Free i Pro dostają rozmiar tytułu (ten sam clamp co nazwy
+ * planów w cenniku), żeby czytało się je z odległości jako dwie strony
+ * porównania, a nie jako drobny podpis. Kolumna "Feature" zostaje mała —
+ * to etykieta wiersza, nie strona porównania.
+ */
+.lst-por .lst-por-tabela thead th.lst-por-kol {
+	text-align: center;
+	width: 15%;
+	font-size: clamp( 1.5rem, 2.4vw, 1.9rem );
+	letter-spacing: .04em;
+	line-height: 1.1;
+	color: var( --lst-tekst );
+}
+.lst-por .lst-por-tabela thead th.lst-por-pro { color: rgb( var( --lst-mieta ) ); }
+
+/* ---------- wiersze ---------- */
+.lst-por .lst-por-tabela tbody td { padding: 1rem 1.4rem; border: 0 !important; outline: 0 !important; border-top: 1px solid var( --lst-linia ) !important; font-size: .98rem; line-height: 1.45; background: transparent; }
+.lst-por .lst-por-tabela tbody tr:first-child td { border-top: 0 !important; }
+.lst-por .lst-por-tabela tbody tr:hover td { background: rgba( 255, 255, 255, .022 ); }
+
+.lst-por-co { color: var( --lst-tekst-2 ); }
+.lst-por .lst-por-tabela .lst-por-wartosc { text-align: center; width: 15%; }
+
+/* Wartość słowna — „bez limitu", „co minutę". */
+.lst-por-slowo { font-weight: 600; color: rgb( var( --lst-mieta ) ); }
+
+/* ---------- ptaszek i kreska ---------- */
+/*
+ * Rysunek siedzi w ramce o narzuconym rozmiarze — motywy potrafią mieć własną
+ * regułę dla każdego <svg> na stronie, mocniejszą od zwykłej klasy.
+ */
+.lst-por .lst-por-znak { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; overflow: hidden; vertical-align: middle; }
+.lst-por .lst-por-znak > svg { display: block; width: 100% !important; height: 100% !important; max-width: none !important; min-width: 0 !important; }
+.lst-por-tak { color: rgb( var( --lst-mieta ) ); }
+.lst-por-nie { color: var( --lst-szary ); }
+
+/* Dla czytnika ekranu — widzący mają ptaszek, niewidzący mają słowo. */
+.lst-por-czyta { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect( 0 0 0 0 ); clip-path: inset( 50% ); white-space: nowrap; border: 0; }
+
+/* ---------- wąski ekran: każdy wiersz osobną kartą ---------- */
+/*
+ * Trzy kolumny w szerokości dłoni robią się nieczytelne, więc poniżej 640 px
+ * nagłówek znika, a każdy wiersz staje się kartą: nazwa funkcji, a pod nią
+ * dwie linijki „Darmowa" i „Pro" z własnymi podpisami.
+ */
+@media ( max-width: 640px ) {
+	.lst-por-tabela thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect( 0 0 0 0 ); clip-path: inset( 50% ); }
+	.lst-por-tabela, .lst-por-tabela tbody, .lst-por-tabela tr, .lst-por-tabela td { display: block; width: auto; }
+	.lst-por .lst-por-tabela tbody tr { padding: 1rem 1.2rem; border-top: 1px solid var( --lst-linia ) !important; }
+	.lst-por .lst-por-tabela tbody tr:first-child { border-top: 0 !important; }
+	.lst-por .lst-por-tabela tbody td { padding: 0; border: 0 !important; background: transparent; }
+	.lst-por .lst-por-tabela tbody td.lst-por-co { font-weight: 600; color: var( --lst-tekst ); margin-bottom: .55rem; }
+	/* Musi być mocniejsze od reguły "td { display: block }" o dwie linijki wyżej,
+	   inaczej komórka zostaje blokiem i podpis nie staje obok wartości. */
+	.lst-por .lst-por-tabela tbody td.lst-por-wartosc { display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: auto; text-align: right; padding: .3rem 0; }
+	.lst-por-wartosc::before { content: attr( data-kol ); font-family: var( --lst-mono ); font-size: .8rem; letter-spacing: .14em; text-transform: uppercase; color: var( --lst-tekst-3 ); }
+	.lst-por-wartosc.lst-por-dla-pro::before { color: rgb( var( --lst-mieta ) ); }
+}
+
+/* ===========================================================================
+   ŚWIATŁO NA KRAWĘDZI
+
+   Krawędź tabeli rozjaśnia się tam, gdzie stoi kursor, i gaśnie tak, że nie
+   widać, gdzie się kończy. Trzy rzeczy robią tu całą robotę:
+
+   1. Bardzo długie gaśnięcie — dziesięć kolejnych stopni przezroczystości
+      zamiast dwóch. Dwa stopnie dają widoczną obwódkę i wtedy światło wygląda
+      jak naklejony pasek.
+   2. Zmiana barwy od bieli do mięty. Prawdziwe światło jest w środku białe
+      i nabiera koloru dopiero po drodze.
+   3. Światło nie skacze za kursorem, tylko go dogania. Przesuwa się o część
+      dystansu na klatkę, więc płynie zamiast przeskakiwać.
+
+   Bez myszy i bez skryptu światło stoi spokojnie po lewej stronie górnej
+   krawędzi i wygląda jak zwykła, ładna świecąca ramka.
+   =========================================================================== */
+
+.lst-por .lst-por-rama {
+	/*
+	 * Wymuszenie, bo motyw potrafi nadać ramkę każdemu <div> regułą, której
+	 * nie da się przebić zwykłą klasą — i wtedy dookoła tabeli stoi biała
+	 * kreska. Nasza własna „ramka" to nie border, tylko tło widoczne przez
+	 * jednopikselowy margines wewnętrzny, więc border jest tu zbędny.
+	 */
+	border: 0 !important;
+	outline: 0 !important;
+
+	/* Grubość świecącej kreski. 1 px ginie przy innych efektach na stronie. */
+	padding: 1.5px;
+	position: relative;
+
+	/* Spokojna kreska dookoła — żeby ramka istniała też tam, gdzie światła nie ma. */
+	background: linear-gradient( 160deg, rgba( 138, 168, 163, .17 ), rgba( 138, 168, 163, .08 ) 45%, rgba( 138, 168, 163, .05 ) );
+	box-shadow: 0 30px 70px -52px rgba( var( --lst-mieta ), .5 );
+}
+
+.lst-por .lst-por-srodek { position: relative; background: var( --lst-panel ); isolation: isolate; border: 0 !important; outline: 0 !important; }
+.lst-por .lst-por-tabela { position: relative; z-index: 1; }
+
+/*
+ * Warstwa światła. Leży POD wnętrzem tabeli, a wnętrze jest nieprzezroczyste
+ * i wsunięte o piksel — więc ze światła widać dokładnie ten jeden piksel
+ * brzegu. Stąd wrażenie, że świeci sama krawędź.
+ */
+.lst-por-swiatlo {
+	position: absolute;
+	inset: 0;
+	border-radius: 14px;
+	pointer-events: none;
+	opacity: var( --lst-moc, 1 );
+	transition: opacity .5s ease;
+	background: radial-gradient( 640px 220px ellipse at var( --lst-mx, 18% ) var( --lst-my, 0px ),
+		rgba( var( --lst-rdzen ), 1 ) 0%,
+		rgba( var( --lst-rdzen ), 1 ) 3%,
+		rgba( var( --lst-rdzen ), .96 ) 5%,
+		rgba( var( --lst-mieta ), .95 ) 8%,
+		rgba( var( --lst-mieta ), .82 ) 12%,
+		rgba( var( --lst-mieta ), .64 ) 17%,
+		rgba( var( --lst-mieta ), .46 ) 24%,
+		rgba( var( --lst-mieta ), .3 ) 33%,
+		rgba( var( --lst-mieta ), .18 ) 44%,
+		rgba( var( --lst-mieta ), .1 ) 57%,
+		rgba( var( --lst-mieta ), .045 ) 72%,
+		rgba( var( --lst-mieta ), .015 ) 86%,
+		rgba( var( --lst-mieta ), 0 ) 96% );
+}
+
+/* Światło rozlane po powierzchni tuż za krawędzią — lampa oświetla blat, na którym leży. */
+.lst-por .lst-por-srodek::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	opacity: var( --lst-moc, 1 );
+	transition: opacity .5s ease;
+	background: radial-gradient( 700px 260px ellipse at var( --lst-mx, 18% ) var( --lst-my, 0px ),
+		rgba( var( --lst-mieta ), .1 ) 0%,
+		rgba( var( --lst-mieta ), .07 ) 14%,
+		rgba( var( --lst-mieta ), .045 ) 26%,
+		rgba( var( --lst-mieta ), .017 ) 40%,
+		rgba( var( --lst-mieta ), .009 ) 56%,
+		rgba( var( --lst-mieta ), .004 ) 72%,
+		rgba( var( --lst-mieta ), 0 ) 90% );
+}
+
+/* Poświata wylewająca się poza tabelę. Mocno rozmyta, więc nie ma żadnej krawędzi. */
+.lst-por .lst-por-rama::after {
+	content: "";
+	position: absolute;
+	inset: -34px;
+	z-index: -1;
+	pointer-events: none;
+	opacity: var( --lst-moc, 1 );
+	transition: opacity .5s ease;
+
+	/*
+	 * Elipsa szeroka i niska, nie okrągła. Okrągła robiła nad tabelą chmurę,
+	 * która wyglądała na odklejoną od krawędzi; ta przylega do kreski.
+	 */
+	background: radial-gradient( 380px 38px ellipse at calc( var( --lst-mx, 18% ) + 34px ) calc( var( --lst-my, 0px ) + 34px ),
+		rgba( var( --lst-mieta ), .62 ) 0%,
+		rgba( var( --lst-mieta ), .38 ) 22%,
+		rgba( var( --lst-mieta ), .18 ) 44%,
+		rgba( var( --lst-mieta ), .06 ) 66%,
+		rgba( var( --lst-mieta ), 0 ) 88% );
+	filter: blur( 16px );
+}
+
+/* Kto prosił o spokój, dostaje światło bez przejść — ono i tak nic nie zasłania. */
+@media ( prefers-reduced-motion: reduce ) {
+	.lst-por-swiatlo,
+	.lst-por .lst-por-srodek::before,
+	.lst-por .lst-por-rama::after { transition: none; }
+}
+</style>
+
+<script>
+( function () {
+	'use strict';
+
+	function start() {
+		var sekcja = document.getElementById( 'lst-por' );
+
+		if ( ! sekcja ) {
+			return;
+		}
+
+		/*
+		 * Szerokość okna BEZ paska przewijania. Samo 100vw pasek dolicza i strona
+		 * dostaje poziomy suwak, którego nikt nie chciał.
+		 */
+		function pelna() {
+			sekcja.style.setProperty( '--lst-pelna', document.documentElement.clientWidth + 'px' );
+		}
+
+		pelna();
+		window.addEventListener( 'resize', pelna );
+
+		/* Zdejmujemy obramowanie z własnych opakowań — patrz uwaga przy CSS. */
+		var rodzic = sekcja.parentNode;
+
+		while ( rodzic && rodzic !== document.body && rodzic.classList ) {
+			rodzic.classList.add( 'lst-por-gniazdo' );
+
+			if ( rodzic.classList.contains( 'et_pb_section' ) ) {
+				break;
+			}
+
+			rodzic = rodzic.parentNode;
+		}
+
+		/*
+		 * Światło idzie za kursorem, ale go DOGANIA, a nie przeskakuje.
+		 * Na każdej klatce przesuwa się o jedną siódmą dystansu, który mu
+		 * został — stąd płynny, miękki ruch. Skok prosto pod kursor wygląda
+		 * jak szarpnięcie i to właśnie psuło poprzednią wersję.
+		 *
+		 * Gdy mysz opuszcza tabelę, światło nie znika: spokojnie wraca na
+		 * swoje miejsce po lewej stronie górnej krawędzi.
+		 */
+		var rama = sekcja.querySelector( '.lst-por-rama' );
+
+		if ( rama ) {
+			var cel = null;       /* dokąd światło ma dojść, gdy jedzie za kursorem */
+			var teraz = null;     /* gdzie światło jest w tej chwili */
+			var biegnie = false;
+			var etap = 0;         /* 0 = za kursorem, 1 = dosuwa się do krawędzi, 2 = jedzie po obwodzie */
+			var obwodTeraz = 0;   /* ile pokonało po obwodzie, licząc od lewego górnego rogu */
+			var obwodCel = 0;
+
+			function pole() {
+				return rama.getBoundingClientRect();
+			}
+
+			/*
+			 * Obwód tabeli rozwinięty w jedną linię: zaczynamy w lewym górnym
+			 * rogu i idziemy zgodnie z ruchem wskazówek zegara — górą w prawo,
+			 * prawym bokiem w dół, dołem w lewo, lewym bokiem do góry.
+			 * Dzięki temu „jechać po krawędzi" to po prostu zmieniać jedną
+			 * liczbę, a światło samo pokonuje rogi.
+			 */
+			function dlugoscObwodu( p ) {
+				return 2 * ( p.width + p.height );
+			}
+
+			/* Z punktu na obwodzie robimy współrzędne. */
+			function naPunkt( t, p ) {
+				var o = dlugoscObwodu( p );
+
+				t = ( ( t % o ) + o ) % o;
+
+				if ( t < p.width ) {
+					return { x: t, y: 0 };
+				}
+
+				t -= p.width;
+
+				if ( t < p.height ) {
+					return { x: p.width, y: t };
+				}
+
+				t -= p.height;
+
+				if ( t < p.width ) {
+					return { x: p.width - t, y: p.height };
+				}
+
+				return { x: 0, y: p.height - ( t - p.width ) };
+			}
+
+			/* A z dowolnego punktu — najbliższe miejsce na obwodzie. */
+			function naObwod( x, y, p ) {
+				var doGory = y;
+				var doDolu = p.height - y;
+				var doLewej = x;
+				var doPrawej = p.width - x;
+				var naj = Math.min( doGory, doDolu, doLewej, doPrawej );
+
+				if ( naj === doGory )   return { t: x,                                   x: x,         y: 0 };
+				if ( naj === doPrawej ) return { t: p.width + y,                          x: p.width,   y: y };
+				if ( naj === doDolu )   return { t: p.width + p.height + ( p.width - x ), x: x,         y: p.height };
+
+				return { t: 2 * p.width + p.height + ( p.height - y ), x: 0, y: y };
+			}
+
+			function spoczynek() {
+				return { x: pole().width * 0.18, y: 0 };
+			}
+
+			function ustaw( x, y ) {
+				rama.style.setProperty( '--lst-mx', x.toFixed( 1 ) + 'px' );
+				rama.style.setProperty( '--lst-my', y.toFixed( 1 ) + 'px' );
+			}
+
+			function klatka() {
+				if ( ! teraz ) {
+					biegnie = false;
+					return;
+				}
+
+				var p = pole();
+
+				/* Etap 0: światło zwyczajnie dogania kursor. */
+				if ( 0 === etap ) {
+					if ( ! cel ) {
+						biegnie = false;
+						return;
+					}
+
+					teraz.x += ( cel.x - teraz.x ) / 7;
+					teraz.y += ( cel.y - teraz.y ) / 7;
+					ustaw( teraz.x, teraz.y );
+
+					if ( Math.abs( cel.x - teraz.x ) > 0.4 || Math.abs( cel.y - teraz.y ) > 0.4 ) {
+						window.requestAnimationFrame( klatka );
+					} else {
+						biegnie = false;
+					}
+
+					return;
+				}
+
+				/* Etap 1: najkrótszą drogą na krawędź — prosto w bok albo prosto w dół. */
+				if ( 1 === etap ) {
+					var brzeg = naObwod( teraz.x, teraz.y, p );
+
+					teraz.x += ( brzeg.x - teraz.x ) / 4;
+					teraz.y += ( brzeg.y - teraz.y ) / 4;
+					ustaw( teraz.x, teraz.y );
+
+					if ( Math.abs( brzeg.x - teraz.x ) < 1.5 && Math.abs( brzeg.y - teraz.y ) < 1.5 ) {
+						obwodTeraz = naObwod( teraz.x, teraz.y, p ).t;
+						etap = 2;
+					}
+
+					window.requestAnimationFrame( klatka );
+					return;
+				}
+
+				/* Etap 2: jazda po samej krawędzi, krótszą stroną dookoła. */
+				var o = dlugoscObwodu( p );
+				var roznica = obwodCel - obwodTeraz;
+
+				if ( roznica > o / 2 )  { roznica -= o; }
+				if ( roznica < -o / 2 ) { roznica += o; }
+
+				obwodTeraz = ( ( ( obwodTeraz + roznica / 9 ) % o ) + o ) % o;
+
+				var punkt = naPunkt( obwodTeraz, p );
+
+				teraz.x = punkt.x;
+				teraz.y = punkt.y;
+				ustaw( punkt.x, punkt.y );
+
+				if ( Math.abs( roznica ) > 0.6 ) {
+					window.requestAnimationFrame( klatka );
+				} else {
+					biegnie = false;
+				}
+			}
+
+			function ruszaj() {
+				if ( ! biegnie ) {
+					biegnie = true;
+					window.requestAnimationFrame( klatka );
+				}
+			}
+
+			/*
+			 * ZASIĘG — jak blisko tabeli musi być kursor, żeby światło zaczęło
+			 * za nim jechać. Liczony od krawędzi tabeli na zewnątrz.
+			 *
+			 * 0 znaczyłoby „tylko gdy mysz jest dokładnie na tabeli". Ta liczba
+			 * to jedyne pokrętło tego efektu — podnieś, jeśli ma reagować
+			 * z dalszej odległości.
+			 *
+			 * Uwaga: bardzo duża wartość sprawi, że światło będzie chodzić za
+			 * myszą po całej stronie i przestanie wyglądać jak światło NA
+			 * krawędzi — a zacznie jak świecąca mysz.
+			 */
+			var ZASIEG = 160;
+
+			var zdarzenie = null;
+			var czekaNaKlatke = false;
+
+			function zacznijPowrot() {
+				if ( ! teraz ) {
+					return;
+				}
+
+				obwodCel = naObwod( spoczynek().x, spoczynek().y, pole() ).t;
+				etap = 1;          /* najpierw na krawędź, potem po niej */
+				ruszaj();
+			}
+
+			/*
+			 * Decyzję podejmujemy raz na klatkę, a nie przy każdym drgnięciu
+			 * myszy. Dzięki temu mierzymy położenie tabeli najwyżej sześćdziesiąt
+			 * razy na sekundę, a nie kilkaset — mysz potrafi zgłaszać ruch
+			 * znacznie częściej, niż ekran zdąży się odświeżyć.
+			 */
+			function odczytaj() {
+				czekaNaKlatke = false;
+
+				if ( ! zdarzenie ) {
+					return;
+				}
+
+				var p = pole();
+				var x = zdarzenie.clientX - p.left;
+				var y = zdarzenie.clientY - p.top;
+				var blisko = x >= -ZASIEG && x <= p.width + ZASIEG && y >= -ZASIEG && y <= p.height + ZASIEG;
+
+				if ( blisko ) {
+					/* Punkt światła trzymamy w granicach tabeli — kursor obok
+					   niej ma przyciągać światło do najbliższego brzegu, a nie
+					   wypychać je poza ramkę. */
+					cel = {
+						x: Math.min( Math.max( x, 0 ), p.width ),
+						y: Math.min( Math.max( y, 0 ), p.height )
+					};
+
+					/* Pierwsze zbliżenie: zaczynamy od miejsca spoczynku, żeby
+					   światło do kursora dopłynęło, a nie pojawiło się znikąd. */
+					if ( ! teraz ) {
+						teraz = spoczynek();
+					}
+
+					etap = 0;
+					ruszaj();
+				} else if ( teraz && 0 === etap ) {
+					zacznijPowrot();
+				}
+			}
+
+			document.addEventListener( 'mousemove', function ( e ) {
+				zdarzenie = e;
+
+				if ( ! czekaNaKlatke ) {
+					czekaNaKlatke = true;
+					window.requestAnimationFrame( odczytaj );
+				}
+			}, { passive: true } );
+
+			/* Kursor opuścił okno przeglądarki — też jest „daleko". */
+			document.addEventListener( 'mouseleave', function () {
+				zdarzenie = null;
+
+				if ( teraz && 0 === etap ) {
+					zacznijPowrot();
+				}
+			} );
+		}
+	}
+
+	if ( 'loading' === document.readyState ) {
+		document.addEventListener( 'DOMContentLoaded', start );
+	} else {
+		start();
+	}
+}() );
+</script>
+'''
+
+WIERSZ = (
+ '\t\t\t\t<tr>'
+ '<td class="lst-por-co">{CO}</td>'
+ '<td class="lst-por-wartosc" data-kol="{N1}">{A}</td>'
+ '<td class="lst-por-wartosc lst-por-dla-pro" data-kol="{N2}">{B}</td>'
+ '</tr>'
+)
+
+
+def podstaw( wzor, pola ):
+	for k, v in pola.items():
+		wzor = wzor.replace( '{' + k + '}', v )
+	return wzor
+
+
+def komorka( wartosc, t ):
+	if wartosc == TAK:
+		return podstaw( PTASZEK, { 'JEST': t['jest'] } )
+	if wartosc == NIE:
+		return podstaw( KRESKA, { 'BRAK': t['brak'] } )
+	return '<span class="lst-por-slowo">' + wartosc + '</span>'
+
+
+def zbuduj( t, plik ):
+	n0, n1, n2 = t['naglowki']
+	wiersze = [ podstaw( WIERSZ, {
+		'CO': co, 'N1': n1, 'N2': n2,
+		'A': komorka( a, t ), 'B': komorka( b, t ),
+	} ) for co, a, b in t['wiersze'] ]
+
+	html = podstaw( SZABLON, { 'N0': n0, 'N1': n1, 'N2': n2, 'WIERSZE': '\n'.join( wiersze ) } )
+
+	with open( plik, 'w', encoding='utf-8' ) as f:
+		f.write( html )
+
+	print( plik + ' — wierszy: ' + str( len( wiersze ) ) )
+
+
+zbuduj( EN, 'porownanie-en.html' )
+zbuduj( PL, 'porownanie-pl.html' )
+
+
+# ---------------------------------------------------------------------------
+# Strony próbne budujemy tutaj, z tego samego świeżo wygenerowanego kodu.
+# Wcześniej powstawały osobno i potrafiły zostać w tyle za plikami do Divi —
+# testy sprawdzały wtedy nieaktualną wersję.
+# ---------------------------------------------------------------------------
+
+GLOWA = '''<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>Free vs Pro</title>
+<style>
+ html,body{margin:0;background:#141a19;color:#eaf3f1;font-family:"IBM Plex Sans",system-ui,sans-serif}
+ .et_pb_section{padding:40px 0}
+ .et_pb_row{width:90%;max-width:1800px;margin:0 auto}
+ .wysoko{height:60vh}
+</style></head><body>
+<div class="et_pb_section"><div class="et_pb_row"><div class="et_pb_column">
+ <p id="odnosnik">A paragraph in the ordinary Divi column.</p>
+</div></div></div>
+<div class="et_pb_section"><div class="et_pb_row"><div class="et_pb_column"><div class="et_pb_module" id="gniazdo">
+'''
+
+STOPKA = '''
+
+</div></div></div></div>
+<div class="et_pb_section"><div class="et_pb_row"><div class="et_pb_column"><p id="odnosnik2">After.</p><div class="wysoko"></div></div></div></div>
+</body></html>
+'''
+
+
+def divi_bry( html ):
+	"""Divi wstawia <br /> na każdym złamaniu linii POZA <style> i <script>."""
+	import re as _re
+
+	kawalki = _re.split( r'(<style>.*?</style>|<script>.*?</script>)', html, flags=_re.S )
+	wynik = []
+
+	for i, kawalek in enumerate( kawalki ):
+		wynik.append( kawalek if i % 2 else kawalek.replace( '\n', '<br />\n' ) )
+
+	return ''.join( wynik )
+
+
+def zbuduj_probe():
+	with open( 'porownanie-en.html', encoding='utf-8' ) as f:
+		modul = f.read()
+
+	for plik, tresc in ( ( 'proba.html', modul ), ( 'proba-br.html', divi_bry( modul ) ) ):
+		with open( plik, 'w', encoding='utf-8' ) as f:
+			f.write( GLOWA + tresc + STOPKA )
+
+		print( plik + ' — strona próbna odświeżona' )
+
+
+zbuduj_probe()

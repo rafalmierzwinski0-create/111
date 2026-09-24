@@ -1,0 +1,284 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Inria+Serif:wght@400&display=swap">
+
+<div class="lst-2m">
+	<div class="lst-2m-rama">
+		<div class="lst-2m-pary">
+			<div class="lst-2m-para"><div class="lst-2m-tresc"><p class="lst-2m-adres">B10</p><p class="lst-2m-krok">Udostępnij arkusz</p><p class="lst-2m-opis">W Arkuszach Google: <em>Udostępnij &rarr; Dostęp ogólny &rarr; Każda osoba mająca link</em>, jako <em>Przeglądający</em>. Bez klucza API i bez projektu w Google Cloud. W Pro można zamiast tego czytać arkusz prywatny &mdash; wtyczka loguje się na Twoje konto Google.</p></div><div class="lst-2m-okno"><div class="lst-2m-belka"><span class="lst-2m-oczko"></span><span class="lst-2m-oczko"></span><span class="lst-2m-oczko"></span><span class="lst-2m-nazwa-okna">Arkusze Google</span></div><div class="lst-2m-ekran"><div class="lst-2m-wiersz"><span class="lst-2m-znak">&rsaquo;</span> <span class="lst-2m-linia">Udostępnij &rarr; Każda osoba mająca link</span></div><div class="lst-2m-wynik">udostępnianie: Każda osoba mająca link &middot; Przeglądający</div></div></div></div>
+			<div class="lst-2m-para"><div class="lst-2m-tresc"><p class="lst-2m-adres">B11</p><p class="lst-2m-krok">Wklej link i sprawdź podgląd</p><p class="lst-2m-opis">Wtyczka pokazuje dokładnie to, co odczytała &mdash; nagłówki, wiersze, co zrobiła ze scalonymi komórkami &mdash; zanim cokolwiek zapiszesz. Arkusz z kilkoma kartami dostaje przełącznik.</p></div><div class="lst-2m-okno"><div class="lst-2m-belka"><span class="lst-2m-oczko"></span><span class="lst-2m-oczko"></span><span class="lst-2m-oczko"></span><span class="lst-2m-nazwa-okna">Live Sheets Table</span></div><div class="lst-2m-ekran"><div class="lst-2m-wiersz"><span class="lst-2m-znak">&rsaquo;</span> <span class="lst-2m-linia">docs.google.com/spreadsheets/d/1aZ&hellip;</span></div><div class="lst-2m-wynik">3 tabs found &mdash; Prices, Stock, Notes</div></div></div></div>
+			<div class="lst-2m-para"><div class="lst-2m-tresc"><p class="lst-2m-adres">B12</p><p class="lst-2m-krok">Wstaw na stronę</p><p class="lst-2m-opis">Blok, widżet Elementora albo shortcode. Ten sam kod rysuje wszystkie trzy, więc nie mogą się rozjechać.</p></div><div class="lst-2m-okno"><div class="lst-2m-belka"><span class="lst-2m-oczko"></span><span class="lst-2m-oczko"></span><span class="lst-2m-oczko"></span><span class="lst-2m-nazwa-okna">Twoja strona</span></div><div class="lst-2m-ekran"><div class="lst-2m-wiersz"><span class="lst-2m-znak">&rsaquo;</span> <span class="lst-2m-linia">&#91;sheet_table id=&quot;1&quot;&#93;</span></div><div class="lst-2m-wynik">tabela #1 &middot; 128 wierszy &middot; sprawdzona 4 min temu</div></div></div></div>
+		</div>
+		<div class="lst-2m-liczby">
+			<div class="lst-2m-liczba"><p class="lst-2m-duza">0</p><p class="lst-2m-pod">kluczy API do wklejenia, przy arkuszu z linkiem</p><p class="lst-2m-tekst">Udostępniasz arkusz linkiem i to cała konfiguracja. W Pro wtyczka może zamiast tego zalogować się na Twoje konto Google &mdash; wtedy arkusz zostaje prywatny.</p></div>
+			<div class="lst-2m-liczba"><p class="lst-2m-duza">Bez limitu</p><p class="lst-2m-pod">wierszy, w wersji darmowej</p><p class="lst-2m-tekst">Bez znaku wodnego i bez daty ważności. Darmowa to cała wtyczka, tyle że bez dodatków.</p></div>
+			<div class="lst-2m-liczba"><p class="lst-2m-duza">15 min</p><p class="lst-2m-pod">między sprawdzeniami, i nikt nie czeka</p><p class="lst-2m-tekst">Wtyczka rozmawia z Google w tle. Odwiedzający dostaje tabelę, która już leży na Twoim serwerze.</p></div>
+		</div>
+	</div>
+</div>
+
+<style>
+.lst-2m {
+	--lst-mieta: 95, 227, 207;
+	--lst-panel: #1b2221;
+	--lst-panel-dol: #161d1c;
+	--lst-linia: rgba( 138, 168, 163, .22 );
+
+	/* Kreska między krokami. Przy .16 miała kontrast 1,32:1 do tła strony,
+	   czyli w praktyce jej nie było. .38 daje 2,02:1 i widać ją. */
+	--lst-kreska: rgba( 138, 168, 163, .38 );
+	--lst-tekst: #eaf3f1;
+	--lst-tekst-2: #9db3b0;
+	--lst-tekst-3: #8fa5a2;
+	--lst-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+	--lst-serif: "Inria Serif", "Iowan Old Style", Georgia, serif;
+
+	/* Płyta pod tekstem kroku. Półprzezroczysta, więc poświata tła nadal
+	   przez nią przechodzi — tylko przygaszona, żeby litery nie ginęły. */
+	--lst-plyta: rgba( 13, 18, 17, .62 );
+	--lst-plyta-linia: rgba( 138, 168, 163, .1 );
+
+	/* ---- tło podglądów ------------------------------------------------
+	   Okienko ma udawać ekran, więc jest wyraźnie ciemniejsze od strony
+	   i od kafelków. Bez tego zlewało się z tłem i wyglądało jak dziura. */
+	--lst-ekran: #0a1110;
+	--lst-ekran-dol: #060c0b;
+	--lst-ekran-gora: #131d1b;
+	--lst-ekran-linia: rgba( 95, 227, 207, .2 );
+
+	font-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
+	color: var( --lst-tekst );
+
+	--lst-szerokosc: 90%;
+	--lst-max: 1800px;
+	--lst-pelna: 100vw;
+
+	/* Pełna szerokość okna, jak tabela, cennik i stopka — inaczej 90%
+	   liczyłoby się od wiersza Divi, który sam ma już 90%. */
+	width: var( --lst-pelna );
+	margin: 0 calc( 50% - var( --lst-pelna ) / 2 );
+	overflow-x: clip;
+	padding: clamp( 1rem, 2vw, 1.6rem ) 0 clamp( 2rem, 4vw, 3.4rem );
+}
+
+.lst-2m.lst-2m { border: 0 !important; outline: 0 !important; background: none !important; }
+.lst-2m * { box-sizing: border-box; }
+.lst-2m br { display: none; }
+
+/* Reset musi stac PRZED reszta regul — ma wage zero, wiec inaczej
+   zabralby krok tekstom i adresom komorek. */
+.lst-2m :where( div, p, span, em, a ) {
+	margin: 0;
+	padding: 0;
+	background: none;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	text-align: left;
+	text-transform: none;
+	letter-spacing: normal;
+	font: inherit;
+	color: inherit;
+	width: auto;
+	max-width: none;
+	min-width: 0;
+}
+
+.lst-2m .lst-2m-rama {
+	width: var( --lst-szerokosc );
+	max-width: var( --lst-max );
+	margin-inline: auto;
+}
+
+/* ---------- para: krok i jego podgląd ---------- */
+
+.lst-2m .lst-2m-para {
+	display: grid;
+	grid-template-columns: minmax( 0, 1fr ) minmax( 0, 1fr );
+	gap: clamp( 1.2rem, 3vw, 3rem );
+	align-items: center;
+	padding-block: clamp( 1.4rem, 2.6vw, 2.2rem );
+	border-top: 1px solid var( --lst-kreska );
+}
+
+.lst-2m .lst-2m-para:first-child { border-top: 0; padding-top: 0; }
+
+/* Co drugi krok odwrócony: okienko po lewej, tekst po prawej. */
+.lst-2m .lst-2m-para:nth-child( even ) .lst-2m-okno { order: -1; }
+
+/* Płyta ma tę samą szerokość co okienko obok, więc rząd czyta się jak dwa
+   panele. Sam wiersz tekstu jest w środku ograniczony, żeby dało się czytać. */
+.lst-2m .lst-2m-tresc {
+	padding: 1.15rem 1.3rem 1.25rem;
+	background-color: var( --lst-plyta );
+	border: 1px solid var( --lst-plyta-linia );
+	border-radius: 14px;
+}
+
+.lst-2m .lst-2m-krok,
+.lst-2m .lst-2m-opis { max-width: 42rem; }
+
+.lst-2m .lst-2m-adres {
+	font-family: var( --lst-mono );
+	font-size: .875rem;   /* 14 px */
+	letter-spacing: .06em;
+	color: var( --lst-tekst-3 );
+	margin-bottom: .3rem;
+}
+
+.lst-2m .lst-2m-krok {
+	font-size: 1.25rem;   /* 20 px */
+	font-weight: 600;
+	line-height: 1.25;
+	margin-bottom: .45rem;
+}
+
+.lst-2m .lst-2m-opis {
+	font-size: 1.125rem;   /* 18 px */
+	line-height: 1.55;
+	color: var( --lst-tekst-2 );
+}
+
+.lst-2m .lst-2m-opis em { font-style: normal; color: rgb( var( --lst-mieta ) ); }
+
+/* ---------- okienko podglądu ---------- */
+
+.lst-2m .lst-2m-okno {
+	border: 1px solid var( --lst-ekran-linia ) !important;
+	border-radius: 12px;
+	overflow: hidden;
+	background-color: var( --lst-ekran ) !important;
+	background-image: linear-gradient( var( --lst-ekran ), var( --lst-ekran-dol ) ) !important;
+	box-shadow: 0 22px 46px -30px rgba( 0, 0, 0, .95 ), 0 0 34px -18px rgba( var( --lst-mieta ), .35 );
+}
+
+.lst-2m .lst-2m-belka {
+	display: flex;
+	align-items: center;
+	gap: .45rem;
+	padding: .6rem .85rem;
+	background: var( --lst-ekran-gora ) !important;
+	border-bottom: 1px solid rgba( 95, 227, 207, .14 ) !important;
+}
+
+.lst-2m .lst-2m-oczko {
+	display: block;
+	width: 9px;
+	height: 9px;
+	border-radius: 999px;
+	background: var( --lst-tekst-3 ) !important;
+	opacity: .38;
+	flex: none;
+}
+
+.lst-2m .lst-2m-nazwa-okna {
+	margin-left: .5rem;
+	font-family: var( --lst-mono );
+	font-size: .875rem;   /* 14 px */
+	color: var( --lst-tekst-3 );
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.lst-2m .lst-2m-ekran {
+	padding: 1.15rem 1rem 1.25rem;
+	font-family: var( --lst-mono );
+	font-size: .875rem;   /* 14 px */
+	line-height: 1.5;
+	color: var( --lst-tekst-2 );
+
+	/* Siatka komórek w środku — subtelna, ale od razu widać, że to ekran
+	   arkusza, a nie zwykłe pole tekstowe. */
+	background-image: linear-gradient( to right, rgba( 255, 255, 255, .035 ) 1px, transparent 1px ),
+		linear-gradient( to bottom, rgba( 255, 255, 255, .035 ) 1px, transparent 1px );
+	background-size: 68px 34px;
+}
+
+.lst-2m .lst-2m-znak { color: rgb( var( --lst-mieta ) ); flex: none; }
+
+/* Wiersz polecenia: strzałka obok treści, a długi adres łamie się pod sobą,
+   nie pod strzałką. */
+.lst-2m .lst-2m-wiersz { display: flex; align-items: baseline; gap: .45rem; }
+.lst-2m .lst-2m-linia { min-width: 0; word-break: break-word; }
+
+/* Druga linijka — to, co z polecenia wyszło. Ściemniona, żeby nie
+   konkurowała z pierwszą, i wcięta pod treść, a nie pod strzałkę. */
+.lst-2m .lst-2m-wynik { margin-top: .5rem; padding-left: 1.05rem; color: var( --lst-tekst-3 ); }
+
+/* ---------- pasek liczb ---------- */
+
+.lst-2m .lst-2m-liczby {
+	display: grid;
+	grid-template-columns: repeat( 3, 1fr );
+	gap: 1px;
+	background: var( --lst-linia );
+	border: 1px solid var( --lst-linia ) !important;
+	border-radius: 14px;
+	overflow: hidden;
+	margin-top: clamp( 1.6rem, 3vw, 2.6rem );
+}
+
+.lst-2m .lst-2m-liczba {
+	background-color: var( --lst-panel ) !important;
+	background-image: linear-gradient( var( --lst-panel ), var( --lst-panel-dol ) ) !important;
+	padding: 1.3rem 1.4rem 1.4rem;
+}
+
+.lst-2m .lst-2m-duza {
+	font-family: var( --lst-serif );
+	font-weight: 400;
+	font-size: clamp( 2rem, 3.4vw, 2.7rem );
+	line-height: 1;
+	color: rgb( var( --lst-mieta ) );
+	margin-bottom: .5rem;
+}
+
+.lst-2m .lst-2m-pod { font-size: 1.125rem;   /* 18 px */ font-weight: 600; margin-bottom: .35rem; }
+.lst-2m .lst-2m-tekst { font-size: 1.125rem;   /* 18 px */ line-height: 1.5; color: var( --lst-tekst-2 ); }
+
+/* ---------- utwardzenie na wrogie motywy ---------- */
+
+/* Reset :where() ma wagę zero i przegrywa z motywem, który pisze
+   "p { margin: 40px !important }". Tu przebijamy to wprost. */
+.lst-2m .lst-2m-adres,
+.lst-2m .lst-2m-krok,
+.lst-2m .lst-2m-opis,
+.lst-2m .lst-2m-duza,
+.lst-2m .lst-2m-pod,
+.lst-2m .lst-2m-tekst,
+.lst-2m .lst-2m-nazwa-okna,
+.lst-2m .lst-2m-wynik {
+	margin-inline: 0 !important;
+	margin-top: 0 !important;
+	background: none !important;
+	border: 0 !important;
+	text-align: left !important;
+	text-transform: none !important;
+	letter-spacing: normal !important;
+}
+
+.lst-2m .lst-2m-adres, .lst-2m .lst-2m-nazwa-okna { font-family: var( --lst-mono ) !important; text-transform: none !important; }
+.lst-2m .lst-2m-krok { font-family: inherit !important; text-transform: none !important; letter-spacing: normal !important; margin-bottom: .45rem !important; }
+.lst-2m .lst-2m-opis { font-family: inherit !important; color: var( --lst-tekst-2 ) !important; }
+.lst-2m .lst-2m-duza { font-family: var( --lst-serif ) !important; color: rgb( var( --lst-mieta ) ) !important; }
+.lst-2m .lst-2m-ekran { font-family: var( --lst-mono ) !important; color: var( --lst-tekst-2 ) !important; }
+.lst-2m .lst-2m-wynik { font-family: var( --lst-mono ) !important; color: var( --lst-tekst-3 ) !important; margin-top: .5rem !important; }
+.lst-2m .lst-2m-oczko { border: 0 !important; }
+.lst-2m .lst-2m-tresc { background-color: var( --lst-plyta ) !important; border: 1px solid var( --lst-plyta-linia ) !important; }
+
+/* Obramowanie i dopełnienie, które Divi albo motyw nadaje opakowaniu
+   modułu, obrysowałoby sekcję. Zdejmujemy je przez ":has", bez skryptu. */
+.et_pb_module:has( .lst-2m ),
+.et_pb_column:has( .lst-2m ),
+.et_pb_row:has( .lst-2m ) { border: 0 !important; outline: 0 !important; }
+
+@media ( max-width: 900px ) {
+	.lst-2m .lst-2m-para { grid-template-columns: 1fr; gap: 1.1rem; }
+	.lst-2m .lst-2m-para:nth-child( even ) .lst-2m-okno { order: 0; }
+	.lst-2m .lst-2m-liczby { grid-template-columns: 1fr; }
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+	.lst-2m .lst-2m-okno { transition: none; }
+}
+</style>
+

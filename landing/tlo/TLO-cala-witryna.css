@@ -1,0 +1,89 @@
+/* =========================================================================
+   TŁO WITRYNY — siatka, która delikatnie oddycha pod kursorem, z zielonym
+   podświetleniem linii. Działa na KAŻDEJ stronie, bez modułu Kod.
+
+   Kod HTML idzie do: Divi → Opcje motywu → Integracja → „Dodaj kod do
+   sekcji <body>". Ten arkusz do: Divi → Opcje motywu → Ogólne → Własny CSS.
+   ========================================================================= */
+
+.tlo {
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	background: #232a29;
+	overflow: hidden;
+}
+
+/* Siatka statyczna — zapasowa. Skrypt ją chowa, gdy przejmuje rysowanie. */
+.tlo::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image:
+		linear-gradient( to right, rgba( 255, 255, 255, .055 ) 1px, transparent 1px ),
+		linear-gradient( to bottom, rgba( 255, 255, 255, .055 ) 1px, transparent 1px );
+	background-size: 88px 44px;
+}
+
+.tlo.ma-plotno::before { display: none; }
+
+.tlo-plotno {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	display: none;
+}
+
+.tlo.ma-plotno .tlo-plotno { display: block; }
+
+/* Miękka poświata pod kursorem. */
+.tlo::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: radial-gradient(
+		circle 270px at var( --mx, 50% ) var( --my, 40% ),
+		rgba( 95, 227, 207, .16 ) 0%,
+		rgba( 95, 227, 207, .056 ) 38%,
+		transparent 70%
+	);
+}
+
+.tlo-ziarno {
+	position: absolute;
+	inset: 0;
+	opacity: .045;
+	pointer-events: none;
+	background-image: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E" );
+}
+
+/* Na dotyku nie ma kursora, więc nie ma czego uginać — zostaje sama siatka. */
+@media ( hover: none ) {
+	.tlo::after { display: none; }
+}
+
+/* -------------------------------------------------------------------------
+   Odsłonięcie tła na WSZYSTKICH stronach.
+
+   Opakowania strony nigdy nie mają własnego tła w projekcie, więc czyścimy
+   je na twardo.
+   ------------------------------------------------------------------------- */
+
+#page-container,
+#et-main-area,
+#main-content,
+.et-db #et-boc .et-l {
+	background-color: transparent !important;
+}
+
+/*
+ * Sekcje i wiersze to inna sprawa: Divi domyślnie maluje je na biało, ale
+ * bywa, że ustawiasz im tło świadomie. Dlatego czyścimy TYLKO te, którym
+ * sam Divi nie nadał klasy "et_pb_with_background" — czyli te, którym tła
+ * nie ustawiłeś. Sekcja z kolorem wybranym w kreatorze zostaje nietknięta.
+ */
+.et_pb_section:not( .et_pb_with_background ),
+.et_pb_row:not( .et_pb_with_background ) {
+	background-color: transparent !important;
+}
