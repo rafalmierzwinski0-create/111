@@ -1,0 +1,397 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Inria+Serif:ital,wght@0,300;0,400;1,400&display=swap">
+
+<div class="lst-h-hero" id="lst-h-hero">
+	<div class="lst-h-hero-rama">
+		<p class="lst-h-nadpis lst-h-wchodzi" style="--zwloka:.05s">WordPress plugin</p>
+		<h1 class="lst-h-tytul" id="lst-h-tytul">
+			<span class="lst-h-linia">Your Google Sheet,</span>
+			<span class="lst-h-linia"><span class="lst-h-komorka"><em>always up to date</em></span></span>
+			<span class="lst-h-linia">on your site.<span class="lst-h-kursor" id="lst-h-kursor"></span></span>
+		</h1>
+		<p class="lst-h-lead lst-h-wchodzi" style="--zwloka:1.95s">Paste a link. You get a real table — one that refreshes itself, looks right on a phone, and holds up on the days Google does not.</p>
+		<p class="lst-h-akcje lst-h-wchodzi" style="--zwloka:2.05s"><a class="lst-h-guzik" href="#">Download free</a><a class="lst-h-link" href="#">See how it works</a></p>
+		<p class="lst-h-fakty lst-h-wchodzi" style="--zwloka:2.15s"><span>no API key</span><span>no row limit</span><span>no account with us</span></p>
+	</div>
+
+	<p class="lst-h-przewin lst-h-wchodzi" style="--zwloka:2.4s" id="lst-h-przewin">scroll<span class="lst-h-przewin-tor"></span></p>
+</div>
+
+<style>
+
+.lst-h-hero, .lst-h-hero * { box-sizing: border-box; }
+
+
+/*
+ * Hero zajmuje dokładnie tyle, ile zostaje z ekranu pod paskiem nawigacji —
+ * nie cały ekran, bo wtedy podpowiedź przewijania spadała pod krawędź. Ile
+ * dokładnie zabiera pasek, wie tylko przeglądarka, więc skrypt mierzy to i
+ * wpisuje w "--lst-h-gora"; bez skryptu zostaje pełne "100svh".
+ *
+ * Treść stoi w pionie na środku (rama ma automatyczne marginesy z góry i z
+ * dołu), a "scroll" siedzi na samym spodzie. Następna sekcja zaczyna się
+ * równo za dolną krawędzią ekranu — widać ją dopiero po przewinięciu.
+ */
+.lst-h-hero {
+	--mieta: 95, 227, 207;
+	--wlos-mocny: rgba( 138, 168, 163, .24 );
+	--tekst: #eef5f3;
+	--tekst-2: #b3c6c3;
+	--tekst-3: #8fa5a2;
+	--mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+	--serif: "Inria Serif", "Iowan Old Style", Georgia, serif;
+	color-scheme: dark;
+
+	font-family: "IBM Plex Sans", system-ui, sans-serif;
+	color: var( --tekst );
+	-webkit-font-smoothing: antialiased;
+
+	position: relative;
+	overflow: hidden;
+	padding: clamp( .35rem, 1.3vh, 1.2rem ) 0 clamp( .5rem, 1.9vh, 1.5rem );
+	text-align: center;
+
+	min-height: calc( 100vh - var( --lst-h-gora, 0px ) );
+	min-height: calc( 100svh - var( --lst-h-gora, 0px ) );
+	display: flex;
+	flex-direction: column;
+}
+
+/* "margin: auto" centruje ramę i w poziomie, i w pionie — cała wolna wysokość rozkłada się nad nią i pod nią po równo. */
+.lst-h-hero-rama { position: relative; z-index: 2; will-change: transform, opacity; width: 100%; max-width: 1240px; margin: auto; padding-inline: max( 16px, 4% ); }
+
+/* ---------- tło: przezroczyste ---------- */
+
+/*
+ * Hero NIC nie maluje pod sobą. Każda warstwa tła — łuna, ziarno, winieta —
+ * kończyła się prostokątem szerokim na całą sekcję, w kolorze dobranym na
+ * sucho, więc na żywym tle strony odcinała się jak łata. Teraz przez moduł
+ * widać tło witryny takie, jakie jest, a hero dokłada tylko litery, ramkę
+ * zaznaczenia i kursor.
+ */
+.lst-h-hero {
+	background: none !important;
+	background-color: transparent !important;
+}
+
+/* ---------- typografia ---------- */
+
+.lst-h-nadpis { display: inline-flex; align-items: center; gap: .7rem; margin: 0; font-family: var( --mono );
+	font-size: .875rem; letter-spacing: .18em; text-transform: uppercase; color: var( --tekst-3 ); }
+.lst-h-nadpis::before { content: ""; width: 1.8rem; height: 1px; background: var( --wlos-mocny ); }
+
+/*
+ * Stopień tytułu bierze mniejszą z dwóch miar — szerokości i wysokości okna —
+ * więc na niskim ekranie napis sam się przycina do wysokości, zamiast wypychać
+ * „scroll" pod krawędź.
+ */
+.lst-h-tytul { font-family: var( --serif ); font-weight: 300; letter-spacing: -.015em; line-height: 1.26;
+	margin: clamp( .4rem, 2.1vh, 1.1rem ) auto 0; font-size: clamp( 1.95rem, min( 5.1vw, 8vh ), 4.4rem );
+	max-width: 17ch; color: var( --tekst ); }
+
+/* Puste linijki muszą trzymać wysokość, inaczej strona skacze w trakcie pisania. */
+.lst-h-tytul .lst-h-linia { display: block; min-height: 1.26em; }
+.lst-h-tytul em { font-style: italic; font-weight: 400; color: rgb( var( --mieta ) ); }
+
+.lst-h-lead { color: var( --tekst-2 ); font-size: 1.25rem; line-height: 1.5; margin: clamp( .35rem, 1.5vh, .75rem ) auto 0; max-width: 38rem; }
+
+.lst-h-akcje { display: flex; align-items: center; justify-content: center; gap: .9rem 1.4rem; flex-wrap: wrap; margin: clamp( .5rem, 2.1vh, 1.1rem ) 0 0; }
+
+.lst-h-guzik { position: relative; overflow: hidden; display: inline-flex; align-items: center; justify-content: center;
+	padding: clamp( .55rem, 1.5vh, .85rem ) 1.6rem; font-size: 1.125rem; font-weight: 600; color: #06100f; background: rgb( var( --mieta ) );
+	border: 0; border-radius: 999px; cursor: pointer; text-decoration: none;
+	box-shadow: 0 10px 30px -14px rgba( var( --mieta ), .8 ), 0 1px 0 rgba( 255, 255, 255, .45 ) inset;
+	transition: transform .2s ease, box-shadow .2s ease; }
+.lst-h-guzik:hover { transform: translateY( -1px ); box-shadow: 0 16px 38px -14px rgba( var( --mieta ), .95 ), 0 1px 0 rgba( 255, 255, 255, .55 ) inset; }
+.lst-h-guzik::after { content: ""; position: absolute; inset: 0; width: 60%; transform: translateX( -120% ) skewX( -18deg );
+	background: linear-gradient( 90deg, transparent, rgba( 255, 255, 255, .5 ), transparent ); }
+.lst-h-guzik:hover::after { animation: przeciagnij .7s ease; }
+@keyframes przeciagnij { to { transform: translateX( 320% ) skewX( -18deg ); } }
+
+.lst-h-link { position: relative; font-size: 1.125rem; color: var( --tekst-2 ); text-decoration: none; padding-bottom: .25rem;
+	transition: color .2s ease; }
+.lst-h-link::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var( --wlos-mocny ); }
+.lst-h-link::after { content: ""; position: absolute; left: 0; bottom: 0; height: 1px; width: 100%; background: rgb( var( --mieta ) );
+	transform: scaleX( 0 ); transform-origin: left; transition: transform .35s cubic-bezier( .2, .7, .2, 1 ); }
+.lst-h-link:hover { color: var( --tekst ); }
+.lst-h-link:hover::after { transform: scaleX( 1 ); }
+
+.lst-h-fakty { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .55rem 1.4rem;
+	margin: clamp( .4rem, 1.6vh, .85rem ) 0 0; font-family: var( --mono ); font-size: .875rem; color: var( --tekst-3 ); }
+.lst-h-fakty span { display: inline-flex; align-items: center; gap: .9rem; }
+.lst-h-fakty span + span::before { content: ""; width: 3px; height: 3px; border-radius: 999px; background: var( --wlos-mocny ); }
+
+/* Na telefonie każdy akapit łamie się na więcej linijek. Tytuł schodzi niżej,
+   prowadzenie na 18 px — dalej w skali 14 / 18 / 20 px — żeby całość, razem z
+   „scroll", trzymała się jednego ekranu. */
+@media ( max-width: 540px ) {
+	.lst-h-tytul { font-size: clamp( 1.8rem, min( 8.6vw, 8vh ), 4.4rem ); }
+	.lst-h-lead { font-size: 1.125rem; line-height: 1.4; max-width: 32rem; }
+	.lst-h-akcje { gap: .7rem 1.2rem; }
+	.lst-h-przewin-tor { height: clamp( 14px, 4vh, 34px ); }
+}
+
+/* ---------- zaznaczenie komórki wokół akcentu ---------- */
+
+.lst-h-komorka { position: relative; display: inline-block; padding: 0 .12em; }
+
+/* Domyślnie ramka jest narysowana — tak wygląda strona bez skryptu. */
+.lst-h-komorka::before { content: ""; position: absolute; inset: .13em -.02em -.14em; border: 1px solid rgb( var( --mieta ) );
+	border-radius: 2px; background: none; opacity: 1; }
+/*
+ * Uchwyt ma siedzieć DOKŁADNIE w rogu ramki. Wcześniej był zaczepiony do
+ * krawędzi komórki, a ramka sięga niżej — więc wisiał nad rogiem. Teraz
+ * zaczepiamy go do tych samych krawędzi co ramkę i przesuwamy o połowę
+ * własnego rozmiaru, żeby jego środek wypadł na narożniku.
+ */
+.lst-h-komorka::after { content: ""; position: absolute; right: -.02em; bottom: -.14em;
+	width: 7px; height: 7px; transform: translate( 50%, 50% );
+	background: rgb( var( --mieta ) ); border: 1px solid rgba( 0, 0, 0, .35 );
+	border-radius: 1px; opacity: 1; }
+
+/* Ze skryptem: rysuje się dopiero, gdy linijka się dopisze. */
+.lst-h-pisze .lst-h-komorka::before { opacity: 0; transform: scale( .96 ); }
+.lst-h-pisze .lst-h-komorka::after { opacity: 0; }
+.lst-h-pisze .lst-h-komorka.lst-h-zaznaczone::before { animation: zaznacz .65s cubic-bezier( .2, .7, .2, 1 ) forwards; }
+.lst-h-pisze .lst-h-komorka.lst-h-zaznaczone::after { animation: uchwyt .35s ease .45s forwards; }
+@keyframes zaznacz { to { transform: scale( 1 ); opacity: 1; } }
+@keyframes uchwyt { to { opacity: 1; } }
+
+/* ---------- kursor ---------- */
+
+.lst-h-kursor { display: inline-block; width: 2px; height: .82em; margin-left: .06em; vertical-align: -.06em;
+	background: rgb( var( --mieta ) ); }
+.lst-h-pisze .lst-h-kursor { animation: mruga 1.15s steps( 1 ) infinite; }
+/* W trakcie pisania kursor stoi — mruga dopiero, gdy zdanie się skończy. */
+.lst-h-pisze.lst-h-stuka .lst-h-kursor { animation: none; opacity: 1; }
+@keyframes mruga { 0%, 55% { opacity: 1; } 55.01%, 100% { opacity: 0; } }
+
+/* ---------- wejście ---------- */
+
+.lst-h-wchodzi { opacity: 1; }
+.lst-h-pisze .lst-h-wchodzi { opacity: 0; animation: wejscie .85s cubic-bezier( .2, .7, .2, 1 ) forwards; animation-delay: var( --zwloka, 0s ); }
+.lst-h-widac { opacity: 1; }
+@keyframes wejscie {
+	from { opacity: 0; transform: translateY( 16px ); filter: blur( 7px ); }
+	to { opacity: 1; transform: none; filter: blur( 0 ); }
+}
+
+/* ---------- podpowiedź przewijania ---------- */
+
+.lst-h-przewin { position: relative; z-index: 4; display: flex; flex-direction: column; align-items: center; gap: clamp( .3rem, 1vh, .6rem );
+	margin: clamp( .45rem, 1.9vh, 1.1rem ) auto 0; font-family: var( --mono ); font-size: .875rem; letter-spacing: .14em;
+	text-transform: uppercase; color: var( --tekst-3 ); transition: opacity .5s ease; }
+.lst-h-przewin-tor { position: relative; width: 1px; height: clamp( 16px, 4.4vh, 34px ); background: linear-gradient( var( --wlos-mocny ), transparent ); overflow: hidden; }
+.lst-h-przewin-tor::after { content: ""; position: absolute; left: -1px; top: 0; width: 3px; height: 10px; border-radius: 999px;
+	background: rgb( var( --mieta ) ); animation: spada 2.6s cubic-bezier( .5, 0, .5, 1 ) infinite; }
+@keyframes spada { 0% { transform: translateY( -12px ); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY( 34px ); opacity: 0; } }
+/* Na niskim ekranie kreska jest krótsza, więc kropka ma krócej lecieć. */
+@media ( max-height: 700px ) { @keyframes spada { 0% { transform: translateY( -10px ); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY( 22px ); opacity: 0; } } }
+.lst-h-przewin.lst-h-znika { opacity: 0; pointer-events: none; }
+
+
+/* ---------- żeby sekcja nie zostawiała pustego ekranu pod sobą ---------- */
+
+/*
+ * Divi dokłada sekcji, wierszowi i kolumnie własne dopełnienie — po hero
+ * zostawał przez nie cały pusty ekran, zanim pokazała się następna sekcja.
+ * Zdejmujemy je przez ":has", więc bez skryptu i bez grzebania w ustawieniach.
+ */
+.et_pb_section:has( .lst-h-hero ),
+.et_pb_row:has( .lst-h-hero ),
+.et_pb_column:has( .lst-h-hero ),
+.et_pb_module:has( .lst-h-hero ) {
+	background: none !important;
+	padding-top: 0 !important;
+	padding-bottom: 0 !important;
+	margin-bottom: 0 !important;
+	border: 0 !important;
+	outline: 0 !important;
+}
+
+/* Divi wstawia <br /> w każdym złamanym wierszu znacznikowania. */
+.lst-h-hero br { display: none; }
+
+/* ---------- utwardzenie na wrogie motywy ---------- */
+
+.lst-h-hero .lst-h-nadpis,
+.lst-h-hero .lst-h-tytul,
+.lst-h-hero .lst-h-lead,
+.lst-h-hero .lst-h-akcje,
+.lst-h-hero .lst-h-fakty,
+.lst-h-hero .lst-h-przewin {
+	margin-inline: auto !important;
+	background: none !important;
+	border: 0 !important;
+	text-align: center !important;
+	text-transform: none !important;
+	letter-spacing: normal !important;
+}
+
+.lst-h-hero .lst-h-nadpis,
+.lst-h-hero .lst-h-fakty,
+.lst-h-hero .lst-h-przewin { font-family: var( --mono ) !important; text-transform: uppercase !important; }
+.lst-h-hero .lst-h-fakty { text-transform: none !important; letter-spacing: normal !important; }
+.lst-h-hero .lst-h-tytul { font-family: var( --serif ) !important; color: var( --tekst ) !important; }
+.lst-h-hero .lst-h-lead { font-family: inherit !important; color: var( --tekst-2 ) !important; }
+.lst-h-hero .lst-h-guzik { font-family: inherit !important; color: #06100f !important; text-decoration: none !important; border: 0 !important; }
+.lst-h-hero .lst-h-link { font-family: inherit !important; text-decoration: none !important; border: 0 !important; }
+
+@media ( prefers-reduced-motion: reduce ) {
+	.lst-h-wchodzi, .lst-h-pisze .lst-h-wchodzi { opacity: 1 !important; animation: none !important; }
+	.lst-h-pisze .lst-h-komorka::before { opacity: 1; transform: none; animation: none; }
+	.lst-h-pisze .lst-h-komorka::after { opacity: 1; animation: none; }
+	.lst-h-pisze .lst-h-kursor, .lst-h-pisze.lst-h-stuka .lst-h-kursor { animation: none; }
+	.lst-h-przewin-tor::after { animation: none; }
+	.lst-h-hero-rama { transform: none !important; opacity: 1 !important; }
+	.lst-h-guzik:hover::after { animation: none; }
+}
+</style>
+
+<script>
+( function () {
+	"use strict";
+
+	var spokoj = window.matchMedia( '( prefers-reduced-motion: reduce )' );
+	var korzen = document.documentElement;
+
+	/* ---------------- maszyna do pisania ----------------
+	   Tekst siedzi w kodzie strony, więc bez skryptu i dla czytnika ekranu jest
+	   cały. Skrypt go chowa i dopisuje na nowo — dlatego klasa "pisze" pojawia
+	   się dopiero tutaj, a nie w znacznikowaniu. */
+
+	var tytul = document.getElementById( 'lst-h-tytul' );
+	var kursor = document.getElementById( 'lst-h-kursor' );
+
+	if ( tytul && kursor && ! spokoj.matches ) {
+		korzen.classList.add( 'lst-h-pisze', 'lst-h-stuka' );
+
+		var linie = [].slice.call( tytul.querySelectorAll( '.lst-h-linia' ) );
+
+		var zadania = linie.map( function ( linia ) {
+			var cel = linia.querySelector( 'em' ) || linia;
+			var tekst = cel.textContent;
+			cel.textContent = '';
+
+			return { linia: linia, cel: cel, tekst: tekst, komorka: linia.querySelector( '.lst-h-komorka' ) };
+		} );
+
+		var nr = 0;
+		var znak = 0;
+
+		var stukaj = function () {
+			if ( nr >= zadania.length ) {
+				korzen.classList.remove( 'lst-h-stuka' );
+				return;
+			}
+
+			var z = zadania[ nr ];
+
+			if ( 0 === znak ) { z.linia.appendChild( kursor ); }
+
+			if ( znak >= z.tekst.length ) {
+				if ( z.komorka ) { z.komorka.classList.add( 'lst-h-zaznaczone' ); }
+
+				nr += 1;
+				znak = 0;
+				setTimeout( stukaj, 260 );
+				return;
+			}
+
+			var litera = z.tekst.charAt( znak );
+
+			/* Kursor siedzi w tej samej linijce, więc dopisujemy PRZED nim —
+			   inaczej litery wpadałyby za kursor i wyglądałoby to wspak. */
+			if ( z.cel === z.linia ) {
+				z.linia.insertBefore( document.createTextNode( litera ), kursor );
+			} else {
+				z.cel.appendChild( document.createTextNode( litera ) );
+			}
+
+			znak += 1;
+
+			/* Nierówny rytm — równe odstępy brzmią jak automat, nie jak ręka. */
+			var przerwa = 26 + Math.random() * 26;
+
+			if ( ',' === litera || '.' === litera ) { przerwa += 150; }
+			if ( ' ' === litera ) { przerwa += 18; }
+
+			setTimeout( stukaj, przerwa );
+		};
+
+		setTimeout( stukaj, 420 );
+	}
+
+	/* ---------------- po wejściu oddajemy krycie z powrotem klasom ---------------- */
+	document.querySelectorAll( '.lst-h-wchodzi' ).forEach( function ( el ) {
+		el.addEventListener( 'animationend', function () {
+			el.classList.remove( 'lst-h-wchodzi' );
+			el.classList.add( 'lst-h-widac' );
+		}, { once: true } );
+	} );
+
+	/* ---------------- paralaksa ----------------
+	   Treść hero odjeżdża wolniej niż strona i po drodze gaśnie — stąd wrażenie
+	   głębi. Ruszamy tylko "transform" i "opacity", więc przeglądarka nie
+	   przelicza układu strony, a tła nie tykamy, bo hero go nie ma. */
+
+	var hero = document.getElementById( 'lst-h-hero' );
+	var rama = hero ? hero.querySelector( '.lst-h-hero-rama' ) : null;
+
+	/* ---------------- pełna wysokość ekranu ----------------
+	   Hero ma sięgać dokładnie do dolnej krawędzi okna, więc od wysokości okna
+	   trzeba odjąć to, co siedzi nad nim: pasek nawigacji, ewentualny pasek
+	   Divi, dopełnienia. Mierzymy to raz i po każdej zmianie rozmiaru. */
+
+	if ( hero ) {
+		var ustawGore = function () {
+			var gora = hero.getBoundingClientRect().top + window.scrollY;
+
+			hero.style.setProperty( '--lst-h-gora', Math.max( 0, Math.round( gora ) ) + 'px' );
+		};
+
+		ustawGore();
+		window.addEventListener( 'resize', ustawGore );
+		window.addEventListener( 'orientationchange', ustawGore );
+		window.addEventListener( 'load', ustawGore );
+
+		if ( document.fonts && document.fonts.ready ) { document.fonts.ready.then( ustawGore ); }
+	}
+
+	if ( hero && rama && ! spokoj.matches ) {
+		var czeka = false;
+
+		var rysuj = function () {
+			czeka = false;
+
+			var wysokosc = hero.offsetHeight || 1;
+			var y = window.scrollY;
+
+			/* Poza hero nie ma co liczyć — zostawiamy ostatni stan. */
+			if ( y > wysokosc ) { return; }
+
+			var ile = y / wysokosc;
+
+			rama.style.transform = 'translate3d( 0, ' + ( y * 0.34 ).toFixed( 1 ) + 'px, 0 )';
+			rama.style.opacity = String( Math.max( 0, 1 - ile * 1.35 ) );
+		};
+
+		window.addEventListener( 'scroll', function () {
+			if ( czeka ) { return; }
+
+			czeka = true;
+			requestAnimationFrame( rysuj );
+		}, { passive: true } );
+
+		rysuj();
+	}
+
+	/* ---------------- podpowiedź przewijania ---------------- */
+	var przewin = document.getElementById( 'lst-h-przewin' );
+
+	if ( przewin ) {
+		window.addEventListener( 'scroll', function () {
+			przewin.classList.toggle( 'lst-h-znika', window.scrollY > 40 );
+		}, { passive: true } );
+	}
+} )();
+</script>

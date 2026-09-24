@@ -58,3 +58,18 @@ okien i wszystko, co udaje arkusz — IBM Plex Mono.
 Rozmiary tylko **14, 18 i 20 pikseli**. Wyjątki: nazwa marki w stopce (25 px)
 oraz tytuły sekcji i wielkie liczby, które skalują się z szerokością okna.
 Testy tego pilnują.
+
+## naglowek/HERO-en.html
+
+Sekcja otwierająca stronę. Wklej **całą zawartość pliku** w jeden moduł Code
+w Divi. Moduł niczego pod sobą nie maluje — tło jest przezroczyste, więc widać
+przez niego tło sekcji i całej witryny.
+
+Sekcja sama ustawia się na pełną wysokość ekranu: skrypt mierzy, ile miejsca
+zabiera pasek nawigacji nad nią, i odejmuje to od wysokości okna. Następna
+sekcja strony zaczyna się dokładnie pod dolną krawędzią ekranu, więc widać ją
+dopiero po przewinięciu. W trakcie przewijania treść hero odjeżdża wolniej niż
+strona i gaśnie (paralaksa).
+
+`HERO-podglad.html` to tylko podgląd do otwarcia w przeglądarce — podrabia
+pasek nawigacji i dopełnienia Divi. Do Divi idzie wyłącznie `HERO-en.html`.
