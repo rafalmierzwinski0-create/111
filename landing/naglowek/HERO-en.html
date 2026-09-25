@@ -89,9 +89,20 @@
 
 /* ---------- typografia ---------- */
 
-.lst-h-nadpis { display: inline-flex; align-items: center; gap: .7rem; margin: 0; font-family: var( --mono );
-	font-size: .875rem; letter-spacing: .18em; text-transform: uppercase; color: var( --tekst-3 ); }
-.lst-h-nadpis::before { content: ""; width: 1.8rem; height: 1px; background: var( --wlos-mocny ); }
+/*
+ * Etykieta siedzi w komórce arkusza: cienka ramka, ostre rogi, lekko zaokrąglona
+ * jak zaznaczenie w Arkuszach. Ten sam motyw, co ramka wokół "always up to date"
+ * niżej — tylko tam jest uchwyt, bo zaznaczenie w arkuszu jest jedno.
+ *
+ * Ramkę rysuje warstwa ::before, a nie obramowanie akapitu. Wrogi motyw potrafi
+ * zdjąć "border" z akapitu (sami to robimy niżej, żeby nie dokładał swoich), a
+ * warstwy nie ruszy.
+ */
+.lst-h-nadpis { position: relative; display: inline-flex; align-items: center; margin: 0; font-family: var( --mono );
+	font-size: .875rem; letter-spacing: .16em; text-transform: uppercase; color: var( --tekst-3 );
+	padding: .42em .95em .42em 1.11em; }
+.lst-h-nadpis::before { content: ""; position: absolute; inset: 0; border: 1px solid rgba( var( --mieta ), .3 );
+	border-radius: 2px; pointer-events: none; }
 
 /*
  * Stopień tytułu bierze mniejszą z dwóch miar — szerokości i wysokości okna —
@@ -142,6 +153,14 @@
 	.lst-h-lead { font-size: 1.125rem; line-height: 1.4; max-width: 32rem; }
 	.lst-h-akcje { gap: .7rem 1.2rem; }
 	.lst-h-przewin-tor { height: clamp( 14px, 4vh, 34px ); }
+}
+
+/* Ekran niższy niż 660 px (stary laptop, telefon w poziomie): tytuł schodzi
+   jeszcze niżej, prowadzenie ciaśniej — inaczej całość nie zmieści się w
+   jednym ekranie. */
+@media ( max-height: 660px ) {
+	.lst-h-tytul { font-size: clamp( 1.8rem, min( 5.1vw, 7.2vh ), 4.4rem ); }
+	.lst-h-lead { line-height: 1.42; }
 }
 
 /* ---------- zaznaczenie komórki wokół akcentu ---------- */
@@ -217,6 +236,7 @@
 	background: none !important;
 	padding-top: 0 !important;
 	padding-bottom: 0 !important;
+	margin-top: 0 !important;
 	margin-bottom: 0 !important;
 	border: 0 !important;
 	outline: 0 !important;
@@ -357,7 +377,37 @@
 	   Divi, dopełnienia. Mierzymy to raz i po każdej zmianie rozmiaru. */
 
 	if ( hero ) {
+		/* ---------------- dociągnięcie pod pasek menu ----------------
+		   Między paskiem menu a sekcją hero potrafi zostać pusty pas, którego
+		   moduł nie kontroluje — bierze się z marginesów sekcji ustawionych w
+		   Divi, a nie z hero. Mierzymy tę lukę w układzie strony (offsetTop
+		   nie zależy od przewinięcia ani od przyklejonego paska) i zdejmujemy
+		   ją ujemnym marginesem. Sufit 260 px, żeby przy nietypowym układzie
+		   sekcja nie wjechała pod nagłówek. */
+
+		var sekcja = hero.closest( '.et_pb_section' );
+
+		var dociagnij = function () {
+			if ( ! sekcja || ! sekcja.parentElement ) { return; }
+
+			sekcja.style.removeProperty( 'margin-top' );
+
+			var przed = sekcja.previousElementSibling;
+
+			while ( przed && przed.offsetHeight < 20 ) { przed = przed.previousElementSibling; }
+
+			if ( ! przed || przed.offsetParent !== sekcja.offsetParent ) { return; }
+
+			var luka = sekcja.offsetTop - ( przed.offsetTop + przed.offsetHeight );
+
+			if ( luka > 2 && luka < 260 ) {
+				sekcja.style.setProperty( 'margin-top', '-' + luka + 'px', 'important' );
+			}
+		};
+
 		var ustawGore = function () {
+			dociagnij();
+
 			var gora = hero.getBoundingClientRect().top + window.scrollY;
 
 			hero.style.setProperty( '--lst-h-gora', Math.max( 0, Math.round( gora ) ) + 'px' );

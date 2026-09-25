@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Warianty etykiety</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Inria+Serif:ital,wght@0,300;0,400;1,400&display=swap">
+<style>
+:root { --mieta: 95, 227, 207; --tlo: #232a29; --tekst: #eef5f3; --tekst-3: #8fa5a2;
+	--wlos: rgba( 138, 168, 163, .24 ); --mono: "IBM Plex Mono", monospace; --serif: "Inria Serif", Georgia, serif; }
+body { margin: 0; background: #232a29; color: var( --tekst ); font-family: "IBM Plex Sans", sans-serif;
+	background-image: linear-gradient( to right, rgba( 255, 255, 255, .04 ) 1px, transparent 1px ),
+		linear-gradient( to bottom, rgba( 255, 255, 255, .04 ) 1px, transparent 1px );
+	background-size: 88px 44px; }
+.karta { padding: 46px 20px 40px; text-align: center; border-bottom: 1px solid rgba( 138, 168, 163, .12 ); }
+.numer { font-family: var( --mono ); font-size: 14px; color: rgb( var( --mieta ) ); letter-spacing: .14em; }
+.opis { font-size: 14px; color: var( --tekst-3 ); margin: 10px 0 26px; }
+.tytul { font-family: var( --serif ); font-weight: 300; font-size: 44px; line-height: 1.26; margin: 18px 0 0; }
+.tytul em { font-style: italic; color: rgb( var( --mieta ) ); }
+
+/* wspólne */
+.et { display: inline-flex; align-items: center; gap: .7rem; margin: 0; font-family: var( --mono );
+	font-size: 14px; letter-spacing: .18em; text-transform: uppercase; color: var( --tekst-3 ); }
+
+/* 1 — komórka arkusza */
+.w1 { position: relative; padding: .42em .95em; border: 1px solid rgba( var( --mieta ), .34 ); border-radius: 2px; letter-spacing: .16em; }
+.w1::after { content: ""; position: absolute; right: 0; bottom: 0; width: 6px; height: 6px; transform: translate( 50%, 50% );
+	background: rgb( var( --mieta ) ); border-radius: 1px; }
+
+/* 2 — sąsiednie kolumny */
+.w2 { gap: 0; letter-spacing: .16em; }
+.w2 i { font-style: normal; padding: .42em .9em; border: 1px solid var( --wlos ); border-right: 0; color: rgba( 143, 165, 162, .45 ); }
+.w2 i + i { border-left: 0; }
+.w2 b { font-weight: 400; padding: .42em 1.1em; border: 1px solid rgba( var( --mieta ), .34 ); color: var( --tekst-3 ); }
+.w2 u { text-decoration: none; padding: .42em .9em; border: 1px solid var( --wlos ); border-left: 0; color: rgba( 143, 165, 162, .45 ); }
+.w2 u + u { border-right: 0; }
+
+/* 3 — kreski z uchwytami */
+.w3 s { text-decoration: none; position: relative; width: 34px; height: 1px; background: linear-gradient( 90deg, transparent, var( --wlos ) ); }
+.w3 s:last-child { background: linear-gradient( 90deg, var( --wlos ), transparent ); }
+.w3 s::after { content: ""; position: absolute; top: 50%; width: 5px; height: 5px; background: rgb( var( --mieta ) );
+	border-radius: 1px; transform: translateY( -50% ); }
+.w3 s:first-child::after { left: 0; }
+.w3 s:last-child::after { right: 0; }
+
+/* 4 — puls odświeżania */
+.w4 em { position: relative; width: 7px; height: 7px; border-radius: 999px; background: rgb( var( --mieta ) ); }
+.w4 em::after { content: ""; position: absolute; inset: -4px; border: 1px solid rgb( var( --mieta ) ); border-radius: 999px;
+	animation: fala 2.4s ease-out infinite; }
+@keyframes fala { 0% { transform: scale( .5 ); opacity: .9; } 100% { transform: scale( 1.9 ); opacity: 0; } }
+.w4 span { display: inline-flex; gap: 3px; }
+.w4 span i { width: 3px; height: 11px; background: var( --wlos ); animation: slupek 2.4s steps( 1 ) infinite; }
+.w4 span i:nth-child(2) { animation-delay: .25s } .w4 span i:nth-child(3) { animation-delay: .5s }
+@keyframes slupek { 0%, 40% { background: rgb( var( --mieta ) ); } 41%, 100% { background: var( --wlos ); } }
+
+/* 5 — pasek formuły */
+.w5 { gap: 0; letter-spacing: .16em; border: 1px solid var( --wlos ); border-radius: 3px; overflow: hidden; }
+.w5 i { font-style: italic; font-family: var( --serif ); font-size: 16px; letter-spacing: 0;
+	padding: .34em .7em; color: rgb( var( --mieta ) ); border-right: 1px solid var( --wlos ); }
+.w5 b { font-weight: 400; padding: .42em 1rem .42em .9em; }
+.w5 s { text-decoration: none; width: 2px; height: 13px; background: rgb( var( --mieta ) ); margin-right: .9em;
+	animation: mruga 1.15s steps( 1 ) infinite; }
+@keyframes mruga { 0%, 55% { opacity: 1 } 55.01%, 100% { opacity: 0 } }
+
+/* 6 — narożniki komórki */
+.w6 { gap: 1.1rem; letter-spacing: .16em; }
+.w6 s { text-decoration: none; width: 13px; height: 13px; border: 1px solid rgba( var( --mieta ), .55 ); }
+.w6 s:first-child { border-right: 0; border-bottom: 0; }
+.w6 s:last-child { border-left: 0; border-top: 0; }
+</style></head><body>
+
+<div class="karta"><p class="numer">0 — TERAZ (bez niczego)</p><p class="opis">sama etykieta</p>
+<p class="et">WordPress plugin</p>
+<p class="tytul">Your Google Sheet,<br><em>always up to date</em></p></div>
+
+<div class="karta"><p class="numer">1 — KOMÓRKA ARKUSZA</p><p class="opis">etykieta siedzi w zaznaczonej komórce, z uchwytem w rogu — ten sam motyw, co ramka wokół „always up to date"</p>
+<p class="et w1">WordPress plugin</p>
+<p class="tytul">Your Google Sheet,<br><em>always up to date</em></p></div>
+
+<div class="karta"><p class="numer">2 — SĄSIEDNIE KOLUMNY</p><p class="opis">etykieta jako zaznaczona kolumna, obok przygasłe sąsiednie</p>
+<p class="et w2"><i>D</i><i>E</i><b>WordPress plugin</b><u>G</u><u>H</u></p>
+<p class="tytul">Your Google Sheet,<br><em>always up to date</em></p></div>
+
+<div class="karta"><p class="numer">3 — KRESKI Z UCHWYTAMI</p><p class="opis">dwie gasnące kreski, każda zakończona miętowym uchwytem</p>
+<p class="et w3"><s></s>WordPress plugin<s></s></p>
+<p class="tytul">Your Google Sheet,<br><em>always up to date</em></p></div>
+
+<div class="karta"><p class="numer">4 — PULS ODŚWIEŻANIA</p><p class="opis">z lewej tętniąca kropka, z prawej trzy słupki lecące w kółko — „to się samo odświeża"</p>
+<p class="et w4"><em></em>WordPress plugin<span><i></i><i></i><i></i></span></p>
+<p class="tytul">Your Google Sheet,<br><em>always up to date</em></p></div>
+
+<div class="karta"><p class="numer">5 — PASEK FORMUŁY</p><p class="opis">z lewej „fx" jak w arkuszu, z prawej mrugający kursor w komórce</p>
+<p class="et w5"><i>fx</i><b>WordPress plugin</b><s></s></p>
+<p class="tytul">Your Google Sheet,<br><em>always up to date</em></p></div>
+
+<div class="karta"><p class="numer">6 — NAROŻNIKI</p><p class="opis">dwa rogi komórki zamiast całej ramki</p>
+<p class="et w6"><s></s>WordPress plugin<s></s></p>
+<p class="tytul">Your Google Sheet,<br><em>always up to date</em></p></div>
+
+</body></html>
