@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Inria+Serif:ital,wght@0,300;0,400;1,400&display=swap">
 
 <div class="lst-h-hero" id="lst-h-hero">
-	<div class="lst-h-boki" id="lst-h-boki" aria-hidden="true"><span class="lst-h-komorka-bok lst-h-bok-lewo" style="top:30%;--zwloka:0s;--daleko:5vw"><u>B4</u>&euro;1,240.00</span><span class="lst-h-komorka-bok lst-h-bok-lewo" style="top:48%;--zwloka:1.4s;--daleko:1vw"><u>C7</u><span id="lst-h-zmienna">In stock</span></span><span class="lst-h-komorka-bok lst-h-bok-lewo" style="top:66%;--zwloka:2.6s;--daleko:6vw"><u>D2</u>2026-03-12</span><span class="lst-h-komorka-bok lst-h-bok-prawo" style="top:27%;--zwloka:.8s;--daleko:2vw"><u>F9</u>&#9650; 3.2%</span><span class="lst-h-komorka-bok lst-h-bok-prawo" style="top:45%;--zwloka:2s;--daleko:6vw"><u>G3</u>Warsaw</span><span class="lst-h-komorka-bok lst-h-bok-prawo" style="top:63%;--zwloka:3.2s;--daleko:1vw"><u>H1</u>1,480 pcs</span></div>
+	<div class="lst-h-boki" id="lst-h-boki" aria-hidden="true"><span class="lst-h-komorka-bok lst-h-bok-lewo" style="top:30%;--zwloka:0s;--daleko:calc( ( 100vw - 1200px ) * .10 )"><u>B4</u><b data-warianty="€1,240.00|€1,318.40|€1,190.00|€1,402.75">€1,240.00</b></span><span class="lst-h-komorka-bok lst-h-bok-lewo" style="top:48%;--zwloka:1.4s;--daleko:calc( ( 100vw - 1200px ) * .02 )"><u>C7</u><b data-warianty="In stock|Sold out|In stock|Low: 3">In stock</b></span><span class="lst-h-komorka-bok lst-h-bok-lewo" style="top:66%;--zwloka:2.6s;--daleko:calc( ( 100vw - 1200px ) * .12 )"><u>D2</u><b data-warianty="2026-03-12|2026-03-19|2026-04-02|2026-04-16">2026-03-12</b></span><span class="lst-h-komorka-bok lst-h-bok-prawo" style="top:27%;--zwloka:.8s;--daleko:calc( ( 100vw - 1200px ) * .04 )"><u>F9</u><b data-warianty="&#9650; 3.2%|&#9660; 1.4%|&#9650; 0.8%|&#9650; 5.1%">&#9650; 3.2%</b></span><span class="lst-h-komorka-bok lst-h-bok-prawo" style="top:45%;--zwloka:2s;--daleko:calc( ( 100vw - 1200px ) * .12 )"><u>G3</u><b data-warianty="Warsaw|Kraków|Gdańsk|Poznań">Warsaw</b></span><span class="lst-h-komorka-bok lst-h-bok-prawo" style="top:63%;--zwloka:3.2s;--daleko:calc( ( 100vw - 1200px ) * .02 )"><u>H1</u><b data-warianty="1,480 pcs|1,512 pcs|1,396 pcs|1,604 pcs">1,480 pcs</b></span></div>
 
 	<span class="lst-h-luz lst-h-luz-gora" style="--waga:1" aria-hidden="true"></span>
 
@@ -105,7 +105,12 @@
 	font-family: var( --mono ); font-size: .875rem; color: var( --tekst-3 );
 	border: 1px solid var( --wlos-mocny ); padding: .5em .8em;
 	animation: unosi 9s ease-in-out infinite; animation-delay: var( --zwloka, 0s ); }
-.lst-h-komorka-bok u { text-decoration: none; color: rgba( 143, 165, 162, .5 ); margin-right: .7em; }
+/* Numer wiersza siedzi we własnej szynce, odkreślony od wartości — tak jak
+   w arkuszu, gdzie numery wierszy stoją w osobnej kolumnie po lewej. */
+.lst-h-komorka-bok u { text-decoration: none; color: rgba( 143, 165, 162, .45 ); min-width: 2.2em;
+	margin: -.5em .8em -.5em -.8em; padding: .5em .6em; text-align: right;
+	border-right: 1px solid var( --wlos-mocny ); }
+.lst-h-komorka-bok b { font-weight: 400; }
 .lst-h-bok-lewo { right: calc( 50% + 420px + var( --daleko, 0px ) ); }
 .lst-h-bok-prawo { left: calc( 50% + 420px + var( --daleko, 0px ) ); }
 .lst-h-komorka-bok.lst-h-swieci { border-color: rgba( var( --mieta ), .5 ); color: rgb( var( --mieta ) );
@@ -307,6 +312,9 @@
 .lst-h-hero .lst-h-guzik { font-family: inherit !important; color: #06100f !important; text-decoration: none !important; border: 0 !important; }
 .lst-h-hero .lst-h-link { font-family: inherit !important; text-decoration: none !important; border: 0 !important; }
 
+.lst-h-hero .lst-h-komorka-bok u { border-right: 1px solid var( --wlos-mocny ) !important;
+	border-top: 0 !important; border-bottom: 0 !important; border-left: 0 !important;
+	text-decoration: none !important; text-align: right !important; }
 .lst-h-hero .lst-h-komorka-bok { font-family: var( --mono ) !important; background-image: none !important;
 	border: 1px solid var( --wlos-mocny ) !important; border-radius: 0 !important; text-transform: none !important;
 	letter-spacing: normal !important; text-align: left !important; }
@@ -551,22 +559,31 @@
 		rysuj();
 	}
 
-	/* ---------------- jedna komórka co chwilę się odświeża ----------------
-	   Tyle mówi o wtyczce, ile cała linijka tekstu: wartość się zmienia sama. */
+	/* ---------------- komórki po bokach same się odświeżają ----------------
+	   Każda ma cztery wartości wpisane w znacznikowaniu (data-warianty), więc bez
+	   skryptu widać pierwszą z nich. Zmienia się po jednej na raz, po kolei — gdyby
+	   migotały wszystkie naraz, wyglądałoby to jak choinka, a nie jak arkusz, w
+	   którym co chwilę coś przychodzi. */
 
-	var zmienna = document.getElementById( 'lst-h-zmienna' );
+	var zmienne = [].slice.call( document.querySelectorAll( '.lst-h-komorka-bok [ data-warianty ]' ) );
 
-	if ( zmienna && ! spokoj.matches ) {
-		var stany = [ 'In stock', 'Sold out', 'In stock', 'Low: 3' ];
-		var ktory = 0;
-		var kratka = zmienna.closest( '.lst-h-komorka-bok' );
+	if ( zmienne.length && ! spokoj.matches ) {
+		var kolejka = zmienne.map( function ( el ) {
+			return { el: el, kratka: el.parentNode, stany: el.getAttribute( 'data-warianty' ).split( '|' ), ktory: 0 };
+		} );
+
+		var ktora = 0;
 
 		setInterval( function () {
-			ktory = ( ktory + 1 ) % stany.length;
-			zmienna.textContent = stany[ ktory ];
-			kratka.classList.add( 'lst-h-swieci' );
-			setTimeout( function () { kratka.classList.remove( 'lst-h-swieci' ); }, 220 );
-		}, 3600 );
+			var z = kolejka[ ktora ];
+
+			ktora = ( ktora + 1 ) % kolejka.length;
+			z.ktory = ( z.ktory + 1 ) % z.stany.length;
+			z.el.textContent = z.stany[ z.ktory ];
+
+			z.kratka.classList.add( 'lst-h-swieci' );
+			setTimeout( function () { z.kratka.classList.remove( 'lst-h-swieci' ); }, 240 );
+		}, 2200 );
 	}
 
 	/* ---------------- podpowiedź przewijania ---------------- */

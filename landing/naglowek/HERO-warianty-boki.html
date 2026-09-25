@@ -34,7 +34,8 @@ h1 em { font-style: italic; color: rgb( var( --mieta ) ); }
 /* ---------- A. pływające komórki z danymi ---------- */
 .a-kom { position: absolute; font-family: var( --mono ); font-size: 14px; color: var( --tekst-3 );
 	border: 1px solid var( --wlos ); padding: .5em .8em; white-space: nowrap; animation: unosi 9s ease-in-out infinite; }
-.a-kom u { text-decoration: none; color: rgba( 143, 165, 162, .5 ); margin-right: .7em; }
+.a-kom u { text-decoration: none; color: rgba( 143, 165, 162, .45 ); min-width: 2.2em; text-align: right;
+	margin: -.5em .8em -.5em -.8em; padding: .5em .6em; border-right: 1px solid var( --wlos ); }
 .a-kom.z { border-color: rgba( var( --mieta ), .45 ); color: rgb( var( --mieta ) ); }
 @keyframes unosi { 0%, 100% { transform: translateY( 0 ); } 50% { transform: translateY( -9px ); } }
 

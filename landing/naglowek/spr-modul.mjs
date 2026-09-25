@@ -123,6 +123,43 @@ console.log('\nmoduł nie wychodzi poza siebie');
   spr('żadna nie wystaje poza ekran', boki.poza === 0, `${boki.poza} poza ekranem`);
   spr('warstwa ukryta dla czytnika ekranu', boki.ukryte.every(x => x === 'true'), boki.ukryte.join(','));
 
+  // każda komórka ma cztery wartości i każda z nich musi się mieścić
+  const wariacje = await p.evaluate(async () => {
+    const pola = [...document.querySelectorAll('.lst-h-komorka-bok [data-warianty]')];
+    const stany = pola.map(e => e.getAttribute('data-warianty').split('|'));
+    const tekst = [...document.querySelectorAll('.lst-h-tytul, .lst-h-lead, .lst-h-akcje, .lst-h-nadpis, .lst-h-fakty, .lst-h-przewin')]
+      .map(e => { const rg = document.createRange(); rg.selectNodeContents(e); return rg.getBoundingClientRect(); });
+    const pierwotne = pola.map(e => e.textContent);
+    let zle = 0, poza = 0;
+    // sprawdzamy KAŻDĄ wartość, nie tylko tę startową
+    for (let k = 0; k < Math.max(...stany.map(s => s.length)); k++) {
+      pola.forEach((e, i) => { e.textContent = stany[i][k % stany[i].length]; });
+      await new Promise(r => requestAnimationFrame(r));
+      for (const e of pola) {
+        const r = e.closest('.lst-h-komorka-bok').getBoundingClientRect();
+        if (tekst.some(b => r.left < b.right && r.right > b.left && r.top < b.bottom && r.bottom > b.top)) zle++;
+        if (r.left < 0 || r.right > innerWidth) poza++;
+      }
+    }
+    pola.forEach((e, i) => { e.textContent = pierwotne[i]; });
+    return { ile: pola.length, poCztery: stany.every(s => s.length === 4), zle, poza,
+             powtorki: stany.filter(s => new Set(s).size < 2).length };
+  });
+  spr('każda komórka ma cztery wartości', wariacje.ile === 6 && wariacje.poCztery && wariacje.powtorki === 0,
+    `${wariacje.ile} komórek, po cztery: ${wariacje.poCztery}`);
+  spr('żadna z wartości nie wchodzi na tekst ani poza ekran', wariacje.zle === 0 && wariacje.poza === 0,
+    `zachodzi ${wariacje.zle}, poza ekranem ${wariacje.poza}`);
+
+  // i naprawdę się zmieniają same
+  const rusza = await p.evaluate(async () => {
+    const pola = [...document.querySelectorAll('.lst-h-komorka-bok [data-warianty]')];
+    const przed = pola.map(e => e.textContent);
+    await new Promise(r => setTimeout(r, 14000));
+    const po = pola.map(e => e.textContent);
+    return przed.filter((x, i) => x !== po[i]).length;
+  });
+  spr('w ciągu 14 s zmienia się co najmniej połowa komórek', rusza >= 3, `zmieniło się ${rusza} z 6`);
+
   const paralaksa = await p.evaluate(async () => {
     const r = document.querySelector('.lst-h-hero-rama');
     const przed = r.getBoundingClientRect().top;
