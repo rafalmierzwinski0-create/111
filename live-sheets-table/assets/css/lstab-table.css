@@ -1104,10 +1104,14 @@
 
 /*
  * The pinned column paints a backdrop of its own behind the first cell, and a
- * square one would fill in the corner the card just rounded. The heading's
- * backdrop is the card colour rather than nothing: a see-through one lets the
- * second column's heading slide underneath it the moment the table is dragged
- * sideways, which is the fault the note on --lstab-sticky-bg describes.
+ * square one would fill in the corner the card just rounded.
+ *
+ * Above the cards there is nothing to paint until there is: a lone tablet of
+ * card colour sitting behind the first column's name, on a page that shows
+ * between the cards, is a shape nobody asked for. It appears when the table is
+ * dragged sideways, which is when the second column's heading would otherwise
+ * slide underneath the first — the fault the note on --lstab-sticky-bg
+ * describes.
  */
 .lstab-style-cards.lstab-sticky-first .lstab-table tbody td:first-child::before,
 .lstab-style-cards.lstab-sticky-first .lstab-table thead th:first-child::before {
@@ -1116,6 +1120,11 @@
 }
 
 .lstab-style-cards.lstab-sticky-first .lstab-table thead th:first-child::before {
+	background-color: transparent;
+	transition: background-color 0.15s ease;
+}
+
+.lstab-style-cards.lstab-sticky-first.lstab-is-scrolled .lstab-table thead th:first-child::before {
 	background-color: var(--lstab-bg);
 }
 
