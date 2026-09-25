@@ -252,7 +252,37 @@ class LSTABP_Rules {
 			return 'color:' . $hex . ';';
 		}
 
-		return 'background-color:' . $hex . ';color:' . self::ink( $hex ) . ';';
+		$ink   = self::ink( $hex );
+		$paint = 'background-color:' . $hex . ';color:' . $ink . ';';
+
+		/*
+		 * On a phone the table becomes one card per row, and every value is
+		 * introduced by the name of its column. That name is deliberately
+		 * quieter than the value — a fixed muted colour, picked to stay
+		 * readable on the table's own paper. On a row this rule has just
+		 * painted it is not on that paper any more, and the pair can fall
+		 * under the readability bar. Restating the token here hands the label
+		 * a quieter shade of this rule's own ink instead.
+		 */
+		$paint .= '--lstab-fg-faint:color-mix(in srgb,' . $ink . ' 78%,' . $hex . ');';
+
+		if ( 'row' === $scope ) {
+			/*
+			 * A pinned first column paints its own opaque backdrop, over the
+			 * columns sliding past underneath it. That backdrop knows nothing
+			 * about this rule, so a coloured row used to arrive at the reader
+			 * with its first cell still wearing the table's own background —
+			 * the colour started at the second column.
+			 *
+			 * The stylesheet already repeats whatever "--lstab-row-tint" the
+			 * row is wearing on top of that backdrop; that is how stripes and
+			 * hover survive the pinning. A rule simply has to say what its
+			 * tint is.
+			 */
+			$paint .= '--lstab-row-tint:' . $hex . ';';
+		}
+
+		return $paint;
 	}
 
 	/**
