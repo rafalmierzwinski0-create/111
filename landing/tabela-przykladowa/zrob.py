@@ -8,6 +8,7 @@
 import html, pathlib
 
 CSS = pathlib.Path( '/home/user/111/live-sheets-table/assets/css/lstab-table.css' ).read_text()
+JS  = pathlib.Path( '/home/user/111/live-sheets-table/assets/js/lstab-table.js' ).read_text()
 
 NAGLOWKI = [ 'Session', 'Starts', 'Room', 'Seats left', 'Status' ]
 ROWNANIE = [ 'start', 'start', 'start', 'end', 'start' ]
@@ -53,13 +54,14 @@ def facet( nazwa, wartosci ):
 def tabela( ile = None, karty = False ):
 	wiersze = WIERSZE if ile is None else WIERSZE[ :ile ]
 
+	# Bez wpisanego z góry stanu sortowania: skrypt zaczyna od "nieposortowane",
+	# więc zaznaczona strzałka kłamałaby do pierwszego kliknięcia.
 	glowa = ''
 	for i, n in enumerate( NAGLOWKI ) :
-		sort = ' is-sorted is-asc' if 1 == i else ''
-		glowa += ( '<th scope="col" role="columnheader" data-lstab-col="%d" data-lstab-align="%s"%s>'
-			'<button type="button" class="lstab-sort%s"><span class="lstab-sort-label">%s</span>'
+		glowa += ( '<th scope="col" role="columnheader" data-lstab-col="%d" data-lstab-align="%s">'
+			'<button type="button" class="lstab-sort"><span class="lstab-sort-label">%s</span>'
 			'<span class="lstab-sort-icon" aria-hidden="true"></span></button></th>'
-			% ( i, ROWNANIE[ i ], ' aria-sort="ascending"' if 1 == i else '', sort, html.escape( n ) ) )
+			% ( i, ROWNANIE[ i ], html.escape( n ) ) )
 
 	cialo = ''
 	for w in wiersze:
@@ -89,7 +91,8 @@ def tabela( ile = None, karty = False ):
 		+ filtry +
 		'<div class="lstab-controls">'
 		'<label class="lstab-search"><input type="search" class="lstab-search-input" placeholder="Search&hellip;" value=""></label>'
-		'<span class="lstab-count">' + str( len( wiersze ) ) + ' of 8 rows</span></div>'
+		'<span class="lstab-count" data-lstab-count-template="%1$s of %2$s rows">'
+		+ str( len( wiersze ) ) + ' of ' + str( len( wiersze ) ) + ' rows</span></div>'
 		'<p class="lstab-caption">Programme &mdash; day one</p>'
 		'<div class="lstab-scroll" tabindex="0" role="region" aria-label="Table, scrollable sideways">'
 		'<table class="lstab-table" role="table"><thead role="rowgroup"><tr role="row">' + glowa + '</tr></thead>'
@@ -151,7 +154,9 @@ h1 { font-family: "Inria Serif", Georgia, serif; font-weight: 300; font-size: 44
 
 <p class="metka">W w&#261;skiej kolumnie &mdash; sk&#322;ada si&#281; w karty</p>
 <div class="waska">''' + tabela( ile = 3, karty = True ) + '''</div>
-</div></body></html>'''
+</div>
+<script>''' + JS + '''</script>
+</body></html>'''
 
 pathlib.Path( 'tabela-ladna.html' ).write_text( strona )
 print( 'ok', len( strona ) )
