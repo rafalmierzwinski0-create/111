@@ -1553,6 +1553,39 @@
 
 /* ------------------------------------------------------------- export, print */
 
+/*
+ * A rule wearing the "pill" look: the value becomes a badge rather than the
+ * cell becoming a block of colour. Drawn here rather than in the inline style
+ * the cell carries, because the shape belongs to the value inside the cell and
+ * an inline style cannot reach a child — the cell only hands down the colours,
+ * as custom properties.
+ *
+ * Presentation only: the text itself is untouched, so sorting, searching and a
+ * download still see the value exactly as the sheet spells it.
+ *
+ * ".lstabp-pill-face" is the same badge worn by the swatch on the rules screen,
+ * so what somebody picks is what they get.
+ */
+.lstabp-pill .lstab-cell-value,
+.lstabp-pill-face {
+	display: inline-block;
+	padding: 0.24em 0.85em;
+	border: 1px solid var(--lstabp-pill-line, currentColor);
+	border-radius: 999px;
+	background-color: var(--lstabp-pill-fill, transparent);
+	color: var(--lstabp-pill-ink, inherit);
+	font-size: 0.86em;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	line-height: 1.35;
+	white-space: nowrap;
+}
+
+/* A pill in a column that lines up on the right keeps to its own edge. */
+.lstab-table td[data-lstab-align="end"].lstabp-pill {
+	text-align: right;
+}
+
 .lstabp-export {
 	display: flex;
 	gap: 0.5em;

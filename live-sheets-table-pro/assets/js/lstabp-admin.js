@@ -217,6 +217,14 @@
 			return 'color:' + style + ';';
 		}
 
+		if ( where && 'pill' === where.value ) {
+			// The same three properties the server writes; the shape itself
+			// comes from the class the swatch is given below.
+			return '--lstabp-pill-line:' + style + ';'
+				+ '--lstabp-pill-fill:color-mix(in srgb,' + style + ' 18%,transparent);'
+				+ '--lstabp-pill-ink:color-mix(in srgb,' + style + ' 55%,currentColor);';
+		}
+
 		return 'background-color:' + style + ';color:' + ink( style ) + ';';
 	}
 
@@ -238,6 +246,11 @@
 		// Written as a whole rather than tweaked property by property, so a
 		// look that sets no background clears the previous one's.
 		swatch.setAttribute( 'style', chosen ? cssFor( chosen.value, line ) : '' );
+
+		// The pill is a shape as well as a colour, and a shape is a class.
+		var where = line ? line.querySelector( 'select[name*="[scope]"]' ) : null;
+
+		swatch.classList.toggle( 'lstabp-pill-face', !! ( where && 'pill' === where.value ) );
 
 		/*
 		 * The wheel wears the colour it stands for once one has been picked,

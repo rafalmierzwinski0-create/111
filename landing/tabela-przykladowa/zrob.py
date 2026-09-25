@@ -11,19 +11,27 @@ CSS = pathlib.Path( '/home/user/111/live-sheets-table/assets/css/lstab-table.css
 
 NAGLOWKI = [ 'Session', 'Starts', 'Room', 'Seats left', 'Status' ]
 ROWNANIE = [ 'start', 'start', 'start', 'end', 'start' ]
+# Jeden temat i zwykłe nazwy: jednodniowa konferencja o robieniu stron.
 WIERSZE = [
-	[ 'Opening keynote: the web we keep',         '09:30', 'Main hall', '120', 'Open'     ],
-	[ 'Designing tables people actually read',    '10:45', 'Studio',    '18',  'Waitlist' ],
-	[ 'Ship it Friday: release habits that hold', '11:30', 'Hall B',    '64',  'Open'     ],
-	[ 'Workshop: a spreadsheet as your backend',  '13:00', 'Studio',    '0',   'Full'     ],
-	[ 'Accessibility clinic: bring your page',    '15:15', 'Hall B',    '7',   'Waitlist' ],
-	[ 'Fifteen years of WordPress, honestly',     '16:00', 'Main hall', '95',  'Open'     ],
-	[ 'Lightning talks: five minutes each',       '17:00', 'Studio',    '31',  'Open'     ],
-	[ 'Closing panel and prize draw',             '17:45', 'Main hall', '0',   'Full'     ],
+	[ 'Opening keynote',            '09:30', 'Main hall', '120', 'Open'     ],
+	[ 'Designing for readability',  '10:45', 'Studio',    '18',  'Waitlist' ],
+	[ 'Building faster websites',   '11:30', 'Hall B',    '64',  'Open'     ],
+	[ 'Working with spreadsheets',  '13:00', 'Studio',    '0',   'Full'     ],
+	[ 'Accessibility in practice',  '15:15', 'Hall B',    '7',   'Waitlist' ],
+	[ 'Rebuilding an online shop',  '16:00', 'Main hall', '95',  'Open'     ],
+	[ 'Lightning talks',            '17:00', 'Studio',    '31',  'Open'     ],
+	[ 'Closing panel',              '17:45', 'Main hall', '0',   'Full'     ],
 ]
 
 # Reguły kolorów z Pro: "gdy Status jest Full — pomaluj cały wiersz".
 # Wtyczka wypisuje je jako styl na wierszu: background-color + czytelny tusz.
+# Reguła z zakresem "pigułka": wartość staje się plakietką zamiast malować
+# komórkę. Wtyczka wypisuje trzy zmienne i klasę na komórce.
+PIGULKA = '#5fe3cf'
+STYL_PIGULKI = ( '--lstabp-pill-line:' + PIGULKA + ';'
+	'--lstabp-pill-fill:color-mix(in srgb,' + PIGULKA + ' 18%,transparent);'
+	'--lstabp-pill-ink:color-mix(in srgb,' + PIGULKA + ' 55%,currentColor);' )
+
 # Po poprawce reguła podaje też "--lstab-row-tint", dzięki czemu przypięta
 # pierwsza kolumna powtarza kolor zamiast zostać w barwie tabeli.
 REGULY = {
@@ -58,9 +66,13 @@ def tabela( ile = None, karty = False ):
 		styl = REGULY.get( w[ 4 ], '' )
 		cialo += '<tr role="row" class="lstab-row"' + ( ' style="' + styl + '"' if styl else '' ) + '>'
 		for i, k in enumerate( w ):
-			cialo += ( '<td role="cell" data-label="%s" data-lstab-align="%s">'
+			pigulka = ( 4 == i and 'Open' == k )
+			cialo += ( '<td role="cell" data-label="%s" data-lstab-align="%s"%s%s>'
 				'<span class="lstab-cell-label">%s</span><span class="lstab-cell-value">%s</span></td>'
-				% ( html.escape( NAGLOWKI[ i ] ), ROWNANIE[ i ], html.escape( NAGLOWKI[ i ] ), html.escape( k ) ) )
+				% ( html.escape( NAGLOWKI[ i ] ), ROWNANIE[ i ],
+					' class="lstab-ruled lstabp-pill"' if pigulka else '',
+					' style="' + STYL_PIGULKI + '"' if pigulka else '',
+					html.escape( NAGLOWKI[ i ] ), html.escape( k ) ) )
 		cialo += '</tr>'
 
 	filtry = ( '<div class="lstabp-facets"><span class="lstabp-facets-label">Show only:</span>'
@@ -131,7 +143,7 @@ h1 { font-family: "Inria Serif", Georgia, serif; font-weight: 300; font-size: 44
 .uwaga { font-size: 14px; color: #8fa5a2; margin: 12px 0 0; }
 </style></head><body><div class="owijka">
 <h1>The example table</h1>
-<p class="wstep">The same eight rows, set up the way the plugin lets you set them up: its own colours, rules that paint a row, filters your visitors can use, a pinned first column and downloads under the table.</p>
+<p class="wstep">The same eight rows, set up the way the plugin lets you set them up: its own colours, rules that paint a row or turn a value into a pill, filters your visitors can use, a pinned first column and downloads under the table.</p>
 
 <p class="metka">Na stronie</p>
 ''' + tabela() + '''

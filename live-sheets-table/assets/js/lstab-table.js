@@ -247,6 +247,24 @@
 	}
 
 	/**
+	 * Everything a row says, without the column names the cards show.
+	 *
+	 * @param {HTMLElement} row Table row.
+	 * @return {string} The row's values, separated by spaces.
+	 */
+	function rowText( row ) {
+		var values = row.querySelectorAll( '.lstab-cell-value' );
+
+		if ( ! values.length ) {
+			return row.textContent;
+		}
+
+		return Array.prototype.map.call( values, function ( value ) {
+			return value.textContent;
+		} ).join( ' ' );
+	}
+
+	/**
 	 * Cell text of a row, cached on the element.
 	 *
 	 * @param {HTMLElement} row   Table row.
@@ -825,7 +843,15 @@
 				// What is in the drawer is part of the row, so searching finds
 				// it. A search that missed the text it can see on screen —
 				// because the row happened to be open — would read as broken.
-				var haystack = row.textContent + ( detail ? ' ' + detail.textContent : '' );
+				//
+				// Built from the values rather than from the row's whole text:
+				// every cell also carries the name of its column, for the card
+				// layout to show, and that name is in the row whichever layout
+				// is on. Reading the row wholesale made a search for "status"
+				// or "price" match every single row — the table stayed as it
+				// was, nothing was marked, and the counter said everything
+				// still matched. It read as a broken search box.
+				var haystack = rowText( row ) + ( detail ? ' ' + detail.textContent : '' );
 				var match = ! term || haystack.toLowerCase().indexOf( term ) !== -1;
 
 				/*

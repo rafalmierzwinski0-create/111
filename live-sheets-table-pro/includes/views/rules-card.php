@@ -57,7 +57,7 @@ $lstabp_rows    = array_merge( $rules, array( $lstabp_blank ) );
 <div class="lstab-card lstabp-rules-card<?php echo $lstabp_waiting ? ' is-waiting' : ''; ?>">
 	<h2 class="lstab-card-title"><?php esc_html_e( 'Colour rules', 'live-sheets-table-pro' ); ?></h2>
 	<p class="lstab-help">
-		<?php esc_html_e( 'Colour a cell, or its whole row, according to the cell\'s value. Colours are worked out on the server, so they are already in the page a visitor receives.', 'live-sheets-table-pro' ); ?>
+		<?php esc_html_e( 'Colour a cell, its whole row or just its words according to the cell\'s value — or turn the value into a pill, which is what a status column usually wants. Colours are worked out on the server, so they are already in the page a visitor receives.', 'live-sheets-table-pro' ); ?>
 	</p>
 
 	<?php

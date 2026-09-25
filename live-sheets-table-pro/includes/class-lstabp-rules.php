@@ -52,6 +52,18 @@ class LSTABP_Rules {
 	protected $cells = array();
 
 	/**
+	 * Which cells wear their value as a pill.
+	 *
+	 * The look is a shape, not only a colour, so it cannot be said in the
+	 * inline style a cell carries: the shape belongs to the value inside the
+	 * cell, and an inline style cannot reach a child. The cell is given a
+	 * class instead, and the stylesheet draws the pill around the value.
+	 *
+	 * @var array<int,array<int,bool>>
+	 */
+	protected $pills = array();
+
+	/**
 	 * What each rendered row should look like, keyed by row position.
 	 *
 	 * @var array<int,string>
@@ -250,6 +262,24 @@ class LSTABP_Rules {
 
 		if ( 'text' === $scope ) {
 			return 'color:' . $hex . ';';
+		}
+
+		if ( 'pill' === $scope ) {
+			/*
+			 * A badge rather than a painted cell: an outline in the rule's
+			 * colour around the value, with a wash of the same colour behind
+			 * it. It is what a status column wants — "Open", "Sold out" —
+			 * where a filled cell would be a wall of colour.
+			 *
+			 * The ink is mixed with the table's own text colour rather than
+			 * being the rule's colour outright. The palette is pale, so a word
+			 * in it would be unreadable on white paper; mixing keeps the hue
+			 * and anchors the contrast to whatever the table is wearing, dark
+			 * skin or light.
+			 */
+			return '--lstabp-pill-line:' . $hex . ';'
+				. '--lstabp-pill-fill:color-mix(in srgb,' . $hex . ' 18%,transparent);'
+				. '--lstabp-pill-ink:color-mix(in srgb,' . $hex . ' 55%,currentColor);';
 		}
 
 		$ink   = self::ink( $hex );
@@ -602,7 +632,7 @@ class LSTABP_Rules {
 					isset( $rule['style'] ) ? $rule['style'] : '',
 					isset( $rule['custom'] ) ? $rule['custom'] : ''
 				),
-				'scope'    => ( isset( $rule['scope'] ) && in_array( $rule['scope'], array( 'row', 'text' ), true ) )
+				'scope'    => ( isset( $rule['scope'] ) && in_array( $rule['scope'], array( 'row', 'text', 'pill' ), true ) )
 					? $rule['scope']
 					: 'cell',
 			);
@@ -629,6 +659,7 @@ class LSTABP_Rules {
 	 */
 	public function capture( $rows, $headers, $source, $args ) {
 		$this->cells = array();
+		$this->pills = array();
 		$this->rows  = array();
 
 		$rules = self::for_source( isset( $source['id'] ) ? $source['id'] : 0 );
@@ -667,6 +698,10 @@ class LSTABP_Rules {
 				// has no cell of its own to colour.
 				if ( isset( $rendered[ $position ] ) ) {
 					$this->cells[ $row_index ][ $rendered[ $position ] ] = $css;
+
+					if ( 'pill' === $rule['scope'] ) {
+						$this->pills[ $row_index ][ $rendered[ $position ] ] = true;
+					}
 				}
 			}
 		}
@@ -717,7 +752,15 @@ class LSTABP_Rules {
 			return $attributes;
 		}
 
-		$attributes['class'] = trim( ( isset( $attributes['class'] ) ? $attributes['class'] . ' ' : '' ) . 'lstab-ruled' );
+		$lstabp_classes = isset( $attributes['class'] ) ? $attributes['class'] . ' ' : '';
+
+		$lstabp_classes .= 'lstab-ruled';
+
+		if ( isset( $this->pills[ $row_index ][ $col_index ] ) ) {
+			$lstabp_classes .= ' lstabp-pill';
+		}
+
+		$attributes['class'] = trim( $lstabp_classes );
 		$attributes['style'] = isset( $attributes['style'] ) ? $attributes['style'] . $css : $css;
 
 		return $attributes;

@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.30.0
+Stable tag: 3.31.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -180,6 +180,12 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.31.0 =
+* Added (Pro): a colour rule can turn the value into a pill — an outline in the rule's colour with a wash of it behind, around the value itself. It is the fourth option in the rule's own sentence, beside "that cell", "the whole row" and "just the words", and it is what a status column usually wants: "Open", "Sold out", "Most popular". The badge is drawn around the text and changes nothing about it, so sorting, searching and a download still read the value exactly as the sheet spells it.
+* Fixed (Pro): a rule that painted a row left the pinned first column unpainted. The pinned column paints its own backdrop, over the columns sliding past underneath, and that backdrop knew nothing about the rule — so a coloured row reached the reader with its colour starting at the second column.
+* Fixed (Pro): on a phone, where each row becomes a card, the name introducing every value kept a muted colour picked for the table's own paper. On a row a rule had just painted, that pair fell to 4.03 to 1, under the readability bar. A rule now hands the label a quieter shade of its own ink: 6.56 to 1 on the same row.
+* Fixed: searching matched every row whenever the term was the name of a column. Each cell carries the name of its column for the card layout to show, and the search read the row's text wholesale, names included — so "price" or "status" matched everything, nothing was marked, and the counter said the whole table still matched. The search now reads the values only.
 
 = 3.30.0 =
 * Added: turning a page no longer reloads the whole page, and neither does sorting a column or picking a filter. The new rows are fetched on their own and put in place of the old ones, so the reader keeps their position, the theme's header and images are not fetched a second time, and a slow host no longer means a blank screen between page two and page three. The address bar and the back button both keep working, and if anything at all is unavailable — an old browser, a login wall, an error page — the link is left alone and the browser follows it the ordinary way.
