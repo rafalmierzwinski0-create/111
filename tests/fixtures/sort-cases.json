@@ -1,0 +1,113 @@
+{
+	"_readme": "Shared by tests/sort-test.php and tests/sort-browser.mjs. One file, two readers, so the server and the browser cannot drift apart about what sorted means.",
+	"moments": [
+		{ "value": "15.01.2026",        "kind": "date",  "number": 20260115 },
+		{ "value": "03.02.2026",        "kind": "date",  "number": 20260203 },
+		{ "value": "1.1.2026",          "kind": "date",  "number": 20260101 },
+		{ "value": "31.12.2025",        "kind": "date",  "number": 20251231 },
+		{ "value": "29.02.2024",        "kind": "date",  "number": 20240229 },
+		{ "value": "15.01.2026 20:20",  "kind": "date",  "number": 20260115.847222 },
+		{ "value": "15.01.2026, 09:05", "kind": "date",  "number": 20260115.378472 },
+		{ "value": "15.01.2026 00:00",  "kind": "date",  "number": 20260115 },
+
+		{ "value": "00:00",             "kind": "clock", "number": 0 },
+		{ "value": "09:30",             "kind": "clock", "number": 570 },
+		{ "value": "9:30",              "kind": "clock", "number": 570 },
+		{ "value": "20:20",             "kind": "clock", "number": 1220 },
+		{ "value": "23:59",             "kind": "clock", "number": 1439 },
+		{ "value": "8:05:30",           "kind": "clock", "number": 485.5 },
+
+		{ "value": "9:30 am",           "kind": "clock", "number": 570 },
+		{ "value": "9:30am",            "kind": "clock", "number": 570 },
+		{ "value": "9:30 AM",           "kind": "clock", "number": 570 },
+		{ "value": "12:00 am",          "kind": "clock", "number": 0 },
+		{ "value": "12:59 am",          "kind": "clock", "number": 59 },
+		{ "value": "12:00 pm",          "kind": "clock", "number": 720 },
+		{ "value": "12:01 pm",          "kind": "clock", "number": 721 },
+		{ "value": "1:00 pm",           "kind": "clock", "number": 780 },
+		{ "value": "11:45 p.m.",        "kind": "clock", "number": 1425 },
+		{ "value": "5 pm",              "kind": "clock", "number": 1020 },
+		{ "value": "5PM",               "kind": "clock", "number": 1020 },
+		{ "value": "11.45 a.m.",        "kind": "clock", "number": 705 },
+
+		{ "value": "32.01.2026",        "kind": null },
+		{ "value": "15.13.2026",        "kind": null },
+		{ "value": "0.01.2026",         "kind": null },
+		{ "value": "15.01.26",          "kind": null },
+		{ "value": "2026-01-15",        "kind": null },
+		{ "value": "15/01/2026",        "kind": null },
+		{ "value": "15.01.2026 25:00",  "kind": null },
+		{ "value": "24:00",             "kind": null },
+		{ "value": "9:60",              "kind": null },
+		{ "value": "13:00 pm",          "kind": null },
+		{ "value": "0:30 am",           "kind": null },
+		{ "value": "1 215,50",          "kind": null },
+		{ "value": "Open",              "kind": null },
+		{ "value": "",                  "kind": null },
+		{ "value": "3.2%",              "kind": null },
+		{ "value": "2 h",               "kind": null }
+	],
+	"columns": [
+		{
+			"name": "24-hour times",
+			"values": [ "20:20", "09:30", "8:05", "23:59", "00:00" ],
+			"ascending": [ "00:00", "8:05", "09:30", "20:20", "23:59" ]
+		},
+		{
+			"name": "12-hour times",
+			"values": [ "9:30 am", "5:45 pm", "1:00 pm", "10:45 am", "12:15 am", "12:15 pm" ],
+			"ascending": [ "12:15 am", "9:30 am", "10:45 am", "12:15 pm", "1:00 pm", "5:45 pm" ]
+		},
+		{
+			"name": "both clocks in one column",
+			"values": [ "13:00", "9:30 am", "5 pm", "08:05" ],
+			"ascending": [ "08:05", "9:30 am", "13:00", "5 pm" ]
+		},
+		{
+			"name": "dates, day first",
+			"values": [ "15.01.2026", "03.02.2026", "31.12.2025", "1.1.2026", "29.02.2024" ],
+			"ascending": [ "29.02.2024", "31.12.2025", "1.1.2026", "15.01.2026", "03.02.2026" ]
+		},
+		{
+			"name": "dates that share a month",
+			"values": [ "28.01.2026", "03.01.2026", "15.01.2026", "01.01.2026" ],
+			"ascending": [ "01.01.2026", "03.01.2026", "15.01.2026", "28.01.2026" ]
+		},
+		{
+			"name": "dates carrying a time",
+			"values": [ "15.01.2026 20:20", "15.01.2026 09:05", "14.01.2026 23:59", "15.01.2026" ],
+			"ascending": [ "14.01.2026 23:59", "15.01.2026", "15.01.2026 09:05", "15.01.2026 20:20" ]
+		},
+		{
+			"name": "dates with a blank among them",
+			"values": [ "15.01.2026", "", "03.02.2026", "" ],
+			"ascending": [ "15.01.2026", "03.02.2026", "", "" ],
+			"descending": [ "03.02.2026", "15.01.2026", "", "" ]
+		},
+		{
+			"name": "numbers still sort as numbers",
+			"values": [ "1 215,50", "89,90", "4 315,20", "612,50", "29,00" ],
+			"ascending": [ "29,00", "89,90", "612,50", "1 215,50", "4 315,20" ]
+		},
+		{
+			"name": "percentages still sort as numbers",
+			"values": [ "3.2%", "-1.4%", "0.8%", "12%", "-0.5%" ],
+			"ascending": [ "-1.4%", "-0.5%", "0.8%", "3.2%", "12%" ]
+		},
+		{
+			"name": "a date among words comes before the words",
+			"values": [ "soon", "15.01.2026", "never" ],
+			"ascending": [ "15.01.2026", "never", "soon" ]
+		},
+		{
+			"name": "dates, then times, then the rest",
+			"values": [ "15.01.2026", "09:30", "03.02.2026", "TBA" ],
+			"ascending": [ "15.01.2026", "03.02.2026", "09:30", "TBA" ]
+		},
+		{
+			"name": "plain words",
+			"values": [ "Studio", "Hall B", "Main hall" ],
+			"ascending": [ "Hall B", "Main hall", "Studio" ]
+		}
+	]
+}

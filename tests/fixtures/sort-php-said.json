@@ -1,0 +1,122 @@
+{
+    "15.01.2026": {
+        "kind": "date",
+        "value": 20260115
+    },
+    "03.02.2026": {
+        "kind": "date",
+        "value": 20260203
+    },
+    "1.1.2026": {
+        "kind": "date",
+        "value": 20260101
+    },
+    "31.12.2025": {
+        "kind": "date",
+        "value": 20251231
+    },
+    "29.02.2024": {
+        "kind": "date",
+        "value": 20240229
+    },
+    "15.01.2026 20:20": {
+        "kind": "date",
+        "value": 20260115.847222
+    },
+    "15.01.2026, 09:05": {
+        "kind": "date",
+        "value": 20260115.378472
+    },
+    "15.01.2026 00:00": {
+        "kind": "date",
+        "value": 20260115
+    },
+    "00:00": {
+        "kind": "clock",
+        "value": 0
+    },
+    "09:30": {
+        "kind": "clock",
+        "value": 570
+    },
+    "9:30": {
+        "kind": "clock",
+        "value": 570
+    },
+    "20:20": {
+        "kind": "clock",
+        "value": 1220
+    },
+    "23:59": {
+        "kind": "clock",
+        "value": 1439
+    },
+    "8:05:30": {
+        "kind": "clock",
+        "value": 485.5
+    },
+    "9:30 am": {
+        "kind": "clock",
+        "value": 570
+    },
+    "9:30am": {
+        "kind": "clock",
+        "value": 570
+    },
+    "9:30 AM": {
+        "kind": "clock",
+        "value": 570
+    },
+    "12:00 am": {
+        "kind": "clock",
+        "value": 0
+    },
+    "12:59 am": {
+        "kind": "clock",
+        "value": 59
+    },
+    "12:00 pm": {
+        "kind": "clock",
+        "value": 720
+    },
+    "12:01 pm": {
+        "kind": "clock",
+        "value": 721
+    },
+    "1:00 pm": {
+        "kind": "clock",
+        "value": 780
+    },
+    "11:45 p.m.": {
+        "kind": "clock",
+        "value": 1425
+    },
+    "5 pm": {
+        "kind": "clock",
+        "value": 1020
+    },
+    "5PM": {
+        "kind": "clock",
+        "value": 1020
+    },
+    "11.45 a.m.": {
+        "kind": "clock",
+        "value": 705
+    },
+    "32.01.2026": null,
+    "15.13.2026": null,
+    "0.01.2026": null,
+    "15.01.26": null,
+    "2026-01-15": null,
+    "15/01/2026": null,
+    "15.01.2026 25:00": null,
+    "24:00": null,
+    "9:60": null,
+    "13:00 pm": null,
+    "0:30 am": null,
+    "1 215,50": null,
+    "Open": null,
+    "": null,
+    "3.2%": null,
+    "2 h": null
+}

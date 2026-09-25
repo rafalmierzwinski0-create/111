@@ -247,6 +247,109 @@
 	}
 
 	/**
+	 * A date or a time of day as one comparable number.
+	 *
+	 * The twin of LSTAB_Renderer::to_moment() in PHP, which sorts a table too
+	 * big to sort here. A visitor cannot tell which table is paged, so the two
+	 * must not disagree about what sorted means — every change to one belongs
+	 * in the other.
+	 *
+	 * Two kinds are recognised, and only two: a date written day first with a
+	 * four-digit year, and a time on either clock.
+	 *
+	 *   15.01.2026        15.01.2026 20:20
+	 *   09:30             20:20:15
+	 *   9:30 am           12 PM
+	 *
+	 * Nothing else is guessed at: "15.01.26" could be 2026 or 1926, and
+	 * "03/12" is two different days depending on who is reading. A wrong
+	 * order is worse than an alphabetical one, because it looks right.
+	 *
+	 * @param {string} value Cell text.
+	 * @return {{kind: string, value: number}|null} Kind and number, or null.
+	 */
+	function toMoment( value ) {
+		var text = String( value ).trim();
+
+		if ( ! text ) {
+			return null;
+		}
+
+		// 15.01.2026, and 15.01.2026 20:20 — day first, four-digit year.
+		var date = text.match( /^(\d{1,2})\.(\d{1,2})\.(\d{4})(?:[\s,]+(\d{1,2}):([0-5]\d)(?::([0-5]\d))?)?$/ );
+
+		if ( date ) {
+			var day = parseInt( date[ 1 ], 10 );
+			var month = parseInt( date[ 2 ], 10 );
+
+			if ( day < 1 || day > 31 || month < 1 || month > 12 ) {
+				return null;
+			}
+
+			var inside = 0;
+
+			if ( date[ 4 ] ) {
+				var dateHour = parseInt( date[ 4 ], 10 );
+
+				if ( dateHour > 23 ) {
+					return null;
+				}
+
+				inside = dateHour * 60 + parseInt( date[ 5 ], 10 ) + ( date[ 6 ] ? parseInt( date[ 6 ], 10 ) / 60 : 0 );
+			}
+
+			// A day is one step, so the time of day is the fraction inside it.
+			return {
+				kind: 'date',
+				value: parseInt( date[ 3 ], 10 ) * 10000 + month * 100 + day + inside / 1440
+			};
+		}
+
+		// 09:30, 20:20, 8:05:30 — the 24-hour clock.
+		var clock = text.match( /^(\d{1,2}):([0-5]\d)(?::([0-5]\d))?$/ );
+
+		if ( clock ) {
+			var hour = parseInt( clock[ 1 ], 10 );
+
+			if ( hour > 23 ) {
+				return null;
+			}
+
+			return {
+				kind: 'clock',
+				value: hour * 60 + parseInt( clock[ 2 ], 10 ) + ( clock[ 3 ] ? parseInt( clock[ 3 ], 10 ) / 60 : 0 )
+			};
+		}
+
+		// 9:30 am, 12:15 PM, 5 pm, 11.45 a.m. — the 12-hour clock.
+		var half = text.match( /^(\d{1,2})(?:[:.]([0-5]\d))?(?::([0-5]\d))?\s*([ap])\.?\s?m\.?$/i );
+
+		if ( half ) {
+			var twelve = parseInt( half[ 1 ], 10 );
+
+			if ( twelve < 1 || twelve > 12 ) {
+				return null;
+			}
+
+			/*
+			 * Midnight and noon are where every home-made clock parser goes
+			 * wrong: 12 am is the start of the day, not the middle of it, and
+			 * 12 pm is the middle, not the end. Twelve wraps to zero first,
+			 * and only then does the afternoon add its half a day.
+			 */
+			twelve = ( twelve % 12 ) + ( 'p' === half[ 4 ].toLowerCase() ? 12 : 0 );
+
+			return {
+				kind: 'clock',
+				value: twelve * 60 + ( half[ 2 ] ? parseInt( half[ 2 ], 10 ) : 0 )
+					+ ( half[ 3 ] ? parseInt( half[ 3 ], 10 ) / 60 : 0 )
+			};
+		}
+
+		return null;
+	}
+
+	/**
 	 * Everything a row says, without the column names the cards show.
 	 *
 	 * @param {HTMLElement} row Table row.
@@ -992,6 +1095,40 @@
 						}
 						if ( '' === right ) {
 							return -1;
+						}
+
+						/*
+						 * Dates and times before numbers, because a date read
+						 * as a number is a number: "15.01.2026" came out as
+						 * 15.01, so a column of dates sorted by the day of the
+						 * month. Both sides have to be the same kind: a date
+						 * is yyyymmdd and a time is minutes since midnight, so
+						 * comparing one against the other would be arithmetic
+						 * about nothing.
+						 */
+						var leftMoment = toMoment( left );
+						var rightMoment = toMoment( right );
+
+						if ( leftMoment || rightMoment ) {
+							/*
+							 * Ranked before they are compared: dates, then
+							 * times, then everything the parser did not
+							 * recognise. A date against a time has no sensible
+							 * answer, and a rule with no answer for some pairs
+							 * arranges the same rows differently here than it
+							 * does on the server. LSTAB_Renderer::moment_rank()
+							 * says the same thing in PHP.
+							 */
+							var leftRank = leftMoment ? ( 'date' === leftMoment.kind ? 0 : 1 ) : 2;
+							var rightRank = rightMoment ? ( 'date' === rightMoment.kind ? 0 : 1 ) : 2;
+
+							if ( leftRank !== rightRank ) {
+								return ( leftRank - rightRank ) * direction;
+							}
+
+							if ( leftMoment && rightMoment ) {
+								return ( leftMoment.value - rightMoment.value ) * direction;
+							}
 						}
 
 						var leftNumber = toNumber( left );

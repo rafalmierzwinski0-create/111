@@ -379,6 +379,7 @@ class LSTAB_Paging {
 		/*
 		 * Decided per pair, not per column, and deliberately the same rule the
 		 * browser applies to a table small enough to sort without reloading.
+		 * Dates and clock times first, then numbers, then text.
 		 * Judging the whole column first meant a single "brak" in a price list
 		 * turned every price into text, and 1 000 000 then sorted below 1 215
 		 * because "1" sorts below "2". A visitor cannot see which table is
@@ -402,6 +403,54 @@ class LSTAB_Paging {
 
 				if ( '' === $right ) {
 					return -1;
+				}
+
+				/*
+				 * Dates and times before numbers, because a date read as a
+				 * number is a number: "15.01.2026" came out as 15.01, so a
+				 * column of dates sorted by the day of the month.
+				 *
+				 * Both sides have to be the same kind of thing. A date is
+				 * yyyymmdd and a time is minutes since midnight, so comparing
+				 * one against the other would be arithmetic about nothing;
+				 * when a column holds both, the pair falls through to the
+				 * text comparison below, which at least is predictable.
+				 */
+				$left_moment  = LSTAB_Renderer::to_moment( $left );
+				$right_moment = LSTAB_Renderer::to_moment( $right );
+
+				if ( null !== $left_moment || null !== $right_moment ) {
+					/*
+					 * A column that holds dates and something else has to come
+					 * out the same here as it does in the browser, and "the
+					 * same" is only possible if the rule never asks about a
+					 * pair in isolation. Deciding by pair alone was enough
+					 * while everything was a number: two numbers compare, and
+					 * anything else is text. With two scales in play — a date
+					 * is yyyymmdd, a time is minutes since midnight — a date
+					 * against a time has no answer, and each side's sort then
+					 * reached a different arrangement from the same rows.
+					 *
+					 * So values are ranked before they are compared: dates,
+					 * then times, then everything the parser did not
+					 * recognise. Inside a rank the values compare properly.
+					 * A column of dates with one "TBA" in it comes out sorted,
+					 * with the "TBA" at the end — where a reader looks for it.
+					 */
+					$left_rank  = LSTAB_Renderer::moment_rank( $left_moment );
+					$right_rank = LSTAB_Renderer::moment_rank( $right_moment );
+
+					if ( $left_rank !== $right_rank ) {
+						return ( $left_rank < $right_rank ? -1 : 1 ) * $direction;
+					}
+
+					if ( null !== $left_moment && null !== $right_moment ) {
+						if ( $left_moment['value'] === $right_moment['value'] ) {
+							return 0;
+						}
+
+						return ( $left_moment['value'] < $right_moment['value'] ? -1 : 1 ) * $direction;
+					}
 				}
 
 				if ( LSTAB_Renderer::looks_numeric( $left ) && LSTAB_Renderer::looks_numeric( $right ) ) {

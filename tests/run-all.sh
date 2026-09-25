@@ -21,6 +21,17 @@ REPO="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 # Warnings WordPress itself raises because this sandbox cannot reach wordpress.org.
 NOISE='wordpress.org\|wp_version_check\|wp_update_plugins\|wp_update_themes'
 
+# Sorting first, and on its own: it needs no WordPress and no browser profile,
+# runs in a second, and a parser that reads a date wrongly makes every later
+# assertion about ordering meaningless. The PHP run also writes the file the
+# browser run compares itself against, so the order of these two matters.
+echo
+echo "=============================================="
+echo " Sorting — dates, clocks and numbers"
+echo "=============================================="
+php "$REPO/tests/sort-test.php"
+node "$REPO/tests/sort-browser.mjs"
+
 # A long-lived sandbox reaps idle background processes, so the servers built by
 # setup-env.sh are often gone by the time anybody runs this. Three whole runs
 # have failed that way, every one of them reported as a broken plugin. They are

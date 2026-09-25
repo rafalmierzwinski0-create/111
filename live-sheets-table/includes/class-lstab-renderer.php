@@ -844,6 +844,137 @@ class LSTAB_Renderer {
 	}
 
 	/**
+	 * A date or a time of day as one comparable number.
+	 *
+	 * Sorting used to read both through to_number(), which keeps only what
+	 * looks like one number: "15.01.2026" came out as 15.01, so a column of
+	 * dates sorted by the day of the month and every date in the same month
+	 * tied. Times were luckier by accident — "09:30" became 930 and "20:20"
+	 * became 2020, and hour × 100 + minute happens to rise with the clock —
+	 * but "9:30 am" and "5:45 pm" both lost their half of the day.
+	 *
+	 * Two kinds are recognised, and only two:
+	 *
+	 *   15.01.2026        a date, day first, four-digit year
+	 *   09:30, 20:20:15   a time on the 24-hour clock
+	 *   9:30 am, 12 PM    the same on the 12-hour clock
+	 *
+	 * A date may be followed by a time, and then carries it.
+	 *
+	 * Nothing else is guessed at. "15.01.26" could be 2026 or 1926; "03/12"
+	 * is the third of December to one reader and the twelfth of March to
+	 * another. A wrong order is worse than an alphabetical one, because it
+	 * looks right until somebody checks.
+	 *
+	 * The kind comes back with the number because the two scales have nothing
+	 * to do with each other: a date is yyyymmdd, a time is minutes since
+	 * midnight, and comparing one against the other would be nonsense. The
+	 * caller compares two values only when they are of the same kind.
+	 *
+	 * The browser does exactly this too, in lstab-table.js. A visitor cannot
+	 * tell which table is paged, so the two must not disagree about what
+	 * sorted means.
+	 *
+	 * @param string $value Cell value.
+	 * @return array{kind:string,value:float}|null
+	 */
+	public static function to_moment( $value ) {
+		$value = trim( (string) $value );
+
+		if ( '' === $value ) {
+			return null;
+		}
+
+		// 15.01.2026, and 15.01.2026 20:20 — day first, four-digit year.
+		if ( preg_match( '/^(\d{1,2})\.(\d{1,2})\.(\d{4})(?:[\s,]+(\d{1,2}):([0-5]\d)(?::([0-5]\d))?)?$/', $value, $found ) ) {
+			$day   = (int) $found[1];
+			$month = (int) $found[2];
+
+			if ( $day < 1 || $day > 31 || $month < 1 || $month > 12 ) {
+				return null;
+			}
+
+			$minutes = 0;
+
+			if ( isset( $found[4] ) && '' !== $found[4] ) {
+				$hour = (int) $found[4];
+
+				if ( $hour > 23 ) {
+					return null;
+				}
+
+				$minutes = $hour * 60 + (int) $found[5] + ( isset( $found[6] ) && '' !== $found[6] ? (int) $found[6] / 60 : 0 );
+			}
+
+			// A day is one step, so the time of day is the fraction inside it.
+			return array(
+				'kind'  => 'date',
+				'value' => (float) ( (int) $found[3] * 10000 + $month * 100 + $day ) + $minutes / 1440,
+			);
+		}
+
+		// 09:30, 20:20, 8:05:30 — the 24-hour clock.
+		if ( preg_match( '/^(\d{1,2}):([0-5]\d)(?::([0-5]\d))?$/', $value, $found ) ) {
+			$hour = (int) $found[1];
+
+			if ( $hour > 23 ) {
+				return null;
+			}
+
+			return array(
+				'kind'  => 'clock',
+				'value' => (float) ( $hour * 60 + (int) $found[2] ) + ( isset( $found[3] ) && '' !== $found[3] ? (int) $found[3] / 60 : 0 ),
+			);
+		}
+
+		// 9:30 am, 12:15 PM, 5 pm, 11.45 a.m. — the 12-hour clock.
+		if ( preg_match( '/^(\d{1,2})(?:[:.]([0-5]\d))?(?::([0-5]\d))?\s*([ap])\.?\s?m\.?$/i', $value, $found ) ) {
+			$hour = (int) $found[1];
+
+			if ( $hour < 1 || $hour > 12 ) {
+				return null;
+			}
+
+			/*
+			 * Midnight and noon are where every home-made clock parser goes
+			 * wrong: 12 am is the start of the day, not the middle of it, and
+			 * 12 pm is the middle, not the end. Twelve wraps to zero first,
+			 * and only then does the afternoon add its half a day.
+			 */
+			$hour = ( $hour % 12 ) + ( 'p' === strtolower( $found[4] ) ? 12 : 0 );
+
+			return array(
+				'kind'  => 'clock',
+				'value' => (float) ( $hour * 60 + ( isset( $found[2] ) && '' !== $found[2] ? (int) $found[2] : 0 ) )
+					+ ( isset( $found[3] ) && '' !== $found[3] ? (int) $found[3] / 60 : 0 ),
+			);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Where a value stands before its own kind is even looked at.
+	 *
+	 * Dates first, then times, then everything the parser did not recognise.
+	 * Sorting needs this because a date and a time cannot be compared — one is
+	 * yyyymmdd, the other minutes since midnight — and a rule that has no
+	 * answer for some pairs produces a different arrangement depending on which
+	 * pairs the sort happens to ask about. The browser sorts small tables and
+	 * the server sorts paged ones; they must not disagree.
+	 *
+	 * @param array{kind:string,value:float}|null $moment What to_moment() read.
+	 * @return int
+	 */
+	public static function moment_rank( $moment ) {
+		if ( null === $moment ) {
+			return 2;
+		}
+
+		return 'date' === $moment['kind'] ? 0 : 1;
+	}
+
+	/**
 	 * A spreadsheet-formatted number as a float.
 	 *
 	 * Handles a space or a full stop as the thousands separator and a comma or
