@@ -1,6 +1,8 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Inria+Serif:ital,wght@0,300;0,400;1,400&display=swap">
 
 <div class="lst-h-hero" id="lst-h-hero">
+	<span class="lst-h-luz" style="--waga:1" aria-hidden="true"></span>
+
 	<div class="lst-h-hero-rama">
 		<p class="lst-h-nadpis lst-h-wchodzi" style="--zwloka:.05s">WordPress plugin</p>
 		<h1 class="lst-h-tytul" id="lst-h-tytul">
@@ -12,6 +14,8 @@
 		<p class="lst-h-akcje lst-h-wchodzi" style="--zwloka:2.05s"><a class="lst-h-guzik" href="#">Download free</a><a class="lst-h-link" href="#">See how it works</a></p>
 		<p class="lst-h-fakty lst-h-wchodzi" style="--zwloka:2.15s"><span>no API key</span><span>no row limit</span><span>no account with us</span></p>
 	</div>
+
+	<span class="lst-h-luz" style="--waga:2.5" aria-hidden="true"></span>
 
 	<p class="lst-h-przewin lst-h-wchodzi" style="--zwloka:2.4s" id="lst-h-przewin">scroll<span class="lst-h-przewin-tor"></span></p>
 </div>
@@ -56,8 +60,18 @@
 	flex-direction: column;
 }
 
-/* "margin: auto" centruje ramę i w poziomie, i w pionie — cała wolna wysokość rozkłada się nad nią i pod nią po równo. */
-.lst-h-hero-rama { position: relative; z-index: 2; will-change: transform, opacity; width: 100%; max-width: 1240px; margin: auto; padding-inline: max( 16px, 4% ); }
+.lst-h-hero-rama { position: relative; z-index: 2; will-change: transform, opacity; width: 100%; max-width: 1240px; margin: 0 auto; padding-inline: max( 16px, 4% ); }
+
+/*
+ * Dwie puste przekładki dzielą wolną wysokość: jedna część nad treścią, dwie i
+ * pół pod nią. Dzięki temu napis stoi wyraźnie wyżej niż na środku — tuż pod
+ * menu — a "scroll" i tak zostaje na spodzie. Na niskim ekranie wolnej
+ * wysokości nie ma, więc przekładki same schodzą do zera.
+ */
+.lst-h-luz { flex: var( --waga, 1 ) 0 0; min-height: 0; pointer-events: none; }
+/* Górna przekładka ma twardy sufit, więc na dużym ekranie napis nie odpływa
+   od menu — wolna wysokość rośnie wtedy tylko pod treścią. */
+.lst-h-hero > .lst-h-luz:first-child { max-height: clamp( 14px, 3.2vh, 38px ); }
 
 /* ---------- tło: przezroczyste ---------- */
 
