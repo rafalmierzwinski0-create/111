@@ -99,7 +99,7 @@ lstabp_assert( function_exists( 'lstabp' ), 'Pro plugin loaded' );
 lstabp_assert( LSTAB_Limits::is_pro(), 'The tier is Pro' );
 lstabp_assert( LSTAB_Limits::max_sources() > 3, 'The source limit is lifted', (string) LSTAB_Limits::max_sources() );
 lstabp_assert( 60 === LSTAB_Limits::min_interval(), 'One minute syncing is unlocked', (string) LSTAB_Limits::min_interval() );
-lstabp_assert( 5 === count( LSTAB_Styles::available() ), 'Premium presets are available', (string) count( LSTAB_Styles::available() ) );
+lstabp_assert( 9 === count( LSTAB_Styles::available() ), 'Premium presets are available', (string) count( LSTAB_Styles::available() ) );
 lstabp_assert( 'midnight' === LSTAB_Styles::sanitize( 'midnight' ), 'A premium preset renders under Pro' );
 
 // ---------------------------------------------------------------------------

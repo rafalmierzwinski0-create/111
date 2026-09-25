@@ -5,3 +5,8 @@ node_modules/
 # Pages the test suites build to run in a browser, and what they captured.
 build/*.html
 build/*.png
+
+# What tests/skins-test.php published on the local site, for the browser run to
+# open: real URLs and real row ids from whichever site it ran against, so it
+# belongs to that run rather than to the repository.
+tests/fixtures/skins-php-said.json

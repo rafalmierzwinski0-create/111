@@ -1142,7 +1142,7 @@ lstab_assert( LSTAB_Limits::is_pro(), 'lstab_is_pro filter flips the tier' );
 lstab_assert( 25 === LSTAB_Limits::max_sources(), 'lstab_max_sources filter lifts the source cap' );
 lstab_assert( LSTAB_Limits::can_add_source(), 'More sources allowed under Pro' );
 lstab_assert( isset( LSTAB_Limits::intervals()[60] ), 'One minute interval unlocked under Pro' );
-lstab_assert( 5 === count( LSTAB_Styles::available() ), 'Premium presets unlocked under Pro', (string) count( LSTAB_Styles::available() ) );
+lstab_assert( 9 === count( LSTAB_Styles::available() ), 'Premium presets unlocked under Pro', (string) count( LSTAB_Styles::available() ) );
 lstab_assert( 'lstab_1min' === LSTAB_Cron::required_schedule() || 'lstab_15min' === LSTAB_Cron::required_schedule(), 'Cron recurrence follows the fastest source' );
 
 // Conditional formatting hook (a Pro feature) can colour a cell.

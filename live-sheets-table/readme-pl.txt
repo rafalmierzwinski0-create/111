@@ -168,6 +168,12 @@ Tak. Wszystko z arkusza jest escapowane przy wyjściu, więc komórka zawierają
 
 Pełna historia wydań znajduje się w pliku readme.txt.
 
+= 3.31.0 =
+* Nowość (Pro): cztery szablony całej tabeli — Karty, Terminal, Szkło i Kontrast — obok Nocnego i Redakcyjnego. Karty dają każdemu wierszowi osobną kartę, a między nimi widać stronę; Terminal to pismo maszynowe i cienkie miętowe linie na prawie czarnym tle; Szkło to matowy panel, przez który widać zdjęcie albo gradient pod spodem; Kontrast to pełny pasek nagłówków nad spokojną tabelą i mocniejsza pierwsza kolumna. Pro ma teraz sześć szablonów, a wersja darmowa dalej swoje trzy.
+* Nowość: „Linie” to osobne ustawienie, obok „Wysokości wiersza”, działające na każdym szablonie: pełna siatka, tylko linie między wierszami albo nic. To ustawienie, a nie szablon, więc działa tak samo na wszystkich dziewięciu — łącznie ze zdjęciem siatki z szablonu Ramki, który jako jedyny przychodzi z nią z pudełka.
+* Poprawka: linia między wierszami nie była malowana pod przypiętą pierwszą kolumną. Przypięta kolumna maluje własne, nieprzezroczyste tło nad tym, co jest pod nią, a linia wiersza była pod nią. Teraz to tło kończy się o grubość linii wyżej.
+* Poprawka: drobny druk szablonu Redakcyjnego — nazwa przedstawiająca każdą wartość na telefonie — miał 3,66 do 1 względem papieru, poniżej progu czytelności. Ma 5,01. To ta sama poprawka, którą darmowe szablony dostały w 3.28.0, zastosowana do jedynego, który został pominięty.
+
 = 3.28.0 =
 * Poprawka: suwak pod szeroką tabelą znów był gołą kreską leżącą na wierszach. Dwie usterki, jeden objaw. To, czy suwak unosi się nad danymi, było liczone względem dolnej krawędzi okna — a to zakłada, że przewija się sama strona. Na opublikowanej stronie prawda; w podglądzie w kokpicie nie, bo tabela siedzi tam w pudełku, które przewija się wewnątrz okna i nigdy nie dojeżdża do jego dołu. Do tego decyzja czekała na pierwsze przewinięcie, więc tabela, która już przy wczytaniu leżała pod suwakiem, dostawała gołą kreskę, dopóki ktoś nie ruszył strony. Teraz suwak pyta wprost wierszy — dopóki choć kawałek tabeli jest poniżej jego górnej krawędzi, leży na danych i ubiera się w tło — i pyta o to w chwili, w której się pojawia.
 * Zmiana (Pro): „Pobieranie i drukowanie” jest w zakładce Ogólne. Było w Wyglądzie, bo to przyciski, które widzi odwiedzający — ale nikt nie szuka odpowiedzi na „czy ludzie mogą to pobrać?” pod tym, jak tabela jest pokolorowana. Ogólne były też jedyną zakładką, na której dodatek nie mógł umieścić niczego; teraz przyjmuje karty jak dwie pozostałe.

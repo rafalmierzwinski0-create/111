@@ -44,6 +44,26 @@ class LSTAB_Styles {
 				'description' => __( 'Serif headings and very thin lines, in the manner of a printed table.', 'live-sheets-table' ),
 				'pro'         => true,
 			),
+			'cards'     => array(
+				'label'       => __( 'Cards', 'live-sheets-table' ),
+				'description' => __( 'Every row its own card, with the page showing between them. A list of things rather than a spreadsheet.', 'live-sheets-table' ),
+				'pro'         => true,
+			),
+			'terminal'  => array(
+				'label'       => __( 'Terminal', 'live-sheets-table' ),
+				'description' => __( 'Typewriter lettering and thin mint lines on near-black. Figures line up of their own accord.', 'live-sheets-table' ),
+				'pro'         => true,
+			),
+			'glass'     => array(
+				'label'       => __( 'Glass', 'live-sheets-table' ),
+				'description' => __( 'A frosted panel that lets what is behind it show through. Needs a photograph or a gradient underneath to mean anything.', 'live-sheets-table' ),
+				'pro'         => true,
+			),
+			'contrast'  => array(
+				'label'       => __( 'Contrast', 'live-sheets-table' ),
+				'description' => __( 'A solid heading bar over a plain table, and a first column with some weight to it.', 'live-sheets-table' ),
+				'pro'         => true,
+			),
 		);
 
 		/**

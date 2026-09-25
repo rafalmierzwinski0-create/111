@@ -139,6 +139,20 @@ if [ -f "$SCRATCH/wp71/wp-content/debug.log" ] && grep -v "$NOISE" "$SCRATCH/wp7
 fi
 echo "  PHP notices raised by the Pro add-on: none"
 
+echo
+echo "=============================================="
+echo " Whole-table skins, and the dials on top of them"
+echo "=============================================="
+# Nine skins, each drawn three ways, on real pages of the real site: the PHP run
+# publishes them and writes down what it published, the browser run opens those
+# pages and measures what a visitor would see. The skins are premium, so this
+# belongs here, while the add-on is still active.
+php "$REPO/tests/skins-test.php" "$SCRATCH/wp71"
+node "$REPO/tests/skins-browser.mjs"
+# The pages have to go again: a page naming a source id is exactly what the
+# end-to-end suite asks about when it checks that an unused table is unused.
+php "$REPO/tests/harness/drop-skins.php" "$SCRATCH/wp71"
+
 # The free plugin's own suite asserts the free tier, so Pro must be off for it.
 php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php
 

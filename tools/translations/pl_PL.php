@@ -145,7 +145,14 @@ return array(
 	'Background'                                 => 'Tło',
 	'Header text'                                => 'Tekst nagłówka',
 	'Header background'                          => 'Tło nagłówka',
+	'Line colour'                                => 'Kolor linii',
+	'Between rows and around cells'              => 'Między wierszami i wokół komórek',
 	'Lines'                                      => 'Linie',
+	'Between the rows, and down between the columns'
+		=> 'Między wierszami i w pionie między kolumnami',
+	'Full grid'                                  => 'Pełna siatka',
+	'Rows only'                                  => 'Tylko wiersze',
+	'No lines'                                   => 'Bez linii',
 	'Striped rows'                               => 'Naprzemienne wiersze',
 	'Row hover'                                  => 'Wiersz pod kursorem',
 	'Accent'                                     => 'Akcent',
@@ -186,6 +193,18 @@ return array(
 	'Editorial'                                  => 'Redakcyjny',
 	'Serif headings and very thin lines, in the manner of a printed table.'
 		=> 'Szeryfowe nagłówki i bardzo cienkie linie, jak w tabeli drukowanej.',
+	'Cards'                                      => 'Karty',
+	'Every row its own card, with the page showing between them. A list of things rather than a spreadsheet.'
+		=> 'Każdy wiersz jako osobna karta, a między nimi widać stronę. Lista rzeczy, a nie arkusz.',
+	'Terminal'                                   => 'Terminal',
+	'Typewriter lettering and thin mint lines on near-black. Figures line up of their own accord.'
+		=> 'Pismo maszynowe i cienkie miętowe linie na prawie czarnym tle. Cyfry same ustawiają się w kolumnę.',
+	'Glass'                                      => 'Szkło',
+	'A frosted panel that lets what is behind it show through. Needs a photograph or a gradient underneath to mean anything.'
+		=> 'Matowy panel, przez który widać to, co jest pod nim. Ma sens tylko na zdjęciu albo gradiencie.',
+	'Contrast'                                   => 'Kontrast',
+	'A solid heading bar over a plain table, and a first column with some weight to it.'
+		=> 'Pełny pasek nagłówków nad spokojną tabelą i mocniejsza pierwsza kolumna.',
 
 	// Usage panel.
 	'Put it on a page'                           => 'Umieść na stronie',

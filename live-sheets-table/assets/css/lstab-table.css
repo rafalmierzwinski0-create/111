@@ -81,7 +81,7 @@
 	--lstab-sticky: sticky;
 	--lstab-sticky-max: min( 38cqi, 22rem );
 	--lstab-row-gap: 0;
-	--lstab-row-border-width: 0 0 1px 0;
+	--lstab-row-border-width: 0 0 var(--lstab-row-line) 0;
 	--lstab-row-last-bottom: 0;
 	--lstab-row-radius: 0;
 	--lstab-cell-border: 0;
@@ -93,6 +93,28 @@
 	--lstab-slider-display: block;
 	--lstab-frame-border: 1px solid var(--lstab-border);
 	--lstab-frame-shadow: var(--lstab-shadow);
+
+	/*
+	 * The two lines the "Lines" setting moves: one between rows, one down
+	 * between columns. They are lengths rather than a whole border so a preset
+	 * and a setting can disagree about the thickness without either of them
+	 * having to know the colour.
+	 */
+	--lstab-row-line: 1px;
+	--lstab-col-line: 0px;
+
+	/*
+	 * 1 while the rows are a real table, 0 once they have folded into cards.
+	 *
+	 * Anything that only means something in a grid multiplies itself by this.
+	 * The switches above are set by the container queries at the foot of the
+	 * file, and an author's own choice of lines is an inline custom property,
+	 * which beats a container query — so a table asked for a full grid would
+	 * otherwise draw a vertical rule down the middle of every phone-sized
+	 * card. A factor cannot be overridden that way: the card layout sets it to
+	 * 0 and the multiplication is what decides.
+	 */
+	--lstab-table-mode: 1;
 
 	/*
 	 * The page's ink, not the table's. The frame below takes the table's, and
@@ -192,11 +214,14 @@
 	border-radius: var(--lstab-radius);
 	box-shadow: var(--lstab-frame-shadow);
 	background:
-		linear-gradient(to right, var(--lstab-bg) 30%, var(--lstab-bg-fade)) left center,
-		linear-gradient(to left, var(--lstab-bg) 30%, var(--lstab-bg-fade)) right center,
+		linear-gradient(to right, var(--lstab-paper, var(--lstab-bg)) 30%, var(--lstab-bg-fade)) left center,
+		linear-gradient(to left, var(--lstab-paper, var(--lstab-bg)) 30%, var(--lstab-bg-fade)) right center,
 		radial-gradient(farthest-side at 0 50%, var(--lstab-edge-shadow), transparent) left center,
 		radial-gradient(farthest-side at 100% 50%, var(--lstab-edge-shadow), transparent) right center;
-	background-color: var(--lstab-bg);
+	/* Its own token rather than the table's colour, so a skin whose rows are
+	   separate cards can hand the paper back to the page and keep the rows
+	   painted. Everything else leaves it unset and gets the table's colour. */
+	background-color: var(--lstab-paper, var(--lstab-bg));
 	background-repeat: no-repeat;
 	background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
 	background-attachment: local, local, scroll, scroll;
@@ -302,6 +327,24 @@
 
 .lstab-table tbody tr:last-child {
 	border-bottom-width: var(--lstab-row-last-bottom);
+}
+
+/*
+ * Lines down between the columns. Off by default; the Bordered preset and the
+ * "Full grid" setting are what turn them on.
+ *
+ * The width is multiplied by the table-mode factor because a card is not a
+ * grid: on a phone every value sits on its own line, and a vertical rule there
+ * would run down the side of the card for no reason. See --lstab-table-mode.
+ */
+.lstab-table thead th,
+.lstab-table tbody td {
+	border-right: calc(var(--lstab-col-line) * var(--lstab-table-mode)) solid var(--lstab-border);
+}
+
+.lstab-table thead th:last-child,
+.lstab-table tbody td:last-child {
+	border-right-width: 0;
 }
 
 .lstab-table tbody tr:hover {
@@ -489,6 +532,25 @@
 	pointer-events: none;
 	background-color: var(--lstab-sticky-bg, var(--lstab-bg));
 	background-image: linear-gradient( var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent) );
+}
+
+/*
+ * The backdrop stops one line short of the bottom, because it is opaque and
+ * the line between rows has to get past it.
+ *
+ * A pinned column is put on a layer of its own, and on a 2× screen that layer
+ * is rounded to whole device pixels. The row's line can land inside it, at
+ * which point the backdrop paints over the line and the table's rows are
+ * separated everywhere except the first column — which is the column a reader
+ * looks at first. It depends on the fractional height a row happens to have,
+ * so it shows on some tables and not others, and it is measured on every skin
+ * by tests/skins-browser.mjs.
+ *
+ * What is given up is a sliver one pixel high at the foot of the pinned cell,
+ * which is where the line is anyway.
+ */
+.lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child::before {
+	bottom: var(--lstab-row-line);
 }
 
 .lstab-sticky-first .lstab-table thead th:first-child::before {
@@ -789,18 +851,12 @@
 	background-color: var(--lstab-hover);
 }
 
+/* Bordered is the full grid, said in the same token the "Lines" setting uses —
+   so the setting can take the vertical lines off this preset, and put them on
+   any other. */
 .lstab-style-bordered {
 	--lstab-head-bg: #f7f9fa;
-}
-
-.lstab-style-bordered .lstab-table th,
-.lstab-style-bordered .lstab-table td {
-	border-right: 1px solid var(--lstab-border);
-}
-
-.lstab-style-bordered .lstab-table th:last-child,
-.lstab-style-bordered .lstab-table td:last-child {
-	border-right: 0;
+	--lstab-col-line: 1px;
 }
 
 .lstab-style-midnight {
@@ -842,7 +898,10 @@
 .lstab-style-editorial {
 	--lstab-fg: #23201b;
 	--lstab-fg-muted: #6b6459;
-	--lstab-fg-faint: #8a8377;
+	/* 5.01 to 1 on this skin's paper. It was #8a8377, which is 3.66 — and on a
+	   phone this colour is on the label naming every value, so it is content
+	   rather than decoration. Found by tests/skins-browser.mjs. */
+	--lstab-fg-faint: #736d61;
 	--lstab-bg: #fdfcf9;
 	--lstab-border: #ddd6c9;
 	--lstab-border-strong: #23201b;
@@ -874,9 +933,10 @@
 	box-shadow: inset 0 -2px 0 var(--lstab-border-strong);
 }
 
-/* A rule under the last row closes the block, the way a printed table does. */
+/* A rule under the last row closes the block, the way a printed table does —
+   unless the author has asked for no lines at all, which this follows. */
 .lstab-style-editorial .lstab-table tbody tr:last-child {
-	border-bottom-width: 1px;
+	border-bottom-width: var(--lstab-row-line);
 	border-bottom-color: var(--lstab-border-strong);
 }
 
@@ -903,7 +963,9 @@
  */
 .lstab-style-clean,
 .lstab-style-striped,
-.lstab-style-bordered {
+.lstab-style-bordered,
+.lstab-style-cards,
+.lstab-style-contrast {
 	--lstab-fg: light-dark(#1c2024, #e8eef4);
 	--lstab-fg-muted: light-dark(#61696f, #a3b0bd);
 	--lstab-fg-faint: light-dark(#6b747b, #95a1ae);
@@ -929,6 +991,295 @@
 	--lstab-head-bg: light-dark(#f7f9fa, #171e27);
 }
 
+/* ------------------------------------------------- whole-table skins (Pro) */
+
+/*
+ * Cards — every row its own card, with the page showing between them.
+ *
+ * All four of these were wrong in the first draft, and every one of them
+ * showed:
+ *
+ *  - The frame. A list of cards has no outer box: the cards are the boxes. A
+ *    border was being drawn around a set of borders.
+ *  - The line under the headings. Clearing `border-bottom` was not enough —
+ *    the heading row paints an inset shadow as well, and that is what survived
+ *    and drew a hairline across the top of the list.
+ *  - The corners. Chromium ignores `border-radius` on a table row, so rounding
+ *    the row rounded nothing and its shadow stayed a rectangle with four square
+ *    corners sticking out past the cells. The card is drawn by the cells here,
+ *    all four sides of it, which is the only thing that does round.
+ *  - The gaps. `border-spacing` puts its gap around every row, the first and the
+ *    last included, so the list sat one gap low with a hole underneath it.
+ *    Pulling the scrolling box up by one gap takes those two edges back and
+ *    leaves the gaps between cards alone.
+ */
+.lstab-style-cards {
+	/* The page shows between the cards, so the frame paints nothing at all.
+	   The cards keep --lstab-bg, which is what the Background colour edits. */
+	--lstab-paper: transparent;
+	--lstab-bg-fade: transparent;
+	--lstab-edge-shadow: transparent;
+	--lstab-frame-border: 0;
+	--lstab-frame-shadow: none;
+	--lstab-radius: 14px;
+	--lstab-card-gap: 10px;
+	/* A card wants a little more room than a row in a list does. Said in the
+	   token the Row height setting moves, so the setting still decides. */
+	--lstab-pad-y: 0.95em;
+	/* Room inside the box that clips the sideways scroll for the cards' own
+	   shadow, which would otherwise be cut off square at both edges. */
+	--lstab-card-bleed: 8px;
+	/*
+	 * Every length in the shadow is a multiple of this, and it is zero once the
+	 * rows have folded into cards of their own on a phone — a shadow of all
+	 * zeros paints nothing, which is how a shadow gets to be conditional.
+	 */
+	--lstab-card-lift: calc(1px * var(--lstab-table-mode));
+}
+
+.lstab-style-cards .lstab-scroll {
+	padding-inline: calc(var(--lstab-card-bleed) * var(--lstab-table-mode));
+	margin-inline: calc(-1 * var(--lstab-card-bleed) * var(--lstab-table-mode));
+	margin-block: calc(-1 * var(--lstab-card-gap) * var(--lstab-table-mode));
+}
+
+.lstab-style-cards .lstab-table {
+	border-collapse: separate;
+	border-spacing: 0 var(--lstab-card-gap);
+}
+
+.lstab-style-cards .lstab-table thead th {
+	background-color: transparent;
+	border-bottom: 0;
+	box-shadow: none;
+	padding-bottom: 0.35em;
+	color: var(--lstab-fg-faint);
+}
+
+/*
+ * The row keeps no colour of its own: a row background is a rectangle painted
+ * behind the cells, and it would show at all four rounded corners. Its tint
+ * goes on the cells instead — which is what --lstab-row-tint is for, and why
+ * hover and a colour rule still reach a card. The !important is aimed at a
+ * rule's inline background-color, the one thing a class cannot outrank.
+ */
+.lstab-style-cards .lstab-table tbody tr {
+	background-color: transparent !important;
+}
+
+.lstab-style-cards .lstab-table tbody td {
+	background-color: var(--lstab-bg);
+	background-image: linear-gradient(var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent));
+	/*
+	 * The card's outline, drawn by its cells — and drawn with the same line the
+	 * "Lines" setting moves, so "no lines" leaves a card held by its shadow
+	 * alone rather than quietly ignoring what was asked for.
+	 *
+	 * Only the bottom line is unconditional: on a phone the row wears a frame
+	 * of its own and every value sits on its own line, so the bottom line is
+	 * the separator between two values there, which is exactly what the stock
+	 * card layout draws. A top line, a side and a rounded corner would all be
+	 * drawing the card a second time. Hence the factor on the rest; see
+	 * --lstab-table-mode.
+	 */
+	border-top: calc(var(--lstab-row-line) * var(--lstab-table-mode)) solid var(--lstab-border);
+	border-bottom: var(--lstab-row-line) solid var(--lstab-border);
+	box-shadow:
+		0 var(--lstab-card-lift) calc(2 * var(--lstab-card-lift)) calc(-1 * var(--lstab-card-lift)) var(--lstab-shadow-near),
+		0 calc(6 * var(--lstab-card-lift)) calc(16 * var(--lstab-card-lift)) calc(-10 * var(--lstab-card-lift)) var(--lstab-shadow-far);
+}
+
+.lstab-style-cards .lstab-table tbody td:first-child {
+	border-left: calc(var(--lstab-row-line) * var(--lstab-table-mode)) solid var(--lstab-border);
+	border-start-start-radius: calc(var(--lstab-radius) * var(--lstab-table-mode));
+	border-end-start-radius: calc(var(--lstab-radius) * var(--lstab-table-mode));
+	font-weight: 600;
+}
+
+.lstab-style-cards .lstab-table tbody td:last-child {
+	border-right: calc(var(--lstab-row-line) * var(--lstab-table-mode)) solid var(--lstab-border);
+	border-start-end-radius: calc(var(--lstab-radius) * var(--lstab-table-mode));
+	border-end-end-radius: calc(var(--lstab-radius) * var(--lstab-table-mode));
+}
+
+/*
+ * The pinned column paints a backdrop of its own behind the first cell, and a
+ * square one would fill in the corner the card just rounded. The heading's
+ * backdrop is the card colour rather than nothing: a see-through one lets the
+ * second column's heading slide underneath it the moment the table is dragged
+ * sideways, which is the fault the note on --lstab-sticky-bg describes.
+ */
+.lstab-style-cards.lstab-sticky-first .lstab-table tbody td:first-child::before,
+.lstab-style-cards.lstab-sticky-first .lstab-table thead th:first-child::before {
+	border-start-start-radius: var(--lstab-radius);
+	border-end-start-radius: var(--lstab-radius);
+}
+
+.lstab-style-cards.lstab-sticky-first .lstab-table thead th:first-child::before {
+	background-color: var(--lstab-bg);
+}
+
+/*
+ * Terminal — everything in one width of letter, thin mint lines on near-black.
+ * Figures line up in a column without being asked to.
+ */
+.lstab-style-terminal {
+	--lstab-fg: #d7f5ee;
+	--lstab-fg-muted: #93bdb5;
+	--lstab-fg-faint: #85afa8;
+	--lstab-bg: #0b1110;
+	--lstab-head-bg: #0b1110;
+	--lstab-head-fg: #5fe3cf;
+	--lstab-border: #1b2b28;
+	--lstab-border-strong: #2f4a46;
+	--lstab-stripe: #0e1615;
+	--lstab-hover: #142421;
+	--lstab-accent: #5fe3cf;
+	--lstab-sticky-bg: #0b1110;
+	--lstab-radius: 4px;
+	--lstab-hit-bg: #17514a;
+	--lstab-hit-fg: #e7fffa;
+	--lstab-hit-edge: rgba(95, 227, 207, 0.45);
+	--lstab-shadow-near: rgba(0, 0, 0, 0.4);
+	--lstab-shadow-far: rgba(0, 0, 0, 0.5);
+	--lstab-bg-fade: rgba(11, 17, 16, 0);
+	--lstab-edge-shadow: rgba(0, 0, 0, 0.55);
+	--lstab-notice-bg: #2a2113;
+	--lstab-notice-fg: #fbd9a5;
+	font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.lstab-style-terminal .lstab-table thead th {
+	letter-spacing: 0.12em;
+}
+
+/*
+ * The line between rows is the ordinary one, in this skin's dim mint.
+ *
+ * It was dashed to begin with, and dashes do not survive the pinned first
+ * column: a dashed collapsed border is dropped underneath that column on a 2×
+ * screen, and painting the dashes as the cell's own background does not reach
+ * the page at all, because the pinned column paints a backdrop of its own over
+ * whatever the cell drew. A solid collapsed border is painted by the table
+ * rather than by the cell, which is why every other skin's line is fine, and
+ * why this one now uses it too. The skin keeps its character in the lettering
+ * and the mint, which cost nothing to be sure of.
+ */
+.lstab-style-terminal .lstab-table tbody tr {
+	border-bottom-color: #22362f;
+}
+
+/*
+ * Glass — a frosted panel with whatever is behind it showing through.
+ *
+ * It only means anything on top of a photograph or a gradient, and its
+ * description says so: on flat paper it is a dark table that happens to blur
+ * nothing.
+ *
+ * The panel is a dark scrim rather than the white veil it started as, and that
+ * is a readability decision rather than a taste one. A skin cannot know what
+ * photograph it will be laid over, so it has to be legible over the worst case,
+ * and the worst case for pale ink is a pale backdrop. At 66 per cent this panel
+ * is dark enough that white ink clears 4.5 to 1 even with nothing behind it but
+ * white paper, and every photograph darker than that only helps. The white veil
+ * managed 3.5 to 1 over the pink end of its own demonstration gradient.
+ *
+ * For the same reason the heading bar and the hover darken rather than lighten:
+ * a lighter row is a lighter paper, and pale ink has nowhere to go from there.
+ */
+.lstab-style-glass {
+	--lstab-fg: #fff;
+	--lstab-fg-muted: rgba(255, 255, 255, 0.9);
+	/* 4.75 to 1 against the panel over white; better over anything else. */
+	--lstab-fg-faint: rgba(255, 255, 255, 0.86);
+	--lstab-bg: rgba(18, 24, 32, 0.66);
+	--lstab-head-bg: rgba(0, 0, 0, 0.12);
+	--lstab-head-fg: rgba(255, 255, 255, 0.92);
+	--lstab-border: rgba(255, 255, 255, 0.22);
+	--lstab-border-strong: rgba(255, 255, 255, 0.42);
+	--lstab-stripe: rgba(255, 255, 255, 0.06);
+	--lstab-hover: rgba(0, 0, 0, 0.16);
+	--lstab-accent: #fff;
+	/* The pinned column has to be solid enough to hide what slides under it,
+	   which the panel's own two thirds cannot quite manage. */
+	--lstab-sticky-bg: rgba(14, 20, 27, 0.88);
+	--lstab-radius: 16px;
+	/* A near-white flag with dark ink on it: the one place in this skin where
+	   the colours turn over, because a search hit has to shout. */
+	--lstab-hit-bg: rgba(255, 255, 255, 0.86);
+	--lstab-hit-fg: #101418;
+	--lstab-hit-edge: rgba(255, 255, 255, 0.55);
+	--lstab-bg-fade: rgba(18, 24, 32, 0);
+	--lstab-edge-shadow: rgba(0, 0, 0, 0.35);
+	--lstab-frame-shadow: 0 10px 40px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.lstab-style-glass .lstab-scroll {
+	backdrop-filter: blur(14px);
+	-webkit-backdrop-filter: blur(14px);
+}
+
+/*
+ * The pinned column's backdrop has to be solid, and a solid band down a frosted
+ * panel is a black stripe across the one skin whose whole point is that it is
+ * see-through. It is only doing anything once the table has actually been
+ * dragged sideways, so that is when it appears: at rest the panel is a panel,
+ * and the moment anything is sliding underneath the first column it has
+ * something to hide behind.
+ */
+.lstab-style-glass .lstab-table tbody tr:not(.lstab-detail) > td:first-child::before,
+.lstab-style-glass .lstab-table thead th:first-child::before {
+	background-color: transparent;
+	transition: background-color 0.15s ease;
+}
+
+.lstab-style-glass.lstab-is-scrolled .lstab-table tbody tr:not(.lstab-detail) > td:first-child::before,
+.lstab-style-glass.lstab-is-scrolled .lstab-table thead th:first-child::before {
+	background-color: var(--lstab-sticky-bg);
+}
+
+/*
+ * The panel is already tinted, and a row tinted the same again is twice as
+ * opaque as the skin intends. The rows go clear and take their hover — and a
+ * colour rule's row tint — as a layer on top, the same way the cards do.
+ */
+.lstab-style-glass .lstab-table tbody tr {
+	background-color: transparent;
+	background-image: linear-gradient(var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent));
+}
+
+/*
+ * Contrast — a solid heading bar over a plain table, and a first column with
+ * some weight to it. The bar is the inverse of the table rather than a fixed
+ * colour, so it stays a contrast on a dark page instead of vanishing into it.
+ */
+.lstab-style-contrast {
+	--lstab-radius: 12px;
+	--lstab-head-bg: light-dark(#14201f, #e7efee);
+	--lstab-head-fg: light-dark(#eaf3f1, #14201f);
+	/* The first column's shading, mixed from the heading bar rather than picked
+	   on its own, so a heading colour chosen by hand takes the column with it. */
+	--lstab-stripe: color-mix(in srgb, var(--lstab-head-bg) 8%, var(--lstab-bg));
+}
+
+.lstab-style-contrast .lstab-table thead th {
+	border-bottom: 0;
+	box-shadow: none;
+	padding-block: calc(var(--lstab-pad-y) * 1.3);
+	letter-spacing: 0.1em;
+}
+
+/*
+ * The first column carries the stripe colour, and the row's tint over the top
+ * of it — without that second layer the shaded column would be the one place
+ * on the table where hover and a colour rule do not show.
+ */
+.lstab-style-contrast .lstab-table tbody td:first-child {
+	font-weight: 600;
+	background-color: var(--lstab-stripe);
+	background-image: linear-gradient(var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent));
+}
+
 /* --------------------------------------------------- stacked "card" layout */
 
 /*
@@ -951,6 +1302,7 @@
 		--lstab-row-last-bottom: 1px;
 		--lstab-row-radius: var(--lstab-radius);
 		--lstab-cell-border: 1px solid var(--lstab-border);
+		--lstab-table-mode: 0;
 		--lstab-cell-align: left;
 		--lstab-align-end: left;
 		--lstab-cell-max: none;
@@ -978,6 +1330,7 @@
 		--lstab-row-last-bottom: 1px;
 		--lstab-row-radius: var(--lstab-radius);
 		--lstab-cell-border: 1px solid var(--lstab-border);
+		--lstab-table-mode: 0;
 		--lstab-cell-align: left;
 		--lstab-align-end: left;
 		--lstab-cell-max: none;
@@ -1004,6 +1357,7 @@
 		--lstab-row-last-bottom: 1px;
 		--lstab-row-radius: var(--lstab-radius);
 		--lstab-cell-border: 1px solid var(--lstab-border);
+		--lstab-table-mode: 0;
 		--lstab-cell-align: left;
 		--lstab-align-end: left;
 		--lstab-cell-max: none;
@@ -1030,6 +1384,7 @@
 		--lstab-row-last-bottom: 1px;
 		--lstab-row-radius: var(--lstab-radius);
 		--lstab-cell-border: 1px solid var(--lstab-border);
+		--lstab-table-mode: 0;
 		--lstab-cell-align: left;
 		--lstab-align-end: left;
 		--lstab-cell-max: none;
@@ -1056,6 +1411,7 @@
 		--lstab-row-last-bottom: 1px;
 		--lstab-row-radius: var(--lstab-radius);
 		--lstab-cell-border: 1px solid var(--lstab-border);
+		--lstab-table-mode: 0;
 		--lstab-cell-align: left;
 		--lstab-align-end: left;
 		--lstab-cell-max: none;
@@ -1096,6 +1452,7 @@
 	--lstab-row-last-bottom: 0;
 	--lstab-row-radius: 0;
 	--lstab-cell-border: 0;
+	--lstab-table-mode: 1;
 	--lstab-cell-align: inherit;
 	--lstab-align-end: right;
 	--lstab-cell-max: 22rem;
@@ -1118,6 +1475,7 @@
 	--lstab-row-last-bottom: 1px;
 	--lstab-row-radius: var(--lstab-radius);
 	--lstab-cell-border: 1px solid var(--lstab-border);
+	--lstab-table-mode: 0;
 	--lstab-cell-align: left;
 	--lstab-align-end: left;
 	--lstab-cell-max: none;
@@ -1180,6 +1538,7 @@
 			--lstab-row-last-bottom: 1px;
 			--lstab-row-radius: var(--lstab-radius);
 			--lstab-cell-border: 1px solid var(--lstab-border);
+			--lstab-table-mode: 0;
 			--lstab-cell-align: left;
 			--lstab-align-end: left;
 			--lstab-cell-max: none;

@@ -55,7 +55,7 @@ class LSTAB_Customizer {
 					'var'   => '--lstab-head-bg',
 				),
 				'border'     => array(
-					'label' => __( 'Lines', 'live-sheets-table' ),
+					'label' => __( 'Line colour', 'live-sheets-table' ),
 					'note'  => __( 'Between rows and around cells', 'live-sheets-table' ),
 					'var'   => '--lstab-border',
 				),
@@ -131,6 +131,32 @@ class LSTAB_Customizer {
 						'roomy'   => array(
 							'--lstab-pad-y' => '1.05em',
 							'--lstab-pad-x' => '1.2em',
+						),
+					),
+				),
+				'lines'    => array(
+					'label'   => __( 'Lines', 'live-sheets-table' ),
+					'note'    => __( 'Between the rows, and down between the columns', 'live-sheets-table' ),
+					'choices' => array(
+						'grid'   => __( 'Full grid', 'live-sheets-table' ),
+						'normal' => __( 'Rows only', 'live-sheets-table' ),
+						'none'   => __( 'No lines', 'live-sheets-table' ),
+					),
+					/*
+					 * Lengths, not whole borders, so this says nothing about the
+					 * colour: Line colour above stays in charge of that whichever
+					 * choice is made here. A table folded into cards on a phone
+					 * ignores both — see --lstab-table-mode in the stylesheet.
+					 */
+					'vars'    => array(
+						'grid'   => array(
+							'--lstab-row-line' => '1px',
+							'--lstab-col-line' => '1px',
+						),
+						'normal' => array(),
+						'none'   => array(
+							'--lstab-row-line' => '0px',
+							'--lstab-col-line' => '0px',
 						),
 					),
 				),

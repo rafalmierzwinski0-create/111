@@ -87,7 +87,7 @@ Paste your link and the dashboard shows you exactly what it read — headings, r
 
 = What Pro adds =
 
-Live Sheets Table Pro adds unlimited sheet sources, syncing as often as every minute, hiding columns and rows by clicking them in a picture of your own sheet, moving columns into an expandable panel under each row, conditional cell colouring, fixed filtered views, filters your visitors can use themselves, Excel, CSV and print export for visitors, two premium presets, private sheets through an authenticated Google connection, a multi-site licence and priority support.
+Live Sheets Table Pro adds unlimited sheet sources, syncing as often as every minute, hiding columns and rows by clicking them in a picture of your own sheet, moving columns into an expandable panel under each row, conditional cell colouring, fixed filtered views, filters your visitors can use themselves, Excel, CSV and print export for visitors, six premium presets, private sheets through an authenticated Google connection, a multi-site licence and priority support.
 
 = Privacy =
 
@@ -148,7 +148,7 @@ Columns are matched by position, so inserting one in Google shifts the settings.
 
 = Can I change how the table looks? =
 
-Pick one of three presets, then fine-tune it: the source screen has colour pickers for text, background, headings, lines, striped rows, hover and accent, plus text size, row height and corner rounding. Anything you leave alone keeps following the preset, so changing one colour does not mean defining all of them.
+Pick one of three presets, then fine-tune it: the source screen has colour pickers for text, background, headings, lines, striped rows, hover and accent, plus text size, row height, lines and corner rounding. Anything you leave alone keeps following the preset, so changing one colour does not mean defining all of them — and a preset is a starting point, not a package: every setting you touch overrules it and every setting you do not keeps following it.
 
 Every value is a CSS custom property on `.lstab`, so a theme stylesheet can override the same things. Extra presets are a Pro feature.
 
@@ -182,6 +182,10 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 == Changelog ==
 
 = 3.31.0 =
+* Added (Pro): four whole-table styles — Cards, Terminal, Glass and Contrast — beside Midnight and Editorial. Cards gives every row its own card with the page showing between them; Terminal is typewriter lettering and thin mint lines on near-black; Glass is a frosted panel that lets a photograph or a gradient show through; Contrast is a solid heading bar over a plain table with a stronger first column. Pro now has six styles and the free plugin keeps its three.
+* Added: "Lines" is a setting of its own, beside "Row height", on every style: a full grid, lines between rows only, or none at all. It is a setting rather than a style, so it works the same way on all nine — including taking the grid off Bordered, which is the one style that comes with one.
+* Fixed: the line between rows was not painted under the pinned first column on some tables. The pinned column paints an opaque backdrop of its own over whatever is underneath it, and the row's line was underneath it. The backdrop now stops one line short of the bottom of the cell.
+* Fixed: the Editorial style's small print — the name introducing every value on a phone — was 3.66 to 1 against its paper, under the readability bar. It is 5.01 now, which is the same fix the free styles had in 3.28.0, applied to the one style that was missed.
 * Added (Pro): a column can be given a look of its own, on the Appearance tab. A column of numbers can carry a bar behind each value, as long as the value is large — a column of figures becomes a chart without stopping being a column of figures. A column of web addresses can become a column of buttons, in a background colour and a text colour you choose, saying what you tell it to say. Only a cell that really holds an address becomes one: a note or a blank in the same column is left alone, because a button that goes nowhere is worse than the note it replaced.
 * Added (Pro): every choice on the Appearance tab now shows itself in the preview as it is made, with nothing saved first. Colour rules already did; the filter columns and the new column looks now do too, so choosing a bar, a button or a filter is answered by the table beside it rather than by a save and a look at the page.
 * Added (Pro): a colour rule can put a dot before the value instead of colouring anything — the quietest of the looks, for a status column where even a pill is more than the page wants.

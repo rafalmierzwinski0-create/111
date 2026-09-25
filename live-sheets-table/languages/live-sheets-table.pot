@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
-"POT-Creation-Date: 2026-09-17 15:00+0000\n"
+"POT-Creation-Date: 2026-09-25 23:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -162,8 +162,16 @@ msgstr ""
 msgid "A dark table with high contrast."
 msgstr ""
 
+#: includes/class-lstab-styles.php:59
+msgid "A frosted panel that lets what is behind it show through. Needs a photograph or a gradient underneath to mean anything."
+msgstr ""
+
 #: includes/class-lstab-styles.php:34
 msgid "A full grid with a shaded heading row. Suits dense columns of numbers."
+msgstr ""
+
+#: includes/class-lstab-styles.php:64
+msgid "A solid heading bar over a plain table, and a first column with some weight to it."
 msgstr ""
 
 #: includes/views/edit-page.php:366
@@ -284,6 +292,10 @@ msgstr ""
 msgid "Between rows and around cells"
 msgstr ""
 
+#: includes/class-lstab-customizer.php:139
+msgid "Between the rows, and down between the columns"
+msgstr ""
+
 #: includes/views/edit-page.php:371
 msgid "Blocks at every width, including wide screens. Suits profiles and listings rather than figures to compare."
 msgstr ""
@@ -313,11 +325,15 @@ msgstr ""
 msgid "Caption"
 msgstr ""
 
+#: includes/class-lstab-styles.php:48
+msgid "Cards"
+msgstr ""
+
 #: includes/views/edit-page.php:365
 msgid "Cards when it stops fitting"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:141
+#: includes/class-lstab-customizer.php:167
 msgid "Centred"
 msgstr ""
 
@@ -397,6 +413,10 @@ msgstr ""
 msgid "Compare Free and Pro"
 msgstr ""
 
+#: includes/class-lstab-styles.php:63
+msgid "Contrast"
+msgstr ""
+
 #: includes/class-lstab-admin.php:268
 msgid "Copied"
 msgstr ""
@@ -406,7 +426,7 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:167
+#: includes/class-lstab-customizer.php:193
 msgid "Corners"
 msgstr ""
 
@@ -498,6 +518,10 @@ msgstr ""
 msgid "Every minute"
 msgstr ""
 
+#: includes/class-lstab-styles.php:49
+msgid "Every row its own card, with the page showing between them. A list of things rather than a spreadsheet."
+msgstr ""
+
 #: includes/views/edit-page.php:753
 msgid "Exactly what the plugin read from your sheet. Check the headings and a few rows before saving."
 msgstr ""
@@ -536,6 +560,10 @@ msgstr ""
 msgid "Full check, wash and lubrication"
 msgstr ""
 
+#: includes/class-lstab-customizer.php:141
+msgid "Full grid"
+msgstr ""
+
 #: includes/views/edit-page.php:761
 msgid "Full width"
 msgstr ""
@@ -546,6 +574,10 @@ msgstr ""
 
 #: includes/views/edit-page.php:79
 msgid "General"
+msgstr ""
+
+#: includes/class-lstab-styles.php:58
+msgid "Glass"
 msgstr ""
 
 #: includes/class-lstab-elementor.php:49
@@ -731,7 +763,7 @@ msgstr ""
 msgid "Layout"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:140
+#: includes/class-lstab-customizer.php:166
 msgid "Left"
 msgstr ""
 
@@ -745,6 +777,10 @@ msgid "Line %1$d is no longer “%2$s”, so that row is back on the page. Rows 
 msgstr ""
 
 #: includes/class-lstab-customizer.php:58
+msgid "Line colour"
+msgstr ""
+
+#: includes/class-lstab-customizer.php:138
 msgid "Lines"
 msgstr ""
 
@@ -819,6 +855,10 @@ msgstr ""
 
 #: includes/class-lstab-renderer.php:737 includes/class-lstab-renderer.php:740
 msgid "Next"
+msgstr ""
+
+#: includes/class-lstab-customizer.php:143
+msgid "No lines"
 msgstr ""
 
 #: includes/class-lstab-example.php:102
@@ -916,7 +956,7 @@ msgstr ""
 msgid "Page %1$s of %2$s"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:138
+#: includes/class-lstab-customizer.php:164
 msgid "Page buttons"
 msgstr ""
 
@@ -1045,7 +1085,7 @@ msgstr ""
 msgid "Reset everything to the chosen style"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:142
+#: includes/class-lstab-customizer.php:168
 msgid "Right"
 msgstr ""
 
@@ -1053,7 +1093,7 @@ msgstr ""
 msgid "Roomy"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:170
+#: includes/class-lstab-customizer.php:196
 msgid "Rounded"
 msgstr ""
 
@@ -1075,6 +1115,10 @@ msgstr ""
 
 #: includes/views/edit-page.php:472
 msgid "Rows on each page"
+msgstr ""
+
+#: includes/class-lstab-customizer.php:142
+msgid "Rows only"
 msgstr ""
 
 #: includes/class-lstab-locale.php:65
@@ -1289,7 +1333,7 @@ msgstr ""
 msgid "Split the table into pages"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:169
+#: includes/class-lstab-customizer.php:195
 msgid "Square"
 msgstr ""
 
@@ -1349,6 +1393,10 @@ msgstr ""
 
 #: includes/class-lstab-renderer.php:432
 msgid "Table, scrollable sideways"
+msgstr ""
+
+#: includes/class-lstab-styles.php:53
+msgid "Terminal"
 msgstr ""
 
 #: includes/class-lstab-customizer.php:42
@@ -1511,6 +1559,10 @@ msgstr ""
 msgid "Turn off sorting by column"
 msgstr ""
 
+#: includes/class-lstab-styles.php:54
+msgid "Typewriter lettering and thin mint lines on near-black. Figures line up of their own accord."
+msgstr ""
+
 #: includes/class-lstab-example.php:94
 msgid "Unavailable"
 msgstr ""
@@ -1559,7 +1611,7 @@ msgstr ""
 msgid "Usually an unclosed quotation mark, or a comma inside a value that was not quoted. Open those rows in your sheet and compare them with the rest."
 msgstr ""
 
-#: includes/class-lstab-customizer.php:171
+#: includes/class-lstab-customizer.php:197
 msgid "Very rounded"
 msgstr ""
 

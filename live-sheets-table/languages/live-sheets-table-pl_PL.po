@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
-"POT-Creation-Date: 2026-09-17 15:00+0000\n"
-"PO-Revision-Date: 2026-09-17 15:00+0000\n"
+"POT-Creation-Date: 2026-09-25 23:09+0000\n"
+"PO-Revision-Date: 2026-09-25 23:09+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -173,9 +173,17 @@ msgstr "Zmiana w arkuszu trafia na stronę sama"
 msgid "A dark table with high contrast."
 msgstr "Ciemna tabela o wysokim kontraście."
 
+#: includes/class-lstab-styles.php:59
+msgid "A frosted panel that lets what is behind it show through. Needs a photograph or a gradient underneath to mean anything."
+msgstr "Matowy panel, przez który widać to, co jest pod nim. Ma sens tylko na zdjęciu albo gradiencie."
+
 #: includes/class-lstab-styles.php:34
 msgid "A full grid with a shaded heading row. Suits dense columns of numbers."
 msgstr "Pełna siatka z przyciemnionym wierszem nagłówka. Pasuje do gęstych kolumn liczb."
+
+#: includes/class-lstab-styles.php:64
+msgid "A solid heading bar over a plain table, and a first column with some weight to it."
+msgstr "Pełny pasek nagłówków nad spokojną tabelą i mocniejsza pierwsza kolumna."
 
 #: includes/views/edit-page.php:366
 msgid "A table on a computer. On a phone each row becomes a block with its heading beside every value."
@@ -295,6 +303,10 @@ msgstr "Zachowanie na wąskich ekranach"
 msgid "Between rows and around cells"
 msgstr "Między wierszami i wokół komórek"
 
+#: includes/class-lstab-customizer.php:139
+msgid "Between the rows, and down between the columns"
+msgstr "Między wierszami i w pionie między kolumnami"
+
 #: includes/views/edit-page.php:371
 msgid "Blocks at every width, including wide screens. Suits profiles and listings rather than figures to compare."
 msgstr "Bloki przy każdej szerokości, także na szerokich ekranach. Pasuje do profili i ogłoszeń, nie do liczb do porównywania."
@@ -324,11 +336,15 @@ msgstr "Anuluj"
 msgid "Caption"
 msgstr "Podpis"
 
+#: includes/class-lstab-styles.php:48
+msgid "Cards"
+msgstr "Karty"
+
 #: includes/views/edit-page.php:365
 msgid "Cards when it stops fitting"
 msgstr "Karty, gdy przestaje się mieścić"
 
-#: includes/class-lstab-customizer.php:141
+#: includes/class-lstab-customizer.php:167
 msgid "Centred"
 msgstr "Na środku"
 
@@ -408,6 +424,10 @@ msgstr "Zwarta"
 msgid "Compare Free and Pro"
 msgstr "Porównaj wersję darmową i Pro"
 
+#: includes/class-lstab-styles.php:63
+msgid "Contrast"
+msgstr "Kontrast"
+
 #: includes/class-lstab-admin.php:268
 msgid "Copied"
 msgstr "Skopiowane"
@@ -417,7 +437,7 @@ msgstr "Skopiowane"
 msgid "Copy"
 msgstr "Kopiuj"
 
-#: includes/class-lstab-customizer.php:167
+#: includes/class-lstab-customizer.php:193
 msgid "Corners"
 msgstr "Narożniki"
 
@@ -509,6 +529,10 @@ msgstr "Co 6 godzin"
 msgid "Every minute"
 msgstr "Co minutę"
 
+#: includes/class-lstab-styles.php:49
+msgid "Every row its own card, with the page showing between them. A list of things rather than a spreadsheet."
+msgstr "Każdy wiersz jako osobna karta, a między nimi widać stronę. Lista rzeczy, a nie arkusz."
+
 #: includes/views/edit-page.php:753
 msgid "Exactly what the plugin read from your sheet. Check the headings and a few rows before saving."
 msgstr "Dokładnie to, co wtyczka odczytała z arkusza. Sprawdź nagłówki i kilka wierszy przed zapisaniem."
@@ -547,6 +571,10 @@ msgstr "Znaleziono %1$s wierszy w %2$s kolumnach."
 msgid "Full check, wash and lubrication"
 msgstr "Przegląd, mycie i smarowanie"
 
+#: includes/class-lstab-customizer.php:141
+msgid "Full grid"
+msgstr "Pełna siatka"
+
 #: includes/views/edit-page.php:761
 msgid "Full width"
 msgstr "Pełna szerokość"
@@ -558,6 +586,10 @@ msgstr "Regulacja przerzutek"
 #: includes/views/edit-page.php:79
 msgid "General"
 msgstr "Ogólne"
+
+#: includes/class-lstab-styles.php:58
+msgid "Glass"
+msgstr "Szkło"
 
 #: includes/class-lstab-elementor.php:49
 msgid "Google Sheets"
@@ -742,7 +774,7 @@ msgstr "Ostatnia synchronizacja OK (%s temu)"
 msgid "Layout"
 msgstr "Układ"
 
-#: includes/class-lstab-customizer.php:140
+#: includes/class-lstab-customizer.php:166
 msgid "Left"
 msgstr "Do lewej"
 
@@ -756,6 +788,10 @@ msgid "Line %1$d is no longer “%2$s”, so that row is back on the page. Rows 
 msgstr "Wiersz %1$d to już nie „%2$s”, więc wrócił on na stronę. W Google wstawiono, usunięto lub przestawiono wiersze. Wskaż właściwy wiersz i zapisz."
 
 #: includes/class-lstab-customizer.php:58
+msgid "Line colour"
+msgstr "Kolor linii"
+
+#: includes/class-lstab-customizer.php:138
 msgid "Lines"
 msgstr "Linie"
 
@@ -831,6 +867,10 @@ msgstr "Nigdy nie zsynchronizowano poprawnie"
 #: includes/class-lstab-renderer.php:737 includes/class-lstab-renderer.php:740
 msgid "Next"
 msgstr "Następna"
+
+#: includes/class-lstab-customizer.php:143
+msgid "No lines"
+msgstr "Bez linii"
 
 #: includes/class-lstab-example.php:102
 msgid "No parts replaced"
@@ -927,7 +967,7 @@ msgstr "Okładziny organiczne lub metaliczne"
 msgid "Page %1$s of %2$s"
 msgstr "Strona %1$s z %2$s"
 
-#: includes/class-lstab-customizer.php:138
+#: includes/class-lstab-customizer.php:164
 msgid "Page buttons"
 msgstr "Przyciski stron"
 
@@ -1057,7 +1097,7 @@ msgstr "Wyczyść"
 msgid "Reset everything to the chosen style"
 msgstr "Przywróć wszystko do wybranego stylu"
 
-#: includes/class-lstab-customizer.php:142
+#: includes/class-lstab-customizer.php:168
 msgid "Right"
 msgstr "Do prawej"
 
@@ -1065,7 +1105,7 @@ msgstr "Do prawej"
 msgid "Roomy"
 msgstr "Przestronna"
 
-#: includes/class-lstab-customizer.php:170
+#: includes/class-lstab-customizer.php:196
 msgid "Rounded"
 msgstr "Zaokrąglone"
 
@@ -1089,6 +1129,10 @@ msgstr "Wiersz pod kursorem"
 #: includes/views/edit-page.php:472
 msgid "Rows on each page"
 msgstr "Wierszy na każdej stronie"
+
+#: includes/class-lstab-customizer.php:142
+msgid "Rows only"
+msgstr "Tylko wiersze"
 
 #: includes/class-lstab-locale.php:65
 msgid "Same as the site"
@@ -1302,7 +1346,7 @@ msgstr "Sortowalne kolumny"
 msgid "Split the table into pages"
 msgstr "Podziel tabelę na strony"
 
-#: includes/class-lstab-customizer.php:169
+#: includes/class-lstab-customizer.php:195
 msgid "Square"
 msgstr "Proste"
 
@@ -1363,6 +1407,10 @@ msgstr "Tabela z suwakiem"
 #: includes/class-lstab-renderer.php:432
 msgid "Table, scrollable sideways"
 msgstr "Tabela, przewijana w bok"
+
+#: includes/class-lstab-styles.php:53
+msgid "Terminal"
+msgstr "Terminal"
 
 #: includes/class-lstab-customizer.php:42
 msgid "Text"
@@ -1527,6 +1575,10 @@ msgstr "Zamieniaj adresy w komórkach na odnośniki"
 msgid "Turn off sorting by column"
 msgstr "Wyłącza sortowanie po kolumnach"
 
+#: includes/class-lstab-styles.php:54
+msgid "Typewriter lettering and thin mint lines on near-black. Figures line up of their own accord."
+msgstr "Pismo maszynowe i cienkie miętowe linie na prawie czarnym tle. Cyfry same ustawiają się w kolumnę."
+
 #: includes/class-lstab-example.php:94
 msgid "Unavailable"
 msgstr "Brak"
@@ -1575,7 +1627,7 @@ msgstr "Przydatne, gdy pierwsza kolumna nazywa wiersz. Wyłącz, jeśli zawiera 
 msgid "Usually an unclosed quotation mark, or a comma inside a value that was not quoted. Open those rows in your sheet and compare them with the rest."
 msgstr "Zwykle niedomknięty cudzysłów albo przecinek w wartości bez cudzysłowów. Otwórz te wiersze w arkuszu i porównaj z pozostałymi."
 
-#: includes/class-lstab-customizer.php:171
+#: includes/class-lstab-customizer.php:197
 msgid "Very rounded"
 msgstr "Mocno zaokrąglone"
 
