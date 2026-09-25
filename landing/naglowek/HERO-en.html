@@ -1,10 +1,12 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Inria+Serif:ital,wght@0,300;0,400;1,400&display=swap">
 
 <div class="lst-h-hero" id="lst-h-hero">
-	<span class="lst-h-luz" style="--waga:1" aria-hidden="true"></span>
+	<div class="lst-h-boki" id="lst-h-boki" aria-hidden="true"><span class="lst-h-komorka-bok lst-h-bok-lewo" style="top:30%;--zwloka:0s;--daleko:5vw"><u>B4</u>&euro;1,240.00</span><span class="lst-h-komorka-bok lst-h-bok-lewo" style="top:48%;--zwloka:1.4s;--daleko:1vw"><u>C7</u><span id="lst-h-zmienna">In stock</span></span><span class="lst-h-komorka-bok lst-h-bok-lewo" style="top:66%;--zwloka:2.6s;--daleko:6vw"><u>D2</u>2026-03-12</span><span class="lst-h-komorka-bok lst-h-bok-prawo" style="top:27%;--zwloka:.8s;--daleko:2vw"><u>F9</u>&#9650; 3.2%</span><span class="lst-h-komorka-bok lst-h-bok-prawo" style="top:45%;--zwloka:2s;--daleko:6vw"><u>G3</u>Warsaw</span><span class="lst-h-komorka-bok lst-h-bok-prawo" style="top:63%;--zwloka:3.2s;--daleko:1vw"><u>H1</u>1,480 pcs</span></div>
+
+	<span class="lst-h-luz lst-h-luz-gora" style="--waga:1" aria-hidden="true"></span>
 
 	<div class="lst-h-hero-rama">
-		<p class="lst-h-nadpis lst-h-wchodzi" style="--zwloka:.05s">WordPress plugin</p>
+		<p class="lst-h-nadpis lst-h-wchodzi" style="--zwloka:.05s"><span class="lst-h-kol" aria-hidden="true">A</span><span class="lst-h-kol" aria-hidden="true">B</span><span class="lst-h-kol-tu">WordPress plugin</span><span class="lst-h-kol" aria-hidden="true">D</span><span class="lst-h-kol" aria-hidden="true">E</span></p>
 		<h1 class="lst-h-tytul" id="lst-h-tytul">
 			<span class="lst-h-linia">Your Google Sheet,</span>
 			<span class="lst-h-linia"><span class="lst-h-komorka"><em>always up to date</em></span></span>
@@ -71,7 +73,7 @@
 .lst-h-luz { flex: var( --waga, 1 ) 0 0; min-height: 0; pointer-events: none; }
 /* Górna przekładka ma twardy sufit, więc na dużym ekranie napis nie odpływa
    od menu — wolna wysokość rośnie wtedy tylko pod treścią. */
-.lst-h-hero > .lst-h-luz:first-child { max-height: clamp( 14px, 3.2vh, 38px ); }
+.lst-h-luz-gora { max-height: clamp( 14px, 3.2vh, 38px ); }
 
 /* ---------- tło: przezroczyste ---------- */
 
@@ -87,22 +89,52 @@
 	background-color: transparent !important;
 }
 
+/* ---------- komórki arkusza po bokach ---------- */
+
+/*
+ * Po bokach napisu robiło się pusto. Stoją tam teraz pojedyncze komórki z
+ * prawdziwie wyglądającymi danymi — jedna co kilka sekund podmienia wartość i
+ * na moment rozświetla się na miętowo, tak jak w arkuszu, gdy coś się odświeży.
+ *
+ * Zaczepiamy je do ŚRODKA ekranu, nie do krawędzi: "calc( 50% + 420px )" trzyma
+ * je zawsze poza kolumną z tekstem, niezależnie od szerokości okna. Poniżej
+ * 1200 px miejsca po bokach nie ma i komórki znikają.
+ */
+.lst-h-boki { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.lst-h-komorka-bok { position: absolute; display: inline-flex; align-items: center; white-space: nowrap;
+	font-family: var( --mono ); font-size: .875rem; color: var( --tekst-3 );
+	border: 1px solid var( --wlos-mocny ); padding: .5em .8em;
+	animation: unosi 9s ease-in-out infinite; animation-delay: var( --zwloka, 0s ); }
+.lst-h-komorka-bok u { text-decoration: none; color: rgba( 143, 165, 162, .5 ); margin-right: .7em; }
+.lst-h-bok-lewo { right: calc( 50% + 420px + var( --daleko, 0px ) ); }
+.lst-h-bok-prawo { left: calc( 50% + 420px + var( --daleko, 0px ) ); }
+.lst-h-komorka-bok.lst-h-swieci { border-color: rgba( var( --mieta ), .5 ); color: rgb( var( --mieta ) );
+	background-color: rgba( var( --mieta ), .12 ); }
+.lst-h-komorka-bok { transition: background-color 1.1s ease, border-color 1.1s ease, color 1.1s ease; }
+@keyframes unosi { 0%, 100% { transform: translateY( 0 ); } 50% { transform: translateY( -9px ); } }
+
+@media ( max-width: 1200px ) { .lst-h-boki { display: none; } }
+
 /* ---------- typografia ---------- */
 
 /*
- * Etykieta siedzi w komórce arkusza: cienka ramka, ostre rogi, lekko zaokrąglona
- * jak zaznaczenie w Arkuszach. Ten sam motyw, co ramka wokół "always up to date"
- * niżej — tylko tam jest uchwyt, bo zaznaczenie w arkuszu jest jedno.
+ * Etykieta to zaznaczona kolumna arkusza: obok niej stoją przygasłe sąsiednie,
+ * a najdalsze gasną jeszcze bardziej — jakby arkusz szedł dalej poza ekran.
+ * Litery są dla oka, nie dla treści, więc czytnik ekranu ich nie przeczyta.
  *
- * Ramkę rysuje warstwa ::before, a nie obramowanie akapitu. Wrogi motyw potrafi
- * zdjąć "border" z akapitu (sami to robimy niżej, żeby nie dokładał swoich), a
- * warstwy nie ruszy.
+ * Kratki sklejają się marginesem -1 px, żeby wspólna krawędź była jedną kreską,
+ * a nie dwiema. Zaznaczona kolumna wychodzi nad sąsiadki przez z-index, więc to
+ * jej miętowa kreska jest na wierzchu.
  */
-.lst-h-nadpis { position: relative; display: inline-flex; align-items: center; margin: 0; font-family: var( --mono );
-	font-size: .875rem; letter-spacing: .16em; text-transform: uppercase; color: var( --tekst-3 );
-	padding: .42em .95em .42em 1.11em; }
-.lst-h-nadpis::before { content: ""; position: absolute; inset: 0; border: 1px solid rgba( var( --mieta ), .3 );
-	border-radius: 2px; pointer-events: none; }
+.lst-h-nadpis { position: relative; display: inline-flex; align-items: stretch; margin: 0; font-family: var( --mono );
+	font-size: .875rem; text-transform: uppercase; color: var( --tekst-3 ); }
+.lst-h-nadpis > span { padding: .42em .95em; border: 1px solid var( --wlos-mocny ); }
+.lst-h-nadpis > span + span { margin-left: -1px; }
+.lst-h-kol { color: rgba( 143, 165, 162, .45 ); letter-spacing: 0; }
+.lst-h-nadpis > span:first-child, .lst-h-nadpis > span:last-child {
+	color: rgba( 143, 165, 162, .26 ); border-color: rgba( 138, 168, 163, .13 ); }
+.lst-h-kol-tu { position: relative; z-index: 1; padding-inline: 1.15em; letter-spacing: .16em;
+	border-color: rgba( var( --mieta ), .34 ) !important; color: var( --tekst-3 ); }
 
 /*
  * Stopień tytułu bierze mniejszą z dwóch miar — szerokości i wysokości okna —
@@ -264,13 +296,24 @@
 .lst-h-hero .lst-h-nadpis,
 .lst-h-hero .lst-h-fakty,
 .lst-h-hero .lst-h-przewin { font-family: var( --mono ) !important; text-transform: uppercase !important; }
+.lst-h-hero .lst-h-nadpis > span { border: 1px solid var( --wlos-mocny ) !important; background: none !important;
+	border-radius: 0 !important; letter-spacing: 0 !important; text-transform: uppercase !important; }
+.lst-h-hero .lst-h-nadpis > span:first-child,
+.lst-h-hero .lst-h-nadpis > span:last-child { border-color: rgba( 138, 168, 163, .13 ) !important; }
+.lst-h-hero .lst-h-nadpis > .lst-h-kol-tu { border-color: rgba( var( --mieta ), .34 ) !important; letter-spacing: .16em !important; }
 .lst-h-hero .lst-h-fakty { text-transform: none !important; letter-spacing: normal !important; }
 .lst-h-hero .lst-h-tytul { font-family: var( --serif ) !important; color: var( --tekst ) !important; }
 .lst-h-hero .lst-h-lead { font-family: inherit !important; color: var( --tekst-2 ) !important; }
 .lst-h-hero .lst-h-guzik { font-family: inherit !important; color: #06100f !important; text-decoration: none !important; border: 0 !important; }
 .lst-h-hero .lst-h-link { font-family: inherit !important; text-decoration: none !important; border: 0 !important; }
 
+.lst-h-hero .lst-h-komorka-bok { font-family: var( --mono ) !important; background-image: none !important;
+	border: 1px solid var( --wlos-mocny ) !important; border-radius: 0 !important; text-transform: none !important;
+	letter-spacing: normal !important; text-align: left !important; }
+.lst-h-hero .lst-h-komorka-bok.lst-h-swieci { border-color: rgba( var( --mieta ), .5 ) !important; }
+
 @media ( prefers-reduced-motion: reduce ) {
+	.lst-h-komorka-bok { animation: none !important; }
 	.lst-h-wchodzi, .lst-h-pisze .lst-h-wchodzi { opacity: 1 !important; animation: none !important; }
 	.lst-h-pisze .lst-h-komorka::before { opacity: 1; transform: none; animation: none; }
 	.lst-h-pisze .lst-h-komorka::after { opacity: 1; animation: none; }
@@ -370,6 +413,7 @@
 
 	var hero = document.getElementById( 'lst-h-hero' );
 	var rama = hero ? hero.querySelector( '.lst-h-hero-rama' ) : null;
+	var boki = document.getElementById( 'lst-h-boki' );
 
 	/* ---------------- pełna wysokość ekranu ----------------
 	   Hero ma sięgać dokładnie do dolnej krawędzi okna, więc od wysokości okna
@@ -377,30 +421,82 @@
 	   Divi, dopełnienia. Mierzymy to raz i po każdej zmianie rozmiaru. */
 
 	if ( hero ) {
-		/* ---------------- dociągnięcie pod pasek menu ----------------
-		   Między paskiem menu a sekcją hero potrafi zostać pusty pas, którego
-		   moduł nie kontroluje — bierze się z marginesów sekcji ustawionych w
-		   Divi, a nie z hero. Mierzymy tę lukę w układzie strony (offsetTop
-		   nie zależy od przewinięcia ani od przyklejonego paska) i zdejmujemy
-		   ją ujemnym marginesem. Sufit 260 px, żeby przy nietypowym układzie
-		   sekcja nie wjechała pod nagłówek. */
+		/* ---------------- dociągnięcie pod to, co jest nad hero ----------------
+		   Nad sekcją hero potrafi zostać pusty pas, którego moduł nie kontroluje:
+		   margines sekcji z Divi, dopełnienie kontenera strony, pusty wiersz,
+		   miejsce zarezerwowane pod przyklejony nagłówek. Pierwsza wersja mierzyła
+		   tylko sąsiednią sekcję — a gdy pasek menu siedzi w nagłówku z Kreatora
+		   Motywu, sekcja hero nie ma żadnego sąsiada nad sobą i nie było czego
+		   mierzyć.
 
-		var sekcja = hero.closest( '.et_pb_section' );
+		   Dlatego teraz pytamy o to układ strony: szukamy najniższej krawędzi
+		   czegokolwiek, co NAPRAWDĘ coś maluje nad hero (ma tło, obramowanie,
+		   obrazek albo własny tekst) i jest w miarę szerokie. Pusty wiersz nic nie
+		   maluje, więc się nie liczy. Różnicę zdejmujemy ujemnym marginesem. */
+
+		var sekcja = hero.closest( '.et_pb_section' ) || hero;
+
+		var maluje = function ( el, styl ) {
+			if ( 'IMG' === el.tagName || 'SVG' === el.tagName || 'VIDEO' === el.tagName || 'CANVAS' === el.tagName ) { return true; }
+
+			if ( 'none' !== styl.backgroundImage ) { return true; }
+
+			var tlo = styl.backgroundColor;
+
+			if ( tlo && 'transparent' !== tlo && tlo.indexOf( 'rgba(0, 0, 0, 0)' ) === -1 ) { return true; }
+
+			if ( parseFloat( styl.borderBottomWidth ) > 0 && 'none' !== styl.borderBottomStyle ) { return true; }
+
+			/* własny tekst, a nie tekst dzieci */
+			for ( var i = 0; i < el.childNodes.length; i += 1 ) {
+				var w = el.childNodes[ i ];
+
+				if ( 3 === w.nodeType && w.nodeValue.trim() ) { return true; }
+			}
+
+			return false;
+		};
 
 		var dociagnij = function () {
-			if ( ! sekcja || ! sekcja.parentElement ) { return; }
+			if ( ! sekcja.parentElement ) { return; }
 
+			/* zawsze mierzymy od stanu wyjściowego, żeby się nie sumowało */
 			sekcja.style.removeProperty( 'margin-top' );
 
-			var przed = sekcja.previousElementSibling;
+			/* przy przewiniętej stronie pomiar bywa mylący — zostawiamy, jak jest */
+			if ( window.scrollY > 4 ) { return; }
 
-			while ( przed && przed.offsetHeight < 20 ) { przed = przed.previousElementSibling; }
+			var gora = hero.getBoundingClientRect().top;
+			var szerokoscHero = hero.getBoundingClientRect().width || 1;
+			var srodek = hero.getBoundingClientRect().left + szerokoscHero / 2;
+			var wszystko = document.body.getElementsByTagName( '*' );
+			var najnizej = null;
 
-			if ( ! przed || przed.offsetParent !== sekcja.offsetParent ) { return; }
+			for ( var i = 0; i < wszystko.length; i += 1 ) {
+				var el = wszystko[ i ];
 
-			var luka = sekcja.offsetTop - ( przed.offsetTop + przed.offsetHeight );
+				if ( el === hero || hero.contains( el ) || el.contains( hero ) ) { continue; }
+				if ( 'SCRIPT' === el.tagName || 'STYLE' === el.tagName || 'LINK' === el.tagName ) { continue; }
 
-			if ( luka > 2 && luka < 260 ) {
+				var r = el.getBoundingClientRect();
+
+				if ( r.bottom > gora + 1 || r.height < 4 ) { continue; }
+				if ( r.width < szerokoscHero * 0.4 ) { continue; }
+				if ( r.left > srodek || r.right < srodek ) { continue; }
+
+				var styl = window.getComputedStyle( el );
+
+				if ( 'hidden' === styl.visibility || '0' === styl.opacity ) { continue; }
+				if ( ! maluje( el, styl ) ) { continue; }
+
+				if ( null === najnizej || r.bottom > najnizej ) { najnizej = r.bottom; }
+			}
+
+			if ( null === najnizej ) { return; }
+
+			var luka = Math.round( gora - najnizej );
+
+			if ( luka > 2 && luka < 400 ) {
 				sekcja.style.setProperty( 'margin-top', '-' + luka + 'px', 'important' );
 			}
 		};
@@ -437,6 +533,12 @@
 
 			rama.style.transform = 'translate3d( 0, ' + ( y * 0.34 ).toFixed( 1 ) + 'px, 0 )';
 			rama.style.opacity = String( Math.max( 0, 1 - ile * 1.35 ) );
+
+			if ( boki ) {
+				/* dalszy plan rusza się mniej — stąd głębia */
+				boki.style.transform = 'translate3d( 0, ' + ( y * 0.16 ).toFixed( 1 ) + 'px, 0 )';
+				boki.style.opacity = String( Math.max( 0, 1 - ile * 1.9 ) );
+			}
 		};
 
 		window.addEventListener( 'scroll', function () {
@@ -447,6 +549,24 @@
 		}, { passive: true } );
 
 		rysuj();
+	}
+
+	/* ---------------- jedna komórka co chwilę się odświeża ----------------
+	   Tyle mówi o wtyczce, ile cała linijka tekstu: wartość się zmienia sama. */
+
+	var zmienna = document.getElementById( 'lst-h-zmienna' );
+
+	if ( zmienna && ! spokoj.matches ) {
+		var stany = [ 'In stock', 'Sold out', 'In stock', 'Low: 3' ];
+		var ktory = 0;
+		var kratka = zmienna.closest( '.lst-h-komorka-bok' );
+
+		setInterval( function () {
+			ktory = ( ktory + 1 ) % stany.length;
+			zmienna.textContent = stany[ ktory ];
+			kratka.classList.add( 'lst-h-swieci' );
+			setTimeout( function () { kratka.classList.remove( 'lst-h-swieci' ); }, 220 );
+		}, 3600 );
 	}
 
 	/* ---------------- podpowiedź przewijania ---------------- */

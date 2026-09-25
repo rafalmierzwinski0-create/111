@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boki hero</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Inria+Serif:ital,wght@0,300;0,400;1,400&display=swap">
+<style>
+:root { --mieta: 95, 227, 207; --tekst: #eef5f3; --tekst-2: #b3c6c3; --tekst-3: #8fa5a2;
+	--wlos: rgba( 138, 168, 163, .24 ); --mono: "IBM Plex Mono", monospace; --serif: "Inria Serif", Georgia, serif; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #232a29; color: var( --tekst ); font-family: "IBM Plex Sans", sans-serif;
+	background-image: linear-gradient( to right, rgba( 255, 255, 255, .035 ) 1px, transparent 1px ),
+		linear-gradient( to bottom, rgba( 255, 255, 255, .035 ) 1px, transparent 1px );
+	background-size: 88px 44px; }
+.ekran { position: relative; min-height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+	border-bottom: 1px solid rgba( 138, 168, 163, .14 ); }
+.metka { position: absolute; top: 18px; left: 50%; transform: translateX( -50% ); z-index: 9; text-align: center; }
+.metka b { display: block; font-family: var( --mono ); font-size: 14px; letter-spacing: .14em; color: rgb( var( --mieta ) ); font-weight: 400; }
+.metka span { font-size: 14px; color: var( --tekst-3 ); }
+.srodek { position: relative; z-index: 3; margin: auto; width: 100%; max-width: 1240px; padding: 0 4%; text-align: center; }
+.et { display: inline-flex; align-items: stretch; margin: 0; font-family: var( --mono ); font-size: 14px; text-transform: uppercase; color: var( --tekst-3 ); }
+.et > span { padding: .42em .95em; border: 1px solid var( --wlos ); }
+.et > span + span { margin-left: -1px; }
+.et .kol { color: rgba( 143, 165, 162, .45 ); }
+.et > span:first-child, .et > span:last-child { color: rgba( 143, 165, 162, .26 ); border-color: rgba( 138, 168, 163, .13 ); }
+.et .tu { position: relative; z-index: 1; padding-inline: 1.15em; letter-spacing: .16em; border-color: rgba( var( --mieta ), .34 ); }
+h1 { font-family: var( --serif ); font-weight: 300; font-size: clamp( 2.4rem, 4.6vw, 4.4rem ); line-height: 1.26;
+	letter-spacing: -.015em; margin: 1rem auto 0; max-width: 17ch; }
+h1 em { font-style: italic; color: rgb( var( --mieta ) ); }
+.lead { color: var( --tekst-2 ); font-size: 20px; line-height: 1.5; margin: .7rem auto 0; max-width: 38rem; }
+.akcje { display: flex; justify-content: center; gap: 1.4rem; margin: 1.1rem 0 0; align-items: center; }
+.guzik { background: rgb( var( --mieta ) ); color: #06100f; border-radius: 999px; padding: .8rem 1.6rem; font-size: 18px; font-weight: 600; }
+.link { color: var( --tekst-2 ); font-size: 18px; border-bottom: 1px solid var( --wlos ); }
+.warstwa { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+
+/* ---------- A. pływające komórki z danymi ---------- */
+.a-kom { position: absolute; font-family: var( --mono ); font-size: 14px; color: var( --tekst-3 );
+	border: 1px solid var( --wlos ); padding: .5em .8em; white-space: nowrap; animation: unosi 9s ease-in-out infinite; }
+.a-kom u { text-decoration: none; color: rgba( 143, 165, 162, .5 ); margin-right: .7em; }
+.a-kom.z { border-color: rgba( var( --mieta ), .45 ); color: rgb( var( --mieta ) ); }
+@keyframes unosi { 0%, 100% { transform: translateY( 0 ); } 50% { transform: translateY( -9px ); } }
+
+/* ---------- B. duchy kolumn przy krawędziach ---------- */
+.b-strona { position: absolute; top: 0; bottom: 0; width: 320px; display: flex; }
+.b-strona.l { left: 0; -webkit-mask-image: linear-gradient( 90deg, rgba( 0, 0, 0, .85 ), transparent ); mask-image: linear-gradient( 90deg, rgba( 0, 0, 0, .85 ), transparent ); }
+.b-strona.p { right: 0; -webkit-mask-image: linear-gradient( 270deg, rgba( 0, 0, 0, .85 ), transparent ); mask-image: linear-gradient( 270deg, rgba( 0, 0, 0, .85 ), transparent ); }
+.b-kol { flex: 1; display: flex; flex-direction: column; }
+.b-kol i { flex: 0 0 52px; border-top: 1px solid var( --wlos ); border-right: 1px solid var( --wlos ); }
+.b-kol:first-child i { border-left: 1px solid var( --wlos ); }
+.b-glowa { position: absolute; top: 0; left: 0; right: 0; height: 32px; display: flex;
+	font-family: var( --mono ); font-size: 14px; color: rgba( 143, 165, 162, .4 ); }
+.b-glowa span { flex: 1; display: flex; align-items: center; justify-content: center; border-right: 1px solid var( --wlos ); }
+
+/* ---------- C. narożniki wielkiego zaznaczenia ---------- */
+.c-rog { position: absolute; width: 74px; height: 74px; border: 2px solid rgba( var( --mieta ), .5 ); }
+.c-rog.lg { left: 44px; top: 96px; border-right: 0; border-bottom: 0; }
+.c-rog.pg { right: 44px; top: 96px; border-left: 0; border-bottom: 0; }
+.c-rog.ld { left: 44px; bottom: 60px; border-right: 0; border-top: 0; }
+.c-rog.pd { right: 44px; bottom: 60px; border-left: 0; border-top: 0; }
+.c-uchwyt { position: absolute; right: 44px; bottom: 60px; width: 11px; height: 11px; background: rgb( var( --mieta ) );
+	transform: translate( 50%, 50% ); border-radius: 1px; }
+.c-adres { position: absolute; left: 44px; top: 70px; font-family: var( --mono ); font-size: 14px;
+	color: rgba( var( --mieta ), .75 ); letter-spacing: .1em; }
+
+/* ---------- D. szyna wierszy i kolumn ---------- */
+.d-wiersze { position: absolute; left: 0; top: 0; bottom: 0; width: 54px; display: flex; flex-direction: column;
+	font-family: var( --mono ); font-size: 14px; color: rgba( 143, 165, 162, .3 ); border-right: 1px solid var( --wlos ); }
+.d-wiersze i, .d-kolumny span { display: flex; align-items: center; justify-content: center; font-style: normal; }
+.d-wiersze i { flex: 0 0 52px; border-bottom: 1px solid rgba( 138, 168, 163, .12 ); }
+.d-kolumny { position: absolute; left: 54px; right: 0; top: 0; height: 34px; display: flex;
+	font-family: var( --mono ); font-size: 14px; color: rgba( 143, 165, 162, .3 ); border-bottom: 1px solid var( --wlos ); }
+.d-kolumny span { flex: 1; border-right: 1px solid rgba( 138, 168, 163, .12 ); }
+.d-kolumny span.tu, .d-wiersze i.tu { color: rgb( var( --mieta ) ); background: rgba( var( --mieta ), .07 ); }
+@media ( prefers-reduced-motion: reduce ) { .a-kom { animation: none; } }
+</style></head><body>
+
+<section class="ekran">
+	<div class="metka"><b>A — PŁYWAJĄCE KOMÓRKI</b><span>kilka komórek z prawdziwymi danymi unosi się po bokach, jedna co chwilę się odświeża</span></div>
+	<div class="warstwa" id="a">
+		<div class="a-kom" style="left:6%;top:30%;animation-delay:0s"><u>B4</u>€1,240.00</div>
+		<div class="a-kom z" style="left:11%;top:48%;animation-delay:1.4s"><u>C7</u><span id="a-zmiana">In stock</span></div>
+		<div class="a-kom" style="left:4%;top:66%;animation-delay:2.6s"><u>D2</u>2026-03-12</div>
+		<div class="a-kom" style="right:7%;top:27%;animation-delay:.8s"><u>F9</u>▲ 3.2%</div>
+		<div class="a-kom" style="right:4%;top:45%;animation-delay:2s"><u>G3</u>Warszawa</div>
+		<div class="a-kom" style="right:10%;top:64%;animation-delay:3.2s"><u>H1</u>1 480 szt.</div>
+	</div>
+	<div class="srodek">
+		<p class="et"><span class="kol">A</span><span class="kol">B</span><span class="tu">WordPress plugin</span><span class="kol">D</span><span class="kol">E</span></p>
+		<h1>Your Google Sheet,<br><em>always up to date</em><br>on your site.</h1>
+		<p class="lead">Paste a link. You get a real table — one that refreshes itself, looks right on a phone, and holds up on the days Google does not.</p>
+		<p class="akcje"><a class="guzik">Download free</a><a class="link">See how it works</a></p>
+	</div>
+</section>
+
+<section class="ekran">
+	<div class="metka"><b>B — ARKUSZ WYCHODZI POZA EKRAN</b><span>przy obu krawędziach puste komórki arkusza, gasnące w stronę środka</span></div>
+	<div class="warstwa">
+		<div class="b-strona l"><div class="b-kol"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="b-kol"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="b-kol"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="b-glowa"><span>A</span><span>B</span><span>C</span></div></div>
+		<div class="b-strona p"><div class="b-kol"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="b-kol"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="b-kol"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="b-glowa"><span>M</span><span>N</span><span>O</span></div></div>
+	</div>
+	<div class="srodek">
+		<p class="et"><span class="kol">A</span><span class="kol">B</span><span class="tu">WordPress plugin</span><span class="kol">D</span><span class="kol">E</span></p>
+		<h1>Your Google Sheet,<br><em>always up to date</em><br>on your site.</h1>
+		<p class="lead">Paste a link. You get a real table — one that refreshes itself, looks right on a phone, and holds up on the days Google does not.</p>
+		<p class="akcje"><a class="guzik">Download free</a><a class="link">See how it works</a></p>
+	</div>
+</section>
+
+<section class="ekran">
+	<div class="metka"><b>C — WIELKIE ZAZNACZENIE</b><span>cały ekran to jedna zaznaczona komórka: cztery rogi, adres i uchwyt</span></div>
+	<div class="warstwa">
+		<span class="c-adres">A1:F24</span>
+		<span class="c-rog lg"></span><span class="c-rog pg"></span><span class="c-rog ld"></span><span class="c-rog pd"></span>
+		<span class="c-uchwyt"></span>
+	</div>
+	<div class="srodek">
+		<p class="et"><span class="kol">A</span><span class="kol">B</span><span class="tu">WordPress plugin</span><span class="kol">D</span><span class="kol">E</span></p>
+		<h1>Your Google Sheet,<br><em>always up to date</em><br>on your site.</h1>
+		<p class="lead">Paste a link. You get a real table — one that refreshes itself, looks right on a phone, and holds up on the days Google does not.</p>
+		<p class="akcje"><a class="guzik">Download free</a><a class="link">See how it works</a></p>
+	</div>
+</section>
+
+<section class="ekran">
+	<div class="metka"><b>D — SZYNA ARKUSZA</b><span>numery wierszy z lewej i litery kolumn u góry, jak w Arkuszach</span></div>
+	<div class="warstwa">
+		<div class="d-wiersze"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i class="tu">6</i><i>7</i><i>8</i><i>9</i><i>10</i><i>11</i><i>12</i><i>13</i><i>14</i><i>15</i><i>16</i><i>17</i><i>18</i><i>19</i><i>20</i></div>
+		<div class="d-kolumny"><span>A</span><span>B</span><span class="tu">C</span><span>D</span><span>E</span><span>F</span><span>G</span><span>H</span><span>I</span><span>J</span><span>K</span><span>L</span></div>
+	</div>
+	<div class="srodek">
+		<p class="et"><span class="kol">A</span><span class="kol">B</span><span class="tu">WordPress plugin</span><span class="kol">D</span><span class="kol">E</span></p>
+		<h1>Your Google Sheet,<br><em>always up to date</em><br>on your site.</h1>
+		<p class="lead">Paste a link. You get a real table — one that refreshes itself, looks right on a phone, and holds up on the days Google does not.</p>
+		<p class="akcje"><a class="guzik">Download free</a><a class="link">See how it works</a></p>
+	</div>
+</section>
+
+<script>
+var wartosci = [ 'In stock', 'Sold out', 'In stock', 'Low: 3' ];
+var nr = 0;
+setInterval( function () {
+	var el = document.getElementById( 'a-zmiana' );
+	nr = ( nr + 1 ) % wartosci.length;
+	el.textContent = wartosci[ nr ];
+	el.parentNode.style.transition = 'none';
+	el.parentNode.style.background = 'rgba(95,227,207,.16)';
+	setTimeout( function () { el.parentNode.style.transition = 'background 1.2s ease'; el.parentNode.style.background = 'transparent'; }, 60 );
+}, 3400 );
+</script>
+</body></html>
