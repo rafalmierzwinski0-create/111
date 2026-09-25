@@ -334,6 +334,62 @@
 		row.classList.toggle( 'is-on', '' !== pick.value );
 	}
 
+	/**
+	 * The column looks exactly as they stand in the form.
+	 *
+	 * The heading is read from the field's own name rather than from the label
+	 * beside it: a heading may hold anything a spreadsheet allows, and the name
+	 * is what the save will read too.
+	 *
+	 * @return {Object} Looks keyed by heading.
+	 */
+	function currentLooks() {
+		var looks = {};
+
+		Array.prototype.forEach.call( document.querySelectorAll( '.lstabp-look' ), function ( row ) {
+			var pick = row.querySelector( '.lstabp-look-pick' );
+
+			if ( ! pick || ! pick.value ) {
+				return;
+			}
+
+			var named = pick.name.match( /^lstabp_looks\[(.*)\]\[look\]$/ );
+
+			if ( ! named ) {
+				return;
+			}
+
+			var field = function ( selector ) {
+				var control = row.querySelector( selector );
+
+				return control ? control.value : '';
+			};
+
+			looks[ named[ 1 ] ] = {
+				look: pick.value,
+				tint: field( 'input[name$="[tint]"]' ),
+				ink: field( 'input[name$="[ink]"]' ),
+				label: field( '.lstabp-look-label' )
+			};
+		} );
+
+		return looks;
+	}
+
+	/**
+	 * The columns ticked for a filter, as they stand in the form.
+	 *
+	 * @return {Array} Headings.
+	 */
+	function currentFacets() {
+		return Array.prototype.map.call(
+			document.querySelectorAll( '.lstabp-facets-card input[name="lstabp_facets[]"]:checked' ),
+			function ( box ) {
+				return box.value;
+			}
+		);
+	}
+
 	function init() {
 		/*
 		 * A rule being typed exists only in this form until it is saved, so it
@@ -342,7 +398,11 @@
 		 */
 		window.lstabPreviewFields = window.lstabPreviewFields || [];
 		window.lstabPreviewFields.push( function () {
-			return { rules: currentRules() };
+			return {
+				rules: currentRules(),
+				looks: currentLooks(),
+				facets: currentFacets()
+			};
 		} );
 
 		var redrawing = null;
@@ -374,6 +434,17 @@
 					lookChanged( event.target );
 				}
 			} );
+
+			// Typing a button's words redraws as they are typed; the rest of
+			// the card only ever changes on a choice being made.
+			looks.addEventListener( 'input', redraw );
+			looks.addEventListener( 'change', redraw );
+		}
+
+		var facets = document.querySelector( '.lstabp-facets-card' );
+
+		if ( facets ) {
+			facets.addEventListener( 'change', redraw );
 		}
 
 		var card = document.querySelector( '.lstabp-rules-card' );

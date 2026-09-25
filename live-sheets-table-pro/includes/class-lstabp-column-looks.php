@@ -36,6 +36,13 @@ class LSTABP_Column_Looks {
 	const MAX_LABEL = 40;
 
 	/**
+	 * Looks being chosen right now, for the length of one preview request.
+	 *
+	 * @var array<int,array<string,array<string,string>>>
+	 */
+	protected static $previewing = array();
+
+	/**
 	 * Bar share per rendered cell, 0 to 1.
 	 *
 	 * @var array<int,array<int,float>>
@@ -75,6 +82,12 @@ class LSTABP_Column_Looks {
 		// the last word about what a cell holding an address looks like.
 		add_filter( 'lstab_render_cell', array( $this, 'render_cell' ), 8, 5 );
 
+		// A look being chosen exists only in the form until it is saved, so the
+		// preview is handed it directly — otherwise the only way to see a bar
+		// would be to save and go and look, which is the round trip a preview
+		// is for avoiding.
+		add_action( 'lstab_preview_request', array( $this, 'preview_request' ), 10, 2 );
+
 		add_action( 'lstab_edit_pane_cards', array( $this, 'render_pane_card' ), 20, 3 );
 		add_action( 'lstab_source_saved', array( $this, 'save' ) );
 		add_action( 'lstab_source_deleted', array( $this, 'forget' ) );
@@ -98,9 +111,69 @@ class LSTABP_Column_Looks {
 	 * @return array<string,array<string,string>>
 	 */
 	public static function for_source( $source_id ) {
+		$key = (int) $source_id;
+
+		if ( isset( self::$previewing[ $key ] ) ) {
+			return self::$previewing[ $key ];
+		}
+
 		$all = self::all();
 
-		return isset( $all[ (int) $source_id ] ) ? (array) $all[ (int) $source_id ] : array();
+		return isset( $all[ $key ] ) ? self::sanitize( (array) $all[ $key ] ) : array();
+	}
+
+	/**
+	 * Hand the preview what is being chosen right now.
+	 *
+	 * @param WP_REST_Request $request   The preview request.
+	 * @param int             $source_id Source being previewed.
+	 * @return void
+	 */
+	public function preview_request( $request, $source_id ) {
+		$looks = $request->get_param( 'looks' );
+
+		if ( ! is_array( $looks ) ) {
+			return;
+		}
+
+		self::$previewing[ (int) $source_id ] = self::sanitize( $looks );
+	}
+
+	/**
+	 * Clean a submitted or stored set of looks.
+	 *
+	 * Used by the save and by the preview alike, so what somebody sees while
+	 * choosing is what they get once they have saved.
+	 *
+	 * @param array<string,mixed> $raw Raw looks, keyed by heading.
+	 * @return array<string,array<string,string>>
+	 */
+	public static function sanitize( $raw ) {
+		$looks = self::looks();
+		$clean = array();
+
+		foreach ( (array) $raw as $heading => $setting ) {
+			$heading = sanitize_text_field( (string) $heading );
+			$setting = (array) $setting;
+			$look    = isset( $setting['look'] ) ? (string) $setting['look'] : '';
+
+			if ( '' === $heading || ! isset( $looks[ $look ] ) ) {
+				continue;
+			}
+
+			$clean[ $heading ] = array(
+				'look'  => $look,
+				'tint'  => LSTABP_Rules::hex( isset( $setting['tint'] ) ? $setting['tint'] : '' ),
+				'ink'   => LSTABP_Rules::hex( isset( $setting['ink'] ) ? $setting['ink'] : '' ),
+				'label' => mb_substr(
+					sanitize_text_field( isset( $setting['label'] ) ? (string) $setting['label'] : '' ),
+					0,
+					self::MAX_LABEL
+				),
+			);
+		}
+
+		return $clean;
 	}
 
 	/**
@@ -361,31 +434,9 @@ class LSTABP_Column_Looks {
 			return;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- Sanitised below.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- Sanitised in sanitize().
 		$raw   = isset( $_POST['lstabp_looks'] ) ? (array) wp_unslash( $_POST['lstabp_looks'] ) : array();
-		$looks = self::looks();
-		$clean = array();
-
-		foreach ( $raw as $heading => $setting ) {
-			$heading = sanitize_text_field( (string) $heading );
-			$setting = (array) $setting;
-			$look    = isset( $setting['look'] ) ? (string) $setting['look'] : '';
-
-			if ( '' === $heading || ! isset( $looks[ $look ] ) ) {
-				continue;
-			}
-
-			$clean[ $heading ] = array(
-				'look'  => $look,
-				'tint'  => LSTABP_Rules::hex( isset( $setting['tint'] ) ? $setting['tint'] : '' ),
-				'ink'   => LSTABP_Rules::hex( isset( $setting['ink'] ) ? $setting['ink'] : '' ),
-				'label' => mb_substr(
-					sanitize_text_field( isset( $setting['label'] ) ? (string) $setting['label'] : '' ),
-					0,
-					self::MAX_LABEL
-				),
-			);
-		}
+		$clean = self::sanitize( $raw );
 
 		$all                     = self::all();
 		$all[ (int) $source_id ] = $clean;

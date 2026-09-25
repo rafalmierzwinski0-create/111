@@ -855,16 +855,20 @@ class LSTAB_Renderer {
 	 *
 	 * Two kinds are recognised, and only two:
 	 *
-	 *   15.01.2026        a date, day first, four-digit year
+	 *   15.01.2026        a date, day first
 	 *   09:30, 20:20:15   a time on the 24-hour clock
 	 *   9:30 am, 12 PM    the same on the 12-hour clock
 	 *
 	 * A date may be followed by a time, and then carries it.
 	 *
-	 * Nothing else is guessed at. "15.01.26" could be 2026 or 1926; "03/12"
-	 * is the third of December to one reader and the twelfth of March to
-	 * another. A wrong order is worse than an alphabetical one, because it
-	 * looks right until somebody checks.
+	 * A two-digit year is read the way every spreadsheet reads one: 00 to 29
+	 * is this century, 30 to 99 the last. It is a guess, but it is the same
+	 * guess Excel and Google Sheets make, so a sheet that looks right in the
+	 * spreadsheet looks right on the page.
+	 *
+	 * Nothing else is guessed at. "03/12" is the third of December to one
+	 * reader and the twelfth of March to another, and a wrong order is worse
+	 * than an alphabetical one, because it looks right until somebody checks.
 	 *
 	 * The kind comes back with the number because the two scales have nothing
 	 * to do with each other: a date is yyyymmdd, a time is minutes since
@@ -885,8 +889,8 @@ class LSTAB_Renderer {
 			return null;
 		}
 
-		// 15.01.2026, and 15.01.2026 20:20 — day first, four-digit year.
-		if ( preg_match( '/^(\d{1,2})\.(\d{1,2})\.(\d{4})(?:[\s,]+(\d{1,2}):([0-5]\d)(?::([0-5]\d))?)?$/', $value, $found ) ) {
+		// 15.01.2026, 15.01.26, and either with a time after it — day first.
+		if ( preg_match( '/^(\d{1,2})\.(\d{1,2})\.(\d{4}|\d{2})(?:[\s,]+(\d{1,2}):([0-5]\d)(?::([0-5]\d))?)?$/', $value, $found ) ) {
 			$day   = (int) $found[1];
 			$month = (int) $found[2];
 
@@ -906,10 +910,18 @@ class LSTAB_Renderer {
 				$minutes = $hour * 60 + (int) $found[5] + ( isset( $found[6] ) && '' !== $found[6] ? (int) $found[6] / 60 : 0 );
 			}
 
+			$year = (int) $found[3];
+
+			if ( 2 === strlen( $found[3] ) ) {
+				// The spreadsheets' own rule, so a sheet sorts here the way it
+				// sorts there: 00 to 29 is this century, 30 to 99 the last.
+				$year += $year < 30 ? 2000 : 1900;
+			}
+
 			// A day is one step, so the time of day is the fraction inside it.
 			return array(
 				'kind'  => 'date',
-				'value' => (float) ( (int) $found[3] * 10000 + $month * 100 + $day ) + $minutes / 1440,
+				'value' => (float) ( $year * 10000 + $month * 100 + $day ) + $minutes / 1440,
 			);
 		}
 

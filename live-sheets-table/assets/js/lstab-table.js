@@ -257,13 +257,14 @@
 	 * Two kinds are recognised, and only two: a date written day first with a
 	 * four-digit year, and a time on either clock.
 	 *
-	 *   15.01.2026        15.01.2026 20:20
+	 *   15.01.2026        15.01.26        15.01.2026 20:20
 	 *   09:30             20:20:15
 	 *   9:30 am           12 PM
 	 *
-	 * Nothing else is guessed at: "15.01.26" could be 2026 or 1926, and
-	 * "03/12" is two different days depending on who is reading. A wrong
-	 * order is worse than an alphabetical one, because it looks right.
+	 * A two-digit year is read the way every spreadsheet reads one: 00 to 29
+	 * is this century, 30 to 99 the last. Nothing else is guessed at: "03/12"
+	 * is two different days depending on who is reading, and a wrong order is
+	 * worse than an alphabetical one, because it looks right.
 	 *
 	 * @param {string} value Cell text.
 	 * @return {{kind: string, value: number}|null} Kind and number, or null.
@@ -275,8 +276,8 @@
 			return null;
 		}
 
-		// 15.01.2026, and 15.01.2026 20:20 — day first, four-digit year.
-		var date = text.match( /^(\d{1,2})\.(\d{1,2})\.(\d{4})(?:[\s,]+(\d{1,2}):([0-5]\d)(?::([0-5]\d))?)?$/ );
+		// 15.01.2026, 15.01.26, and either with a time after it — day first.
+		var date = text.match( /^(\d{1,2})\.(\d{1,2})\.(\d{4}|\d{2})(?:[\s,]+(\d{1,2}):([0-5]\d)(?::([0-5]\d))?)?$/ );
 
 		if ( date ) {
 			var day = parseInt( date[ 1 ], 10 );
@@ -298,10 +299,18 @@
 				inside = dateHour * 60 + parseInt( date[ 5 ], 10 ) + ( date[ 6 ] ? parseInt( date[ 6 ], 10 ) / 60 : 0 );
 			}
 
+			var year = parseInt( date[ 3 ], 10 );
+
+			if ( 2 === date[ 3 ].length ) {
+				// The spreadsheets' own rule, and LSTAB_Renderer::to_moment()
+				// says the same: 00 to 29 is this century, 30 to 99 the last.
+				year += year < 30 ? 2000 : 1900;
+			}
+
 			// A day is one step, so the time of day is the fraction inside it.
 			return {
 				kind: 'date',
-				value: parseInt( date[ 3 ], 10 ) * 10000 + month * 100 + day + inside / 1440
+				value: year * 10000 + month * 100 + day + inside / 1440
 			};
 		}
 

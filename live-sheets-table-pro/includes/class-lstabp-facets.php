@@ -56,6 +56,13 @@ class LSTABP_Facets {
 	protected static $state = array();
 
 	/**
+	 * Columns being ticked right now, for the length of one preview request.
+	 *
+	 * @var array<int,array<int,string>>
+	 */
+	protected static $previewing = array();
+
+	/**
 	 * Register hooks.
 	 *
 	 * @return void
@@ -69,6 +76,11 @@ class LSTABP_Facets {
 		add_filter( 'lstab_source_rows', array( $this, 'narrow' ), 12, 4 );
 		add_action( 'lstab_before_table', array( $this, 'render_bar' ), 10, 2 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue' ) );
+
+		// A column being ticked exists only in the form until it is saved. The
+		// preview is handed it directly, so a filter bar appears as it is
+		// chosen rather than after a save and a look.
+		add_action( 'lstab_preview_request', array( $this, 'preview_request' ), 10, 2 );
 
 		// The Appearance tab, beside the other things a visitor is given.
 		add_action( 'lstab_edit_pane_cards', array( $this, 'render_pane_card' ), 15, 3 );
@@ -107,11 +119,44 @@ class LSTABP_Facets {
 	 * @return array<int,string>
 	 */
 	public static function for_source( $source_id ) {
-		$all = self::all();
-		$own = isset( $all[ (int) $source_id ] ) ? (array) $all[ (int) $source_id ] : array();
+		$key = (int) $source_id;
 
-		return array_values( array_filter( array_map( 'strval', $own ) ) );
+		if ( isset( self::$previewing[ $key ] ) ) {
+			return self::$previewing[ $key ];
+		}
+
+		$all = self::all();
+
+		return isset( $all[ $key ] ) ? (array) $all[ $key ] : array();
 	}
+
+	/**
+	 * Hand the preview the columns being ticked right now.
+	 *
+	 * @param WP_REST_Request $request   The preview request.
+	 * @param int             $source_id Source being previewed.
+	 * @return void
+	 */
+	public function preview_request( $request, $source_id ) {
+		$facets = $request->get_param( 'facets' );
+
+		if ( ! is_array( $facets ) ) {
+			return;
+		}
+
+		$clean = array();
+
+		foreach ( $facets as $heading ) {
+			$heading = sanitize_text_field( (string) $heading );
+
+			if ( '' !== $heading && ! in_array( $heading, $clean, true ) ) {
+				$clean[] = $heading;
+			}
+		}
+
+		self::$previewing[ (int) $source_id ] = $clean;
+	}
+
 
 	/**
 	 * Name of one filter's query argument.

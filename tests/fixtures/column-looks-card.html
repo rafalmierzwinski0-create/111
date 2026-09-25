@@ -1,0 +1,128 @@
+<div class="lstab-card lstabp-looks-card">
+	<h2 class="lstab-card-title">Column looks</h2>
+	<p class="lstab-help">
+		A colour rule says one value is special. This says what a whole column is: a measurement to be seen at a glance, or a way through to somewhere else.	</p>
+
+		<input type="hidden" name="_lstabp_looks_present" value="1">
+
+			<ul class="lstabp-looks">
+											<li class="lstabp-look" data-lstabp-look="">
+					<span class="lstabp-look-name">Session</span>
+
+					<select class="lstabp-look-pick" name="lstabp_looks[Session][look]">
+						<option value="">Ordinary</option>
+													<option value="bar" >
+								A bar behind the number							</option>
+													<option value="button" >
+								A button, if the cell holds a link							</option>
+											</select>
+
+										<span class="lstabp-look-colour" data-lstabp-for="bar button">
+						<label>
+							<span class="lstabp-look-colour-name">Colour</span>
+							<input type="color" name="lstabp_looks[Session][tint]"
+								value="#5fe3cf">
+						</label>
+					</span>
+
+					<span class="lstabp-look-colour" data-lstabp-for="button">
+						<label>
+							<span class="lstabp-look-colour-name">Text</span>
+							<input type="color" name="lstabp_looks[Session][ink]"
+								value="#06100f">
+						</label>
+					</span>
+
+					<span class="lstabp-look-colour" data-lstabp-for="button">
+						<label>
+							<span class="lstabp-look-colour-name">Says</span>
+							<input type="text" class="lstabp-look-label" name="lstabp_looks[Session][label]"
+								value=""
+								maxlength="40"
+								placeholder="Open">
+						</label>
+					</span>
+				</li>
+											<li class="lstabp-look is-on" data-lstabp-look="bar">
+					<span class="lstabp-look-name">Seats left</span>
+
+					<select class="lstabp-look-pick" name="lstabp_looks[Seats left][look]">
+						<option value="">Ordinary</option>
+													<option value="bar"  selected='selected'>
+								A bar behind the number							</option>
+													<option value="button" >
+								A button, if the cell holds a link							</option>
+											</select>
+
+										<span class="lstabp-look-colour" data-lstabp-for="bar button">
+						<label>
+							<span class="lstabp-look-colour-name">Colour</span>
+							<input type="color" name="lstabp_looks[Seats left][tint]"
+								value="#5fe3cf">
+						</label>
+					</span>
+
+					<span class="lstabp-look-colour" data-lstabp-for="button">
+						<label>
+							<span class="lstabp-look-colour-name">Text</span>
+							<input type="color" name="lstabp_looks[Seats left][ink]"
+								value="#06100f">
+						</label>
+					</span>
+
+					<span class="lstabp-look-colour" data-lstabp-for="button">
+						<label>
+							<span class="lstabp-look-colour-name">Says</span>
+							<input type="text" class="lstabp-look-label" name="lstabp_looks[Seats left][label]"
+								value=""
+								maxlength="40"
+								placeholder="Open">
+						</label>
+					</span>
+				</li>
+											<li class="lstabp-look is-on" data-lstabp-look="button">
+					<span class="lstabp-look-name">Booking</span>
+
+					<select class="lstabp-look-pick" name="lstabp_looks[Booking][look]">
+						<option value="">Ordinary</option>
+													<option value="bar" >
+								A bar behind the number							</option>
+													<option value="button"  selected='selected'>
+								A button, if the cell holds a link							</option>
+											</select>
+
+										<span class="lstabp-look-colour" data-lstabp-for="bar button">
+						<label>
+							<span class="lstabp-look-colour-name">Colour</span>
+							<input type="color" name="lstabp_looks[Booking][tint]"
+								value="#123456">
+						</label>
+					</span>
+
+					<span class="lstabp-look-colour" data-lstabp-for="button">
+						<label>
+							<span class="lstabp-look-colour-name">Text</span>
+							<input type="color" name="lstabp_looks[Booking][ink]"
+								value="#ffffff">
+						</label>
+					</span>
+
+					<span class="lstabp-look-colour" data-lstabp-for="button">
+						<label>
+							<span class="lstabp-look-colour-name">Says</span>
+							<input type="text" class="lstabp-look-label" name="lstabp_looks[Booking][label]"
+								value="Book a seat"
+								maxlength="40"
+								placeholder="Open">
+						</label>
+					</span>
+				</li>
+					</ul>
+
+		<ul class="lstabp-rules-how">
+			<li>
+				<svg data-icon="layers"></svg>				A bar is as long as its number is large, measured against the largest in the column. A column that never goes below zero is measured from zero, so numbers that are all much the same do not look wildly different.			</li>
+			<li>
+				<svg data-icon="link"></svg>				Only a cell holding a web address becomes a button. A note or a blank in the same column is left as it is, because a button that goes nowhere is worse than the note it replaced.			</li>
+		</ul>
+	</div>

@@ -36,6 +36,34 @@ function update_option( $name, $value, $autoload = null ) {
 }
 function add_filter() {}
 function add_action() {}
+function esc_attr_e( $text, $domain = null ) { echo esc_attr( $text ); }
+function esc_html_e( $text, $domain = null ) { echo esc_html( $text ); }
+function selected( $one, $two, $echo = true ) {
+	$out = (string) $one === (string) $two ? " selected='selected'" : '';
+
+	if ( $echo ) {
+		echo $out;
+	}
+
+	return $out;
+}
+
+/**
+ * Stands in for the free plugin's icon set, which needs WordPress to load.
+ */
+class LSTAB_Icons {
+	/**
+	 * One icon.
+	 *
+	 * @param string $name Icon name.
+	 * @return string
+	 */
+	public static function icon( $name ) {
+		return '<svg data-icon="' . esc_attr( $name ) . '"></svg>';
+	}
+}
+
+define( 'LSTABP_PATH', __DIR__ . '/../live-sheets-table-pro/' );
 
 require_once __DIR__ . '/../live-sheets-table/includes/class-lstab-renderer.php';
 require_once __DIR__ . '/../live-sheets-table-pro/includes/class-lstabp-filters.php';
@@ -272,6 +300,103 @@ foreach ( $rows as $row_index => $row ) {
 
 file_put_contents( __DIR__ . '/fixtures/column-looks-php-said.json', json_encode( $dump, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . "\n" );
 echo "\n  wrote fixtures/column-looks-php-said.json for the browser suite\n";
+
+echo "\nThe card in the dashboard\n";
+
+$GLOBALS['lstab_options'][ LSTABP_Column_Looks::OPTION ] = array(
+	7 => array(
+		'Seats left' => array( 'look' => 'bar', 'tint' => '#5fe3cf', 'ink' => '', 'label' => '' ),
+		'Booking'    => array( 'look' => 'button', 'tint' => '#123456', 'ink' => '#ffffff', 'label' => 'Book a seat' ),
+	),
+);
+
+$card = new LSTABP_Column_Looks();
+
+ob_start();
+$card->render_pane_card( 'look', array( 'id' => 7, 'data' => array( 'headers' => $headers ) ), true );
+$markup = (string) ob_get_clean();
+
+lstab_check( false !== strpos( $markup, 'name="lstabp_looks[Seats left][look]"' ), 'the card names its fields after the headings' );
+lstab_check( substr_count( $markup, 'class="lstabp-look' ) >= 3, 'every column gets a row of its own' );
+lstab_check( false !== strpos( $markup, 'value="#123456"' ), 'a stored colour comes back into the card' );
+lstab_check( false !== strpos( $markup, 'value="Book a seat"' ), 'and so do a button\'s own words' );
+lstab_check( false !== strpos( $markup, 'data-lstabp-look="bar"' ), 'the row says which look it wears, for the stylesheet to read' );
+
+ob_start();
+$card->render_pane_card( 'columns', array( 'id' => 7, 'data' => array( 'headers' => $headers ) ), true );
+lstab_check( '' === (string) ob_get_clean(), 'and it keeps off every pane but Appearance' );
+
+// The browser suite reads this to check what the card hands the preview.
+file_put_contents( __DIR__ . '/fixtures/column-looks-card.html', $markup );
+
+echo "\nA look being chosen, before anything is saved\n";
+
+/**
+ * The few things a preview request is asked for.
+ */
+class LSTABP_Fake_Request {
+	/**
+	 * Parameters.
+	 *
+	 * @var array<string,mixed>
+	 */
+	protected $params;
+
+	/**
+	 * Build one.
+	 *
+	 * @param array<string,mixed> $params Parameters.
+	 */
+	public function __construct( $params ) {
+		$this->params = $params;
+	}
+
+	/**
+	 * One parameter.
+	 *
+	 * @param string $name Parameter name.
+	 * @return mixed
+	 */
+	public function get_param( $name ) {
+		return isset( $this->params[ $name ] ) ? $this->params[ $name ] : null;
+	}
+}
+
+$GLOBALS['lstab_options'][ LSTABP_Column_Looks::OPTION ] = array(
+	7 => array( 'Seats left' => array( 'look' => 'bar', 'tint' => '#5fe3cf', 'ink' => '', 'label' => '' ) ),
+);
+
+$live = new LSTABP_Column_Looks();
+$live->preview_request(
+	new LSTABP_Fake_Request(
+		array(
+			'looks' => array(
+				'Booking' => array( 'look' => 'button', 'tint' => '#ff0000', 'ink' => '#ffffff', 'label' => 'Join' ),
+			),
+		)
+	),
+	7
+);
+
+$now = LSTABP_Column_Looks::for_source( 7 );
+
+lstab_check( isset( $now['Booking'] ), 'what is being chosen reaches the preview' );
+lstab_check( ! isset( $now['Seats left'] ), 'and stands in for what was saved, rather than joining it' );
+lstab_check(
+	isset( $now['Booking']['tint'] ) && '#ff0000' === $now['Booking']['tint'],
+	'with its colours',
+	isset( $now['Booking']['tint'] ) ? $now['Booking']['tint'] : '(none)'
+);
+
+$looks_now = new LSTABP_Column_Looks();
+$looks_now->capture( $rows, $headers, $source, array() );
+$button = $looks_now->render_cell( null, $rows[0][2], 2, 0, $source );
+
+lstab_check(
+	is_string( $button ) && false !== strpos( $button, '>Join<' ),
+	'and the table is drawn with it',
+	(string) $button
+);
 
 echo "\n$passed passed, $failed failed\n";
 

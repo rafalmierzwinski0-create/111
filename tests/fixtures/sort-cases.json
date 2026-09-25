@@ -9,6 +9,14 @@
 		{ "value": "15.01.2026 20:20",  "kind": "date",  "number": 20260115.847222 },
 		{ "value": "15.01.2026, 09:05", "kind": "date",  "number": 20260115.378472 },
 		{ "value": "15.01.2026 00:00",  "kind": "date",  "number": 20260115 },
+		{ "value": "12.05.26",          "kind": "date",  "number": 20260512 },
+		{ "value": "12.05.99",          "kind": "date",  "number": 19990512 },
+		{ "value": "01.01.00",          "kind": "date",  "number": 20000101 },
+		{ "value": "31.12.29",          "kind": "date",  "number": 20291231 },
+		{ "value": "31.12.30",          "kind": "date",  "number": 19301231 },
+		{ "value": "12.05.26 14:00",    "kind": "date",  "number": 20260512.583333 },
+		{ "value": "4:30 am",           "kind": "clock", "number": 270 },
+		{ "value": "4:30 pm",           "kind": "clock", "number": 990 },
 
 		{ "value": "00:00",             "kind": "clock", "number": 0 },
 		{ "value": "09:30",             "kind": "clock", "number": 570 },
@@ -33,7 +41,8 @@
 		{ "value": "32.01.2026",        "kind": null },
 		{ "value": "15.13.2026",        "kind": null },
 		{ "value": "0.01.2026",         "kind": null },
-		{ "value": "15.01.26",          "kind": null },
+		{ "value": "15.01.202",         "kind": null },
+		{ "value": "15.01.20265",       "kind": null },
 		{ "value": "2026-01-15",        "kind": null },
 		{ "value": "15/01/2026",        "kind": null },
 		{ "value": "15.01.2026 25:00",  "kind": null },
@@ -103,6 +112,16 @@
 			"name": "dates, then times, then the rest",
 			"values": [ "15.01.2026", "09:30", "03.02.2026", "TBA" ],
 			"ascending": [ "15.01.2026", "03.02.2026", "09:30", "TBA" ]
+		},
+		{
+			"name": "morning before afternoon",
+			"values": [ "4:30 pm", "4:30 am", "11:59 pm", "12:01 am" ],
+			"ascending": [ "12:01 am", "4:30 am", "4:30 pm", "11:59 pm" ]
+		},
+		{
+			"name": "two-digit years, mixed with four",
+			"values": [ "12.05.26", "03.02.2026", "31.12.25", "01.06.2026" ],
+			"ascending": [ "31.12.25", "03.02.2026", "12.05.26", "01.06.2026" ]
 		},
 		{
 			"name": "plain words",

@@ -223,6 +223,108 @@ check(
 	`${ night.barColour } / ${ night.buttonBg } / ${ night.buttonInk }`
 );
 
+console.log( '\nThe card in the dashboard, handing the preview what is being typed' );
+
+/*
+ * The card markup is the one tests/column-looks-test.php rendered from the view
+ * itself, so this is the real screen rather than an imitation of it. The admin
+ * script is loaded on top, exactly as WordPress loads it.
+ */
+const cardMarkup = fs.readFileSync( path.join( here, 'fixtures/column-looks-card.html' ), 'utf8' );
+const adminJs = fs.readFileSync( path.join( repo, 'live-sheets-table-pro/assets/js/lstabp-admin.js' ), 'utf8' );
+const adminCss = fs.readFileSync( path.join( repo, 'live-sheets-table-pro/assets/css/lstabp-admin.css' ), 'utf8' );
+const cardFile = path.join( repo, 'build/column-looks-card.html' );
+
+fs.writeFileSync( cardFile, `<!doctype html><meta charset="utf-8"><style>${ adminCss }</style>${ cardMarkup }<script>${ adminJs }</script>` );
+
+const card = await browser.newPage( { viewport: { width: 1100, height: 700 } } );
+const cardErrors = [];
+
+card.on( 'pageerror', ( e ) => cardErrors.push( e.message ) );
+await card.goto( 'file://' + cardFile );
+await card.waitForTimeout( 200 );
+
+const shown = async () => card.evaluate( () => {
+	const row = [ ...document.querySelectorAll( '.lstabp-look' ) ].find( ( r ) => r.querySelector( '.lstabp-look-name' ).textContent === 'Session' );
+
+	return [ ...row.querySelectorAll( '.lstabp-look-colour' ) ]
+		.map( ( f ) => ( { forLook: f.dataset.lstabpFor, seen: getComputedStyle( f ).display !== 'none' } ) );
+} );
+
+const sessionRow = '.lstabp-look:has( .lstabp-look-name:text-is( "Session" ) )';
+
+check(
+	( await shown() ).every( ( f ) => ! f.seen ),
+	'a column with no look chosen shows no colour fields at all'
+);
+
+await card.selectOption( `${ sessionRow } .lstabp-look-pick`, 'bar' );
+await card.waitForTimeout( 80 );
+
+const asBar = await shown();
+
+check(
+	asBar.filter( ( f ) => f.seen ).length === 1 && asBar.find( ( f ) => f.seen ).forLook.includes( 'bar' ),
+	'a bar is offered one colour and nothing else',
+	JSON.stringify( asBar )
+);
+
+await card.selectOption( `${ sessionRow } .lstabp-look-pick`, 'button' );
+await card.waitForTimeout( 80 );
+
+const asButton = await shown();
+
+check(
+	asButton.filter( ( f ) => f.seen ).length === 3,
+	'a button is offered a background, a text colour and its own words',
+	JSON.stringify( asButton )
+);
+
+await card.fill( `${ sessionRow } .lstabp-look-label`, 'Read on' );
+await card.waitForTimeout( 80 );
+
+const collected = await card.evaluate( () => {
+	const fields = {};
+
+	( window.lstabPreviewFields || [] ).forEach( ( collect ) => Object.assign( fields, collect() ) );
+
+	return fields;
+} );
+
+check(
+	collected.looks && collected.looks.Session && 'button' === collected.looks.Session.look,
+	'the preview is told what is being chosen, before anything is saved',
+	JSON.stringify( collected.looks )
+);
+check(
+	collected.looks && collected.looks.Session && 'Read on' === collected.looks.Session.label,
+	'including the words typed into the button a moment ago'
+);
+check(
+	collected.looks && collected.looks[ 'Seats left' ] && 'bar' === collected.looks[ 'Seats left' ].look,
+	'and what was already saved, so nothing disappears while something else is chosen'
+);
+// Set back to ordinary here, rather than assumed: the card was rendered with
+// Booking wearing a button, so leaving it alone would have proved nothing.
+await card.selectOption( '.lstabp-look:has( .lstabp-look-name:text-is( "Booking" ) ) .lstabp-look-pick', '' );
+await card.waitForTimeout( 80 );
+
+const afterOrdinary = await card.evaluate( () => {
+	const fields = {};
+
+	( window.lstabPreviewFields || [] ).forEach( ( collect ) => Object.assign( fields, collect() ) );
+
+	return fields;
+} );
+
+check(
+	afterOrdinary.looks && ! afterOrdinary.looks.Booking,
+	'a column set back to ordinary is left out',
+	JSON.stringify( afterOrdinary.looks )
+);
+check( Array.isArray( collected.facets ), 'the filter columns travel with it too' );
+check( cardErrors.length === 0, 'no errors on the card', cardErrors.join( ' | ' ) );
+
 check( errors.length === 0, 'no errors in the console', errors.join( ' | ' ) );
 
 await tab.screenshot( { path: path.join( repo, 'build/column-looks.png' ), fullPage: true } );
