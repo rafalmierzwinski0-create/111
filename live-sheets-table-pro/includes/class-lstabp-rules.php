@@ -52,16 +52,17 @@ class LSTABP_Rules {
 	protected $cells = array();
 
 	/**
-	 * Which cells wear their value as a pill.
+	 * Which cells wear their value in a shape, and which shape.
 	 *
-	 * The look is a shape, not only a colour, so it cannot be said in the
-	 * inline style a cell carries: the shape belongs to the value inside the
-	 * cell, and an inline style cannot reach a child. The cell is given a
-	 * class instead, and the stylesheet draws the pill around the value.
+	 * A pill around the value, or a dot before it. Either is a shape rather
+	 * than only a colour, so it cannot be said in the inline style a cell
+	 * carries: the shape belongs to the value inside the cell, and an inline
+	 * style cannot reach a child. The cell is given a class instead, and the
+	 * stylesheet draws the shape around or beside the value.
 	 *
-	 * @var array<int,array<int,bool>>
+	 * @var array<int,array<int,string>>
 	 */
-	protected $pills = array();
+	protected $shapes = array();
 
 	/**
 	 * What each rendered row should look like, keyed by row position.
@@ -264,7 +265,7 @@ class LSTABP_Rules {
 			return 'color:' . $hex . ';';
 		}
 
-		if ( 'pill' === $scope ) {
+		if ( 'pill' === $scope || 'dot' === $scope ) {
 			/*
 			 * A badge rather than a painted cell: an outline in the rule's
 			 * colour around the value, with a wash of the same colour behind
@@ -277,6 +278,16 @@ class LSTABP_Rules {
 			 * and anchors the contrast to whatever the table is wearing, dark
 			 * skin or light.
 			 */
+			if ( 'dot' === $scope ) {
+				/*
+				 * The quietest of the looks: a full-strength spot of colour
+				 * before the value, and the value left as it was. Nothing is
+				 * mixed here — the dot is not text, so it has no readability
+				 * to trade away, and a washed-out dot says nothing at all.
+				 */
+				return '--lstabp-dot:' . $hex . ';';
+			}
+
 			return '--lstabp-pill-line:' . $hex . ';'
 				. '--lstabp-pill-fill:color-mix(in srgb,' . $hex . ' 18%,transparent);'
 				. '--lstabp-pill-ink:color-mix(in srgb,' . $hex . ' 55%,currentColor);';
@@ -632,7 +643,7 @@ class LSTABP_Rules {
 					isset( $rule['style'] ) ? $rule['style'] : '',
 					isset( $rule['custom'] ) ? $rule['custom'] : ''
 				),
-				'scope'    => ( isset( $rule['scope'] ) && in_array( $rule['scope'], array( 'row', 'text', 'pill' ), true ) )
+				'scope'    => ( isset( $rule['scope'] ) && in_array( $rule['scope'], array( 'row', 'text', 'pill', 'dot' ), true ) )
 					? $rule['scope']
 					: 'cell',
 			);
@@ -659,7 +670,7 @@ class LSTABP_Rules {
 	 */
 	public function capture( $rows, $headers, $source, $args ) {
 		$this->cells = array();
-		$this->pills = array();
+		$this->shapes = array();
 		$this->rows  = array();
 
 		$rules = self::for_source( isset( $source['id'] ) ? $source['id'] : 0 );
@@ -699,8 +710,8 @@ class LSTABP_Rules {
 				if ( isset( $rendered[ $position ] ) ) {
 					$this->cells[ $row_index ][ $rendered[ $position ] ] = $css;
 
-					if ( 'pill' === $rule['scope'] ) {
-						$this->pills[ $row_index ][ $rendered[ $position ] ] = true;
+					if ( 'pill' === $rule['scope'] || 'dot' === $rule['scope'] ) {
+						$this->shapes[ $row_index ][ $rendered[ $position ] ] = $rule['scope'];
 					}
 				}
 			}
@@ -756,8 +767,8 @@ class LSTABP_Rules {
 
 		$lstabp_classes .= 'lstab-ruled';
 
-		if ( isset( $this->pills[ $row_index ][ $col_index ] ) ) {
-			$lstabp_classes .= ' lstabp-pill';
+		if ( isset( $this->shapes[ $row_index ][ $col_index ] ) ) {
+			$lstabp_classes .= ' lstabp-' . $this->shapes[ $row_index ][ $col_index ];
 		}
 
 		$attributes['class'] = trim( $lstabp_classes );
@@ -777,7 +788,7 @@ class LSTABP_Rules {
 	 * @param array<string,mixed> $args    Rendering options.
 	 * @return array<int,int>
 	 */
-	protected static function rendered_positions( $headers, $source, $args ) {
+	public static function rendered_positions( $headers, $source, $args ) {
 		$config = ( isset( $args['columns'] ) && null !== $args['columns'] )
 			? $args['columns']
 			: ( isset( $source['columns_config'] ) ? $source['columns_config'] : array() );
@@ -804,7 +815,7 @@ class LSTABP_Rules {
 	 * @param string $name Column name.
 	 * @return string
 	 */
-	protected static function key( $name ) {
+	public static function key( $name ) {
 		return function_exists( 'mb_strtolower' )
 			? mb_strtolower( trim( $name ), 'UTF-8' )
 			: strtolower( trim( $name ) );

@@ -1,0 +1,129 @@
+{
+    "headers": [
+        "Session",
+        "Seats left",
+        "Booking"
+    ],
+    "rows": [
+        [
+            {
+                "value": "Opening keynote",
+                "html": null,
+                "attributes": {
+                    "data-label": "Session",
+                    "data-lstab-align": "start"
+                }
+            },
+            {
+                "value": "120",
+                "html": null,
+                "attributes": {
+                    "data-label": "Seats left",
+                    "data-lstab-align": "end",
+                    "class": "lstabp-bar",
+                    "style": "--lstabp-bar:100.00%;--lstabp-bar-colour:#5fe3cf;"
+                }
+            },
+            {
+                "value": "https://example.com/book/1",
+                "html": "<a class=\"lstabp-cta-link\" href=\"https://example.com/book/1\" rel=\"nofollow noopener\">Book a seat</a>",
+                "attributes": {
+                    "data-label": "Booking",
+                    "data-lstab-align": "start",
+                    "class": "lstabp-button",
+                    "style": "--lstabp-cta-bg:#5fe3cf;--lstabp-cta-ink:#06100f;"
+                }
+            }
+        ],
+        [
+            {
+                "value": "Readability",
+                "html": null,
+                "attributes": {
+                    "data-label": "Session",
+                    "data-lstab-align": "start"
+                }
+            },
+            {
+                "value": "18",
+                "html": null,
+                "attributes": {
+                    "data-label": "Seats left",
+                    "data-lstab-align": "end",
+                    "class": "lstabp-bar",
+                    "style": "--lstabp-bar:16.70%;--lstabp-bar-colour:#5fe3cf;"
+                }
+            },
+            {
+                "value": "https://example.com/book/2",
+                "html": "<a class=\"lstabp-cta-link\" href=\"https://example.com/book/2\" rel=\"nofollow noopener\">Book a seat</a>",
+                "attributes": {
+                    "data-label": "Booking",
+                    "data-lstab-align": "start",
+                    "class": "lstabp-button",
+                    "style": "--lstabp-cta-bg:#5fe3cf;--lstabp-cta-ink:#06100f;"
+                }
+            }
+        ],
+        [
+            {
+                "value": "Faster websites",
+                "html": null,
+                "attributes": {
+                    "data-label": "Session",
+                    "data-lstab-align": "start"
+                }
+            },
+            {
+                "value": "64",
+                "html": null,
+                "attributes": {
+                    "data-label": "Seats left",
+                    "data-lstab-align": "end",
+                    "class": "lstabp-bar",
+                    "style": "--lstabp-bar:54.27%;--lstabp-bar-colour:#5fe3cf;"
+                }
+            },
+            {
+                "value": "ask at the desk",
+                "html": null,
+                "attributes": {
+                    "data-label": "Booking",
+                    "data-lstab-align": "start",
+                    "class": "lstabp-button",
+                    "style": "--lstabp-cta-bg:#5fe3cf;--lstabp-cta-ink:#06100f;"
+                }
+            }
+        ],
+        [
+            {
+                "value": "Spreadsheets",
+                "html": null,
+                "attributes": {
+                    "data-label": "Session",
+                    "data-lstab-align": "start"
+                }
+            },
+            {
+                "value": "0",
+                "html": null,
+                "attributes": {
+                    "data-label": "Seats left",
+                    "data-lstab-align": "end",
+                    "class": "lstabp-bar",
+                    "style": "--lstabp-bar:2.00%;--lstabp-bar-colour:#5fe3cf;"
+                }
+            },
+            {
+                "value": "",
+                "html": null,
+                "attributes": {
+                    "data-label": "Booking",
+                    "data-lstab-align": "start",
+                    "class": "lstabp-button",
+                    "style": "--lstabp-cta-bg:#5fe3cf;--lstabp-cta-ink:#06100f;"
+                }
+            }
+        ]
+    ]
+}

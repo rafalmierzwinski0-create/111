@@ -32,6 +32,16 @@ echo "=============================================="
 php "$REPO/tests/sort-test.php"
 node "$REPO/tests/sort-browser.mjs"
 
+echo
+echo "=============================================="
+echo " Column looks — bars, buttons and the shapes a rule wears"
+echo "=============================================="
+# Same shape as the sorting pair: the PHP run writes the cells it produced and
+# the browser run draws exactly those, so what is checked is what the plugin
+# emits rather than a hand-typed imitation of it.
+php "$REPO/tests/column-looks-test.php"
+node "$REPO/tests/column-looks-browser.mjs"
+
 # A long-lived sandbox reaps idle background processes, so the servers built by
 # setup-env.sh are often gone by the time anybody runs this. Three whole runs
 # have failed that way, every one of them reported as a broken plugin. They are

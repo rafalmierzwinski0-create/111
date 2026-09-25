@@ -77,6 +77,8 @@ defined( 'ABSPATH' ) || exit;
 						<option value="text" <?php selected( $lstabp_rule['scope'], 'text' ); ?>><?php esc_html_e( 'just the words in that cell', 'live-sheets-table-pro' ); ?></option>
 						<?php // A badge around the value: what a status column usually wants. ?>
 						<option value="pill" <?php selected( $lstabp_rule['scope'], 'pill' ); ?>><?php esc_html_e( 'a pill around that value', 'live-sheets-table-pro' ); ?></option>
+						<?php // The quietest of the looks, for a column where even a pill is too much. ?>
+						<option value="dot" <?php selected( $lstabp_rule['scope'], 'dot' ); ?>><?php esc_html_e( 'a dot before that value', 'live-sheets-table-pro' ); ?></option>
 					</select>
 
 					<?php
@@ -169,7 +171,7 @@ defined( 'ABSPATH' ) || exit;
 					 * long value stretched the line as it was typed.
 					 */
 					?>
-					<span class="lstabp-swatch<?php echo 'pill' === $lstabp_rule['scope'] ? ' lstabp-pill-face' : ''; ?>" style="<?php echo esc_attr( LSTABP_Rules::css_for( $lstabp_style, $lstabp_rule['scope'] ) ); ?>">
+					<span class="lstabp-swatch<?php echo in_array( $lstabp_rule['scope'], array( 'pill', 'dot' ), true ) ? ' lstabp-' . esc_attr( $lstabp_rule['scope'] ) . '-face' : ''; ?>" style="<?php echo esc_attr( LSTABP_Rules::css_for( $lstabp_style, $lstabp_rule['scope'] ) ); ?>">
 						<?php esc_html_e( 'Abc', 'live-sheets-table-pro' ); ?>
 					</span>
 					</span>

@@ -217,6 +217,10 @@
 			return 'color:' + style + ';';
 		}
 
+		if ( where && 'dot' === where.value ) {
+			return '--lstabp-dot:' + style + ';';
+		}
+
 		if ( where && 'pill' === where.value ) {
 			// The same three properties the server writes; the shape itself
 			// comes from the class the swatch is given below.
@@ -251,6 +255,7 @@
 		var where = line ? line.querySelector( 'select[name*="[scope]"]' ) : null;
 
 		swatch.classList.toggle( 'lstabp-pill-face', !! ( where && 'pill' === where.value ) );
+		swatch.classList.toggle( 'lstabp-dot-face', !! ( where && 'dot' === where.value ) );
 
 		/*
 		 * The wheel wears the colour it stands for once one has been picked,
@@ -309,6 +314,26 @@
 		return rules;
 	}
 
+	/**
+	 * Show the fields the chosen look actually uses.
+	 *
+	 * The choice is kept on the row rather than in the script, so the stylesheet
+	 * does the showing and hiding and the page looks right before this ever runs.
+	 *
+	 * @param {Element} pick The look chooser that changed.
+	 * @return {void}
+	 */
+	function lookChanged( pick ) {
+		var row = pick.closest( '.lstabp-look' );
+
+		if ( ! row ) {
+			return;
+		}
+
+		row.dataset.lstabpLook = pick.value;
+		row.classList.toggle( 'is-on', '' !== pick.value );
+	}
+
 	function init() {
 		/*
 		 * A rule being typed exists only in this form until it is saved, so it
@@ -336,6 +361,21 @@
 			}, 500 );
 		}
 
+		/*
+		 * The column looks are a card of their own, so they need a listener of
+		 * their own: the one below is bound to the rules card and would never
+		 * hear a word said on this one.
+		 */
+		var looks = document.querySelector( '.lstabp-looks-card' );
+
+		if ( looks ) {
+			looks.addEventListener( 'change', function ( event ) {
+				if ( event.target.classList.contains( 'lstabp-look-pick' ) ) {
+					lookChanged( event.target );
+				}
+			} );
+		}
+
 		var card = document.querySelector( '.lstabp-rules-card' );
 
 		if ( card ) {
@@ -361,6 +401,7 @@
 				if ( 'SELECT' === target.tagName && -1 !== target.name.indexOf( '[scope]' ) ) {
 					paint( target );
 				}
+
 
 				// A line being filled in is no longer one of the blank ones
 				// waiting at the bottom.

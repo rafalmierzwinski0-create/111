@@ -432,3 +432,75 @@
 .lstabp-rules-add .lstab-mini[hidden] {
 	display: none;
 }
+
+/* ---------------------------------------------------------------- column looks */
+
+.lstabp-looks {
+	margin: 0 0 1em;
+	padding: 0;
+	list-style: none;
+	display: grid;
+	gap: 6px;
+}
+
+.lstabp-look {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+	padding: 8px 10px;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	background: #fff;
+}
+
+.lstabp-look.is-on {
+	border-color: #9ec8bf;
+	box-shadow: inset 3px 0 0 #2f7d6e;
+}
+
+.lstabp-look-name {
+	min-width: 14ch;
+	font-weight: 600;
+}
+
+/* Only the fields the chosen look has any use for. A bar has no words of its
+   own, so it has no ink and nothing to say. */
+.lstabp-look-colour {
+	display: none;
+	align-items: center;
+}
+
+.lstabp-look[ data-lstabp-look="bar" ] .lstabp-look-colour[ data-lstabp-for~="bar" ],
+.lstabp-look[ data-lstabp-look="button" ] .lstabp-look-colour[ data-lstabp-for~="button" ] {
+	display: inline-flex;
+}
+
+.lstabp-look-colour label {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.lstabp-look-colour-name {
+	color: #50575e;
+	font-size: 12px;
+}
+
+.lstabp-look-colour input[ type="color" ] {
+	width: 34px;
+	height: 26px;
+	padding: 2px;
+	border: 1px solid #dcdcde;
+	border-radius: 5px;
+	background: #fff;
+	cursor: pointer;
+}
+
+.lstabp-look-label {
+	width: 12ch;
+}
+
+.lstabp-looks-card.is-waiting .lstabp-looks {
+	display: none;
+}

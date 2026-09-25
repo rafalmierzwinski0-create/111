@@ -1585,9 +1585,84 @@
 	white-space: nowrap;
 }
 
+/*
+ * The same rule wearing the quietest of its looks: a spot of colour before the
+ * value, and the value left exactly as it was. For a status column where even
+ * a pill is more than the page wants.
+ */
+.lstabp-dot .lstab-cell-value::before,
+.lstabp-dot-face::before {
+	content: "";
+	display: inline-block;
+	width: 0.6em;
+	height: 0.6em;
+	margin-right: 0.55em;
+	border-radius: 999px;
+	background-color: var( --lstabp-dot, currentColor );
+}
+
 /* A pill in a column that lines up on the right keeps to its own edge. */
 .lstab-table td[data-lstab-align="end"].lstabp-pill {
 	text-align: right;
+}
+
+/*
+ * A whole column given a look of its own (Pro).
+ *
+ * The bar is drawn with ::after rather than ::before, because a pinned first
+ * column already uses ::before to paint the backdrop that hides the columns
+ * sliding underneath it — and the bar has to be able to sit in that column too.
+ *
+ * Both are only ever a wash of colour behind the value. The value keeps its
+ * place on top and keeps being text, so it is still searched, still sorted and
+ * still downloaded as what the sheet says.
+ */
+.lstabp-bar {
+	position: relative;
+}
+
+.lstabp-bar::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 14%;
+	bottom: 14%;
+	width: var( --lstabp-bar, 0 );
+	border-radius: 3px;
+	background-color: var( --lstabp-bar-colour, var( --lstab-accent ) );
+	opacity: 0.28;
+	pointer-events: none;
+}
+
+.lstabp-bar .lstab-cell-value {
+	position: relative;
+}
+
+/*
+ * Written against the value rather than as a class on its own: a link inside a
+ * cell is already given the table's accent colour a few hundred lines above,
+ * by a selector one step more specific than a lone class. A button whose
+ * colours were chosen by hand and then quietly overruled by the accent is
+ * exactly the bug this suite caught.
+ */
+.lstab-cell-value a.lstabp-cta-link {
+	display: inline-block;
+	padding: 0.34em 1em;
+	border-radius: 999px;
+	background-color: var( --lstabp-cta-bg, var( --lstab-accent ) );
+	color: var( --lstabp-cta-ink, #06100f );
+	font-size: 0.88em;
+	font-weight: 600;
+	line-height: 1.35;
+	white-space: nowrap;
+	text-decoration: none;
+	transition: filter 0.15s ease;
+}
+
+.lstab-cell-value a.lstabp-cta-link:hover,
+.lstab-cell-value a.lstabp-cta-link:focus-visible {
+	filter: brightness( 1.08 );
+	text-decoration: none;
 }
 
 .lstabp-export {
@@ -1831,11 +1906,11 @@ h1 { font-family: "Inria Serif", Georgia, serif; font-weight: 300; font-size: 44
 <p class="wstep">The same eight rows, set up the way the plugin lets you set them up: its own colours, rules that paint a row or turn a value into a pill, filters your visitors can use, a pinned first column and downloads under the table.</p>
 
 <p class="metka">Na stronie</p>
-<div class="lstab-container"><div class="lstab lstab-style-midnight lstab-cols-5 lstab-sticky-first lstab-sticky-head lstab-mieta"><div class="lstabp-facets"><span class="lstabp-facets-label">Show only:</span><details class="lstabp-facet"><summary><b>Room:</b><span class="lstabp-facet-now">any</span></summary><div class="lstabp-facet-menu"><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Main hall</span><span class="lstabp-facet-count">3</span></a><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Hall B</span><span class="lstabp-facet-count">2</span></a><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Studio</span><span class="lstabp-facet-count">3</span></a></div></details><details class="lstabp-facet"><summary><b>Status:</b><span class="lstabp-facet-now">any</span></summary><div class="lstabp-facet-menu"><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Open</span><span class="lstabp-facet-count">4</span></a><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Waitlist</span><span class="lstabp-facet-count">2</span></a><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Full</span><span class="lstabp-facet-count">2</span></a></div></details></div><div class="lstab-controls"><label class="lstab-search"><input type="search" class="lstab-search-input" placeholder="Search&hellip;" value=""></label><span class="lstab-count" data-lstab-count-template="%1$s of %2$s rows">8 of 8 rows</span></div><p class="lstab-caption">Programme &mdash; day one</p><div class="lstab-scroll" tabindex="0" role="region" aria-label="Table, scrollable sideways"><table class="lstab-table" role="table"><thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader" data-lstab-col="0" data-lstab-align="start"><button type="button" class="lstab-sort"><span class="lstab-sort-label">Session</span><span class="lstab-sort-icon" aria-hidden="true"></span></button></th><th scope="col" role="columnheader" data-lstab-col="1" data-lstab-align="start"><button type="button" class="lstab-sort"><span class="lstab-sort-label">Starts</span><span class="lstab-sort-icon" aria-hidden="true"></span></button></th><th scope="col" role="columnheader" data-lstab-col="2" data-lstab-align="start"><button type="button" class="lstab-sort"><span class="lstab-sort-label">Room</span><span class="lstab-sort-icon" aria-hidden="true"></span></button></th><th scope="col" role="columnheader" data-lstab-col="3" data-lstab-align="end"><button type="button" class="lstab-sort"><span class="lstab-sort-label">Seats left</span><span class="lstab-sort-icon" aria-hidden="true"></span></button></th><th scope="col" role="columnheader" data-lstab-col="4" data-lstab-align="start"><button type="button" class="lstab-sort"><span class="lstab-sort-label">Status</span><span class="lstab-sort-icon" aria-hidden="true"></span></button></th></tr></thead><tbody role="rowgroup"><tr role="row" class="lstab-row"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Opening keynote</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">09:30</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Main hall</span></td><td role="cell" data-label="Seats left" data-lstab-align="end"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">120</span></td><td role="cell" data-label="Status" data-lstab-align="start" class="lstab-ruled lstabp-pill" style="--lstabp-pill-line:#5fe3cf;--lstabp-pill-fill:color-mix(in srgb,#5fe3cf 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#5fe3cf 55%,currentColor);"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Open</span></td></tr><tr role="row" class="lstab-row" style="background-color:#4a3a12;color:#ffeec4;--lstab-fg-faint:color-mix(in srgb,#ffeec4 78%,#4a3a12);--lstab-row-tint:#4a3a12;"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Designing for readability</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">10:45</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Studio</span></td><td role="cell" data-label="Seats left" data-lstab-align="end"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">18</span></td><td role="cell" data-label="Status" data-lstab-align="start"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Waitlist</span></td></tr><tr role="row" class="lstab-row"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Building faster websites</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">11:30</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Hall B</span></td><td role="cell" data-label="Seats left" data-lstab-align="end"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">64</span></td><td role="cell" data-label="Status" data-lstab-align="start" class="lstab-ruled lstabp-pill" style="--lstabp-pill-line:#5fe3cf;--lstabp-pill-fill:color-mix(in srgb,#5fe3cf 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#5fe3cf 55%,currentColor);"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Open</span></td></tr><tr role="row" class="lstab-row" style="background-color:#4a1f28;color:#ffe3e8;--lstab-fg-faint:color-mix(in srgb,#ffe3e8 78%,#4a1f28);--lstab-row-tint:#4a1f28;"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Working with spreadsheets</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">13:00</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Studio</span></td><td role="cell" data-label="Seats left" data-lstab-align="end"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">0</span></td><td role="cell" data-label="Status" data-lstab-align="start"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Full</span></td></tr><tr role="row" class="lstab-row" style="background-color:#4a3a12;color:#ffeec4;--lstab-fg-faint:color-mix(in srgb,#ffeec4 78%,#4a3a12);--lstab-row-tint:#4a3a12;"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Accessibility in practice</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">15:15</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Hall B</span></td><td role="cell" data-label="Seats left" data-lstab-align="end"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">7</span></td><td role="cell" data-label="Status" data-lstab-align="start"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Waitlist</span></td></tr><tr role="row" class="lstab-row"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Rebuilding an online shop</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">16:00</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Main hall</span></td><td role="cell" data-label="Seats left" data-lstab-align="end"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">95</span></td><td role="cell" data-label="Status" data-lstab-align="start" class="lstab-ruled lstabp-pill" style="--lstabp-pill-line:#5fe3cf;--lstabp-pill-fill:color-mix(in srgb,#5fe3cf 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#5fe3cf 55%,currentColor);"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Open</span></td></tr><tr role="row" class="lstab-row"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Lightning talks</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">17:00</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Studio</span></td><td role="cell" data-label="Seats left" data-lstab-align="end"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">31</span></td><td role="cell" data-label="Status" data-lstab-align="start" class="lstab-ruled lstabp-pill" style="--lstabp-pill-line:#5fe3cf;--lstabp-pill-fill:color-mix(in srgb,#5fe3cf 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#5fe3cf 55%,currentColor);"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Open</span></td></tr><tr role="row" class="lstab-row" style="background-color:#4a1f28;color:#ffe3e8;--lstab-fg-faint:color-mix(in srgb,#ffe3e8 78%,#4a1f28);--lstab-row-tint:#4a1f28;"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Closing panel</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">17:45</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Main hall</span></td><td role="cell" data-label="Seats left" data-lstab-align="end"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">0</span></td><td role="cell" data-label="Status" data-lstab-align="start"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Full</span></td></tr></tbody></table></div><p class="lstabp-export"><a class="lstabp-export-button" href="#" rel="nofollow">Download for Excel</a><a class="lstabp-export-button" href="#" rel="nofollow">Download CSV</a><button type="button" class="lstabp-export-button">Print</button></p><div class="lstab-foot"><p class="lstab-meta">Updated 4 mins ago</p></div></div></div>
+<div class="lstab-container"><div class="lstab lstab-style-midnight lstab-cols-5 lstab-sticky-first lstab-sticky-head lstab-mieta"><div class="lstabp-facets"><span class="lstabp-facets-label">Show only:</span><details class="lstabp-facet"><summary><b>Room:</b><span class="lstabp-facet-now">any</span></summary><div class="lstabp-facet-menu"><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Main hall</span><span class="lstabp-facet-count">3</span></a><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Hall B</span><span class="lstabp-facet-count">2</span></a><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Studio</span><span class="lstabp-facet-count">3</span></a></div></details><details class="lstabp-facet"><summary><b>Status:</b><span class="lstabp-facet-now">any</span></summary><div class="lstabp-facet-menu"><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Open</span><span class="lstabp-facet-count">4</span></a><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Waitlist</span><span class="lstabp-facet-count">2</span></a><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Full</span><span class="lstabp-facet-count">2</span></a></div></details></div><div class="lstab-controls"><label class="lstab-search"><input type="search" class="lstab-search-input" placeholder="Search&hellip;" value=""></label><span class="lstab-count" data-lstab-count-template="%1$s of %2$s rows">8 of 8 rows</span></div><p class="lstab-caption">Programme &mdash; day one</p><div class="lstab-scroll" tabindex="0" role="region" aria-label="Table, scrollable sideways"><table class="lstab-table" role="table"><thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader" data-lstab-col="0" data-lstab-align="start"><button type="button" class="lstab-sort"><span class="lstab-sort-label">Session</span><span class="lstab-sort-icon" aria-hidden="true"></span></button></th><th scope="col" role="columnheader" data-lstab-col="1" data-lstab-align="start"><button type="button" class="lstab-sort"><span class="lstab-sort-label">Starts</span><span class="lstab-sort-icon" aria-hidden="true"></span></button></th><th scope="col" role="columnheader" data-lstab-col="2" data-lstab-align="start"><button type="button" class="lstab-sort"><span class="lstab-sort-label">Room</span><span class="lstab-sort-icon" aria-hidden="true"></span></button></th><th scope="col" role="columnheader" data-lstab-col="3" data-lstab-align="end"><button type="button" class="lstab-sort"><span class="lstab-sort-label">Seats left</span><span class="lstab-sort-icon" aria-hidden="true"></span></button></th><th scope="col" role="columnheader" data-lstab-col="4" data-lstab-align="start"><button type="button" class="lstab-sort"><span class="lstab-sort-label">Status</span><span class="lstab-sort-icon" aria-hidden="true"></span></button></th></tr></thead><tbody role="rowgroup"><tr role="row" class="lstab-row"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Opening keynote</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">09:30</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Main hall</span></td><td role="cell" data-label="Seats left" data-lstab-align="end" class="lstabp-bar" style="--lstabp-bar:100.00%;--lstabp-bar-colour:#5fe3cf;"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">120</span></td><td role="cell" data-label="Status" data-lstab-align="start" class="lstab-ruled lstabp-pill" style="--lstabp-pill-line:#5fe3cf;--lstabp-pill-fill:color-mix(in srgb,#5fe3cf 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#5fe3cf 55%,currentColor);"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Open</span></td></tr><tr role="row" class="lstab-row" style="background-color:#4a3a12;color:#ffeec4;--lstab-fg-faint:color-mix(in srgb,#ffeec4 78%,#4a3a12);--lstab-row-tint:#4a3a12;"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Designing for readability</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">10:45</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Studio</span></td><td role="cell" data-label="Seats left" data-lstab-align="end" class="lstabp-bar" style="--lstabp-bar:16.70%;--lstabp-bar-colour:#5fe3cf;"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">18</span></td><td role="cell" data-label="Status" data-lstab-align="start"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Waitlist</span></td></tr><tr role="row" class="lstab-row"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Building faster websites</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">11:30</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Hall B</span></td><td role="cell" data-label="Seats left" data-lstab-align="end" class="lstabp-bar" style="--lstabp-bar:54.27%;--lstabp-bar-colour:#5fe3cf;"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">64</span></td><td role="cell" data-label="Status" data-lstab-align="start" class="lstab-ruled lstabp-pill" style="--lstabp-pill-line:#5fe3cf;--lstabp-pill-fill:color-mix(in srgb,#5fe3cf 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#5fe3cf 55%,currentColor);"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Open</span></td></tr><tr role="row" class="lstab-row" style="background-color:#4a1f28;color:#ffe3e8;--lstab-fg-faint:color-mix(in srgb,#ffe3e8 78%,#4a1f28);--lstab-row-tint:#4a1f28;"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Working with spreadsheets</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">13:00</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Studio</span></td><td role="cell" data-label="Seats left" data-lstab-align="end" class="lstabp-bar" style="--lstabp-bar:2.00%;--lstabp-bar-colour:#5fe3cf;"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">0</span></td><td role="cell" data-label="Status" data-lstab-align="start"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Full</span></td></tr><tr role="row" class="lstab-row" style="background-color:#4a3a12;color:#ffeec4;--lstab-fg-faint:color-mix(in srgb,#ffeec4 78%,#4a3a12);--lstab-row-tint:#4a3a12;"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Accessibility in practice</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">15:15</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Hall B</span></td><td role="cell" data-label="Seats left" data-lstab-align="end" class="lstabp-bar" style="--lstabp-bar:7.72%;--lstabp-bar-colour:#5fe3cf;"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">7</span></td><td role="cell" data-label="Status" data-lstab-align="start"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Waitlist</span></td></tr><tr role="row" class="lstab-row"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Rebuilding an online shop</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">16:00</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Main hall</span></td><td role="cell" data-label="Seats left" data-lstab-align="end" class="lstabp-bar" style="--lstabp-bar:79.58%;--lstabp-bar-colour:#5fe3cf;"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">95</span></td><td role="cell" data-label="Status" data-lstab-align="start" class="lstab-ruled lstabp-pill" style="--lstabp-pill-line:#5fe3cf;--lstabp-pill-fill:color-mix(in srgb,#5fe3cf 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#5fe3cf 55%,currentColor);"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Open</span></td></tr><tr role="row" class="lstab-row"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Lightning talks</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">17:00</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Studio</span></td><td role="cell" data-label="Seats left" data-lstab-align="end" class="lstabp-bar" style="--lstabp-bar:27.32%;--lstabp-bar-colour:#5fe3cf;"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">31</span></td><td role="cell" data-label="Status" data-lstab-align="start" class="lstab-ruled lstabp-pill" style="--lstabp-pill-line:#5fe3cf;--lstabp-pill-fill:color-mix(in srgb,#5fe3cf 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#5fe3cf 55%,currentColor);"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Open</span></td></tr><tr role="row" class="lstab-row" style="background-color:#4a1f28;color:#ffe3e8;--lstab-fg-faint:color-mix(in srgb,#ffe3e8 78%,#4a1f28);--lstab-row-tint:#4a1f28;"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Closing panel</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">17:45</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Main hall</span></td><td role="cell" data-label="Seats left" data-lstab-align="end" class="lstabp-bar" style="--lstabp-bar:2.00%;--lstabp-bar-colour:#5fe3cf;"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">0</span></td><td role="cell" data-label="Status" data-lstab-align="start"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Full</span></td></tr></tbody></table></div><p class="lstabp-export"><a class="lstabp-export-button" href="#" rel="nofollow">Download for Excel</a><a class="lstabp-export-button" href="#" rel="nofollow">Download CSV</a><button type="button" class="lstabp-export-button">Print</button></p><div class="lstab-foot"><p class="lstab-meta">Updated 4 mins ago</p></div></div></div>
 <p class="uwaga">Wiersze &bdquo;Full&rdquo; i &bdquo;Waitlist&rdquo; maluje regu&#322;a z Pro &mdash; kolor liczy si&#281; na serwerze, wi&#281;c jest ju&#380; w kodzie strony, kt&#243;ry dostaje odwiedzaj&#261;cy.</p>
 
 <p class="metka">W w&#261;skiej kolumnie &mdash; sk&#322;ada si&#281; w karty</p>
-<div class="waska"><div class="lstab-container"><div class="lstab lstab-style-midnight lstab-cols-5 lstab-sticky-first lstab-sticky-head lstab-mieta"><div class="lstabp-facets"><span class="lstabp-facets-label">Show only:</span><details class="lstabp-facet"><summary><b>Room:</b><span class="lstabp-facet-now">any</span></summary><div class="lstabp-facet-menu"><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Main hall</span><span class="lstabp-facet-count">3</span></a><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Hall B</span><span class="lstabp-facet-count">2</span></a><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Studio</span><span class="lstabp-facet-count">3</span></a></div></details><details class="lstabp-facet"><summary><b>Status:</b><span class="lstabp-facet-now">any</span></summary><div class="lstabp-facet-menu"><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Open</span><span class="lstabp-facet-count">4</span></a><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Waitlist</span><span class="lstabp-facet-count">2</span></a><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Full</span><span class="lstabp-facet-count">2</span></a></div></details></div><div class="lstab-controls"><label class="lstab-search"><input type="search" class="lstab-search-input" placeholder="Search&hellip;" value=""></label><span class="lstab-count" data-lstab-count-template="%1$s of %2$s rows">3 of 3 rows</span></div><p class="lstab-caption">Programme &mdash; day one</p><div class="lstab-scroll" tabindex="0" role="region" aria-label="Table, scrollable sideways"><table class="lstab-table" role="table"><thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader" data-lstab-col="0" data-lstab-align="start"><button type="button" class="lstab-sort"><span class="lstab-sort-label">Session</span><span class="lstab-sort-icon" aria-hidden="true"></span></button></th><th scope="col" role="columnheader" data-lstab-col="1" data-lstab-align="start"><button type="button" class="lstab-sort"><span class="lstab-sort-label">Starts</span><span class="lstab-sort-icon" aria-hidden="true"></span></button></th><th scope="col" role="columnheader" data-lstab-col="2" data-lstab-align="start"><button type="button" class="lstab-sort"><span class="lstab-sort-label">Room</span><span class="lstab-sort-icon" aria-hidden="true"></span></button></th><th scope="col" role="columnheader" data-lstab-col="3" data-lstab-align="end"><button type="button" class="lstab-sort"><span class="lstab-sort-label">Seats left</span><span class="lstab-sort-icon" aria-hidden="true"></span></button></th><th scope="col" role="columnheader" data-lstab-col="4" data-lstab-align="start"><button type="button" class="lstab-sort"><span class="lstab-sort-label">Status</span><span class="lstab-sort-icon" aria-hidden="true"></span></button></th></tr></thead><tbody role="rowgroup"><tr role="row" class="lstab-row"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Opening keynote</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">09:30</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Main hall</span></td><td role="cell" data-label="Seats left" data-lstab-align="end"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">120</span></td><td role="cell" data-label="Status" data-lstab-align="start" class="lstab-ruled lstabp-pill" style="--lstabp-pill-line:#5fe3cf;--lstabp-pill-fill:color-mix(in srgb,#5fe3cf 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#5fe3cf 55%,currentColor);"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Open</span></td></tr><tr role="row" class="lstab-row" style="background-color:#4a3a12;color:#ffeec4;--lstab-fg-faint:color-mix(in srgb,#ffeec4 78%,#4a3a12);--lstab-row-tint:#4a3a12;"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Designing for readability</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">10:45</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Studio</span></td><td role="cell" data-label="Seats left" data-lstab-align="end"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">18</span></td><td role="cell" data-label="Status" data-lstab-align="start"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Waitlist</span></td></tr><tr role="row" class="lstab-row"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Building faster websites</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">11:30</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Hall B</span></td><td role="cell" data-label="Seats left" data-lstab-align="end"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">64</span></td><td role="cell" data-label="Status" data-lstab-align="start" class="lstab-ruled lstabp-pill" style="--lstabp-pill-line:#5fe3cf;--lstabp-pill-fill:color-mix(in srgb,#5fe3cf 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#5fe3cf 55%,currentColor);"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Open</span></td></tr></tbody></table></div><p class="lstabp-export"><a class="lstabp-export-button" href="#" rel="nofollow">Download for Excel</a><a class="lstabp-export-button" href="#" rel="nofollow">Download CSV</a><button type="button" class="lstabp-export-button">Print</button></p><div class="lstab-foot"><p class="lstab-meta">Updated 4 mins ago</p></div></div></div></div>
+<div class="waska"><div class="lstab-container"><div class="lstab lstab-style-midnight lstab-cols-5 lstab-sticky-first lstab-sticky-head lstab-mieta"><div class="lstabp-facets"><span class="lstabp-facets-label">Show only:</span><details class="lstabp-facet"><summary><b>Room:</b><span class="lstabp-facet-now">any</span></summary><div class="lstabp-facet-menu"><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Main hall</span><span class="lstabp-facet-count">3</span></a><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Hall B</span><span class="lstabp-facet-count">2</span></a><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Studio</span><span class="lstabp-facet-count">3</span></a></div></details><details class="lstabp-facet"><summary><b>Status:</b><span class="lstabp-facet-now">any</span></summary><div class="lstabp-facet-menu"><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Open</span><span class="lstabp-facet-count">4</span></a><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Waitlist</span><span class="lstabp-facet-count">2</span></a><a class="lstabp-facet-value" rel="nofollow" href="#"><span class="lstabp-facet-box" aria-hidden="true"></span><span class="lstabp-facet-text">Full</span><span class="lstabp-facet-count">2</span></a></div></details></div><div class="lstab-controls"><label class="lstab-search"><input type="search" class="lstab-search-input" placeholder="Search&hellip;" value=""></label><span class="lstab-count" data-lstab-count-template="%1$s of %2$s rows">3 of 3 rows</span></div><p class="lstab-caption">Programme &mdash; day one</p><div class="lstab-scroll" tabindex="0" role="region" aria-label="Table, scrollable sideways"><table class="lstab-table" role="table"><thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader" data-lstab-col="0" data-lstab-align="start"><button type="button" class="lstab-sort"><span class="lstab-sort-label">Session</span><span class="lstab-sort-icon" aria-hidden="true"></span></button></th><th scope="col" role="columnheader" data-lstab-col="1" data-lstab-align="start"><button type="button" class="lstab-sort"><span class="lstab-sort-label">Starts</span><span class="lstab-sort-icon" aria-hidden="true"></span></button></th><th scope="col" role="columnheader" data-lstab-col="2" data-lstab-align="start"><button type="button" class="lstab-sort"><span class="lstab-sort-label">Room</span><span class="lstab-sort-icon" aria-hidden="true"></span></button></th><th scope="col" role="columnheader" data-lstab-col="3" data-lstab-align="end"><button type="button" class="lstab-sort"><span class="lstab-sort-label">Seats left</span><span class="lstab-sort-icon" aria-hidden="true"></span></button></th><th scope="col" role="columnheader" data-lstab-col="4" data-lstab-align="start"><button type="button" class="lstab-sort"><span class="lstab-sort-label">Status</span><span class="lstab-sort-icon" aria-hidden="true"></span></button></th></tr></thead><tbody role="rowgroup"><tr role="row" class="lstab-row"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Opening keynote</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">09:30</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Main hall</span></td><td role="cell" data-label="Seats left" data-lstab-align="end" class="lstabp-bar" style="--lstabp-bar:100.00%;--lstabp-bar-colour:#5fe3cf;"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">120</span></td><td role="cell" data-label="Status" data-lstab-align="start" class="lstab-ruled lstabp-pill" style="--lstabp-pill-line:#5fe3cf;--lstabp-pill-fill:color-mix(in srgb,#5fe3cf 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#5fe3cf 55%,currentColor);"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Open</span></td></tr><tr role="row" class="lstab-row" style="background-color:#4a3a12;color:#ffeec4;--lstab-fg-faint:color-mix(in srgb,#ffeec4 78%,#4a3a12);--lstab-row-tint:#4a3a12;"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Designing for readability</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">10:45</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Studio</span></td><td role="cell" data-label="Seats left" data-lstab-align="end" class="lstabp-bar" style="--lstabp-bar:16.70%;--lstabp-bar-colour:#5fe3cf;"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">18</span></td><td role="cell" data-label="Status" data-lstab-align="start"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Waitlist</span></td></tr><tr role="row" class="lstab-row"><td role="cell" data-label="Session" data-lstab-align="start"><span class="lstab-cell-label">Session</span><span class="lstab-cell-value">Building faster websites</span></td><td role="cell" data-label="Starts" data-lstab-align="start"><span class="lstab-cell-label">Starts</span><span class="lstab-cell-value">11:30</span></td><td role="cell" data-label="Room" data-lstab-align="start"><span class="lstab-cell-label">Room</span><span class="lstab-cell-value">Hall B</span></td><td role="cell" data-label="Seats left" data-lstab-align="end" class="lstabp-bar" style="--lstabp-bar:54.27%;--lstabp-bar-colour:#5fe3cf;"><span class="lstab-cell-label">Seats left</span><span class="lstab-cell-value">64</span></td><td role="cell" data-label="Status" data-lstab-align="start" class="lstab-ruled lstabp-pill" style="--lstabp-pill-line:#5fe3cf;--lstabp-pill-fill:color-mix(in srgb,#5fe3cf 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#5fe3cf 55%,currentColor);"><span class="lstab-cell-label">Status</span><span class="lstab-cell-value">Open</span></td></tr></tbody></table></div><p class="lstabp-export"><a class="lstabp-export-button" href="#" rel="nofollow">Download for Excel</a><a class="lstabp-export-button" href="#" rel="nofollow">Download CSV</a><button type="button" class="lstabp-export-button">Print</button></p><div class="lstab-foot"><p class="lstab-meta">Updated 4 mins ago</p></div></div></div></div>
 </div>
 <script>/**
  * Live Sheets Table — front-end enhancement.
@@ -2083,6 +2158,109 @@ h1 { font-family: "Inria Serif", Georgia, serif; font-weight: 300; font-size: 44
 		var parsed = parseFloat( cleaned );
 
 		return isNaN( parsed ) ? null : parsed;
+	}
+
+	/**
+	 * A date or a time of day as one comparable number.
+	 *
+	 * The twin of LSTAB_Renderer::to_moment() in PHP, which sorts a table too
+	 * big to sort here. A visitor cannot tell which table is paged, so the two
+	 * must not disagree about what sorted means — every change to one belongs
+	 * in the other.
+	 *
+	 * Two kinds are recognised, and only two: a date written day first with a
+	 * four-digit year, and a time on either clock.
+	 *
+	 *   15.01.2026        15.01.2026 20:20
+	 *   09:30             20:20:15
+	 *   9:30 am           12 PM
+	 *
+	 * Nothing else is guessed at: "15.01.26" could be 2026 or 1926, and
+	 * "03/12" is two different days depending on who is reading. A wrong
+	 * order is worse than an alphabetical one, because it looks right.
+	 *
+	 * @param {string} value Cell text.
+	 * @return {{kind: string, value: number}|null} Kind and number, or null.
+	 */
+	function toMoment( value ) {
+		var text = String( value ).trim();
+
+		if ( ! text ) {
+			return null;
+		}
+
+		// 15.01.2026, and 15.01.2026 20:20 — day first, four-digit year.
+		var date = text.match( /^(\d{1,2})\.(\d{1,2})\.(\d{4})(?:[\s,]+(\d{1,2}):([0-5]\d)(?::([0-5]\d))?)?$/ );
+
+		if ( date ) {
+			var day = parseInt( date[ 1 ], 10 );
+			var month = parseInt( date[ 2 ], 10 );
+
+			if ( day < 1 || day > 31 || month < 1 || month > 12 ) {
+				return null;
+			}
+
+			var inside = 0;
+
+			if ( date[ 4 ] ) {
+				var dateHour = parseInt( date[ 4 ], 10 );
+
+				if ( dateHour > 23 ) {
+					return null;
+				}
+
+				inside = dateHour * 60 + parseInt( date[ 5 ], 10 ) + ( date[ 6 ] ? parseInt( date[ 6 ], 10 ) / 60 : 0 );
+			}
+
+			// A day is one step, so the time of day is the fraction inside it.
+			return {
+				kind: 'date',
+				value: parseInt( date[ 3 ], 10 ) * 10000 + month * 100 + day + inside / 1440
+			};
+		}
+
+		// 09:30, 20:20, 8:05:30 — the 24-hour clock.
+		var clock = text.match( /^(\d{1,2}):([0-5]\d)(?::([0-5]\d))?$/ );
+
+		if ( clock ) {
+			var hour = parseInt( clock[ 1 ], 10 );
+
+			if ( hour > 23 ) {
+				return null;
+			}
+
+			return {
+				kind: 'clock',
+				value: hour * 60 + parseInt( clock[ 2 ], 10 ) + ( clock[ 3 ] ? parseInt( clock[ 3 ], 10 ) / 60 : 0 )
+			};
+		}
+
+		// 9:30 am, 12:15 PM, 5 pm, 11.45 a.m. — the 12-hour clock.
+		var half = text.match( /^(\d{1,2})(?:[:.]([0-5]\d))?(?::([0-5]\d))?\s*([ap])\.?\s?m\.?$/i );
+
+		if ( half ) {
+			var twelve = parseInt( half[ 1 ], 10 );
+
+			if ( twelve < 1 || twelve > 12 ) {
+				return null;
+			}
+
+			/*
+			 * Midnight and noon are where every home-made clock parser goes
+			 * wrong: 12 am is the start of the day, not the middle of it, and
+			 * 12 pm is the middle, not the end. Twelve wraps to zero first,
+			 * and only then does the afternoon add its half a day.
+			 */
+			twelve = ( twelve % 12 ) + ( 'p' === half[ 4 ].toLowerCase() ? 12 : 0 );
+
+			return {
+				kind: 'clock',
+				value: twelve * 60 + ( half[ 2 ] ? parseInt( half[ 2 ], 10 ) : 0 )
+					+ ( half[ 3 ] ? parseInt( half[ 3 ], 10 ) / 60 : 0 )
+			};
+		}
+
+		return null;
 	}
 
 	/**
@@ -2831,6 +3009,40 @@ h1 { font-family: "Inria Serif", Georgia, serif; font-weight: 300; font-size: 44
 						}
 						if ( '' === right ) {
 							return -1;
+						}
+
+						/*
+						 * Dates and times before numbers, because a date read
+						 * as a number is a number: "15.01.2026" came out as
+						 * 15.01, so a column of dates sorted by the day of the
+						 * month. Both sides have to be the same kind: a date
+						 * is yyyymmdd and a time is minutes since midnight, so
+						 * comparing one against the other would be arithmetic
+						 * about nothing.
+						 */
+						var leftMoment = toMoment( left );
+						var rightMoment = toMoment( right );
+
+						if ( leftMoment || rightMoment ) {
+							/*
+							 * Ranked before they are compared: dates, then
+							 * times, then everything the parser did not
+							 * recognise. A date against a time has no sensible
+							 * answer, and a rule with no answer for some pairs
+							 * arranges the same rows differently here than it
+							 * does on the server. LSTAB_Renderer::moment_rank()
+							 * says the same thing in PHP.
+							 */
+							var leftRank = leftMoment ? ( 'date' === leftMoment.kind ? 0 : 1 ) : 2;
+							var rightRank = rightMoment ? ( 'date' === rightMoment.kind ? 0 : 1 ) : 2;
+
+							if ( leftRank !== rightRank ) {
+								return ( leftRank - rightRank ) * direction;
+							}
+
+							if ( leftMoment && rightMoment ) {
+								return ( leftMoment.value - rightMoment.value ) * direction;
+							}
 						}
 
 						var leftNumber = toNumber( left );

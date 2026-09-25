@@ -28,6 +28,11 @@ WIERSZE = [
 # Wtyczka wypisuje je jako styl na wierszu: background-color + czytelny tusz.
 # Reguła z zakresem "pigułka": wartość staje się plakietką zamiast malować
 # komórkę. Wtyczka wypisuje trzy zmienne i klasę na komórce.
+# Słupek za liczbą: długość to udział w największej wartości w kolumnie,
+# liczony od zera, bo wszystkie są dodatnie. Wtyczka wypisuje to jako zmienną
+# na komórce, dokładnie tak jak niżej.
+NAJWIECEJ = max( int( w[ 3 ] ) for w in WIERSZE )
+
 PIGULKA = '#5fe3cf'
 STYL_PIGULKI = ( '--lstabp-pill-line:' + PIGULKA + ';'
 	'--lstabp-pill-fill:color-mix(in srgb,' + PIGULKA + ' 18%,transparent);'
@@ -69,11 +74,14 @@ def tabela( ile = None, karty = False ):
 		cialo += '<tr role="row" class="lstab-row"' + ( ' style="' + styl + '"' if styl else '' ) + '>'
 		for i, k in enumerate( w ):
 			pigulka = ( 4 == i and 'Open' == k )
+			slupek = ( 3 == i )
+			udzial = ( 2 + int( k ) / NAJWIECEJ * 98 ) if slupek else 0
 			cialo += ( '<td role="cell" data-label="%s" data-lstab-align="%s"%s%s>'
 				'<span class="lstab-cell-label">%s</span><span class="lstab-cell-value">%s</span></td>'
 				% ( html.escape( NAGLOWKI[ i ] ), ROWNANIE[ i ],
-					' class="lstab-ruled lstabp-pill"' if pigulka else '',
-					' style="' + STYL_PIGULKI + '"' if pigulka else '',
+					' class="lstab-ruled lstabp-pill"' if pigulka else ( ' class="lstabp-bar"' if slupek else '' ),
+					( ' style="' + STYL_PIGULKI + '"' ) if pigulka
+						else ( ' style="--lstabp-bar:%.2f%%;--lstabp-bar-colour:#5fe3cf;"' % udzial ) if slupek else '',
 					html.escape( NAGLOWKI[ i ] ), html.escape( k ) ) )
 		cialo += '</tr>'
 

@@ -34,6 +34,7 @@ require_once LSTABP_PATH . 'includes/class-lstabp-rules.php';
 require_once LSTABP_PATH . 'includes/class-lstabp-xlsx.php';
 require_once LSTABP_PATH . 'includes/class-lstabp-export.php';
 require_once LSTABP_PATH . 'includes/class-lstabp-facets.php';
+require_once LSTABP_PATH . 'includes/class-lstabp-column-looks.php';
 require_once LSTABP_PATH . 'includes/class-lstabp-picker.php';
 require_once LSTABP_PATH . 'includes/class-lstabp-settings.php';
 require_once LSTABP_PATH . 'includes/class-lstabp-plugin.php';

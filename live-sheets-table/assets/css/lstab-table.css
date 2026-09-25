@@ -1581,9 +1581,84 @@
 	white-space: nowrap;
 }
 
+/*
+ * The same rule wearing the quietest of its looks: a spot of colour before the
+ * value, and the value left exactly as it was. For a status column where even
+ * a pill is more than the page wants.
+ */
+.lstabp-dot .lstab-cell-value::before,
+.lstabp-dot-face::before {
+	content: "";
+	display: inline-block;
+	width: 0.6em;
+	height: 0.6em;
+	margin-right: 0.55em;
+	border-radius: 999px;
+	background-color: var( --lstabp-dot, currentColor );
+}
+
 /* A pill in a column that lines up on the right keeps to its own edge. */
 .lstab-table td[data-lstab-align="end"].lstabp-pill {
 	text-align: right;
+}
+
+/*
+ * A whole column given a look of its own (Pro).
+ *
+ * The bar is drawn with ::after rather than ::before, because a pinned first
+ * column already uses ::before to paint the backdrop that hides the columns
+ * sliding underneath it — and the bar has to be able to sit in that column too.
+ *
+ * Both are only ever a wash of colour behind the value. The value keeps its
+ * place on top and keeps being text, so it is still searched, still sorted and
+ * still downloaded as what the sheet says.
+ */
+.lstabp-bar {
+	position: relative;
+}
+
+.lstabp-bar::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 14%;
+	bottom: 14%;
+	width: var( --lstabp-bar, 0 );
+	border-radius: 3px;
+	background-color: var( --lstabp-bar-colour, var( --lstab-accent ) );
+	opacity: 0.28;
+	pointer-events: none;
+}
+
+.lstabp-bar .lstab-cell-value {
+	position: relative;
+}
+
+/*
+ * Written against the value rather than as a class on its own: a link inside a
+ * cell is already given the table's accent colour a few hundred lines above,
+ * by a selector one step more specific than a lone class. A button whose
+ * colours were chosen by hand and then quietly overruled by the accent is
+ * exactly the bug this suite caught.
+ */
+.lstab-cell-value a.lstabp-cta-link {
+	display: inline-block;
+	padding: 0.34em 1em;
+	border-radius: 999px;
+	background-color: var( --lstabp-cta-bg, var( --lstab-accent ) );
+	color: var( --lstabp-cta-ink, #06100f );
+	font-size: 0.88em;
+	font-weight: 600;
+	line-height: 1.35;
+	white-space: nowrap;
+	text-decoration: none;
+	transition: filter 0.15s ease;
+}
+
+.lstab-cell-value a.lstabp-cta-link:hover,
+.lstab-cell-value a.lstabp-cta-link:focus-visible {
+	filter: brightness( 1.08 );
+	text-decoration: none;
 }
 
 .lstabp-export {

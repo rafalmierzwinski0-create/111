@@ -1,3 +1,7 @@
 node_modules/
 *.log
 .DS_Store
+
+# Pages the test suites build to run in a browser, and what they captured.
+build/*.html
+build/*.png
