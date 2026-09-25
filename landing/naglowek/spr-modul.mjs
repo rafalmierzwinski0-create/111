@@ -119,7 +119,7 @@ console.log('\nmoduł nie wychodzi poza siebie');
     return { ile: kom.length, zachodzi: zachodzi.length, poza: pozaEkranem.length,
              ukryte: [...document.querySelectorAll('.lst-h-boki')].map(e => e.getAttribute('aria-hidden')) };
   });
-  spr('sześć komórek po bokach, żadna nie wchodzi na tekst', boki.ile === 6 && boki.zachodzi === 0, `${boki.ile} komórek, zachodzi ${boki.zachodzi}`);
+  spr('osiem komórek po bokach, żadna nie wchodzi na tekst', boki.ile === 8 && boki.zachodzi === 0, `${boki.ile} komórek, zachodzi ${boki.zachodzi}`);
   spr('żadna nie wystaje poza ekran', boki.poza === 0, `${boki.poza} poza ekranem`);
   spr('warstwa ukryta dla czytnika ekranu', boki.ukryte.every(x => x === 'true'), boki.ukryte.join(','));
 
@@ -145,7 +145,7 @@ console.log('\nmoduł nie wychodzi poza siebie');
     return { ile: pola.length, poCztery: stany.every(s => s.length === 4), zle, poza,
              powtorki: stany.filter(s => new Set(s).size < 2).length };
   });
-  spr('każda komórka ma cztery wartości', wariacje.ile === 6 && wariacje.poCztery && wariacje.powtorki === 0,
+  spr('każda komórka ma cztery wartości', wariacje.ile === 8 && wariacje.poCztery && wariacje.powtorki === 0,
     `${wariacje.ile} komórek, po cztery: ${wariacje.poCztery}`);
   spr('żadna z wartości nie wchodzi na tekst ani poza ekran', wariacje.zle === 0 && wariacje.poza === 0,
     `zachodzi ${wariacje.zle}, poza ekranem ${wariacje.poza}`);
@@ -158,7 +158,7 @@ console.log('\nmoduł nie wychodzi poza siebie');
     const po = pola.map(e => e.textContent);
     return przed.filter((x, i) => x !== po[i]).length;
   });
-  spr('w ciągu 14 s zmienia się co najmniej połowa komórek', rusza >= 3, `zmieniło się ${rusza} z 6`);
+  spr('w ciągu 14 s zmienia się co najmniej połowa komórek', rusza >= 4, `zmieniło się ${rusza} z 8`);
 
   const paralaksa = await p.evaluate(async () => {
     const r = document.querySelector('.lst-h-hero-rama');
@@ -240,9 +240,9 @@ for (const [w, h] of [[1920, 1080], [1440, 900], [1366, 768], [1280, 720], [1024
   }));
   spr(`${w}x${h}: „scroll" na pierwszym ekranie, bez suwaka`, r.spod <= r.okno && r.poziom === 0, `spód ${r.spod} px z ${r.okno} px`);
   spr(`${w}x${h}: drobne 14, treść 18 albo 20`, r.male.every(x => x === 14) && r.srednie.every(x => [18, 20].includes(x)), 'drobne ' + [...new Set(r.male)].join('/') + ', treść ' + [...new Set(r.srednie)].join('/'));
-  spr(`${w}x${h}: napis trzyma się blisko menu`, r.odMenu <= 60 && r.pustyPas === 0, `${r.odMenu} px pod paskiem menu, pusty pas ${r.pustyPas} px`);
+  spr(`${w}x${h}: napis trzyma się blisko menu`, r.odMenu <= 40 && r.pustyPas === 0, `${r.odMenu} px pod paskiem menu, pusty pas ${r.pustyPas} px`);
   spr(`${w}x${h}: hero na pełny ekran, dalsza treść pod krawędzią`, Math.abs(r.spodHero - r.okno) <= 2 && r.gornaDalej >= r.okno - 1, `spód hero ${r.spodHero} px, dalej od ${r.gornaDalej} px, okno ${r.okno} px`);
-  spr(`${w}x${h}: komórki po bokach tylko tam, gdzie jest miejsce`, w > 1200 ? r.bokiWidoczne === 6 : r.bokiWidoczne === 0, `widoczne ${r.bokiWidoczne}`);
+  spr(`${w}x${h}: komórki po bokach tylko tam, gdzie jest miejsce`, w > 1200 ? r.bokiWidoczne === 8 : r.bokiWidoczne === 0, `widoczne ${r.bokiWidoczne}`);
   spr(`${w}x${h}: bez błędów`, bledy.length === 0, bledy.join(' | ') || '0');
   await c.close();
 }
