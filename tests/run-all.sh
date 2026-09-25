@@ -42,6 +42,13 @@ echo "=============================================="
 php "$REPO/tests/column-looks-test.php"
 node "$REPO/tests/column-looks-browser.mjs"
 
+echo
+echo "=============================================="
+echo " Colour rules in the preview, before they are saved"
+echo "=============================================="
+php "$REPO/tests/rules-preview-test.php"
+node "$REPO/tests/rules-preview-browser.mjs"
+
 # A long-lived sandbox reaps idle background processes, so the servers built by
 # setup-env.sh are often gone by the time anybody runs this. Three whole runs
 # have failed that way, every one of them reported as a broken plugin. They are

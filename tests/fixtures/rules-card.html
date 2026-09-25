@@ -1,0 +1,557 @@
+<div class="lstab-card lstabp-rules-card">
+	<h2 class="lstab-card-title">Colour rules</h2>
+	<p class="lstab-help">
+		Colour a cell, its whole row or just its words according to the cell&#039;s value — or turn the value into a pill, which is what a status column usually wants. Colours are worked out on the server, so they are already in the page a visitor receives.	</p>
+
+		<ul class="lstabp-rules-how">
+		<li>
+			<svg data-icon="layers"></svg>			Rules are read from the top down. If two of them colour the same place, the lower one wins, so put the general rule first.		</li>
+		<li>
+			<svg data-icon="brush"></svg>			A colour on a cell sits on top of a colour on its row, so “grey row, one red cell” is two rules.		</li>
+		<li>
+			<svg data-icon="sliders"></svg>			“is” and “is not” compare text, ignoring case and spacing. The number comparisons read a price as a number, so 1 215,50 and 1215.5 are the same figure.		</li>
+	</ul>
+
+	
+	
+			<input type="hidden" name="_lstabp_rules_present" value="1">
+	
+	<ol class="lstabp-rules">
+								<li class="lstabp-rule">
+				<span class="lstabp-rule-line">
+					<span class="lstabp-rule-word">When</span>
+
+					<select class="lstabp-rule-column" name="lstabp_rules[0][column]" >
+						<option value="">
+							— remove this rule —						</option>
+																			<option value="Session" >
+								Session							</option>
+													<option value="Status"  selected='selected'>
+								Status							</option>
+											</select>
+
+					<select name="lstabp_rules[0][operator]" >
+													<option value="="  selected='selected'>
+								is							</option>
+													<option value="!=" >
+								is not							</option>
+													<option value="*=" >
+								contains							</option>
+													<option value="&gt;" >
+								is greater than							</option>
+													<option value="&gt;=" >
+								is at least							</option>
+													<option value="&lt;" >
+								is less than							</option>
+													<option value="&lt;=" >
+								is at most							</option>
+											</select>
+
+					<input type="text" class="lstabp-rule-value"
+						name="lstabp_rules[0][value]"
+						value="Full"
+						placeholder="the value to match"
+						>
+
+					<span class="lstabp-rule-word lstabp-rule-then">paint</span>
+
+					<select name="lstabp_rules[0][scope]" >
+						<option value="cell" >that cell</option>
+						<option value="row" >the whole row</option>
+						<option value="text" >just the words in that cell</option>
+												<option value="pill"  selected='selected'>a pill around that value</option>
+												<option value="dot" >a dot before that value</option>
+					</select>
+
+										<span class="lstabp-paint">
+													<label class="lstabp-paint-chip" title="Red"
+								style="background-color: #fbd5d5;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[0][style]"
+									value="#fbd5d5"
+									 checked='checked'									>
+								<span class="screen-reader-text">Red</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Orange"
+								style="background-color: #fbdcbc;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[0][style]"
+									value="#fbdcbc"
+																		>
+								<span class="screen-reader-text">Orange</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Yellow"
+								style="background-color: #f7ecac;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[0][style]"
+									value="#f7ecac"
+																		>
+								<span class="screen-reader-text">Yellow</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Green"
+								style="background-color: #cfebd9;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[0][style]"
+									value="#cfebd9"
+																		>
+								<span class="screen-reader-text">Green</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Teal"
+								style="background-color: #c4e4e1;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[0][style]"
+									value="#c4e4e1"
+																		>
+								<span class="screen-reader-text">Teal</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Blue"
+								style="background-color: #d0e1f8;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[0][style]"
+									value="#d0e1f8"
+																		>
+								<span class="screen-reader-text">Blue</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Purple"
+								style="background-color: #dad0f3;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[0][style]"
+									value="#dad0f3"
+																		>
+								<span class="screen-reader-text">Purple</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Pink"
+								style="background-color: #f6d2e2;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[0][style]"
+									value="#f6d2e2"
+																		>
+								<span class="screen-reader-text">Pink</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Grey"
+								style="background-color: #e1e5e9;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[0][style]"
+									value="#e1e5e9"
+																		>
+								<span class="screen-reader-text">Grey</span>
+							</label>
+						
+													<label class="lstabp-paint-chip lstabp-paint-effect-bold"
+								title="Bold text">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[0][style]"
+									value="bold"
+																		>
+								<span aria-hidden="true">B</span>
+								<span class="screen-reader-text">Bold text</span>
+							</label>
+													<label class="lstabp-paint-chip lstabp-paint-effect-strike"
+								title="Struck through">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[0][style]"
+									value="strike"
+																		>
+								<span aria-hidden="true">S</span>
+								<span class="screen-reader-text">Struck through</span>
+							</label>
+						
+											<span class="lstabp-paint-own-wrap">
+						<label class="lstabp-paint-chip lstabp-paint-own"
+							title="A colour of your own"
+							>
+							<input type="radio"
+								class="lstabp-style-input"
+								name="lstabp_rules[0][style]"
+								value="custom"
+																>
+							<span class="screen-reader-text">A colour of your own</span>
+						</label>
+
+						<input type="color"
+							class="lstabp-own-colour"
+							name="lstabp_rules[0][custom]"
+							value="#c7e0f4"
+							aria-label="Pick a colour of your own"
+							>
+					</span>
+					</span>
+
+										<span class="lstabp-swatch lstabp-pill-face" style="--lstabp-pill-line:#fbd5d5;--lstabp-pill-fill:color-mix(in srgb,#fbd5d5 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#fbd5d5 55%,currentColor);">
+						Abc					</span>
+					</span>
+			</li>
+								<li class="lstabp-rule is-new">
+				<span class="lstabp-rule-line">
+					<span class="lstabp-rule-word">When</span>
+
+					<select class="lstabp-rule-column" name="lstabp_rules[1][column]" >
+						<option value="">
+							— pick a column —						</option>
+																			<option value="Session" >
+								Session							</option>
+													<option value="Status" >
+								Status							</option>
+											</select>
+
+					<select name="lstabp_rules[1][operator]" >
+													<option value="="  selected='selected'>
+								is							</option>
+													<option value="!=" >
+								is not							</option>
+													<option value="*=" >
+								contains							</option>
+													<option value="&gt;" >
+								is greater than							</option>
+													<option value="&gt;=" >
+								is at least							</option>
+													<option value="&lt;" >
+								is less than							</option>
+													<option value="&lt;=" >
+								is at most							</option>
+											</select>
+
+					<input type="text" class="lstabp-rule-value"
+						name="lstabp_rules[1][value]"
+						value=""
+						placeholder="the value to match"
+						>
+
+					<span class="lstabp-rule-word lstabp-rule-then">paint</span>
+
+					<select name="lstabp_rules[1][scope]" >
+						<option value="cell"  selected='selected'>that cell</option>
+						<option value="row" >the whole row</option>
+						<option value="text" >just the words in that cell</option>
+												<option value="pill" >a pill around that value</option>
+												<option value="dot" >a dot before that value</option>
+					</select>
+
+										<span class="lstabp-paint">
+													<label class="lstabp-paint-chip" title="Red"
+								style="background-color: #fbd5d5;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[1][style]"
+									value="#fbd5d5"
+									 checked='checked'									>
+								<span class="screen-reader-text">Red</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Orange"
+								style="background-color: #fbdcbc;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[1][style]"
+									value="#fbdcbc"
+																		>
+								<span class="screen-reader-text">Orange</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Yellow"
+								style="background-color: #f7ecac;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[1][style]"
+									value="#f7ecac"
+																		>
+								<span class="screen-reader-text">Yellow</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Green"
+								style="background-color: #cfebd9;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[1][style]"
+									value="#cfebd9"
+																		>
+								<span class="screen-reader-text">Green</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Teal"
+								style="background-color: #c4e4e1;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[1][style]"
+									value="#c4e4e1"
+																		>
+								<span class="screen-reader-text">Teal</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Blue"
+								style="background-color: #d0e1f8;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[1][style]"
+									value="#d0e1f8"
+																		>
+								<span class="screen-reader-text">Blue</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Purple"
+								style="background-color: #dad0f3;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[1][style]"
+									value="#dad0f3"
+																		>
+								<span class="screen-reader-text">Purple</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Pink"
+								style="background-color: #f6d2e2;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[1][style]"
+									value="#f6d2e2"
+																		>
+								<span class="screen-reader-text">Pink</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Grey"
+								style="background-color: #e1e5e9;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[1][style]"
+									value="#e1e5e9"
+																		>
+								<span class="screen-reader-text">Grey</span>
+							</label>
+						
+													<label class="lstabp-paint-chip lstabp-paint-effect-bold"
+								title="Bold text">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[1][style]"
+									value="bold"
+																		>
+								<span aria-hidden="true">B</span>
+								<span class="screen-reader-text">Bold text</span>
+							</label>
+													<label class="lstabp-paint-chip lstabp-paint-effect-strike"
+								title="Struck through">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[1][style]"
+									value="strike"
+																		>
+								<span aria-hidden="true">S</span>
+								<span class="screen-reader-text">Struck through</span>
+							</label>
+						
+											<span class="lstabp-paint-own-wrap">
+						<label class="lstabp-paint-chip lstabp-paint-own"
+							title="A colour of your own"
+							>
+							<input type="radio"
+								class="lstabp-style-input"
+								name="lstabp_rules[1][style]"
+								value="custom"
+																>
+							<span class="screen-reader-text">A colour of your own</span>
+						</label>
+
+						<input type="color"
+							class="lstabp-own-colour"
+							name="lstabp_rules[1][custom]"
+							value="#c7e0f4"
+							aria-label="Pick a colour of your own"
+							>
+					</span>
+					</span>
+
+										<span class="lstabp-swatch" style="background-color:#fbd5d5;color:#741111;--lstab-fg-faint:color-mix(in srgb,#741111 78%,#fbd5d5);">
+						Abc					</span>
+					</span>
+			</li>
+			</ol>
+
+			<p class="lstabp-rules-add">
+			<button type="button" class="lstab-mini" id="lstabp-add-rule">
+				<svg data-icon="plus"></svg>				Add a rule			</button>
+		</p>
+
+				<template id="lstabp-rule-template">
+						<li class="lstabp-rule is-new">
+				<span class="lstabp-rule-line">
+					<span class="lstabp-rule-word">When</span>
+
+					<select class="lstabp-rule-column" name="lstabp_rules[lstabp-new][column]" >
+						<option value="">
+							— pick a column —						</option>
+																			<option value="Session" >
+								Session							</option>
+													<option value="Status" >
+								Status							</option>
+											</select>
+
+					<select name="lstabp_rules[lstabp-new][operator]" >
+													<option value="="  selected='selected'>
+								is							</option>
+													<option value="!=" >
+								is not							</option>
+													<option value="*=" >
+								contains							</option>
+													<option value="&gt;" >
+								is greater than							</option>
+													<option value="&gt;=" >
+								is at least							</option>
+													<option value="&lt;" >
+								is less than							</option>
+													<option value="&lt;=" >
+								is at most							</option>
+											</select>
+
+					<input type="text" class="lstabp-rule-value"
+						name="lstabp_rules[lstabp-new][value]"
+						value=""
+						placeholder="the value to match"
+						>
+
+					<span class="lstabp-rule-word lstabp-rule-then">paint</span>
+
+					<select name="lstabp_rules[lstabp-new][scope]" >
+						<option value="cell"  selected='selected'>that cell</option>
+						<option value="row" >the whole row</option>
+						<option value="text" >just the words in that cell</option>
+												<option value="pill" >a pill around that value</option>
+												<option value="dot" >a dot before that value</option>
+					</select>
+
+										<span class="lstabp-paint">
+													<label class="lstabp-paint-chip" title="Red"
+								style="background-color: #fbd5d5;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[lstabp-new][style]"
+									value="#fbd5d5"
+									 checked='checked'									>
+								<span class="screen-reader-text">Red</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Orange"
+								style="background-color: #fbdcbc;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[lstabp-new][style]"
+									value="#fbdcbc"
+																		>
+								<span class="screen-reader-text">Orange</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Yellow"
+								style="background-color: #f7ecac;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[lstabp-new][style]"
+									value="#f7ecac"
+																		>
+								<span class="screen-reader-text">Yellow</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Green"
+								style="background-color: #cfebd9;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[lstabp-new][style]"
+									value="#cfebd9"
+																		>
+								<span class="screen-reader-text">Green</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Teal"
+								style="background-color: #c4e4e1;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[lstabp-new][style]"
+									value="#c4e4e1"
+																		>
+								<span class="screen-reader-text">Teal</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Blue"
+								style="background-color: #d0e1f8;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[lstabp-new][style]"
+									value="#d0e1f8"
+																		>
+								<span class="screen-reader-text">Blue</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Purple"
+								style="background-color: #dad0f3;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[lstabp-new][style]"
+									value="#dad0f3"
+																		>
+								<span class="screen-reader-text">Purple</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Pink"
+								style="background-color: #f6d2e2;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[lstabp-new][style]"
+									value="#f6d2e2"
+																		>
+								<span class="screen-reader-text">Pink</span>
+							</label>
+													<label class="lstabp-paint-chip" title="Grey"
+								style="background-color: #e1e5e9;">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[lstabp-new][style]"
+									value="#e1e5e9"
+																		>
+								<span class="screen-reader-text">Grey</span>
+							</label>
+						
+													<label class="lstabp-paint-chip lstabp-paint-effect-bold"
+								title="Bold text">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[lstabp-new][style]"
+									value="bold"
+																		>
+								<span aria-hidden="true">B</span>
+								<span class="screen-reader-text">Bold text</span>
+							</label>
+													<label class="lstabp-paint-chip lstabp-paint-effect-strike"
+								title="Struck through">
+								<input type="radio"
+									class="lstabp-style-input"
+									name="lstabp_rules[lstabp-new][style]"
+									value="strike"
+																		>
+								<span aria-hidden="true">S</span>
+								<span class="screen-reader-text">Struck through</span>
+							</label>
+						
+											<span class="lstabp-paint-own-wrap">
+						<label class="lstabp-paint-chip lstabp-paint-own"
+							title="A colour of your own"
+							>
+							<input type="radio"
+								class="lstabp-style-input"
+								name="lstabp_rules[lstabp-new][style]"
+								value="custom"
+																>
+							<span class="screen-reader-text">A colour of your own</span>
+						</label>
+
+						<input type="color"
+							class="lstabp-own-colour"
+							name="lstabp_rules[lstabp-new][custom]"
+							value="#c7e0f4"
+							aria-label="Pick a colour of your own"
+							>
+					</span>
+					</span>
+
+										<span class="lstabp-swatch" style="background-color:#fbd5d5;color:#741111;--lstab-fg-faint:color-mix(in srgb,#741111 78%,#fbd5d5);">
+						Abc					</span>
+					</span>
+			</li>
+		</template>
+	
+	<p class="lstab-help">
+		To remove a rule, set its column back to “remove this rule”.	</p>
+</div>
