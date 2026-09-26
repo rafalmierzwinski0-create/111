@@ -788,6 +788,21 @@ $with_buttons = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
 lstabp_assert( false !== strpos( $with_buttons, 'lstabp-export-button' ), 'A table can offer a download and a print button' );
 lstabp_assert( false !== strpos( $with_buttons, 'lstabp_export' ), 'The download is an ordinary link' );
 
+/*
+ * Inside the table's own element, not merely inside the container around it.
+ * Everything the buttons are drawn with — border, background, ink — is a custom
+ * property defined on the table, and one level further out none of them exist:
+ * the buttons then come out as three words of plain text, which is what the
+ * page showed until this was checked. Two closing tags have to follow them: the
+ * table's and the container's.
+ */
+$buttons_at = strpos( $with_buttons, 'lstabp-export' );
+lstabp_assert(
+	false !== $buttons_at && substr_count( substr( $with_buttons, $buttons_at ), '</div>' ) >= 2,
+	'The buttons are inside the table, where its colours are',
+	(string) substr_count( substr( $with_buttons, (int) $buttons_at ), '</div>' ) . ' closing tags after them'
+);
+
 update_option( LSTABP_Export::OPTION, array(), true );
 lstabp_assert( false === strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'lstabp-export-button' ), 'And does not when it is switched off' );
 update_option( LSTABP_Export::OPTION, array( $source_id => true ), true );

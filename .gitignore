@@ -10,3 +10,7 @@ build/*.png
 # open: real URLs and real row ids from whichever site it ran against, so it
 # belongs to that run rather than to the repository.
 tests/fixtures/skins-php-said.json
+
+# Kod tabel zdjęty z lokalnej witryny dla strony pokazowej: adresy i numery
+# wierszy tego jednego uruchomienia, nie repozytorium.
+landing/szlaki/markup.json

@@ -136,11 +136,31 @@ class LSTABP_Export {
 		<?php
 		$buttons = (string) ob_get_clean();
 
-		// Inside the wrapper, so the buttons inherit the table's own colours
-		// and disappear with it when printing.
-		$closing = strrpos( $html, '</div>' );
+		/*
+		 * Inside the table's own element, so the buttons take its colours and
+		 * disappear with it when printing.
+		 *
+		 * Which is not the last </div> in the markup: the table sits in a
+		 * container of its own, so the last one closes that and everything
+		 * before it. The buttons went in there, one level too far out, where
+		 * none of the table's custom properties reach — and a button whose
+		 * border, background and ink are all var() of something undefined is
+		 * not a button with default colours, it is three words of plain text.
+		 * The one before it is the table's.
+		 */
+		$outer = strrpos( $html, '</div>' );
 
-		return false === $closing ? $html . $buttons : substr_replace( $html, $buttons . '</div>', $closing, strlen( '</div>' ) );
+		if ( false === $outer ) {
+			return $html . $buttons;
+		}
+
+		$inner = strrpos( substr( $html, 0, $outer ), '</div>' );
+
+		if ( false === $inner ) {
+			return substr_replace( $html, $buttons . '</div>', $outer, strlen( '</div>' ) );
+		}
+
+		return substr_replace( $html, $buttons . '</div>', $inner, strlen( '</div>' ) );
 	}
 
 	/**
