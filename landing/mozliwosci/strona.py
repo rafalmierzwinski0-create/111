@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-Podstrona „what it does" — jak wtyczka działa i co potrafi, na jednym ekranie.
+Podstrona „what it does” — jak wtyczka działa i co potrafi, na jednej stronie.
 
-W przeciwieństwie do jak-dziala/ nie ma tu ani jednego zrzutu ekranu: tabela na
-stronie jest prawdziwa. Kod tabeli zdejmuje landing/mozliwosci/zbierz.php z
-prawdziwego renderu wtyczki, a moduł dokłada do niego jej własny arkusz stylów
-i jej własny skrypt — więc sortowanie, szukanie i składanie w karty na wąskim
-ekranie działają na stronie sprzedażowej tak samo jak u klienta.
+Nic tu nie jest przepisane ręcznie: tabela to kod z prawdziwego renderu
+(landing/mozliwosci/zbierz.php), a trzy zrzuty to prawdziwy kokpit na tym samym
+źródle (landing/mozliwosci/zrzuty.mjs). Moduł niesie w sobie arkusz stylów i
+skrypt wtyczki, więc sortowanie, szukanie i składanie w karty dzieją się na
+stronie sprzedażowej tak samo jak u klienta.
+
+Adresy zrzutów zaczynają się od ADRES. Wgrywasz trzy pliki z zrzuty/ do
+Multimediów, kopiujesz adres folderu i podmieniasz ADRES jeden raz.
 
 UWAGA przy edycji: każdy znacznik musi zostać w jednej linijce. Divi wstawia
 w miejscu złamanego wiersza <br />, co rozbija znacznik. Wewnątrz <style>
-i <script> Divi nic nie rusza. Dlatego kod tabeli jest tu zbijany do jednej
-linii, a sam moduł ma „br { display: none }”.
+i <script> Divi nic nie rusza. Dlatego kod tabeli jest zbijany do jednej linii,
+a moduł ma „br { display: none }”.
 """
 
 import json
@@ -22,6 +25,7 @@ TU  = pathlib.Path( __file__ ).parent
 CSS = pathlib.Path( '/home/user/111/live-sheets-table/assets/css/lstab-table.css' ).read_text()
 JS  = pathlib.Path( '/home/user/111/live-sheets-table/assets/js/lstab-table.js' ).read_text()
 M   = json.loads( ( TU / 'markup.json' ).read_text() )
+ZRZUTY = { z[ 'nazwa' ]: z for z in json.loads( ( TU / 'zrzuty' / 'rozmiary.json' ).read_text() ) }
 
 L, P = '&#91;', '&#93;'
 
@@ -35,11 +39,11 @@ def dla_divi( html ):
 	# Suwak pod tabelą dostaje szerokość od skryptu; ta z renderu policzona jest
 	# dla innego okna.
 	html = re.sub( r'(<div class="lstab-scrollbar-thumb"[^>]*?) style="[^"]*"', r'\1', html )
-	# Nagłówki idące za ekranem mają sens na stronie z jedną tabelą; tu nad nią
-	# jest jeszcze pasek Divi, a niżej druga kopia tabeli w ramce telefonu.
+	# Nagłówki idące za ekranem mają sens na stronie z jedną tabelą; tu pod nią
+	# jest jeszcze jedna kopia w ramce telefonu.
 	html = html.replace( ' lstab-sticky-head', '' )
-	# Filtry, pobieranie i kamery prowadzą na serwer albo w świat. To jest
-	# pokaz na stronie sprzedażowej, więc odsyłacze nigdzie nie idą.
+	# Filtry, pobieranie i kamery prowadzą na serwer albo w świat. To jest pokaz
+	# na stronie sprzedażowej, więc odsyłacze nigdzie nie idą.
 	html = re.sub( r'href="(?!#)[^"]*"', 'href="#"', html )
 	return html.strip()
 
@@ -86,6 +90,22 @@ LEGENDA = [
 	  'a download holds exactly what is on the screen, filtered rows and hidden columns included.' ),
 ]
 
+# ( plik, tytuł, zdanie, okno )
+EKRANY = [
+	( 'mz-wyglad', 'Nine styles, and two dials',
+	  'Pick a style, then disagree with it: colours one by one, text size, row height and how many lines '
+	  'the table draws. Everything you leave alone keeps following the style.',
+	  'Appearance' ),
+	( 'mz-reguly', 'A rule reads like a sentence',
+	  'When <em>Status</em> is <em>Closed</em>, paint <em>the whole row</em>. No formulas, no code, and '
+	  'the colours are worked out on the server, so they are already in the page a visitor receives.',
+	  'Colour rules' ),
+	( 'mz-kolumny', 'A column can wear something',
+	  'Give a column of numbers a bar, or a column of links a button &mdash; in the colours you choose '
+	  'and saying what you tell it to say.',
+	  'Column looks' ),
+]
+
 WOLNE = [
 	'Every row your sheet has. No cap at 30, 50 or 100.',
 	'A real table in the page code, so Google and screen readers see it.',
@@ -109,6 +129,10 @@ PRO = [
 ]
 
 
+def etykieta( tekst ):
+	return '<p class="lst-mz-etykieta">' + tekst + '</p>'
+
+
 def krok( numer, tytul, opis ):
 	return ( '<div class="lst-mz-krok"><p class="lst-mz-numer">' + numer + '</p>'
 		'<p class="lst-mz-tytul">' + tytul + '</p>'
@@ -127,6 +151,19 @@ def pozycja( tier, tytul, opis ):
 		'<p class="lst-mz-opis">' + opis + '</p></div>' )
 
 
+def ekran( plik, tytul, opis, okno, odwrocony ):
+	z = ZRZUTY[ plik ]
+	kropki = '<span class="lst-mz-kropka"></span><span class="lst-mz-kropka"></span><span class="lst-mz-kropka"></span>'
+	return ( '<div class="lst-mz-ekran' + ( ' jest-odwrocony' if odwrocony else '' ) + '">'
+		'<div class="lst-mz-ekran-tresc"><p class="lst-mz-tytul">' + tytul + '</p>'
+		'<p class="lst-mz-opis">' + opis + '</p></div>'
+		'<div class="lst-mz-okno"><div class="lst-mz-belka">' + kropki +
+		'<span class="lst-mz-nazwa-okna">' + okno + '</span></div>'
+		'<img src="ADRES/' + plik + '.png" alt="' + okno + '" width="' + str( z[ 'w' ] ) + '" '
+		'height="' + str( z[ 'h' ] ) + '" loading="lazy" decoding="async"></div>'
+		'</div>' )
+
+
 def lista( tytul, pozycje, klasa = '' ):
 	elementy = ''.join( '<li>' + x + '</li>' for x in pozycje )
 	return ( '<div class="lst-mz-kolumna' + klasa + '"><p class="lst-mz-kolumna-tytul">' + tytul + '</p>'
@@ -134,27 +171,43 @@ def lista( tytul, pozycje, klasa = '' ):
 
 
 SEKCJA = (
-	'<p class="lst-mz-wstep">Everything below is the plugin itself. The table is not a picture of one: '
-	'it is drawn from a spreadsheet by the same code your visitors would get, so click a heading to sort '
-	'it, type in the box to search it, and narrow the window to watch it fold into cards.</p>'
-
+	# --- jak to działa: trzy kroki i droga arkusza -------------------------
+	'<div class="lst-mz-blok">'
+	+ etykieta( 'How it works' ) +
 	'<div class="lst-mz-kroki">' + ''.join( krok( *k ) for k in KROKI ) + '</div>'
-
 	'<div class="lst-mz-droga">' + ''.join( etap( *e ) for e in DROGA ) + '</div>'
 	'<p class="lst-mz-nota">Your page is built from the copy in your own database, so nobody waits for '
 	'Google &mdash; and on the day Google will not answer, the last good copy stays on the page while the '
 	'dashboard tells you what happened.</p>'
-
-	'<div class="lst-mz-stol">'
-	'<p class="lst-mz-etykieta">Live &mdash; this one really sorts and searches</p>'
-	+ TABELA +
 	'</div>'
 
-	'<div class="lst-mz-legenda">' + ''.join( pozycja( *p ) for p in LEGENDA ) + '</div>'
+	# --- tabela na żywo ----------------------------------------------------
+	'<div class="lst-mz-blok lst-mz-stol">'
+	'<p class="lst-mz-etykieta jest-zywa"><span class="lst-mz-puls"></span>Live on this page</p>'
+	'<p class="lst-mz-opis lst-mz-opis-stolu">Ten trails, one spreadsheet. Sort a column, search the box, '
+	'filter it &mdash; this is the plugin&rsquo;s own output, running here.</p>'
+	'<div class="lst-mz-szklo">' + TABELA + '</div>'
+	'</div>'
 
-	'<div class="lst-mz-telefon-blok">'
+	# --- co na niej widać --------------------------------------------------
+	'<div class="lst-mz-blok">'
+	+ etykieta( 'What to look for' ) +
+	'<div class="lst-mz-legenda">' + ''.join( pozycja( *p ) for p in LEGENDA ) + '</div>'
+	'</div>'
+
+	# --- skąd się to bierze ------------------------------------------------
+	'<div class="lst-mz-blok">'
+	+ etykieta( 'Where it comes from' ) +
+	'<p class="lst-mz-wstep">Three screens from the dashboard, on the very sheet above.</p>'
+	'<div class="lst-mz-ekrany">'
+	+ ''.join( ekran( *e, odwrocony = bool( i % 2 ) ) for i, e in enumerate( EKRANY ) ) +
+	'</div>'
+	'</div>'
+
+	# --- telefon -----------------------------------------------------------
+	'<div class="lst-mz-blok lst-mz-telefon-blok">'
 	'<div class="lst-mz-telefon-tekst">'
-	'<p class="lst-mz-etykieta">On a phone</p>'
+	+ etykieta( 'On a phone' ) +
 	'<p class="lst-mz-tytul">Every row becomes a card</p>'
 	'<p class="lst-mz-opis">Each value keeps the name of its column, so nothing has to be guessed from '
 	'position. What decides is the width of the column the table sits in, not the width of the screen '
@@ -162,17 +215,21 @@ SEKCJA = (
 	'<span class="lst-mz-szeroko"> The frame beside this is a real phone width, with the same table in it.</span>'
 	'<span class="lst-mz-wasko"> The table above this is doing it right now.</span></p>'
 	'</div>'
-	'<div class="lst-mz-telefon-rama"><div class="lst-mz-telefon">' + TABELA + '</div></div>'
+	'<div class="lst-mz-telefon-rama"><div class="lst-mz-telefon lst-mz-szklo">' + TABELA + '</div></div>'
 	'</div>'
 
+	# --- co jest w czym ----------------------------------------------------
+	'<div class="lst-mz-blok">'
+	+ etykieta( 'What is in which' ) +
 	'<div class="lst-mz-listy">'
 	+ lista( 'In the free plugin', WOLNE )
 	+ lista( 'Everything above, plus Pro', PRO, ' jest-pro' ) +
 	'</div>'
-
 	'<p class="lst-mz-kod"><span class="lst-mz-mono">' + L + 'sheet_table id=&quot;1&quot;' + P + '</span>'
 	'<span class="lst-mz-kod-opis">A block, an Elementor widget or this. The same table either way.</span></p>'
+	'</div>'
 )
+
 
 STYL = r"""
 /* ---------------------------------------------------------------- moduł */
@@ -186,6 +243,10 @@ STYL = r"""
 	--mz-plyta-linia: rgba( 138, 168, 163, .12 );
 	--mz-kreska: rgba( 138, 168, 163, .28 );
 	--mz-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+	/* Mocniejszy ease-out niż wbudowany: ruch rusza od razu, a dochodzi
+	   spokojnie. Wbudowane krzywe są na to za miękkie. */
+	--mz-luk: cubic-bezier( .23, 1, .32, 1 );
+
 	font-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
 	color: var( --mz-tekst );
 
@@ -231,16 +292,20 @@ STYL = r"""
 	max-width: var( --mz-max );
 	margin-inline: auto;
 	display: grid;
-	gap: clamp( 2rem, 5vw, 3.4rem );
+	gap: clamp( 2.4rem, 6vw, 4.2rem );
 }
+
+/* Każdy blok to jedna myśl: etykieta, rzecz, i odstęp pod spodem. */
+.lst-mz .lst-mz-blok { display: grid; gap: clamp( 1rem, 2.4vw, 1.6rem ); }
 
 .lst-mz .lst-mz-mono { font-family: var( --mz-mono ); }
 
-.lst-mz .lst-mz-wstep {
+.lst-mz .lst-mz-wstep,
+.lst-mz .lst-mz-opis {
 	font-size: 1.125rem;   /* 18 px */
 	line-height: 1.55;
 	color: var( --mz-tekst-2 );
-	max-width: 46rem;
+	max-width: 44rem;
 }
 
 .lst-mz .lst-mz-tytul {
@@ -250,13 +315,6 @@ STYL = r"""
 	max-width: 34rem;
 }
 
-.lst-mz .lst-mz-opis {
-	font-size: 1.125rem;   /* 18 px */
-	line-height: 1.55;
-	color: var( --mz-tekst-2 );
-	max-width: 40rem;
-}
-
 .lst-mz .lst-mz-opis em { font-style: normal; color: rgb( var( --mz-mieta ) ); }
 
 .lst-mz .lst-mz-etykieta,
@@ -264,10 +322,17 @@ STYL = r"""
 .lst-mz .lst-mz-znak,
 .lst-mz .lst-mz-nota,
 .lst-mz .lst-mz-etap-pod,
+.lst-mz .lst-mz-nazwa-okna,
 .lst-mz .lst-mz-kolumna-tytul {
 	font-family: var( --mz-mono );
 	font-size: .875rem;    /* 14 px */
 	line-height: 1.5;
+}
+
+.lst-mz .lst-mz-etykieta {
+	letter-spacing: .14em;
+	text-transform: uppercase;
+	color: rgb( var( --mz-mieta ) );
 }
 
 /* ---------------------------------------------------------- trzy kroki */
@@ -286,9 +351,20 @@ STYL = r"""
 	background-color: var( --mz-plyta );
 	border: 1px solid var( --mz-plyta-linia );
 	border-radius: 14px;
-	/* Jedna deklaracja na wszystko, co ten kafelek animuje — inaczej reguła
-	   od pojawiania się i reguła od najechania kasują się nawzajem. */
-	transition: border-color 200ms ease;
+	/* Jedna deklaracja na wszystko, co ten kafelek animuje — inaczej wejście
+	   i najechanie kasują się nawzajem. */
+	transition: transform 200ms var( --mz-luk ), border-color 200ms ease;
+	/* Wejście: kafelki są na górze strony, więc widać je od razu i nie ma na
+	   co czekać. Animacja, a nie „opacity: 0” do odwołania — element bez niej
+	   jest po prostu widoczny. */
+	animation: lst-mz-wejscie 260ms var( --mz-luk ) both;
+}
+
+.lst-mz .lst-mz-krok:nth-child( 2 ) { animation-delay: 60ms; }
+.lst-mz .lst-mz-krok:nth-child( 3 ) { animation-delay: 120ms; }
+
+@keyframes lst-mz-wejscie {
+	from { opacity: 0; transform: translateY( 10px ); }
 }
 
 .lst-mz .lst-mz-numer { letter-spacing: .14em; color: rgb( var( --mz-mieta ) ); }
@@ -311,7 +387,7 @@ STYL = r"""
 	border-radius: 12px;
 }
 
-/* Strzałka w przerwie między etapami, a nie w środku kafelka. */
+/* Kreska w przerwie między etapami, a nie w środku kafelka. */
 .lst-mz .lst-mz-etap + .lst-mz-etap::before {
 	content: "";
 	position: absolute;
@@ -322,35 +398,71 @@ STYL = r"""
 	background-color: var( --mz-kreska );
 }
 
+/*
+ * Kropka jadąca po kresce: jedyna rzecz na tej stronie, która rusza się sama.
+ * Pokazuje kierunek — arkusz, kopia, strona — a nie zasłania niczego, czego
+ * nie widać bez niej. Przy „mniej ruchu” znika, kreska zostaje.
+ */
 .lst-mz .lst-mz-etap + .lst-mz-etap::after {
 	content: "";
 	position: absolute;
 	top: 50%;
-	right: calc( 100% - 1px );
-	width: 6px;
-	height: 6px;
-	border-top: 1px solid var( --mz-kreska );
-	border-right: 1px solid var( --mz-kreska );
-	transform: translate( 0, -50% ) rotate( 45deg );
+	right: 100%;
+	width: 5px;
+	height: 5px;
+	margin-top: -2px;
+	border-radius: 50%;
+	background-color: rgb( var( --mz-mieta ) );
+	animation: lst-mz-plyn 2.8s linear infinite;
+}
+
+.lst-mz .lst-mz-etap:nth-child( 3 )::after { animation-delay: .9s; }
+
+@keyframes lst-mz-plyn {
+	0%       { transform: translateX( 0 ); opacity: 0; }
+	12%      { opacity: .95; }
+	70%      { opacity: .95; }
+	78%, 100% { transform: translateX( clamp( 1.4rem, 3vw, 2.6rem ) ); opacity: 0; }
 }
 
 .lst-mz .lst-mz-etap-nazwa { font-size: 1.125rem; font-weight: 600; line-height: 1.3; }
 .lst-mz .lst-mz-etap-pod { color: var( --mz-tekst-3 ); }
-
-.lst-mz .lst-mz-nota {
-	color: var( --mz-tekst-3 );
-	max-width: 52rem;
-	margin-top: calc( -1 * clamp( 1rem, 3vw, 2rem ) );
-}
+.lst-mz .lst-mz-nota { color: var( --mz-tekst-3 ); max-width: 52rem; }
 
 /* ------------------------------------------------------- tabela na żywo */
 
-.lst-mz .lst-mz-stol { display: grid; gap: .7rem; }
+.lst-mz .lst-mz-opis-stolu { margin-top: -.6rem; }
 
-.lst-mz .lst-mz-etykieta {
-	letter-spacing: .12em;
-	text-transform: uppercase;
-	color: rgb( var( --mz-mieta ) );
+.lst-mz .lst-mz-etykieta.jest-zywa { display: flex; align-items: center; gap: .5rem; }
+
+.lst-mz .lst-mz-puls {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background-color: rgb( var( --mz-mieta ) );
+	box-shadow: 0 0 0 0 rgba( var( --mz-mieta ), .55 );
+	animation: lst-mz-puls 2s var( --mz-luk ) infinite;
+}
+
+@keyframes lst-mz-puls {
+	0%   { box-shadow: 0 0 0 0 rgba( var( --mz-mieta ), .5 ); }
+	70%  { box-shadow: 0 0 0 7px rgba( var( --mz-mieta ), 0 ); }
+	100% { box-shadow: 0 0 0 0 rgba( var( --mz-mieta ), 0 ); }
+}
+
+/*
+ * Szyba musi mieć przez co patrzeć: szablon Szkło jest matową taflą, a tafla
+ * nad czernią to czerń. Pod tabelą leży więc światło w barwach strony —
+ * mięta z jednej strony, głęboki błękit z drugiej.
+ */
+.lst-mz .lst-mz-szklo {
+	padding: clamp( 1.1rem, 3vw, 2.6rem );
+	border-radius: 22px;
+	background:
+		radial-gradient( 80% 70% at 10% 8%, #1f7a6b 0%, rgba( 31, 122, 107, 0 ) 62% ),
+		radial-gradient( 70% 60% at 92% 92%, #2c4a7d 0%, rgba( 44, 74, 125, 0 ) 60% ),
+		linear-gradient( 152deg, #12302e 0%, #0d1a23 100% );
+	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .06 );
 }
 
 /* ------------------------------------------------------------- legenda */
@@ -361,11 +473,7 @@ STYL = r"""
 	gap: clamp( 1.1rem, 2.4vw, 1.8rem );
 }
 
-.lst-mz .lst-mz-pozycja {
-	display: grid;
-	gap: .35rem;
-	align-content: start;
-}
+.lst-mz .lst-mz-pozycja { display: grid; gap: .35rem; align-content: start; }
 
 .lst-mz .lst-mz-znak {
 	justify-self: start;
@@ -383,10 +491,61 @@ STYL = r"""
 	background-color: rgba( var( --mz-mieta ), .1 );
 }
 
+/* ------------------------------------------------------- zrzuty z kokpitu */
+
+.lst-mz .lst-mz-ekrany { display: grid; gap: clamp( 1.6rem, 3.5vw, 2.8rem ); }
+
+.lst-mz .lst-mz-ekran {
+	display: grid;
+	grid-template-columns: minmax( 0, 1fr ) minmax( 0, 1.25fr );
+	gap: clamp( 1.2rem, 3vw, 2.6rem );
+	align-items: center;
+}
+
+.lst-mz .lst-mz-ekran.jest-odwrocony {
+	grid-template-columns: minmax( 0, 1.25fr ) minmax( 0, 1fr );
+}
+
+.lst-mz .lst-mz-ekran.jest-odwrocony .lst-mz-okno { order: -1; }
+.lst-mz .lst-mz-ekran-tresc { display: grid; gap: .5rem; align-content: start; }
+
+.lst-mz .lst-mz-okno {
+	border: 1px solid rgba( var( --mz-mieta ), .2 );
+	border-radius: 12px;
+	overflow: hidden;
+	background-color: #0a1110;
+	box-shadow: 0 22px 46px -30px rgba( 0, 0, 0, .95 ), 0 0 34px -18px rgba( var( --mz-mieta ), .3 );
+	transition: transform 220ms var( --mz-luk ), box-shadow 220ms var( --mz-luk );
+}
+
+.lst-mz .lst-mz-belka {
+	display: flex;
+	align-items: center;
+	gap: .45rem;
+	padding: .55rem .8rem;
+	background-color: #131d1b;
+	border-bottom: 1px solid rgba( var( --mz-mieta ), .14 );
+}
+
+.lst-mz .lst-mz-kropka {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background-color: rgba( 138, 168, 163, .35 );
+}
+
+.lst-mz .lst-mz-nazwa-okna { margin-left: .4rem; color: var( --mz-tekst-3 ); }
+
+.lst-mz .lst-mz-okno img {
+	display: block;
+	width: 100%;
+	height: auto;
+	transition: transform 320ms var( --mz-luk );
+}
+
 /* -------------------------------------------------------------- telefon */
 
 .lst-mz .lst-mz-telefon-blok {
-	display: grid;
 	grid-template-columns: minmax( 0, 34rem ) auto;
 	justify-content: space-between;
 	gap: clamp( 1.4rem, 4vw, 3rem );
@@ -394,7 +553,6 @@ STYL = r"""
 }
 
 .lst-mz .lst-mz-telefon-tekst { display: grid; gap: .5rem; align-content: start; }
-
 .lst-mz .lst-mz-wasko { display: none; }
 
 .lst-mz .lst-mz-telefon-rama {
@@ -408,14 +566,14 @@ STYL = r"""
 
 /*
  * Ekran telefonu jest oknem, nie kartką: dziesięć kart jedna pod drugą
- * rozciągnęłoby tę sekcję na dwa ekrany, a widać już po trzech. Reszta jest
- * ucięta tak, jak ucina ją telefon.
+ * rozciągnęłoby tę sekcję na dwa ekrany, a widać już po trzech.
  */
 .lst-mz .lst-mz-telefon {
 	width: 360px;
 	max-width: 100%;
-	max-height: 560px;
+	max-height: 700px;
 	overflow: hidden;
+	border-radius: 16px;
 	-webkit-mask-image: linear-gradient( to bottom, #000 78%, transparent 99% );
 	mask-image: linear-gradient( to bottom, #000 78%, transparent 99% );
 }
@@ -436,16 +594,12 @@ STYL = r"""
 	background-color: var( --mz-plyta );
 	border: 1px solid var( --mz-plyta-linia );
 	border-radius: 14px;
+	transition: border-color 200ms ease;
 }
 
 .lst-mz .lst-mz-kolumna.jest-pro { border-color: rgba( var( --mz-mieta ), .28 ); }
 
-.lst-mz .lst-mz-kolumna-tytul {
-	letter-spacing: .12em;
-	text-transform: uppercase;
-	color: var( --mz-tekst-3 );
-}
-
+.lst-mz .lst-mz-kolumna-tytul { letter-spacing: .12em; text-transform: uppercase; color: var( --mz-tekst-3 ); }
 .lst-mz .lst-mz-kolumna.jest-pro .lst-mz-kolumna-tytul { color: rgb( var( --mz-mieta ) ); }
 
 .lst-mz .lst-mz-lista { display: grid; gap: .55rem; margin: 0; padding: 0; list-style: none; }
@@ -490,6 +644,34 @@ STYL = r"""
 .lst-mz .lst-mz-kod .lst-mz-mono { font-family: var( --mz-mono ); color: rgb( var( --mz-mieta ) ); }
 .lst-mz .lst-mz-kod-opis { color: var( --mz-tekst-3 ); font-size: .875rem; }
 
+/* ------------------------------------------------------------- najechanie */
+
+@media ( hover: hover ) and ( pointer: fine ) {
+	.lst-mz .lst-mz-krok:hover { border-color: rgba( var( --mz-mieta ), .34 ); transform: translateY( -2px ); }
+	.lst-mz .lst-mz-kolumna:hover { border-color: rgba( var( --mz-mieta ), .34 ); }
+	.lst-mz .lst-mz-okno:hover { transform: translateY( -2px ); box-shadow: 0 26px 50px -30px rgba( 0, 0, 0, .95 ), 0 0 40px -16px rgba( var( --mz-mieta ), .4 ); }
+	.lst-mz .lst-mz-okno:hover img { transform: scale( 1.012 ); }
+}
+
+/* --------------------------------------------------------- mniej ruchu */
+
+/*
+ * Mniej ruchu znaczy mniej ruchu, a nie inny ruch: wejście, kropka i puls
+ * znikają, a wszystko, co pokazywały, zostaje na miejscu i widoczne.
+ */
+@media ( prefers-reduced-motion: reduce ) {
+	.lst-mz .lst-mz-krok,
+	.lst-mz .lst-mz-puls,
+	.lst-mz .lst-mz-etap + .lst-mz-etap::after { animation: none; }
+
+	.lst-mz .lst-mz-etap + .lst-mz-etap::after { opacity: .9; }
+
+	.lst-mz .lst-mz-krok,
+	.lst-mz .lst-mz-okno,
+	.lst-mz .lst-mz-okno img,
+	.lst-mz .lst-mz-kolumna { transition: none; }
+}
+
 /* --------------------------------------------- utwardzenie na wrogie motywy */
 
 /*
@@ -506,16 +688,21 @@ STYL = r"""
 	text-transform: none !important;
 	letter-spacing: normal !important;
 	font-family: inherit !important;
-	max-width: none;
 }
+
+.lst-mz .lst-mz-szklo { background-image:
+	radial-gradient( 80% 70% at 10% 8%, #1f7a6b 0%, rgba( 31, 122, 107, 0 ) 62% ),
+	radial-gradient( 70% 60% at 92% 92%, #2c4a7d 0%, rgba( 44, 74, 125, 0 ) 60% ),
+	linear-gradient( 152deg, #12302e 0%, #0d1a23 100% ) !important; }
 
 .lst-mz .lst-mz-krok,
 .lst-mz .lst-mz-kolumna,
 .lst-mz .lst-mz-kod { background-color: var( --mz-plyta ) !important; border: 1px solid var( --mz-plyta-linia ) !important; }
 
 .lst-mz .lst-mz-etap { background-color: transparent !important; border: 1px solid var( --mz-kreska ) !important; }
-
 .lst-mz .lst-mz-telefon-rama { background-color: var( --mz-plyta ) !important; border: 1px solid var( --mz-kreska ) !important; }
+.lst-mz .lst-mz-okno { background-color: #0a1110 !important; border: 1px solid rgba( var( --mz-mieta ), .2 ) !important; }
+.lst-mz .lst-mz-belka { background-color: #131d1b !important; border: 0 !important; border-bottom: 1px solid rgba( var( --mz-mieta ), .14 ) !important; }
 
 .lst-mz .lst-mz-znak {
 	border: 1px solid var( --mz-kreska ) !important;
@@ -532,26 +719,15 @@ STYL = r"""
 .lst-mz .lst-mz-etykieta,
 .lst-mz .lst-mz-nota,
 .lst-mz .lst-mz-etap-pod,
+.lst-mz .lst-mz-nazwa-okna,
 .lst-mz .lst-mz-kolumna-tytul,
 .lst-mz .lst-mz-kod,
 .lst-mz .lst-mz-kod-opis,
 .lst-mz .lst-mz-mono { font-family: var( --mz-mono ) !important; }
 
-.lst-mz .lst-mz-wstep,
-.lst-mz .lst-mz-opis,
-.lst-mz .lst-mz-lista li { max-width: 46rem; }
-
 /* Sama tabela broni się swoim arkuszem; tu tylko tyle, żeby cudze marginesy
    nie wypchnęły jej poza szerokość strony. */
 .lst-mz .lstab-container, .lst-mz .lstab { margin-inline: 0 !important; max-width: 100%; }
-
-@media ( hover: hover ) and ( pointer: fine ) {
-	.lst-mz .lst-mz-krok:hover { border-color: rgba( var( --mz-mieta ), .34 ); }
-}
-
-@media ( prefers-reduced-motion: reduce ) {
-	.lst-mz .lst-mz-krok { transition: none; }
-}
 
 /* ------------------------------------------------------------- telefon */
 
@@ -560,11 +736,13 @@ STYL = r"""
 }
 
 @media ( max-width: 900px ) {
-	.lst-mz .lst-mz-legenda { grid-template-columns: minmax( 0, 1fr ); }
-
+	.lst-mz .lst-mz-legenda,
 	.lst-mz .lst-mz-kroki,
 	.lst-mz .lst-mz-droga,
+	.lst-mz .lst-mz-ekran,
 	.lst-mz .lst-mz-telefon-blok { grid-template-columns: minmax( 0, 1fr ); }
+
+	.lst-mz .lst-mz-ekran.jest-odwrocony .lst-mz-okno { order: 0; }
 
 	.lst-mz .lst-mz-etap + .lst-mz-etap::before {
 		top: auto;
@@ -577,13 +755,20 @@ STYL = r"""
 
 	.lst-mz .lst-mz-etap + .lst-mz-etap::after {
 		top: auto;
-		bottom: calc( 100% - 1px );
+		bottom: 100%;
 		right: auto;
 		left: calc( 1.5rem - 2px );
-		transform: translate( -50%, 50% ) rotate( 135deg );
+		margin-top: 0;
+		animation-name: lst-mz-plyn-w-dol;
 	}
 
-	.lst-mz .lst-mz-nota { margin-top: 0; }
+	@keyframes lst-mz-plyn-w-dol {
+		0%        { transform: translateY( calc( -1 * clamp( 1.4rem, 3vw, 2.6rem ) ) ); opacity: 0; }
+		12%       { opacity: .95; }
+		70%       { opacity: .95; }
+		78%, 100% { transform: translateY( 0 ); opacity: 0; }
+	}
+
 	.lst-mz .lst-mz-telefon-rama { display: none; }
 	.lst-mz .lst-mz-szeroko { display: none; }
 	.lst-mz .lst-mz-wasko { display: inline; }
@@ -597,12 +782,10 @@ STRONA = (
 	'\n<script>\n' + JS + '\n</script>\n'
 )
 
-
 ( TU / 'MOZLIWOSCI-en.html' ).write_text( STRONA )
 
-# Podgląd do otwarcia w przeglądarce: podrabia tło i dopełnienia Divi, żeby dało
-# się obejrzeć sekcję taką, jaka wyjdzie na stronie. Do Divi idzie wyłącznie
-# MOZLIWOSCI-en.html.
+# Podgląd do otwarcia w przeglądarce: podrabia tło i dopełnienia Divi, i
+# podstawia lokalne adresy zrzutów. Do Divi idzie wyłącznie MOZLIWOSCI-en.html.
 PODGLAD = (
 	'<title>What it does</title>\n'
 	'<style>\n'
@@ -612,7 +795,7 @@ PODGLAD = (
 	'.podrobka-divi-rzad { width: 90%; max-width: 1800px; margin: 0 auto; }\n'
 	'</style>\n'
 	'<div class="podrobka-divi"><div class="podrobka-divi-rzad">\n'
-	+ STRONA +
+	+ STRONA.replace( 'ADRES/', 'zrzuty/' ) +
 	'\n</div></div>\n'
 )
 

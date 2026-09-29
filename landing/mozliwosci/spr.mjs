@@ -13,7 +13,9 @@
 import { chromium } from '/tmp/lstab-env/node_modules/playwright/index.mjs';
 import fs from 'fs';
 
-const modul = fs.readFileSync( 'MOZLIWOSCI-en.html', 'utf8' );
+const modul = fs.readFileSync( 'MOZLIWOSCI-en.html', 'utf8' )
+	// Zrzuty na żywej stronie leżą w Multimediach; tu leżą obok pliku.
+	.replace( /ADRES\//g, 'zrzuty/' );
 
 let pass = 0, fail = 0;
 const ok = ( n, w, d ) => { if ( w ) { pass++; console.log( '  ✓ ', n, ' — ', d ); } else { fail++; console.log( '  ✗ ', n, ' — ', d ); } };
@@ -46,8 +48,17 @@ const otworz = async ( html, { width = 1500, height = 1100, ruch = true } = {} )
 	const p = await c.newPage();
 	const bledy = [];
 	p.on( 'pageerror', ( e ) => bledy.push( e.message ) );
+	await p.goto( 'file://' + process.cwd() + '/' );
 	await p.setContent( html, { waitUntil: 'load' } );
-	await p.waitForTimeout( 350 );
+	// Obrazki mają loading="lazy", a wejście kafelków trwa 260 ms z opóźnieniem.
+	await p.evaluate( async () => {
+		for ( let y = 0; y < document.body.scrollHeight; y += 700 ) {
+			window.scrollTo( 0, y );
+			await new Promise( ( r ) => setTimeout( r, 60 ) );
+		}
+		window.scrollTo( 0, 0 );
+	} );
+	await p.waitForTimeout( 700 );
 	return { p, c, bledy };
 };
 
@@ -111,11 +122,35 @@ console.log( '\nmoduł na stronie' );
 	ok( 'rozmiary pisma tylko 14, 18 i 20', r.rozmiary.every( ( x ) => [ 14, 18, 20 ].includes( x ) ), r.rozmiary.join( '/' ) );
 	ok( 'bez błędów skryptu', bledy.length === 0, bledy.join( ' | ' ) || '0' );
 
+	const zrzuty = await p.evaluate( () => ( {
+		ile: document.querySelectorAll( '.lst-mz-okno img' ).length,
+		wczytane: [ ...document.querySelectorAll( '.lst-mz-okno img' ) ].filter( ( i ) => i.complete && i.naturalWidth > 0 ).length,
+		puste: [ ...document.querySelectorAll( '.lst-mz-okno img' ) ].filter( ( i ) => ! i.complete || ! i.naturalWidth ).map( ( i ) => i.getAttribute( 'src' ) ),
+		szklo: document.querySelectorAll( '.lst-mz-szklo .lstab-style-glass' ).length,
+		tlo: getComputedStyle( document.querySelector( '.lst-mz-szklo' ) ).backgroundImage.includes( 'gradient' ),
+		rozmycie: getComputedStyle( document.querySelector( '.lst-mz-szklo .lstab-scroll' ) ).backdropFilter,
+	} ) );
+	ok( 'trzy zrzuty z kokpitu, wszystkie wczytane', zrzuty.ile === 3 && zrzuty.wczytane === 3, zrzuty.puste.join( ', ' ) || '3 z 3' );
+	ok( 'tabela jest szklana i ma przez co patrzeć', zrzuty.szklo === 2 && zrzuty.tlo && /blur/.test( zrzuty.rozmycie ),
+		`szkło ${ zrzuty.szklo }, gradient ${ zrzuty.tlo }, ${ zrzuty.rozmycie }` );
+
+	const ruch = await p.evaluate( () => ( {
+		niewidoczne: [ ...document.querySelectorAll( '.lst-mz [class*="lst-mz-"]' ) ].filter( ( e ) => getComputedStyle( e ).opacity === '0' ).length,
+		animowane: [ ...document.querySelectorAll( '.lst-mz-krok' ) ].map( ( e ) => getComputedStyle( e ).animationName ),
+		kropka: getComputedStyle( document.querySelector( '.lst-mz-etap + .lst-mz-etap' ), '::after' ).animationName,
+		puls: getComputedStyle( document.querySelector( '.lst-mz-puls' ) ).animationName,
+	} ) );
+	ok( 'jest ruch, a mimo to nic nie jest schowane', ruch.niewidoczne === 0 && ruch.animowane.every( ( x ) => x === 'lst-mz-wejscie' ) && ruch.kropka === 'lst-mz-plyn' && ruch.puls === 'lst-mz-puls',
+		`schowanych ${ ruch.niewidoczne }, wejście ${ ruch.animowane[ 0 ] }, kropka ${ ruch.kropka }, puls ${ ruch.puls }` );
+
 	const k = await kontrast( p );
 	ok( 'najsłabszy napis ma co najmniej 4,5 : 1', k.r >= 4.5, `${ k.r } : 1 — ${ k.co }` );
 
 	await p.locator( '.lst-mz' ).screenshot( { path: 'mozliwosci-1500.png' } );
 	await p.locator( '.lst-mz-legenda' ).screenshot( { path: 'mozliwosci-legenda.png' } );
+	await p.locator( '.lst-mz-stol' ).screenshot( { path: 'mozliwosci-stol.png' } );
+	await p.locator( '.lst-mz-ekran' ).first().screenshot( { path: 'mozliwosci-ekran.png' } );
+	await p.locator( '.lst-mz-telefon-blok' ).screenshot( { path: 'mozliwosci-telefon.png' } );
 	await p.locator( '.lst-mz-telefon-blok' ).screenshot( { path: 'mozliwosci-telefon.png' } );
 	await c.close();
 }
@@ -200,10 +235,13 @@ console.log( '\nmniej ruchu' );
 	const { p, c } = await otworz( strona( modul ), { ruch: false } );
 	const r = await p.evaluate( () => ( {
 		widocznych: [ ...document.querySelectorAll( '.lst-mz-krok, .lst-mz-pozycja, .lst-mz-etap' ) ].filter( ( x ) => getComputedStyle( x ).opacity === '1' ).length,
-		przejscia: [ ...document.querySelectorAll( '.lst-mz-krok' ) ].map( ( x ) => getComputedStyle( x ).transitionProperty ),
+		animacje: [ ...document.querySelectorAll( '.lst-mz-krok' ) ].map( ( x ) => getComputedStyle( x ).animationName ),
+		kropka: getComputedStyle( document.querySelector( '.lst-mz-etap + .lst-mz-etap' ), '::after' ).animationName,
+		puls: getComputedStyle( document.querySelector( '.lst-mz-puls' ) ).animationName,
 	} ) );
-	ok( 'przy prefers-reduced-motion nic się nie chowa i nic nie przechodzi', r.widocznych === 12 && r.przejscia.every( ( x ) => x === 'none' ),
-		`widocznych ${ r.widocznych }, przejścia ${ r.przejscia[ 0 ] }` );
+	ok( 'przy prefers-reduced-motion nic się nie rusza, a wszystko widać',
+		r.widocznych === 12 && r.animacje.every( ( x ) => x === 'none' ) && r.kropka === 'none' && r.puls === 'none',
+		`widocznych ${ r.widocznych }, wejście ${ r.animacje[ 0 ] }, kropka ${ r.kropka }, puls ${ r.puls }` );
 	await c.close();
 }
 

@@ -66,17 +66,17 @@ $source_id = LSTAB_Storage::insert(
 		'gid'           => '0',
 		'tab_name'      => 'Trails',
 		'sync_interval' => 900,
-		'style_preset'  => 'midnight',
+		'style_preset'  => 'glass',
 		'layout'        => 'auto',
-		// Every one of these is a control on the Appearance tab, not CSS.
+		/*
+		 * Glass is a frosted panel, so it only means anything over something —
+		 * the page puts a gradient behind it. Its own palette stays; the accent
+		 * is the site's mint, which is a control on the Appearance tab, not CSS.
+		 */
 		'style_vars'    => array(
-			'background' => '#0d1513',
-			'headerBg'   => '#121d1b',
-			'border'     => '#1f2e2b',
-			'hover'      => '#16302c',
-			'accent'     => $mint,
-			'lines'      => 'normal',
-			'density'    => 'normal',
+			'accent'  => $mint,
+			'lines'   => 'normal',
+			'density' => 'normal',
 		),
 	)
 );
@@ -86,32 +86,28 @@ LSTAB_Sync::run( $source_id );
 // Colour rules, in the words the dashboard uses: when Status is Closed, paint
 // the whole row; when it is Open, put the value in a pill; difficulty gets a
 // dot, which is the quietest of the three.
-update_option(
-	'lstabp_rules',
-	array(
-		$source_id => array(
-			array( 'column' => 'Status',     'operator' => '=', 'value' => 'Closed',   'style' => '#8c3b46', 'scope' => 'row' ),
+$rules = array(
+	$source_id => array(
+			array( 'column' => 'Status',     'operator' => '=', 'value' => 'Closed',   'style' => '#3d4c55', 'scope' => 'row' ),
 			array( 'column' => 'Status',     'operator' => '=', 'value' => 'Open',     'style' => $mint,     'scope' => 'pill' ),
 			array( 'column' => 'Status',     'operator' => '=', 'value' => 'Caution',  'style' => $amber,    'scope' => 'pill' ),
 			array( 'column' => 'Status',     'operator' => '=', 'value' => 'Closed',   'style' => $coral,    'scope' => 'pill' ),
 			array( 'column' => 'Difficulty', 'operator' => '=', 'value' => 'Easy',     'style' => $mint,     'scope' => 'dot' ),
 			array( 'column' => 'Difficulty', 'operator' => '=', 'value' => 'Moderate', 'style' => $amber,    'scope' => 'dot' ),
-			array( 'column' => 'Difficulty', 'operator' => '=', 'value' => 'Hard',     'style' => $coral,    'scope' => 'dot' ),
-		),
+		array( 'column' => 'Difficulty', 'operator' => '=', 'value' => 'Hard',     'style' => $coral,    'scope' => 'dot' ),
 	),
-	false
 );
 
-update_option(
-	'lstabp_column_looks',
-	array(
-		$source_id => array(
-			'Snow (cm)' => array( 'look' => 'bar', 'tint' => $mint, 'ink' => '', 'label' => '' ),
-			'Webcam'    => array( 'look' => 'button', 'tint' => $mint, 'ink' => '#08201c', 'label' => 'Live view' ),
-		),
+update_option( 'lstabp_rules', $rules, false );
+
+$looks = array(
+	$source_id => array(
+		'Snow (cm)' => array( 'look' => 'bar', 'tint' => $mint, 'ink' => '', 'label' => '' ),
+		'Webcam'    => array( 'look' => 'button', 'tint' => $mint, 'ink' => '#08201c', 'label' => 'Live view' ),
 	),
-	false
 );
+
+update_option( 'lstabp_column_looks', $looks, false );
 
 update_option( 'lstabp_facets', array( $source_id => array( 'Difficulty', 'Status' ) ), false );
 update_option( 'lstabp_export_sources', array( $source_id => true ), true );
@@ -145,6 +141,17 @@ update_option( 'lstabp_export_sources', array(), true );
 LSTAB_Storage::flush_cache( $source_id );
 
 $collected['free'] = LSTAB_Renderer::render( array( 'source_id' => $source_id ) );
+
+/*
+ * Put everything back: the screenshots taken next (landing/mozliwosci/zrzuty.mjs)
+ * photograph these very cards, so the site has to be left the way the page
+ * describes it.
+ */
+update_option( 'lstabp_rules', $rules, false );
+update_option( 'lstabp_column_looks', $looks, false );
+update_option( 'lstabp_facets', array( $source_id => array( 'Difficulty', 'Status' ) ), false );
+update_option( 'lstabp_export_sources', array( $source_id => true ), true );
+LSTAB_Storage::flush_cache( $source_id );
 
 file_put_contents( $out, wp_json_encode( $collected, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) );
 
