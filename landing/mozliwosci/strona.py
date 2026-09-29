@@ -354,17 +354,19 @@ STYL = r"""
 	/* Jedna deklaracja na wszystko, co ten kafelek animuje — inaczej wejście
 	   i najechanie kasują się nawzajem. */
 	transition: transform 200ms var( --mz-luk ), border-color 200ms ease;
-	/* Wejście: kafelki są na górze strony, więc widać je od razu i nie ma na
-	   co czekać. Animacja, a nie „opacity: 0” do odwołania — element bez niej
-	   jest po prostu widoczny. */
-	animation: lst-mz-wejscie 260ms var( --mz-luk ) both;
+	/*
+	 * Wejście, i tylko ono. Kafelki są w pierwszym ekranie, więc nie czekają na
+	 * przewinięcie; to animacja, a nie „opacity: 0” do odwołania, więc element
+	 * bez niej jest po prostu widoczny.
+	 */
+	animation: lst-mz-wejscie 380ms var( --mz-luk ) both;
 }
 
-.lst-mz .lst-mz-krok:nth-child( 2 ) { animation-delay: 60ms; }
-.lst-mz .lst-mz-krok:nth-child( 3 ) { animation-delay: 120ms; }
+.lst-mz .lst-mz-krok:nth-child( 2 ) { animation-delay: 70ms; }
+.lst-mz .lst-mz-krok:nth-child( 3 ) { animation-delay: 140ms; }
 
 @keyframes lst-mz-wejscie {
-	from { opacity: 0; transform: translateY( 10px ); }
+	from { opacity: 0; transform: translateY( 12px ) scale( .985 ); }
 }
 
 .lst-mz .lst-mz-numer { letter-spacing: .14em; color: rgb( var( --mz-mieta ) ); }
@@ -385,9 +387,19 @@ STYL = r"""
 	padding: 1rem 1.1rem 1.05rem;
 	border: 1px solid var( --mz-kreska );
 	border-radius: 12px;
+	animation: lst-mz-wejscie 380ms var( --mz-luk ) both;
+	animation-delay: 210ms;
 }
 
-/* Kreska w przerwie między etapami, a nie w środku kafelka. */
+.lst-mz .lst-mz-etap:nth-child( 2 ) { animation-delay: 280ms; }
+.lst-mz .lst-mz-etap:nth-child( 3 ) { animation-delay: 350ms; }
+
+/*
+ * Kreska między etapami rysuje się raz, w stronę, w którą idą dane, i na tym
+ * kończy. Jeździła tędy kropka w kółko i to był zły pomysł: ruch bez końca na
+ * skraju oka nie pokazuje niczego, czego nie pokazuje sama kreska, a widać go
+ * przez cały czas, kiedy się czyta.
+ */
 .lst-mz .lst-mz-etap + .lst-mz-etap::before {
 	content: "";
 	position: absolute;
@@ -396,33 +408,19 @@ STYL = r"""
 	width: clamp( 1.4rem, 3vw, 2.6rem );
 	height: 1px;
 	background-color: var( --mz-kreska );
+	transform-origin: left center;
+	animation: lst-mz-kreska 420ms var( --mz-luk ) both;
+	animation-delay: 320ms;
 }
 
-/*
- * Kropka jadąca po kresce: jedyna rzecz na tej stronie, która rusza się sama.
- * Pokazuje kierunek — arkusz, kopia, strona — a nie zasłania niczego, czego
- * nie widać bez niej. Przy „mniej ruchu” znika, kreska zostaje.
- */
-.lst-mz .lst-mz-etap + .lst-mz-etap::after {
-	content: "";
-	position: absolute;
-	top: 50%;
-	right: 100%;
-	width: 5px;
-	height: 5px;
-	margin-top: -2px;
-	border-radius: 50%;
-	background-color: rgb( var( --mz-mieta ) );
-	animation: lst-mz-plyn 2.8s linear infinite;
+.lst-mz .lst-mz-etap:nth-child( 3 )::before { animation-delay: 390ms; }
+
+@keyframes lst-mz-kreska-w-dol {
+	from { transform: scaleY( 0 ); }
 }
 
-.lst-mz .lst-mz-etap:nth-child( 3 )::after { animation-delay: .9s; }
-
-@keyframes lst-mz-plyn {
-	0%       { transform: translateX( 0 ); opacity: 0; }
-	12%      { opacity: .95; }
-	70%      { opacity: .95; }
-	78%, 100% { transform: translateX( clamp( 1.4rem, 3vw, 2.6rem ) ); opacity: 0; }
+@keyframes lst-mz-kreska {
+	from { transform: scaleX( 0 ); }
 }
 
 .lst-mz .lst-mz-etap-nazwa { font-size: 1.125rem; font-weight: 600; line-height: 1.3; }
@@ -441,7 +439,9 @@ STYL = r"""
 	border-radius: 50%;
 	background-color: rgb( var( --mz-mieta ) );
 	box-shadow: 0 0 0 0 rgba( var( --mz-mieta ), .55 );
-	animation: lst-mz-puls 2s var( --mz-luk ) infinite;
+	/* Trzy razy i koniec. Kropka przy słowie „live” ma raz zwrócić uwagę, a nie
+	   mrugać komuś nad tabelą przez cały czas, kiedy ją czyta. */
+	animation: lst-mz-puls 1.8s var( --mz-luk ) 3;
 }
 
 @keyframes lst-mz-puls {
@@ -456,7 +456,7 @@ STYL = r"""
  * mięta z jednej strony, głęboki błękit z drugiej.
  */
 .lst-mz .lst-mz-szklo {
-	padding: clamp( 1.1rem, 3vw, 2.6rem );
+	padding: clamp( .7rem, 1.6vw, 1.4rem );
 	border-radius: 22px;
 	background:
 		radial-gradient( 80% 70% at 10% 8%, #1f7a6b 0%, rgba( 31, 122, 107, 0 ) 62% ),
@@ -661,10 +661,9 @@ STYL = r"""
  */
 @media ( prefers-reduced-motion: reduce ) {
 	.lst-mz .lst-mz-krok,
+	.lst-mz .lst-mz-etap,
 	.lst-mz .lst-mz-puls,
-	.lst-mz .lst-mz-etap + .lst-mz-etap::after { animation: none; }
-
-	.lst-mz .lst-mz-etap + .lst-mz-etap::after { opacity: .9; }
+	.lst-mz .lst-mz-etap + .lst-mz-etap::before { animation: none; }
 
 	.lst-mz .lst-mz-krok,
 	.lst-mz .lst-mz-okno,
@@ -689,6 +688,14 @@ STYL = r"""
 	letter-spacing: normal !important;
 	font-family: inherit !important;
 }
+
+/*
+ * Rama jest wyjątkiem od reguły wyżej: to jedyny element, który MA mieć
+ * marginesy na boki, bo one go środkują. Utwardzenie zabrało jej „auto” i cała
+ * strona przykleiła się do lewej krawędzi. Ta reguła ma tę samą swoistość, więc
+ * musi stać PO tamtej, żeby wygrać.
+ */
+.lst-mz .lst-mz-rama { margin-inline: auto !important; }
 
 .lst-mz .lst-mz-szklo { background-image:
 	radial-gradient( 80% 70% at 10% 8%, #1f7a6b 0%, rgba( 31, 122, 107, 0 ) 62% ),
@@ -744,6 +751,7 @@ STYL = r"""
 
 	.lst-mz .lst-mz-ekran.jest-odwrocony .lst-mz-okno { order: 0; }
 
+	/* W jednej kolumnie łącznik biegnie z góry na dół, nie z boku na bok. */
 	.lst-mz .lst-mz-etap + .lst-mz-etap::before {
 		top: auto;
 		bottom: 100%;
@@ -751,22 +759,8 @@ STYL = r"""
 		left: 1.5rem;
 		width: 1px;
 		height: clamp( 1.4rem, 3vw, 2.6rem );
-	}
-
-	.lst-mz .lst-mz-etap + .lst-mz-etap::after {
-		top: auto;
-		bottom: 100%;
-		right: auto;
-		left: calc( 1.5rem - 2px );
-		margin-top: 0;
-		animation-name: lst-mz-plyn-w-dol;
-	}
-
-	@keyframes lst-mz-plyn-w-dol {
-		0%        { transform: translateY( calc( -1 * clamp( 1.4rem, 3vw, 2.6rem ) ) ); opacity: 0; }
-		12%       { opacity: .95; }
-		70%       { opacity: .95; }
-		78%, 100% { transform: translateY( 0 ); opacity: 0; }
+		transform-origin: top center;
+		animation-name: lst-mz-kreska-w-dol;
 	}
 
 	.lst-mz .lst-mz-telefon-rama { display: none; }

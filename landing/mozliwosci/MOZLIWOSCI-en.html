@@ -126,17 +126,19 @@
 	/* Jedna deklaracja na wszystko, co ten kafelek animuje — inaczej wejście
 	   i najechanie kasują się nawzajem. */
 	transition: transform 200ms var( --mz-luk ), border-color 200ms ease;
-	/* Wejście: kafelki są na górze strony, więc widać je od razu i nie ma na
-	   co czekać. Animacja, a nie „opacity: 0” do odwołania — element bez niej
-	   jest po prostu widoczny. */
-	animation: lst-mz-wejscie 260ms var( --mz-luk ) both;
+	/*
+	 * Wejście, i tylko ono. Kafelki są w pierwszym ekranie, więc nie czekają na
+	 * przewinięcie; to animacja, a nie „opacity: 0” do odwołania, więc element
+	 * bez niej jest po prostu widoczny.
+	 */
+	animation: lst-mz-wejscie 380ms var( --mz-luk ) both;
 }
 
-.lst-mz .lst-mz-krok:nth-child( 2 ) { animation-delay: 60ms; }
-.lst-mz .lst-mz-krok:nth-child( 3 ) { animation-delay: 120ms; }
+.lst-mz .lst-mz-krok:nth-child( 2 ) { animation-delay: 70ms; }
+.lst-mz .lst-mz-krok:nth-child( 3 ) { animation-delay: 140ms; }
 
 @keyframes lst-mz-wejscie {
-	from { opacity: 0; transform: translateY( 10px ); }
+	from { opacity: 0; transform: translateY( 12px ) scale( .985 ); }
 }
 
 .lst-mz .lst-mz-numer { letter-spacing: .14em; color: rgb( var( --mz-mieta ) ); }
@@ -157,9 +159,19 @@
 	padding: 1rem 1.1rem 1.05rem;
 	border: 1px solid var( --mz-kreska );
 	border-radius: 12px;
+	animation: lst-mz-wejscie 380ms var( --mz-luk ) both;
+	animation-delay: 210ms;
 }
 
-/* Kreska w przerwie między etapami, a nie w środku kafelka. */
+.lst-mz .lst-mz-etap:nth-child( 2 ) { animation-delay: 280ms; }
+.lst-mz .lst-mz-etap:nth-child( 3 ) { animation-delay: 350ms; }
+
+/*
+ * Kreska między etapami rysuje się raz, w stronę, w którą idą dane, i na tym
+ * kończy. Jeździła tędy kropka w kółko i to był zły pomysł: ruch bez końca na
+ * skraju oka nie pokazuje niczego, czego nie pokazuje sama kreska, a widać go
+ * przez cały czas, kiedy się czyta.
+ */
 .lst-mz .lst-mz-etap + .lst-mz-etap::before {
 	content: "";
 	position: absolute;
@@ -168,33 +180,19 @@
 	width: clamp( 1.4rem, 3vw, 2.6rem );
 	height: 1px;
 	background-color: var( --mz-kreska );
+	transform-origin: left center;
+	animation: lst-mz-kreska 420ms var( --mz-luk ) both;
+	animation-delay: 320ms;
 }
 
-/*
- * Kropka jadąca po kresce: jedyna rzecz na tej stronie, która rusza się sama.
- * Pokazuje kierunek — arkusz, kopia, strona — a nie zasłania niczego, czego
- * nie widać bez niej. Przy „mniej ruchu” znika, kreska zostaje.
- */
-.lst-mz .lst-mz-etap + .lst-mz-etap::after {
-	content: "";
-	position: absolute;
-	top: 50%;
-	right: 100%;
-	width: 5px;
-	height: 5px;
-	margin-top: -2px;
-	border-radius: 50%;
-	background-color: rgb( var( --mz-mieta ) );
-	animation: lst-mz-plyn 2.8s linear infinite;
+.lst-mz .lst-mz-etap:nth-child( 3 )::before { animation-delay: 390ms; }
+
+@keyframes lst-mz-kreska-w-dol {
+	from { transform: scaleY( 0 ); }
 }
 
-.lst-mz .lst-mz-etap:nth-child( 3 )::after { animation-delay: .9s; }
-
-@keyframes lst-mz-plyn {
-	0%       { transform: translateX( 0 ); opacity: 0; }
-	12%      { opacity: .95; }
-	70%      { opacity: .95; }
-	78%, 100% { transform: translateX( clamp( 1.4rem, 3vw, 2.6rem ) ); opacity: 0; }
+@keyframes lst-mz-kreska {
+	from { transform: scaleX( 0 ); }
 }
 
 .lst-mz .lst-mz-etap-nazwa { font-size: 1.125rem; font-weight: 600; line-height: 1.3; }
@@ -213,7 +211,9 @@
 	border-radius: 50%;
 	background-color: rgb( var( --mz-mieta ) );
 	box-shadow: 0 0 0 0 rgba( var( --mz-mieta ), .55 );
-	animation: lst-mz-puls 2s var( --mz-luk ) infinite;
+	/* Trzy razy i koniec. Kropka przy słowie „live” ma raz zwrócić uwagę, a nie
+	   mrugać komuś nad tabelą przez cały czas, kiedy ją czyta. */
+	animation: lst-mz-puls 1.8s var( --mz-luk ) 3;
 }
 
 @keyframes lst-mz-puls {
@@ -228,7 +228,7 @@
  * mięta z jednej strony, głęboki błękit z drugiej.
  */
 .lst-mz .lst-mz-szklo {
-	padding: clamp( 1.1rem, 3vw, 2.6rem );
+	padding: clamp( .7rem, 1.6vw, 1.4rem );
 	border-radius: 22px;
 	background:
 		radial-gradient( 80% 70% at 10% 8%, #1f7a6b 0%, rgba( 31, 122, 107, 0 ) 62% ),
@@ -433,10 +433,9 @@
  */
 @media ( prefers-reduced-motion: reduce ) {
 	.lst-mz .lst-mz-krok,
+	.lst-mz .lst-mz-etap,
 	.lst-mz .lst-mz-puls,
-	.lst-mz .lst-mz-etap + .lst-mz-etap::after { animation: none; }
-
-	.lst-mz .lst-mz-etap + .lst-mz-etap::after { opacity: .9; }
+	.lst-mz .lst-mz-etap + .lst-mz-etap::before { animation: none; }
 
 	.lst-mz .lst-mz-krok,
 	.lst-mz .lst-mz-okno,
@@ -461,6 +460,14 @@
 	letter-spacing: normal !important;
 	font-family: inherit !important;
 }
+
+/*
+ * Rama jest wyjątkiem od reguły wyżej: to jedyny element, który MA mieć
+ * marginesy na boki, bo one go środkują. Utwardzenie zabrało jej „auto” i cała
+ * strona przykleiła się do lewej krawędzi. Ta reguła ma tę samą swoistość, więc
+ * musi stać PO tamtej, żeby wygrać.
+ */
+.lst-mz .lst-mz-rama { margin-inline: auto !important; }
 
 .lst-mz .lst-mz-szklo { background-image:
 	radial-gradient( 80% 70% at 10% 8%, #1f7a6b 0%, rgba( 31, 122, 107, 0 ) 62% ),
@@ -516,6 +523,7 @@
 
 	.lst-mz .lst-mz-ekran.jest-odwrocony .lst-mz-okno { order: 0; }
 
+	/* W jednej kolumnie łącznik biegnie z góry na dół, nie z boku na bok. */
 	.lst-mz .lst-mz-etap + .lst-mz-etap::before {
 		top: auto;
 		bottom: 100%;
@@ -523,22 +531,8 @@
 		left: 1.5rem;
 		width: 1px;
 		height: clamp( 1.4rem, 3vw, 2.6rem );
-	}
-
-	.lst-mz .lst-mz-etap + .lst-mz-etap::after {
-		top: auto;
-		bottom: 100%;
-		right: auto;
-		left: calc( 1.5rem - 2px );
-		margin-top: 0;
-		animation-name: lst-mz-plyn-w-dol;
-	}
-
-	@keyframes lst-mz-plyn-w-dol {
-		0%        { transform: translateY( calc( -1 * clamp( 1.4rem, 3vw, 2.6rem ) ) ); opacity: 0; }
-		12%       { opacity: .95; }
-		70%       { opacity: .95; }
-		78%, 100% { transform: translateY( 0 ); opacity: 0; }
+		transform-origin: top center;
+		animation-name: lst-mz-kreska-w-dol;
 	}
 
 	.lst-mz .lst-mz-telefon-rama { display: none; }
@@ -586,8 +580,8 @@
 	--lstab-head-fg: #61696f;
 	--lstab-border: #e3e8ec;
 	--lstab-border-strong: #cdd5db;
-	--lstab-stripe: #f7f9fa;
-	--lstab-hover: #eef4f9;
+	--lstab-stripe: #eaf0f4;
+	--lstab-hover: #dfeaf4;
 	--lstab-accent: #2563eb;
 	/* Split out so the scheme can change the colour without restating the
 	   geometry: a shadow list has commas of its own, and light-dark() reads
@@ -1520,7 +1514,9 @@
 	--lstab-head-fg: light-dark(#61696f, #a3b0bd);
 	--lstab-border: light-dark(#e3e8ec, #242d39);
 	--lstab-border-strong: light-dark(#cdd5db, #36414f);
-	--lstab-stripe: light-dark(#f7f9fa, #161d26);
+	/* Widoczny, a nie domyślany: #f7f9fa różniło się od bieli o jeden procent,
+	   więc tabela w stylu Paski wyglądała dokładnie jak Czysta. */
+	--lstab-stripe: light-dark(#eaf0f4, #1c2530);
 	--lstab-hover: light-dark(#eef4f9, #1c2634);
 	--lstab-accent: light-dark(#2563eb, #6aa8ff);
 	--lstab-hit-bg: light-dark(#ffe9a8, #6a4c0d);
@@ -1582,6 +1578,10 @@
 	 * zeros paints nothing, which is how a shadow gets to be conditional.
 	 */
 	--lstab-card-lift: calc(1px * var(--lstab-table-mode));
+	/* Nad kartami nie ma paska, tylko nazwy kolumn — ale jako tokeny, żeby
+	   próbnik koloru miał co nadpisać. */
+	--lstab-head-bg: transparent;
+	--lstab-head-fg: var(--lstab-fg-faint);
 }
 
 .lstab-style-cards .lstab-scroll {
@@ -1595,12 +1595,16 @@
 	border-spacing: 0 var(--lstab-card-gap);
 }
 
+/*
+ * Nagłówek kart jest przezroczysty i cichy — ale przez tokeny, nie wprost.
+ * Wpisane tu „background-color: transparent” i „color” wygrywały z próbnikami
+ * Tło nagłówka i Tekst nagłówka, bo te ustawiają zmienne, a nie właściwości:
+ * wybrany kolor nie miał czym trafić na stronę.
+ */
 .lstab-style-cards .lstab-table thead th {
-	background-color: transparent;
 	border-bottom: 0;
 	box-shadow: none;
 	padding-bottom: 0.35em;
-	color: var(--lstab-fg-faint);
 }
 
 /*
@@ -1726,40 +1730,41 @@
 }
 
 /*
- * Glass — a frosted panel with whatever is behind it showing through.
+ * Glass — the table itself made of frosted glass.
  *
- * It only means anything on top of a photograph or a gradient, and its
- * description says so: on flat paper it is a dark table that happens to blur
- * nothing.
+ * The first version was a dark slab: an opaque scrim over whatever was behind,
+ * because white ink needs a dark floor and a slab is the simplest way to get
+ * one. It was legible and it was not glass — you could not see through it.
  *
- * The panel is a dark scrim rather than the white veil it started as, and that
- * is a readability decision rather than a taste one. A skin cannot know what
- * photograph it will be laid over, so it has to be legible over the worst case,
- * and the worst case for pale ink is a pale backdrop. At 66 per cent this panel
- * is dark enough that white ink clears 4.5 to 1 even with nothing behind it but
- * white paper, and every photograph darker than that only helps. The white veil
- * managed 3.5 to 1 over the pink end of its own demonstration gradient.
+ * The floor comes from the backdrop instead now. `brightness()` inside
+ * backdrop-filter multiplies what is behind the panel rather than covering it,
+ * so a photograph stays a photograph, only darker, and the saturation put back
+ * on top keeps its colour. The multiplication is what makes the contrast safe:
+ * the worst backdrop white ink can land on is white, and even that comes out at
+ * 38 per cent — 5.38 to 1, with the quietest label still at 4.6.
  *
- * For the same reason the heading bar and the hover darken rather than lighten:
- * a lighter row is a lighter paper, and pale ink has nowhere to go from there.
+ * A browser without backdrop-filter gets the old scrim, which is why the colour
+ * is declared twice: the plain one first, the see-through one only where the
+ * filter exists to darken behind it.
  */
 .lstab-style-glass {
 	--lstab-fg: #fff;
-	--lstab-fg-muted: rgba(255, 255, 255, 0.9);
-	/* 4.75 to 1 against the panel over white; better over anything else. */
-	--lstab-fg-faint: rgba(255, 255, 255, 0.86);
+	--lstab-fg-muted: rgba(255, 255, 255, 0.92);
+	--lstab-fg-faint: rgba(255, 255, 255, 0.88);
 	--lstab-bg: rgba(18, 24, 32, 0.66);
-	--lstab-head-bg: rgba(0, 0, 0, 0.12);
-	--lstab-head-fg: rgba(255, 255, 255, 0.92);
-	--lstab-border: rgba(255, 255, 255, 0.22);
-	--lstab-border-strong: rgba(255, 255, 255, 0.42);
-	--lstab-stripe: rgba(255, 255, 255, 0.06);
-	--lstab-hover: rgba(0, 0, 0, 0.16);
+	--lstab-head-bg: rgba(0, 0, 0, 0.16);
+	--lstab-head-fg: rgba(255, 255, 255, 0.94);
+	/* Brighter than the first version: on glass the hairlines are the only
+	   thing saying where one row ends, and at 22 per cent they were a rumour. */
+	--lstab-border: rgba(255, 255, 255, 0.28);
+	--lstab-border-strong: rgba(255, 255, 255, 0.5);
+	--lstab-stripe: rgba(255, 255, 255, 0.07);
+	--lstab-hover: rgba(255, 255, 255, 0.14);
 	--lstab-accent: #fff;
 	/* The pinned column has to be solid enough to hide what slides under it,
-	   which the panel's own two thirds cannot quite manage. */
-	--lstab-sticky-bg: rgba(14, 20, 27, 0.88);
-	--lstab-radius: 16px;
+	   which a pane of glass cannot do. */
+	--lstab-sticky-bg: rgba(12, 18, 25, 0.9);
+	--lstab-radius: 18px;
 	/* A near-white flag with dark ink on it: the one place in this skin where
 	   the colours turn over, because a search hit has to shout. */
 	--lstab-hit-bg: rgba(255, 255, 255, 0.86);
@@ -1767,21 +1772,53 @@
 	--lstab-hit-edge: rgba(255, 255, 255, 0.55);
 	--lstab-bg-fade: rgba(18, 24, 32, 0);
 	--lstab-edge-shadow: rgba(0, 0, 0, 0.35);
-	--lstab-frame-shadow: 0 10px 40px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+	/* The lit top edge is what tells the eye this is a pane and not a hole. */
+	--lstab-frame-border: 1px solid rgba(255, 255, 255, 0.22);
+	--lstab-frame-shadow:
+		0 18px 50px -20px rgba(0, 0, 0, 0.7),
+		inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
-.lstab-style-glass .lstab-scroll {
-	backdrop-filter: blur(14px);
-	-webkit-backdrop-filter: blur(14px);
+@supports ( backdrop-filter: blur(1px) ) or ( -webkit-backdrop-filter: blur(1px) ) {
+	.lstab-style-glass {
+		/* Only a sheen now — the darkening is the filter's job, and a scrim on
+		   top of it would be the slab all over again. */
+		--lstab-bg: rgba(255, 255, 255, 0.06);
+		--lstab-bg-fade: rgba(255, 255, 255, 0);
+	}
+
+	.lstab-style-glass .lstab-scroll,
+	.lstab-style-glass .lstab-search-input,
+	.lstab-style-glass .lstabp-facet summary,
+	.lstab-style-glass .lstabp-export-button {
+		backdrop-filter: blur(18px) saturate(1.4) brightness(0.38);
+		-webkit-backdrop-filter: blur(18px) saturate(1.4) brightness(0.38);
+	}
+
+	/* The controls are panes too, smaller ones. */
+	.lstab-style-glass .lstab-search-input,
+	.lstab-style-glass .lstabp-facet summary,
+	.lstab-style-glass .lstabp-export-button {
+		border-color: rgba(255, 255, 255, 0.28);
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+	}
 }
 
 /*
- * The pinned column's backdrop has to be solid, and a solid band down a frosted
- * panel is a black stripe across the one skin whose whole point is that it is
- * see-through. It is only doing anything once the table has actually been
- * dragged sideways, so that is when it appears: at rest the panel is a panel,
- * and the moment anything is sliding underneath the first column it has
- * something to hide behind.
+ * The panel is already tinted, and a row tinted the same again is twice as
+ * opaque as the skin intends. The rows go clear and take their hover — and a
+ * colour rule's row tint — as a layer on top.
+ */
+.lstab-style-glass .lstab-table tbody tr {
+	background-color: transparent;
+	background-image: linear-gradient(var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent));
+}
+
+/*
+ * The pinned column's backdrop has to be solid, and a solid band down a pane of
+ * glass is a black stripe across the one skin whose whole point is that you can
+ * see through it. It is only doing anything once the table has actually been
+ * dragged sideways, so that is when it appears.
  */
 .lstab-style-glass .lstab-table tbody tr:not(.lstab-detail) > td:first-child::before,
 .lstab-style-glass .lstab-table thead th:first-child::before {
@@ -1794,14 +1831,11 @@
 	background-color: var(--lstab-sticky-bg);
 }
 
-/*
- * The panel is already tinted, and a row tinted the same again is twice as
- * opaque as the skin intends. The rows go clear and take their hover — and a
- * colour rule's row tint — as a layer on top, the same way the cards do.
- */
-.lstab-style-glass .lstab-table tbody tr {
-	background-color: transparent;
-	background-image: linear-gradient(var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent));
+/* Glass is a pane, so its heading sits on the pane rather than on a bar of its
+   own: one hairline, and the weight carried by the letters. */
+.lstab-style-glass .lstab-table thead th {
+	box-shadow: inset 0 -1px 0 var(--lstab-border-strong);
+	letter-spacing: 0.08em;
 }
 
 /*

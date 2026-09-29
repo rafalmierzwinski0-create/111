@@ -169,41 +169,62 @@ const readTable = ( id ) => {
 	} );
 
 	const behind = ( el ) => {
+		/*
+		 * The layers between this text and something opaque, outermost last —
+		 * and, where an element frosts what is behind it, the multiplication
+		 * that does the darkening. backdrop-filter: brightness() does not cover
+		 * the backdrop, it multiplies it, which is the whole reason the Glass
+		 * skin can be see-through and still legible; a walker that only added up
+		 * background colours would read that panel as nearly transparent and
+		 * report a contrast the screen never shows.
+		 */
 		const layers = [];
 		let node = el;
-		while ( node && node !== document.documentElement.parentNode ) {
+
+		while ( node && node.nodeType === 1 ) {
 			const style = cs( node );
+			const filter = style.backdropFilter || style.webkitBackdropFilter || 'none';
+			const bright = /brightness\(\s*([\d.]+)%?\s*\)/.exec( filter );
 			const colour = parse( style.backgroundColor );
 			const image = style.backgroundImage;
+
 			if ( image && 'none' !== image ) {
-				// A gradient cannot be averaged honestly; its mid colour is a
-				// fair enough stand-in for a contrast reading, and it is opaque.
 				const stops = [ ...image.matchAll( /rgba?\([^)]+\)/g ) ].map( ( s ) => parse( s[ 0 ] ) ).filter( Boolean );
 				const solid = stops.filter( ( s ) => s.a > 0.9 );
 				if ( solid.length ) {
-					const mid = solid[ Math.floor( solid.length / 2 ) ];
-					layers.push( mid );
+					layers.push( { colour: solid[ Math.floor( solid.length / 2 ) ] } );
 					break;
 				}
 			}
+
 			if ( colour && colour.a > 0 ) {
-				layers.push( colour );
+				layers.push( { colour } );
 				if ( colour.a >= 0.999 ) {
 					break;
 				}
 			}
+
+			if ( bright ) {
+				const k = Number( bright[ 1 ] ) * ( filter.includes( bright[ 1 ] + '%' ) ? 0.01 : 1 );
+				layers.push( { bright: k } );
+			}
+
 			node = node.parentElement;
 		}
-		if ( ! layers.length ) {
-			return { r: 255, g: 255, b: 255, a: 1 };
+
+		let out = { r: 255, g: 255, b: 255, a: 1 };
+
+		for ( let i = layers.length - 1; i >= 0; i -= 1 ) {
+			const step = layers[ i ];
+
+			if ( step.bright !== undefined ) {
+				out = { r: out.r * step.bright, g: out.g * step.bright, b: out.b * step.bright, a: 1 };
+				continue;
+			}
+
+			out = step.colour.a >= 0.999 ? step.colour : over( step.colour, out );
 		}
-		let out = layers[ layers.length - 1 ];
-		if ( out.a < 0.999 ) {
-			out = over( out, { r: 255, g: 255, b: 255, a: 1 } );
-		}
-		for ( let i = layers.length - 2; i >= 0; i -= 1 ) {
-			out = over( layers[ i ], out );
-		}
+
 		return out;
 	};
 
@@ -285,6 +306,22 @@ const readTable = ( id ) => {
 		headPadTop: headStyle ? parseFloat( headStyle.paddingTop ) : 0,
 
 		rowPaper: rowStyle ? rowStyle.backgroundColor : '',
+		/*
+		 * Ile widać między jednym wierszem a następnym. Pasek, którego nikt nie
+		 * zobaczy, nie jest paskiem: pierwszy kolor różnił się od papieru o
+		 * jeden procent — mierzył się jako nałożony i wyglądał jak Czysty.
+		 */
+		stripe: ( () => {
+			if ( rows.length < 2 ) {
+				return 1;
+			}
+			const parse = ( c ) => ( c.match( /\d+/g ) || [ 255, 255, 255 ] ).map( Number );
+			const lum = ( c ) => { const f = ( v ) => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : Math.pow( ( s + 0.055 ) / 1.055, 2.4 ); };
+				return 0.2126 * f( c[ 0 ] ) + 0.7152 * f( c[ 1 ] ) + 0.0722 * f( c[ 2 ] ); };
+			const a = lum( parse( cs( rows[ 0 ] ).backgroundColor ) );
+			const b = lum( parse( cs( rows[ 1 ] ).backgroundColor ) );
+			return Math.round( ( ( Math.max( a, b ) + 0.05 ) / ( Math.min( a, b ) + 0.05 ) ) * 1000 ) / 1000;
+		} )(),
 		cellPaper: cellStyle ? cellStyle.backgroundColor : '',
 		cellImage: cellStyle ? cellStyle.backgroundImage : '',
 		firstCellPaper: firstStyle ? firstStyle.backgroundColor : '',
@@ -448,6 +485,17 @@ check(
 	0 === desktop.clean[ asIs ].colLine && near( desktop.clean[ tight ].colLine, 1 ),
 	'Clean has no vertical lines until it is asked for a grid',
 	`${ desktop.clean[ asIs ].colLine } → ${ desktop.clean[ tight ].colLine }`
+);
+
+check(
+	desktop.striped[ asIs ].stripe >= 1.1,
+	`Striped really is striped (${ desktop.striped[ asIs ].stripe } between one row and the next)`,
+	`${ desktop.striped[ asIs ].stripe }`
+);
+check(
+	1 === desktop.clean[ asIs ].stripe,
+	'and Clean is not',
+	`${ desktop.clean[ asIs ].stripe }`
 );
 
 // ---------------------------------------------------------------- the cards
@@ -727,6 +775,17 @@ check(
 	`${ tuned.padTop } vs ${ desktop.cards[ asIs ].padTop }`
 );
 check( tuned.inkRatio >= 4.5, `all of it still readable (${ tuned.inkRatio }:1)`, `${ tuned.inkRatio }` );
+
+const naglowek = await page.evaluate( ( id ) => {
+	const th = document.querySelector( `.lstab[data-lstab-id="${ id }"] thead th` );
+	return { tlo: getComputedStyle( th ).backgroundColor, ink: getComputedStyle( th ).color };
+}, said.tuned.id );
+
+check(
+	'rgb(43, 26, 74)' === naglowek.tlo && 'rgb(255, 233, 199)' === naglowek.ink,
+	'and the heading really wears the colours that were picked for it',
+	`${ naglowek.tlo } / ${ naglowek.ink }`
+);
 
 // ---------------------------------------------------------------- the end
 

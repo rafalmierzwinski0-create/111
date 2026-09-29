@@ -68,12 +68,65 @@ const kontrast = ( p ) => p.evaluate( () => {
 		const a = m[ 1 ].split( /[\s,\/]+/ ).filter( Boolean ).map( Number );
 		return { r: a[ 0 ], g: a[ 1 ], b: a[ 2 ], a: a[ 3 ] === undefined ? 1 : a[ 3 ] }; };
 	const over = ( t, u ) => ( { r: t.r * t.a + u.r * ( 1 - t.a ), g: t.g * t.a + u.g * ( 1 - t.a ), b: t.b * t.a + u.b * ( 1 - t.a ), a: 1 } );
-	const behind = ( el ) => { let n = el; const L = [];
-		while ( n ) { const s = getComputedStyle( n ); const c = parse( s.backgroundColor );
-			if ( c && c.a > 0 ) { L.push( c ); if ( c.a >= 0.999 ) break; } n = n.parentElement; }
-		let o = L[ L.length - 1 ] || { r: 20, g: 27, b: 26, a: 1 };
-		for ( let i = L.length - 2; i >= 0; i-- ) o = over( L[ i ], o );
-		return o; };
+	const behind = ( el ) => {
+		/*
+		 * The layers between this text and something opaque, outermost last —
+		 * and, where an element frosts what is behind it, the multiplication
+		 * that does the darkening. backdrop-filter: brightness() does not cover
+		 * the backdrop, it multiplies it, which is the whole reason the Glass
+		 * skin can be see-through and still legible; a walker that only added up
+		 * background colours would read that panel as nearly transparent and
+		 * report a contrast the screen never shows.
+		 */
+		const layers = [];
+		let node = el;
+
+		while ( node && node.nodeType === 1 ) {
+			const style = getComputedStyle( node );
+			const filter = style.backdropFilter || style.webkitBackdropFilter || 'none';
+			const bright = /brightness\(\s*([\d.]+)%?\s*\)/.exec( filter );
+			const colour = parse( style.backgroundColor );
+			const image = style.backgroundImage;
+
+			if ( image && 'none' !== image ) {
+				const stops = [ ...image.matchAll( /rgba?\([^)]+\)/g ) ].map( ( s ) => parse( s[ 0 ] ) ).filter( Boolean );
+				const solid = stops.filter( ( s ) => s.a > 0.9 );
+				if ( solid.length ) {
+					layers.push( { colour: solid[ Math.floor( solid.length / 2 ) ] } );
+					break;
+				}
+			}
+
+			if ( colour && colour.a > 0 ) {
+				layers.push( { colour } );
+				if ( colour.a >= 0.999 ) {
+					break;
+				}
+			}
+
+			if ( bright ) {
+				const k = Number( bright[ 1 ] ) * ( filter.includes( bright[ 1 ] + '%' ) ? 0.01 : 1 );
+				layers.push( { bright: k } );
+			}
+
+			node = node.parentElement;
+		}
+
+		let out = { r: 255, g: 255, b: 255, a: 1 };
+
+		for ( let i = layers.length - 1; i >= 0; i -= 1 ) {
+			const step = layers[ i ];
+
+			if ( step.bright !== undefined ) {
+				out = { r: out.r * step.bright, g: out.g * step.bright, b: out.b * step.bright, a: 1 };
+				continue;
+			}
+
+			out = step.colour.a >= 0.999 ? step.colour : over( step.colour, out );
+		}
+
+		return out;
+	};
 	const lum = ( c ) => { const f = ( v ) => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : Math.pow( ( s + 0.055 ) / 1.055, 2.4 ); };
 		return 0.2126 * f( c.r ) + 0.7152 * f( c.g ) + 0.0722 * f( c.b ); };
 	let worst = { r: 99, co: '' };
@@ -137,11 +190,36 @@ console.log( '\nmoduł na stronie' );
 	const ruch = await p.evaluate( () => ( {
 		niewidoczne: [ ...document.querySelectorAll( '.lst-mz [class*="lst-mz-"]' ) ].filter( ( e ) => getComputedStyle( e ).opacity === '0' ).length,
 		animowane: [ ...document.querySelectorAll( '.lst-mz-krok' ) ].map( ( e ) => getComputedStyle( e ).animationName ),
-		kropka: getComputedStyle( document.querySelector( '.lst-mz-etap + .lst-mz-etap' ), '::after' ).animationName,
+		kreska: getComputedStyle( document.querySelector( '.lst-mz-etap + .lst-mz-etap' ), '::before' ).animationName,
 		puls: getComputedStyle( document.querySelector( '.lst-mz-puls' ) ).animationName,
+		ile: getComputedStyle( document.querySelector( '.lst-mz-puls' ) ).animationIterationCount,
 	} ) );
-	ok( 'jest ruch, a mimo to nic nie jest schowane', ruch.niewidoczne === 0 && ruch.animowane.every( ( x ) => x === 'lst-mz-wejscie' ) && ruch.kropka === 'lst-mz-plyn' && ruch.puls === 'lst-mz-puls',
-		`schowanych ${ ruch.niewidoczne }, wejście ${ ruch.animowane[ 0 ] }, kropka ${ ruch.kropka }, puls ${ ruch.puls }` );
+	ok( 'jest ruch, a mimo to nic nie jest schowane', ruch.niewidoczne === 0 && ruch.animowane.every( ( x ) => x === 'lst-mz-wejscie' ) && ruch.kreska === 'lst-mz-kreska' && ruch.puls === 'lst-mz-puls',
+		`schowanych ${ ruch.niewidoczne }, wejście ${ ruch.animowane[ 0 ] }, kreska ${ ruch.kreska }, puls ${ ruch.puls }` );
+	// Nic nie może migać bez końca — puls ma odliczoną liczbę powtórzeń.
+	ok( 'żadna animacja nie chodzi w kółko bez końca', ruch.ile !== 'infinite', `powtórzeń pulsu: ${ ruch.ile }` );
+
+	/*
+	 * Moduł niesie arkusz wtyczki w tym samym <style>, więc jedna zbłąkana
+	 * klamra w moim CSS zjada regułę wtyczki stojącą za nią — tak raz zginęło
+	 * „container-type” i tabela przestała się składać w karty na telefonie.
+	 * Stąd ten czujnik: liczę reguły, które naprawdę doszły do przeglądarki.
+	 */
+	const arkusz = await p.evaluate( () => {
+		const c = document.querySelector( '.lst-mz-stol .lstab' ).closest( '.lstab-container' );
+		const arkusze = [ ...document.styleSheets ].filter( ( x ) => { try { return !! x.cssRules; } catch ( e ) { return false; } } );
+		const sierotki = arkusze.flatMap( ( x ) => [ ...x.cssRules ] ).filter( ( r ) => r.selectorText && /[{}]/.test( r.selectorText ) ).length;
+		return { typ: getComputedStyle( c ).containerType, sierotki };
+	} );
+	ok( 'arkusz wtyczki dojechał cały — zapytanie kontenerowe działa',
+		arkusz.typ === 'inline-size' && arkusz.sierotki === 0, `container-type ${ arkusz.typ }, pokiereszowanych selektorów ${ arkusz.sierotki }` );
+
+	const rama = await p.evaluate( () => {
+		const k = document.querySelector( '.lst-mz-rama' ).getBoundingClientRect();
+		return { lewo: Math.round( k.left ), prawo: Math.round( innerWidth - k.right ) };
+	} );
+	ok( 'strona jest wyśrodkowana — luz z lewej równa się luzowi z prawej',
+		Math.abs( rama.lewo - rama.prawo ) <= 1 && rama.lewo > 0, `z lewej ${ rama.lewo } px, z prawej ${ rama.prawo } px` );
 
 	const k = await kontrast( p );
 	ok( 'najsłabszy napis ma co najmniej 4,5 : 1', k.r >= 4.5, `${ k.r } : 1 — ${ k.co }` );
@@ -236,12 +314,12 @@ console.log( '\nmniej ruchu' );
 	const r = await p.evaluate( () => ( {
 		widocznych: [ ...document.querySelectorAll( '.lst-mz-krok, .lst-mz-pozycja, .lst-mz-etap' ) ].filter( ( x ) => getComputedStyle( x ).opacity === '1' ).length,
 		animacje: [ ...document.querySelectorAll( '.lst-mz-krok' ) ].map( ( x ) => getComputedStyle( x ).animationName ),
-		kropka: getComputedStyle( document.querySelector( '.lst-mz-etap + .lst-mz-etap' ), '::after' ).animationName,
+		kreska: getComputedStyle( document.querySelector( '.lst-mz-etap + .lst-mz-etap' ), '::before' ).animationName,
 		puls: getComputedStyle( document.querySelector( '.lst-mz-puls' ) ).animationName,
 	} ) );
 	ok( 'przy prefers-reduced-motion nic się nie rusza, a wszystko widać',
-		r.widocznych === 12 && r.animacje.every( ( x ) => x === 'none' ) && r.kropka === 'none' && r.puls === 'none',
-		`widocznych ${ r.widocznych }, wejście ${ r.animacje[ 0 ] }, kropka ${ r.kropka }, puls ${ r.puls }` );
+		r.widocznych === 12 && r.animacje.every( ( x ) => x === 'none' ) && r.kreska === 'none' && r.puls === 'none',
+		`widocznych ${ r.widocznych }, wejście ${ r.animacje[ 0 ] }, kreska ${ r.kreska }, puls ${ r.puls }` );
 	await c.close();
 }
 

@@ -41,6 +41,7 @@ wp_set_current_user( 1 );
 // own, apart from the site's; this is that setting.
 $settings           = get_option( LSTAB_Settings::OPTION, array() );
 $settings           = is_array( $settings ) ? $settings : array();
+$locale_before      = $settings;
 $settings['locale'] = 'en_US';
 update_option( LSTAB_Settings::OPTION, $settings );
 LSTAB_Locale::forget();
@@ -152,6 +153,14 @@ update_option( 'lstabp_column_looks', $looks, false );
 update_option( 'lstabp_facets', array( $source_id => array( 'Difficulty', 'Status' ) ), false );
 update_option( 'lstabp_export_sources', array( $source_id => true ), true );
 LSTAB_Storage::flush_cache( $source_id );
+
+/*
+ * The language setting goes back as well. This script runs against the same
+ * test site as tests/run-all.sh, and a stray 'en_US' left behind there makes
+ * the translation tests fail on a plugin that is perfectly fine.
+ */
+update_option( LSTAB_Settings::OPTION, $locale_before );
+LSTAB_Locale::forget();
 
 file_put_contents( $out, wp_json_encode( $collected, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) );
 

@@ -41,10 +41,14 @@ gdzie trzeba.
 
 Trzy rzeczy i ani jedna z nich niczego nie chowa:
 
-* wejście trzech kafelków na górze (260 ms, po 60 ms jedno po drugim) — są
+* wejście kafelków i etapów na górze (380 ms, po 70 ms jedno po drugim) — są
   w pierwszym ekranie, więc nie czekają na przewinięcie;
-* miętowa kropka jadąca po kresce między etapami — pokazuje kierunek;
-* puls przy „Live on this page”.
+* kreski między etapami rysujące się **raz**, w stronę, w którą idą dane;
+* puls przy „Live on this page” — trzy razy i koniec.
+
+Wcześniej po kresce jeździła kropka w kółko. Została usunięta: ruch bez końca
+na skraju oka nie pokazuje niczego, czego nie pokazuje sama kreska, a widać go
+przez cały czas, kiedy się czyta.
 
 Nic nie startuje od `opacity: 0` do odwołania: strona jest kompletna w
 pierwszej klatce, także na zrzucie całej strony i na wydruku.
@@ -56,5 +60,7 @@ Układ i rozmiary pisma (tylko 14, 18 i 20), kontrast każdego napisu, brak
 suwaka poziomego przy 1500 i 390 px, wczytanie zrzutów, szklaną tabelę na
 gradiencie, `<br />` wstawiane przez Divi, wrogi motyw pisany z `!important`
 (ten sam, którym mierzy się `pokaz-na-zywo/`), stronę bez JavaScriptu,
-`prefers-reduced-motion`, pigułkę w karcie i to, że tabela naprawdę sortuje
-i szuka. 22 sprawdzenia.
+`prefers-reduced-motion`, pigułkę w karcie, wyśrodkowanie ramy (luz z lewej
+równy luzowi z prawej), to, że arkusz wtyczki dojechał cały — zbłąkana klamra
+w moim CSS potrafi zjeść regułę wtyczki stojącą za nią — i to, że tabela
+naprawdę sortuje i szuka. 25 sprawdzeń.

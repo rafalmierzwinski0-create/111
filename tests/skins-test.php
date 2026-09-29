@@ -358,6 +358,13 @@ $tuned_id = LSTAB_Storage::insert(
 			'text'       => '#432818',
 			'accent'     => '#b45309',
 			'border'     => '#e7c9a9',
+			/*
+			 * The two a skin can swallow: Cards used to write its heading
+			 * colours as properties rather than tokens, so these two had
+			 * nothing to override and the picker did nothing at all.
+			 */
+			'headerBg'   => '#2b1a4a',
+			'headerText' => '#ffe9c7',
 			'density'    => 'roomy',
 			'lines'      => 'grid',
 			'corners'    => 'square',
@@ -379,6 +386,8 @@ foreach ( array(
 	'--lstab-pad-y:1.05em' => 'a roomier row',
 	'--lstab-col-line:1px' => 'lines it asked for itself',
 	'--lstab-radius:0'     => 'square corners',
+	'--lstab-head-bg:#2b1a4a'  => 'its own heading colour',
+	'--lstab-head-fg:#ffe9c7'  => 'its own heading ink',
 ) as $needle => $what ) {
 	lstab_skins_assert( false !== strpos( $tuned_html, $needle ), "Cards, with {$what}", $needle );
 }
@@ -403,6 +412,8 @@ $manifest['tuned'] = array(
 	'id'     => (int) $tuned_id,
 	'url'    => get_permalink( $tuned_page ),
 	'expect' => array(
+		'--lstab-head-bg'  => '#2b1a4a',
+		'--lstab-head-fg'  => '#ffe9c7',
 		'--lstab-bg'       => '#fff7ed',
 		'--lstab-border'   => '#e7c9a9',
 		'--lstab-pad-y'    => '1.05em',
