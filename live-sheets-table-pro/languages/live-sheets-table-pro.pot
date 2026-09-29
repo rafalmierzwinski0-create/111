@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
-"POT-Creation-Date: 2026-09-29 15:11+0000\n"
+"POT-Creation-Date: 2026-09-29 15:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,7 +37,7 @@ msgstr ""
 msgid "A bar behind the number"
 msgstr ""
 
-#: includes/views/column-looks-card.php:154
+#: includes/views/column-looks-card.php:206
 msgid "A bar is as long as its number is large, measured against the largest in the column. A column that never goes below zero is measured from zero, so numbers that are all much the same do not look wildly different."
 msgstr ""
 
@@ -53,7 +53,7 @@ msgstr ""
 msgid "A colour on a cell sits on top of a colour on its row, so “grey row, one red cell” is two rules."
 msgstr ""
 
-#: includes/views/column-looks-card.php:43
+#: includes/views/column-looks-card.php:49
 msgid "A colour rule says one value is special. This says what a whole column is: a measurement to be seen at a glance, a set of labels, a column that belongs in a colour of its own, or a way through to somewhere else."
 msgstr ""
 
@@ -65,7 +65,7 @@ msgstr ""
 msgid "A hidden column is matched by its heading, a hidden row by its line number. Reordering columns, renaming a heading or inserting a row above breaks that match."
 msgstr ""
 
-#: includes/views/column-looks-card.php:158
+#: includes/views/column-looks-card.php:210
 msgid "A pill and a whole-column colour dress every row the same, whatever the value says — that is the difference from a colour rule, which dresses only the rows that match it. Where both have something to say about the same cell the rule wins, so a rule can still single one row out of a column that already has a look."
 msgstr ""
 
@@ -109,6 +109,10 @@ msgstr ""
 msgid "Bold text"
 msgstr ""
 
+#: includes/views/column-looks-card.php:121
+msgid "Change"
+msgstr ""
+
 #. translators: %s: how many rows the table holds unfiltered.
 #: includes/class-lstabp-facets.php:531 includes/views/facets-card.php:98
 msgid "Clear filters — show all %s"
@@ -138,7 +142,7 @@ msgstr ""
 msgid "Client secret"
 msgstr ""
 
-#: includes/views/column-looks-card.php:123
+#: includes/views/column-looks-card.php:173
 msgid "Colour"
 msgstr ""
 
@@ -155,7 +159,7 @@ msgstr ""
 msgid "Column %s"
 msgstr ""
 
-#: includes/views/column-looks-card.php:41
+#: includes/views/column-looks-card.php:47
 msgid "Column looks"
 msgstr ""
 
@@ -324,7 +328,7 @@ msgstr ""
 msgid "Load the preview first. Once the columns are known you can set rules on them."
 msgstr ""
 
-#: includes/views/column-looks-card.php:51
+#: includes/views/column-looks-card.php:57
 msgid "Load the sheet first — a column cannot be given a look before its columns are known."
 msgstr ""
 
@@ -381,7 +385,7 @@ msgid_plural "%s rules name columns your sheet no longer has."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/views/column-looks-card.php:162
+#: includes/views/column-looks-card.php:214
 msgid "Only a cell holding a web address becomes a button. A note or a blank in the same column is left as it is, because a button that goes nowhere is worse than the note it replaced."
 msgstr ""
 
@@ -390,7 +394,7 @@ msgid "Only read access to spreadsheets is requested; this connection cannot cha
 msgstr ""
 
 #: includes/views/look-faces.php:36 includes/views/look-faces.php:44
-#: includes/views/column-looks-card.php:143
+#: includes/views/column-looks-card.php:193
 #: includes/class-lstabp-column-looks.php:529
 msgid "Open"
 msgstr ""
@@ -403,7 +407,7 @@ msgstr ""
 msgid "Orange"
 msgstr ""
 
-#: includes/views/column-looks-card.php:93
+#: includes/views/column-looks-card.php:44
 msgid "Ordinary"
 msgstr ""
 
@@ -493,7 +497,7 @@ msgstr ""
 msgid "Save client"
 msgstr ""
 
-#: includes/views/column-looks-card.php:139
+#: includes/views/column-looks-card.php:189
 msgid "Says"
 msgstr ""
 
@@ -560,7 +564,7 @@ msgstr ""
 msgid "Teal"
 msgstr ""
 
-#: includes/views/column-looks-card.php:131
+#: includes/views/column-looks-card.php:181
 msgid "Text"
 msgstr ""
 
@@ -655,7 +659,7 @@ msgid "What Pro is doing on this site, and how to stop paying for it"
 msgstr ""
 
 #. translators: %s: a column heading.
-#: includes/views/column-looks-card.php:87
+#: includes/views/column-looks-card.php:138
 msgid "What the %s column looks like"
 msgstr ""
 

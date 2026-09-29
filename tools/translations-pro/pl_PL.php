@@ -291,6 +291,8 @@ return array(
 	'A colour rule says one value is special. This says what a whole column is: a measurement to be seen at a glance, a set of labels, a column that belongs in a colour of its own, or a way through to somewhere else.'
 		=> 'Reguła koloru mówi, że jedna wartość jest wyjątkowa. To mówi, czym jest cała kolumna: miarą widoczną na pierwszy rzut oka, zestawem etykiet, kolumną, której należy się własny kolor, albo przejściem gdzie indziej.',
 	'Ordinary'                                   => 'Zwyczajnie',
+	// What the closed line offers: opening it, to change what the column is.
+	'Change'                                     => 'Zmień',
 	'A bar behind the number'                    => 'Słupek za liczbą',
 	'Every value as a pill'                      => 'Każda wartość jako pigułka',
 	'The whole column in a colour'               => 'Cała kolumna w kolorze',

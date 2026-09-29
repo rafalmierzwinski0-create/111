@@ -787,6 +787,74 @@ check(
 	`${ naglowek.tlo } / ${ naglowek.ink }`
 );
 
+// -------------------------------------------- glass, in a colour of its own
+
+console.log( '\nGlass, tinted, over the worst backdrop there is' );
+
+/*
+ * "Glass colour" takes an ordinary opaque colour, as every colour well on that
+ * screen does, and the pane lays it on at a seventh so the page still shows
+ * through. A tint can only lighten, so white over a white page is the case
+ * that decides whether the setting is safe to offer at all — and it is the
+ * case somebody reaches by picking the first colour in the picker.
+ */
+await page.goto( said.glass.url, { waitUntil: 'networkidle' } );
+await page.waitForTimeout( 300 );
+
+const tinted = await page.evaluate( ( id ) => {
+	const root = document.querySelector( `.lstab[data-lstab-id="${ id }"]` );
+	const pane = root.querySelector( '.lstab-scroll' );
+	const seen = getComputedStyle( pane );
+
+	return {
+		tint: getComputedStyle( root ).getPropertyValue( '--lstab-glass-tint' ).trim(),
+		paneBg: seen.backgroundColor,
+		filter: seen.backdropFilter || seen.webkitBackdropFilter,
+	};
+}, said.glass.id );
+
+check( '#ffffff' === tinted.tint.toLowerCase(), 'the colour chosen for the glass reaches the table', tinted.tint );
+/*
+ * The alpha, whichever way the browser writes it: color-mix() comes back as
+ * "color(srgb 1 1 1 / 0.14)" rather than as rgba(), and a check written for
+ * rgba() alone would fail on a pane that is perfectly correct.
+ */
+const alpha = ( colour ) => {
+	const slashed = /\/\s*([\d.]+%?)\s*\)/.exec( colour );
+
+	if ( slashed ) {
+		return slashed[ 1 ].endsWith( '%' ) ? parseFloat( slashed[ 1 ] ) / 100 : parseFloat( slashed[ 1 ] );
+	}
+
+	const parts = colour.replace( /^[a-z]+\(|\)$/g, '' ).split( ',' );
+
+	return 4 === parts.length ? parseFloat( parts[ 3 ] ) : 1;
+};
+
+check(
+	alpha( tinted.paneBg ) > 0 && alpha( tinted.paneBg ) < 0.5,
+	'and tints the pane without closing it — it is still see-through',
+	`${ tinted.paneBg } → alpha ${ alpha( tinted.paneBg ) }`
+);
+check(
+	/blur/.test( tinted.filter ) && /brightness/.test( tinted.filter ),
+	'the pane is still frosted, and still darkens what is behind it',
+	tinted.filter
+);
+
+const tintedInk = await page.evaluate( readTable, said.glass.id );
+
+check(
+	tintedInk.inkRatio >= 4.5,
+	`and the values on it are still readable (${ tintedInk.inkRatio }:1)`,
+	`${ tintedInk.inkRatio }`
+);
+check(
+	tintedInk.labelRatio >= 4.5 || 'none' === tintedInk.labelShown,
+	`including the quietest print on it (${ tintedInk.labelRatio }:1)`,
+	`${ tintedInk.labelRatio } / ${ tintedInk.labelShown }`
+);
+
 // ---------------------------------------------------------------- the end
 
 check( 0 === problems.length, 'no script errors on any of the pages', problems.join( ' | ' ) );

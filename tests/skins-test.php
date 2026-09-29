@@ -392,6 +392,61 @@ foreach ( array(
 	lstab_skins_assert( false !== strpos( $tuned_html, $needle ), "Cards, with {$what}", $needle );
 }
 
+/*
+ * Glass, with a colour of somebody's own on the pane — and the worst colour
+ * there is. "Glass colour" takes an ordinary opaque colour, as every well on
+ * that screen does, and the pane lays it on at a seventh so the page still
+ * shows through. A tint can only lighten, so white is the case that decides
+ * whether the setting is safe to offer at all; the browser suite measures what
+ * it does to the ink.
+ */
+$glass_id = LSTAB_Storage::insert(
+	array(
+		'title'         => 'Glass, tinted white',
+		'custom_css'    => '&{background-image:linear-gradient(135deg,#ffffff,#f4f6f8 60%,#ffffff);padding:22px;border-radius:20px}',
+		'sheet_url'     => 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0',
+		'sheet_id'      => '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789',
+		'sheet_kind'    => 'doc',
+		'gid'           => '0',
+		'tab_name'      => 'Cennik',
+		'sync_interval' => 900,
+		'style_preset'  => 'glass',
+		'layout'        => 'auto',
+		'style_vars'    => array( 'glassTint' => '#ffffff' ),
+	)
+);
+
+LSTAB_Sync::run( $glass_id );
+
+$glass_html = LSTAB_Renderer::render( array( 'source_id' => $glass_id ) );
+
+lstab_skins_assert(
+	false !== strpos( $glass_html, '--lstab-glass-tint:#ffffff' ),
+	'A colour chosen for the glass reaches the table',
+	$glass_html
+);
+
+$glass_slug = 'lstab-skins-szklo';
+$glass_old  = get_page_by_path( $glass_slug, OBJECT, 'page' );
+if ( $glass_old ) {
+	wp_delete_post( $glass_old->ID, true );
+}
+
+$glass_page = wp_insert_post(
+	array(
+		'post_title'   => 'Skins — glass, tinted white',
+		'post_name'    => $glass_slug,
+		'post_content' => '<!-- wp:live-sheets-table/sheet-table {"sourceId":' . (int) $glass_id . ',"align":"wide","showSearch":true,"showSort":true,"showUpdated":true} /-->',
+		'post_status'  => 'publish',
+		'post_type'    => 'page',
+	)
+);
+
+$manifest['glass'] = array(
+	'id'  => (int) $glass_id,
+	'url' => get_permalink( $glass_page ),
+);
+
 $slug     = 'lstab-skins-wlasne';
 $existing = get_page_by_path( $slug, OBJECT, 'page' );
 if ( $existing ) {
@@ -429,11 +484,12 @@ file_put_contents( $out, wp_json_encode( $manifest, JSON_PRETTY_PRINT | JSON_UNE
 
 lstab_skins_section( 'What the browser run will open' );
 lstab_skins_assert( file_exists( $out ), 'The manifest was written', $out );
-echo '        ' . count( $manifest['pages'] ) . " pages, " . ( $made + 1 ) . " tables\n";
+echo '        ' . count( $manifest['pages'] ) . " pages, " . ( $made + 2 ) . " tables\n";
 foreach ( $manifest['pages'] as $page ) {
 	echo '        ' . $page['url'] . "\n";
 }
 echo '        ' . $manifest['tuned']['url'] . "\n";
+echo '        ' . $manifest['glass']['url'] . "\n";
 
 // ------------------------------------------------------------------ result
 

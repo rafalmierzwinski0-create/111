@@ -507,7 +507,7 @@ if ( ! $lstab_is_edit ) {
 					? LSTAB_Customizer::sanitize( $source['style_vars'] )
 					: LSTAB_Customizer::defaults();
 				?>
-				<div class="lstab-card lstab-appearance">
+				<div class="lstab-card lstab-appearance" data-lstab-style="<?php echo esc_attr( (string) $lstab_values['style_preset'] ); ?>">
 					<h2 class="lstab-card-title"><?php esc_html_e( 'Fine-tune the look', 'live-sheets-table' ); ?></h2>
 					<p class="lstab-help">
 						<?php esc_html_e( 'Optional. Anything left empty follows the style chosen above.', 'live-sheets-table' ); ?>
@@ -516,7 +516,20 @@ if ( ! $lstab_is_edit ) {
 					<div class="lstab-swatches">
 						<?php foreach ( LSTAB_Customizer::colors() as $lstab_key => $lstab_color ) : ?>
 							<?php $lstab_value = isset( $lstab_vars[ $lstab_key ] ) ? $lstab_vars[ $lstab_key ] : ''; ?>
-							<div class="lstab-swatch" data-lstab-token="<?php echo esc_attr( $lstab_key ); ?>" data-lstab-var="<?php echo esc_attr( $lstab_color['var'] ); ?>">
+							<?php
+							/*
+							 * A swatch that belongs to one style is on screen
+							 * only while that style is chosen. The attribute
+							 * says which; the stylesheet does the hiding, so
+							 * the screen is right before the script runs, and
+							 * the field is still in the form either way — a
+							 * colour set on Striped is still there when
+							 * somebody goes back to Striped.
+							 */
+							$lstab_only = isset( $lstab_color['style'] ) ? (string) $lstab_color['style'] : '';
+							?>
+							<div class="lstab-swatch" data-lstab-token="<?php echo esc_attr( $lstab_key ); ?>" data-lstab-var="<?php echo esc_attr( $lstab_color['var'] ); ?>"
+								<?php echo '' !== $lstab_only ? 'data-lstab-only-style="' . esc_attr( $lstab_only ) . '"' : ''; ?>>
 								<label for="lstab-color-<?php echo esc_attr( $lstab_key ); ?>">
 									<?php echo esc_html( $lstab_color['label'] ); ?>
 								</label>
@@ -737,7 +750,7 @@ if ( ! $lstab_is_edit ) {
 
 		</div>
 
-		<div class="lstab-preview-pane">
+		<div class="lstab-preview-pane" data-lstab-style="<?php echo esc_attr( (string) $lstab_values['style_preset'] ); ?>">
 			<?php
 			/*
 			 * The pane is the grid's second column and stretches with it, so

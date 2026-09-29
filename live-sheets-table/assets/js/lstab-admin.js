@@ -294,11 +294,30 @@
 	 * @param {string} preset Preset slug.
 	 */
 	function applyPreset( preset ) {
-		var table = stage.querySelector( '.lstab' );
-		if ( ! table || ! preset ) {
+		if ( ! preset ) {
 			return;
 		}
 
+		/*
+		 * Two panels are told which style is chosen, and the stylesheet does
+		 * the rest: the appearance panel, which shows a colour well only while
+		 * the style that uses it is chosen, and the preview, which stands the
+		 * table on a gradient for Glass. Glass is see-through on purpose, and
+		 * over the dashboard's own white it darkens white — a flat grey slab
+		 * that says nothing about what the style does.
+		 */
+		Array.prototype.forEach.call(
+			document.querySelectorAll( '.lstab-appearance, .lstab-preview-pane' ),
+			function ( panel ) {
+				panel.dataset.lstabStyle = preset;
+			}
+		);
+
+		var table = stage.querySelector( '.lstab' );
+
+		if ( ! table ) {
+			return;
+		}
 
 		( settings.presets || [] ).forEach( function ( slug ) {
 			table.classList.remove( 'lstab-style-' + slug );

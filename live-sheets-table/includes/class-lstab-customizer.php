@@ -59,10 +59,24 @@ class LSTAB_Customizer {
 					'note'  => __( 'Between rows and around cells', 'live-sheets-table' ),
 					'var'   => '--lstab-border',
 				),
+				/*
+				 * Two of these belong to one style each, and until now they
+				 * sat among the rest on all nine — a colour well that does
+				 * nothing is a colour well somebody sets, saves, and then goes
+				 * looking for on the page. 'style' says which style a swatch
+				 * is for; the screen shows it only when that style is chosen.
+				 */
 				'stripe'     => array(
 					'label' => __( 'Striped rows', 'live-sheets-table' ),
-					'note'  => __( 'Only used by the Striped style', 'live-sheets-table' ),
+					'note'  => __( 'The colour of every other row', 'live-sheets-table' ),
 					'var'   => '--lstab-stripe',
+					'style' => 'striped',
+				),
+				'glassTint'  => array(
+					'label' => __( 'Glass colour', 'live-sheets-table' ),
+					'note'  => __( 'Tints the pane; the page still shows through it', 'live-sheets-table' ),
+					'var'   => '--lstab-glass-tint',
+					'style' => 'glass',
 				),
 				'hover'      => array(
 					'label' => __( 'Row hover', 'live-sheets-table' ),

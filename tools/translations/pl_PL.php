@@ -680,6 +680,11 @@ return array(
 	// Colour swatches that name nothing a reader can point at.
 	'Between rows and around cells'              => 'Między wierszami i wokół komórek',
 	'Only used by the Striped style'             => 'Używane tylko w stylu Paski',
+	// Swatches that belong to one style, shown only while it is chosen.
+	'The colour of every other row'              => 'Kolor co drugiego wiersza',
+	'Glass colour'                               => 'Kolor szkła',
+	'Tints the pane; the page still shows through it'
+		=> 'Barwi taflę; strona dalej przez nią prześwituje',
 	'When the mouse is over a row'               => 'Gdy myszka jest nad wierszem',
 	'Links, sort arrows and page numbers'        => 'Odnośniki, strzałki sortowania i numery stron',
 

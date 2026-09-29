@@ -42,6 +42,14 @@
 	--lstab-stripe: #eaf0f4;
 	--lstab-hover: #dfeaf4;
 	--lstab-accent: #2563eb;
+	/*
+	 * Declared here even though only the Glass skin reads it. Every other
+	 * colour the editor offers is a token with a value; this one started as a
+	 * fallback written inside var(), which is not the same thing — the
+	 * property did not exist, so the screen had nothing to read back, and the
+	 * "Glass colour" well came up white on a table that said it was grey.
+	 */
+	--lstab-glass-tint: #ffffff;
 	/* Split out so the scheme can change the colour without restating the
 	   geometry: a shadow list has commas of its own, and light-dark() reads
 	   commas as the boundary between its two answers. */
@@ -1200,7 +1208,13 @@
  * so a photograph stays a photograph, only darker, and the saturation put back
  * on top keeps its colour. The multiplication is what makes the contrast safe:
  * the worst backdrop white ink can land on is white, and even that comes out at
- * 38 per cent — 5.38 to 1, with the quietest label still at 4.6.
+ * 30 per cent — 8.52 to 1, with the quietest label at 7.05.
+ *
+ * Thirty rather than thirty-eight because the pane can now be tinted, and a
+ * tint can only lighten. White is the worst colour somebody can choose for it,
+ * and at thirty-eight a white tint left the quietest label at 3.88 — under the
+ * bar, from a colour well that gave no hint it could do that. With this floor
+ * the same worst case is 4.92, and the untinted panel is better than it was.
  *
  * A browser without backdrop-filter gets the old scrim, which is why the colour
  * is declared twice: the plain one first, the see-through one only where the
@@ -1240,18 +1254,45 @@
 
 @supports ( backdrop-filter: blur(1px) ) or ( -webkit-backdrop-filter: blur(1px) ) {
 	.lstab-style-glass {
-		/* Only a sheen now — the darkening is the filter's job, and a scrim on
-		   top of it would be the slab all over again. */
+		/*
+		 * Only a sheen — the darkening is the filter's job, and a scrim on top
+		 * of it would be the slab all over again.
+		 *
+		 * The sheen is mixed rather than given outright, and that is what lets
+		 * the pane be coloured at all. "Glass colour" hands over an ordinary
+		 * opaque colour, as every colour well on that screen does; laid on the
+		 * pane as it came it would stop the glass being glass. At a seventh it
+		 * tints what is behind instead of hiding it.
+		 *
+		 * It is painted through --lstab-paper, the token the panel prefers over
+		 * --lstab-bg, so a colour chosen here reaches the pane and nothing
+		 * else: the rows are clear, and the search box keeps its own.
+		 */
+		--lstab-glass-pane: color-mix( in srgb, var(--lstab-glass-tint) 14%, transparent );
+		--lstab-paper: var(--lstab-glass-pane);
 		--lstab-bg: rgba(255, 255, 255, 0.06);
 		--lstab-bg-fade: rgba(255, 255, 255, 0);
+	}
+
+	/*
+	 * The search box, the filters and the download buttons are panes too, and
+	 * take the same tint — a coloured table must not arrive with a search box
+	 * and three buttons in plain grey. The same strength as the panel, not a
+	 * stronger one: they carry their own border and lit edge to stand out
+	 * with, and a stronger tint is the one thing that costs contrast.
+	 */
+	.lstab-style-glass .lstab-search-input,
+	.lstab-style-glass .lstabp-facet summary,
+	.lstab-style-glass .lstabp-export-button {
+		background-color: var(--lstab-glass-pane);
 	}
 
 	.lstab-style-glass .lstab-scroll,
 	.lstab-style-glass .lstab-search-input,
 	.lstab-style-glass .lstabp-facet summary,
 	.lstab-style-glass .lstabp-export-button {
-		backdrop-filter: blur(18px) saturate(1.4) brightness(0.38);
-		-webkit-backdrop-filter: blur(18px) saturate(1.4) brightness(0.38);
+		backdrop-filter: blur(18px) saturate(1.4) brightness(0.30);
+		-webkit-backdrop-filter: blur(18px) saturate(1.4) brightness(0.30);
 	}
 
 	/* The controls are panes too, smaller ones. */

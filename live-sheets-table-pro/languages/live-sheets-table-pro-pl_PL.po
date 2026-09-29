@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
-"POT-Creation-Date: 2026-09-29 15:11+0000\n"
-"PO-Revision-Date: 2026-09-29 15:11+0000\n"
+"POT-Creation-Date: 2026-09-29 15:48+0000\n"
+"PO-Revision-Date: 2026-09-29 15:48+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -38,7 +38,7 @@ msgstr "%s — już nie ma tego w arkuszu"
 msgid "A bar behind the number"
 msgstr "Słupek za liczbą"
 
-#: includes/views/column-looks-card.php:154
+#: includes/views/column-looks-card.php:206
 msgid "A bar is as long as its number is large, measured against the largest in the column. A column that never goes below zero is measured from zero, so numbers that are all much the same do not look wildly different."
 msgstr "Słupek jest tak długi, jak duża jest liczba, mierzony względem największej w kolumnie. Kolumnę, która nigdy nie schodzi poniżej zera, mierzy się od zera, więc liczby zbliżone do siebie nie wyglądają na skrajnie różne."
 
@@ -54,7 +54,7 @@ msgstr "Własny kolor"
 msgid "A colour on a cell sits on top of a colour on its row, so “grey row, one red cell” is two rules."
 msgstr "Kolor komórki nakłada się na kolor wiersza, więc „szary wiersz, jedna czerwona komórka” to dwie reguły."
 
-#: includes/views/column-looks-card.php:43
+#: includes/views/column-looks-card.php:49
 msgid "A colour rule says one value is special. This says what a whole column is: a measurement to be seen at a glance, a set of labels, a column that belongs in a colour of its own, or a way through to somewhere else."
 msgstr "Reguła koloru mówi, że jedna wartość jest wyjątkowa. To mówi, czym jest cała kolumna: miarą widoczną na pierwszy rzut oka, zestawem etykiet, kolumną, której należy się własny kolor, albo przejściem gdzie indziej."
 
@@ -66,7 +66,7 @@ msgstr "Filtr wybiera wiersze, nie kolumny. To, które kolumny pokazuje tabela, 
 msgid "A hidden column is matched by its heading, a hidden row by its line number. Reordering columns, renaming a heading or inserting a row above breaks that match."
 msgstr "Ukryta kolumna jest dopasowywana po nagłówku, a ukryty wiersz po numerze wiersza. Przestawienie kolumn, zmiana nagłówka lub wstawienie wiersza powyżej przerywa to dopasowanie."
 
-#: includes/views/column-looks-card.php:158
+#: includes/views/column-looks-card.php:210
 msgid "A pill and a whole-column colour dress every row the same, whatever the value says — that is the difference from a colour rule, which dresses only the rows that match it. Where both have something to say about the same cell the rule wins, so a rule can still single one row out of a column that already has a look."
 msgstr "Pigułka i kolor całej kolumny ubierają każdy wiersz tak samo, cokolwiek mówi wartość — i tym różnią się od reguły koloru, która ubiera tylko pasujące wiersze. Tam, gdzie obie mają coś do powiedzenia o tej samej komórce, wygrywa reguła, więc regułą nadal da się wyróżnić jeden wiersz w kolumnie, która ma już swój wygląd."
 
@@ -110,6 +110,10 @@ msgstr "Niebieski"
 msgid "Bold text"
 msgstr "Pogrubienie"
 
+#: includes/views/column-looks-card.php:121
+msgid "Change"
+msgstr "Zmień"
+
 #. translators: %s: how many rows the table holds unfiltered.
 #: includes/class-lstabp-facets.php:531 includes/views/facets-card.php:98
 msgid "Clear filters — show all %s"
@@ -139,7 +143,7 @@ msgstr "Identyfikator klienta"
 msgid "Client secret"
 msgstr "Klucz tajny klienta"
 
-#: includes/views/column-looks-card.php:123
+#: includes/views/column-looks-card.php:173
 msgid "Colour"
 msgstr "Kolor"
 
@@ -156,7 +160,7 @@ msgstr "Reguły kolorów"
 msgid "Column %s"
 msgstr "Kolumna %s"
 
-#: includes/views/column-looks-card.php:41
+#: includes/views/column-looks-card.php:47
 msgid "Column looks"
 msgstr "Wygląd kolumn"
 
@@ -325,7 +329,7 @@ msgstr "Najpierw wczytaj podgląd. Gdy kolumny będą znane, będzie można zapr
 msgid "Load the preview first. Once the columns are known you can set rules on them."
 msgstr "Najpierw wczytaj podgląd. Gdy kolumny będą znane, będzie można ustawić na nich reguły."
 
-#: includes/views/column-looks-card.php:51
+#: includes/views/column-looks-card.php:57
 msgid "Load the sheet first — a column cannot be given a look before its columns are known."
 msgstr "Najpierw wczytaj arkusz — kolumna nie dostanie wyglądu, zanim wiadomo, jakie są kolumny."
 
@@ -383,7 +387,7 @@ msgstr[0] "Jedna reguła wskazuje kolumnę, której nie ma już w arkuszu."
 msgstr[1] "%s reguły wskazują kolumny, których nie ma już w arkuszu."
 msgstr[2] "%s reguł wskazuje kolumny, których nie ma już w arkuszu."
 
-#: includes/views/column-looks-card.php:162
+#: includes/views/column-looks-card.php:214
 msgid "Only a cell holding a web address becomes a button. A note or a blank in the same column is left as it is, because a button that goes nowhere is worse than the note it replaced."
 msgstr "Przyciskiem staje się tylko komórka z adresem internetowym. Notatka albo pustka w tej samej kolumnie zostaje, jak jest, bo przycisk donikąd jest gorszy od notatki, którą zastąpił."
 
@@ -392,7 +396,7 @@ msgid "Only read access to spreadsheets is requested; this connection cannot cha
 msgstr "Wymagany jest wyłącznie dostęp do odczytu arkuszy; to połączenie nie może niczego zmienić ani usunąć na Twoim koncie Google. Rozłączenie działa natychmiast."
 
 #: includes/views/look-faces.php:36 includes/views/look-faces.php:44
-#: includes/views/column-looks-card.php:143
+#: includes/views/column-looks-card.php:193
 #: includes/class-lstabp-column-looks.php:529
 msgid "Open"
 msgstr "Otwórz"
@@ -405,7 +409,7 @@ msgstr "Otwórz Google Cloud Console i utwórz projekt."
 msgid "Orange"
 msgstr "Pomarańczowy"
 
-#: includes/views/column-looks-card.php:93
+#: includes/views/column-looks-card.php:44
 msgid "Ordinary"
 msgstr "Zwyczajnie"
 
@@ -495,7 +499,7 @@ msgstr "Najpierw zapisz klienta powyżej."
 msgid "Save client"
 msgstr "Zapisz klienta"
 
-#: includes/views/column-looks-card.php:139
+#: includes/views/column-looks-card.php:189
 msgid "Says"
 msgstr "Napis"
 
@@ -562,7 +566,7 @@ msgstr "Tabela"
 msgid "Teal"
 msgstr "Morski"
 
-#: includes/views/column-looks-card.php:131
+#: includes/views/column-looks-card.php:181
 msgid "Text"
 msgstr "Tekst"
 
@@ -657,7 +661,7 @@ msgid "What Pro is doing on this site, and how to stop paying for it"
 msgstr "Co Pro robi w tej witrynie i jak przestać za nie płacić"
 
 #. translators: %s: a column heading.
-#: includes/views/column-looks-card.php:87
+#: includes/views/column-looks-card.php:138
 msgid "What the %s column looks like"
 msgstr "Jak wygląda kolumna %s"
 
