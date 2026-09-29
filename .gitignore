@@ -14,3 +14,7 @@ tests/fixtures/skins-php-said.json
 # Kod tabel zdjęty z lokalnej witryny dla strony pokazowej: adresy i numery
 # wierszy tego jednego uruchomienia, nie repozytorium.
 landing/szlaki/markup.json
+
+# Render tabeli dla podstrony „what it does” — jedno uruchomienie, nie repo.
+landing/mozliwosci/markup.json
+landing/mozliwosci/mozliwosci-*.png

@@ -1937,6 +1937,14 @@
 .lstabp-pill .lstab-cell-value,
 .lstabp-pill-face {
 	display: inline-block;
+	/*
+	 * A pill is the size of its word. In the card layout the cell is a grid and
+	 * the value is one of its items, which stretches to the whole track unless
+	 * it is told not to — so on a phone every pill came out as a bar the width
+	 * of the card, which is the one shape a badge must not be. Ignored in the
+	 * table layout, where the value is not a grid item.
+	 */
+	justify-self: start;
 	padding: 0.24em 0.85em;
 	border: 1px solid var(--lstabp-pill-line, currentColor);
 	border-radius: 999px;
