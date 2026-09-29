@@ -144,6 +144,62 @@ const emptied = await collected();
 
 check( emptied.rules.length === 0, 'a rule with no column named is dropped, not sent half-made', JSON.stringify( emptied.rules ) );
 
+console.log( '\nThe bin beside a rule' );
+
+/*
+ * Removing a rule used to mean finding "— remove this rule —" at the top of
+ * the column list, which is the one place nobody looks for a delete. The bin
+ * takes the line off the page; the form's own Save button is still what makes
+ * it stick, so a rule dropped by accident comes back by leaving without saving.
+ */
+await tab.fill( `${ line } .lstabp-rule-value`, 'Full' );
+await tab.selectOption( `${ line } .lstabp-rule-column`, 'Status' );
+await tab.waitForTimeout( 120 );
+
+const beforeBin = await collected();
+const linesBefore = await tab.$$eval( '.lstabp-rule', ( n ) => n.length );
+
+check( beforeBin.rules.length === 1, 'a rule to remove', JSON.stringify( beforeBin.rules ) );
+
+await tab.click( `${ line } .lstabp-rule-drop` );
+await tab.waitForTimeout( 120 );
+
+const linesAfter = await tab.$$eval( '.lstabp-rule', ( n ) => n.length );
+const afterBin = await collected();
+
+check( linesAfter === linesBefore - 1, 'the line goes', `${ linesBefore } → ${ linesAfter }` );
+check( afterBin.rules.length === 0, 'and the preview is told at once, before anything is saved', JSON.stringify( afterBin.rules ) );
+
+// Focus has to land somewhere, or a keyboard is dropped back at the top of
+// the page every time a rule is removed.
+const landed = await tab.evaluate( () => {
+	const at = document.activeElement;
+
+	return at ? at.className + '|' + at.id + '|' + at.tagName : '(none)';
+} );
+
+check(
+	landed !== '(none)' && ! landed.endsWith( '|BODY' ),
+	'and the keyboard lands on something, not back at the top of the page',
+	landed
+);
+
+// Added, then binned: the "Add a rule" button counts the lines on the page, so
+// it has to hear about a line that leaves as well as one that arrives.
+await tab.click( '#lstabp-add-rule' );
+await tab.waitForTimeout( 80 );
+
+const grew = await tab.$$eval( '.lstabp-rule', ( n ) => n.length );
+
+await tab.click( '.lstabp-rule:last-child .lstabp-rule-drop' );
+await tab.waitForTimeout( 80 );
+
+const shrank = await tab.$$eval( '.lstabp-rule', ( n ) => n.length );
+const addStillOffered = await tab.$eval( '#lstabp-add-rule', ( b ) => ! b.hidden );
+
+check( grew === linesAfter + 1 && shrank === linesAfter, 'a line the button added can be binned too', `${ linesAfter } → ${ grew } → ${ shrank }` );
+check( addStillOffered, 'and the button is still there afterwards' );
+
 check( errors.length === 0, 'no errors in the console', errors.join( ' | ' ) );
 
 await browser.close();

@@ -165,6 +165,6 @@ $lstabp_rows    = array_merge( $rules, array( $lstabp_blank ) );
 	<?php endif; ?>
 
 	<p class="lstab-help">
-		<?php esc_html_e( 'To remove a rule, set its column back to “remove this rule”.', 'live-sheets-table-pro' ); ?>
+		<?php esc_html_e( 'The bin beside a rule takes it off the list; it is gone once you save. With JavaScript switched off, set the rule\'s column back to “remove this rule” instead.', 'live-sheets-table-pro' ); ?>
 	</p>
 </div>

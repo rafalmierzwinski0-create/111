@@ -282,4 +282,40 @@ return array(
 	'Add a rule'                                 => 'Dodaj regułę',
 	'To remove a rule, set its column back to “remove this rule”.'
 		=> 'Aby usunąć regułę, ustaw jej kolumnę z powrotem na „usuń tę regułę”.',
+	'Remove this rule'                           => 'Usuń tę regułę',
+	'The bin beside a rule takes it off the list; it is gone once you save. With JavaScript switched off, set the rule\'s column back to “remove this rule” instead.'
+		=> 'Kosz przy regule zdejmuje ją z listy; znika po zapisaniu. Przy wyłączonym JavaScripcie ustaw zamiast tego kolumnę reguły z powrotem na „usuń tę regułę”.',
+
+	// Column looks.
+	'Column looks'                               => 'Wygląd kolumn',
+	'A colour rule says one value is special. This says what a whole column is: a measurement to be seen at a glance, a set of labels, a column that belongs in a colour of its own, or a way through to somewhere else.'
+		=> 'Reguła koloru mówi, że jedna wartość jest wyjątkowa. To mówi, czym jest cała kolumna: miarą widoczną na pierwszy rzut oka, zestawem etykiet, kolumną, której należy się własny kolor, albo przejściem gdzie indziej.',
+	'Ordinary'                                   => 'Zwyczajnie',
+	'A bar behind the number'                    => 'Słupek za liczbą',
+	'Every value as a pill'                      => 'Każda wartość jako pigułka',
+	'The whole column in a colour'               => 'Cała kolumna w kolorze',
+	'A button, if the cell holds a link'         => 'Przycisk, jeśli komórka zawiera odnośnik',
+	'What the %s column looks like'              => 'Jak wygląda kolumna %s',
+	'Colour'                                     => 'Kolor',
+	'Text'                                       => 'Tekst',
+	'Says'                                       => 'Napis',
+	'Load the sheet first — a column cannot be given a look before its columns are known.'
+		=> 'Najpierw wczytaj arkusz — kolumna nie dostanie wyglądu, zanim wiadomo, jakie są kolumny.',
+	'A bar is as long as its number is large, measured against the largest in the column. A column that never goes below zero is measured from zero, so numbers that are all much the same do not look wildly different.'
+		=> 'Słupek jest tak długi, jak duża jest liczba, mierzony względem największej w kolumnie. Kolumnę, która nigdy nie schodzi poniżej zera, mierzy się od zera, więc liczby zbliżone do siebie nie wyglądają na skrajnie różne.',
+	'A pill and a whole-column colour dress every row the same, whatever the value says — that is the difference from a colour rule, which dresses only the rows that match it. Where both have something to say about the same cell the rule wins, so a rule can still single one row out of a column that already has a look.'
+		=> 'Pigułka i kolor całej kolumny ubierają każdy wiersz tak samo, cokolwiek mówi wartość — i tym różnią się od reguły koloru, która ubiera tylko pasujące wiersze. Tam, gdzie obie mają coś do powiedzenia o tej samej komórce, wygrywa reguła, więc regułą nadal da się wyróżnić jeden wiersz w kolumnie, która ma już swój wygląd.',
+	'Only a cell holding a web address becomes a button. A note or a blank in the same column is left as it is, because a button that goes nowhere is worse than the note it replaced.'
+		=> 'Przyciskiem staje się tylko komórka z adresem internetowym. Notatka albo pustka w tej samej kolumnie zostaje, jak jest, bo przycisk donikąd jest gorszy od notatki, którą zastąpił.',
+
+	// Left untranslated until now, and on the same screens as everything above.
+	'Colour a cell, its whole row or just its words according to the cell\'s value — or turn the value into a pill, which is what a status column usually wants. Colours are worked out on the server, so they are already in the page a visitor receives.'
+		=> 'Pokoloruj komórkę, cały jej wiersz albo same słowa w niej — zależnie od wartości komórki — albo zamień wartość w pigułkę, czego zwykle chce kolumna ze statusem. Kolory są wyliczane na serwerze, więc są już w stronie, którą dostaje odwiedzający.',
+	'a pill around that value'                   => 'pigułkę wokół tej wartości',
+	'a dot before that value'                    => 'kropkę przed tą wartością',
+	'Open'                                       => 'Otwórz',
+
+	// Lists folded to ten.
+	'Show %1$s more — %2$s still hidden'         => 'Pokaż kolejne %1$s — ukrytych jeszcze %2$s',
+	'Show them all'                              => 'Pokaż wszystkie',
 );

@@ -443,12 +443,18 @@
 	gap: 6px;
 }
 
+/*
+ * Name on the left, the looks on offer beside it, the fields for whichever
+ * one is chosen under them. The name gets a column of its own rather than
+ * flowing with the rest, so a sheet whose headings differ wildly in length
+ * still has its chips lined up down the card.
+ */
 .lstabp-look {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	flex-wrap: wrap;
-	padding: 8px 10px;
+	display: grid;
+	grid-template-columns: minmax( 10ch, 16ch ) 1fr;
+	align-items: start;
+	gap: 6px 12px;
+	padding: 9px 10px;
 	border: 1px solid #dcdcde;
 	border-radius: 6px;
 	background: #fff;
@@ -460,8 +466,118 @@
 }
 
 .lstabp-look-name {
-	min-width: 14ch;
 	font-weight: 600;
+	overflow-wrap: anywhere;
+	padding-top: 6px;
+}
+
+/*
+ * The chips. Each one is the look itself with its name underneath, so the
+ * choice is made by recognising it rather than by reading four words and
+ * imagining what they draw.
+ */
+.lstabp-look-picks {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.lstabp-look-opt {
+	display: grid;
+	justify-items: center;
+	gap: 3px;
+	/*
+	 * Held between two widths rather than left to the words. The names differ
+	 * in length by a factor of four, and chips sized by their labels came out
+	 * as five different rectangles — which is the one thing a row of examples
+	 * must not be, because the eye compares the boxes before it reads them.
+	 */
+	width: 118px;
+	padding: 6px 8px 5px;
+	border: 1px solid #dcdcde;
+	border-radius: 7px;
+	background: #fbfcfc;
+	cursor: pointer;
+	transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+
+.lstabp-look-opt:hover {
+	border-color: #9ec8bf;
+	background: #fff;
+}
+
+.lstabp-look-opt.is-picked {
+	border-color: #2f7d6e;
+	background: #fff;
+	box-shadow: 0 0 0 1px #2f7d6e;
+}
+
+/* The radio itself is off screen: the chip is the control. */
+.lstabp-look-opt input[ type="radio" ] {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip: rect( 0 0 0 0 );
+	white-space: nowrap;
+	border: 0;
+}
+
+.lstabp-look-opt:has( input:focus-visible ) {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}
+
+/*
+ * The miniature. Sized rather than padded so every chip is the same height
+ * whatever shape it holds — a row of chips that jump about as one is chosen
+ * is a row nobody can compare.
+ */
+.lstabp-look-face {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	/*
+	 * Fixed, not a minimum. A badge and a button carry padding of their own and
+	 * came out seven pixels taller than the plain number beside them, which is
+	 * enough to make a row of examples look like a row of different things.
+	 */
+	height: 34px;
+	padding: 2px 6px;
+	border-radius: 4px;
+	font-size: 12px;
+	font-variant-numeric: tabular-nums;
+	line-height: 1.4;
+	color: #1d2327;
+	box-sizing: border-box;
+}
+
+/* A painted column fills its chip, which is the whole point of it. */
+.lstabp-look-face.is-tinted {
+	width: 100%;
+}
+
+.lstabp-look-word {
+	font-size: 11px;
+	line-height: 1.3;
+	color: #50575e;
+	text-align: center;
+}
+
+.lstabp-look-opt.is-picked .lstabp-look-word {
+	color: #1d2327;
+	font-weight: 600;
+}
+
+.lstabp-look-fields {
+	grid-column: 2;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px 14px;
 }
 
 /* Only the fields the chosen look has any use for. A bar has no words of its
@@ -472,8 +588,29 @@
 }
 
 .lstabp-look[ data-lstabp-look="bar" ] .lstabp-look-colour[ data-lstabp-for~="bar" ],
+.lstabp-look[ data-lstabp-look="pill" ] .lstabp-look-colour[ data-lstabp-for~="pill" ],
+.lstabp-look[ data-lstabp-look="tint" ] .lstabp-look-colour[ data-lstabp-for~="tint" ],
 .lstabp-look[ data-lstabp-look="button" ] .lstabp-look-colour[ data-lstabp-for~="button" ] {
 	display: inline-flex;
+}
+
+/* Nothing chosen, nothing to set: the row is one line tall until it is. */
+.lstabp-look:not( .is-on ) .lstabp-look-fields {
+	display: none;
+}
+
+@media ( max-width: 782px ) {
+	.lstabp-look {
+		grid-template-columns: 1fr;
+	}
+
+	.lstabp-look-name {
+		padding-top: 0;
+	}
+
+	.lstabp-look-fields {
+		grid-column: 1;
+	}
 }
 
 .lstabp-look-colour label {
@@ -502,5 +639,101 @@
 }
 
 .lstabp-looks-card.is-waiting .lstabp-looks {
+	display: none;
+}
+
+/* ------------------------------------------ the bin beside a colour rule */
+
+/*
+ * Quiet until it is wanted. A delete that shouts sits in the corner of the eye
+ * all the time somebody is choosing colours, and the one thing it must not do
+ * is look like the next step. Quiet is not the same as invisible, though, so
+ * it keeps a hairline: without one it read as a smudge rather than a control.
+ *
+ * It follows the swatch rather than being pushed to the far edge. The line
+ * wraps on a narrow screen, and an automatic margin sent the bin off alone to
+ * the right-hand end of whatever line it landed on, where it belonged to
+ * nothing.
+ */
+.lstabp-rule-drop {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	margin-inline-start: 0.3rem;
+	padding: 0;
+	border: 1px solid #e4e8ea;
+	border-radius: 6px;
+	background: transparent;
+	color: #8a9a98;
+	cursor: pointer;
+	transition: color 0.12s ease, background-color 0.12s ease, border-color 0.12s ease;
+}
+
+.lstabp-rule-drop svg {
+	width: 15px;
+	height: 15px;
+	/* The click belongs to the button, not to the drawing inside it. */
+	pointer-events: none;
+}
+
+.lstabp-rule-drop:hover,
+.lstabp-rule-drop:focus-visible {
+	border-color: #e6b4b4;
+	background: #fdf1f1;
+	color: #b32d2e;
+}
+
+.lstabp-rule-drop:focus-visible {
+	outline: 2px solid #2271b1;
+	outline-offset: 1px;
+}
+
+.lstabp-rule-drop[ disabled ] {
+	opacity: 0.4;
+	cursor: default;
+}
+
+/* ------------------------------------------------ ten of a long list */
+
+/*
+ * The button under a folded list. Two of them: the next ten, and the lot —
+ * four clicks to reach the fiftieth column is its own kind of long list.
+ */
+.lstabp-fold-more {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin: -0.4em 0 1em;
+}
+
+.lstabp-fold-all {
+	padding: 0;
+	border: 0;
+	background: none;
+	color: #2271b1;
+	font-size: 12px;
+	cursor: pointer;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.lstabp-fold-all:hover {
+	color: #135e96;
+}
+
+.lstabp-fold-more[ hidden ] {
+	display: none;
+}
+
+/*
+ * A folded row really has to go. "hidden" is an attribute, and the browser's
+ * own rule for it is one selector weak — a class saying "display: grid" beats
+ * it, which is how a list that had been folded went on drawing all fifty rows
+ * under a button offering to show them.
+ */
+.lstabp-look[ hidden ],
+.lstabp-facet-pick[ hidden ] {
 	display: none;
 }

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
-"POT-Creation-Date: 2026-09-25 23:09+0000\n"
+"POT-Creation-Date: 2026-09-29 15:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -853,7 +853,7 @@ msgstr ""
 msgid "Never synced successfully"
 msgstr ""
 
-#: includes/class-lstab-renderer.php:737 includes/class-lstab-renderer.php:740
+#: includes/class-lstab-renderer.php:764 includes/class-lstab-renderer.php:767
 msgid "Next"
 msgstr ""
 
@@ -865,7 +865,7 @@ msgstr ""
 msgid "No parts replaced"
 msgstr ""
 
-#: includes/class-lstab-renderer.php:691 includes/class-lstab-renderer.php:693
+#: includes/class-lstab-renderer.php:718 includes/class-lstab-renderer.php:720
 msgid "No rows match your search."
 msgstr ""
 
@@ -952,7 +952,7 @@ msgid "Organic or metallic compound"
 msgstr ""
 
 #. translators: 1: current page, 2: number of pages.
-#: includes/class-lstab-renderer.php:727
+#: includes/class-lstab-renderer.php:754
 msgid "Page %1$s of %2$s"
 msgstr ""
 
@@ -1024,7 +1024,7 @@ msgstr ""
 msgid "Preview width"
 msgstr ""
 
-#: includes/class-lstab-renderer.php:716 includes/class-lstab-renderer.php:719
+#: includes/class-lstab-renderer.php:743 includes/class-lstab-renderer.php:746
 msgid "Previous"
 msgstr ""
 
@@ -1161,7 +1161,7 @@ msgstr ""
 msgid "Saved. This sheet has %1$s rows, so it is being shown %2$s at a time — the whole thing on one page would be slow to load and hard to read. Your visitors get a search box and page buttons, and both look through every row, not just the page on screen. To show it all at once instead, turn pages off under “%3$s”."
 msgstr ""
 
-#: includes/class-lstab-renderer.php:674
+#: includes/class-lstab-renderer.php:701
 msgid "Scroll the table sideways"
 msgstr ""
 
@@ -1272,7 +1272,7 @@ msgstr ""
 msgid "Sheets are added and refreshed in %s."
 msgstr ""
 
-#: includes/class-lstab-renderer.php:564
+#: includes/class-lstab-renderer.php:591
 msgid "Show details"
 msgstr ""
 
@@ -1320,7 +1320,7 @@ msgid "Something you had taken out of a table is on the page again."
 msgstr ""
 
 #. translators: %s: column name.
-#: includes/class-lstab-renderer.php:472
+#: includes/class-lstab-renderer.php:499
 msgid "Sort by %s"
 msgstr ""
 
@@ -1375,7 +1375,7 @@ msgstr ""
 msgid "Table options"
 msgstr ""
 
-#: includes/class-lstab-renderer.php:713
+#: includes/class-lstab-renderer.php:740
 msgid "Table pages"
 msgstr ""
 
@@ -1581,7 +1581,7 @@ msgid "Up to five working days"
 msgstr ""
 
 #. translators: %s: human readable time difference, e.g. "5 mins".
-#: includes/class-lstab-renderer.php:751
+#: includes/class-lstab-renderer.php:778
 msgid "Updated %s ago"
 msgstr ""
 

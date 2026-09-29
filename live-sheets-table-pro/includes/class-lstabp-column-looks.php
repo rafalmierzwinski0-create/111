@@ -36,6 +36,15 @@ class LSTABP_Column_Looks {
 	const MAX_LABEL = 40;
 
 	/**
+	 * The colour a look falls back on when none was picked.
+	 *
+	 * Only the looks that are nothing without a colour use it — a pill with no
+	 * outline and a column painted in no colour are both invisible, which
+	 * reads as the setting not having saved.
+	 */
+	const DEFAULT_TINT = '#c7e0f4';
+
+	/**
 	 * Looks being chosen right now, for the length of one preview request.
 	 *
 	 * @var array<int,array<string,array<string,string>>>
@@ -76,7 +85,20 @@ class LSTABP_Column_Looks {
 		 * reorders one.
 		 */
 		add_filter( 'lstab_source_rows', array( $this, 'capture' ), 25, 4 );
-		add_filter( 'lstab_cell_attributes', array( $this, 'attributes' ), 12, 5 );
+		/*
+		 * Before the colour rules, which run at 10, so a rule's colours are
+		 * written after a look's and win where the two want the same property.
+		 * That is the right way round: a look says what a whole column is, a
+		 * rule says that one value in it is not like the others — and a rule
+		 * that could not single a row out of a column with a look on it would
+		 * be a rule the screen offers and the table ignores.
+		 *
+		 * Nothing is lost the other way: a bar, a button and a pill are drawn
+		 * with properties of their own, so a rule painting the cell underneath
+		 * them leaves all three standing.
+		 */
+		add_filter( 'lstab_cell_attributes', array( $this, 'attributes' ), 8, 5 );
+		add_filter( 'lstab_heading_attributes', array( $this, 'heading_attributes' ), 8, 4 );
 
 		// After the free plugin's linkifier at 5, which would otherwise have
 		// the last word about what a cell holding an address looks like.
@@ -184,8 +206,82 @@ class LSTABP_Column_Looks {
 	public static function looks() {
 		return array(
 			'bar'    => __( 'A bar behind the number', 'live-sheets-table-pro' ),
+			'pill'   => __( 'Every value as a pill', 'live-sheets-table-pro' ),
+			'tint'   => __( 'The whole column in a colour', 'live-sheets-table-pro' ),
 			'button' => __( 'A button, if the cell holds a link', 'live-sheets-table-pro' ),
 		);
+	}
+
+	/**
+	 * Which of a look's three fields mean anything.
+	 *
+	 * Read by the card, which shows only these, and by the front end, which
+	 * ignores whatever else was left in the store by an earlier choice. Kept
+	 * here rather than in the view so the two cannot drift: a field the card
+	 * offers and the renderer ignores is a setting that silently does nothing.
+	 *
+	 * @return array<string,array<int,string>>
+	 */
+	public static function fields() {
+		return array(
+			'bar'    => array( 'tint' ),
+			'pill'   => array( 'tint' ),
+			'tint'   => array( 'tint' ),
+			'button' => array( 'tint', 'ink', 'label' ),
+		);
+	}
+
+	/**
+	 * The inline style one look wears, given its colours.
+	 *
+	 * The single place both the table and the card on the settings screen ask,
+	 * so a preview chip cannot show one thing and the page another.
+	 *
+	 * @param string               $look    Look key.
+	 * @param array<string,string> $setting The column's stored settings.
+	 * @return string
+	 */
+	public static function css_for( $look, $setting ) {
+		$tint = isset( $setting['tint'] ) ? LSTABP_Rules::hex( $setting['tint'] ) : '';
+		$ink  = isset( $setting['ink'] ) ? LSTABP_Rules::hex( $setting['ink'] ) : '';
+
+		if ( 'bar' === $look ) {
+			return '' !== $tint ? '--lstabp-bar-colour:' . $tint . ';' : '';
+		}
+
+		if ( 'pill' === $look ) {
+			/*
+			 * The same three properties a colour rule's pill wears, from the
+			 * same function: a column of pills and a rule's pill on the row
+			 * below it have to be the same badge, or the table looks like two
+			 * plugins arguing.
+			 */
+			return LSTABP_Rules::css_for( '' !== $tint ? $tint : self::DEFAULT_TINT, 'pill' );
+		}
+
+		if ( 'tint' === $look ) {
+			/*
+			 * A painted column, ink and all. The readable ink is worked out
+			 * rather than asked for, exactly as a colour rule does it, because
+			 * the one thing nobody should be able to choose by accident is
+			 * text the same colour as what is behind it.
+			 *
+			 * The "row" scope rather than "cell": it adds "--lstab-row-tint",
+			 * which is what the pinned first column's own opaque backdrop
+			 * repeats. Without it a tinted first column lost its colour the
+			 * moment the table was dragged sideways — the backdrop is there to
+			 * hide the columns sliding underneath, and it hid this too.
+			 */
+			return LSTABP_Rules::css_for( '' !== $tint ? $tint : self::DEFAULT_TINT, 'row' );
+		}
+
+		if ( 'button' === $look ) {
+			$css = '' !== $tint ? '--lstabp-cta-bg:' . $tint . ';' : '';
+
+			return $css . ( '' !== $ink ? '--lstabp-cta-ink:' . $ink . ';' : '' );
+		}
+
+		return '';
 	}
 
 	/**
@@ -315,7 +411,7 @@ class LSTABP_Column_Looks {
 
 		$look    = $this->columns[ $col_index ];
 		$setting = $this->settings[ $col_index ];
-		$css     = '';
+		$css     = self::css_for( $look, $setting );
 
 		if ( 'bar' === $look ) {
 			if ( ! isset( $this->bars[ $row_index ][ $col_index ] ) ) {
@@ -328,21 +424,18 @@ class LSTABP_Column_Looks {
 			 * than nothing, and an empty cell stays empty.
 			 */
 			$share = 2 + $this->bars[ $row_index ][ $col_index ] * 98;
-			$css  .= '--lstabp-bar:' . number_format( $share, 2, '.', '' ) . '%;';
-
-			if ( '' !== $setting['tint'] ) {
-				$css .= '--lstabp-bar-colour:' . $setting['tint'] . ';';
-			}
+			$css   = '--lstabp-bar:' . number_format( $share, 2, '.', '' ) . '%;' . $css;
 		}
 
-		if ( 'button' === $look ) {
-			if ( '' !== $setting['tint'] ) {
-				$css .= '--lstabp-cta-bg:' . $setting['tint'] . ';';
-			}
-
-			if ( '' !== $setting['ink'] ) {
-				$css .= '--lstabp-cta-ink:' . $setting['ink'] . ';';
-			}
+		/*
+		 * A pill is the shape of a word, so a cell with no word in it must not
+		 * get one: an empty cell wearing a badge reads as a value the sheet
+		 * does not have. The same goes for a whole-column colour — there the
+		 * paint is the point, so a blank cell keeps it and the column stays a
+		 * block rather than a colour with holes in it.
+		 */
+		if ( 'pill' === $look && '' === trim( (string) $value ) ) {
+			return $attributes;
 		}
 
 		if ( '' === $css ) {
@@ -351,7 +444,49 @@ class LSTABP_Column_Looks {
 
 		$classes = isset( $attributes['class'] ) ? $attributes['class'] . ' ' : '';
 
-		$attributes['class'] = trim( $classes . 'lstabp-' . $look );
+		// A painted column is a painted cell, and the stylesheet already knows
+		// how to keep a pinned first column painted while the table slides.
+		$attributes['class'] = trim( $classes . ( 'tint' === $look ? 'lstab-ruled' : 'lstabp-' . $look ) );
+		$attributes['style'] = isset( $attributes['style'] ) ? $attributes['style'] . $css : $css;
+
+		return $attributes;
+	}
+
+	/**
+	 * Paint a column's heading in the colour the column is wearing.
+	 *
+	 * Only the whole-column colour reaches up here. A bar, a pill and a button
+	 * are all shapes worn by a value, and the heading is not a value — a
+	 * heading drawn as a pill would say the column's name is one of its
+	 * entries.
+	 *
+	 * @param array<string,string> $attributes Attribute map.
+	 * @param string               $heading    Heading text.
+	 * @param int                  $col_index  Column index.
+	 * @param array<string,mixed>  $source     Source row.
+	 * @return array<string,string>
+	 */
+	public function heading_attributes( $attributes, $heading, $col_index, $source ) {
+		if ( ! isset( $this->columns[ $col_index ] ) || 'tint' !== $this->columns[ $col_index ] ) {
+			return $attributes;
+		}
+
+		$tint = LSTABP_Rules::hex( $this->settings[ $col_index ]['tint'] );
+		$tint = '' !== $tint ? $tint : self::DEFAULT_TINT;
+		$ink  = LSTABP_Rules::ink( $tint );
+
+		/*
+		 * Three tokens rather than two properties. "--lstab-head-bg" is what
+		 * the pinned first column's backdrop repeats up here, and "--lstab-fg"
+		 * is what the sort button turns to under the pointer — left alone, a
+		 * heading on a dark column went back to the table's own dark ink on
+		 * hover and disappeared.
+		 */
+		$css = 'background-color:' . $tint . ';color:' . $ink . ';'
+			. '--lstab-head-bg:' . $tint . ';'
+			. '--lstab-head-fg:' . $ink . ';'
+			. '--lstab-fg:' . $ink . ';';
+
 		$attributes['style'] = isset( $attributes['style'] ) ? $attributes['style'] . $css : $css;
 
 		return $attributes;

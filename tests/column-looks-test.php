@@ -34,10 +34,25 @@ function update_option( $name, $value, $autoload = null ) {
 	$GLOBALS['lstab_options'][ $name ] = $value;
 	return true;
 }
-function add_filter() {}
+function add_filter( $hook, $callback, $priority = 10, $args = 1 ) {
+	// Remembered, not ignored: the order two filters run in is what decides
+	// whether a colour rule can still single a row out of a column that
+	// already has a look, and that is worth an assertion.
+	$GLOBALS['lstab_filters'][ $hook ][ $priority ][] = $callback;
+}
 function add_action() {}
 function esc_attr_e( $text, $domain = null ) { echo esc_attr( $text ); }
 function esc_html_e( $text, $domain = null ) { echo esc_html( $text ); }
+function esc_attr__( $text, $domain = null ) { return esc_attr( $text ); }
+function checked( $one, $two = true, $echo = true ) {
+	$out = (string) $one === (string) $two ? " checked='checked'" : '';
+
+	if ( $echo ) {
+		echo $out;
+	}
+
+	return $out;
+}
 function selected( $one, $two, $echo = true ) {
 	$out = (string) $one === (string) $two ? " selected='selected'" : '';
 
@@ -188,6 +203,135 @@ lstab_check(
 	isset( $colours['style'] ) ? $colours['style'] : '(none)'
 );
 
+echo "\nA pill, and a whole column in a colour\n";
+
+/*
+ * The two looks that answer "this column is a set of labels" and "this column
+ * belongs in a colour". Neither has a condition to write, which is what makes
+ * them a column look rather than a colour rule: every row is dressed the same
+ * whatever it says.
+ */
+$GLOBALS['lstab_options'][ LSTABP_Column_Looks::OPTION ] = array(
+	7 => array(
+		'Session'    => array( 'look' => 'tint', 'tint' => '#3d4c55', 'ink' => '', 'label' => '' ),
+		'Seats left' => array( 'look' => 'pill', 'tint' => '#5fe3cf', 'ink' => '', 'label' => '' ),
+	),
+);
+
+$dressy = new LSTABP_Column_Looks();
+$dressy->capture( $rows, $headers, $source, array() );
+
+$pilled = $dressy->attributes( array(), '120', 1, 0, $source );
+
+lstab_check(
+	isset( $pilled['class'] ) && false !== strpos( $pilled['class'], 'lstabp-pill' ),
+	'every value in the column is given the badge',
+	isset( $pilled['class'] ) ? $pilled['class'] : '(none)'
+);
+lstab_check(
+	isset( $pilled['style'] )
+		&& false !== strpos( $pilled['style'], '--lstabp-pill-line:#5fe3cf' )
+		&& false !== strpos( $pilled['style'], '--lstabp-pill-fill:' )
+		&& false !== strpos( $pilled['style'], '--lstabp-pill-ink:' ),
+	'in the three properties a colour rule\'s pill wears, so the two match',
+	isset( $pilled['style'] ) ? $pilled['style'] : '(none)'
+);
+
+$blank_pill = $dressy->attributes( array(), '   ', 1, 3, $source );
+
+lstab_check(
+	! isset( $blank_pill['class'] ) || false === strpos( $blank_pill['class'], 'lstabp-pill' ),
+	'an empty cell gets no badge — a badge round nothing reads as a value the sheet has not got',
+	isset( $blank_pill['class'] ) ? $blank_pill['class'] : '(none)'
+);
+
+$tinted = $dressy->attributes( array(), 'Opening keynote', 0, 0, $source );
+
+lstab_check(
+	isset( $tinted['style'] ) && false !== strpos( $tinted['style'], 'background-color:#3d4c55' ),
+	'a whole-column colour paints the cell',
+	isset( $tinted['style'] ) ? $tinted['style'] : '(none)'
+);
+lstab_check(
+	isset( $tinted['style'] ) && preg_match( '/(^|;)color:#(f|e)/i', $tinted['style'] ),
+	'and works out a readable ink rather than asking for one',
+	isset( $tinted['style'] ) ? $tinted['style'] : '(none)'
+);
+lstab_check(
+	isset( $tinted['style'] ) && false !== strpos( $tinted['style'], '--lstab-row-tint:#3d4c55' ),
+	'and says what its tint is, so a pinned first column keeps it while the table slides'
+);
+lstab_check(
+	isset( $tinted['class'] ) && false !== strpos( $tinted['class'], 'lstab-ruled' ),
+	'a painted column is a painted cell, by the class the table already knows',
+	isset( $tinted['class'] ) ? $tinted['class'] : '(none)'
+);
+
+$blank_tint = $dressy->attributes( array(), '', 0, 0, $source );
+
+lstab_check(
+	isset( $blank_tint['style'] ) && false !== strpos( $blank_tint['style'], 'background-color:#3d4c55' ),
+	'an empty cell keeps the paint, or the column is a colour with holes in it'
+);
+
+$head_tinted = $dressy->heading_attributes( array(), 'Session', 0, $source );
+$head_pilled = $dressy->heading_attributes( array(), 'Seats left', 1, $source );
+
+lstab_check(
+	isset( $head_tinted['style'] ) && false !== strpos( $head_tinted['style'], 'background-color:#3d4c55' ),
+	'the name at the top of a painted column is painted too',
+	isset( $head_tinted['style'] ) ? $head_tinted['style'] : '(none)'
+);
+lstab_check(
+	isset( $head_tinted['style'] ) && false !== strpos( $head_tinted['style'], '--lstab-head-bg:#3d4c55' ),
+	'through the token the pinned heading repeats, not only as a background'
+);
+lstab_check(
+	isset( $head_tinted['style'] ) && false !== strpos( $head_tinted['style'], '--lstab-fg:' ),
+	'and the hover colour is restated, or the name vanishes under the pointer'
+);
+lstab_check(
+	! isset( $head_pilled['style'] ),
+	'a column of pills leaves its heading alone — a heading drawn as a pill reads as one of the values',
+	isset( $head_pilled['style'] ) ? $head_pilled['style'] : '(none)'
+);
+
+echo "\nA rule still beats a look\n";
+
+/*
+ * The one question a screen offering both has to answer: paint this column
+ * teal, but paint the closed row grey — which of the two wins? The rule does.
+ * It names a condition, so it is the more particular of the two, and a rule
+ * the screen offers and the table ignores is worse than no rule at all.
+ *
+ * This is decided by the order the two filters run in, so it is checked the
+ * way WordPress decides it: by priority.
+ */
+$GLOBALS['lstab_filters'] = array();
+( new LSTABP_Column_Looks() )->register();
+( new LSTABP_Rules() )->register();
+
+$lstabp_look_at = 0;
+$lstabp_rule_at = 0;
+
+foreach ( $GLOBALS['lstab_filters']['lstab_cell_attributes'] as $lstabp_priority => $lstabp_bound ) {
+	foreach ( $lstabp_bound as $lstabp_callback ) {
+		if ( $lstabp_callback[0] instanceof LSTABP_Column_Looks ) {
+			$lstabp_look_at = $lstabp_priority;
+		}
+
+		if ( $lstabp_callback[0] instanceof LSTABP_Rules ) {
+			$lstabp_rule_at = $lstabp_priority;
+		}
+	}
+}
+
+lstab_check(
+	$lstabp_look_at > 0 && $lstabp_rule_at > 0 && $lstabp_look_at < $lstabp_rule_at,
+	'a column look is written before a colour rule, so the rule has the last word',
+	"look at {$lstabp_look_at}, rule at {$lstabp_rule_at}"
+);
+
 echo "\nWhat it refuses to do\n";
 
 $GLOBALS['lstab_options'][ LSTABP_Column_Looks::OPTION ] = array(
@@ -322,12 +466,102 @@ lstab_check( false !== strpos( $markup, 'value="#123456"' ), 'a stored colour co
 lstab_check( false !== strpos( $markup, 'value="Book a seat"' ), 'and so do a button\'s own words' );
 lstab_check( false !== strpos( $markup, 'data-lstabp-look="bar"' ), 'the row says which look it wears, for the stylesheet to read' );
 
+/*
+ * The chooser draws what it offers. A dropdown could only name the looks, and
+ * the name is the part nobody can picture — so every chip is the look itself,
+ * in the very classes the table uses.
+ */
+lstab_check(
+	substr_count( $markup, 'class="lstabp-look-face' ) >= count( $headers ) * ( count( LSTABP_Column_Looks::looks() ) + 1 ),
+	'every look on offer is drawn, for every column',
+	substr_count( $markup, 'class="lstabp-look-face' ) . ' chips'
+);
+lstab_check(
+	false !== strpos( $markup, 'lstabp-look-face lstabp-bar' ) && false !== strpos( $markup, '--lstabp-bar:64%' ),
+	'the bar chip is a bar'
+);
+lstab_check(
+	false !== strpos( $markup, 'lstabp-pill-face' ) && false !== strpos( $markup, '--lstabp-pill-line:' ),
+	'the pill chip is the same badge the table draws'
+);
+lstab_check(
+	false !== strpos( $markup, 'lstabp-look-face is-tinted' ),
+	'and the whole-column chip is a painted cell'
+);
+lstab_check(
+	false !== strpos( $markup, 'class="lstabp-cta-link"' ) && false !== strpos( $markup, '>Book a seat</a>' ),
+	'the button chip wears the words that column was given',
+	false !== strpos( $markup, '>Book a seat</a>' ) ? 'yes' : 'no'
+);
+
+/*
+ * The chip for a look is drawn in that column's own colours, not in a fixed
+ * demonstration colour: a chip showing teal beside a picker set to navy is
+ * worse than no chip at all.
+ */
+lstab_check(
+	false !== strpos( $markup, '--lstabp-bar-colour:#5fe3cf' ),
+	'in the colours that column is actually set to'
+);
+
+lstab_check(
+	false !== strpos( $markup, 'type="radio"' ) && false === strpos( $markup, '<select class="lstabp-look-pick"' ),
+	'and it is a radio group, so one value still arrives under one name'
+);
+
+lstab_check(
+	false !== strpos( $markup, 'data-lstabp-fold="10"' ),
+	'a long list says where it may be folded, for the script to read'
+);
+
+lstab_check(
+	false !== strpos( $markup, 'data-lstabp-for="bar pill tint button"' ),
+	'the colour field is offered to every look that has a colour',
+	false !== strpos( $markup, 'data-lstabp-for="bar pill tint button"' ) ? 'yes' : 'no'
+);
+
 ob_start();
 $card->render_pane_card( 'columns', array( 'id' => 7, 'data' => array( 'headers' => $headers ) ), true );
 lstab_check( '' === (string) ob_get_clean(), 'and it keeps off every pane but Appearance' );
 
 // The browser suite reads this to check what the card hands the preview.
 file_put_contents( __DIR__ . '/fixtures/column-looks-card.html', $markup );
+
+/*
+ * And a second one, wide enough to be folded. A sheet is allowed fifty
+ * columns, and a card that draws a row per column buried everything under it;
+ * the browser suite opens this one to watch the folding work.
+ *
+ * One of the chosen columns is deliberately near the end, because the rule
+ * that matters most is the one about what is never folded away: ten rows that
+ * hide the setting somebody came back to change are worse than the long list.
+ */
+$lstabp_many = array();
+for ( $lstabp_n = 1; $lstabp_n <= 24; $lstabp_n++ ) {
+	$lstabp_many[] = 'Column ' . $lstabp_n;
+}
+
+$GLOBALS['lstab_options'][ LSTABP_Column_Looks::OPTION ] = array(
+	7 => array( 'Column 20' => array( 'look' => 'pill', 'tint' => '#5fe3cf', 'ink' => '', 'label' => '' ) ),
+);
+
+ob_start();
+( new LSTABP_Column_Looks() )->render_pane_card( 'look', array( 'id' => 7, 'data' => array( 'headers' => $lstabp_many ) ), true );
+file_put_contents( __DIR__ . '/fixtures/column-looks-long.html', (string) ob_get_clean() );
+
+/*
+ * What wp_localize_script() puts on the page beside the script. The browser
+ * suite writes it into its test page, because the folding button is drawn
+ * from these strings and a page without them keeps the whole list — which is
+ * right, and would quietly turn the folding test into no test at all.
+ */
+file_put_contents(
+	__DIR__ . '/fixtures/admin-settings.json',
+	json_encode(
+		array( 'maxRules' => LSTABP_Rules::MAX_RULES ) + LSTABP_Rules::fold_words(),
+		JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+	) . "\n"
+);
 
 echo "\nA look being chosen, before anything is saved\n";
 

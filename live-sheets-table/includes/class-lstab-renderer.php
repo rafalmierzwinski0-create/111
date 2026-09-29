@@ -440,9 +440,36 @@ class LSTAB_Renderer {
 								<?php if ( isset( $details[ $index ] ) ) : ?>
 									<?php continue; ?>
 								<?php endif; ?>
-								<th scope="col" role="columnheader"
-									data-lstab-col="<?php echo esc_attr( (string) $index ); ?>"
-									data-lstab-align="<?php echo esc_attr( isset( $alignments[ $index ] ) ? $alignments[ $index ] : 'start' ); ?>">
+								<?php
+								/**
+								 * Filters the attributes applied to a column heading.
+								 *
+								 * The companion to 'lstab_cell_attributes', and
+								 * needed for the same reason a cell has one: a
+								 * column given a colour of its own is a column
+								 * including the name at the top of it. Without
+								 * this the colour started at the first row and
+								 * the heading sat above it on the table's own
+								 * paper, which reads as a mistake rather than
+								 * as a choice.
+								 *
+								 * @param array  $attributes Attribute map.
+								 * @param string $heading    The heading's text.
+								 * @param int    $col_index  Column index.
+								 * @param array  $source     Source row.
+								 */
+								$lstab_head_attributes = (array) apply_filters(
+									'lstab_heading_attributes',
+									array(
+										'data-lstab-col'   => (string) $index,
+										'data-lstab-align' => isset( $alignments[ $index ] ) ? $alignments[ $index ] : 'start',
+									),
+									(string) $header,
+									(int) $index,
+									$source
+								);
+								?>
+								<th scope="col" role="columnheader"<?php echo self::attributes( $lstab_head_attributes ); // phpcs:ignore WordPress.Security.EscapeOutput -- Escaped in attributes(). ?>>
 									<?php if ( $sortable && $paged ) : ?>
 										<?php
 										/*

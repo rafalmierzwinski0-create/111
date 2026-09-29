@@ -862,7 +862,26 @@ class LSTABP_Rules {
 				// So the "Add a rule" button stops offering what the store
 				// would silently drop on the way in.
 				'maxRules' => self::MAX_RULES,
-			)
+			) + self::fold_words()
+		);
+	}
+
+	/**
+	 * The wording on the button under a folded list.
+	 *
+	 * Two cards use it — the filter columns and the column looks — and both
+	 * draw a line per column, so a fifty-column sheet buries everything under
+	 * them. A method rather than two lines inside the localise call so the
+	 * browser suite can ask for the same strings the page gets: a button drawn
+	 * from wording the test invented would be a test of the test.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function fold_words() {
+		return array(
+			/* translators: 1: how many more are about to be shown, 2: how many are still hidden. */
+			'foldMore' => __( 'Show %1$s more — %2$s still hidden', 'live-sheets-table-pro' ),
+			'foldAll'  => __( 'Show them all', 'live-sheets-table-pro' ),
 		);
 	}
 

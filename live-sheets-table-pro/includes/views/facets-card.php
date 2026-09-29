@@ -139,7 +139,19 @@ $lstabp_total   = count( $rows );
 		<?php // Without this a save from a screen that never showed the card would read as "every filter removed". ?>
 		<input type="hidden" name="_lstabp_facets_present" value="1">
 
-		<ul class="lstabp-facet-picks">
+		<?php
+		/*
+		 * Folded to ten by the script, with a button under it for the next ten.
+		 * A sheet with fifty columns drew fifty of these, and the card below
+		 * them — the one that says what a filter costs — was off the bottom of
+		 * the screen before anybody had read a word of it.
+		 *
+		 * The folding is done by the script rather than by the stylesheet on
+		 * purpose: with JavaScript off the whole list is here, which is the
+		 * only state in which every column can still be ticked.
+		 */
+		?>
+		<ul class="lstabp-facet-picks" data-lstabp-fold="10">
 			<?php foreach ( $headers as $lstabp_index => $lstabp_heading ) : ?>
 				<?php
 				$lstabp_tally  = LSTABP_Facets::tally( $rows, $lstabp_index );

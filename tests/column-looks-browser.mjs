@@ -235,7 +235,14 @@ const adminJs = fs.readFileSync( path.join( repo, 'live-sheets-table-pro/assets/
 const adminCss = fs.readFileSync( path.join( repo, 'live-sheets-table-pro/assets/css/lstabp-admin.css' ), 'utf8' );
 const cardFile = path.join( repo, 'build/column-looks-card.html' );
 
-fs.writeFileSync( cardFile, `<!doctype html><meta charset="utf-8"><style>${ adminCss }</style>${ cardMarkup }<script>${ adminJs }</script>` );
+/*
+ * The table's own stylesheet goes on the card too, because the dashboard
+ * loads it there: the chips that show what a look does are drawn in the
+ * table's classes on purpose, so a chip cannot show one thing and the page
+ * another. Without it here the chips would be measured unstyled and the
+ * check would prove nothing.
+ */
+fs.writeFileSync( cardFile, `<!doctype html><meta charset="utf-8"><style>${ CSS }</style><style>${ adminCss }</style>${ cardMarkup }<script>${ adminJs }</script>` );
 
 const card = await browser.newPage( { viewport: { width: 1100, height: 700 } } );
 const cardErrors = [];
@@ -258,7 +265,11 @@ check(
 	'a column with no look chosen shows no colour fields at all'
 );
 
-await card.selectOption( `${ sessionRow } .lstabp-look-pick`, 'bar' );
+// The chooser is a row of chips now, not a dropdown: each one draws the look
+// it offers, so what is clicked is the thing itself rather than its name.
+const pick = ( row, look ) => card.click( `${ row } .lstabp-look-pick[value="${ look }"]`, { force: true } );
+
+await pick( sessionRow, 'bar' );
 await card.waitForTimeout( 80 );
 
 const asBar = await shown();
@@ -269,7 +280,7 @@ check(
 	JSON.stringify( asBar )
 );
 
-await card.selectOption( `${ sessionRow } .lstabp-look-pick`, 'button' );
+await pick( sessionRow, 'button' );
 await card.waitForTimeout( 80 );
 
 const asButton = await shown();
@@ -306,7 +317,7 @@ check(
 );
 // Set back to ordinary here, rather than assumed: the card was rendered with
 // Booking wearing a button, so leaving it alone would have proved nothing.
-await card.selectOption( '.lstabp-look:has( .lstabp-look-name:text-is( "Booking" ) ) .lstabp-look-pick', '' );
+await pick( '.lstabp-look:has( .lstabp-look-name:text-is( "Booking" ) )', '' );
 await card.waitForTimeout( 80 );
 
 const afterOrdinary = await card.evaluate( () => {
@@ -323,7 +334,206 @@ check(
 	JSON.stringify( afterOrdinary.looks )
 );
 check( Array.isArray( collected.facets ), 'the filter columns travel with it too' );
+
+console.log( '\nThe chooser shows what it is offering' );
+
+/*
+ * The whole reason the dropdown was replaced. A chip has to be the look it
+ * names — an actual badge, an actual bar — or it is a second label saying the
+ * same thing the first one said.
+ */
+const chips = await card.evaluate( () => {
+	const row = [ ...document.querySelectorAll( '.lstabp-look' ) ]
+		.find( ( r ) => r.querySelector( '.lstabp-look-name' ).textContent === 'Seats left' );
+	const face = ( look ) => row.querySelector( `.lstabp-look-pick[value="${ look }"]` )
+		.closest( '.lstabp-look-opt' ).querySelector( '.lstabp-look-face' );
+
+	const bar = face( 'bar' );
+	const badge = face( 'pill' ).querySelector( '.lstabp-pill-face' );
+	const tinted = face( 'tint' );
+	const cta = face( 'button' ).querySelector( '.lstabp-cta-link' );
+	const plain = face( '' );
+
+	return {
+		barWidth: getComputedStyle( bar, '::after' ).width,
+		barColour: getComputedStyle( bar, '::after' ).backgroundColor,
+		badgeRound: getComputedStyle( badge ).borderRadius,
+		badgeBorder: getComputedStyle( badge ).borderTopWidth,
+		tintedBg: getComputedStyle( tinted ).backgroundColor,
+		ctaRound: getComputedStyle( cta ).borderRadius,
+		ctaBg: getComputedStyle( cta ).backgroundColor,
+		plainBg: getComputedStyle( plain ).backgroundColor,
+		heights: [ bar, face( 'pill' ), tinted, face( 'button' ), plain ].map( ( f ) => Math.round( f.getBoundingClientRect().height ) ),
+	};
+} );
+
+check(
+	parseFloat( chips.barWidth ) > 10 && chips.barColour.startsWith( 'rgb(95, 227, 207' ),
+	'the bar chip really draws a bar, in that column\'s colour',
+	`${ chips.barWidth } / ${ chips.barColour }`
+);
+check(
+	parseFloat( chips.badgeRound ) > 20 && chips.badgeBorder === '1px',
+	'the pill chip really is the badge',
+	`${ chips.badgeRound } / ${ chips.badgeBorder }`
+);
+check(
+	chips.tintedBg !== chips.plainBg && chips.tintedBg !== 'rgba(0, 0, 0, 0)',
+	'the whole-column chip really is painted, and the ordinary one is not',
+	`${ chips.tintedBg } vs ${ chips.plainBg }`
+);
+check(
+	parseFloat( chips.ctaRound ) > 20 && chips.ctaBg !== 'rgba(0, 0, 0, 0)',
+	'and the button chip really is a button',
+	`${ chips.ctaRound } / ${ chips.ctaBg }`
+);
+check(
+	new Set( chips.heights ).size === 1,
+	'every chip is the same height, so a row of them can be compared',
+	chips.heights.join( ', ' )
+);
+
+// Moving the colour beside them repaints them: a chip showing teal beside a
+// picker set to crimson is worse than no chip at all.
+// ":text-is()" is Playwright's own, and this runs inside the page.
+const named = `[ ...document.querySelectorAll( '.lstabp-look' ) ].find( ( r ) => r.querySelector( '.lstabp-look-name' ).textContent === 'Seats left' )`;
+
+await card.evaluate( `( () => {
+	const field = ${ named }.querySelector( '.lstabp-look-tint' );
+
+	field.value = '#e11d48';
+	field.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+} )()` );
+await card.waitForTimeout( 80 );
+
+const repainted = await card.evaluate( `( () => {
+	const row = ${ named };
+	const face = ( look ) => row.querySelector( '.lstabp-look-pick[value="' + look + '"]' ).closest( '.lstabp-look-opt' ).querySelector( '.lstabp-look-face' );
+
+	return {
+		bar: getComputedStyle( face( 'bar' ), '::after' ).backgroundColor,
+		badge: getComputedStyle( face( 'pill' ).querySelector( '.lstabp-pill-face' ) ).borderTopColor,
+		tinted: getComputedStyle( face( 'tint' ) ).backgroundColor,
+	};
+} )()` );
+
+check(
+	repainted.bar.startsWith( 'rgb(225, 29, 72' ) && repainted.badge.startsWith( 'rgb(225, 29, 72' ) && repainted.tinted.startsWith( 'rgb(225, 29, 72' ),
+	'and they follow the colour picker as it moves',
+	JSON.stringify( repainted )
+);
+
+// A painted column works out its own readable ink, so a dark colour cannot be
+// chosen with the text left dark on top of it.
+const readable = await card.evaluate( `( () => {
+	const face = ${ named }.querySelector( '.lstabp-look-pick[value="tint"]' ).closest( '.lstabp-look-opt' ).querySelector( '.lstabp-look-face' );
+	const rgb = ( c ) => c.match( /\\d+/g ).slice( 0, 3 ).map( Number );
+	const lum = ( x ) => {
+		const v = rgb( x ).map( ( ch ) => {
+			const s = ch / 255;
+
+			return s <= 0.03928 ? s / 12.92 : Math.pow( ( s + 0.055 ) / 1.055, 2.4 );
+		} );
+
+		return 0.2126 * v[ 0 ] + 0.7152 * v[ 1 ] + 0.0722 * v[ 2 ];
+	};
+	const one = lum( getComputedStyle( face ).backgroundColor );
+	const two = lum( getComputedStyle( face ).color );
+
+	return Math.round( ( ( Math.max( one, two ) + 0.05 ) / ( Math.min( one, two ) + 0.05 ) ) * 100 ) / 100;
+} )()` );
+
+check( readable >= 4.5, 'the ink on a painted column is readable against it', `${ readable } : 1` );
+
 check( cardErrors.length === 0, 'no errors on the card', cardErrors.join( ' | ' ) );
+
+console.log( '\nA long list, ten at a time' );
+
+/*
+ * Twenty-four columns, one of them already set and near the end. A sheet is
+ * allowed fifty, and a card drawing a row per column pushed everything after
+ * it off the bottom of the screen.
+ */
+const longMarkup = fs.readFileSync( path.join( here, 'fixtures/column-looks-long.html' ), 'utf8' );
+const longFile = path.join( repo, 'build/column-looks-long.html' );
+
+/*
+ * What wp_localize_script() puts on the page beside the script, written by the
+ * PHP suite from the plugin's own strings. The button under a folded list is
+ * drawn from these, and a page without them keeps the whole list — which is
+ * the right thing to do and would quietly turn this into no test at all.
+ */
+const localised = fs.readFileSync( path.join( here, 'fixtures/admin-settings.json' ), 'utf8' );
+const pageHead = `<!doctype html><meta charset="utf-8"><style>${ CSS }</style><style>${ adminCss }</style>`;
+const script = `<script>window.lstabpRules = ${ localised };</script><script>${ adminJs }</script>`;
+
+fs.writeFileSync( longFile, pageHead + longMarkup + script );
+
+const longPage = await browser.newPage( { viewport: { width: 1100, height: 700 } } );
+const longErrors = [];
+
+longPage.on( 'pageerror', ( e ) => longErrors.push( e.message ) );
+
+// Without the script the whole list is on the page, which is the only state in
+// which every column can still be reached with JavaScript switched off.
+await longPage.setContent( pageHead + longMarkup );
+await longPage.waitForTimeout( 80 );
+
+/*
+ * Measured as the screen draws it, not as the "hidden" property reports it.
+ * The attribute is one selector weaker than a class, so a row can carry it and
+ * still be on the page — which is exactly what happened the first time.
+ */
+const withoutScript = await longPage.$$eval( '.lstabp-look', ( rows ) => rows.filter( ( r ) => 'none' !== getComputedStyle( r ).display ).length );
+
+check( withoutScript === 24, 'with no script every column is on the page', `${ withoutScript }` );
+
+await longPage.goto( 'file://' + longFile );
+await longPage.waitForTimeout( 200 );
+
+const visible = () => longPage.$$eval( '.lstabp-look', ( rows ) => rows
+	.filter( ( r ) => 'none' !== getComputedStyle( r ).display )
+	.map( ( r ) => r.querySelector( '.lstabp-look-name' ).textContent.trim() ) );
+
+const atFirst = await visible();
+
+/*
+ * Ten, and the twentieth column as well. What is already set is never folded
+ * away: ten rows hiding the one setting somebody came back to change would be
+ * worse than the long list they replaced.
+ */
+check( atFirst.length === 11, 'ten to start with, not twenty-four', atFirst.join( ', ' ) );
+check(
+	atFirst.includes( 'Column 20' ) && atFirst.slice( 0, 10 ).join() === [ ...Array( 10 ) ].map( ( x, i ) => `Column ${ i + 1 }` ).join(),
+	'and the one already set is there too, wherever it sits in the sheet',
+	atFirst.join( ', ' )
+);
+
+const buttonSays = await longPage.textContent( '.lstabp-fold-more .lstab-mini' );
+
+check(
+	/10/.test( buttonSays ) && /13/.test( buttonSays ),
+	'the button says how many come next and how many are left',
+	buttonSays
+);
+
+await longPage.click( '.lstabp-fold-more .lstab-mini' );
+await longPage.waitForTimeout( 80 );
+
+const afterOne = await visible();
+
+check( afterOne.length === 20, 'a click brings the next ten', `${ afterOne.length }` );
+
+await longPage.click( '.lstabp-fold-all' );
+await longPage.waitForTimeout( 80 );
+
+const afterAll = await visible();
+const buttonGone = await longPage.$eval( '.lstabp-fold-more', ( p ) => 'none' === getComputedStyle( p ).display );
+
+check( afterAll.length === 24, 'and "show them all" brings the lot', `${ afterAll.length }` );
+check( buttonGone, 'with the button gone once there is nothing left to show' );
+
+check( longErrors.length === 0, 'no errors on the long card', longErrors.join( ' | ' ) );
 
 check( errors.length === 0, 'no errors in the console', errors.join( ' | ' ) );
 

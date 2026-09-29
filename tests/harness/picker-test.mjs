@@ -526,12 +526,56 @@ check(
 	'With the value it was given'
 );
 
-// Put the source back the way the rest of the suite expects to find it.
-await savedRule.locator( '.lstabp-rule-column' ).selectOption( '' );
+/*
+ * And the bin removes it, which is how removing a rule is meant to be done.
+ * Setting the column back to "remove this rule" still works and is what a
+ * browser with no JavaScript is left with, but nobody looks for a delete at
+ * the top of the list that says what a rule is about.
+ *
+ * Done here rather than in the card suite because only a real screen can show
+ * that the removal survives a save.
+ */
+const beforeBin = await ruleCount();
+
+await savedRule.locator( '.lstabp-rule-drop' ).click();
+await page.waitForTimeout( 200 );
+
+const afterBin = await ruleCount();
+
+check(
+	afterBin === beforeBin - 1,
+	'The bin beside a rule takes its line off the screen',
+	`${ beforeBin } → ${ afterBin }`
+);
+
 await Promise.all( [
 	page.waitForLoadState( 'networkidle' ),
 	page.locator( '.lstab-submit button[type=submit]' ).first().click()
 ] );
+await page.goto( editHref, { waitUntil: 'networkidle' } );
+await page.locator( '[data-lstab-goto="look"]' ).click();
+await page.waitForTimeout( 400 );
+
+const leftOver = await page.locator( '.lstabp-rules .lstabp-rule:not(.is-new) .lstabp-rule-column' ).allInnerTexts();
+
+check(
+	0 === await page.locator( '.lstabp-rules .lstabp-rule:not(.is-new)' ).count(),
+	'And saving makes it stick',
+	JSON.stringify( leftOver )
+);
+
+/*
+ * A sheet may have fifty columns, and both of these cards draw a line per
+ * column. The script folds them to ten with a button for the next ten; the
+ * attribute is what tells it where. This sheet is four columns wide, so what
+ * is checked here is that the two cards still ask for it — the folding itself
+ * is measured on a twenty-four column card in tests/column-looks-browser.mjs.
+ */
+check(
+	'10' === await page.locator( '.lstabp-facet-picks' ).getAttribute( 'data-lstabp-fold' )
+		&& '10' === await page.locator( '.lstabp-looks' ).getAttribute( 'data-lstabp-fold' ),
+	'Both column lists ask to be folded once they get long'
+);
 
 section( '7. Where the add-on is in the sidebar' );
 

@@ -1,120 +1,267 @@
 <div class="lstab-card lstabp-looks-card">
 	<h2 class="lstab-card-title">Column looks</h2>
 	<p class="lstab-help">
-		A colour rule says one value is special. This says what a whole column is: a measurement to be seen at a glance, or a way through to somewhere else.	</p>
+		A colour rule says one value is special. This says what a whole column is: a measurement to be seen at a glance, a set of labels, a column that belongs in a colour of its own, or a way through to somewhere else.	</p>
 
 		<input type="hidden" name="_lstabp_looks_present" value="1">
 
-			<ul class="lstabp-looks">
+			<ul class="lstabp-looks" data-lstabp-fold="10">
 											<li class="lstabp-look" data-lstabp-look="">
 					<span class="lstabp-look-name">Session</span>
 
-					<select class="lstabp-look-pick" name="lstabp_looks[Session][look]">
-						<option value="">Ordinary</option>
-													<option value="bar" >
-								A bar behind the number							</option>
-													<option value="button" >
-								A button, if the cell holds a link							</option>
-											</select>
+										<span class="lstabp-look-picks" role="radiogroup"
+						aria-label="
+						What the Session column looks like						">
+													<label class="lstabp-look-opt is-picked">
+								<input type="radio" class="lstabp-look-pick"
+									name="lstabp_looks[Session][look]"
+									value=""
+									 checked='checked'>
+									<span class="lstabp-look-face">
+		<span class="lstab-cell-value">1 240</span>
+	</span>
+								<span class="lstabp-look-word">Ordinary</span>
+							</label>
+													<label class="lstabp-look-opt">
+								<input type="radio" class="lstabp-look-pick"
+									name="lstabp_looks[Session][look]"
+									value="bar"
+									>
+									<span class="lstabp-look-face lstabp-bar" style="--lstabp-bar:64%;--lstabp-bar-colour:#c7e0f4;">
+		<span class="lstab-cell-value">1 240</span>
+	</span>
+								<span class="lstabp-look-word">A bar behind the number</span>
+							</label>
+													<label class="lstabp-look-opt">
+								<input type="radio" class="lstabp-look-pick"
+									name="lstabp_looks[Session][look]"
+									value="pill"
+									>
+									<span class="lstabp-look-face">
+		<span class="lstabp-pill-face" style="--lstabp-pill-line:#c7e0f4;--lstabp-pill-fill:color-mix(in srgb,#c7e0f4 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#c7e0f4 55%,currentColor);">Open</span>
+	</span>
+								<span class="lstabp-look-word">Every value as a pill</span>
+							</label>
+													<label class="lstabp-look-opt">
+								<input type="radio" class="lstabp-look-pick"
+									name="lstabp_looks[Session][look]"
+									value="tint"
+									>
+									<span class="lstabp-look-face is-tinted" style="background-color:#c7e0f4;color:#114874;--lstab-fg-faint:color-mix(in srgb,#114874 78%,#c7e0f4);--lstab-row-tint:#c7e0f4;">
+		<span class="lstab-cell-value">1 240</span>
+	</span>
+								<span class="lstabp-look-word">The whole column in a colour</span>
+							</label>
+													<label class="lstabp-look-opt">
+								<input type="radio" class="lstabp-look-pick"
+									name="lstabp_looks[Session][look]"
+									value="button"
+									>
+									<span class="lstabp-look-face">
+				<span class="lstab-cell-value"><a class="lstabp-cta-link" style="--lstabp-cta-bg:#c7e0f4;--lstabp-cta-ink:#06100f;">Open</a></span>
+	</span>
+								<span class="lstabp-look-word">A button, if the cell holds a link</span>
+							</label>
+											</span>
 
-										<span class="lstabp-look-colour" data-lstabp-for="bar button">
-						<label>
-							<span class="lstabp-look-colour-name">Colour</span>
-							<input type="color" name="lstabp_looks[Session][tint]"
-								value="#5fe3cf">
-						</label>
-					</span>
+										<span class="lstabp-look-fields">
+						<span class="lstabp-look-colour" data-lstabp-for="bar pill tint button">
+							<label>
+								<span class="lstabp-look-colour-name">Colour</span>
+								<input type="color" class="lstabp-look-tint" name="lstabp_looks[Session][tint]"
+									value="#c7e0f4">
+							</label>
+						</span>
 
-					<span class="lstabp-look-colour" data-lstabp-for="button">
-						<label>
-							<span class="lstabp-look-colour-name">Text</span>
-							<input type="color" name="lstabp_looks[Session][ink]"
-								value="#06100f">
-						</label>
-					</span>
+						<span class="lstabp-look-colour" data-lstabp-for="button">
+							<label>
+								<span class="lstabp-look-colour-name">Text</span>
+								<input type="color" class="lstabp-look-ink" name="lstabp_looks[Session][ink]"
+									value="#06100f">
+							</label>
+						</span>
 
-					<span class="lstabp-look-colour" data-lstabp-for="button">
-						<label>
-							<span class="lstabp-look-colour-name">Says</span>
-							<input type="text" class="lstabp-look-label" name="lstabp_looks[Session][label]"
-								value=""
-								maxlength="40"
-								placeholder="Open">
-						</label>
+						<span class="lstabp-look-colour" data-lstabp-for="button">
+							<label>
+								<span class="lstabp-look-colour-name">Says</span>
+								<input type="text" class="lstabp-look-label" name="lstabp_looks[Session][label]"
+									value=""
+									maxlength="40"
+									placeholder="Open">
+							</label>
+						</span>
 					</span>
 				</li>
 											<li class="lstabp-look is-on" data-lstabp-look="bar">
 					<span class="lstabp-look-name">Seats left</span>
 
-					<select class="lstabp-look-pick" name="lstabp_looks[Seats left][look]">
-						<option value="">Ordinary</option>
-													<option value="bar"  selected='selected'>
-								A bar behind the number							</option>
-													<option value="button" >
-								A button, if the cell holds a link							</option>
-											</select>
+										<span class="lstabp-look-picks" role="radiogroup"
+						aria-label="
+						What the Seats left column looks like						">
+													<label class="lstabp-look-opt">
+								<input type="radio" class="lstabp-look-pick"
+									name="lstabp_looks[Seats left][look]"
+									value=""
+									>
+									<span class="lstabp-look-face">
+		<span class="lstab-cell-value">1 240</span>
+	</span>
+								<span class="lstabp-look-word">Ordinary</span>
+							</label>
+													<label class="lstabp-look-opt is-picked">
+								<input type="radio" class="lstabp-look-pick"
+									name="lstabp_looks[Seats left][look]"
+									value="bar"
+									 checked='checked'>
+									<span class="lstabp-look-face lstabp-bar" style="--lstabp-bar:64%;--lstabp-bar-colour:#5fe3cf;">
+		<span class="lstab-cell-value">1 240</span>
+	</span>
+								<span class="lstabp-look-word">A bar behind the number</span>
+							</label>
+													<label class="lstabp-look-opt">
+								<input type="radio" class="lstabp-look-pick"
+									name="lstabp_looks[Seats left][look]"
+									value="pill"
+									>
+									<span class="lstabp-look-face">
+		<span class="lstabp-pill-face" style="--lstabp-pill-line:#5fe3cf;--lstabp-pill-fill:color-mix(in srgb,#5fe3cf 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#5fe3cf 55%,currentColor);">Open</span>
+	</span>
+								<span class="lstabp-look-word">Every value as a pill</span>
+							</label>
+													<label class="lstabp-look-opt">
+								<input type="radio" class="lstabp-look-pick"
+									name="lstabp_looks[Seats left][look]"
+									value="tint"
+									>
+									<span class="lstabp-look-face is-tinted" style="background-color:#5fe3cf;color:#0a433a;--lstab-fg-faint:color-mix(in srgb,#0a433a 78%,#5fe3cf);--lstab-row-tint:#5fe3cf;">
+		<span class="lstab-cell-value">1 240</span>
+	</span>
+								<span class="lstabp-look-word">The whole column in a colour</span>
+							</label>
+													<label class="lstabp-look-opt">
+								<input type="radio" class="lstabp-look-pick"
+									name="lstabp_looks[Seats left][look]"
+									value="button"
+									>
+									<span class="lstabp-look-face">
+				<span class="lstab-cell-value"><a class="lstabp-cta-link" style="--lstabp-cta-bg:#5fe3cf;--lstabp-cta-ink:#06100f;">Open</a></span>
+	</span>
+								<span class="lstabp-look-word">A button, if the cell holds a link</span>
+							</label>
+											</span>
 
-										<span class="lstabp-look-colour" data-lstabp-for="bar button">
-						<label>
-							<span class="lstabp-look-colour-name">Colour</span>
-							<input type="color" name="lstabp_looks[Seats left][tint]"
-								value="#5fe3cf">
-						</label>
-					</span>
+										<span class="lstabp-look-fields">
+						<span class="lstabp-look-colour" data-lstabp-for="bar pill tint button">
+							<label>
+								<span class="lstabp-look-colour-name">Colour</span>
+								<input type="color" class="lstabp-look-tint" name="lstabp_looks[Seats left][tint]"
+									value="#5fe3cf">
+							</label>
+						</span>
 
-					<span class="lstabp-look-colour" data-lstabp-for="button">
-						<label>
-							<span class="lstabp-look-colour-name">Text</span>
-							<input type="color" name="lstabp_looks[Seats left][ink]"
-								value="#06100f">
-						</label>
-					</span>
+						<span class="lstabp-look-colour" data-lstabp-for="button">
+							<label>
+								<span class="lstabp-look-colour-name">Text</span>
+								<input type="color" class="lstabp-look-ink" name="lstabp_looks[Seats left][ink]"
+									value="#06100f">
+							</label>
+						</span>
 
-					<span class="lstabp-look-colour" data-lstabp-for="button">
-						<label>
-							<span class="lstabp-look-colour-name">Says</span>
-							<input type="text" class="lstabp-look-label" name="lstabp_looks[Seats left][label]"
-								value=""
-								maxlength="40"
-								placeholder="Open">
-						</label>
+						<span class="lstabp-look-colour" data-lstabp-for="button">
+							<label>
+								<span class="lstabp-look-colour-name">Says</span>
+								<input type="text" class="lstabp-look-label" name="lstabp_looks[Seats left][label]"
+									value=""
+									maxlength="40"
+									placeholder="Open">
+							</label>
+						</span>
 					</span>
 				</li>
 											<li class="lstabp-look is-on" data-lstabp-look="button">
 					<span class="lstabp-look-name">Booking</span>
 
-					<select class="lstabp-look-pick" name="lstabp_looks[Booking][look]">
-						<option value="">Ordinary</option>
-													<option value="bar" >
-								A bar behind the number							</option>
-													<option value="button"  selected='selected'>
-								A button, if the cell holds a link							</option>
-											</select>
+										<span class="lstabp-look-picks" role="radiogroup"
+						aria-label="
+						What the Booking column looks like						">
+													<label class="lstabp-look-opt">
+								<input type="radio" class="lstabp-look-pick"
+									name="lstabp_looks[Booking][look]"
+									value=""
+									>
+									<span class="lstabp-look-face">
+		<span class="lstab-cell-value">1 240</span>
+	</span>
+								<span class="lstabp-look-word">Ordinary</span>
+							</label>
+													<label class="lstabp-look-opt">
+								<input type="radio" class="lstabp-look-pick"
+									name="lstabp_looks[Booking][look]"
+									value="bar"
+									>
+									<span class="lstabp-look-face lstabp-bar" style="--lstabp-bar:64%;--lstabp-bar-colour:#123456;">
+		<span class="lstab-cell-value">1 240</span>
+	</span>
+								<span class="lstabp-look-word">A bar behind the number</span>
+							</label>
+													<label class="lstabp-look-opt">
+								<input type="radio" class="lstabp-look-pick"
+									name="lstabp_looks[Booking][look]"
+									value="pill"
+									>
+									<span class="lstabp-look-face">
+		<span class="lstabp-pill-face" style="--lstabp-pill-line:#123456;--lstabp-pill-fill:color-mix(in srgb,#123456 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#123456 55%,currentColor);">Open</span>
+	</span>
+								<span class="lstabp-look-word">Every value as a pill</span>
+							</label>
+													<label class="lstabp-look-opt">
+								<input type="radio" class="lstabp-look-pick"
+									name="lstabp_looks[Booking][look]"
+									value="tint"
+									>
+									<span class="lstabp-look-face is-tinted" style="background-color:#123456;color:#ffffff;--lstab-fg-faint:color-mix(in srgb,#ffffff 78%,#123456);--lstab-row-tint:#123456;">
+		<span class="lstab-cell-value">1 240</span>
+	</span>
+								<span class="lstabp-look-word">The whole column in a colour</span>
+							</label>
+													<label class="lstabp-look-opt is-picked">
+								<input type="radio" class="lstabp-look-pick"
+									name="lstabp_looks[Booking][look]"
+									value="button"
+									 checked='checked'>
+									<span class="lstabp-look-face">
+				<span class="lstab-cell-value"><a class="lstabp-cta-link" style="--lstabp-cta-bg:#123456;--lstabp-cta-ink:#ffffff;">Book a seat</a></span>
+	</span>
+								<span class="lstabp-look-word">A button, if the cell holds a link</span>
+							</label>
+											</span>
 
-										<span class="lstabp-look-colour" data-lstabp-for="bar button">
-						<label>
-							<span class="lstabp-look-colour-name">Colour</span>
-							<input type="color" name="lstabp_looks[Booking][tint]"
-								value="#123456">
-						</label>
-					</span>
+										<span class="lstabp-look-fields">
+						<span class="lstabp-look-colour" data-lstabp-for="bar pill tint button">
+							<label>
+								<span class="lstabp-look-colour-name">Colour</span>
+								<input type="color" class="lstabp-look-tint" name="lstabp_looks[Booking][tint]"
+									value="#123456">
+							</label>
+						</span>
 
-					<span class="lstabp-look-colour" data-lstabp-for="button">
-						<label>
-							<span class="lstabp-look-colour-name">Text</span>
-							<input type="color" name="lstabp_looks[Booking][ink]"
-								value="#ffffff">
-						</label>
-					</span>
+						<span class="lstabp-look-colour" data-lstabp-for="button">
+							<label>
+								<span class="lstabp-look-colour-name">Text</span>
+								<input type="color" class="lstabp-look-ink" name="lstabp_looks[Booking][ink]"
+									value="#ffffff">
+							</label>
+						</span>
 
-					<span class="lstabp-look-colour" data-lstabp-for="button">
-						<label>
-							<span class="lstabp-look-colour-name">Says</span>
-							<input type="text" class="lstabp-look-label" name="lstabp_looks[Booking][label]"
-								value="Book a seat"
-								maxlength="40"
-								placeholder="Open">
-						</label>
+						<span class="lstabp-look-colour" data-lstabp-for="button">
+							<label>
+								<span class="lstabp-look-colour-name">Says</span>
+								<input type="text" class="lstabp-look-label" name="lstabp_looks[Booking][label]"
+									value="Book a seat"
+									maxlength="40"
+									placeholder="Open">
+							</label>
+						</span>
 					</span>
 				</li>
 					</ul>
@@ -122,6 +269,8 @@
 		<ul class="lstabp-rules-how">
 			<li>
 				<svg data-icon="layers"></svg>				A bar is as long as its number is large, measured against the largest in the column. A column that never goes below zero is measured from zero, so numbers that are all much the same do not look wildly different.			</li>
+			<li>
+				<svg data-icon="brush"></svg>				A pill and a whole-column colour dress every row the same, whatever the value says — that is the difference from a colour rule, which dresses only the rows that match it. Where both have something to say about the same cell the rule wins, so a rule can still single one row out of a column that already has a look.			</li>
 			<li>
 				<svg data-icon="link"></svg>				Only a cell holding a web address becomes a button. A note or a blank in the same column is left as it is, because a button that goes nowhere is worse than the note it replaced.			</li>
 		</ul>

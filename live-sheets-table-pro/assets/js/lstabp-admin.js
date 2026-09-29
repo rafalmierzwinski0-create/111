@@ -183,6 +183,21 @@
 	}
 
 	/**
+	 * The three properties a badge is made of.
+	 *
+	 * Written once because two screens draw the same badge: the swatch beside
+	 * a colour rule, and the chip that offers a whole column of them.
+	 *
+	 * @param {string} hex The badge's colour.
+	 * @return {string} Declarations.
+	 */
+	function pillCss( hex ) {
+		return '--lstabp-pill-line:' + hex + ';'
+			+ '--lstabp-pill-fill:color-mix(in srgb,' + hex + ' 18%,transparent);'
+			+ '--lstabp-pill-ink:color-mix(in srgb,' + hex + ' 55%,currentColor);';
+	}
+
+	/**
 	 * The CSS one chosen look is made of.
 	 *
 	 * @param {string} style A hex colour, an effect's name, or 'custom'.
@@ -224,9 +239,7 @@
 		if ( where && 'pill' === where.value ) {
 			// The same three properties the server writes; the shape itself
 			// comes from the class the swatch is given below.
-			return '--lstabp-pill-line:' + style + ';'
-				+ '--lstabp-pill-fill:color-mix(in srgb,' + style + ' 18%,transparent);'
-				+ '--lstabp-pill-ink:color-mix(in srgb,' + style + ' 55%,currentColor);';
+			return pillCss( style );
 		}
 
 		return 'background-color:' + style + ';color:' + ink( style ) + ';';
@@ -332,6 +345,74 @@
 
 		row.dataset.lstabpLook = pick.value;
 		row.classList.toggle( 'is-on', '' !== pick.value );
+
+		Array.prototype.forEach.call( row.querySelectorAll( '.lstabp-look-opt' ), function ( option ) {
+			var radio = option.querySelector( '.lstabp-look-pick' );
+
+			option.classList.toggle( 'is-picked', !! radio && radio.checked );
+		} );
+	}
+
+	/**
+	 * Repaint one column's chips in the colours it is now wearing.
+	 *
+	 * The chips are the whole point of the card: they say what a look does by
+	 * doing it. A chip drawn once at page load and left there would stop being
+	 * true the moment somebody moved the colour picker beside it — which is
+	 * the one moment they are looking at it.
+	 *
+	 * @param {Element} row One column's row.
+	 * @return {void}
+	 */
+	function paintLook( row ) {
+		var value = function ( selector, fallback ) {
+			var field = row.querySelector( selector );
+
+			return field && field.value ? field.value : fallback;
+		};
+
+		var tint = value( '.lstabp-look-tint', '#c7e0f4' );
+		// Not "ink": that is the function above, which works out a readable
+		// text colour for a given background, and the whole-column chip needs
+		// it right here.
+		var chosenInk = value( '.lstabp-look-ink', '#06100f' );
+		var says = value( '.lstabp-look-label', '' ).trim();
+
+		Array.prototype.forEach.call( row.querySelectorAll( '.lstabp-look-opt' ), function ( option ) {
+			var radio = option.querySelector( '.lstabp-look-pick' );
+			var face = option.querySelector( '.lstabp-look-face' );
+
+			if ( ! radio || ! face ) {
+				return;
+			}
+
+			// The same three shapes the server draws, from the same colours.
+			if ( 'bar' === radio.value ) {
+				face.style.cssText = '--lstabp-bar:64%;--lstabp-bar-colour:' + tint + ';';
+			} else if ( 'pill' === radio.value ) {
+				var badge = face.querySelector( '.lstabp-pill-face' );
+
+				if ( badge ) {
+					badge.style.cssText = pillCss( tint );
+				}
+			} else if ( 'tint' === radio.value ) {
+				face.style.cssText = 'background-color:' + tint + ';color:' + ink( tint ) + ';';
+			} else if ( 'button' === radio.value ) {
+				var cta = face.querySelector( '.lstabp-cta-link' );
+
+				if ( cta ) {
+					// What the server drew is the fallback, kept the first
+					// time through: it is already translated, and this script
+					// has no dictionary of its own.
+					if ( undefined === cta.dataset.lstabpSays ) {
+						cta.dataset.lstabpSays = cta.textContent.trim();
+					}
+
+					cta.style.cssText = '--lstabp-cta-bg:' + tint + ';--lstabp-cta-ink:' + chosenInk + ';';
+					cta.textContent = says || cta.dataset.lstabpSays;
+				}
+			}
+		} );
 	}
 
 	/**
@@ -347,7 +428,7 @@
 		var looks = {};
 
 		Array.prototype.forEach.call( document.querySelectorAll( '.lstabp-look' ), function ( row ) {
-			var pick = row.querySelector( '.lstabp-look-pick' );
+			var pick = row.querySelector( '.lstabp-look-pick:checked' );
 
 			if ( ! pick || ! pick.value ) {
 				return;
@@ -388,6 +469,118 @@
 				return box.value;
 			}
 		);
+	}
+
+	/**
+	 * Show a long list ten at a time, with a button for the next ten.
+	 *
+	 * A sheet is allowed fifty columns, and a card that draws one row per
+	 * column pushed everything after it off the bottom of the screen. Folding
+	 * is done here rather than in the stylesheet on purpose: with JavaScript
+	 * off the whole list is on the page, which is the only state in which
+	 * every column can still be reached.
+	 *
+	 * What is already chosen is never folded away. Ten rows that hide the one
+	 * setting somebody came back to change would be worse than the long list.
+	 *
+	 * @param {Element}  list  The list to fold.
+	 * @param {Function} isOn  Says whether one item is already chosen.
+	 * @param {Object}   words The button's wording, from the server.
+	 * @return {void}
+	 */
+	function foldList( list, isOn, words ) {
+		var step = Number( list.dataset.lstabpFold || 0 );
+		var items = Array.prototype.filter.call( list.children, function ( item ) {
+			return 'LI' === item.tagName;
+		} );
+
+		/*
+		 * No wording, no folding. A button with nothing written on it is a
+		 * button nobody can see, and it would be hiding rows behind itself —
+		 * so a page that never got the strings keeps the whole list instead.
+		 */
+		if ( ! step || items.length <= step || ! words.more || ! words.all ) {
+			return;
+		}
+
+		var shown = step;
+		var more = document.createElement( 'p' );
+		more.className = 'lstabp-fold-more';
+
+		var next = document.createElement( 'button' );
+		next.type = 'button';
+		next.className = 'lstab-mini';
+
+		var all = document.createElement( 'button' );
+		all.type = 'button';
+		all.className = 'lstabp-fold-all';
+		all.textContent = words.all;
+
+		more.appendChild( next );
+		more.appendChild( all );
+		list.parentNode.insertBefore( more, list.nextSibling );
+
+		/**
+		 * Hide everything past the budget, and say how much is left.
+		 *
+		 * @return {void}
+		 */
+		function apply() {
+			var left = shown;
+			var hidden = 0;
+
+			items.forEach( function ( item ) {
+				var chosen = isOn( item );
+
+				if ( chosen || left > 0 ) {
+					item.hidden = false;
+
+					if ( left > 0 ) {
+						left--;
+					}
+
+					return;
+				}
+
+				item.hidden = true;
+				hidden++;
+			} );
+
+			more.hidden = 0 === hidden;
+			next.textContent = words.more.replace( '%1$s', String( Math.min( step, hidden ) ) ).replace( '%2$s', String( hidden ) );
+		}
+
+		next.addEventListener( 'click', function () {
+			shown += step;
+			apply();
+			// The first row that was hidden a moment ago, so the eye lands
+			// where the button was pointing rather than back at the top.
+			var landed = items.filter( function ( item ) {
+				return ! item.hidden;
+			} )[ shown - step ];
+
+			if ( landed ) {
+				var focusable = landed.querySelector( 'input, select, button' );
+
+				if ( focusable ) {
+					focusable.focus( { preventScroll: true } );
+				}
+			}
+		} );
+
+		all.addEventListener( 'click', function () {
+			shown = items.length;
+			apply();
+		} );
+
+		/*
+		 * Ticking the last visible column would otherwise leave the count in
+		 * the button stale, and a column set and then folded away would
+		 * vanish mid-edit.
+		 */
+		list.addEventListener( 'change', apply );
+
+		apply();
 	}
 
 	function init() {
@@ -435,16 +628,67 @@
 				}
 			} );
 
+			/*
+			 * A colour moving repaints the chips beside it, so the chip that
+			 * says "a pill" is wearing the colour it is about to give the
+			 * column. Bound to input as well as change: a colour picker fires
+			 * input while it is being dragged and change only when it closes.
+			 */
+			var repaint = function ( event ) {
+				var row = event.target.closest ? event.target.closest( '.lstabp-look' ) : null;
+
+				if ( row ) {
+					paintLook( row );
+				}
+			};
+
+			looks.addEventListener( 'input', repaint );
+			looks.addEventListener( 'change', repaint );
+
 			// Typing a button's words redraws as they are typed; the rest of
 			// the card only ever changes on a choice being made.
 			looks.addEventListener( 'input', redraw );
 			looks.addEventListener( 'change', redraw );
+
+			var lookList = looks.querySelector( '.lstabp-looks' );
+
+			if ( lookList ) {
+				foldList(
+					lookList,
+					function ( item ) {
+						/*
+						 * Read off the control rather than off the "is-on"
+						 * class: the class is set by another listener on the
+						 * same event, and which of the two runs first is not
+						 * something to depend on.
+						 */
+						var picked = item.querySelector( '.lstabp-look-pick:checked' );
+
+						return !! picked && '' !== picked.value;
+					},
+					{ more: settings.foldMore || '', all: settings.foldAll || '' }
+				);
+			}
 		}
 
 		var facets = document.querySelector( '.lstabp-facets-card' );
 
 		if ( facets ) {
 			facets.addEventListener( 'change', redraw );
+
+			var facetList = facets.querySelector( '.lstabp-facet-picks' );
+
+			if ( facetList ) {
+				foldList(
+					facetList,
+					function ( item ) {
+						var box = item.querySelector( 'input[type="checkbox"]' );
+
+						return !! box && box.checked;
+					},
+					{ more: settings.foldMore || '', all: settings.foldAll || '' }
+				);
+			}
 		}
 
 		var card = document.querySelector( '.lstabp-rules-card' );
@@ -483,6 +727,47 @@
 						line.classList.remove( 'is-new' );
 					}
 				}
+			} );
+
+			/*
+			 * The bin. It takes the line off the page and leaves the saving to
+			 * the form's own button, so a rule dropped by accident comes back
+			 * by leaving the screen without saving — which is what somebody
+			 * who has just deleted the wrong thing reaches for.
+			 *
+			 * Nothing is renumbered. The store reads the lines in the order
+			 * they arrive and numbers them itself, so a gap in the middle of
+			 * the field names is not a gap in the saved rules.
+			 */
+			card.addEventListener( 'click', function ( event ) {
+				var bin = event.target.closest ? event.target.closest( '.lstabp-rule-drop' ) : null;
+
+				if ( ! bin ) {
+					return;
+				}
+
+				var line = bin.closest( '.lstabp-rule' );
+
+				if ( ! line ) {
+					return;
+				}
+
+				var neighbour = line.nextElementSibling || line.previousElementSibling;
+
+				line.remove();
+
+				// Somewhere to be after the line under the pointer disappears,
+				// or the focus falls back to the document and a keyboard is
+				// left at the top of the page.
+				var land = neighbour ? neighbour.querySelector( '.lstabp-rule-column' ) : null;
+
+				( land || bin.ownerDocument.getElementById( 'lstabp-add-rule' ) || document.body ).focus();
+
+				if ( window.lstabpRulesRoom ) {
+					window.lstabpRulesRoom();
+				}
+
+				redraw();
 			} );
 
 			/*
@@ -544,6 +829,9 @@
 			};
 
 			checkRoom();
+
+			// Reachable from the bin above, which is bound before this runs.
+			window.lstabpRulesRoom = checkRoom;
 
 			addButton.addEventListener( 'click', function () {
 				// One past the highest number on the page, so a line added

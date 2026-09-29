@@ -265,6 +265,7 @@ forking the free plugin. The suite exercises these by simulating Pro.
 | `lstab_customizer_colors` / `lstab_customizer_metrics` | Add or remove editable tokens |
 | `lstab_shortcode_atts` | Register a shortcode attribute, which then reaches the renderer |
 | `lstab_cell_attributes` | Add attributes to a cell |
+| `lstab_heading_attributes` | Add attributes to a column heading — colouring a whole column |
 | `lstab_render_rows` | Filter the rows rendered — pagination |
 | `lstab_fetch_url` / `lstab_fetch_args` | Route fetches elsewhere — private sheets |
 | `lstab_refresh_on_view` | Return false to never check a stale table while a visitor waits |

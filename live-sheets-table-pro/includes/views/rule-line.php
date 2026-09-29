@@ -174,5 +174,27 @@ defined( 'ABSPATH' ) || exit;
 					<span class="lstabp-swatch<?php echo in_array( $lstabp_rule['scope'], array( 'pill', 'dot' ), true ) ? ' lstabp-' . esc_attr( $lstabp_rule['scope'] ) . '-face' : ''; ?>" style="<?php echo esc_attr( LSTABP_Rules::css_for( $lstabp_style, $lstabp_rule['scope'] ) ); ?>">
 						<?php esc_html_e( 'Abc', 'live-sheets-table-pro' ); ?>
 					</span>
+
+					<?php
+					/*
+					 * Removing a rule used to mean finding "— remove this rule —"
+					 * at the top of the column list, which is the one place
+					 * nobody looks for a delete: the list is where you say what
+					 * a rule is about. That option is still there, because it
+					 * is what works with JavaScript switched off, but the
+					 * button is the way it is meant to be done.
+					 *
+					 * It takes the line off the page and nothing else. Saving
+					 * is still saving — the same button at the foot of the
+					 * form, so a line dropped by accident is undone by leaving
+					 * without saving.
+					 */
+					?>
+					<button type="button" class="lstabp-rule-drop"
+						title="<?php esc_attr_e( 'Remove this rule', 'live-sheets-table-pro' ); ?>"
+						<?php disabled( $lstabp_waiting ); ?>>
+						<?php echo LSTAB_Icons::icon( 'trash' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+						<span class="screen-reader-text"><?php esc_html_e( 'Remove this rule', 'live-sheets-table-pro' ); ?></span>
+					</button>
 					</span>
 			</li>
