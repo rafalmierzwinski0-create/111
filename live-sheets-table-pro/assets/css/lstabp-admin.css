@@ -435,84 +435,154 @@
 
 /* ---------------------------------------------------------------- column looks */
 
+/* ------------------------------------------------------- column looks */
+
+/*
+ * A list of columns, one line each, closed. The line has to be readable
+ * without being opened: the name on the left, and on the right what that
+ * column looks like now — drawn small, and named beside it.
+ *
+ * The first version put all five choices on every line. Twenty columns meant
+ * a hundred little pictures, the same five over and over, and the names — the
+ * only thing that differs down the card — were the quietest marks on it.
+ */
 .lstabp-looks {
 	margin: 0 0 1em;
 	padding: 0;
 	list-style: none;
-	display: grid;
-	gap: 6px;
-}
-
-/*
- * Name on the left, the looks on offer beside it, the fields for whichever
- * one is chosen under them. The name gets a column of its own rather than
- * flowing with the rest, so a sheet whose headings differ wildly in length
- * still has its chips lined up down the card.
- */
-.lstabp-look {
-	display: grid;
-	grid-template-columns: minmax( 10ch, 16ch ) 1fr;
-	align-items: start;
-	gap: 6px 12px;
-	padding: 9px 10px;
 	border: 1px solid #dcdcde;
-	border-radius: 6px;
+	border-radius: 8px;
+	overflow: hidden;
 	background: #fff;
 }
 
+.lstabp-look + .lstabp-look {
+	border-top: 1px solid #f0f0f1;
+}
+
+/* A column with a look on it is worth finding again at a glance. */
 .lstabp-look.is-on {
-	border-color: #9ec8bf;
+	background: #f7fbfa;
 	box-shadow: inset 3px 0 0 #2f7d6e;
 }
 
+.lstabp-look-box {
+	margin: 0;
+}
+
+.lstabp-look-head {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 9px 12px;
+	cursor: pointer;
+	list-style: none;
+	/* Safari draws its own marker through ::-webkit-details-marker. */
+	user-select: none;
+}
+
+.lstabp-look-head::-webkit-details-marker {
+	display: none;
+}
+
+.lstabp-look-head:hover {
+	background: #f6f7f7;
+}
+
+.lstabp-look-head:focus-visible {
+	outline: 2px solid #2271b1;
+	outline-offset: -2px;
+}
+
 .lstabp-look-name {
+	flex: 1 1 auto;
+	min-width: 0;
 	font-weight: 600;
 	overflow-wrap: anywhere;
-	padding-top: 6px;
+}
+
+/* What the column looks like now: the thing, then the word for it. */
+.lstabp-look-now {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex: 0 0 auto;
+}
+
+.lstabp-look-now-name {
+	color: #50575e;
+	font-size: 12px;
+}
+
+.lstabp-look.is-on .lstabp-look-now-name {
+	color: #1d2327;
+	font-weight: 600;
+}
+
+/* Says what the line does, rather than leaving a bare triangle to guess at. */
+.lstabp-look-more {
+	flex: 0 0 auto;
+	min-width: 5.5em;
+	text-align: right;
+	color: #2271b1;
+	font-size: 12px;
+}
+
+.lstabp-look-box[ open ] .lstabp-look-more {
+	color: #646970;
+}
+
+.lstabp-look-box[ open ] .lstabp-look-head {
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.lstabp-look-body {
+	padding: 12px;
+	background: #fbfcfc;
 }
 
 /*
- * The chips. Each one is the look itself with its name underneath, so the
- * choice is made by recognising it rather than by reading four words and
- * imagining what they draw.
+ * The five choices, side by side, and only on the line being worked on.
+ * Each one is the look itself with its name underneath, so the choice is made
+ * by recognising it rather than by reading four words and imagining what they
+ * draw.
  */
 .lstabp-look-picks {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 6px;
+	gap: 8px;
 }
 
 .lstabp-look-opt {
 	display: grid;
 	justify-items: center;
-	gap: 3px;
+	align-content: start;
+	gap: 5px;
 	/*
-	 * Held between two widths rather than left to the words. The names differ
-	 * in length by a factor of four, and chips sized by their labels came out
-	 * as five different rectangles — which is the one thing a row of examples
-	 * must not be, because the eye compares the boxes before it reads them.
+	 * Held to one width rather than left to the words. The names differ in
+	 * length by a factor of four, and chips sized by their labels came out as
+	 * five different rectangles — which a row of examples must not be, because
+	 * the eye compares the boxes before it reads them.
 	 */
-	width: 118px;
-	padding: 6px 8px 5px;
+	width: 124px;
+	padding: 8px;
 	border: 1px solid #dcdcde;
-	border-radius: 7px;
-	background: #fbfcfc;
+	border-radius: 8px;
+	background: #fff;
 	cursor: pointer;
-	transition: border-color 0.12s ease, background-color 0.12s ease;
+	transition: border-color 0.12s ease, box-shadow 0.12s ease;
 }
 
 .lstabp-look-opt:hover {
 	border-color: #9ec8bf;
-	background: #fff;
 }
 
 .lstabp-look-opt.is-picked {
 	border-color: #2f7d6e;
-	background: #fff;
 	box-shadow: 0 0 0 1px #2f7d6e;
 }
 
-/* The radio itself is off screen: the chip is the control. */
+/* The chip is the control; the radio itself is off screen. */
 .lstabp-look-opt input[ type="radio" ] {
 	position: absolute;
 	width: 1px;
@@ -531,28 +601,32 @@
 }
 
 /*
- * The miniature. Sized rather than padded so every chip is the same height
- * whatever shape it holds — a row of chips that jump about as one is chosen
- * is a row nobody can compare.
+ * The miniature. A fixed height, not a minimum: a badge and a button carry
+ * padding of their own and came out taller than the plain number beside them,
+ * which is enough to make a row of examples look like a row of different
+ * things.
  */
 .lstabp-look-face {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	width: 100%;
-	/*
-	 * Fixed, not a minimum. A badge and a button carry padding of their own and
-	 * came out seven pixels taller than the plain number beside them, which is
-	 * enough to make a row of examples look like a row of different things.
-	 */
-	height: 34px;
+	height: 30px;
 	padding: 2px 6px;
 	border-radius: 4px;
+	background: #f6f7f7;
+	color: #1d2327;
 	font-size: 12px;
 	font-variant-numeric: tabular-nums;
 	line-height: 1.4;
-	color: #1d2327;
 	box-sizing: border-box;
+}
+
+/* In the closed line it is a stamp beside the name, not a panel. */
+.lstabp-look-now .lstabp-look-face {
+	width: 86px;
+	height: 24px;
+	font-size: 11px;
 }
 
 /* A painted column fills its chip, which is the whole point of it. */
@@ -573,11 +647,16 @@
 }
 
 .lstabp-look-fields {
-	grid-column: 2;
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 4px 14px;
+	gap: 6px 16px;
+	margin-top: 10px;
+}
+
+/* Nothing chosen, nothing to set. */
+.lstabp-look:not( .is-on ) .lstabp-look-fields {
+	display: none;
 }
 
 /* Only the fields the chosen look has any use for. A bar has no words of its
@@ -592,25 +671,6 @@
 .lstabp-look[ data-lstabp-look="tint" ] .lstabp-look-colour[ data-lstabp-for~="tint" ],
 .lstabp-look[ data-lstabp-look="button" ] .lstabp-look-colour[ data-lstabp-for~="button" ] {
 	display: inline-flex;
-}
-
-/* Nothing chosen, nothing to set: the row is one line tall until it is. */
-.lstabp-look:not( .is-on ) .lstabp-look-fields {
-	display: none;
-}
-
-@media ( max-width: 782px ) {
-	.lstabp-look {
-		grid-template-columns: 1fr;
-	}
-
-	.lstabp-look-name {
-		padding-top: 0;
-	}
-
-	.lstabp-look-fields {
-		grid-column: 1;
-	}
 }
 
 .lstabp-look-colour label {
@@ -638,9 +698,17 @@
 	width: 12ch;
 }
 
+@media ( max-width: 782px ) {
+	.lstabp-look-now-name,
+	.lstabp-look-more {
+		display: none;
+	}
+}
+
 .lstabp-looks-card.is-waiting .lstabp-looks {
 	display: none;
 }
+
 
 /* ------------------------------------------ the bin beside a colour rule */
 

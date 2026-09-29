@@ -168,6 +168,12 @@ Tak. Wszystko z arkusza jest escapowane przy wyjściu, więc komórka zawierają
 
 Pełna historia wydań znajduje się w pliku readme.txt.
 
+= 3.32.0 =
+* Poprawka (Pro): szablon Karty nie przyjmował kolorów nagłówka. Zapisywał je jako własne właściwości, a próbniki kolorów ustawiają zmienne, więc wybrany kolor nie miał czym trafić na stronę. Teraz jedno i drugie to zmienne, a próbniki działają na Kartach tak samo jak wszędzie.
+* Poprawka (Pro): szablon Paski wyglądał dokładnie jak Czysty. Pasek naprawdę tam był, w szarości oddalonej o procent od bieli — 1,06 do 1 względem papieru, czego oko nie rozróżnia. Teraz to 1,149, i w jasnym, i w ciemnym.
+* Poprawka (Pro): szablon Szkło był ciemną płytą, a nie szkłem. Biały napis potrzebuje ciemnego podłoża, a nieprzezroczysta zasłona była najprostszym sposobem, żeby je mieć — było czytelnie i nie było widać przez nią nic. Ciemność bierze się teraz z samego tła, które jest mnożone, a nie zakrywane, więc zdjęcie zostaje zdjęciem, tylko ciemniejszym. Najgorsze tło, na jakie może trafić biały napis, to biel, i nawet ona wychodzi 5,38 do 1.
+* Nowość: „lstab_heading_attributes”, odpowiednik „lstab_cell_attributes”, żeby dodatek mógł ubrać nazwę nad kolumną, a nie tylko komórki pod nią.
+
 = 3.31.0 =
 * Nowość (Pro): cztery szablony całej tabeli — Karty, Terminal, Szkło i Kontrast — obok Nocnego i Redakcyjnego. Karty dają każdemu wierszowi osobną kartę, a między nimi widać stronę; Terminal to pismo maszynowe i cienkie miętowe linie na prawie czarnym tle; Szkło to matowy panel, przez który widać zdjęcie albo gradient pod spodem; Kontrast to pełny pasek nagłówków nad spokojną tabelą i mocniejsza pierwsza kolumna. Pro ma teraz sześć szablonów, a wersja darmowa dalej swoje trzy.
 * Nowość: „Linie” to osobne ustawienie, obok „Wysokości wiersza”, działające na każdym szablonie: pełna siatka, tylko linie między wierszami albo nic. To ustawienie, a nie szablon, więc działa tak samo na wszystkich dziewięciu — łącznie ze zdjęciem siatki z szablonu Ramki, który jako jedyny przychodzi z nią z pudełka.

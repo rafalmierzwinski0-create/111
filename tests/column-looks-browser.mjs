@@ -251,23 +251,47 @@ card.on( 'pageerror', ( e ) => cardErrors.push( e.message ) );
 await card.goto( 'file://' + cardFile );
 await card.waitForTimeout( 200 );
 
-const shown = async () => card.evaluate( () => {
-	const row = [ ...document.querySelectorAll( '.lstabp-look' ) ].find( ( r ) => r.querySelector( '.lstabp-look-name' ).textContent === 'Session' );
-
-	return [ ...row.querySelectorAll( '.lstabp-look-colour' ) ]
-		.map( ( f ) => ( { forLook: f.dataset.lstabpFor, seen: getComputedStyle( f ).display !== 'none' } ) );
-} );
-
 const sessionRow = '.lstabp-look:has( .lstabp-look-name:text-is( "Session" ) )';
+
+/*
+ * The chooser is a row of chips now, not a dropdown: each one draws the look it
+ * offers, so what is clicked is the thing itself rather than its name. It also
+ * lives inside the line, which stays closed until somebody wants to change it —
+ * so opening the line is part of choosing, here as on the real screen.
+ */
+const open = async ( row ) => {
+	if ( ! await card.locator( `${ row } .lstabp-look-box[open]` ).count() ) {
+		await card.click( `${ row } .lstabp-look-head` );
+		await card.waitForTimeout( 60 );
+	}
+};
+
+const pick = async ( row, look ) => {
+	await open( row );
+	await card.click( `${ row } .lstabp-look-pick[value="${ look }"]`, { force: true } );
+};
+
+/*
+ * Opened first, always. A closed line hides everything inside it, so a check
+ * for "no colour fields showing" would pass on a line nobody had opened and
+ * prove nothing at all.
+ */
+const shown = async () => {
+	await open( sessionRow );
+
+	return card.evaluate( () => {
+		const row = [ ...document.querySelectorAll( '.lstabp-look' ) ]
+			.find( ( r ) => r.querySelector( '.lstabp-look-name' ).textContent === 'Session' );
+
+		return [ ...row.querySelectorAll( '.lstabp-look-colour' ) ]
+			.map( ( f ) => ( { forLook: f.dataset.lstabpFor, seen: getComputedStyle( f ).display !== 'none' } ) );
+	} );
+};
 
 check(
 	( await shown() ).every( ( f ) => ! f.seen ),
 	'a column with no look chosen shows no colour fields at all'
 );
-
-// The chooser is a row of chips now, not a dropdown: each one draws the look
-// it offers, so what is clicked is the thing itself rather than its name.
-const pick = ( row, look ) => card.click( `${ row } .lstabp-look-pick[value="${ look }"]`, { force: true } );
 
 await pick( sessionRow, 'bar' );
 await card.waitForTimeout( 80 );
@@ -334,6 +358,89 @@ check(
 	JSON.stringify( afterOrdinary.looks )
 );
 check( Array.isArray( collected.facets ), 'the filter columns travel with it too' );
+
+console.log( '\nThe closed line says what the column is' );
+
+/*
+ * The whole point of the rewrite. A card of twenty columns is read closed —
+ * name, and what that column looks like now. A line that still showed the old
+ * look after a choice was made would be worse than a line showing nothing,
+ * because it is read without being opened.
+ */
+const line = () => card.evaluate( () => {
+	const row = [ ...document.querySelectorAll( '.lstabp-look' ) ]
+		.find( ( r ) => r.querySelector( '.lstabp-look-name' ).textContent === 'Session' );
+	const now = row.querySelector( '.lstabp-look-now' );
+
+	const face = now.querySelector( '.lstabp-look-face' );
+
+	return {
+		says: now.querySelector( '.lstabp-look-now-name' ).textContent.trim(),
+		draws: face ? face.className : '(nothing drawn)',
+		open: !! row.querySelector( '.lstabp-look-box[open]' ),
+	};
+} );
+
+await pick( sessionRow, 'bar' );
+await card.waitForTimeout( 80 );
+
+const asBarLine = await line();
+
+check(
+	/bar|słupek/i.test( asBarLine.says ) && asBarLine.draws.includes( 'lstabp-bar' ),
+	'the closed line follows the choice, drawing it and naming it',
+	JSON.stringify( asBarLine )
+);
+
+await pick( sessionRow, 'button' );
+await card.waitForTimeout( 80 );
+
+const asButtonLine = await line();
+
+check(
+	asButtonLine.says !== asBarLine.says && asButtonLine.draws.includes( 'lstabp-look-face' ),
+	'and follows it again when it changes',
+	`${ asBarLine.says } → ${ asButtonLine.says }`
+);
+
+// An ordinary column has nothing to show, and most columns are ordinary:
+// twenty identical grey boxes saying the same number is the repetition this
+// card was rewritten to stop.
+await pick( sessionRow, '' );
+await card.waitForTimeout( 80 );
+
+const asPlainLine = await line();
+
+check(
+	'(nothing drawn)' === asPlainLine.draws,
+	'an ordinary column draws nothing at all — it only says so',
+	JSON.stringify( asPlainLine )
+);
+
+await pick( sessionRow, 'button' );
+await card.waitForTimeout( 80 );
+
+check(
+	( await line() ).draws.includes( 'lstabp-look-face' ),
+	'and the picture comes back when a look is chosen again'
+);
+
+const restAt = await card.evaluate( () => ( {
+	closed: [ ...document.querySelectorAll( '.lstabp-look-box' ) ].filter( ( d ) => ! d.open ).length,
+	all: document.querySelectorAll( '.lstabp-look-box' ).length,
+	/*
+	 * checkVisibility, not offsetParent: a closed <details> hides what is
+	 * inside it with content-visibility rather than display, and offsetParent
+	 * happily reports a chip nobody can see.
+	 */
+	chips: [ ...document.querySelectorAll( '.lstabp-look-opt' ) ].filter( ( o ) => o.checkVisibility( { contentVisibilityAuto: true, visibilityProperty: true } ) ).length,
+} ) );
+
+check(
+	restAt.closed === restAt.all - 1 && restAt.chips === 5,
+	'and only the line being worked on shows its five choices — not every line at once',
+	JSON.stringify( restAt )
+);
 
 console.log( '\nThe chooser shows what it is offering' );
 

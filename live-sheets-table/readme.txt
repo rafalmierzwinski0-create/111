@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.31.0
+Stable tag: 3.32.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -180,6 +180,12 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.32.0 =
+* Fixed (Pro): the Cards style ignored the heading colours. It wrote them as properties of its own, and the colour pickers set tokens, so a colour chosen for the heading had nothing to land on. Both are tokens now, and the pickers work on Cards as they do everywhere else.
+* Fixed (Pro): the Striped style looked exactly like Clean. The stripe really was there, in a grey one per cent away from white — 1.06 to 1 against the paper, which no eye resolves. It is 1.149 now, in both light and dark.
+* Fixed (Pro): the Glass style was a dark slab rather than glass. White ink needs a dark floor, and an opaque scrim was the simplest way to get one — it was legible and you could not see through it. The darkening now comes from the backdrop itself, which is multiplied rather than covered, so a photograph stays a photograph and only gets darker. The worst backdrop white ink can land on is white, and even that comes out at 5.38 to 1.
+* Added: "lstab_heading_attributes", the companion to "lstab_cell_attributes", so an add-on can dress the name at the top of a column as well as the cells under it.
 
 = 3.31.0 =
 * Added (Pro): four whole-table styles — Cards, Terminal, Glass and Contrast — beside Midnight and Editorial. Cards gives every row its own card with the page showing between them; Terminal is typewriter lettering and thin mint lines on near-black; Glass is a frosted panel that lets a photograph or a gradient show through; Contrast is a solid heading bar over a plain table with a stronger first column. Pro now has six styles and the free plugin keeps its three.

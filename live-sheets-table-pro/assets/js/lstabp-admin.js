@@ -346,11 +346,51 @@
 		row.dataset.lstabpLook = pick.value;
 		row.classList.toggle( 'is-on', '' !== pick.value );
 
+		var chosen = null;
+
 		Array.prototype.forEach.call( row.querySelectorAll( '.lstabp-look-opt' ), function ( option ) {
 			var radio = option.querySelector( '.lstabp-look-pick' );
 
 			option.classList.toggle( 'is-picked', !! radio && radio.checked );
+
+			if ( radio && radio.checked ) {
+				chosen = option;
+			}
 		} );
+
+		/*
+		 * The closed line has to say the truth. It shows what the column looks
+		 * like now, and "now" changed a moment ago — a line still showing the
+		 * old look is worse than a line showing nothing, because it is read
+		 * without being opened.
+		 */
+		var summary = row.querySelector( '.lstabp-look-now' );
+
+		if ( summary && chosen ) {
+			var face = chosen.querySelector( '.lstabp-look-face' );
+			var word = chosen.querySelector( '.lstabp-look-word' );
+			var shown = summary.querySelector( '.lstabp-look-face' );
+			var named = summary.querySelector( '.lstabp-look-now-name' );
+
+			/*
+			 * An ordinary column has nothing to draw, so the closed line
+			 * carries the word alone — and a line that has just been set back
+			 * to ordinary has to lose the picture it was carrying.
+			 */
+			if ( '' === pick.value ) {
+				if ( shown ) {
+					shown.remove();
+				}
+			} else if ( face && shown ) {
+				shown.replaceWith( face.cloneNode( true ) );
+			} else if ( face && named ) {
+				summary.insertBefore( face.cloneNode( true ), named );
+			}
+
+			if ( word && named ) {
+				named.textContent = word.textContent;
+			}
+		}
 	}
 
 	/**
@@ -380,38 +420,51 @@
 
 		Array.prototype.forEach.call( row.querySelectorAll( '.lstabp-look-opt' ), function ( option ) {
 			var radio = option.querySelector( '.lstabp-look-pick' );
-			var face = option.querySelector( '.lstabp-look-face' );
+			var faces = [ option.querySelector( '.lstabp-look-face' ) ];
 
-			if ( ! radio || ! face ) {
+			if ( ! radio || ! faces[ 0 ] ) {
 				return;
 			}
 
-			// The same three shapes the server draws, from the same colours.
-			if ( 'bar' === radio.value ) {
-				face.style.cssText = '--lstabp-bar:64%;--lstabp-bar-colour:' + tint + ';';
-			} else if ( 'pill' === radio.value ) {
-				var badge = face.querySelector( '.lstabp-pill-face' );
+			// The same chip is drawn twice for whichever look is chosen: once
+			// among the choices, once in the closed line above them.
+			if ( radio.checked ) {
+				var alsoShown = row.querySelector( '.lstabp-look-now .lstabp-look-face' );
 
-				if ( badge ) {
-					badge.style.cssText = pillCss( tint );
-				}
-			} else if ( 'tint' === radio.value ) {
-				face.style.cssText = 'background-color:' + tint + ';color:' + ink( tint ) + ';';
-			} else if ( 'button' === radio.value ) {
-				var cta = face.querySelector( '.lstabp-cta-link' );
-
-				if ( cta ) {
-					// What the server drew is the fallback, kept the first
-					// time through: it is already translated, and this script
-					// has no dictionary of its own.
-					if ( undefined === cta.dataset.lstabpSays ) {
-						cta.dataset.lstabpSays = cta.textContent.trim();
-					}
-
-					cta.style.cssText = '--lstabp-cta-bg:' + tint + ';--lstabp-cta-ink:' + chosenInk + ';';
-					cta.textContent = says || cta.dataset.lstabpSays;
+				if ( alsoShown ) {
+					faces.push( alsoShown );
 				}
 			}
+
+			faces.forEach( function ( face ) {
+
+				// The same three shapes the server draws, from the same colours.
+				if ( 'bar' === radio.value ) {
+					face.style.cssText = '--lstabp-bar:64%;--lstabp-bar-colour:' + tint + ';';
+				} else if ( 'pill' === radio.value ) {
+					var badge = face.querySelector( '.lstabp-pill-face' );
+
+					if ( badge ) {
+						badge.style.cssText = pillCss( tint );
+					}
+				} else if ( 'tint' === radio.value ) {
+					face.style.cssText = 'background-color:' + tint + ';color:' + ink( tint ) + ';';
+				} else if ( 'button' === radio.value ) {
+					var cta = face.querySelector( '.lstabp-cta-link' );
+
+					if ( cta ) {
+						// What the server drew is the fallback, kept the first
+						// time through: it is already translated, and this script
+						// has no dictionary of its own.
+						if ( undefined === cta.dataset.lstabpSays ) {
+							cta.dataset.lstabpSays = cta.textContent.trim();
+						}
+
+						cta.style.cssText = '--lstabp-cta-bg:' + tint + ';--lstabp-cta-ink:' + chosenInk + ';';
+						cta.textContent = says || cta.dataset.lstabpSays;
+					}
+				}
+			} );
 		} );
 	}
 
