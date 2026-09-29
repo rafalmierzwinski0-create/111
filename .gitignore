@@ -18,3 +18,5 @@ landing/szlaki/markup.json
 # Render tabeli dla podstrony „what it does” — jedno uruchomienie, nie repo.
 landing/mozliwosci/markup.json
 landing/mozliwosci/mozliwosci-*.png
+landing/pokaz-na-zywo/pokaz-*.png
+landing/jak-dziala/jak-*.png
