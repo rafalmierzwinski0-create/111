@@ -88,18 +88,18 @@ if ( ! is_plugin_active( 'live-sheets-table-pro/live-sheets-table-pro.php' ) ) {
 
 // ---------------------------------------------------------------- registry
 
-lstab_skins_section( 'The four new skins are registered' );
+lstab_skins_section( 'The premium skins are registered' );
 
 $all = LSTAB_Styles::all();
 
-foreach ( array( 'cards', 'terminal', 'glass', 'contrast' ) as $slug ) {
+foreach ( array( 'cards', 'terminal', 'glass', 'contrast', 'ledger' ) as $slug ) {
 	lstab_skins_assert( isset( $all[ $slug ] ), "{$slug} is a preset" );
 	lstab_skins_assert( ! empty( $all[ $slug ]['pro'] ), "{$slug} is premium" );
 	lstab_skins_assert( '' !== (string) $all[ $slug ]['description'], "{$slug} says what it looks like" );
 	lstab_skins_assert( $slug === LSTAB_Styles::sanitize( $slug ), "{$slug} renders under Pro" );
 }
 
-lstab_skins_assert( 9 === count( LSTAB_Styles::available() ), 'Nine skins available under Pro', (string) count( LSTAB_Styles::available() ) );
+lstab_skins_assert( 10 === count( LSTAB_Styles::available() ), 'Ten skins available under Pro', (string) count( LSTAB_Styles::available() ) );
 
 /*
  * Every skin needs its own block of rules in the stylesheet, or the name in the

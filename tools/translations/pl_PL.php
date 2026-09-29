@@ -203,6 +203,9 @@ return array(
 	'A frosted panel that lets what is behind it show through. Needs a photograph or a gradient underneath to mean anything.'
 		=> 'Matowy panel, przez który widać to, co jest pod nim. Ma sens tylko na zdjęciu albo gradiencie.',
 	'Contrast'                                   => 'Kontrast',
+	'Ledger'                                     => 'Księga',
+	'Warm paper, a double rule under the headings and a band down every other column. For a sheet of figures: the bands hold the eye in one column, and the numbers line up of their own accord.'
+		=> 'Ciepły papier, podwójna kreska pod nagłówkami i pas w co drugiej kolumnie. Do arkusza z liczbami: pasy trzymają oko w jednej kolumnie, a cyfry same się wyrównują.',
 	'A solid heading bar over a plain table, and a first column with some weight to it.'
 		=> 'Pełny pasek nagłówków nad spokojną tabelą i mocniejsza pierwsza kolumna.',
 

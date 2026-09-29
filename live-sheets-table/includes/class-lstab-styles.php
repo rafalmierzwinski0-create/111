@@ -59,6 +59,11 @@ class LSTAB_Styles {
 				'description' => __( 'A frosted panel that lets what is behind it show through. Needs a photograph or a gradient underneath to mean anything.', 'live-sheets-table' ),
 				'pro'         => true,
 			),
+			'ledger'    => array(
+				'label'       => __( 'Ledger', 'live-sheets-table' ),
+				'description' => __( 'Warm paper, a double rule under the headings and a band down every other column. For a sheet of figures: the bands hold the eye in one column, and the numbers line up of their own accord.', 'live-sheets-table' ),
+				'pro'         => true,
+			),
 			'contrast'  => array(
 				'label'       => __( 'Contrast', 'live-sheets-table' ),
 				'description' => __( 'A solid heading bar over a plain table, and a first column with some weight to it.', 'live-sheets-table' ),

@@ -326,6 +326,73 @@ const readTable = ( id ) => {
 		cellImage: cellStyle ? cellStyle.backgroundImage : '',
 		firstCellPaper: firstStyle ? firstStyle.backgroundColor : '',
 		secondCellPaper: cellStyle ? cellStyle.backgroundColor : '',
+
+		/*
+		 * Ile widać między jedną kolumną a następną — to samo, co „stripe”
+		 * mierzy między wierszami. Ledger cieniuje kolumny zamiast wierszy, a
+		 * pas, którego nikt nie zobaczy, nie jest pasem.
+		 */
+		band: ( () => {
+			if ( ! cells.length || cells.length < 2 ) {
+				return 1;
+			}
+
+			/*
+			 * Skomponowane, nie odczytane wprost. Na większości skór tło siedzi
+			 * na wierszu, a komórka jest przezroczysta — porównanie dwóch
+			 * przezroczystości dałoby czerń kontra czerń i liczbę bez sensu.
+			 * Stąd wspinaczka w górę, aż trafi się na coś nieprzezroczystego.
+			 */
+			/*
+			 * Dwa zapisy, nie jeden. color-mix() wraca jako
+			 * "color(srgb 0.95 0.92 0.85)" — składowe od zera do jedynki, a nie
+			 * od zera do 255. Czytane jak rgb() dawały luminancję prawie zera i
+			 * pas „widoczny” dwudziestokrotnie, czyli liczbę bez sensu, która
+			 * przeszłaby każdy próg, jaki bym postawił.
+			 */
+			const parse = ( c ) => {
+				const n = ( c.match( /[\d.]+/g ) || [ 255, 255, 255 ] ).map( Number );
+				const skala = /^color\(/.test( c ) ? 255 : 1;
+
+				return { r: n[ 0 ] * skala, g: n[ 1 ] * skala, b: n[ 2 ] * skala, a: undefined === n[ 3 ] ? 1 : n[ 3 ] };
+			};
+			const paper = ( el ) => {
+				let node = el;
+				let out = { r: 255, g: 255, b: 255, a: 1 };
+				const stack = [];
+
+				while ( node && 1 === node.nodeType ) {
+					const c = parse( cs( node ).backgroundColor );
+					if ( c.a > 0 ) {
+						stack.push( c );
+						if ( c.a >= 0.999 ) {
+							break;
+						}
+					}
+					node = node.parentElement;
+				}
+
+				for ( let i = stack.length - 1; i >= 0; i-- ) {
+					const t = stack[ i ];
+					out = {
+						r: t.r * t.a + out.r * ( 1 - t.a ),
+						g: t.g * t.a + out.g * ( 1 - t.a ),
+						b: t.b * t.a + out.b * ( 1 - t.a ),
+						a: 1,
+					};
+				}
+
+				return out;
+			};
+			const lum = ( c ) => { const f = ( v ) => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : Math.pow( ( s + 0.055 ) / 1.055, 2.4 ); };
+				return 0.2126 * f( c.r ) + 0.7152 * f( c.g ) + 0.0722 * f( c.b ); };
+			const a = lum( paper( cells[ 0 ] ) );
+			const b = lum( paper( cells[ 1 ] ) );
+
+			return Math.round( ( ( Math.max( a, b ) + 0.05 ) / ( Math.min( a, b ) + 0.05 ) ) * 1000 ) / 1000;
+		} )(),
+		headRuleStyle: headStyle ? headStyle.borderBottomStyle : '',
+		numerals: cs( table ).fontVariantNumeric,
 		radiusFirst: firstStyle ? firstStyle.borderTopLeftRadius : '',
 
 		stickyBackdrop: cells.length ? cs( cells[ 0 ], '::before' ).backgroundColor : '',
@@ -617,6 +684,42 @@ check(
 	`${ contrast.headPadTop } vs ${ desktop.clean[ asIs ].headPadTop }`
 );
 
+const ledger = desktop.ledger[ asIs ];
+
+/*
+ * Ledger is the one skin in the set that shades columns instead of rows, so
+ * its checks are the mirror image of the Striped ones: the band has to be
+ * visible between one column and the next, and the rows have to stay plain —
+ * two devices shading one table would cross-hatch it.
+ */
+/*
+ * Widełki, nie próg. Sam pomiar był raz zepsuty — color-mix() wraca w innej
+ * skali niż rgb() — i „widoczny 20 razy” przeszedł każdy próg od dołu, jaki
+ * bym postawił. Pas ma być widoczny i ma być pasem, a nie drugim papierem.
+ */
+check(
+	ledger.band >= 1.1 && ledger.band <= 1.5,
+	`Ledger really is banded down its columns (${ ledger.band } between one column and the next)`,
+	`${ ledger.band }`
+);
+check(
+	1 === ledger.stripe,
+	'and its rows are left plain, so the two never cross-hatch',
+	`${ ledger.stripe }`
+);
+check( 'double' === ledger.headRuleStyle, 'the rule under its headings is a double one', ledger.headRuleStyle );
+check(
+	/tabular-nums/.test( ledger.numerals ),
+	'and its figures are of one width, so a column of them lines up',
+	ledger.numerals
+);
+check( ledger.inkRatio >= 4.5, `Ledger is readable on its warm paper (${ ledger.inkRatio }:1)`, `${ ledger.inkRatio }` );
+check(
+	ledger.labelRatio >= 4.5 || 'none' === ledger.labelShown,
+	`including the quietest print on it (${ ledger.labelRatio }:1)`,
+	`${ ledger.labelRatio }`
+);
+
 // ----------------------------------------------------------- on a phone
 
 console.log( '\nOn a phone — every skin folds, and nothing leaks through' );
@@ -633,6 +736,13 @@ for ( const skin of skins ) {
 	// The whole reason the factor exists: a table asked for a full grid must not
 	// draw a vertical rule down a card.
 	check( 0 === gridOnPhone.colLine, `${ skin }: a full grid draws no line down a card`, `${ gridOnPhone.colLine }` );
+	/*
+	 * And no skin may shade one value differently from the next inside a card.
+	 * Ledger is the one that could: its band is drawn down alternate columns,
+	 * and a column means nothing once the table is one card per row — it would
+	 * come out tinting every other *value*, which says nothing at all.
+	 */
+	check( p.band <= 1.02, `${ skin }: and no band shades one value and not the next`, `${ p.band }` );
 }
 
 const cardsPhone = phone.cards[ asIs ];

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
-"POT-Creation-Date: 2026-09-29 15:48+0000\n"
+"POT-Creation-Date: 2026-09-29 21:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -170,7 +170,7 @@ msgstr ""
 msgid "A full grid with a shaded heading row. Suits dense columns of numbers."
 msgstr ""
 
-#: includes/class-lstab-styles.php:64
+#: includes/class-lstab-styles.php:69
 msgid "A solid heading bar over a plain table, and a first column with some weight to it."
 msgstr ""
 
@@ -413,7 +413,7 @@ msgstr ""
 msgid "Compare Free and Pro"
 msgstr ""
 
-#: includes/class-lstab-styles.php:63
+#: includes/class-lstab-styles.php:68
 msgid "Contrast"
 msgstr ""
 
@@ -765,6 +765,10 @@ msgstr ""
 #: includes/elementor/class-lstab-elementor-widget.php:151
 #: blocks/sheet-table/index.js:158
 msgid "Layout"
+msgstr ""
+
+#: includes/class-lstab-styles.php:63
+msgid "Ledger"
 msgstr ""
 
 #: includes/class-lstab-customizer.php:180
@@ -1625,6 +1629,10 @@ msgstr ""
 
 #: includes/class-lstab-admin.php:1077
 msgid "Visitors see the last copy that arrived, so nothing on your pages is broken. The next check runs shortly."
+msgstr ""
+
+#: includes/class-lstab-styles.php:64
+msgid "Warm paper, a double rule under the headings and a band down every other column. For a sheet of figures: the bands hold the eye in one column, and the numbers line up of their own accord."
 msgstr ""
 
 #: includes/views/edit-page.php:838

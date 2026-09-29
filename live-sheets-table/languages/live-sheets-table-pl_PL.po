@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
-"POT-Creation-Date: 2026-09-29 15:48+0000\n"
-"PO-Revision-Date: 2026-09-29 15:48+0000\n"
+"POT-Creation-Date: 2026-09-29 21:43+0000\n"
+"PO-Revision-Date: 2026-09-29 21:43+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -181,7 +181,7 @@ msgstr "Matowy panel, przez który widać to, co jest pod nim. Ma sens tylko na 
 msgid "A full grid with a shaded heading row. Suits dense columns of numbers."
 msgstr "Pełna siatka z przyciemnionym wierszem nagłówka. Pasuje do gęstych kolumn liczb."
 
-#: includes/class-lstab-styles.php:64
+#: includes/class-lstab-styles.php:69
 msgid "A solid heading bar over a plain table, and a first column with some weight to it."
 msgstr "Pełny pasek nagłówków nad spokojną tabelą i mocniejsza pierwsza kolumna."
 
@@ -424,7 +424,7 @@ msgstr "Zwarta"
 msgid "Compare Free and Pro"
 msgstr "Porównaj wersję darmową i Pro"
 
-#: includes/class-lstab-styles.php:63
+#: includes/class-lstab-styles.php:68
 msgid "Contrast"
 msgstr "Kontrast"
 
@@ -777,6 +777,10 @@ msgstr "Ostatnia synchronizacja OK (%s temu)"
 #: blocks/sheet-table/index.js:158
 msgid "Layout"
 msgstr "Układ"
+
+#: includes/class-lstab-styles.php:63
+msgid "Ledger"
+msgstr "Księga"
 
 #: includes/class-lstab-customizer.php:180
 msgid "Left"
@@ -1642,6 +1646,10 @@ msgstr "Mocno zaokrąglone"
 #: includes/class-lstab-admin.php:1077
 msgid "Visitors see the last copy that arrived, so nothing on your pages is broken. The next check runs shortly."
 msgstr "Odwiedzający widzą ostatnią pobraną kopię, więc nic na stronach nie jest zepsute. Kolejne sprawdzenie nastąpi wkrótce."
+
+#: includes/class-lstab-styles.php:64
+msgid "Warm paper, a double rule under the headings and a band down every other column. For a sheet of figures: the bands hold the eye in one column, and the numbers line up of their own accord."
+msgstr "Ciepły papier, podwójna kreska pod nagłówkami i pas w co drugiej kolumnie. Do arkusza z liczbami: pasy trzymają oko w jednej kolumnie, a cyfry same się wyrównują."
 
 #: includes/views/edit-page.php:838
 msgid "What Google actually sent"

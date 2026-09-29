@@ -1370,6 +1370,84 @@
 	background-image: linear-gradient(var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent));
 }
 
+/*
+ * Ledger — a table of figures, set the way an account book sets them.
+ *
+ * Every other skin in the set shades rows. This one shades columns, and that
+ * is the whole idea: running down a column of money, the thing the eye keeps
+ * losing is the column, not the row. A band down each alternate column holds
+ * it. Two more marks finish the metaphor — the double rule under the heading,
+ * which is the one stroke that says "account book" rather than "web table",
+ * and figures of one width, so a column of prices lines up on its own without
+ * anybody choosing a font for it.
+ *
+ * The paper is warm rather than white. Fixed, like Editorial's: it is a paper
+ * metaphor, and paper does not turn dark at dusk — which is why this skin is
+ * not in the light-dark() group above.
+ */
+.lstab-style-ledger {
+	--lstab-fg: #2b2520;
+	--lstab-fg-muted: #665c50;
+	/* 5.15 to 1 on the band, which is the darker of the two papers it lands on,
+	   and 5.86 on the plain one. This is the colour the phone layout puts on
+	   the name above every value, so it is content rather than decoration. */
+	--lstab-fg-faint: #6b6154;
+	--lstab-bg: #fdfbf5;
+	--lstab-head-bg: transparent;
+	--lstab-head-fg: #2b2520;
+	--lstab-border: #e7dfcd;
+	--lstab-border-strong: #c3b393;
+	/* The band down every other column, 1.138 to 1 against the paper — the same
+	   distance the Striped skin's row shading keeps, and for the same reason:
+	   a band nobody can see is a band that is not there. Striped rows are off,
+	   because two devices shading one table would cross-hatch it. */
+	--lstab-band: #f3ecdb;
+	--lstab-stripe: transparent;
+	--lstab-hover: #efe4cd;
+	--lstab-accent: #8a5a1f;
+	--lstab-radius: 3px;
+	--lstab-sticky-bg: #fdfbf5;
+	--lstab-frame-border: 1px solid #e7dfcd;
+	--lstab-frame-shadow: none;
+}
+
+/* Figures of one width, so a column of them lines up of its own accord. */
+.lstab-style-ledger .lstab-table {
+	font-variant-numeric: tabular-nums lining-nums;
+}
+
+/*
+ * The double rule. Drawn in ink rather than in the line colour, because it is
+ * the heading's own mark and not another hairline — and this skin has no
+ * heading bar to carry the weight instead.
+ */
+.lstab-style-ledger .lstab-table thead th {
+	border-bottom: 3px double var(--lstab-fg);
+	box-shadow: none;
+	font-weight: 700;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+}
+
+/*
+ * The bands themselves.
+ *
+ * Mixed against the table mode rather than switched off by a media query: on a
+ * phone the table folds into one card per row, and a band there would shade
+ * every other *value* inside a card, which says nothing at all. At
+ * --lstab-table-mode 0 the mix comes out fully transparent and the cards are
+ * plain paper again.
+ *
+ * The row's tint is repeated over the top, the same way Contrast does it with
+ * its shaded first column: without that second layer the banded columns would
+ * be the one place on the table where hover and a colour rule do not show.
+ */
+.lstab-style-ledger .lstab-table thead th:nth-child( even ),
+.lstab-style-ledger .lstab-table tbody tr > td:nth-child( even ) {
+	background-color: color-mix( in srgb, var(--lstab-band) calc( var(--lstab-table-mode) * 100% ), transparent );
+	background-image: linear-gradient( var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent) );
+}
+
 /* --------------------------------------------------- stacked "card" layout */
 
 /*
