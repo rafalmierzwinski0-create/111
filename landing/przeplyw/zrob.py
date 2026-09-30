@@ -1059,14 +1059,97 @@ SLOWO = (
 )
 
 
+def skrot( css ):
+	"""Ten sam arkusz stylów, bez komentarzy i bez pustych miejsc.
+
+	Arkusz wtyczki jest w połowie komentarzem, bo tak jest napisany cały ten
+	projekt, i to jest dobrze — ale do modułu w Divi idzie nie po to, żeby go
+	ktoś czytał. Sto kilobajtów w polu edytora wizualnego potrafi zawiesić sam
+	edytor, więc do wklejenia leci wersja bez komentarzy.
+
+	Cięte są komentarze i ciągi białych znaków, i nic więcej: spacje wokół
+	działań zostają, bo „calc( 100% - 2 * x )” bez spacji przestaje być
+	poprawnym wyrażeniem. Cudzysłowy są pilnowane, żeby „content” z gwiazdką
+	w środku nie został wzięty za początek komentarza.
+	"""
+	wynik = []
+	i = 0
+	cudzyslow = ''
+
+	while i < len( css ):
+		z = css[ i ]
+
+		if cudzyslow:
+			wynik.append( z )
+			if '\\' == z and i + 1 < len( css ):
+				wynik.append( css[ i + 1 ] )
+				i += 2
+				continue
+			if z == cudzyslow:
+				cudzyslow = ''
+			i += 1
+			continue
+
+		if z in '"\'':
+			cudzyslow = z
+			wynik.append( z )
+			i += 1
+			continue
+
+		if '/' == z and css[ i + 1 : i + 2 ] == '*':
+			koniec = css.find( '*/', i + 2 )
+			i = len( css ) if -1 == koniec else koniec + 2
+			# Komentarz zostawia po sobie spację: „a/**/b” to nie „ab”.
+			if wynik and not wynik[ -1 ].isspace():
+				wynik.append( ' ' )
+			continue
+
+		if z.isspace():
+			if wynik and not wynik[ -1 ].isspace():
+				wynik.append( ' ' )
+			i += 1
+			continue
+
+		wynik.append( z )
+		i += 1
+
+	return ''.join( wynik ).strip()
+
+
+CZCIONKI = ( '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?'
+	'family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600'
+	'&family=Inria+Serif:ital,wght@0,300;0,400&display=swap">' )
+
+ARKUSZ = skrot( STYL + CSS )
+
 STRONA = (
-	'<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Inria+Serif:ital,wght@0,300;0,400&display=swap">\n'
+	CZCIONKI + '\n'
 	'\n' + SEKCJA + '\n'
-	'\n<style>\n' + STYL + CSS + '\n</style>\n'
+	'\n<style>\n' + ARKUSZ + '\n</style>\n'
 	'\n<script>\n' + JS + '\n</script>\n'
 )
 
 ( TU / 'PRZEPLYW-en.html' ).write_text( STRONA )
+
+"""
+Do wklejenia w Divi, w trzech kawałkach.
+
+Cały moduł naraz to prawie dwieście kilobajtów w jednym polu edytora
+wizualnego, a edytor trzyma to w pamięci i przerysowuje przy każdym
+naciśnięciu klawisza. Potrafi na tym stanąć razem z całą stroną. Rozdzielone
+idzie tam, gdzie każdy kawałek waży tyle, ile ma ważyć:
+
+* PRZEPLYW-kod.html  -> moduł Kod (sam znacznik, kilkadziesiąt kB)
+* PRZEPLYW-css.css   -> Divi > Opcje motywu > Własny CSS
+* PRZEPLYW-js.js     -> Divi > Opcje motywu > Integracja > przed </body>,
+                        i tylko jeśli wyszukiwarka i filtry mają naprawdę
+                        działać. Bez tego tabela jest kompletna i wygląda tak
+                        samo, po prostu nic w niej nie klika.
+"""
+
+( TU / 'PRZEPLYW-kod.html' ).write_text( CZCIONKI + '\n\n' + SEKCJA + '\n' )
+( TU / 'PRZEPLYW-css.css' ).write_text( ARKUSZ + '\n' )
+( TU / 'PRZEPLYW-js.js' ).write_text( JS )
 
 # Podgląd: podrabia tło witryny (#232a29 i siatkę 88 × 44, jak
 # landing/naglowek/HERO-podglad.html) i dopełnienia Divi. Do Divi idzie
@@ -1090,4 +1173,6 @@ PODGLAD = (
 
 ( TU / 'PODGLAD.html' ).write_text( PODGLAD )
 
-print( 'ok', len( STRONA ), 'znaków modułu' )
+print( 'ok', len( STRONA ), 'znaków w całości;',
+	len( ( TU / 'PRZEPLYW-kod.html' ).read_text() ), 'w module Kod,',
+	len( ARKUSZ ), 'w CSS (ze', len( STYL + CSS ), 'przed skróceniem)' )

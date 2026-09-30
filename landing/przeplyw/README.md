@@ -47,8 +47,31 @@ chodzi `tests/run-all.sh`.
 
 ## Co wkleić
 
-Całą zawartość `PRZEPLYW-en.html` w jeden moduł Kod w Divi. Nic nie trzeba
-podmieniać — sekcja nie ma żadnego obrazka, wszystko jest kodem.
+**W trzech kawałkach, a nie w jednym.** Cała sekcja to prawie dwieście
+kilobajtów w jednym polu edytora wizualnego, a edytor trzyma to w pamięci
+i przerysowuje przy każdym naciśnięciu klawisza — potrafi na tym stanąć razem
+z całą stroną. Rozdzielone idzie tam, gdzie każdy kawałek waży tyle, ile ma
+ważyć:
+
+| plik | gdzie |
+|---|---|
+| `PRZEPLYW-kod.html` | moduł Kod w Divi (sam znacznik, ~21 kB) |
+| `PRZEPLYW-css.css` | Divi → Opcje motywu → Własny CSS (~52 kB) |
+| `PRZEPLYW-js.js` | Divi → Opcje motywu → Integracja → przed `</body>`, w `<script>` |
+
+Skrypt jest **nieobowiązkowy**. Bez niego tabela jest kompletna i wygląda tak
+samo; nie działa tylko wyszukiwarka, sortowanie i filtr nad nią. Na stronie
+sprzedażowej to bywa nawet lepsze niż pole wyszukiwania, które odpowiada
+„0 wyników”.
+
+Arkusz stylów jest przed zapisaniem skracany — bez komentarzy i bez pustych
+miejsc, ze 109 kB robi się 52. Cięte są tylko komentarze i białe znaki; spacje
+wokół działań zostają, bo `calc( 100% - 2 * x )` bez spacji przestaje być
+poprawnym wyrażeniem.
+
+`PRZEPLYW-en.html` to ta sama sekcja **w jednym pliku**, ze stylami i skryptem
+w środku. Zostaje dla porządku i do podglądu; do Divi lepiej brać trzy kawałki
+wyżej.
 
 `SLOWO-en.html` to **same napisy z lewej strony jako osobny moduł**: tytuł,
 zdanie, cztery ptaszki i przycisk, bez okien i bez tabeli. Do wstawienia
@@ -79,6 +102,12 @@ albo obok modułu `SLOWO-en.html`, kiedy napisy mają stać osobno. Kolumna
 z tekstem jest przed zrzutem wyjmowana ze strony, a nie chowana: schowana
 zostawiłaby po sobie kolumnę siatki i kompozycja stanęłaby w prawej połowie
 kadru.
+
+Kadr tych dwóch liczy się z krawędzi okien, a nie z pudełka sekcji: sekcja jest
+szeroka na całe okno przeglądarki, więc po bokach zostawał przezroczysty pas
+i obrazek przestawał wyglądać na wyśrodkowany, kiedy się go kładło na stronie.
+Nic się przy tym nie traci — cienie tych okien mają rozmycie mniejsze niż
+ujemny rozrzut i w bok nie sięgają ani o piksel.
 
 **Nie otwieraj `PRZEPLYW-en.html` wprost w przeglądarce.** To fragment do
 wklejenia w Divi i nie ma własnej deklaracji typu dokumentu, więc otwarty jako
