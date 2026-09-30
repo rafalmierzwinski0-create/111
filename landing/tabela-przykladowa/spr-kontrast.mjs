@@ -2,7 +2,7 @@ import { chromium } from '/tmp/lstab-env/node_modules/playwright/index.mjs';
 const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
 const c = await b.newContext({ viewport: { width: 500, height: 1200 } });
 const p = await c.newPage();
-await p.goto('file://' + process.cwd() + '/tabela-ladna.html');
+await p.goto('file://' + process.cwd() + '/TABELA-przykladowa.html');
 await p.waitForTimeout(1500);
 const r = await p.evaluate(() => {
   // "color(srgb 0.84 0.78 0.61)" podaje składowe w zakresie 0-1, "rgb()" w 0-255

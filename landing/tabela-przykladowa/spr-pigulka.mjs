@@ -4,7 +4,7 @@ import { chromium } from '/tmp/lstab-env/node_modules/playwright/index.mjs';
 const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
 const c = await b.newContext({ viewport: { width: 1400, height: 1100 } });
 const p = await c.newPage();
-await p.goto('file://' + process.cwd() + '/tabela-ladna.html');
+await p.goto('file://' + process.cwd() + '/TABELA-przykladowa.html');
 await p.waitForTimeout(1500);
 const r = await p.evaluate(() => {
   const lum = (s) => { const skala = s.startsWith('color(') ? 1 : 255;

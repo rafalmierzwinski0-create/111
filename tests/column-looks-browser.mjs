@@ -56,7 +56,7 @@ const shapes = `<div class="lstab-container"><div class="lstab lstab-style-clean
 <tr class="lstab-row"><td><span class="lstab-cell-value">Dot</span></td>
 <td class="lstab-ruled lstabp-dot" style="--lstabp-dot:#e11d48;"><span class="lstab-cell-value">Full</span></td></tr>
 <tr class="lstab-row"><td><span class="lstab-cell-value">Pill</span></td>
-<td class="lstab-ruled lstabp-pill" style="--lstabp-pill-line:#5fe3cf;--lstabp-pill-fill:color-mix(in srgb,#5fe3cf 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#5fe3cf 55%,currentColor);"><span class="lstab-cell-value">Open</span></td></tr>
+<td class="lstab-ruled lstabp-pill" style="--lstabp-pill-line:#5fe3cf;--lstabp-pill-fill:color-mix(in srgb,#5fe3cf 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#5fe3cf 35%,currentColor);"><span class="lstab-cell-value">Open</span></td></tr>
 </tbody></table></div></div>`;
 
 const page = `<!doctype html><meta charset="utf-8"><style>${ CSS }

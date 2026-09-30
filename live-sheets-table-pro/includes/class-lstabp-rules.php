@@ -277,6 +277,20 @@ class LSTABP_Rules {
 			 * in it would be unreadable on white paper; mixing keeps the hue
 			 * and anchors the contrast to whatever the table is wearing, dark
 			 * skin or light.
+			 *
+			 * A third of the rule's colour, not half. At 55 per cent it was
+			 * not enough: a bright mint came out at 3.44 to 1 on warm paper,
+			 * and white — the first colour in the picker — at 2.5 to 1 on
+			 * every light skin there is. Both are under the readability bar,
+			 * from colours the dashboard was perfectly happy to accept.
+			 *
+			 * The share is what decides how far the word may drift from the
+			 * table's own ink, and that ink is readable on that paper by
+			 * construction, so the smaller the share the safer the word. At 35
+			 * the worst case anybody can reach is 4.57 to 1 and the hue is
+			 * still plainly there. tests/skins-test.php publishes a badge in
+			 * the four nastiest colours on every skin, and
+			 * tests/skins-browser.mjs measures the word inside each one.
 			 */
 			if ( 'dot' === $scope ) {
 				/*
@@ -290,7 +304,7 @@ class LSTABP_Rules {
 
 			return '--lstabp-pill-line:' . $hex . ';'
 				. '--lstabp-pill-fill:color-mix(in srgb,' . $hex . ' 18%,transparent);'
-				. '--lstabp-pill-ink:color-mix(in srgb,' . $hex . ' 55%,currentColor);';
+				. '--lstabp-pill-ink:color-mix(in srgb,' . $hex . ' 35%,currentColor);';
 		}
 
 		$ink   = self::ink( $hex );
@@ -306,6 +320,29 @@ class LSTABP_Rules {
 		 * a quieter shade of this rule's own ink instead.
 		 */
 		$paint .= '--lstab-fg-faint:color-mix(in srgb,' . $ink . ' 78%,' . $hex . ');';
+
+		/*
+		 * And the same thought for a badge standing on this paint.
+		 *
+		 * A pill's word is its own colour mixed with the table's ink, and on a
+		 * painted row the table's ink is not what is behind the word any more.
+		 * Mixing into it drags the word towards the paint: a black badge on a
+		 * dark red row came out at 2.38 to 1. The ink worked out just above is
+		 * readable on this background by construction, so the badge is handed
+		 * it whole. The stylesheet reads this before the badge's own, and the
+		 * outline and the wash still carry the colour that was chosen.
+		 */
+		$paint .= '--lstabp-pill-ink-set:' . $ink . ';';
+
+		/*
+		 * And no wash under it. The wash is a fifth of the badge's colour laid
+		 * over whatever is behind the word, so on a painted row it moves the
+		 * very background that ink was worked out against — eighteen per cent
+		 * of black over a pale green row took the word from 4.55 to 1 down to
+		 * 3.01. Here the row is the colour already; the outline is enough to
+		 * say which badge this is.
+		 */
+		$paint .= '--lstabp-pill-fill-set:transparent;';
 
 		if ( 'row' === $scope ) {
 			/*

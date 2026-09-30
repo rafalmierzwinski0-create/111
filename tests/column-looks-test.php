@@ -237,6 +237,40 @@ lstab_check(
 	isset( $pilled['style'] ) ? $pilled['style'] : '(none)'
 );
 
+/*
+ * The dashboard draws the same badge in JavaScript, as a colour is picked and
+ * before anything is saved. Two copies of the same three shares is two chances
+ * to change one and forget the other, and the one that matters is the ink: it
+ * is what keeps a badge readable when somebody picks white. So the script is
+ * read and held to what the server just produced.
+ */
+$badge_js  = file_get_contents( dirname( __DIR__ ) . '/live-sheets-table-pro/assets/js/lstabp-admin.js' );
+$badge_php = LSTABP_Rules::css_for( '#5fe3cf', 'pill' );
+$shares    = array();
+
+foreach ( array( 'fill', 'ink' ) as $part ) {
+	preg_match( '/--lstabp-pill-' . $part . ':color-mix\(in srgb,#5fe3cf (\d+)%/', $badge_php, $from_php );
+	preg_match( '/--lstabp-pill-' . $part . ":color-mix\\(in srgb,' \\+ hex \\+ ' (\\d+)%/", $badge_js, $from_js );
+
+	$shares[ $part ] = array(
+		'php' => isset( $from_php[1] ) ? $from_php[1] : '?',
+		'js'  => isset( $from_js[1] ) ? $from_js[1] : '?',
+	);
+}
+
+lstab_check(
+	'?' !== $shares['ink']['php'] && $shares['ink']['php'] === $shares['ink']['js']
+		&& $shares['fill']['php'] === $shares['fill']['js'],
+	'the badge the preview draws is mixed exactly as the one the server sends',
+	json_encode( $shares )
+);
+
+lstab_check(
+	(int) $shares['ink']['php'] <= 35,
+	'and its word keeps at most a third of the chosen colour, so white is still readable',
+	$shares['ink']['php'] . '%'
+);
+
 $blank_pill = $dressy->attributes( array(), '   ', 1, 3, $source );
 
 lstab_check(

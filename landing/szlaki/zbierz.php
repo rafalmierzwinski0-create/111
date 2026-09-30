@@ -45,6 +45,7 @@ wp_set_current_user( 1 );
  */
 $lstab_settings = get_option( LSTAB_Settings::OPTION, array() );
 $lstab_settings = is_array( $lstab_settings ) ? $lstab_settings : array();
+$lstab_locale_before      = $lstab_settings;
 $lstab_settings['locale'] = 'pl_PL';
 update_option( LSTAB_Settings::OPTION, $lstab_settings );
 LSTAB_Locale::forget();
@@ -149,6 +150,7 @@ $warianty = array(
 	'contrast' => array( 'style' => 'contrast' ),
 	'terminal' => array( 'style' => 'terminal' ),
 	'editorial'=> array( 'style' => 'editorial' ),
+	'ledger'   => array( 'style' => 'ledger' ),
 );
 
 $zebrane = array( 'warianty' => array() );
@@ -181,6 +183,14 @@ foreach ( $pokretla as $klucz => $vars ) {
 
 LSTAB_Storage::update( $source_id, array( 'style_vars' => array() ) );
 LSTAB_Storage::flush_cache( $source_id );
+
+/*
+ * Język wtyczki wraca na swoje miejsce. Ten skrypt chodzi po tej samej witrynie
+ * testowej co tests/run-all.sh, a zostawione tam 'pl_PL' wywraca testy
+ * tłumaczeń na wtyczce, której nic nie dolega.
+ */
+update_option( LSTAB_Settings::OPTION, $lstab_locale_before );
+LSTAB_Locale::forget();
 
 $zebrane['id']    = (int) $source_id;
 $stored = LSTAB_Storage::get( $source_id );

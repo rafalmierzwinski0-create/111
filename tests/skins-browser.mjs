@@ -965,6 +965,155 @@ check(
 	`${ tintedInk.labelRatio } / ${ tintedInk.labelShown }`
 );
 
+/*
+ * The badge, in the colours nobody should have to think twice about picking.
+ *
+ * A pill's word is the rule's colour mixed with the table's own ink, and the
+ * share of that mix is the whole safety margin: the table's ink is readable on
+ * the table's paper by construction, so the less of the chosen colour the word
+ * keeps, the safer it is. At 55 per cent a bright mint measured 3.44 to 1 on
+ * warm paper — a reading nobody had, because the badge's word had never been
+ * measured on a real page. This is that page: white, mint, black and amber, on
+ * every skin there is.
+ */
+await page.goto( said.pills.url, { waitUntil: 'networkidle' } );
+await page.waitForTimeout( 300 );
+
+const readPills = ( id ) => {
+	const wrap = document.querySelector( `.lstab[data-lstab-id="${ id }"]` );
+
+	if ( ! wrap ) {
+		return { missing: true };
+	}
+
+	/*
+	 * color-mix() comes back as "color(srgb 0.28 0.55 0.5)" — components from
+	 * nought to one rather than nought to 255 — and the pill's ink is nothing
+	 * but a color-mix(). A parser written for rgb() alone reads that as black,
+	 * or as nothing at all, and quietly skips the very thing being measured.
+	 */
+	const parse = ( colour ) => {
+		const text = ( colour || '' ).trim();
+		const m = /^(?:rgba?|color)\(([^)]+)\)/.exec( text );
+
+		if ( ! m ) {
+			return null;
+		}
+
+		const scale = text.startsWith( 'color(' ) ? 255 : 1;
+		const parts = m[ 1 ].replace( /^srgb\s+/, '' ).split( /[\s,\/]+/ ).filter( ( x ) => '' !== x ).map( Number );
+
+		return { r: parts[ 0 ] * scale, g: parts[ 1 ] * scale, b: parts[ 2 ] * scale, a: undefined === parts[ 3 ] ? 1 : parts[ 3 ] };
+	};
+
+	const over = ( top, bottom ) => ( {
+		r: top.r * top.a + bottom.r * ( 1 - top.a ),
+		g: top.g * top.a + bottom.g * ( 1 - top.a ),
+		b: top.b * top.a + bottom.b * ( 1 - top.a ),
+		a: 1,
+	} );
+
+	const behind = ( el ) => {
+		const layers = [];
+		let node = el;
+
+		while ( node && 1 === node.nodeType ) {
+			const style = getComputedStyle( node );
+			const filter = style.backdropFilter || style.webkitBackdropFilter || 'none';
+			const bright = /brightness\(\s*([\d.]+)%?\s*\)/.exec( filter );
+			const image = style.backgroundImage;
+			const colour = parse( style.backgroundColor );
+
+			if ( image && 'none' !== image ) {
+				const stops = [ ...image.matchAll( /(?:rgba?|color)\([^)]+\)/g ) ].map( ( x ) => parse( x[ 0 ] ) ).filter( Boolean );
+				const solid = stops.filter( ( x ) => x.a > 0.9 );
+
+				if ( solid.length ) {
+					layers.push( { colour: solid[ Math.floor( solid.length / 2 ) ] } );
+					break;
+				}
+			}
+
+			if ( colour && colour.a > 0 ) {
+				layers.push( { colour } );
+
+				if ( colour.a >= 0.999 ) {
+					break;
+				}
+			}
+
+			if ( bright ) {
+				layers.push( { bright: Number( bright[ 1 ] ) * ( filter.includes( bright[ 1 ] + '%' ) ? 0.01 : 1 ) } );
+			}
+
+			node = node.parentElement;
+		}
+
+		let out = { r: 255, g: 255, b: 255, a: 1 };
+
+		for ( let i = layers.length - 1; i >= 0; i -= 1 ) {
+			const step = layers[ i ];
+
+			if ( undefined !== step.bright ) {
+				out = { r: out.r * step.bright, g: out.g * step.bright, b: out.b * step.bright, a: 1 };
+				continue;
+			}
+
+			out = step.colour.a >= 0.999 ? step.colour : over( step.colour, out );
+		}
+
+		return out;
+	};
+
+	const lum = ( c ) => {
+		const f = ( v ) => {
+			const s = v / 255;
+			return s <= 0.03928 ? s / 12.92 : Math.pow( ( s + 0.055 ) / 1.055, 2.4 );
+		};
+		return 0.2126 * f( c.r ) + 0.7152 * f( c.g ) + 0.0722 * f( c.b );
+	};
+
+	const words = [ ...wrap.querySelectorAll( 'tbody .lstabp-pill .lstab-cell-value' ) ];
+	const seen = [];
+
+	for ( const word of words ) {
+		const ink = parse( getComputedStyle( word ).color );
+
+		if ( ! ink ) {
+			seen.push( { ratio: 0, ink: getComputedStyle( word ).color, unreadable: true } );
+			continue;
+		}
+
+		const paper = behind( word );
+		const front = ink.a >= 0.999 ? ink : over( ink, paper );
+		const a = lum( front );
+		const b = lum( paper );
+
+		seen.push( {
+			ratio: Math.round( ( ( Math.max( a, b ) + 0.05 ) / ( Math.min( a, b ) + 0.05 ) ) * 100 ) / 100,
+			line: getComputedStyle( word ).borderTopColor,
+		} );
+	}
+
+	seen.sort( ( x, y ) => x.ratio - y.ratio );
+
+	return { badges: words.length, worst: seen[ 0 ] || null };
+};
+
+for ( const one of said.pills.tables ) {
+	const pills = await page.evaluate( readPills, one.id );
+
+	if ( ! check( ! pills.missing && pills.badges > 0, `${ one.skin }: the badges are drawn`, JSON.stringify( pills ) ) ) {
+		continue;
+	}
+
+	check(
+		pills.worst.ratio >= 4.5,
+		`${ one.skin }: the worst badge anybody can pick is still readable (${ pills.worst.ratio }:1)`,
+		JSON.stringify( pills.worst )
+	);
+}
+
 // ---------------------------------------------------------------- the end
 
 check( 0 === problems.length, 'no script errors on any of the pages', problems.join( ' | ' ) );

@@ -188,13 +188,18 @@
 	 * Written once because two screens draw the same badge: the swatch beside
 	 * a colour rule, and the chip that offers a whole column of them.
 	 *
+	 * The three shares here are the three in LSTABP_Rules::css_for(). They have
+	 * to be, or the preview shows one badge and the page another — and the
+	 * share on the ink is not a matter of taste: it is what keeps the word
+	 * readable when somebody picks white.
+	 *
 	 * @param {string} hex The badge's colour.
 	 * @return {string} Declarations.
 	 */
 	function pillCss( hex ) {
 		return '--lstabp-pill-line:' + hex + ';'
 			+ '--lstabp-pill-fill:color-mix(in srgb,' + hex + ' 18%,transparent);'
-			+ '--lstabp-pill-ink:color-mix(in srgb,' + hex + ' 55%,currentColor);';
+			+ '--lstabp-pill-ink:color-mix(in srgb,' + hex + ' 35%,currentColor);';
 	}
 
 	/**

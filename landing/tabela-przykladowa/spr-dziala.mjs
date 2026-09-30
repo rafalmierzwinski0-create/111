@@ -4,7 +4,7 @@ const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-119
 const c = await b.newContext({ viewport: { width: 1400, height: 1100 } });
 const p = await c.newPage();
 const bledy = []; p.on('pageerror', e => bledy.push(e.message));
-await p.goto('file://' + process.cwd() + '/tabela-ladna.html');
+await p.goto('file://' + process.cwd() + '/TABELA-przykladowa.html');
 await p.waitForTimeout(900);
 const kolumna = (i) => p.evaluate((i) => [...document.querySelectorAll('.lstab-table')][0]
   .querySelectorAll('tbody tr')

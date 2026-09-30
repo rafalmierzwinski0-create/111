@@ -64,9 +64,13 @@ const otworz = async ( html, { width = 1500, height = 1100, ruch = true } = {} )
 
 /** Najgorszy kontrast wśród moich własnych napisów. */
 const kontrast = ( p ) => p.evaluate( () => {
-	const parse = ( c ) => { const m = ( c || '' ).match( /rgba?\(([^)]+)\)/ ); if ( ! m ) return null;
-		const a = m[ 1 ].split( /[\s,\/]+/ ).filter( Boolean ).map( Number );
-		return { r: a[ 0 ], g: a[ 1 ], b: a[ 2 ], a: a[ 3 ] === undefined ? 1 : a[ 3 ] }; };
+	// color-mix() wraca jako „color(srgb 0.28 0.55 0.5)” — składowe od zera do
+	// jedynki, nie do 255 — a tusz pigułki to właśnie color-mix(). Czytnik pod
+	// samo rgb() zwracał null i cicho pomijał dokładnie to, co ma zmierzyć.
+	const parse = ( c ) => { c = ( c || '' ).trim(); const m = c.match( /^(?:rgba?|color)\(([^)]+)\)/ ); if ( ! m ) return null;
+		const skala = c.startsWith( 'color(' ) ? 255 : 1;
+		const a = m[ 1 ].replace( /^srgb\s+/, '' ).split( /[\s,\/]+/ ).filter( Boolean ).map( Number );
+		return { r: a[ 0 ] * skala, g: a[ 1 ] * skala, b: a[ 2 ] * skala, a: a[ 3 ] === undefined ? 1 : a[ 3 ] }; };
 	const over = ( t, u ) => ( { r: t.r * t.a + u.r * ( 1 - t.a ), g: t.g * t.a + u.g * ( 1 - t.a ), b: t.b * t.a + u.b * ( 1 - t.a ), a: 1 } );
 	const behind = ( el ) => {
 		/*
@@ -130,7 +134,14 @@ const kontrast = ( p ) => p.evaluate( () => {
 	const lum = ( c ) => { const f = ( v ) => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : Math.pow( ( s + 0.055 ) / 1.055, 2.4 ); };
 		return 0.2126 * f( c.r ) + 0.7152 * f( c.g ) + 0.0722 * f( c.b ); };
 	let worst = { r: 99, co: '' };
-	document.querySelectorAll( '.lst-mz [class*="lst-mz-"]' ).forEach( ( el ) => {
+	/*
+	 * Napisy strony i wartości w tabeli, jednym przejściem. Tabela jest tu
+	 * przedmiotem sprzedaży, więc nieczytelna pigułka na niej jest usterką
+	 * strony tak samo jak nieczytelny nagłówek — a przez to, że wcześniej
+	 * chodziło to wyłącznie po „lst-mz-*”, żadna wartość w tabeli nigdy nie
+	 * była zmierzona.
+	 */
+	document.querySelectorAll( '.lst-mz [class*="lst-mz-"], .lst-mz .lstab tbody .lstab-cell-value' ).forEach( ( el ) => {
 		if ( ! el.textContent.trim() || el.children.length && ! el.childNodes[ 0 ].nodeValue ) return;
 		const ink = parse( getComputedStyle( el ).color ); if ( ! ink ) return;
 		const pap = behind( el );
@@ -179,13 +190,38 @@ console.log( '\nmoduł na stronie' );
 		ile: document.querySelectorAll( '.lst-mz-okno img' ).length,
 		wczytane: [ ...document.querySelectorAll( '.lst-mz-okno img' ) ].filter( ( i ) => i.complete && i.naturalWidth > 0 ).length,
 		puste: [ ...document.querySelectorAll( '.lst-mz-okno img' ) ].filter( ( i ) => ! i.complete || ! i.naturalWidth ).map( ( i ) => i.getAttribute( 'src' ) ),
-		szklo: document.querySelectorAll( '.lst-mz-szklo .lstab-style-glass' ).length,
-		tlo: getComputedStyle( document.querySelector( '.lst-mz-szklo' ) ).backgroundImage.includes( 'gradient' ),
-		rozmycie: getComputedStyle( document.querySelector( '.lst-mz-szklo .lstab-scroll' ) ).backdropFilter,
+		ksiega: document.querySelectorAll( '.lst-mz-szklo .lstab-style-ledger' ).length,
+		/*
+		 * Jasność papieru kontra jasność strony. Cała rzecz w tym, że tabela
+		 * jest jedynym jasnym przedmiotem na ciemnej stronie — gdyby kiedyś
+		 * wróciła na ciemny szablon, ten pomiar to wyłapie, a samo sprawdzenie
+		 * nazwy klasy nie.
+		 */
+		jasnosc: ( () => {
+			const lum = ( c ) => {
+				const n = ( c.match( /[\d.]+/g ) || [ 0, 0, 0 ] ).map( Number );
+				const skala = /^color\(/.test( c ) ? 255 : 1;
+				const f = ( v ) => { const x = ( v * skala ) / 255; return x <= 0.03928 ? x / 12.92 : Math.pow( ( x + 0.055 ) / 1.055, 2.4 ); };
+
+				return 0.2126 * f( n[ 0 ] ) + 0.7152 * f( n[ 1 ] ) + 0.0722 * f( n[ 2 ] );
+			};
+			// Papier siedzi na panelu przewijania, nie na samym „.lstab”, którego
+			// własne tło jest przezroczyste — mierzone tam, gdzie naprawdę jest.
+			const papier = lum( getComputedStyle( document.querySelector( '.lst-mz-szklo .lstab-scroll' ) ).backgroundColor );
+			const strona = lum( getComputedStyle( document.body ).backgroundColor );
+
+			return { papier: Math.round( papier * 1000 ) / 1000, strona: Math.round( strona * 1000 ) / 1000 };
+		} )(),
+		podniesiony: getComputedStyle( document.querySelector( '.lst-mz-szklo' ) ).boxShadow,
 	} ) );
 	ok( 'trzy zrzuty z kokpitu, wszystkie wczytane', zrzuty.ile === 3 && zrzuty.wczytane === 3, zrzuty.puste.join( ', ' ) || '3 z 3' );
-	ok( 'tabela jest szklana i ma przez co patrzeć', zrzuty.szklo === 2 && zrzuty.tlo && /blur/.test( zrzuty.rozmycie ),
-		`szkło ${ zrzuty.szklo }, gradient ${ zrzuty.tlo }, ${ zrzuty.rozmycie }` );
+	ok( 'obie tabele są na Księdze, a nie na szablonie, który komuś nie pasował',
+		zrzuty.ksiega === 2, `ksiąg ${ zrzuty.ksiega }` );
+	ok( 'arkusz jest jasny, a strona pod nim ciemna — i to on jest tu przedmiotem',
+		zrzuty.jasnosc.papier > 0.7 && zrzuty.jasnosc.strona < 0.1,
+		`papier ${ zrzuty.jasnosc.papier }, strona ${ zrzuty.jasnosc.strona }` );
+	ok( 'i naprawdę leży na stronie, a nie jest w nią wpuszczony',
+		/rgba?\(/.test( zrzuty.podniesiony ) && 'none' !== zrzuty.podniesiony, zrzuty.podniesiony );
 
 	const ruch = await p.evaluate( () => ( {
 		niewidoczne: [ ...document.querySelectorAll( '.lst-mz [class*="lst-mz-"]' ) ].filter( ( e ) => getComputedStyle( e ).opacity === '0' ).length,
@@ -213,6 +249,49 @@ console.log( '\nmoduł na stronie' );
 	} );
 	ok( 'arkusz wtyczki dojechał cały — zapytanie kontenerowe działa',
 		arkusz.typ === 'inline-size' && arkusz.sierotki === 0, `container-type ${ arkusz.typ }, pokiereszowanych selektorów ${ arkusz.sierotki }` );
+
+	/*
+	 * Zasada, przez którą ten ruch jest taki, jaki jest: animacja na osi widoku
+	 * nie ma prawa dotknąć przezroczystości. Element przed swoim zakresem siedzi
+	 * w klatce startowej — „jeszcze nie wszedł” znaczyłoby „niewidoczny”, i to
+	 * na zrzucie całej strony, na wydruku i u każdego, komu oś zadziała inaczej,
+	 * niż zakładałem. Przesunięte zdanie jest zdaniem; przezroczyste nie ma.
+	 */
+	/*
+	 * Mierzone zachowaniem, nie czytaniem reguł: strona jest przewijana na trzy
+	 * wysokości i za każdym razem nic w module nie ma prawa być niewidoczne.
+	 * Element przed swoim zakresem siedzi w klatce startowej, więc gdyby ta
+	 * klatka ruszała przezroczystość, „jeszcze nie wszedł” znaczyłoby „nie ma
+	 * go” — na zrzucie całej strony, na wydruku i u każdego, komu oś widoku
+	 * zadziała inaczej, niż zakładałem.
+	 */
+	const znikajace = [];
+	let osiUzyte = 0;
+
+	for ( const gdzie of [ 0, 0.5, 1 ] ) {
+		await p.evaluate( ( u ) => window.scrollTo( 0, ( document.body.scrollHeight - innerHeight ) * u ), gdzie );
+		await p.waitForTimeout( 120 );
+
+		const stan = await p.evaluate( () => {
+			const schowane = [ ...document.querySelectorAll( '.lst-mz [class*="lst-mz-"], .lst-mz .lstab-row' ) ]
+				.filter( ( e ) => Number( getComputedStyle( e ).opacity ) < 0.99 )
+				.map( ( e ) => e.className.toString().slice( 0, 40 ) );
+			const naOsi = [ ...document.querySelectorAll( '.lst-mz .lst-mz-ekran, .lst-mz .lst-mz-szklo' ) ]
+				.filter( ( e ) => 'auto' !== getComputedStyle( e ).animationTimeline ).length;
+
+			return { schowane, naOsi };
+		} );
+
+		osiUzyte = Math.max( osiUzyte, stan.naOsi );
+		znikajace.push( ...stan.schowane );
+	}
+
+	await p.evaluate( () => window.scrollTo( 0, 0 ) );
+	await p.waitForTimeout( 120 );
+
+	ok( 'ruch na osi widoku naprawdę jest', osiUzyte > 0, `elementów na osi: ${ osiUzyte }` );
+	ok( 'i na żadnej wysokości strony nic nie jest niewidoczne',
+		0 === znikajace.length, znikajace.slice( 0, 4 ).join( ' | ' ) || 'nic' );
 
 	const rama = await p.evaluate( () => {
 		const k = document.querySelector( '.lst-mz-rama' ).getBoundingClientRect();

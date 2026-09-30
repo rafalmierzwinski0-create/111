@@ -52,6 +52,7 @@ SZABLONY = [
 	( 'contrast', 'Kontrast', 'papier', 'Pełny pasek nagłówków i mocniejsza pierwsza kolumna. Tabela do pokazania na ekranie w sali.' ),
 	( 'editorial', 'Redakcyjny', 'papier', 'Szeryfowe nagłówki, cienkie linie, kreska zamykająca listę. Tabela do czytania, nie do klikania.' ),
 	( 'terminal', 'Terminal', 'noc', 'Jedna szerokość znaku, wersaliki, mięta na prawie czarnym. Cyfry ustawiają się w kolumnę same z siebie.' ),
+	( 'ledger', 'Księga', 'papier', 'Ciepły papier, podwójna kreska pod nagłówkami i pas co drugą kolumnę. Do arkusza z liczbami: pas trzyma oko w jednej kolumnie, a cyfry ustawiają się same.' ),
 ]
 
 szablony = ''
@@ -69,7 +70,15 @@ for klucz, nazwa, opis in POKRETLA:
 	pokretla += ( '<p class="etykieta">' + nazwa + ' <span class="cicho">— ' + opis + '</span></p>'
 		+ '<div class="probka">' + P[ klucz ] + '</div>' )
 
-STRONA = '''<title>Szlaki prosto z arkusza</title>
+# Bez <!doctype> przeglądarka idzie w tryb zgodności ze starociami, a w nim
+# <table> nie dziedziczy koloru po tym, w czym stoi — bierze go z <body>. Na tej
+# stronie znaczyło to bladą miętę ze strony w każdej komórce każdej tabeli, więc
+# na jasnym papierze napisu praktycznie nie było widać. Jedna linijka; sprawdza
+# ją spr.mjs.
+STRONA = '''<!doctype html>
+<html lang="pl">
+<meta charset="utf-8">
+<title>Szlaki prosto z arkusza</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Inria+Serif:ital,wght@0,300;0,400&display=swap">
 <style>
 ''' + CSS + '''
@@ -188,7 +197,7 @@ a liczy na serwerze — odwiedzający dostaje gotową tabelę, a nie kręcące s
 
 ''' + sekcja( 'noc', naglowek( 'Co robi co', 'Sześć rzeczy nad tą tabelą', 'Wszystkie z ekranu „Wygląd”, żadna nie wymaga wiersza kodu.' ) + lista ) + '''
 
-''' + sekcja( 'noc', naglowek( 'Ten sam arkusz', 'Dziewięć szablonów, jedno źródło', 'Szablon to klasa na tabeli. Dane, reguły i wygląd kolumn zostają takie same — zmienia się tylko to, co widać.' ) ) + szablony + '''
+''' + sekcja( 'noc', naglowek( 'Ten sam arkusz', 'Dziesięć szablonów, jedno źródło', 'Szablon to klasa na tabeli. Dane, reguły i wygląd kolumn zostają takie same — zmienia się tylko to, co widać.' ) ) + szablony + '''
 
 ''' + sekcja( 'papier', naglowek( 'Dwa pokrętła', 'Gęstość i linie osobno', 'Niezależne od szablonu i od siebie. Ta sama tabela w szablonie Kontrast, trzy razy.' ) + pokretla ) + '''
 

@@ -36,7 +36,7 @@ NAJWIECEJ = max( int( w[ 3 ] ) for w in WIERSZE )
 PIGULKA = '#5fe3cf'
 STYL_PIGULKI = ( '--lstabp-pill-line:' + PIGULKA + ';'
 	'--lstabp-pill-fill:color-mix(in srgb,' + PIGULKA + ' 18%,transparent);'
-	'--lstabp-pill-ink:color-mix(in srgb,' + PIGULKA + ' 55%,currentColor);' )
+	'--lstabp-pill-ink:color-mix(in srgb,' + PIGULKA + ' 35%,currentColor);' )
 
 # Po poprawce reguła podaje też "--lstab-row-tint", dzięki czemu przypięta
 # pierwsza kolumna powtarza kolor zamiast zostać w barwie tabeli.
@@ -166,5 +166,9 @@ h1 { font-family: "Inria Serif", Georgia, serif; font-weight: 300; font-size: 44
 <script>''' + JS + '''</script>
 </body></html>'''
 
-pathlib.Path( 'tabela-ladna.html' ).write_text( strona )
+# Obok tego pliku i pod nazwą, która naprawdę jest w repozytorium. Wcześniej
+# ścieżka była względna do katalogu, z którego się uruchamia, i pod inną nazwą:
+# przebudowa zostawiała plik w korzeniu repozytorium, a strona, którą wszyscy
+# czytają, zostawała stara.
+pathlib.Path( __file__ ).with_name( 'TABELA-przykladowa.html' ).write_text( strona )
 print( 'ok', len( strona ) )

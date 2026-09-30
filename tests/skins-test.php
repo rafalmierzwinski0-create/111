@@ -477,6 +477,144 @@ $manifest['tuned'] = array(
 	),
 );
 
+// ---------------------------------------- a pill in every skin, in awkward colours
+
+lstab_skins_section( 'A pill keeps its word readable, whatever colour it is given' );
+
+/*
+ * A pill's word is not painted in the rule's colour outright: it is mixed with
+ * the table's own ink, because the palette the dashboard offers is full of
+ * colours no eye can read on paper. What decides whether that mixing is enough
+ * is the share, and a share that is too generous stays invisible until somebody
+ * picks a pale colour on a pale skin — which is exactly how a bright mint came
+ * to be 3.44 to 1 on warm paper.
+ *
+ * So: the four nastiest colours anybody can choose, on every skin there is,
+ * rendered by the plugin itself rather than described. The browser run measures
+ * the word inside each badge against what is actually behind it.
+ */
+$pill_colours = array(
+	'Produkt'      => '#ffffff',
+	'Cena netto'   => '#5fe3cf',
+	'Dostępność'   => '#000000',
+	'Zaktualizowano' => '#f2b544',
+);
+
+/*
+ * And the same badges again on a row a colour rule has already painted. That
+ * is the harder case and the one nobody thinks of: on a painted row the badge
+ * mixes with the ink the rule worked out for its own background, not with the
+ * table's, so a badge that is comfortable on paper can be marginal on a row.
+ * Both colours here are ones the dashboard would accept without a murmur.
+ */
+$pill_rows = array(
+	array( 'column' => 'Dostępność', 'operator' => '=', 'value' => 'W magazynie', 'style' => '#8c3b46', 'scope' => 'row' ),
+	array( 'column' => 'Dostępność', 'operator' => '=', 'value' => 'Na zamówienie', 'style' => '#e8f3c8', 'scope' => 'row' ),
+);
+
+$pill_tables = array();
+$pill_blocks = '';
+$pill_looks  = get_option( 'lstabp_column_looks', array() );
+$pill_looks  = is_array( $pill_looks ) ? $pill_looks : array();
+$pill_rules  = get_option( 'lstabp_rules', array() );
+$pill_rules  = is_array( $pill_rules ) ? $pill_rules : array();
+
+foreach ( $skins as $skin ) {
+	$pill_id = LSTAB_Storage::insert(
+		array(
+			'title'         => 'Pills — ' . ucfirst( $skin ),
+			// Glass is a window: onto a white wall it is a white rectangle, and
+			// a badge measured against one says nothing about the skin.
+			'custom_css'    => 'glass' === $skin
+				? "&{background-image:linear-gradient(135deg,#1f6f8b,#6b3fa0 55%,#c2557a);padding:22px;border-radius:20px}"
+				: '',
+			'sheet_url'     => 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0',
+			'sheet_id'      => '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789',
+			'sheet_kind'    => 'doc',
+			'gid'           => '0',
+			'tab_name'      => 'Cennik',
+			'sync_interval' => 900,
+			'style_preset'  => $skin,
+			'layout'        => 'auto',
+			'style_vars'    => array(),
+		)
+	);
+
+	if ( ! $pill_id ) {
+		lstab_skins_assert( false, "A source was made for pills on {$skin}" );
+		continue;
+	}
+
+	LSTAB_Sync::run( $pill_id );
+
+	$wanted = array();
+
+	foreach ( $pill_colours as $column => $colour ) {
+		$wanted[ $column ] = array(
+			'look'  => 'pill',
+			'tint'  => $colour,
+			'ink'   => '',
+			'label' => '',
+		);
+	}
+
+	$pill_looks[ $pill_id ] = $wanted;
+	$pill_rules[ $pill_id ] = $pill_rows;
+
+	$pill_tables[] = array(
+		'id'      => (int) $pill_id,
+		'skin'    => $skin,
+		'colours' => array_values( $pill_colours ),
+	);
+
+	$pill_blocks .= '<!-- wp:heading {"level":2} --><h2>' . esc_html( ucfirst( $skin ) ) . '</h2><!-- /wp:heading -->' . "\n";
+	$pill_blocks .= '<!-- wp:live-sheets-table/sheet-table {"sourceId":' . (int) $pill_id . ',"align":"wide","showSearch":false,"showSort":false,"showUpdated":false} /-->' . "\n\n";
+}
+
+update_option( 'lstabp_column_looks', $pill_looks, false );
+update_option( 'lstabp_rules', $pill_rules, false );
+
+foreach ( $pill_tables as $one ) {
+	LSTAB_Storage::flush_cache( $one['id'] );
+}
+
+$pill_html = LSTAB_Renderer::render( array( 'source_id' => $pill_tables[0]['id'] ) );
+
+lstab_skins_assert(
+	false !== strpos( $pill_html, '--lstabp-pill-ink:' ),
+	'The badge carries an ink worked out from the colour chosen',
+	substr( $pill_html, 0, 400 )
+);
+
+lstab_skins_assert(
+	false === strpos( $pill_html, '--lstabp-pill-ink:color-mix(in srgb,#ffffff 55%' ),
+	'and that ink no longer keeps more than half the chosen colour'
+);
+
+$pill_slug = 'lstab-skins-pigulki';
+$pill_old  = get_page_by_path( $pill_slug, OBJECT, 'page' );
+if ( $pill_old ) {
+	wp_delete_post( $pill_old->ID, true );
+}
+
+$pill_page = wp_insert_post(
+	array(
+		'post_title'   => 'Skins — pills in awkward colours',
+		'post_name'    => $pill_slug,
+		'post_content' => $pill_blocks,
+		'post_status'  => 'publish',
+		'post_type'    => 'page',
+	)
+);
+
+lstab_skins_assert( $pill_page > 0, 'A page shows a badge on every skin' );
+
+$manifest['pills'] = array(
+	'url'     => get_permalink( $pill_page ),
+	'tables'  => $pill_tables,
+	'colours' => array_values( $pill_colours ),
+);
+
 // ---------------------------------------------------------------- manifest
 
 $out = __DIR__ . '/fixtures/skins-php-said.json';
@@ -490,6 +628,7 @@ foreach ( $manifest['pages'] as $page ) {
 }
 echo '        ' . $manifest['tuned']['url'] . "\n";
 echo '        ' . $manifest['glass']['url'] . "\n";
+echo '        ' . $manifest['pills']['url'] . "\n";
 
 // ------------------------------------------------------------------ result
 

@@ -92,7 +92,7 @@ LEGENDA = [
 
 # ( plik, tytuł, zdanie, okno )
 EKRANY = [
-	( 'mz-wyglad', 'Nine styles, and two dials',
+	( 'mz-wyglad', 'Ten styles, then the dials',
 	  'Pick a style, then disagree with it: colours one by one, text size, row height and how many lines '
 	  'the table draws. Everything you leave alone keeps following the style.',
 	  'Appearance' ),
@@ -119,7 +119,7 @@ WOLNE = [
 
 PRO = [
 	'As many sheets as you like, checked as often as every minute.',
-	'Six more styles: Cards, Terminal, Glass, Contrast, Midnight, Editorial.',
+	'Seven more styles: Cards, Terminal, Glass, Ledger, Contrast, Midnight, Editorial.',
 	'Colour rules: the cell, the whole row, just the words, a pill or a dot.',
 	'Column looks: a bar behind a number, a button where there is a link.',
 	'Filters your visitors use themselves.',
@@ -160,7 +160,7 @@ def ekran( plik, tytul, opis, okno, odwrocony ):
 		'<div class="lst-mz-okno"><div class="lst-mz-belka">' + kropki +
 		'<span class="lst-mz-nazwa-okna">' + okno + '</span></div>'
 		'<img src="ADRES/' + plik + '.png" alt="' + okno + '" width="' + str( z[ 'w' ] ) + '" '
-		'height="' + str( z[ 'h' ] ) + '" loading="lazy" decoding="async"></div>'
+		'height="' + str( z[ 'h' ] ) + '" decoding="async"></div>'
 		'</div>' )
 
 
@@ -258,9 +258,33 @@ STYL = r"""
 	margin: 0 calc( 50% - var( --mz-pelna ) / 2 );
 	overflow-x: clip;
 	padding: clamp( 1rem, 2vw, 1.6rem ) 0 clamp( 2rem, 4vw, 3.4rem );
+	position: relative;
+	isolation: isolate;
 }
 
-.lst-mz.lst-mz { border: 0 !important; outline: 0 !important; background: none !important; }
+/*
+ * Światło na kanwie. Bez niego moduł jest jedną płaską płytą od krawędzi do
+ * krawędzi i strona nie ma środka — a ma go mieć tam, gdzie leży tabela.
+ * Rysowane pseudoelementem, nie tłem, bo utwardzenie na wrogie motywy niżej
+ * zdejmuje tła, a tego jednego zdjąć nie może.
+ */
+.lst-mz::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+	background-image:
+		radial-gradient( 62% 44% at 50% 26%, rgba( var( --mz-mieta ), .07 ) 0%, rgba( var( --mz-mieta ), 0 ) 70% ),
+		radial-gradient( 90% 60% at 50% 100%, rgba( 10, 15, 14, .55 ) 0%, rgba( 10, 15, 14, 0 ) 72% );
+}
+
+/*
+ * Utwardzenie zostaje — tło jest wymuszone na przezroczyste, a nie zdjęte:
+ * „none” odbierało też moje własne światło z pseudoelementu wyżej, a motyw
+ * pod spodem i tak nie może tu nic domalować.
+ */
+.lst-mz.lst-mz { border: 0 !important; outline: 0 !important; background-color: transparent !important; background-image: none !important; }
 .lst-mz * { box-sizing: border-box; }
 .lst-mz br { display: none; }
 
@@ -329,10 +353,29 @@ STYL = r"""
 	line-height: 1.5;
 }
 
+/*
+ * Etykieta sekcji ciągnie za sobą włoskową kreskę do prawej krawędzi. Jeden
+ * znak robi tu za dwie rzeczy: dzieli stronę na rozdziały, a przy przewijaniu
+ * rysuje się sam i przez to mówi, że ta sekcja właśnie weszła. Nowego elementu
+ * do tego nie trzeba — kreska jest pseudoelementem etykiety, która i tak tu
+ * stoi.
+ */
 .lst-mz .lst-mz-etykieta {
+	display: flex;
+	align-items: center;
+	gap: .9rem;
 	letter-spacing: .14em;
 	text-transform: uppercase;
 	color: rgb( var( --mz-mieta ) );
+}
+
+.lst-mz .lst-mz-etykieta::after {
+	content: "";
+	flex: 1 1 auto;
+	height: 1px;
+	min-width: 2rem;
+	background-image: linear-gradient( to right, rgba( var( --mz-mieta ), .34 ), rgba( var( --mz-mieta ), 0 ) );
+	transform-origin: left center;
 }
 
 /* ---------------------------------------------------------- trzy kroki */
@@ -351,6 +394,12 @@ STYL = r"""
 	background-color: var( --mz-plyta );
 	border: 1px solid var( --mz-plyta-linia );
 	border-radius: 14px;
+	/*
+	 * Jasna kreska po górnej krawędzi. Ciemny kafelek bez niej jest dziurą w
+	 * stronie; z nią jest płytką, na którą pada światło — i dlatego stos
+	 * kafelków czyta się jako rzeczy, a nie jako prostokąty.
+	 */
+	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .055 ), 0 12px 28px -22px rgba( 0, 0, 0, .9 );
 	/* Jedna deklaracja na wszystko, co ten kafelek animuje — inaczej wejście
 	   i najechanie kasują się nawzajem. */
 	transition: transform 200ms var( --mz-luk ), border-color 200ms ease;
@@ -455,14 +504,25 @@ STYL = r"""
  * nad czernią to czerń. Pod tabelą leży więc światło w barwach strony —
  * mięta z jednej strony, głęboki błękit z drugiej.
  */
+/*
+ * Mata pod arkuszem.
+ *
+ * Do niedawna był tu gradient pod Szkło — panel miał przez co prześwitywać.
+ * Tabela stoi teraz na Księdze, czyli na ciepłym papierze, więc panel robi coś
+ * odwrotnego: jest ciemną, chłodną matą, na której arkusz leży. Cała strona
+ * jest ciemna, a to jedyny jasny przedmiot na niej, i o to chodzi — tabela
+ * jest tym, co się sprzedaje, a reszta jest ramą wokół niej.
+ *
+ * Cień jest prawdziwy, bo to jedyne miejsce na stronie, gdzie wysokość coś
+ * znaczy: arkusz leży NA stronie, nie jest w nią wpuszczony.
+ */
 .lst-mz .lst-mz-szklo {
-	padding: clamp( .7rem, 1.6vw, 1.4rem );
-	border-radius: 22px;
-	background:
-		radial-gradient( 80% 70% at 10% 8%, #1f7a6b 0%, rgba( 31, 122, 107, 0 ) 62% ),
-		radial-gradient( 70% 60% at 92% 92%, #2c4a7d 0%, rgba( 44, 74, 125, 0 ) 60% ),
-		linear-gradient( 152deg, #12302e 0%, #0d1a23 100% );
-	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .06 );
+	padding: clamp( .55rem, 1.3vw, 1.05rem );
+	border-radius: 20px;
+	background-color: rgba( 233, 240, 238, .07 );
+	box-shadow:
+		inset 0 1px 0 rgba( 255, 255, 255, .09 ),
+		0 34px 70px -34px rgba( 0, 0, 0, .95 );
 }
 
 /* ------------------------------------------------------------- legenda */
@@ -509,7 +569,18 @@ STYL = r"""
 .lst-mz .lst-mz-ekran.jest-odwrocony .lst-mz-okno { order: -1; }
 .lst-mz .lst-mz-ekran-tresc { display: grid; gap: .5rem; align-content: start; }
 
+/*
+ * Okno kokpitu ma sufit.
+ *
+ * Zrzuty są wysokie, a wiersz obok nich jest tak wysoki jak one — trzy zdania
+ * tekstu pływały wtedy w morzu czerni na wysokość ekranu i pół strony było
+ * puste. Okno urywa obraz na ustalonej wysokości i ściemnia go u dołu, więc
+ * widać, że ekran ciągnie się dalej. To jest też uczciwsze niż kadr przycięty
+ * na sztywno: nie udaje, że kokpit kończy się akurat tam.
+ */
 .lst-mz .lst-mz-okno {
+	position: relative;
+	max-height: clamp( 15rem, 30vw, 22rem );
 	border: 1px solid rgba( var( --mz-mieta ), .2 );
 	border-radius: 12px;
 	overflow: hidden;
@@ -542,6 +613,22 @@ STYL = r"""
 	height: auto;
 	transition: transform 320ms var( --mz-luk );
 }
+
+/* Ściemnienie u dołu okna: „ten ekran ma dalszy ciąg”. */
+.lst-mz .lst-mz-okno::after {
+	content: "";
+	position: absolute;
+	inset: auto 0 0 0;
+	height: 4.5rem;
+	pointer-events: none;
+	background-image: linear-gradient( to bottom, rgba( 10, 17, 16, 0 ), rgba( 10, 17, 16, .92 ) );
+}
+
+/* Tekst trzyma się góry wiersza, a nie jego środka — wiersz jest teraz niższy,
+   ale nierówny, i wyśrodkowane zdanie odjeżdżałoby od swojego nagłówka. */
+.lst-mz .lst-mz-ekran { align-items: start; }
+
+.lst-mz .lst-mz-ekran-tresc { display: grid; gap: .5rem; align-content: start; padding-top: .35rem; }
 
 /* -------------------------------------------------------------- telefon */
 
@@ -659,11 +746,114 @@ STYL = r"""
  * Mniej ruchu znaczy mniej ruchu, a nie inny ruch: wejście, kropka i puls
  * znikają, a wszystko, co pokazywały, zostaje na miejscu i widoczne.
  */
+/* --------------------------------------------- ruch, który niesie przewijanie */
+
+/*
+ * Dwie zasady, obie wymuszone, a nie deklarowane.
+ *
+ * Po pierwsze: ruch na osi widoku NIE RUSZA PRZEZROCZYSTOŚCI. Tylko przesunięcia.
+ * Kuszące jest wjechać treścią z „opacity: 0”, i tak to tu najpierw stało — po
+ * czym test pokazał dziewiętnaście elementów niewidocznych w spoczynku. Element
+ * przed swoim zakresem siedzi w klatce startowej, więc „jeszcze nie wszedł”
+ * znaczy „niewidoczny”: na zrzucie całej strony, na wydruku, w czytniku, który
+ * nie przewija, i u każdego, komu oś widoku zadziała inaczej, niż zakładałem.
+ * Przesunięte o czternaście pikseli zdanie jest zdaniem. Przezroczyste nie ma.
+ *
+ * Po drugie: całość siedzi w @supports, więc przeglądarka, która osi nie zna,
+ * dostaje stronę gotową, bez ani jednej reguły z tego bloku.
+ *
+ * Zakres kończy się wcześnie — „cover 26%” — żeby sekcja była gotowa, zanim
+ * ktoś do niej doczyta, a nie dojeżdżała pod wzrokiem. Ruch przy przewijaniu ma
+ * witać treść, a nie kazać na nią czekać.
+ */
+@supports ( animation-timeline: view() ) {
+
+	.lst-mz .lst-mz-blok:not( :first-child ) > .lst-mz-etykieta,
+	.lst-mz .lst-mz-blok:not( :first-child ) > .lst-mz-wstep,
+	.lst-mz .lst-mz-legenda .lst-mz-pozycja,
+	.lst-mz .lst-mz-ekran,
+	.lst-mz .lst-mz-listy .lst-mz-kolumna,
+	.lst-mz .lst-mz-kod,
+	.lst-mz .lst-mz-telefon-tekst,
+	.lst-mz .lst-mz-telefon-rama,
+	.lst-mz .lst-mz-stol > .lst-mz-etykieta,
+	.lst-mz .lst-mz-stol > .lst-mz-opis-stolu {
+		animation: lst-mz-wjazd 520ms var( --mz-luk ) both;
+		animation-timeline: view();
+		animation-range: entry 4% cover 26%;
+	}
+
+	/*
+	 * Kreska przy etykiecie rysuje się sama, kiedy sekcja wchodzi. To ten sam
+	 * znak, który dzieli stronę na rozdziały — tu robi dodatkowo za wskaźnik:
+	 * dociągnięta kreska znaczy „ta sekcja jest już twoja”.
+	 */
+	.lst-mz .lst-mz-etykieta::after {
+		animation: lst-mz-kreska 620ms var( --mz-luk ) both;
+		animation-timeline: view();
+		animation-range: entry 6% cover 30%;
+	}
+
+	/*
+	 * Wiersze tabeli przyjeżdżają po kolei. To jedyna animacja na tej stronie,
+	 * która mówi coś o produkcie, a nie o stronie: tak właśnie arkusz ląduje na
+	 * stronie, wiersz po wierszu. Tylko sześć pierwszych i tylko 34 ms odstępu —
+	 * dziesięć wierszy po kolei to już czekanie, a nie powitanie.
+	 */
+	.lst-mz .lst-mz-stol .lstab-row:nth-child( -n + 6 ) {
+		animation: lst-mz-wiersz 420ms var( --mz-luk ) both;
+		animation-timeline: view( block );
+		animation-range: entry 2% cover 22%;
+	}
+
+	.lst-mz .lst-mz-stol .lstab-row:nth-child( 2 ) { animation-delay: 34ms; }
+	.lst-mz .lst-mz-stol .lstab-row:nth-child( 3 ) { animation-delay: 68ms; }
+	.lst-mz .lst-mz-stol .lstab-row:nth-child( 4 ) { animation-delay: 102ms; }
+	.lst-mz .lst-mz-stol .lstab-row:nth-child( 5 ) { animation-delay: 136ms; }
+	.lst-mz .lst-mz-stol .lstab-row:nth-child( 6 ) { animation-delay: 170ms; }
+
+	/* Arkusz podnosi się na matę: jedyne miejsce, gdzie wysokość coś znaczy. */
+	.lst-mz .lst-mz-szklo {
+		animation: lst-mz-arkusz 640ms var( --mz-luk ) both;
+		animation-timeline: view();
+		animation-range: entry 2% cover 24%;
+	}
+}
+
+/* Same przesunięcia — patrz zasada pierwsza wyżej. */
+@keyframes lst-mz-wjazd {
+	from { transform: translateY( 14px ); }
+}
+
+@keyframes lst-mz-wiersz {
+	from { transform: translateY( 7px ); }
+}
+
+@keyframes lst-mz-arkusz {
+	from { transform: translateY( 22px ) scale( .988 ); }
+}
+
+/*
+ * Na papierze nie ma przewijania, więc nie ma też czego dojeżdżać. Oś widoku w
+ * druku jest niczyją ziemią; tu jest po prostu wyłączona i arkusz wychodzi
+ * taki, jaki jest na końcu ruchu.
+ */
+@media print {
+	.lst-mz [class*="lst-mz-"],
+	.lst-mz .lst-mz-etykieta::after,
+	.lst-mz .lst-mz-etap + .lst-mz-etap::before,
+	.lst-mz .lst-mz-stol .lstab-row { animation: none !important; }
+}
+
 @media ( prefers-reduced-motion: reduce ) {
-	.lst-mz .lst-mz-krok,
-	.lst-mz .lst-mz-etap,
-	.lst-mz .lst-mz-puls,
-	.lst-mz .lst-mz-etap + .lst-mz-etap::before { animation: none; }
+	/*
+	 * „Mniej ruchu” znaczy mniej ruchu, nie mniej treści: animacje znikają, a
+	 * wszystko, co one pokazywały, zostaje na ekranie w stanie końcowym.
+	 */
+	.lst-mz [class*="lst-mz-"],
+	.lst-mz .lst-mz-etykieta::after,
+	.lst-mz .lst-mz-etap + .lst-mz-etap::before,
+	.lst-mz .lst-mz-stol .lstab-row { animation: none !important; }
 
 	.lst-mz .lst-mz-krok,
 	.lst-mz .lst-mz-okno,
@@ -697,10 +887,7 @@ STYL = r"""
  */
 .lst-mz .lst-mz-rama { margin-inline: auto !important; }
 
-.lst-mz .lst-mz-szklo { background-image:
-	radial-gradient( 80% 70% at 10% 8%, #1f7a6b 0%, rgba( 31, 122, 107, 0 ) 62% ),
-	radial-gradient( 70% 60% at 92% 92%, #2c4a7d 0%, rgba( 44, 74, 125, 0 ) 60% ),
-	linear-gradient( 152deg, #12302e 0%, #0d1a23 100% ) !important; }
+.lst-mz .lst-mz-szklo { background-color: rgba( 233, 240, 238, .07 ) !important; }
 
 .lst-mz .lst-mz-krok,
 .lst-mz .lst-mz-kolumna,
@@ -780,7 +967,13 @@ STRONA = (
 
 # Podgląd do otwarcia w przeglądarce: podrabia tło i dopełnienia Divi, i
 # podstawia lokalne adresy zrzutów. Do Divi idzie wyłącznie MOZLIWOSCI-en.html.
+# Podgląd udaje stronę Divi, a strona Divi ma deklarację typu dokumentu. Bez
+# niej przeglądarka idzie w tryb zgodności, w którym tabela NIE dziedziczy
+# koloru tekstu po swoim otoczeniu — a wtedy atrament Księgi ustępuje blademu
+# tekstowi strony i cała tabela robi się nieczytelna. Testy tego nie łapały,
+# bo swoją stronę budują z doctype; kłamał sam podgląd.
 PODGLAD = (
+	'<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n'
 	'<title>What it does</title>\n'
 	'<style>\n'
 	'html, body { margin: 0; background: #141b1a; color: #eaf3f1;\n'

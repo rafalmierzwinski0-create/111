@@ -2107,8 +2107,36 @@
 	padding: 0.24em 0.85em;
 	border: 1px solid var(--lstabp-pill-line, currentColor);
 	border-radius: 999px;
-	background-color: var(--lstabp-pill-fill, transparent);
-	color: var(--lstabp-pill-ink, inherit);
+	/*
+	 * The wash behind the word, and the same hand-down as the ink below.
+	 *
+	 * On a row a colour rule has painted, the wash is the last thing standing
+	 * between the word and a background whose readable ink was already worked
+	 * out — and it changes that background. Eighteen per cent of black over a
+	 * pale green row took a word from 4.55 to 1 down to 3.01. So a painted row
+	 * hands down a wash of nothing, and the badge there is an outline: the row
+	 * is already a colour, and the outline still says which badge it is.
+	 */
+	background-color: var(--lstabp-pill-fill-set, var(--lstabp-pill-fill, transparent));
+	/*
+	 * Two inks, and the inherited one comes first on purpose.
+	 *
+	 * "--lstabp-pill-ink" is set on the cell, and is the badge's own colour
+	 * mixed with whatever the table is wearing. On a row a colour rule has
+	 * painted, what the table is wearing is not what is behind this word any
+	 * more: the rule put its own background under it and worked out an ink to
+	 * go with it. A badge mixing its colour into that ink could drag the word
+	 * back towards the paint — a black badge on a dark red row measured 2.38
+	 * to 1 — and the cell's own declaration would win any ordinary contest,
+	 * being on the element itself.
+	 *
+	 * So the rule hands down "--lstabp-pill-ink-set", which this reads first.
+	 * An inherited property cannot be outvoted by one set further in, because
+	 * nothing is being outvoted: it is simply the first name in the list. On a
+	 * painted row the word wears the ink that row already proved readable, and
+	 * the badge still shows its colour in the outline and the wash.
+	 */
+	color: var(--lstabp-pill-ink-set, var(--lstabp-pill-ink, inherit));
 	font-size: 0.86em;
 	letter-spacing: 0.06em;
 	text-transform: uppercase;

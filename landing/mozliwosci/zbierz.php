@@ -53,10 +53,20 @@ foreach ( LSTAB_Storage::get_all() as $existing ) {
 	LSTAB_Storage::delete( $existing['id'] );
 }
 
-/** The sales site's own colours, so the table looks like it belongs there. */
-$mint   = '#5fe3cf';
-$amber  = '#f2b544';
-$coral  = '#ff8d8d';
+/*
+ * The table's own palette, and it is not the page's.
+ *
+ * The page is dark; the table is the one warm, light object on it, because the
+ * table is the thing being sold and everything else is the frame around it.
+ * That means the pills, dots and bars have to be read on cream paper rather
+ * than on a dark panel — pale mint on cream is a smudge, so these are the same
+ * three meanings at ink strength.
+ */
+$zielen = '#2f7d4f';
+$bursztyn = '#b1700a';
+$ceglany = '#b3452f';
+$atrament = '#2b2520';
+$papier = '#fdfbf5';
 
 $source_id = LSTAB_Storage::insert(
 	array(
@@ -67,15 +77,16 @@ $source_id = LSTAB_Storage::insert(
 		'gid'           => '0',
 		'tab_name'      => 'Trails',
 		'sync_interval' => 900,
-		'style_preset'  => 'glass',
+		'style_preset'  => 'ledger',
 		'layout'        => 'auto',
 		/*
-		 * Glass is a frosted panel, so it only means anything over something —
-		 * the page puts a gradient behind it. Its own palette stays; the accent
-		 * is the site's mint, which is a control on the Appearance tab, not CSS.
+		 * Ledger: warm paper, a double rule under the headings, a band down
+		 * every other column. A sheet of trail conditions is a sheet of
+		 * figures and states, which is what this skin is for — and on a dark
+		 * page a warm paper table is the one thing the eye lands on first.
 		 */
 		'style_vars'    => array(
-			'accent'  => $mint,
+			'accent'  => $bursztyn,
 			'lines'   => 'normal',
 			'density' => 'normal',
 		),
@@ -90,12 +101,12 @@ LSTAB_Sync::run( $source_id );
 $rules = array(
 	$source_id => array(
 			array( 'column' => 'Status',     'operator' => '=', 'value' => 'Closed',   'style' => '#3d4c55', 'scope' => 'row' ),
-			array( 'column' => 'Status',     'operator' => '=', 'value' => 'Open',     'style' => $mint,     'scope' => 'pill' ),
-			array( 'column' => 'Status',     'operator' => '=', 'value' => 'Caution',  'style' => $amber,    'scope' => 'pill' ),
-			array( 'column' => 'Status',     'operator' => '=', 'value' => 'Closed',   'style' => $coral,    'scope' => 'pill' ),
-			array( 'column' => 'Difficulty', 'operator' => '=', 'value' => 'Easy',     'style' => $mint,     'scope' => 'dot' ),
-			array( 'column' => 'Difficulty', 'operator' => '=', 'value' => 'Moderate', 'style' => $amber,    'scope' => 'dot' ),
-		array( 'column' => 'Difficulty', 'operator' => '=', 'value' => 'Hard',     'style' => $coral,    'scope' => 'dot' ),
+			array( 'column' => 'Status',     'operator' => '=', 'value' => 'Open',     'style' => $zielen,     'scope' => 'pill' ),
+			array( 'column' => 'Status',     'operator' => '=', 'value' => 'Caution',  'style' => $bursztyn,    'scope' => 'pill' ),
+			array( 'column' => 'Status',     'operator' => '=', 'value' => 'Closed',   'style' => $ceglany,    'scope' => 'pill' ),
+			array( 'column' => 'Difficulty', 'operator' => '=', 'value' => 'Easy',     'style' => $zielen,     'scope' => 'dot' ),
+			array( 'column' => 'Difficulty', 'operator' => '=', 'value' => 'Moderate', 'style' => $bursztyn,    'scope' => 'dot' ),
+		array( 'column' => 'Difficulty', 'operator' => '=', 'value' => 'Hard',     'style' => $ceglany,    'scope' => 'dot' ),
 	),
 );
 
@@ -103,8 +114,8 @@ update_option( 'lstabp_rules', $rules, false );
 
 $looks = array(
 	$source_id => array(
-		'Snow (cm)' => array( 'look' => 'bar', 'tint' => $mint, 'ink' => '', 'label' => '' ),
-		'Webcam'    => array( 'look' => 'button', 'tint' => $mint, 'ink' => '#08201c', 'label' => 'Live view' ),
+		'Snow (cm)' => array( 'look' => 'bar', 'tint' => $zielen, 'ink' => '', 'label' => '' ),
+		'Webcam'    => array( 'look' => 'button', 'tint' => $atrament, 'ink' => $papier, 'label' => 'Live view' ),
 	),
 );
 

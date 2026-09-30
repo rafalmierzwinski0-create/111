@@ -5,13 +5,20 @@ import { chromium } from '/tmp/lstab-env/node_modules/playwright/index.mjs';
 import fs from 'fs';
 
 /*
- * Artefakt dostaje przy publikacji własne <!doctype html>, a ten plik go nie
- * ma. Bez doctype przeglądarka wchodzi w tryb zgodności, w którym tabela nie
- * dziedziczy koloru tekstu po pudełku, w którym stoi — i sprawdzenie mierzy
- * usterkę, której na opublikowanej stronie nie ma. Więc sprawdzamy dokładnie
- * to, co zobaczy czytelnik.
+ * Strona ma własne <!doctype html> i to jest tu sprawdzane, a nie doklejane.
+ * Bez doctype przeglądarka wchodzi w tryb zgodności ze starociami, w którym
+ * <table> nie dziedziczy koloru tekstu po pudełku, w którym stoi — bierze go
+ * z <body>. Na tej stronie znaczyło to bladą miętę ze strony w każdej komórce
+ * każdej tabeli, więc na jasnym papierze napisu prawie nie było widać.
+ * Sprawdzenie to zamiatało wcześniej pod dywan, doklejając doctype samo z
+ * siebie: plik był zepsuty, a sprawdzenie zielone.
  */
-const zrodlo = '<!doctype html>' + fs.readFileSync('/home/user/111/landing/szlaki/SZLAKI.html', 'utf8');
+const zrodlo = fs.readFileSync('/home/user/111/landing/szlaki/SZLAKI.html', 'utf8');
+
+if ( ! /^<!doctype html>/i.test( zrodlo ) ) {
+	console.error( 'BŁĄD: SZLAKI.html nie zaczyna się od <!doctype html> — tabele stracą kolor tekstu' );
+	process.exit( 1 );
+}
 const plik = 'file:///home/user/111/landing/szlaki/';
 const b = await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
 const p = await b.newPage({viewport:{width:1280,height:1000}, deviceScaleFactor:2});
@@ -39,7 +46,11 @@ await p.fill('.gora .lstab .lstab-search-input', '');
 await p.waitForTimeout(150);
 // kontrast
 const kontrast = await p.evaluate(()=>{
-  const parse=(c)=>{const m=(c||'').match(/rgba?\(([^)]+)\)/);if(!m)return null;const a=m[1].split(/[\s,\/]+/).filter(Boolean).map(Number);return {r:a[0],g:a[1],b:a[2],a:a[3]===undefined?1:a[3]};};
+  // color-mix() wraca jako "color(srgb 0.28 0.55 0.5)" — składowe od zera do
+  // jedynki, a nie od zera do 255 — a tusz pigułki to właśnie color-mix().
+  // Czytnik napisany pod samo rgb() zwracał tu null i cicho pomijał dokładnie
+  // to, co miało być zmierzone: słowo w plakietce.
+  const parse=(c)=>{c=(c||'').trim();const m=c.match(/^(?:rgba?|color)\(([^)]+)\)/);if(!m)return null;const skala=c.startsWith('color(')?255:1;const a=m[1].replace(/^srgb\s+/,'').split(/[\s,\/]+/).filter(Boolean).map(Number);return {r:a[0]*skala,g:a[1]*skala,b:a[2]*skala,a:a[3]===undefined?1:a[3]};};
   const over=(t,b)=>({r:t.r*t.a+b.r*(1-t.a),g:t.g*t.a+b.g*(1-t.a),b:t.b*t.a+b.b*(1-t.a),a:1});
   const behind=(el)=>{let n=el;const L=[];while(n){const s=getComputedStyle(n);const c=parse(s.backgroundColor);const img=s.backgroundImage;
     if(img&&img!=='none'){const st=[...img.matchAll(/rgba?\([^)]+\)/g)].map(x=>parse(x[0])).filter(x=>x.a>0.9);if(st.length){L.push(st[Math.floor(st.length/2)]);break;}}
@@ -60,6 +71,27 @@ const kontrast = await p.evaluate(()=>{
   return out;
 });
 console.log(JSON.stringify(kontrast,null,1));
+// Nie sam wydruk: najsłabszy napis na stronie musi trzymać 4,5 : 1. Wcześniej
+// to był wydruk i nic więcej, więc pigułki po 3 : 1 przejeżdżały na zielono.
+const najslabszy = Object.entries(kontrast).sort((a,b)=>a[1]-b[1])[0];
+console.log('najsłabszy napis:', najslabszy[0], najslabszy[1]);
+if (najslabszy[1] < 4.5) { console.error('BŁĄD: napis pod progiem czytelności'); process.exitCode = 1; }
+// Tusz w komórkach musi być tuszem szablonu, a nie kolorem strony: to jest
+// dokładnie to, co gubił tryb zgodności.
+const tusz = await p.evaluate(()=>{
+  const out={};
+  document.querySelectorAll('.lstab').forEach((wrap)=>{
+    const k=[...wrap.classList].find(c=>c.startsWith('lstab-style-'))||'?';
+    const td=wrap.querySelector('tbody td'); if(!td) return;
+    const chce=getComputedStyle(wrap).getPropertyValue('--lstab-fg').trim();
+    out[k]={ma:getComputedStyle(td).color, chce};
+  });
+  return out;
+});
+const rozne = Object.entries(tusz).filter(([,v])=>v.ma==='rgb(233, 244, 241)');
+console.log('tusz komórek bierze się z szablonu:', rozne.length===0 ? 'tak' : JSON.stringify(rozne));
+if (rozne.length) { console.error('BŁĄD: tabele wzięły kolor tekstu ze strony, a nie z szablonu'); process.exitCode = 1; }
+
 console.log('błędy skryptu:', errs.length, errs.slice(0,2));
 const m = await b.newPage({viewport:{width:390,height:900}});
 await m.goto(plik); await m.setContent(zrodlo,{waitUntil:'load'});

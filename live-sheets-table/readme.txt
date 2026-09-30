@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.32.0
+Stable tag: 3.33.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -180,6 +180,10 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.33.0 =
+* Fixed (Pro): a colour rule's pill could leave its word unreadable. The word is the rule's colour mixed with the table's own ink, and it kept 55 per cent of the colour chosen — enough that a pale one carried the mix with it. A bright mint measured 3.44 to 1 on warm paper, and white, which is the first colour the picker offers, 2.5 to 1 on every light style there is. Both are under the readability bar, from a setting that gave no hint it could do that. The word now keeps 35 per cent, which puts the worst case anybody can reach at 4.57 to 1 with the colour still plainly showing. The outline and the wash behind the word are unchanged, so a badge looks like the same badge; only its lettering is steadier. A badge in the four most awkward colours is now published on every style and measured on a real page.
+* Fixed (Pro): a badge standing on a row a colour rule had painted could be worse still. The word mixes with the table's ink, and on a painted row that ink is not what is behind the word any more — a black badge on a dark red row measured 2.38 to 1. A painted row now hands its badges the ink it worked out for itself, and hands them a wash of nothing: the wash is a fifth of the badge's colour laid over the very background that ink was measured against, and eighteen per cent of black over a pale green row took a word from 4.55 to 1 down to 3.01. On a painted row a badge is an outline, which is all it needs to be, because the row is already a colour. The worst case anybody can reach is now exactly the row's own — 4.58 to 1 — and the badge costs nothing beyond it.
 
 = 3.32.0 =
 * Added (Pro): a tenth style, Ledger, for a sheet of figures. Warm paper, a double rule under the headings, and a band down every other column — every other style in the set shades rows, and running down a column of money the thing the eye keeps losing is the column. Its figures are set to one width, so a column of prices lines up without anybody choosing a font for it. On a phone the bands go: a column means nothing once the table is one card per row.
