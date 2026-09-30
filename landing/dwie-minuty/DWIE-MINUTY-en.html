@@ -22,9 +22,22 @@
 	--lst-panel-dol: #161d1c;
 	--lst-linia: rgba( 138, 168, 163, .22 );
 
-	/* Kreska między krokami. Przy .16 miała kontrast 1,32:1 do tła strony,
-	   czyli w praktyce jej nie było. .38 daje 2,02:1 i widać ją. */
-	--lst-kreska: rgba( 138, 168, 163, .38 );
+	/*
+	 * Kreska między krokami.
+	 *
+	 * Szara przy .16 miała kontrast 1,32 : 1 do tła strony, czyli w praktyce
+	 * jej nie było; .38 dawało 2,02 : 1 i ledwo ją było widać. Szarość jest tu
+	 * ślepą uliczką: na ciemnozielonym tle szary o dowolnym kryciu albo ginie,
+	 * albo wygląda jak brud. Kreska jest więc miętowa — w kolorze, który ta
+	 * witryna i tak nosi — i zanikająca w prawo, tak samo jak kreska nad pasem
+	 * z liczbami. Jeden obraz na obie, żeby sekcja mówiła jednym językiem.
+	 */
+	--lst-kreska: rgba( var( --lst-mieta ), .5 );
+	--lst-kreska-obraz: linear-gradient( to right,
+		rgba( var( --lst-mieta ), .5 ),
+		rgba( var( --lst-mieta ), .3 ) 34%,
+		rgba( var( --lst-mieta ), .14 ) 72%,
+		transparent );
 	--lst-tekst: #eaf3f1;
 	--lst-tekst-2: #9db3b0;
 	--lst-tekst-3: #8fa5a2;
@@ -97,10 +110,26 @@
 	gap: clamp( 1.2rem, 3vw, 3rem );
 	align-items: center;
 	padding-block: clamp( 1.4rem, 2.6vw, 2.2rem );
-	border-top: 1px solid var( --lst-kreska );
+	position: relative;
 }
 
-.lst-2m .lst-2m-para:first-child { border-top: 0; padding-top: 0; }
+/* Kreska jako warstwa, a nie obramowanie: obramowania nie da się zrobić
+   przejściem koloru, a bez przejścia kreska albo ginie, albo zamyka krok
+   w ramkę. */
+.lst-2m .lst-2m-para::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	height: 2px;
+	border-radius: 2px;
+	pointer-events: none;
+	background-image: var( --lst-kreska-obraz ) !important;
+}
+
+.lst-2m .lst-2m-para:first-child { padding-top: 0; }
+.lst-2m .lst-2m-para:first-child::before { display: none; }
 
 /* Co drugi krok odwrócony: okienko po lewej, tekst po prawej. */
 .lst-2m .lst-2m-para:nth-child( even ) .lst-2m-okno { order: -1; }
@@ -238,11 +267,7 @@
 	height: 2px;
 	border-radius: 2px;
 	pointer-events: none;
-	background-image: linear-gradient( to right,
-		rgba( var( --lst-mieta ), .5 ),
-		rgba( 138, 168, 163, .3 ) 34%,
-		rgba( 138, 168, 163, .12 ) 72%,
-		transparent ) !important;
+	background-image: var( --lst-kreska-obraz ) !important;
 }
 
 /*

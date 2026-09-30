@@ -76,7 +76,17 @@ console.log('\n1400 px, zwykła strona');
       poziom: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       nawiasy: t('.lst-2m-para:nth-child(3) .lst-2m-ekran').textContent.trim(),
       wynikow: document.querySelectorAll('.lst-2m-wynik').length,
-      kreska: getComputedStyle(document.querySelector('.lst-2m-para:nth-child(2)')).borderTopColor,
+      /*
+       * Kreska między krokami jest warstwą z przejściem koloru, a nie
+       * obramowaniem: obramowania nie da się zrobić przejściem, a bez
+       * przejścia kreska albo ginie, albo zamyka krok w ramkę. Mierzony jest
+       * jej NAJMOCNIEJSZY koniec, czyli pierwszy kolor przejścia — to on
+       * decyduje, czy kreskę w ogóle widać. Szukany „rgba(...)", a nie
+       * „borderTopColor", bo obramowania tam już nie ma i pytanie o nie
+       * zwracało kolor tekstu, czyli mierzyło coś, czego nie widać.
+       */
+      kreska: ( getComputedStyle(document.querySelector('.lst-2m-para:nth-child(2)'), '::before')
+        .backgroundImage.match(/rgba?\([^)]+\)/) || [ '' ] )[ 0 ],
       przyrzadow: document.querySelectorAll('.lst-2m-przyrzad').length,
       /*
        * Trzy osobne bloki, każdy z zaokrągleniem, krawędzią i cieniem. To nie
@@ -164,7 +174,8 @@ console.log('\n1400 px, zwykła strona');
   ok('tekst ma własną płytę', r.kolory.plyta !== 'rgba(0, 0, 0, 0)', r.kolory.plyta);
   ok('czytelny nawet na środku poświaty (>= 4,5:1)', kOpisBlask >= 4.5 && kAdresBlask >= 4.5,
      `opis ${kOpisBlask}:1, adres ${kAdresBlask}:1 (bez płyty było 3.4 i 2.89)`);
-  ok('kreska między krokami widoczna', kKreska >= 1.9, `kreska ${kKreska}:1 do tła`);
+  ok('kreska między krokami widoczna', kKreska >= 1.9, `kreska ${kKreska}:1 do tła (${r.kreska})`);
+  ok('i jest w kolorze akcentu, nie szara', /95,\s*227,\s*207/.test(r.kreska), r.kreska);
   ok('bez błędów w konsoli', bledy.length === 0, bledy.length ? bledy.join(' | ') : '0');
   console.log('     wysokość sekcji:', r.wys, 'px');
   await c.close();
