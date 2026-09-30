@@ -128,51 +128,48 @@ def strona():
 # kolorach — czyli oko skacze z napisu na tabelę i z powrotem, i za każdym razem
 # trafia. Metka ODDZIELNIE od próbki, bo próbka nie jest napisem: czytnik ekranu
 # dostaje samo zdanie.
-CZYTANKA = [
-	( 'jest-pigulka', 'IN STOCK', 'a word becomes a badge' ),
-	( 'jest-wierszem', '', 'a row paints itself' ),
-	( 'jest-slupkiem', '', 'a number becomes a bar' ),
-	( 'jest-przyciskiem', 'Open', 'a link becomes a button' ),
+# Cztery rzeczy, które dostajesz. Nie zdania, tylko pozycje na liście: pod hero
+# nikt nie czyta, tylko przebiega wzrokiem, a akapit w tym miejscu jest ścianą,
+# którą się omija.
+PTASZKI = [
+	'Search, filters and sorting, built in',
+	'Badges, bars and buttons, no code',
+	"Matches your site's colours, not the plugin's",
+	'Turns into cards on a phone',
 ]
 
+PTASZEK = ( '<svg class="lst-pl-ptaszek" viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
+	'<path d="M3 8.6 L6.4 12 L13 4.6" fill="none" stroke="currentColor" stroke-width="2" '
+	'stroke-linecap="round" stroke-linejoin="round"></path></svg>' )
 
-def czytanka():
-	"""Legenda pod akapitem: próbka, a obok zdanie o tym, co ona jest."""
+
+def lista():
+	"""Lista z ptaszkami: co jest w pudełku."""
 	pozycje = ''
 
-	for klasa, slowo, zdanie in CZYTANKA:
-		srodek = html.escape( slowo )
+	for zdanie in PTASZKI:
+		pozycje += ( '<li class="lst-pl-punkt">' + PTASZEK
+			+ '<span class="lst-pl-zdanie">' + html.escape( zdanie ) + '</span></li>' )
 
-		# Słupek to dwa prostokąty, jeden w drugim, a nie przejście koloru:
-		# utwardzenie na wrogie motywy gasi wszystkie obrazki tła, a to jest
-		# właśnie obrazek tła.
-		if 'jest-slupkiem' == klasa:
-			srodek = '<span class="lst-pl-wypelnienie"></span>'
-
-		pozycje += ( '<li class="lst-pl-pozycja">'
-			'<span class="lst-pl-probka ' + klasa + '" aria-hidden="true">' + srodek + '</span>'
-			'<span class="lst-pl-zdanie">' + html.escape( zdanie ) + '</span></li>' )
-
-	return '<ul class="lst-pl-czytanka">' + pozycje + '</ul>'
+	return '<ul class="lst-pl-lista">' + pozycje + '</ul>'
 
 
 def slowo():
-	"""Kolumna z tekstem, po lewej stronie kompozycji.
+	"""Kolumna po lewej: tytuł, lista i przycisk.
 
-	Mówi to, czego obrazek powiedzieć nie może: że nikt tego nie przepisywał
-	i że tabela sama do arkusza wraca. Reszta to nazwanie po imieniu czterech
-	rzeczy, które w tabeli obok widać, ale których nikt by nie nazwał
-	ustawieniem, gdyby mu nie powiedzieć.
+	Nie opisuje obrazka obok — obrazek jest dowodem, a nie tematem. Mówi, czego
+	czytelnik przestaje robić, wymienia cztery rzeczy, których nie będzie musiał
+	zamawiać u nikogo, i daje mu przycisk. To pierwsze miejsce po hero, w którym
+	ktoś jest już przekonany, a do tej pory nie było tu czego kliknąć.
 	"""
 	return ( '<div class="lst-pl-slowo">'
-		'<h2 class="lst-pl-naglowek">Nobody retyped a single row.</h2>'
-		'<p class="lst-pl-akapit">On the left, the file you already keep. '
-		'On the right, a real page with the plugin on it, drawing that same file '
-		'in your colours and reading it again every fifteen minutes.</p>'
-		+ czytanka() +
-		'<p class="lst-pl-stopka-slowa">All four are settings, picked once.</p>'
-		'<p class="lst-pl-dalej"><a class="lst-pl-odsylacz" href="ADRES-MOZLIWOSCI">'
-		'See everything it can do<span class="lst-pl-grot-tekstowy" aria-hidden="true">&#8250;</span></a></p>'
+		'<h2 class="lst-pl-naglowek">Stop copying your spreadsheet into WordPress.</h2>'
+		'<p class="lst-pl-akapit">Edit the sheet the way you always do. '
+		'The page updates itself.</p>'
+		+ lista() +
+		'<p class="lst-pl-dalej"><a class="lst-pl-przycisk" href="ADRES-POBIERANIA">Download free</a></p>'
+		'<p class="lst-pl-stopka-slowa">Free version, no trial, '
+		'no nag screens, no watermark.</p>'
 		'</div>' )
 
 
@@ -303,8 +300,8 @@ STYL = r"""
 	/* Tytuły tej witryny są szeryfowe i skalują się z oknem: jedyne miejsce,
 	   w którym wolno wyjść poza 14, 18 i 20. Mniejszy niż tytuł w hero, bo stoi
 	   zaraz pod nim i ma być jego dalszym ciągiem, a nie drugim otwarciem. */
-	font-size: clamp( 1.5rem, 2.2vw, 2rem );
-	line-height: 1.14;
+	font-size: clamp( 1.4rem, 2vw, 1.85rem );
+	line-height: 1.16;
 	letter-spacing: -.01em;
 	color: var( --pl-tekst );
 	/* Dwa słowa w drugim wierszu zamiast jednego sierotki. Przeglądarka, która
@@ -320,105 +317,82 @@ STYL = r"""
 	text-wrap: pretty;
 }
 
-/* ------------------------------------------------------------- czytanka */
+/* ---------------------------------------------------------------- lista */
 
 /*
- * Cztery rzeczy, które w tabeli obok widać, nazwane po imieniu.
+ * Cztery rzeczy, które dostajesz, jedna pod drugą.
  *
- * Bez tego są po prostu ładne: nikt nie zgadnie, że kolorowa pigułka i pasek
- * pod liczbą to USTAWIENIA, a nie sposób, w jaki ta jedna tabela została
- * narysowana. Próbki są w tych samych kolorach co tabela, więc oko skacze
- * z napisu na tabelę i za każdym razem trafia.
- *
- * Kolumna próbek ma stałą szerokość, żeby zdania zaczynały się równo: legenda,
- * w której początki wierszy skaczą, przestaje wyglądać na legendę.
+ * Ptaszek stoi w osobnej kolumnie siatki, a nie przed tekstem w tej samej
+ * linijce: zdanie, które się złamie, ma wtedy oba wiersze równo pod sobą,
+ * zamiast podłazić pod znaczek.
  */
-.lst-pl .lst-pl-czytanka {
+.lst-pl .lst-pl-lista {
 	display: grid;
-	gap: .5rem;
-	margin-top: 1.5rem;
+	gap: .55rem;
+	margin-top: 1.4rem;
 }
 
-.lst-pl .lst-pl-pozycja {
+.lst-pl .lst-pl-punkt {
 	display: grid;
-	grid-template-columns: 5.6rem minmax( 0, 1fr );
-	align-items: center;
-	gap: .9rem;
+	grid-template-columns: 1.1rem minmax( 0, 1fr );
+	align-items: start;
+	gap: .75rem;
 }
 
-.lst-pl .lst-pl-probka {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	height: 1.5rem;
-	font-size: .875rem;   /* 14 px */
-	line-height: 1;
-	border-radius: 999px;
-}
-
-.lst-pl .lst-pl-probka.jest-pigulka {
-	border: 1px solid rgba( var( --pl-mieta ), .5 );
-	color: #a9ece1;
-}
-
-/* Wiersz i słupek to prostokąty, nie pigułki: w tabeli też nimi są. */
-.lst-pl .lst-pl-probka.jest-wierszem,
-.lst-pl .lst-pl-probka.jest-slupkiem {
-	height: 1.35rem;
-	border-radius: 5px;
-}
-
-.lst-pl .lst-pl-probka.jest-wierszem { background-color: #5a2733; }
-.lst-pl .lst-pl-probka.jest-slupkiem { background-color: rgba( var( --pl-mieta ), .12 ); justify-content: flex-start; }
-
-/* Dwa prostokąty, jeden w drugim, a nie przejście koloru: utwardzenie na wrogie
-   motywy gasi wszystkie obrazki tła, a przejście jest obrazkiem tła. */
-.lst-pl .lst-pl-wypelnienie {
-	display: block;
-	width: 58%;
-	height: 100%;
-	border-radius: 5px;
-	background-color: rgba( var( --pl-mieta ), .32 );
-}
-
-.lst-pl .lst-pl-probka.jest-przyciskiem {
-	padding: 0 .75rem;
-	font-weight: 600;
-	background-color: rgb( var( --pl-mieta ) );
-	color: #06100f;
+.lst-pl .lst-pl-ptaszek {
+	width: 1.1rem;
+	height: 1.1rem;
+	/* Zrównany z pierwszym wierszem tekstu, a nie z górą pudełka. */
+	margin-top: .32rem;
+	color: rgb( var( --pl-mieta ) );
 }
 
 .lst-pl .lst-pl-zdanie {
-	font-size: .875rem;   /* 14 px */
+	font-size: 1.125rem;   /* 18 px */
 	line-height: 1.5;
 	color: var( --pl-tekst-2 );
+	/* Bez samotnego słowa w drugim wierszu. */
+	text-wrap: pretty;
 }
 
+/* -------------------------------------------------------------- przycisk */
+
+/*
+ * Pierwsze miejsce po hero, w którym ktoś jest już przekonany, a do tej pory
+ * nie było tu czego kliknąć. Ten sam kształt i ten sam kolor co przyciski
+ * w tabeli obok, bo to jest ta sama witryna, a nie inna.
+ */
+.lst-pl .lst-pl-dalej { margin-top: 1.6rem; }
+
+.lst-pl .lst-pl-przycisk {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: .72rem 1.5rem;
+	font-size: 1.125rem;   /* 18 px */
+	font-weight: 600;
+	line-height: 1.2;
+	border-radius: 999px;
+	background-color: rgb( var( --pl-mieta ) );
+	color: #06100f;
+	text-decoration: none;
+	transition: transform .18s var( --pl-luk ), box-shadow .18s var( --pl-luk );
+	box-shadow: 0 10px 26px -14px rgba( var( --pl-mieta ), .9 );
+}
+
+.lst-pl .lst-pl-przycisk:hover {
+	transform: translateY( -1px );
+	box-shadow: 0 14px 30px -14px rgba( var( --pl-mieta ), 1 );
+}
+
+.lst-pl .lst-pl-przycisk:focus-visible { outline: 2px solid rgb( var( --pl-mieta ) ); outline-offset: 3px; }
+
 .lst-pl .lst-pl-stopka-slowa {
-	margin-top: 1rem;
+	margin-top: .95rem;
 	font-size: .875rem;   /* 14 px */
 	line-height: 1.5;
 	color: var( --pl-tekst-3 );
 }
-
-.lst-pl .lst-pl-dalej { margin-top: 1.1rem; }
-
-.lst-pl .lst-pl-odsylacz {
-	display: inline-flex;
-	align-items: baseline;
-	gap: .4rem;
-	font-size: .875rem;   /* 14 px */
-	line-height: 1.5;
-	color: rgb( var( --pl-mieta ) );
-	text-decoration: none;
-	border-bottom: 1px solid rgba( var( --pl-mieta ), .32 );
-	padding-bottom: .12rem;
-	transition: border-color .18s var( --pl-luk ), color .18s var( --pl-luk );
-}
-
-.lst-pl .lst-pl-odsylacz:hover { border-bottom-color: rgb( var( --pl-mieta ) ); }
-.lst-pl .lst-pl-odsylacz:focus-visible { outline: 2px solid rgb( var( --pl-mieta ) ); outline-offset: 3px; border-radius: 2px; }
-.lst-pl .lst-pl-grot-tekstowy { font-size: 1.125rem; line-height: 1; }
 
 /* ------------------------------------------------------------- scena */
 
@@ -741,10 +715,8 @@ STYL = r"""
    po sekcji. Wyjątek jeden i wypisany. */
 .lst-pl .lst-pl-naglowek { font-family: var( --pl-szeryf ) !important; }
 
-.lst-pl .lst-pl-probka.jest-wierszem { background-color: #5a2733 !important; }
-.lst-pl .lst-pl-probka.jest-slupkiem { background-color: rgba( var( --pl-mieta ), .12 ) !important; }
-.lst-pl .lst-pl-wypelnienie { background-color: rgba( var( --pl-mieta ), .32 ) !important; }
-.lst-pl .lst-pl-probka.jest-przyciskiem { background-color: rgb( var( --pl-mieta ) ) !important; color: #06100f !important; }
+.lst-pl .lst-pl-przycisk { background-color: rgb( var( --pl-mieta ) ) !important; color: #06100f !important; }
+.lst-pl .lst-pl-ptaszek { color: rgb( var( --pl-mieta ) ) !important; }
 
 /* ----------------------------------------------------------- dwie kolumny */
 

@@ -7,18 +7,21 @@ klienta — prawdziwa tabela z wtyczki, z pigułkami stanu magazynu, słupkiem p
 liczbie sztuk, przyciskiem w kolumnie z adresem, pomalowanym wierszem
 wyprzedanego towaru i filtrem nad tabelą. Między nimi strzałka.
 
-Słowo to tytuł, akapit i czytanka: cztery próbki w kolorach tabeli, a przy
-każdej zdanie o tym, czym ona jest. Bez tego pigułki i słupki są po prostu
-ładne — nikt nie zgadnie, że to są USTAWIENIA, a nie sposób, w jaki ta jedna
-tabela została narysowana. Oko skacze z napisu na tabelę i za każdym razem
-trafia.
+Słowo to tytuł, jedno zdanie, cztery ptaszki i przycisk. Nie opisuje obrazka
+obok — obrazek jest dowodem, a nie tematem. Mówi, czego czytelnik przestaje
+robić („Stop copying your spreadsheet into WordPress”), wymienia cztery rzeczy,
+których nie będzie musiał u nikogo zamawiać, i daje mu przycisk.
+
+Akapitu tu nie ma z rozmysłem: pod hero nikt nie czyta, tylko przebiega
+wzrokiem, a ściana tekstu obok obrazka jest ścianą, którą się omija. Była tu
+wcześniej i nie działała.
 
 Idzie w miejsce zwykłej tabeli przykładowej pod hero. Tabela pokazuje, co
 wtyczka potrafi; ta sekcja pokazuje **skąd to jest** — a to jest zdanie, które
 sprzedaje.
 
-Odsyłacz „See everything it can do” prowadzi pod `ADRES-MOZLIWOSCI`. Podmienia
-się go na adres podstrony z `landing/mozliwosci/`.
+Przycisk prowadzi pod `ADRES-POBIERANIA`, tak samo jak przyciski w hero
+i w stopce. To pierwsze miejsce po hero, w którym jest co kliknąć.
 
 ## Jak zbudować od nowa
 
