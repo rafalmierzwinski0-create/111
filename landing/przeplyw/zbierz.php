@@ -84,9 +84,12 @@ $source_id = LSTAB_Storage::insert(
 			'headerBg'   => $ekran_gora,
 			'border'     => '#1e2b29',
 			'hover'      => '#152120',
-			'accent'     => $mieta,
-			'lines'      => 'normal',
-			'density'    => 'normal',
+			'accent'       => $mieta,
+			'lines'        => 'normal',
+			'density'      => 'normal',
+			// Duże nagłówki: ta tabela jest na stronie sprzedażowej oglądana
+			// z daleka, a nazwy kolumn są tym, co ma się przeczytać pierwsze.
+			'headFontSize' => 'large',
 		),
 	)
 );

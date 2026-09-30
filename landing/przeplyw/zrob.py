@@ -80,9 +80,9 @@ ZNAK = ( '<svg class="lst-pl-znak" viewBox="0 0 16 20" aria-hidden="true" focusa
 # krzywy, a jest jedyną częścią tego rysunku, która musi zostać sobą.
 STRZALKA = ( '<svg class="lst-pl-luk" viewBox="0 0 160 96" aria-hidden="true" focusable="false">'
 	'<path class="lst-pl-luk-linia" d="M12 80 C 66 80, 136 74, 136 22" fill="none" stroke="currentColor" '
-	'stroke-width="2.4" stroke-linecap="round"></path>'
+	'stroke-width="3" stroke-linecap="round"></path>'
 	'<path class="lst-pl-luk-grot" d="M128 33 L136 21 L144 33" fill="none" stroke="currentColor" '
-	'stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>' )
+	'stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>' )
 
 
 def arkusz():

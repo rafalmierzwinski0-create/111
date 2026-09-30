@@ -274,6 +274,35 @@ const readTable = ( id ) => {
 		theadDisplay: cs( thead ).display,
 
 		/*
+		 * Czy nagłówek jest jednego koloru.
+		 *
+		 * Przypięta pierwsza kolumna maluje pod sobą własny, nieprzezroczysty
+		 * podkład — musi, bo przez przezroczysty prześwitywałyby kolumny
+		 * przejeżdżające pod nią. Ten podkład jest PŁASKI. Jeżeli szablon
+		 * maluje nagłówek gradientem, płaskie pole obok gradientu daje szew
+		 * w poprzek nagłówka, dokładnie tam, gdzie oko zaczyna czytać. Przy
+		 * okazji gradient wpisany w arkusz na sztywno przykrywa kolor wybrany
+		 * próbnikiem „Tło nagłówka”, więc ten próbnik przestaje działać.
+		 *
+		 * Pas malowany co drugą kolumną to co innego i jest w porządku: tam
+		 * sąsiednie nagłówki mają się różnić. Poznaje się go po tym, że obraz
+		 * ma wszystkie stopnie w jednym kolorze (albo go nie ma wcale),
+		 * a różnica siedzi w tle komórki.
+		 */
+		headGradient: ( () => {
+			const at = heads.length > 2 ? heads[ 2 ] : heads[ heads.length - 1 ];
+
+			if ( ! at ) {
+				return { image: 'none', stops: 0 };
+			}
+
+			const image = cs( at ).backgroundImage;
+			const stops = [ ...new Set( ( image.match( /(?:rgba?|color)\([^)]+\)/g ) || [] ) ) ];
+
+			return { image: image.slice( 0, 60 ), stops: stops.length };
+		} )(),
+
+		/*
 		 * The backdrop the pinned first column paints, measured against the
 		 * cell that owns it.
 		 *
@@ -496,6 +525,16 @@ for ( const skin of skins ) {
 	check( '1' === d.mode, `${ skin }: the table-mode factor is 1 here`, d.mode );
 	check( d.inkRatio >= 4.5, `${ skin }: the values are readable (${ d.inkRatio }:1)`, `${ d.inkRatio }` );
 	check( d.headRatio >= 4.5, `${ skin }: the column names are readable (${ d.headRatio }:1)`, `${ d.headRatio }` );
+	/*
+	 * A heading is one colour. Anything with more than one colour in it cannot
+	 * be matched by the pinned column's flat backdrop, and paints over the
+	 * Header background well besides.
+	 */
+	check(
+		d.headGradient.stops <= 1,
+		`${ skin }: the heading is one colour, so the pinned column can match it`,
+		JSON.stringify( d.headGradient )
+	);
 	// And in the table layout it covers its own cell and not a pixel more.
 	check(
 		Math.abs( d.stickyFaceWidth.face - d.stickyFaceWidth.cell ) <= 1,
