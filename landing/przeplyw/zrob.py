@@ -69,11 +69,19 @@ ZNAK = ( '<svg class="lst-pl-znak" viewBox="0 0 16 20" aria-hidden="true" focusa
 	'fill="currentColor"></path></svg>' )
 
 # Strzałka z arkusza do tabeli. Rysuje się raz, przy wejściu sekcji w kadr.
-STRZALKA = ( '<svg class="lst-pl-luk" viewBox="0 0 120 120" aria-hidden="true" focusable="false" '
-	'preserveAspectRatio="none">'
-	'<path class="lst-pl-luk-linia" d="M6 108 C 6 46, 54 12, 112 12" fill="none" stroke="currentColor" '
+#
+# Szeroki, niski łuk: zaczyna się przy prawym boku arkusza, biegnąc poziomo,
+# i kończy pionowo, grotem do góry, pod dolną krawędzią okna ze stroną. Kąt ma
+# tu znaczenie — łuk, który kończy się na ukos, pokazuje „gdzieś w bok”,
+# a chodzi o to, żeby pokazywał „do góry, na stronę”. Ostatni odcinek krzywej
+# jest pionowy, więc grot siedzi na kierunku, w którym ta krzywa naprawdę idzie.
+#
+# Bez „preserveAspectRatio: none”: przy rozciąganiu w jednej osi grot robi się
+# krzywy, a jest jedyną częścią tego rysunku, która musi zostać sobą.
+STRZALKA = ( '<svg class="lst-pl-luk" viewBox="0 0 160 96" aria-hidden="true" focusable="false">'
+	'<path class="lst-pl-luk-linia" d="M12 80 C 66 80, 136 74, 136 22" fill="none" stroke="currentColor" '
 	'stroke-width="2.4" stroke-linecap="round"></path>'
-	'<path class="lst-pl-luk-grot" d="M100 4 L114 12 L100 20" fill="none" stroke="currentColor" '
+	'<path class="lst-pl-luk-grot" d="M128 33 L136 21 L144 33" fill="none" stroke="currentColor" '
 	'stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>' )
 
 
@@ -397,9 +405,9 @@ STYL = r"""
 	 */
 	left: 100%;
 	bottom: 0;
-	width: clamp( 5rem, 12vw, 9rem );
-	height: clamp( 4rem, 11vw, 10rem );
-	margin-left: clamp( 1rem, 3vw, 2.6rem );
+	width: clamp( 8rem, 19vw, 14rem );
+	height: clamp( 6rem, 13vw, 9.8rem );
+	margin-left: clamp( .6rem, 2vw, 1.8rem );
 	color: rgb( var( --pl-mieta ) );
 	pointer-events: none;
 }
@@ -451,7 +459,7 @@ STYL = r"""
 /* Linia startuje pełną kreską schowaną za przesunięciem, a nie przezroczysta:
    bez osi widoku łuk jest po prostu narysowany. */
 @keyframes lst-pl-rysuj { from { stroke-dashoffset: 200; } }
-@keyframes lst-pl-grot { from { transform: translateX( -8px ); } }
+@keyframes lst-pl-grot { from { transform: translateY( 8px ); } }
 @keyframes lst-pl-wjazd { from { transform: translateY( 16px ); } }
 @keyframes lst-pl-wiersz { from { transform: translateY( 7px ); } }
 

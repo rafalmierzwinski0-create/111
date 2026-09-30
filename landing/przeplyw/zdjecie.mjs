@@ -1,0 +1,66 @@
+/**
+ * Zrzuty tej sekcji do pokazania: na tle strony i bez tła.
+ *
+ * Bez tła znaczy naprawdę bez tła — przezroczysty kanał alfa, a nie ciemny
+ * prostokąt. Okna mają własne tła i zostają, znika tylko strona pod nimi, więc
+ * obrazek da się położyć na czymkolwiek. Cienie lądują na przezroczystości
+ * i tak mają zostać: bez nich arkusz przestaje leżeć na oknie.
+ *
+ * Użycie: node landing/przeplyw/zdjecie.mjs   (z katalogu landing/przeplyw)
+ */
+
+import { chromium } from '/tmp/lstab-env/node_modules/playwright/index.mjs';
+import { pathToFileURL } from 'node:url';
+
+const TU = '/home/user/111/landing/przeplyw';
+
+const b = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' } );
+
+// --- na tle strony -------------------------------------------------------
+{
+	const p = await b.newPage( { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 } );
+	await p.goto( pathToFileURL( TU + '/PODGLAD.html' ).href, { waitUntil: 'load' } );
+	await p.waitForTimeout( 500 );
+
+	const r = await ( await p.$( '.lst-pl' ) ).boundingBox();
+	await p.screenshot( {
+		path: TU + '/przeplyw-podglad.png',
+		clip: { x: 0, y: Math.max( 0, r.y - 24 ), width: 1440, height: r.height + 48 },
+	} );
+	console.log( '  przeplyw-podglad.png  ', 1440 * 2, '×', Math.round( ( r.height + 48 ) * 2 ) );
+	await p.close();
+}
+
+// --- bez tła -------------------------------------------------------------
+{
+	const p = await b.newPage( { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 } );
+
+	/*
+	 * Z PODGLĄDU, a nie z samego PRZEPLYW-en.html.
+	 *
+	 * Moduł jest fragmentem do wklejenia w Divi i nie ma własnej deklaracji
+	 * typu dokumentu. Otwarty wprost z pliku wchodzi w tryb zgodności ze
+	 * starociami, a w nim <table> NIE dziedziczy koloru tekstu po tym, w czym
+	 * stoi: cała tabela wychodzi wtedy szara, tylko wiersz pomalowany regułą
+	 * zostaje biały, bo ma kolor wpisany wprost. Na stronie tego nie widać,
+	 * bo strona ma doctype — widać tylko na zrzucie, i wygląda to jak usterka
+	 * wtyczki, którą nie jest.
+	 *
+	 * Podgląd ma doctype, więc zrzut robi się z niego, a tło strony zdejmuje
+	 * się dopiero tutaj. „omitBackground” każe przeglądarce nie domalowywać
+	 * białego prostokąta pod spodem.
+	 */
+	await p.goto( pathToFileURL( TU + '/PODGLAD.html' ).href, { waitUntil: 'load' } );
+	await p.waitForTimeout( 500 );
+	await p.addStyleTag( { content: 'html,body{background:transparent!important;background-image:none!important}' } );
+	await p.waitForTimeout( 200 );
+
+	const el = await p.$( '.lst-pl' );
+	await el.screenshot( { path: TU + '/przeplyw-bez-tla.png', omitBackground: true } );
+
+	const r = await el.boundingBox();
+	console.log( '  przeplyw-bez-tla.png  ', Math.round( r.width * 2 ), '×', Math.round( r.height * 2 ) );
+	await p.close();
+}
+
+await b.close();

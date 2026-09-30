@@ -40,7 +40,16 @@ podmieniać — sekcja nie ma żadnego obrazka, wszystko jest kodem.
 (`#232a29` i siatkę 88 × 44, jak `landing/naglowek/HERO-podglad.html`)
 i dopełnienia Divi.
 
-`przeplyw-podglad.png` to zrzut tej sekcji do pokazania, nie do wklejenia.
+`przeplyw-podglad.png` i `przeplyw-bez-tla.png` to zrzuty do pokazania, nie do
+wklejenia. Robi je `node zdjecie.mjs`: pierwszy na tle strony, drugi
+z przezroczystym tłem, do położenia na czymkolwiek.
+
+**Nie otwieraj `PRZEPLYW-en.html` wprost w przeglądarce.** To fragment do
+wklejenia w Divi i nie ma własnej deklaracji typu dokumentu, więc otwarty jako
+plik wchodzi w tryb zgodności ze starociami — a w nim `<table>` nie dziedziczy
+koloru tekstu po tym, w czym stoi. Cała tabela wychodzi wtedy szara i wygląda
+to jak usterka wtyczki, którą nie jest. Do oglądania jest `PODGLAD.html`,
+i stąd też robią się zrzuty.
 
 ## Dlaczego tak wygląda
 
