@@ -66,6 +66,19 @@ $atrament   = '#06100f';
 $ekran      = '#0a1110';
 $ekran_gora = '#131d1b';
 
+/*
+ * Tabela ma własną barwę, jaśniejszą od ekranu, na którym stoi.
+ *
+ * Przedtem brała dokładnie kolor okna i przez to znikała: okno, strona i tabela
+ * były jednym czarnym polem, w którym widać było tylko pigułki. Tabela na
+ * stronie jest przedmiotem leżącym NA stronie, a nie samą stroną, więc jest
+ * o kilka stopni jaśniejsza, ma wyraźniejsze linie i jaśniejszy tekst. Nadal
+ * jest to ten sam ciemny motyw, tylko widać, gdzie się zaczyna.
+ */
+$stol       = '#14221f';
+$stol_gora  = '#1f312d';
+$linia      = '#33463f';
+
 $source_id = LSTAB_Storage::insert(
 	array(
 		'title'         => 'Prices',
@@ -78,12 +91,12 @@ $source_id = LSTAB_Storage::insert(
 		'style_preset'  => 'midnight',
 		'layout'        => 'auto',
 		'style_vars'    => array(
-			'text'       => '#e6f1ee',
-			'background' => $ekran,
-			'headerText' => '#8fa5a2',
-			'headerBg'   => $ekran_gora,
-			'border'     => '#1e2b29',
-			'hover'      => '#152120',
+			'text'       => '#f1f8f6',
+			'background' => $stol,
+			'headerText' => '#a9c2bd',
+			'headerBg'   => $stol_gora,
+			'border'     => $linia,
+			'hover'      => '#1b2a27',
 			'accent'       => $mieta,
 			'lines'        => 'normal',
 			'density'      => 'normal',

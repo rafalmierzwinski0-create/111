@@ -156,6 +156,12 @@ i stąd też robią się zrzuty.
 * **Tabela jest w kolorach strony**: szablon Północ wybrany, a potem odmalowany
   próbnikami wtyczki — tekst, tło, nagłówek, linie, najechanie, akcent. To jest
   dokładnie to, co wtyczka obiecuje, pokazane zamiast opisanego.
+* **Ale nie w kolorze okna, w którym stoi.** Brała przedtem dokładnie kolor
+  ekranu i przez to znikała: okno, strona i tabela były jednym czarnym polem,
+  w którym widać było tylko pigułki. Tabela na stronie jest przedmiotem
+  leżącym NA stronie, a nie samą stroną, więc jest o kilka stopni jaśniejsza,
+  ma wyraźniejsze linie i jaśniejszy tekst. Nadal ten sam ciemny motyw, tylko
+  widać, gdzie się zaczyna.
 * **Strzałka biegnie pasem pod oknem**, a nie przez tabelę. Cienka miętowa
   kreska na tle wierszy, pigułek i słupków — czyli na tle rzeczy, które same są
   miętowe — po prostu ginie. Pod oknem ma pod sobą samo tło strony, więc widać
