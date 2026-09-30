@@ -1,13 +1,24 @@
 # Sekcja pod hero — z arkusza na stronę
 
-Po lewej arkusz Google z cennikiem. Po prawej ta sama treść już na stronie
-klienta: prawdziwa tabela z wtyczki, z pigułkami stanu magazynu, słupkiem przy
+Po lewej słowo, po prawej obrazek.
+
+Obrazek to dwa okna: arkusz Google z cennikiem i ta sama treść już na stronie
+klienta — prawdziwa tabela z wtyczki, z pigułkami stanu magazynu, słupkiem przy
 liczbie sztuk, przyciskiem w kolumnie z adresem, pomalowanym wierszem
 wyprzedanego towaru i filtrem nad tabelą. Między nimi strzałka.
+
+Słowo to tytuł, akapit i czytanka: cztery próbki w kolorach tabeli, a przy
+każdej zdanie o tym, czym ona jest. Bez tego pigułki i słupki są po prostu
+ładne — nikt nie zgadnie, że to są USTAWIENIA, a nie sposób, w jaki ta jedna
+tabela została narysowana. Oko skacze z napisu na tabelę i za każdym razem
+trafia.
 
 Idzie w miejsce zwykłej tabeli przykładowej pod hero. Tabela pokazuje, co
 wtyczka potrafi; ta sekcja pokazuje **skąd to jest** — a to jest zdanie, które
 sprzedaje.
+
+Odsyłacz „See everything it can do” prowadzi pod `ADRES-MOZLIWOSCI`. Podmienia
+się go na adres podstrony z `landing/mozliwosci/`.
 
 ## Jak zbudować od nowa
 
@@ -53,11 +64,28 @@ i stąd też robią się zrzuty.
 
 ## Dlaczego tak wygląda
 
+* **Dwie kolumny dopiero od 1240 px, i to jest zmierzone.** Niżej tabela
+  przestaje się mieścić w swoim oknie: najpierw wystaje jej ostatnia kolumna
+  i okno zaczyna przewijać się w bok, a jeszcze niżej tabela składa się
+  w karty. Karty w tym miejscu nie mówią nic o tym, co wtyczka potrafi, więc
+  poniżej progu tekst staje nad obrazkiem i obrazek dostaje całą szerokość.
+  Lepiej jedna kolumna z pełnym obrazkiem niż dwie z pustym.
+* **Kompozycja wychodzi poza szynę, ale nie poza ekran.** Prawa strona jest
+  szersza niż wszystko inne na tej stronie, bo to ona jest tu treścią. Wystaje
+  najwyżej o tyle, ile zostaje marginesu do krawędzi okna, i nigdy nie jest
+  przycięta: ucięta byłaby akurat kolumna z przyciskami.
 * **Dwa okna, jedno na drugim.** Strona klienta stoi z tyłu i zajmuje całą
   szerokość, bo to ona jest tym, co się sprzedaje. Arkusz leży na niej
   z przodu, przy lewej krawędzi, mniejszy: jest źródłem, a nie celem.
   Zachodzenie robi tu całą robotę — mówi „to jest to samo, tylko przepuszczone
   przez wtyczkę” bez ani jednego słowa.
+* **Tabela rozpływa się dokładnie tam, gdzie zaczyna się arkusz.** Krawędź
+  arkusza jest nieprzezroczysta i ucina w pół wszystko, co pod nią wejdzie: raz
+  padła na drugi wiersz nazwy produktu i z „Insulated Bottle 750 ml” zostało
+  „750”, co wygląda na usterkę tabeli, a nie na kompozycję. Zanik kończy się
+  teraz tam, gdzie arkusz się zaczyna, więc nie ma czego ucinać. Dlatego też
+  okno ma stałą wysokość w rem, a nie ułamek szerokości ekranu — to ona mówi,
+  gdzie kończy się zanik.
 * **Okno strony ma sufit i gaśnie u dołu.** Bez sufitu tabela ciągnie się aż do
   stopki z pobieraniem, a arkusz, który na nią nachodzi, zasłania właśnie tę
   stopkę — czyli jedyną rzecz w tym oknie, która jest przyciskiem. Z sufitem
@@ -110,4 +138,10 @@ osiem pigułek, osiem słupków, osiem przycisków, filtr i pomalowany wiersz),
 co widać, z tym, co zapisał render, kontrast najsłabszego napisu, rozmiary
 pisma (tylko 14, 18 i 20), brak myślników, brak suwaka poziomego przy 1500
 i 390 px, to, że nic nie jest niewidoczne w spoczynku, `prefers-reduced-motion`
-i układ na telefonie razem z położeniem strzałki. 18 sprawdzeń.
+i układ na telefonie razem z położeniem strzałki.
+
+Do tego sam układ: że tekst stoi po lewej i **nie leży na żadnym z okien**, że
+kompozycja wychodzi poza szynę, ale nie poza ekran, że tytuł jest szeryfowy
+i zaczyna się tam, gdzie okno, oraz — na samym progu dwóch kolumn i tuż pod nim
+— że tabela jest jeszcze tabelą, a nie kartami, i mieści się w swoim oknie
+w całości. 31 sprawdzeń.

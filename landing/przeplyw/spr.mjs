@@ -61,10 +61,18 @@ console.log( '\nsekcja na stronie' );
 		malowanych: document.querySelectorAll( '.lst-pl .lstab tbody tr.lstab-row td[style*="--lstab-row-tint"]' ).length,
 		strzalek: document.querySelectorAll( '.lst-pl-luk' ).length,
 		poziom: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-		rozmiary: [ ...new Set( [ ...document.querySelectorAll( '.lst-pl [class*="lst-pl-"]' ) ]
+		rozmiary: [ ...new Set( [ ...document.querySelectorAll( '.lst-pl [class*="lst-pl-"]:not( .lst-pl-naglowek )' ) ]
 			.filter( ( e ) => [ ...e.childNodes ].some( ( n ) => 3 === n.nodeType && n.nodeValue.trim() ) )
 			.map( ( e ) => Math.round( parseFloat( getComputedStyle( e ).fontSize ) ) ) ) ].sort( ( a, x ) => a - x ),
 		myslniki: ( document.querySelector( '.lst-pl' ).innerText.match( /[–—]/g ) || [] ).length,
+		// Tytuł sekcji to jedyne miejsce na tej witrynie, w którym wolno wyjść
+		// poza 14, 18 i 20 — i jedyne, które jest szeryfowe.
+		tytul: ( () => {
+			const h = document.querySelector( '.lst-pl-naglowek' );
+			if ( ! h ) return null;
+			const cs = getComputedStyle( h );
+			return { kroj: cs.fontFamily.split( ',' )[ 0 ].replace( /["']/g, '' ), px: Math.round( parseFloat( cs.fontSize ) ) };
+		} )(),
 		schowane: [ ...document.querySelectorAll( '.lst-pl [class*="lst-pl-"]' ) ]
 			.filter( ( e ) => '0' === getComputedStyle( e ).opacity ).length,
 	} ) );
@@ -113,6 +121,9 @@ console.log( '\nsekcja na stronie' );
 	ok( 'bez suwaka poziomego', 0 === r.poziom, String( r.poziom ) );
 	ok( 'rozmiary pisma tylko 14, 18 i 20', r.rozmiary.every( ( x ) => [ 14, 18, 20 ].includes( x ) ), r.rozmiary.join( '/' ) );
 	ok( 'ani jednego myślnika', 0 === r.myslniki, String( r.myslniki ) );
+	ok( 'tytuł sekcji jest szeryfowy i większy niż reszta',
+		r.tytul && 'Inria Serif' === r.tytul.kroj && r.tytul.px > 20,
+		r.tytul ? `${ r.tytul.kroj } ${ r.tytul.px }` : 'brak' );
 	ok( 'nic nie jest niewidoczne w spoczynku', 0 === r.schowane, String( r.schowane ) );
 
 	/*
@@ -204,6 +215,104 @@ console.log( '\nsekcja na stronie' );
 	 */
 	ok( 'najsłabszy napis ma co najmniej 4,5 : 1', kontrast.r >= 4.5, `${ kontrast.r } : 1 — ${ kontrast.co }` );
 	ok( 'bez błędów skryptu', 0 === bledy.length, bledy.join( ' | ' ) || '0' );
+
+	await c.close();
+}
+
+console.log( '\ndwie kolumny' );
+{
+	const { p, c } = await otworz( 1500, 1000 );
+
+	const u = await p.evaluate( () => {
+		const slowo = document.querySelector( '.lst-pl-slowo' ).getBoundingClientRect();
+		const scena = document.querySelector( '.lst-pl-scena' ).getBoundingClientRect();
+		const rama  = document.querySelector( '.lst-pl-rama' ).getBoundingClientRect();
+		const okno  = document.querySelector( '.lst-pl-okno.jest-strona' ).getBoundingClientRect();
+		const ark   = document.querySelector( '.lst-pl-okno.jest-arkuszem' ).getBoundingClientRect();
+		const zachodzi = ( a, b ) => Math.max( 0, Math.min( a.right, b.right ) - Math.max( a.left, b.left ) )
+			* Math.max( 0, Math.min( a.bottom, b.bottom ) - Math.max( a.top, b.top ) );
+
+		return {
+			obok: slowo.right <= scena.left + 1 && slowo.top < okno.bottom,
+			naOknie: Math.round( zachodzi( slowo, okno ) ),
+			naArkuszu: Math.round( zachodzi( slowo, ark ) ),
+			pozaSzyne: Math.round( scena.right - rama.right ),
+			doKrawedzi: Math.round( window.innerWidth - okno.right ),
+			// Tabela z pięcioma kolumnami poniżej 700 px własnej szerokości składa
+			// się w karty. Karty w tym miejscu nie mówią nic o tym, co wtyczka
+			// potrafi, więc szerokość okna jest tu warunkiem, a nie skutkiem.
+			szerokoscOkna: Math.round( okno.width ),
+			tryb: getComputedStyle( document.querySelector( '.lst-pl .lstab-table' ) ).getPropertyValue( '--lstab-table-mode' ).trim(),
+			// Wspólna linia u góry: tytuł zaczyna się mniej więcej tam, gdzie okno.
+			odstepGory: Math.round( Math.abs( slowo.top - okno.top ) ),
+		};
+	} );
+
+	ok( 'słowo po lewej, obrazek po prawej', u.obok, `nachodzenie: okno ${ u.naOknie }, arkusz ${ u.naArkuszu }` );
+	ok( 'i tekst nie leży na żadnym z okien', 0 === u.naOknie && 0 === u.naArkuszu,
+		`okno ${ u.naOknie }, arkusz ${ u.naArkuszu } px kw.` );
+	ok( 'kompozycja wychodzi poza szynę, ale nie poza ekran',
+		u.pozaSzyne > 8 && u.doKrawedzi > 8, `poza szynę ${ u.pozaSzyne }, do krawędzi ${ u.doKrawedzi }` );
+	ok( 'tabela zostaje tabelą, a nie kartami', u.szerokoscOkna > 700 && '1' === u.tryb,
+		`okno ${ u.szerokoscOkna } px, tryb ${ u.tryb }` );
+	ok( 'tytuł zaczyna się tam, gdzie okno', u.odstepGory <= 40, `${ u.odstepGory } px` );
+
+	await c.close();
+}
+
+/*
+ * Na progu dwóch kolumn, czyli w najciaśniejszym miejscu, w którym one w ogóle
+ * są. Tu właśnie tabela najpierw złożyłaby się w karty, a dwie kolumny z pustym
+ * obrazkiem są gorsze niż jedna kolumna z pełnym.
+ */
+console.log( '\nna samym progu dwóch kolumn' );
+{
+	const { p, c } = await otworz( 1240, 1000 );
+
+	const u = await p.evaluate( () => {
+		const sc = document.querySelector( '.lst-pl .lstab-scroll' );
+
+		return {
+			kolumn: getComputedStyle( document.querySelector( '.lst-pl-uklad' ) ).gridTemplateColumns.split( ' ' ).length,
+			okno: Math.round( document.querySelector( '.lst-pl-okno.jest-strona' ).getBoundingClientRect().width ),
+			tryb: getComputedStyle( document.querySelector( '.lst-pl .lstab-table' ) ).getPropertyValue( '--lstab-table-mode' ).trim(),
+			// Tabela szersza niż jej okno przewija się w bok i ostatnia kolumna
+			// jest ucięta krawędzią okna. Wygląda to na uszkodzony zrzut, a nie
+			// na tabelę, którą da się przesunąć. To jest powód, dla którego próg
+			// dwóch kolumn stoi tam, gdzie stoi.
+			przewija: sc ? sc.scrollWidth - sc.clientWidth : -1,
+			poziom: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+		};
+	} );
+
+	ok( 'dwie kolumny już są', 2 === u.kolumn, `${ u.kolumn }` );
+	ok( 'a tabela wciąż jest tabelą', u.okno > 700 && '1' === u.tryb, `okno ${ u.okno } px, tryb ${ u.tryb }` );
+	ok( 'i mieści się w oknie w całości', 0 === u.przewija, `${ u.przewija } px poza oknem` );
+	ok( 'bez suwaka poziomego', 0 === u.poziom, String( u.poziom ) );
+
+	await c.close();
+}
+
+/* Tuż pod progiem tekst staje nad obrazkiem i nic nie traci. */
+console.log( '\ntuż pod progiem' );
+{
+	const { p, c } = await otworz( 1180, 1000 );
+
+	const u = await p.evaluate( () => {
+		const slowo = document.querySelector( '.lst-pl-slowo' ).getBoundingClientRect();
+		const scena = document.querySelector( '.lst-pl-scena' ).getBoundingClientRect();
+		return {
+			jednaKolumna: getComputedStyle( document.querySelector( '.lst-pl-uklad' ) ).gridTemplateColumns.split( ' ' ).length,
+			nad: slowo.bottom <= scena.top + 1,
+			okno: Math.round( document.querySelector( '.lst-pl-okno.jest-strona' ).getBoundingClientRect().width ),
+			tryb: getComputedStyle( document.querySelector( '.lst-pl .lstab-table' ) ).getPropertyValue( '--lstab-table-mode' ).trim(),
+			poziom: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+		};
+	} );
+
+	ok( 'jedna kolumna, tekst nad obrazkiem', 1 === u.jednaKolumna && u.nad, `kolumn ${ u.jednaKolumna }` );
+	ok( 'i tabela dalej jest tabelą', u.okno > 700 && '1' === u.tryb, `okno ${ u.okno } px, tryb ${ u.tryb }` );
+	ok( 'bez suwaka poziomego', 0 === u.poziom, String( u.poziom ) );
 
 	await c.close();
 }

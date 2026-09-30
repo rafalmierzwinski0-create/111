@@ -122,7 +122,62 @@ def strona():
 		'</div>' )
 
 
-SEKCJA = ( '<div class="lst-pl"><div class="lst-pl-rama">'
+# Cztery rzeczy, które widać w tabeli obok, nazwane po imieniu.
+#
+# Próbka jest zbudowana z tego samego, z czego zrobiła je wtyczka, w tych samych
+# kolorach — czyli oko skacze z napisu na tabelę i z powrotem, i za każdym razem
+# trafia. Metka ODDZIELNIE od próbki, bo próbka nie jest napisem: czytnik ekranu
+# dostaje samo zdanie.
+CZYTANKA = [
+	( 'jest-pigulka', 'IN STOCK', 'a word becomes a badge' ),
+	( 'jest-wierszem', '', 'a row paints itself' ),
+	( 'jest-slupkiem', '', 'a number becomes a bar' ),
+	( 'jest-przyciskiem', 'Open', 'a link becomes a button' ),
+]
+
+
+def czytanka():
+	"""Legenda pod akapitem: próbka, a obok zdanie o tym, co ona jest."""
+	pozycje = ''
+
+	for klasa, slowo, zdanie in CZYTANKA:
+		srodek = html.escape( slowo )
+
+		# Słupek to dwa prostokąty, jeden w drugim, a nie przejście koloru:
+		# utwardzenie na wrogie motywy gasi wszystkie obrazki tła, a to jest
+		# właśnie obrazek tła.
+		if 'jest-slupkiem' == klasa:
+			srodek = '<span class="lst-pl-wypelnienie"></span>'
+
+		pozycje += ( '<li class="lst-pl-pozycja">'
+			'<span class="lst-pl-probka ' + klasa + '" aria-hidden="true">' + srodek + '</span>'
+			'<span class="lst-pl-zdanie">' + html.escape( zdanie ) + '</span></li>' )
+
+	return '<ul class="lst-pl-czytanka">' + pozycje + '</ul>'
+
+
+def slowo():
+	"""Kolumna z tekstem, po lewej stronie kompozycji.
+
+	Mówi to, czego obrazek powiedzieć nie może: że nikt tego nie przepisywał
+	i że tabela sama do arkusza wraca. Reszta to nazwanie po imieniu czterech
+	rzeczy, które w tabeli obok widać, ale których nikt by nie nazwał
+	ustawieniem, gdyby mu nie powiedzieć.
+	"""
+	return ( '<div class="lst-pl-slowo">'
+		'<h2 class="lst-pl-naglowek">Nobody retyped a single row.</h2>'
+		'<p class="lst-pl-akapit">On the left, the file you already keep. '
+		'On the right, a real page with the plugin on it, drawing that same file '
+		'in your colours and reading it again every fifteen minutes.</p>'
+		+ czytanka() +
+		'<p class="lst-pl-stopka-slowa">All four are settings, picked once.</p>'
+		'<p class="lst-pl-dalej"><a class="lst-pl-odsylacz" href="ADRES-MOZLIWOSCI">'
+		'See everything it can do<span class="lst-pl-grot-tekstowy" aria-hidden="true">&#8250;</span></a></p>'
+		'</div>' )
+
+
+SEKCJA = ( '<div class="lst-pl"><div class="lst-pl-rama"><div class="lst-pl-uklad">'
+	+ slowo() +
 	'<div class="lst-pl-scena">'
 	+ strona() +
 	'<div class="lst-pl-przod">'
@@ -130,7 +185,7 @@ SEKCJA = ( '<div class="lst-pl"><div class="lst-pl-rama">'
 	'<span class="lst-pl-strzalka">' + STRZALKA + '</span>'
 	'</div>'
 	'</div>'
-	'</div></div>' )
+	'</div></div></div>' )
 
 
 STYL = r"""
@@ -158,6 +213,7 @@ STYL = r"""
 	   miejsca. */
 	--pl-papier: #151e1d;
 	--pl-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+	--pl-szeryf: "Inria Serif", "Iowan Old Style", Georgia, serif;
 	--pl-luk: cubic-bezier( .23, 1, .32, 1 );
 
 	font-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -166,6 +222,17 @@ STYL = r"""
 	--pl-szerokosc: 90%;
 	--pl-max: 1240px;
 	--pl-pelna: 100vw;
+	/*
+	 * O ile kompozycja wychodzi poza szynę, na której stoi reszta strony.
+	 *
+	 * Dokładnie tyle, ile zostaje z marginesu do krawędzi okna, ale nie więcej
+	 * niż 6rem: okno strony klienta ma dojść najwyżej DO krawędzi ekranu i ani
+	 * piksela dalej. Przycięte okno wyglądałoby jak zrzut zrobiony byle jak,
+	 * a przycięta byłaby akurat kolumna z przyciskami, czyli to, czym ta tabela
+	 * się chwali. Wystaje, a nie ucieka: tyle wystarczy, żeby było widać, że
+	 * prawa strona jest szersza niż wszystko inne na tej stronie.
+	 */
+	--pl-wyjscie: min( 4rem, calc( max( 5vw, ( 100vw - var( --pl-max ) ) / 2 ) * .55 ) );
 
 	width: var( --pl-pelna );
 	margin: 0 calc( 50% - var( --pl-pelna ) / 2 );
@@ -204,6 +271,154 @@ STYL = r"""
 	max-width: var( --pl-max );
 	margin-inline: auto;
 }
+
+/* ------------------------------------------------------------ dwie kolumny */
+
+/*
+ * Słowo i obrazek obok siebie, ale nie po połowie.
+ *
+ * Kompozycja jest tu treścią, a nie ilustracją do tekstu, więc dostaje tyle
+ * miejsca, ile potrzebuje, i jeszcze trochę: wychodzi poza szynę, na której
+ * stoi reszta strony. Tabela z pięcioma kolumnami składa się w karty poniżej
+ * 700 px SWOJEJ szerokości, a karty w tym miejscu nie mówiłyby nic o tym, co
+ * wtyczka potrafi — więc dwie kolumny są dopiero wtedy, gdy obie naprawdę się
+ * mieszczą. Niżej tekst staje nad obrazkiem i nic nie traci.
+ */
+.lst-pl .lst-pl-uklad {
+	display: grid;
+	gap: clamp( 1.6rem, 3vw, 2.6rem );
+}
+
+.lst-pl .lst-pl-slowo {
+	display: grid;
+	align-content: start;
+	/* Wiersz tekstu dłuższy niż mniej więcej 70 znaków czyta się źle, a przy
+	   jednej kolumnie nic go z boku nie trzyma. */
+	max-width: 44rem;
+}
+
+.lst-pl .lst-pl-naglowek {
+	font-family: var( --pl-szeryf );
+	font-weight: 400;
+	/* Tytuły tej witryny są szeryfowe i skalują się z oknem: jedyne miejsce,
+	   w którym wolno wyjść poza 14, 18 i 20. Mniejszy niż tytuł w hero, bo stoi
+	   zaraz pod nim i ma być jego dalszym ciągiem, a nie drugim otwarciem. */
+	font-size: clamp( 1.5rem, 2.2vw, 2rem );
+	line-height: 1.14;
+	letter-spacing: -.01em;
+	color: var( --pl-tekst );
+	/* Dwa słowa w drugim wierszu zamiast jednego sierotki. Przeglądarka, która
+	   tego nie zna, łamie tytuł po staremu i nic się nie psuje. */
+	text-wrap: balance;
+}
+
+.lst-pl .lst-pl-akapit {
+	margin-top: .9rem;
+	font-size: 1.125rem;   /* 18 px */
+	line-height: 1.6;
+	color: var( --pl-tekst-2 );
+	text-wrap: pretty;
+}
+
+/* ------------------------------------------------------------- czytanka */
+
+/*
+ * Cztery rzeczy, które w tabeli obok widać, nazwane po imieniu.
+ *
+ * Bez tego są po prostu ładne: nikt nie zgadnie, że kolorowa pigułka i pasek
+ * pod liczbą to USTAWIENIA, a nie sposób, w jaki ta jedna tabela została
+ * narysowana. Próbki są w tych samych kolorach co tabela, więc oko skacze
+ * z napisu na tabelę i za każdym razem trafia.
+ *
+ * Kolumna próbek ma stałą szerokość, żeby zdania zaczynały się równo: legenda,
+ * w której początki wierszy skaczą, przestaje wyglądać na legendę.
+ */
+.lst-pl .lst-pl-czytanka {
+	display: grid;
+	gap: .5rem;
+	margin-top: 1.5rem;
+}
+
+.lst-pl .lst-pl-pozycja {
+	display: grid;
+	grid-template-columns: 5.6rem minmax( 0, 1fr );
+	align-items: center;
+	gap: .9rem;
+}
+
+.lst-pl .lst-pl-probka {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 1.5rem;
+	font-size: .875rem;   /* 14 px */
+	line-height: 1;
+	border-radius: 999px;
+}
+
+.lst-pl .lst-pl-probka.jest-pigulka {
+	border: 1px solid rgba( var( --pl-mieta ), .5 );
+	color: #a9ece1;
+}
+
+/* Wiersz i słupek to prostokąty, nie pigułki: w tabeli też nimi są. */
+.lst-pl .lst-pl-probka.jest-wierszem,
+.lst-pl .lst-pl-probka.jest-slupkiem {
+	height: 1.35rem;
+	border-radius: 5px;
+}
+
+.lst-pl .lst-pl-probka.jest-wierszem { background-color: #5a2733; }
+.lst-pl .lst-pl-probka.jest-slupkiem { background-color: rgba( var( --pl-mieta ), .12 ); justify-content: flex-start; }
+
+/* Dwa prostokąty, jeden w drugim, a nie przejście koloru: utwardzenie na wrogie
+   motywy gasi wszystkie obrazki tła, a przejście jest obrazkiem tła. */
+.lst-pl .lst-pl-wypelnienie {
+	display: block;
+	width: 58%;
+	height: 100%;
+	border-radius: 5px;
+	background-color: rgba( var( --pl-mieta ), .32 );
+}
+
+.lst-pl .lst-pl-probka.jest-przyciskiem {
+	padding: 0 .75rem;
+	font-weight: 600;
+	background-color: rgb( var( --pl-mieta ) );
+	color: #06100f;
+}
+
+.lst-pl .lst-pl-zdanie {
+	font-size: .875rem;   /* 14 px */
+	line-height: 1.5;
+	color: var( --pl-tekst-2 );
+}
+
+.lst-pl .lst-pl-stopka-slowa {
+	margin-top: 1rem;
+	font-size: .875rem;   /* 14 px */
+	line-height: 1.5;
+	color: var( --pl-tekst-3 );
+}
+
+.lst-pl .lst-pl-dalej { margin-top: 1.1rem; }
+
+.lst-pl .lst-pl-odsylacz {
+	display: inline-flex;
+	align-items: baseline;
+	gap: .4rem;
+	font-size: .875rem;   /* 14 px */
+	line-height: 1.5;
+	color: rgb( var( --pl-mieta ) );
+	text-decoration: none;
+	border-bottom: 1px solid rgba( var( --pl-mieta ), .32 );
+	padding-bottom: .12rem;
+	transition: border-color .18s var( --pl-luk ), color .18s var( --pl-luk );
+}
+
+.lst-pl .lst-pl-odsylacz:hover { border-bottom-color: rgb( var( --pl-mieta ) ); }
+.lst-pl .lst-pl-odsylacz:focus-visible { outline: 2px solid rgb( var( --pl-mieta ) ); outline-offset: 3px; border-radius: 2px; }
+.lst-pl .lst-pl-grot-tekstowy { font-size: 1.125rem; line-height: 1; }
 
 /* ------------------------------------------------------------- scena */
 
@@ -259,11 +474,19 @@ STYL = r"""
 	max-height: clamp( 22rem, 40vw, 32rem );
 }
 
+/*
+ * Zanik u dołu okna.
+ *
+ * Mówi „wierszy jest więcej” i jest zarazem tym, na czym leży arkusz: tam,
+ * gdzie arkusz nachodzi na okno, tabela ma już gasnąć, żeby jego górna krawędź
+ * nie ucinała ostrego napisu w pół. Dlatego w układzie dwukolumnowym zanik
+ * zaczyna się wyżej: dokładnie tam, gdzie zaczyna się arkusz.
+ */
 .lst-pl .lst-pl-okno.jest-strona .lst-pl-plansza {
 	min-height: 0;
 	overflow: hidden;
-	-webkit-mask-image: linear-gradient( to bottom, #000 86%, transparent 99% );
-	mask-image: linear-gradient( to bottom, #000 86%, transparent 99% );
+	-webkit-mask-image: linear-gradient( to bottom, #000 var( --pl-zanik, 86% ), transparent var( --pl-koniec, 99% ) );
+	mask-image: linear-gradient( to bottom, #000 var( --pl-zanik, 86% ), transparent var( --pl-koniec, 99% ) );
 }
 
 /* Arkusz jest bliżej czytelnika, więc jego cień jest mocniejszy i krótszy. */
@@ -514,6 +737,103 @@ STYL = r"""
 .lst-pl .lst-pl-belka-prawa,
 .lst-pl .lst-pl-siatka { font-family: var( --pl-mono ) !important; }
 
+/* Tytuł jest szeryfowy, a utwardzenie wyżej każe wszystkiemu dziedziczyć krój
+   po sekcji. Wyjątek jeden i wypisany. */
+.lst-pl .lst-pl-naglowek { font-family: var( --pl-szeryf ) !important; }
+
+.lst-pl .lst-pl-probka.jest-wierszem { background-color: #5a2733 !important; }
+.lst-pl .lst-pl-probka.jest-slupkiem { background-color: rgba( var( --pl-mieta ), .12 ) !important; }
+.lst-pl .lst-pl-wypelnienie { background-color: rgba( var( --pl-mieta ), .32 ) !important; }
+.lst-pl .lst-pl-probka.jest-przyciskiem { background-color: rgb( var( --pl-mieta ) ) !important; color: #06100f !important; }
+
+/* ----------------------------------------------------------- dwie kolumny */
+
+/*
+ * Dopiero tutaj, bo dopiero tutaj obie kolumny się mieszczą.
+ *
+ * Poniżej tej szerokości tabela przestaje się mieścić w swoim oknie: najpierw
+ * wystaje jej ostatnia kolumna i okno zaczyna się przewijać w bok, a jeszcze
+ * niżej tabela składa się w karty. Karty w tym miejscu nie mówią nic o tym, co
+ * wtyczka potrafi. Lepiej postawić tekst nad obrazkiem, niż mieć dwie kolumny
+ * i pusty obrazek, więc próg jest tam, gdzie tabela naprawdę się mieści, i jest
+ * zmierzony, a nie zgadnięty.
+ */
+@media ( min-width: 1240px ) {
+	.lst-pl .lst-pl-uklad {
+		/* Wąska kolumna na słowo, cała reszta na obrazek: to obrazek jest tu
+		   treścią, a tekst go podpisuje. */
+		grid-template-columns: clamp( 18rem, 21vw, 21rem ) minmax( 0, 1fr );
+		align-items: start;
+		gap: clamp( 2rem, 3.2vw, 3.4rem );
+	}
+
+	/* Tytuł zaczyna się mniej więcej tam, gdzie górna krawędź okna: wspólna
+	   linia u góry jest tym, co trzyma dwie różne rzeczy obok siebie. */
+	.lst-pl .lst-pl-slowo { max-width: none; padding-top: clamp( .25rem, 1.4vw, 1.4rem ); }
+
+	.lst-pl .lst-pl-scena {
+		/* Poza szynę, na prawo. Z „!important”, bo utwardzenie na wrogie motywy
+		   wyżej zeruje marginesy na boki wszystkiemu, co ma klasę tej sekcji,
+		   i bez tego kompozycja po cichu zostaje na szynie. */
+		margin-right: calc( -1 * var( --pl-wyjscie ) ) !important;
+		/* Arkusz wystaje z okna w lewo mniej niż przedtem: tam, gdzie kiedyś było
+		   puste tło, stoi teraz kolumna z tekstem, a arkusz ma się o nią opierać,
+		   nie na nią wchodzić. */
+		padding-left: clamp( 0rem, 2.6vw, 3rem );
+		/*
+		 * Pas pod oknem, w którym leży arkusz i biegnie łuk. Liczony w rem,
+		 * a nie w procentach szerokości, bo to on decyduje, JAK GŁĘBOKO arkusz
+		 * wchodzi na okno, a to musi wyjść tak samo na każdym szerokim ekranie.
+		 *
+		 * Arkusz jest wysoki na 16.4rem i stoi dnem na dnie tego pasa, więc na
+		 * okno wchodzi dokładnie tym, co zostaje: około siedemdziesięciu pikseli.
+		 * Tyle, ile mierzy zanik u dołu okna. Wcześniej wchodził na nie o wiele
+		 * głębiej i jego górna krawędź ucinała w pół wiersz tabeli, z nazwą
+		 * produktu przeciętą na dwoje. Teraz kładzie się na tym, co i tak już
+		 * gaśnie, i nic ostrego nie jest przecięte.
+		 */
+		padding-bottom: 12rem;
+	}
+
+	/*
+	 * Zanik kończy się DOKŁADNIE tam, gdzie zaczyna się arkusz.
+	 *
+	 * Nie „mniej więcej tam”: krawędź arkusza jest nieprzezroczysta i wszystko,
+	 * co pod nią wejdzie, zostaje ucięte w pół. Raz padło na drugi wiersz nazwy
+	 * produktu i z „Insulated Bottle 750 ml” zostało „750”, co wygląda na
+	 * usterkę tabeli, a nie na kompozycję. Kiedy tabela jest tam już całkiem
+	 * przezroczysta, nie ma czego ucinać: wiersze rozpływają się i dopiero pod
+	 * nimi leży arkusz.
+	 */
+	.lst-pl .lst-pl-okno.jest-strona {
+		/*
+		 * Stała wysokość, a nie ułamek szerokości okna przeglądarki.
+		 *
+		 * To ona decyduje, ile wierszy widać, i to od niej liczy się, gdzie
+		 * kończy się zanik, a zaczyna arkusz. Przy wysokości zależnej od
+		 * szerokości okna to samo ustawienie wypadało raz pod wierszem, raz
+		 * w jego połowie, a przy 1180 px widać było dwa i pół wiersza: za mało,
+		 * żeby malowany wiersz w ogóle się pokazał, a to on jest tu dowodem.
+		 */
+		max-height: 32rem;
+		--pl-zanik: 72%;
+		--pl-koniec: 85%;
+	}
+
+	/*
+	 * Łuk na całą wysokość pasa, w proporcji swojego rysunku (160 : 96), żeby
+	 * grot doszedł możliwie blisko dolnej krawędzi okna. Rysunek zachowuje
+	 * proporcje sam z siebie, więc pudełko w innej proporcji zostawiłoby wokół
+	 * niego puste pole i grot zatrzymałby się w połowie drogi.
+	 */
+	.lst-pl .lst-pl-strzalka { width: 20rem; height: 12rem; }
+
+	/* Arkusz kładzie się na ROGU okna, a nie na jego środku: pigułki, słupki
+	   i przyciski muszą zostać widoczne, bo po to ta tabela tu stoi. Na wąskiej
+	   scenie te same 52 procent zakrywały połowę tabeli. */
+	.lst-pl .lst-pl-przod { width: min( 23rem, 41% ); }
+}
+
 /* ------------------------------------------------------------------ wąsko */
 
 /*
@@ -543,11 +863,14 @@ STYL = r"""
 		transform: rotate( 90deg );
 	}
 	.lst-pl .lst-pl-siatka { max-height: 13rem; }
+	/* Okno na tyle wysokie, żeby było w nim co oglądać: przy ułamku szerokości
+	   okna przeglądarki mieściły się tu dwa wiersze i zanik. */
+	.lst-pl .lst-pl-okno.jest-strona { max-height: clamp( 24rem, 62vw, 32rem ); }
 }
 """
 
 STRONA = (
-	'<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">\n'
+	'<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Inria+Serif:ital,wght@0,300;0,400&display=swap">\n'
 	'\n' + SEKCJA + '\n'
 	'\n<style>\n' + STYL + CSS + '\n</style>\n'
 	'\n<script>\n' + JS + '\n</script>\n'
