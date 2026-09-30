@@ -1,54 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-„Cztery kroki" — blok o tym, którędy idą dane, w jednym module Kod.
-
-Kod bloku jest TWÓJ, nie mój: przyszedł gotowy i jest tu przepisany bez zmian
-w układzie, stylach i komentarzach. Ten plik dokłada do niego jedno: obie
-wersje językowe składane z jednego źródła, żeby nie dało się poprawić jednej
-i zapomnieć o drugiej.
-
-Zmieniasz słowa w EN albo PL, uruchamiasz plik, dostajesz oba moduły.
-
-Użycie:
-    python3 landing/droga/modul.py     # składa obie wersje i podgląd
-    node landing/droga/spr.mjs         # sprawdza je w przeglądarce
-
-UWAGA przy edycji: każdy znacznik musi zostać w jednej linijce. Divi wstawia
-w miejscu złamanego wiersza <br />, a to rozbija znacznik.
-"""
-
-import pathlib
-import re
-
-TU = pathlib.Path( __file__ ).parent
-
-# Cztery ikony, dokładnie te, które były w oryginale.
-IKONY = [
-	'<rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M9 9.5V20"/>',
-	'<path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v4.6h-4.6"/>',
-	'<ellipse cx="12" cy="6.2" rx="7.2" ry="2.9"/><path d="M4.8 6.2v11.6c0 1.6 3.2 2.9 7.2 2.9s7.2-1.3 7.2-2.9V6.2"/><path d="M4.8 12c0 1.6 3.2 2.9 7.2 2.9s7.2-1.3 7.2-2.9"/>',
-	'<rect x="3" y="4.5" width="18" height="13" rx="2.5"/><path d="M3 8.5h18M8.5 21h7"/>',
-]
-
-# Podpisy są dwuwierszowe z rozmysłu: dwa wiersze mniej więcej równej długości
-# stoją pod tytułem jak podpis pod zdjęciem. Przy tłumaczeniu trzeba pilnować
-# tej samej rzeczy, a nie liczby słów.
-EN = [
-	( 'Your Google Sheet', 'You change what you want,', 'where you already work.' ),
-	( 'Fetched in the background', 'The plugin checks for changes', 'by itself, every 15 minutes.' ),
-	( 'A copy in your database', 'The table lives with you,', 'not at Google.' ),
-	( 'Your visitor&rsquo;s page', 'Current data straight away,', 'without a second of waiting.' ),
-]
-
-PL = [
-	( 'Arkusz Google', 'Zmieniasz, co chcesz,', 'tam gdzie pracujesz.' ),
-	( 'Pobranie w tle', 'Wtyczka sama sprawdza', 'zmiany, co 15 minut.' ),
-	( 'Kopia w Twojej bazie', 'Tabela żyje u Ciebie,', 'nie u Google.' ),
-	( 'Strona odwiedzającego', 'Aktualne dane od razu,', 'bez sekundy czekania.' ),
-]
-
-
-SZABLON = r'''<!-- =========================================================================
+<!-- =========================================================================
      CZTERY KROKI — cały blok w jednym module Kod.
 
      Żadnego skryptu: to sam kod strony i CSS. Nie ma więc czego popsuć w
@@ -58,7 +8,26 @@ SZABLON = r'''<!-- =============================================================
      wstawia w miejscu złamanego wiersza <br />, a to rozbija znacznik.
      ========================================================================= -->
 <div class="lst-kroki" id="lst-kroki">
-{KROKI}
+	<div class="lst-krok">
+		<span class="lst-kafel"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M9 9.5V20"/></svg></span>
+		<span class="lst-krok-tytul">Arkusz Google</span>
+		<span class="lst-krok-opis"><span>Zmieniasz, co chcesz,</span><span>tam gdzie pracujesz.</span></span>
+	</div>
+	<div class="lst-krok">
+		<span class="lst-kafel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v4.6h-4.6"/></svg></span>
+		<span class="lst-krok-tytul">Pobranie w tle</span>
+		<span class="lst-krok-opis"><span>Wtyczka sama sprawdza</span><span>zmiany, co 15 minut.</span></span>
+	</div>
+	<div class="lst-krok">
+		<span class="lst-kafel"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6.2" rx="7.2" ry="2.9"/><path d="M4.8 6.2v11.6c0 1.6 3.2 2.9 7.2 2.9s7.2-1.3 7.2-2.9V6.2"/><path d="M4.8 12c0 1.6 3.2 2.9 7.2 2.9s7.2-1.3 7.2-2.9"/></svg></span>
+		<span class="lst-krok-tytul">Kopia w Twojej bazie</span>
+		<span class="lst-krok-opis"><span>Tabela żyje u Ciebie,</span><span>nie u Google.</span></span>
+	</div>
+	<div class="lst-krok">
+		<span class="lst-kafel"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="13" rx="2.5"/><path d="M3 8.5h18M8.5 21h7"/></svg></span>
+		<span class="lst-krok-tytul">Strona odwiedzającego</span>
+		<span class="lst-krok-opis"><span>Aktualne dane od razu,</span><span>bez sekundy czekania.</span></span>
+	</div>
 </div>
 
 <style>
@@ -195,69 +164,3 @@ SZABLON = r'''<!-- =============================================================
 	}
 }
 </style>
-'''
-
-
-def zbuduj( teksty, plik ):
-	kroki = []
-
-	for ( tytul, linia1, linia2 ), ikona in zip( teksty, IKONY ):
-		kroki.append(
-			'\t<div class="lst-krok">\n'
-			'\t\t<span class="lst-kafel"><svg viewBox="0 0 24 24" aria-hidden="true">' + ikona + '</svg></span>\n'
-			'\t\t<span class="lst-krok-tytul">' + tytul + '</span>\n'
-			'\t\t<span class="lst-krok-opis"><span>' + linia1 + '</span><span>' + linia2 + '</span></span>\n'
-			'\t</div>' )
-
-	html = SZABLON.replace( '{KROKI}', '\n'.join( kroki ) )
-
-	sprawdz( html, plik )
-	( TU / plik ).write_text( html, encoding='utf-8' )
-	print( plik + ' — kroków: ' + str( len( kroki ) ) + ', znaków: ' + str( len( html ) ) )
-	return html
-
-
-def sprawdz( html, plik ):
-	"""To, co potrafi wyłożyć Kreator Wizualny albo psuje moduł po cichu."""
-
-	# Komentarz na górze jest wielowierszowy z założenia i nie jest znacznikiem,
-	# więc wypada z tego sprawdzenia, zamiast je wywracać.
-	znacznikowanie = re.sub( r'<!--.*?-->', '', html[ : html.index( '<style>' ) ], flags=re.S )
-
-	for numer, wiersz in enumerate( znacznikowanie.split( '\n' ), 1 ):
-		if wiersz.count( '<' ) and re.search( r'<[^>]*$', wiersz ):
-			raise SystemExit( plik + ': znacznik rozbity na dwie linijki, wiersz ' + str( numer ) )
-
-	# Nawias kwadratowy w treści WordPress wziąłby za shortcode i wykonał.
-	if re.search( r'\[[a-z_]', znacznikowanie ):
-		raise SystemExit( plik + ': nawias kwadratowy w treści' )
-
-
-# Podgląd stoi na PRAWDZIWYM tle witryny — tym samym pliku, który idzie do
-# Opcji motywu — a nie na podrobionej siatce. Blok jest półprzezroczysty i ma
-# przez niego przechodzić to, co witryna maluje pod spodem; na podrobionym tle
-# wyglądał inaczej niż na stronie, a różnicę widać dopiero po wklejeniu.
-TLO_CSS = pathlib.Path( '/home/user/111/landing/tlo/TLO-cala-witryna.css' ).read_text( encoding='utf-8' )
-TLO_HTML = pathlib.Path( '/home/user/111/landing/tlo/TLO-cala-witryna.html' ).read_text( encoding='utf-8' )
-
-PODGLAD = (
-	'<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n'
-	'<title>Four steps</title>\n'
-	'<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">\n'
-	'<style>\n'
-	'html, body { margin: 0; background: #232a29; color: #eaf3f1; }\n'
-	'.podrobka-divi { padding: 60px 0; }\n'
-	'.podrobka-divi-rzad { width: 90%; max-width: 1240px; margin: 0 auto; }\n'
-	+ TLO_CSS +
-	'\n</style>\n'
-	+ TLO_HTML +
-	'<div class="podrobka-divi"><div class="podrobka-divi-rzad">\n'
-	'{TRESC}'
-	'\n</div></div>\n'
-)
-
-en = zbuduj( EN, 'KROKI-en.html' )
-zbuduj( PL, 'KROKI-pl.html' )
-
-( TU / 'proba.html' ).write_text( PODGLAD.replace( '{TRESC}', en ), encoding='utf-8' )
-print( 'proba.html' )
