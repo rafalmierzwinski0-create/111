@@ -90,8 +90,22 @@ console.log('\n1400 px, zwykła strona');
           .filter(e => parseFloat(getComputedStyle(e).borderTopLeftRadius) >= 14).length,
         zcieniem: [...document.querySelectorAll('.lst-2m-liczba')]
           .filter(e => 'none' !== getComputedStyle(e).boxShadow).length,
-        pasek: [...document.querySelectorAll('.lst-2m-liczba')]
-          .filter(e => /95,\s*227,\s*207/.test(getComputedStyle(e, '::before').backgroundImage)).length,
+        /*
+         * Światło biegnące po krawędzi: koło koloru („conic-gradient")
+         * przycięte maską do samej ramki, obracane w kółko. Sprawdzane po
+         * trzech rzeczach naraz, bo każda z nich osobno potrafi zniknąć po
+         * cichu: że to jest koło koloru, że jest w kolorze akcentu i że coś
+         * je obraca.
+         */
+        swiatlo: [...document.querySelectorAll('.lst-2m-liczba')]
+          .filter(e => {
+            const tlo = getComputedStyle(e, '::before').backgroundImage;
+            return /conic-gradient/.test(tlo) && /95,\s*227,\s*207/.test(tlo);
+          }).length,
+        obieg: [...document.querySelectorAll('.lst-2m-liczba')]
+          .filter(e => 'none' !== getComputedStyle(e).animationName).length,
+        poswiata: [...document.querySelectorAll('.lst-2m-liczba')]
+          .filter(e => /blur/.test(getComputedStyle(e, '::after').filter)).length,
         odstep: parseFloat(getComputedStyle(t('.lst-2m-liczby')).columnGap) || 0,
       },
       kolory: {
@@ -120,7 +134,9 @@ console.log('\n1400 px, zwykła strona');
     `zaokrąglonych ${r.bloki.zaokraglone}, z cieniem ${r.bloki.zcieniem}`);
   ok('stoją osobno, a nie w jednej ramce ze ściankami', r.bloki.odstep >= 12,
     `odstęp ${Math.round(r.bloki.odstep)} px`);
-  ok('każdy ma miętowy pasek na górnej krawędzi', r.bloki.pasek === 3, `${r.bloki.pasek} z 3`);
+  ok('po krawędzi każdego biegnie światło', r.bloki.swiatlo === 3 && r.bloki.obieg === 3,
+    `kół koloru ${r.bloki.swiatlo}, obracanych ${r.bloki.obieg}`);
+  ok('i ciągnie za sobą poświatę', r.bloki.poswiata === 3, `${r.bloki.poswiata} z 3`);
   ok('każda liczba ma swój przyrząd', r.przyrzadow === 3, `${r.przyrzadow} z 3`);
   ok('belka okna jaśniejsza niż jego ekran', jasnosc(r.tloBelki) > jEkran, `belka ${jasnosc(r.tloBelki)} vs ekran ${jEkran}`);
   ok('równo z resztą strony, bez suwaka', Math.abs(r.lewa - r.odn) <= 1 && r.poziom === 0, `${r.lewa} vs ${r.odn}, suwak ${r.poziom}`);
