@@ -77,6 +77,12 @@ console.log('\n1400 px, zwykła strona');
       nawiasy: t('.lst-2m-para:nth-child(3) .lst-2m-ekran').textContent.trim(),
       wynikow: document.querySelectorAll('.lst-2m-wynik').length,
       kreska: getComputedStyle(document.querySelector('.lst-2m-para:nth-child(2)')).borderTopColor,
+      przyrzadow: document.querySelectorAll('.lst-2m-przyrzad').length,
+      kreski: {
+        pion: [...document.querySelectorAll('.lst-2m-liczba')]
+          .filter(e => parseFloat(getComputedStyle(e).borderLeftWidth) > 0).length,
+        gora: parseFloat(getComputedStyle(t('.lst-2m-liczby')).borderTopWidth) > 0 ? 1 : 0,
+      },
       kolory: {
         opis: getComputedStyle(t('.lst-2m-opis')).color,
         adres: getComputedStyle(t('.lst-2m-adres')).color,
@@ -96,7 +102,17 @@ console.log('\n1400 px, zwykła strona');
 
   const jEkran = jasnosc(r.tloOkna), jStrona = jasnosc(r.tloStrony), jLiczba = jasnosc(r.tloLiczby);
   ok('podgląd wyraźnie ciemniejszy od strony', jStrona - jEkran >= 15, `ekran ${jEkran} vs strona ${jStrona} (różnica ${jStrona - jEkran})`);
-  ok('podgląd wyraźnie ciemniejszy od kafli liczb', jLiczba - jEkran >= 15, `ekran ${jEkran} vs kafel ${jLiczba} (różnica ${jLiczba - jEkran})`);
+  /*
+   * Pas z liczbami nie ma już własnego tła i to jest jego cała rzecz: trzy
+   * liczby w zamkniętych kafelkach czytają się jak zestawienie, przez które
+   * się przelatuje wzrokiem, a to jest miejsce, w którym sekcja mówi swoje
+   * trzy najmocniejsze zdania. Sprawdzane, bo kafelek wraca tu sam z siebie
+   * przy pierwszej próbie „dodania trochę kontrastu".
+   */
+  ok('pas z liczbami jest otwarty, bez kafelków', 0 === jLiczba, `tło kafla ${r.tloLiczby}`);
+  ok('a rozdzielają go kreski, nie ramki', r.kreski.pion === 2 && r.kreski.gora === 1,
+    `pionowych ${r.kreski.pion}, górna ${r.kreski.gora}`);
+  ok('każda liczba ma swój przyrząd', r.przyrzadow === 3, `${r.przyrzadow} z 3`);
   ok('belka okna jaśniejsza niż jego ekran', jasnosc(r.tloBelki) > jEkran, `belka ${jasnosc(r.tloBelki)} vs ekran ${jEkran}`);
   ok('równo z resztą strony, bez suwaka', Math.abs(r.lewa - r.odn) <= 1 && r.poziom === 0, `${r.lewa} vs ${r.odn}, suwak ${r.poziom}`);
   ok('shortcode w nawiasach, nie wykonany', r.nawiasy.includes('[sheet_table id="1"]'), r.nawiasy);

@@ -18,6 +18,20 @@ import re
 # za shortcode i wykonał, zamiast pokazać.
 L, P = '&#91;', '&#93;'
 
+# I jeszcze pusty znacznik zaraz za nawiasem otwierającym.
+#
+# Same encje nie wystarczyły. Divi zapisuje treść modułu po swojemu i potrafi
+# zamienić „&#91;" z powrotem na „[" — a wtedy WordPress widzi prawdziwy
+# shortcode, wykonuje go i w okienku, zamiast przykładu do przeczytania,
+# pojawia się komunikat wtyczki („To źródło arkusza już nie istnieje"), w
+# dodatku w języku witryny, na angielskiej stronie. Widać to było na żywo.
+#
+# Shortcode rozpoznaje się po nazwie STYKAJĄCEJ SIĘ z nawiasem, więc pusty
+# znacznik między jednym a drugim wyklucza dopasowanie raz na zawsze, cokolwiek
+# zrobi się z encjami. Dla czytającego i dla kopiującego nic się nie zmienia:
+# znacznik nie wnosi do tekstu ani jednego znaku.
+PRZERWA = '<span class="lst-2m-nic"></span>'
+
 EN = {
 	'kroki': [
 		( 'B10', 'Share the sheet',
@@ -34,16 +48,16 @@ EN = {
 		( 'B12', 'Put it on the page',
 		  'A block, an Elementor widget or a shortcode. The same code draws all three, so they cannot '
 		  'drift apart.',
-		  'Your page', L + 'sheet_table id=&quot;1&quot;' + P,
+		  'Your page', L + PRZERWA + 'sheet_table id=&quot;1&quot;' + P,
 		  'table #1 &middot; 128 rows &middot; checked 4 min ago' ),
 	],
 	'liczby': [
-		( '0', 'API keys to paste, for a shared sheet',
+		( 'pole', '0', 'API keys to paste, for a shared sheet',
 		  'You share it with a link and that is the setup. Pro can sign in to your own Google '
 		  'account instead, for sheets you would rather keep private.' ),
-		( 'No limit', 'on rows, in the free version',
+		( 'wiersze', 'No limit', 'on rows, in the free version',
 		  'No watermark and no expiry date either. Free is the whole plugin, minus the extras.' ),
-		( '15 min', 'between checks, and nobody waits',
+		( 'zegar', '15 min', 'between checks, and nobody waits',
 		  'The plugin talks to Google in the background. Your visitor is served a table that is '
 		  'already sitting on your server.' ),
 	],
@@ -67,19 +81,73 @@ PL = {
 		( 'B12', 'Wstaw na stronę',
 		  'Blok, widżet Elementora albo shortcode. Ten sam kod rysuje wszystkie trzy, więc nie mogą '
 		  'się rozjechać.',
-		  'Twoja strona', L + 'sheet_table id=&quot;1&quot;' + P,
+		  'Twoja strona', L + PRZERWA + 'sheet_table id=&quot;1&quot;' + P,
 		  'tabela #1 &middot; 128 wierszy &middot; sprawdzona 4 min temu' ),
 	],
 	'liczby': [
-		( '0', 'kluczy API do wklejenia, przy arkuszu z linkiem',
+		( 'pole', '0', 'kluczy API do wklejenia, przy arkuszu z linkiem',
 		  'Udostępniasz arkusz linkiem i to cała konfiguracja. W Pro wtyczka może zamiast tego '
 		  'zalogować się na Twoje konto Google &mdash; wtedy arkusz zostaje prywatny.' ),
-		( 'Bez limitu', 'wierszy, w wersji darmowej',
+		( 'wiersze', 'Bez limitu', 'wierszy, w wersji darmowej',
 		  'Bez znaku wodnego i bez daty ważności. Darmowa to cała wtyczka, tyle że bez dodatków.' ),
-		( '15 min', 'między sprawdzeniami, i nikt nie czeka',
+		( 'zegar', '15 min', 'między sprawdzeniami, i nikt nie czeka',
 		  'Wtyczka rozmawia z Google w tle. Odwiedzający dostaje tabelę, która już leży na Twoim '
 		  'serwerze.' ),
 	],
+}
+
+
+"""
+Trzy przyrządy, po jednym na liczbę.
+
+Liczba mówi ILE, a rysunek obok mówi CZEGO — i to jest cała różnica między
+tabelką z trzema liczbami a czymś, na co się patrzy. Każdy jest narysowany
+z tego samego, z czego zbudowany jest produkt: puste pole, którego nie trzeba
+wypełnić; wiersze, które się nie kończą; tarcza z kwadransem.
+
+Rysowane, a nie pisane: znak nieskończoności albo zegar z kroju pisma wygląda
+w każdym kroju inaczej, a w połowie z nich stoi za nisko. Każdy stoi w pudełku
+120 na 72, więc wszystkie trzy wiszą na jednej linii, choć żaden nie jest
+podobny do pozostałych.
+"""
+PRZYRZADY = {
+
+	# Puste pole z migającym kursorem: nie ma czego wkleić.
+	'pole': ( '<svg class="lst-2m-przyrzad" viewBox="0 0 120 72" aria-hidden="true" focusable="false">'
+		'<rect class="lst-2m-ramka" x="1.5" y="6" width="117" height="60" rx="14" fill="none" '
+		'stroke="currentColor" stroke-width="1.5" stroke-dasharray="7 6"></rect>'
+		'<rect class="lst-2m-kursor" x="20" y="24" width="2.5" height="24" rx="1.25" '
+		'fill="currentColor"></rect></svg>' ),
+
+	# Wiersze, które gasną, zamiast się kończyć.
+	'wiersze': ( '<svg class="lst-2m-przyrzad" viewBox="0 0 120 72" aria-hidden="true" focusable="false">'
+		+ ''.join(
+			'<rect class="lst-2m-belka-w" x="0" y="' + str( y ) + '" width="' + str( w ) + '" '
+			'height="6" rx="3" fill="currentColor" opacity="' + o + '"></rect>'
+			for y, w, o in (
+				( 0, 118, '.95' ), ( 12, 104, '.8' ), ( 24, 112, '.62' ), ( 36, 88, '.44' ),
+				( 48, 98, '.28' ), ( 60, 72, '.14' ),
+			)
+		)
+		+ '</svg>' ),
+
+	# Tarcza z zaznaczonym kwadransem.
+	'zegar': ( '<svg class="lst-2m-przyrzad" viewBox="0 0 120 72" aria-hidden="true" focusable="false">'
+		'<g transform="translate( 24 0 )">'
+		'<circle cx="36" cy="36" r="33" fill="none" stroke="currentColor" stroke-width="1.5" '
+		'opacity=".3"></circle>'
+		+ ''.join(
+			'<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="1" '
+			'fill="currentColor" opacity=".45"></rect>'
+			for x, y, w, h in (
+				( '35', '0', '2', '7' ), ( '65', '35', '7', '2' ),
+				( '35', '65', '2', '7' ), ( '0', '35', '7', '2' ),
+			)
+		)
+		+ '<path class="lst-2m-kwadrans" d="M36 3 A33 33 0 0 1 69 36" fill="none" '
+		'stroke="currentColor" stroke-width="5" stroke-linecap="round"></path>'
+		'<circle class="lst-2m-wskaz" cx="69" cy="36" r="4.5" fill="currentColor"></circle>'
+		'</g></svg>' ),
 }
 
 
@@ -288,33 +356,184 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 /* ---------- pasek liczb ---------- */
 
 .lst-2m .lst-2m-liczby {
+	/*
+	 * Trzy liczby jako pasek, a nie trzy kafelki.
+	 *
+	 * Przedtem stały w zamkniętej ramce, przedzielone kreskami na krzyż —
+	 * czyli w tabeli. Tabela z trzema liczbami wygląda jak zestawienie, przez
+	 * które się przelatuje wzrokiem, a to jest miejsce, w którym sekcja mówi
+	 * swoje trzy najmocniejsze zdania. Teraz jest to pas: jedna kreska nad nim,
+	 * dwie cienkie pionowe w środku i dużo powietrza. Nic nie jest pudełkiem,
+	 * więc liczby mają czym oddychać, a rysunki mają gdzie stanąć.
+	 */
 	display: grid;
-	grid-template-columns: repeat( 3, 1fr );
-	gap: 1px;
-	background: var( --lst-linia );
-	border: 1px solid var( --lst-linia ) !important;
-	border-radius: 14px;
-	overflow: hidden;
-	margin-top: clamp( 1.6rem, 3vw, 2.6rem );
+	grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
+	column-gap: clamp( 1.6rem, 3.4vw, 3.6rem );
+	margin-top: clamp( 2.2rem, 4vw, 3.6rem );
+	padding-top: clamp( 1.6rem, 3vw, 2.6rem );
+	border-top: 1px solid var( --lst-kreska );
 }
 
 .lst-2m .lst-2m-liczba {
-	background-color: var( --lst-panel ) !important;
-	background-image: linear-gradient( var( --lst-panel ), var( --lst-panel-dol ) ) !important;
-	padding: 1.3rem 1.4rem 1.4rem;
+	position: relative;
+	display: grid;
+	align-content: start;
+	padding-right: clamp( 0rem, 1.4vw, 1.4rem );
 }
+
+/* Cienka kreska między kolumnami, wpuszczona od góry i od dołu: dochodząca do
+   krawędzi zamyka pas w kratkę, a o to właśnie nie chodzi. */
+.lst-2m .lst-2m-liczba + .lst-2m-liczba {
+	border-left: 1px solid var( --lst-linia );
+	padding-left: clamp( 1.6rem, 3.4vw, 3.6rem );
+}
+
+/*
+ * Poświata pod przyrządem.
+ *
+ * Kolor ma tu robotę do zrobienia: liczby są jedynym miętowym miejscem w tej
+ * sekcji i mają się świecić jak wskazania przyrządu, a nie leżeć na płasko.
+ *
+ * Osobna warstwa, a nie tło kolumny, bo tło kończy się na krawędzi kolumny
+ * i widać wtedy jasny prostokąt z ostrymi bokami. Ta warstwa wystaje poza
+ * kolumnę i gaśnie w powietrzu. „isolation: isolate" robi z kolumny własne
+ * piętro, więc warstwa spod spodu ląduje pod jej treścią, a nie pod tłem
+ * całej strony, gdzie po prostu jej nie widać.
+ */
+.lst-2m .lst-2m-liczba { isolation: isolate; }
+
+.lst-2m .lst-2m-liczba::before {
+	content: "";
+	position: absolute;
+	left: -3rem;
+	top: -3.5rem;
+	width: 17rem;
+	height: 13rem;
+	z-index: -1;
+	pointer-events: none;
+	background-image: radial-gradient( closest-side,
+		rgba( var( --lst-mieta ), .16 ), transparent ) !important;
+}
+
+.lst-2m .lst-2m-liczba + .lst-2m-liczba::before { left: clamp( -1.4rem, 1vw, 0rem ); }
+
+/* ---------- przyrządy ---------- */
+
+/*
+ * Rysunek nad liczbą, w jej kolorze, zawsze tej samej wysokości: trzy różne
+ * rzeczy wiszą wtedy na jednej linii i pas czyta się jak jeden przyrząd,
+ * a nie jak trzy naklejki.
+ */
+.lst-2m .lst-2m-przyrzad {
+	display: block;
+	width: 7.5rem;
+	height: 4.5rem;
+	margin-bottom: .9rem;
+	color: rgb( var( --lst-mieta ) );
+	overflow: visible;
+}
+
+.lst-2m .lst-2m-liczba.jest-pole .lst-2m-przyrzad { color: rgba( var( --lst-mieta ), .85 ); }
 
 .lst-2m .lst-2m-duza {
 	font-family: var( --lst-serif );
 	font-weight: 400;
-	font-size: clamp( 2rem, 3.4vw, 2.7rem );
-	line-height: 1;
+	/* Duża liczba to jeden z dwóch wyjątków od 14, 18 i 20 na tej witrynie
+	   (drugim są tytuły sekcji) i tu ten wyjątek ma być widać. */
+	font-size: clamp( 2.4rem, 4.4vw, 3.8rem );
+	line-height: .95;
+	letter-spacing: -.02em;
 	color: rgb( var( --lst-mieta ) );
-	margin-bottom: .5rem;
+	margin-bottom: .55rem;
 }
 
-.lst-2m .lst-2m-pod { font-size: 1.125rem;   /* 18 px */ font-weight: 600; margin-bottom: .35rem; }
-.lst-2m .lst-2m-tekst { font-size: 1.125rem;   /* 18 px */ line-height: 1.5; color: var( --lst-tekst-2 ); }
+.lst-2m .lst-2m-pod {
+	font-size: 1.125rem;   /* 18 px */
+	font-weight: 600;
+	line-height: 1.35;
+	margin-bottom: .4rem;
+}
+
+.lst-2m .lst-2m-tekst {
+	font-size: 1.125rem;   /* 18 px */
+	line-height: 1.55;
+	color: var( --lst-tekst-2 );
+	max-width: 26rem;
+}
+
+/* ---------- ruch przyrządów ---------- */
+
+/*
+ * Każdy rusza się raz, kiedy pas wchodzi w kadr, i każdy mówi ruchem to samo,
+ * co mówi liczbą: kursor mruga w pustym polu, wiersze wjeżdżają jeden po
+ * drugim i nie kończą się, kwadrans rysuje się na tarczy.
+ *
+ * Nic nie startuje niewidoczne: bez osi widoku wszystko jest po prostu
+ * narysowane, więc pas jest kompletny w pierwszej klatce, także na zrzucie
+ * całej strony i na wydruku.
+ */
+@supports ( animation-timeline: view() ) {
+	/*
+	 * Kreski ramki przebiegają raz dookoła pustego pola. Kursor NIE mruga na
+	 * osi widoku: mruganie to znikanie, a na osi widoku „zniknięte" zostaje
+	 * tak długo, jak długo strona stoi w tym miejscu — czyli dowolnie długo.
+	 * Pierwsza wersja gubiła przez to kursor na zrzucie i na wydruku.
+	 */
+	.lst-2m .lst-2m-ramka {
+		animation: lst-2m-marsz 900ms linear both;
+		animation-timeline: view();
+		animation-range: entry 8% cover 30%;
+	}
+
+	.lst-2m .lst-2m-belka-w {
+		animation: lst-2m-wjazd 500ms cubic-bezier( .23, 1, .32, 1 ) both;
+		animation-timeline: view();
+		animation-range: entry 8% cover 28%;
+	}
+
+	.lst-2m .lst-2m-belka-w:nth-child( 2 ) { animation-delay: 60ms; }
+	.lst-2m .lst-2m-belka-w:nth-child( 3 ) { animation-delay: 120ms; }
+	.lst-2m .lst-2m-belka-w:nth-child( 4 ) { animation-delay: 180ms; }
+	.lst-2m .lst-2m-belka-w:nth-child( 5 ) { animation-delay: 240ms; }
+	.lst-2m .lst-2m-belka-w:nth-child( 6 ) { animation-delay: 300ms; }
+
+	.lst-2m .lst-2m-kwadrans {
+		stroke-dasharray: 48;
+		animation: lst-2m-rysuj 800ms cubic-bezier( .23, 1, .32, 1 ) both;
+		animation-timeline: view();
+		animation-range: entry 8% cover 32%;
+	}
+
+	.lst-2m .lst-2m-wskaz {
+		animation: lst-2m-wskaz 800ms cubic-bezier( .23, 1, .32, 1 ) both;
+		animation-timeline: view();
+		animation-range: entry 8% cover 32%;
+	}
+}
+
+@keyframes lst-2m-marsz { from { stroke-dashoffset: 52; } }
+@keyframes lst-2m-wjazd { from { transform: translateX( -10px ); } }
+@keyframes lst-2m-rysuj { from { stroke-dashoffset: 48; } }
+@keyframes lst-2m-wskaz { from { transform: rotate( -90deg ); } }
+
+/* Wskazówka obraca się wokół środka tarczy, a nie wokół rogu rysunku. */
+.lst-2m .lst-2m-wskaz { transform-origin: 36px 36px; }
+
+/* ---------- najechanie ---------- */
+
+/*
+ * Tylko tam, gdzie jest czym najechać. Przyrząd budzi się pod kursorem: pole
+ * przestaje być kreskowane, bo właśnie takie pole się zaznacza, a tarcza
+ * jaśnieje. Nic się nie przesuwa, bo pas nie jest przyciskiem.
+ */
+@media ( hover: hover ) and ( pointer: fine ) {
+	.lst-2m .lst-2m-ramka,
+	.lst-2m .lst-2m-kwadrans,
+	.lst-2m .lst-2m-belka-w { transition: opacity .25s ease, stroke-dasharray .25s ease; }
+
+	.lst-2m .lst-2m-liczba:hover .lst-2m-ramka { stroke-dasharray: 130 0; }
+	.lst-2m .lst-2m-liczba:hover .lst-2m-belka-w { opacity: 1; }
+}
 
 /* ---------- utwardzenie na wrogie motywy ---------- */
 
@@ -355,11 +574,33 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 @media ( max-width: 900px ) {
 	.lst-2m .lst-2m-para { grid-template-columns: 1fr; gap: 1.1rem; }
 	.lst-2m .lst-2m-para:nth-child( even ) .lst-2m-okno { order: 0; }
-	.lst-2m .lst-2m-liczby { grid-template-columns: 1fr; }
+	.lst-2m .lst-2m-liczby { grid-template-columns: 1fr; row-gap: clamp( 1.4rem, 5vw, 2rem ); }
+	.lst-2m .lst-2m-liczba + .lst-2m-liczba {
+		border-left: 0;
+		border-top: 1px solid var( --lst-linia );
+		padding-left: 0;
+		padding-top: clamp( 1.4rem, 5vw, 2rem );
+	}
+	.lst-2m .lst-2m-liczba + .lst-2m-liczba::before { left: clamp( -1rem, -2vw, -.5rem ); }
 }
 
 @media ( prefers-reduced-motion: reduce ) {
+	/* „Mniej ruchu" znaczy mniej ruchu, nie mniej treści: przyrządy zostają na
+	   ekranie w stanie końcowym. */
 	.lst-2m .lst-2m-okno { transition: none; }
+	.lst-2m .lst-2m-ramka,
+	.lst-2m .lst-2m-belka-w,
+	.lst-2m .lst-2m-kwadrans,
+	.lst-2m .lst-2m-wskaz { animation: none !important; }
+	.lst-2m .lst-2m-kwadrans { stroke-dasharray: none; }
+}
+
+@media print {
+	.lst-2m .lst-2m-ramka,
+	.lst-2m .lst-2m-belka-w,
+	.lst-2m .lst-2m-kwadrans,
+	.lst-2m .lst-2m-wskaz { animation: none !important; }
+	.lst-2m .lst-2m-kwadrans { stroke-dasharray: none; }
 }
 </style>
 
@@ -388,9 +629,10 @@ def zbuduj( t, plik ):
 
 	liczby = []
 
-	for duza, pod, tekst in t[ 'liczby' ]:
+	for przyrzad, duza, pod, tekst in t[ 'liczby' ]:
 		liczby.append(
-			'\t\t\t<div class="lst-2m-liczba">'
+			'\t\t\t<div class="lst-2m-liczba jest-' + przyrzad + '">'
+			+ PRZYRZADY[ przyrzad ] +
 			'<p class="lst-2m-duza">' + duza + '</p>'
 			'<p class="lst-2m-pod">' + pod + '</p>'
 			'<p class="lst-2m-tekst">' + tekst + '</p></div>' )
@@ -412,6 +654,13 @@ def sprawdz( html, plik ):
 	"""To, co potrafi wyłożyć Kreator Wizualny albo psuje moduł po cichu."""
 
 	znacznikowanie = html[ : html.index( '<style>' ) ]
+
+	# Nazwa shortcode'u nigdzie nie może stykać się z nawiasem, ani wprost, ani
+	# przez encję: Divi zamienia encje z powrotem na nawiasy, a WordPress
+	# wykonuje wtedy to, co miało być przykładem do przeczytania.
+	for zbitka in ( '[sheet_table', '&#91;sheet_table', '&#x5B;sheet_table' ):
+		if zbitka in html:
+			raise SystemExit( plik + ': „' + zbitka + '" — WordPress wykona to jako shortcode' )
 
 	for co, opis in ( ( '<!--', 'komentarz HTML' ), ( '<section', 'znacznik <section>' ),
 	                  ( '[', 'nawias kwadratowy' ), ( ']', 'nawias kwadratowy' ) ):
