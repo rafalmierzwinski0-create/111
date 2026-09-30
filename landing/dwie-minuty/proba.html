@@ -238,9 +238,28 @@ html, body { margin: 0; background: #232a29; color: #eaf3f1;
 	display: grid;
 	grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
 	column-gap: clamp( 1.6rem, 3.4vw, 3.6rem );
+	position: relative;
 	margin-top: clamp( 2.2rem, 4vw, 3.6rem );
 	padding-top: clamp( 1.6rem, 3vw, 2.6rem );
-	border-top: 1px solid var( --lst-kreska );
+}
+
+/* Kreska nad pasem: zaczyna się miętowo tam, gdzie zaczyna się pierwsza
+   liczba, i gaśnie w prawo. Jednolita szara na całą szerokość czytała się
+   jak górna krawędź tabeli. */
+.lst-2m .lst-2m-liczby::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	height: 2px;
+	border-radius: 2px;
+	pointer-events: none;
+	background-image: linear-gradient( to right,
+		rgba( var( --lst-mieta ), .5 ),
+		rgba( 138, 168, 163, .3 ) 34%,
+		rgba( 138, 168, 163, .12 ) 72%,
+		transparent ) !important;
 }
 
 .lst-2m .lst-2m-liczba {
@@ -250,11 +269,38 @@ html, body { margin: 0; background: #232a29; color: #eaf3f1;
 	padding-right: clamp( 0rem, 1.4vw, 1.4rem );
 }
 
-/* Cienka kreska między kolumnami, wpuszczona od góry i od dołu: dochodząca do
-   krawędzi zamyka pas w kratkę, a o to właśnie nie chodzi. */
+/*
+ * Kreska między kolumnami.
+ *
+ * Szara kreska o stałej jasności ginęła w tle: na ciemnej stronie 1 piksel
+ * przy 22 procentach krycia to 1,2 : 1, czyli w praktyce nic. Podniesienie
+ * krycia robi z niej ramkę tabeli, czyli dokładnie to, od czego ten pas
+ * uciekł.
+ *
+ * Więc nie jednolita kreska, tylko ZANIKAJĄCA, i w kolorze akcentu: mocna
+ * u góry, przy przyrządzie, gdzie oko właśnie jest, i gasnąca ku dołowi.
+ * Widać ją od razu, a mimo to niczego nie zamyka — przy dolnej krawędzi nie
+ * ma już czego domykać. Osobna warstwa, bo obramowania nie da się zrobić
+ * przejściem koloru.
+ */
 .lst-2m .lst-2m-liczba + .lst-2m-liczba {
-	border-left: 1px solid var( --lst-linia );
 	padding-left: clamp( 1.6rem, 3.4vw, 3.6rem );
+}
+
+.lst-2m .lst-2m-liczba + .lst-2m-liczba::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 1.5rem;
+	width: 2px;
+	border-radius: 2px;
+	pointer-events: none;
+	background-image: linear-gradient( to bottom,
+		rgba( var( --lst-mieta ), .5 ),
+		rgba( var( --lst-mieta ), .22 ) 38%,
+		rgba( 138, 168, 163, .07 ) 78%,
+		transparent ) !important;
 }
 
 /*
@@ -445,10 +491,23 @@ html, body { margin: 0; background: #232a29; color: #eaf3f1;
 	.lst-2m .lst-2m-para:nth-child( even ) .lst-2m-okno { order: 0; }
 	.lst-2m .lst-2m-liczby { grid-template-columns: 1fr; row-gap: clamp( 1.4rem, 5vw, 2rem ); }
 	.lst-2m .lst-2m-liczba + .lst-2m-liczba {
-		border-left: 0;
-		border-top: 1px solid var( --lst-linia );
 		padding-left: 0;
 		padding-top: clamp( 1.4rem, 5vw, 2rem );
+	}
+	/* Wąsko kolumny stoją jedna pod drugą, więc kreska kładzie się w poprzek
+	   i gaśnie w prawo, tam, gdzie kończy się tekst. */
+	.lst-2m .lst-2m-liczba + .lst-2m-liczba::after {
+		left: 0;
+		right: 20%;
+		top: 0;
+		bottom: auto;
+		width: auto;
+		height: 2px;
+		background-image: linear-gradient( to right,
+			rgba( var( --lst-mieta ), .5 ),
+			rgba( var( --lst-mieta ), .22 ) 38%,
+			rgba( 138, 168, 163, .07 ) 78%,
+			transparent ) !important;
 	}
 	.lst-2m .lst-2m-liczba + .lst-2m-liczba::before { left: clamp( -1rem, -2vw, -.5rem ); }
 }

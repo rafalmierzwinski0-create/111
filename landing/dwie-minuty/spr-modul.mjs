@@ -78,10 +78,19 @@ console.log('\n1400 px, zwykła strona');
       wynikow: document.querySelectorAll('.lst-2m-wynik').length,
       kreska: getComputedStyle(document.querySelector('.lst-2m-para:nth-child(2)')).borderTopColor,
       przyrzadow: document.querySelectorAll('.lst-2m-przyrzad').length,
+      /*
+       * Kreski są warstwami z przejściem koloru, a nie obramowaniami: jednolita
+       * szara kreska ginęła w ciemnym tle, a podniesienie jej krycia robiło
+       * z pasa ramkę tabeli. Sprawdzane po tym, czym naprawdę są, czyli po
+       * tle warstwy ::after i ::before — i po tym, że zaczynają się od koloru
+       * akcentu, bo szara w tym tle jest niewidoczna.
+       */
       kreski: {
         pion: [...document.querySelectorAll('.lst-2m-liczba')]
-          .filter(e => parseFloat(getComputedStyle(e).borderLeftWidth) > 0).length,
-        gora: parseFloat(getComputedStyle(t('.lst-2m-liczby')).borderTopWidth) > 0 ? 1 : 0,
+          .filter(e => /gradient/.test(getComputedStyle(e, '::after').backgroundImage)).length,
+        gora: /gradient/.test(getComputedStyle(t('.lst-2m-liczby'), '::before').backgroundImage) ? 1 : 0,
+        mietowe: [...document.querySelectorAll('.lst-2m-liczba')]
+          .filter(e => /95,\s*227,\s*207/.test(getComputedStyle(e, '::after').backgroundImage)).length,
       },
       kolory: {
         opis: getComputedStyle(t('.lst-2m-opis')).color,
@@ -112,6 +121,7 @@ console.log('\n1400 px, zwykła strona');
   ok('pas z liczbami jest otwarty, bez kafelków', 0 === jLiczba, `tło kafla ${r.tloLiczby}`);
   ok('a rozdzielają go kreski, nie ramki', r.kreski.pion === 2 && r.kreski.gora === 1,
     `pionowych ${r.kreski.pion}, górna ${r.kreski.gora}`);
+  ok('i widać je, bo są w kolorze akcentu', r.kreski.mietowe === 2, `miętowych ${r.kreski.mietowe} z 2`);
   ok('każda liczba ma swój przyrząd', r.przyrzadow === 3, `${r.przyrzadow} z 3`);
   ok('belka okna jaśniejsza niż jego ekran', jasnosc(r.tloBelki) > jEkran, `belka ${jasnosc(r.tloBelki)} vs ekran ${jEkran}`);
   ok('równo z resztą strony, bez suwaka', Math.abs(r.lewa - r.odn) <= 1 && r.poziom === 0, `${r.lewa} vs ${r.odn}, suwak ${r.poziom}`);
