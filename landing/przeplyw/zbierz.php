@@ -79,14 +79,23 @@ $stol       = '#14221f';
 $stol_gora  = '#1f312d';
 $linia      = '#33463f';
 
+/*
+ * Trzy stopnie wypału, trzy odcienie ziarna. Kolor niesie tu znaczenie, a nie
+ * tylko ozdobę: jasna palona, średnia, ciemna. To jest dokładnie to, co robi
+ * reguła koloru w kokpicie, dwoma kliknięciami.
+ */
+$jasna      = '#e2c79b';
+$srednia    = '#c08a55';
+$ciemna     = '#9a6b46';
+
 $source_id = LSTAB_Storage::insert(
 	array(
-		'title'         => 'Prices',
+		'title'         => 'Roast list',
 		'sheet_url'     => 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0',
 		'sheet_id'      => '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789',
 		'sheet_kind'    => 'doc',
 		'gid'           => '0',
-		'tab_name'      => 'Prices',
+		'tab_name'      => 'Roast list',
 		'sync_interval' => 900,
 		'style_preset'  => 'midnight',
 		'layout'        => 'auto',
@@ -99,6 +108,14 @@ $source_id = LSTAB_Storage::insert(
 			'hover'      => '#1b2a27',
 			'accent'       => $mieta,
 			'lines'        => 'normal',
+			/*
+			 * Wiersze zwykłej wysokości, mimo że luźniejsze wyglądałyby
+			 * dostojniej. „Luźno” dokłada dopełnienie także po bokach, a przy
+			 * sześciu kolumnach tabela robi się przez to szersza niż okno,
+			 * w którym stoi, i zaczyna się przewijać w bok. Powietrze bierze
+			 * się tu skądinąd: z podpisu, dużych nazw kolumn i z tego, że
+			 * tabela ma własną, jaśniejszą barwę.
+			 */
 			'density'      => 'normal',
 			// Duże nagłówki: ta tabela jest na stronie sprzedażowej oglądana
 			// z daleka, a nazwy kolumn są tym, co ma się przeczytać pierwsze.
@@ -109,8 +126,11 @@ $source_id = LSTAB_Storage::insert(
 
 LSTAB_Sync::run( $source_id );
 
-// Reguła koloru w słowach kokpitu: stan magazynu nosi pigułkę, a wyprzedany
-// towar maluje cały wiersz. Trzy stany, trzy kolory strony.
+/*
+ * Reguła koloru w słowach kokpitu: stan magazynu nosi pigułkę, a wyprzedany
+ * towar maluje cały wiersz. Do tego stopień wypału, też pigułką, ale w kolorze
+ * ziarna: kolor niesie tam znaczenie, a nie samą ozdobę.
+ */
 update_option(
 	'lstabp_rules',
 	array(
@@ -119,6 +139,9 @@ update_option(
 			array( 'column' => 'Stock', 'operator' => '=', 'value' => 'In stock',     'style' => $mieta,    'scope' => 'pill' ),
 			array( 'column' => 'Stock', 'operator' => '=', 'value' => 'Backorder',    'style' => $bursztyn, 'scope' => 'pill' ),
 			array( 'column' => 'Stock', 'operator' => '=', 'value' => 'Out of stock', 'style' => $koral,    'scope' => 'pill' ),
+			array( 'column' => 'Roast', 'operator' => '=', 'value' => 'Light',        'style' => $jasna,    'scope' => 'pill' ),
+			array( 'column' => 'Roast', 'operator' => '=', 'value' => 'Medium',       'style' => $srednia,  'scope' => 'pill' ),
+			array( 'column' => 'Roast', 'operator' => '=', 'value' => 'Dark',         'style' => $ciemna,   'scope' => 'pill' ),
 		),
 	),
 	false
@@ -129,14 +152,14 @@ update_option(
 	'lstabp_column_looks',
 	array(
 		$source_id => array(
-			'Units left'   => array( 'look' => 'bar', 'tint' => $mieta, 'ink' => '', 'label' => '' ),
-			'Product page' => array( 'look' => 'button', 'tint' => $mieta, 'ink' => $atrament, 'label' => 'Open' ),
+			'Bags left'    => array( 'look' => 'bar', 'tint' => $mieta, 'ink' => '', 'label' => '' ),
+			'Product page' => array( 'look' => 'button', 'tint' => $mieta, 'ink' => $atrament, 'label' => 'Buy' ),
 		),
 	),
 	false
 );
 
-update_option( 'lstabp_facets', array( $source_id => array( 'Stock' ) ), false );
+update_option( 'lstabp_facets', array( $source_id => array( 'Stock', 'Roast' ) ), false );
 update_option( 'lstabp_export_sources', array( $source_id => true ), true );
 
 // Cofnięta godzina ostatniego pobrania, żeby wiersz pod tabelą miał co
@@ -154,7 +177,14 @@ LSTAB_Storage::flush_cache( $source_id );
 
 $zebrane = array(
 	'id'    => (int) $source_id,
-	'pro'   => LSTAB_Renderer::render( array( 'source_id' => $source_id ) ),
+	'pro'   => LSTAB_Renderer::render(
+		array(
+			'source_id' => $source_id,
+			// Podpis, który wtyczka rysuje sama, nad paskiem wyszukiwania.
+			// Bez myślnika: cała sekcja jest bez myślników.
+			'caption'   => 'This week\'s roast list',
+		)
+	),
 	/*
 	 * Te same wiersze, jeszcze niczym nie tknięte. Lewa strona sekcji rysuje
 	 * z nich arkusz, więc to naprawdę jest ta sama treść po obu stronach

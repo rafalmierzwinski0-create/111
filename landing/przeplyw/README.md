@@ -3,9 +3,17 @@
 Po lewej słowo, po prawej obrazek.
 
 Obrazek to dwa okna: arkusz Google z cennikiem i ta sama treść już na stronie
-klienta — prawdziwa tabela z wtyczki, z pigułkami stanu magazynu, słupkiem przy
-liczbie sztuk, przyciskiem w kolumnie z adresem, pomalowanym wierszem
-wyprzedanego towaru i filtrem nad tabelą. Między nimi strzałka.
+klienta — prawdziwa tabela z wtyczki, z podpisem, dwoma filtrami, pigułkami
+stanu magazynu, pigułkami stopnia wypału, słupkiem przy liczbie worków,
+przyciskiem w kolumnie z adresem i pomalowanym wierszem wyprzedanego towaru.
+Między nimi strzałka.
+
+Towar to palarnia kawy, a nie przypadkowy sklep: osiem ziaren z jednego
+cennika, ceny w euro, stopnie wypału jasna / średnia / ciemna. Jedna tematyka
+czyta się jak prawdziwy sklep, a nie jak wypełniacz, a stopień wypału daje
+pigułkom drugi powód istnienia: **kolor niesie tam znaczenie**, bo pigułki są
+w kolorach ziarna. Pokazuje to przy okazji, że pigułka nie jest sztuczką jednej
+kolumny, tylko regułą, którą stawia się nad dowolną.
 
 Słowo to tytuł, jedno zdanie, cztery ptaszki i przycisk. Nie opisuje obrazka
 obok — obrazek jest dowodem, a nie tematem. Mówi, czego czytelnik przestaje

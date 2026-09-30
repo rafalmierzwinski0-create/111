@@ -1,9 +1,9 @@
-Product,Price,Stock,Units left,Product page
-"Trail Bike Ranger 29""","1249.00","In stock","12","https://example.com/p/ranger-29"
-"Lazer Compact Helmet","89.00","In stock","48","https://example.com/p/lazer-compact"
-"Lezyne Front Light 800","69.00","Out of stock","0","https://example.com/p/lezyne-800"
-"Insulated Bottle 750 ml","24.00","In stock","96","https://example.com/p/bottle-750"
-"Pro Gel Gloves","39.00","Backorder","4","https://example.com/p/pro-gel"
-"Abus Granit Combo Lock","115.50","In stock","23","https://example.com/p/granit-combo"
-"Shimano Deore Cassette","64.90","In stock","31","https://example.com/p/deore-cassette"
-"Continental Gravel Tyre","54.00","Backorder","7","https://example.com/p/gravel-tyre"
+Product,Roast,Price,Stock,Bags left,Product page
+"Ethiopia Konga","Light","€18.50","In stock","42","https://example.com/p/ethiopia-konga"
+"Colombia Huila","Medium","€16.00","In stock","128","https://example.com/p/colombia-huila"
+"Guatemala Antigua","Medium","€17.25","Out of stock","0","https://example.com/p/guatemala-antigua"
+"Panama Geisha","Light","€48.00","In stock","9","https://example.com/p/panama-geisha"
+"Brazil Cerrado","Dark","€14.50","Backorder","24","https://example.com/p/brazil-cerrado"
+"Kenya Kirinyaga","Medium","€21.00","In stock","64","https://example.com/p/kenya-kirinyaga"
+"Sumatra Mandheling","Dark","€15.75","Backorder","18","https://example.com/p/sumatra-mandheling"
+"Costa Rica Tarrazú","Light","€19.50","In stock","73","https://example.com/p/costa-rica-tarrazu"

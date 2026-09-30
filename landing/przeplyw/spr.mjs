@@ -58,6 +58,7 @@ console.log( '\nsekcja na stronie' );
 		slupkow: document.querySelectorAll( '.lst-pl .lstabp-bar' ).length,
 		przyciskow: document.querySelectorAll( '.lst-pl .lstabp-cta-link' ).length,
 		filtrow: document.querySelectorAll( '.lst-pl .lstabp-facet' ).length,
+		podpisow: document.querySelectorAll( '.lst-pl .lstab-caption' ).length,
 		malowanych: document.querySelectorAll( '.lst-pl .lstab tbody tr.lstab-row td[style*="--lstab-row-tint"]' ).length,
 		strzalek: document.querySelectorAll( '.lst-pl-luk' ).length,
 		poziom: document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -78,11 +79,17 @@ console.log( '\nsekcja na stronie' );
 	} ) );
 
 	ok( 'dwa okna: arkusz i strona', 2 === r.okien && 1 === r.arkuszy, `${ r.okien } okna, arkuszy ${ r.arkuszy }` );
-	ok( 'po prawej stoi prawdziwa tabela z wtyczki', 1 === r.tabel && 8 === r.wierszy && 5 === r.kolumn,
+	ok( 'po prawej stoi prawdziwa tabela z wtyczki', 1 === r.tabel && 8 === r.wierszy && 6 === r.kolumn,
 		`${ r.wierszy } wierszy, ${ r.kolumn } kolumn` );
+	/*
+	 * Szesnaście pigułek, bo dwie kolumny je noszą: stan magazynu i stopień
+	 * wypału. Druga jest tu po to, żeby było widać, że pigułka nie jest
+	 * sztuczką jednej kolumny, tylko regułą, którą stawia się nad dowolną.
+	 */
 	ok( 'i widać na niej to, czym wtyczka się chwali',
-		r.pigulek === 8 && r.slupkow === 8 && r.przyciskow === 8 && r.filtrow === 1 && r.malowanych > 0,
+		r.pigulek === 16 && r.slupkow === 8 && r.przyciskow === 8 && r.filtrow === 2 && r.malowanych > 0,
 		`pigułek ${ r.pigulek }, słupków ${ r.slupkow }, przycisków ${ r.przyciskow }, filtrów ${ r.filtrow }, malowanych komórek ${ r.malowanych }` );
+	ok( 'i podpis, który wtyczka rysuje sama', 1 === r.podpisow, String( r.podpisow ) );
 	ok( 'strzałka jest', 1 === r.strzalek, String( r.strzalek ) );
 
 	/*
@@ -238,9 +245,10 @@ console.log( '\ndwie kolumny' );
 			naArkuszu: Math.round( zachodzi( slowo, ark ) ),
 			pozaSzyne: Math.round( scena.right - rama.right ),
 			doKrawedzi: Math.round( window.innerWidth - okno.right ),
-			// Tabela z pięcioma kolumnami poniżej 700 px własnej szerokości składa
-			// się w karty. Karty w tym miejscu nie mówią nic o tym, co wtyczka
-			// potrafi, więc szerokość okna jest tu warunkiem, a nie skutkiem.
+			// Tabela z sześcioma kolumnami poniżej 840 px własnej szerokości
+			// składa się w karty. Karty w tym miejscu nie mówią nic o tym, co
+			// wtyczka potrafi, więc szerokość okna jest tu warunkiem, a nie
+			// skutkiem.
 			szerokoscOkna: Math.round( okno.width ),
 			tryb: getComputedStyle( document.querySelector( '.lst-pl .lstab-table' ) ).getPropertyValue( '--lstab-table-mode' ).trim(),
 			// Wspólna linia u góry: tytuł zaczyna się mniej więcej tam, gdzie okno.
@@ -253,7 +261,7 @@ console.log( '\ndwie kolumny' );
 		`okno ${ u.naOknie }, arkusz ${ u.naArkuszu } px kw.` );
 	ok( 'kompozycja wychodzi poza szynę, ale nie poza ekran',
 		u.pozaSzyne > 8 && u.doKrawedzi > 8, `poza szynę ${ u.pozaSzyne }, do krawędzi ${ u.doKrawedzi }` );
-	ok( 'tabela zostaje tabelą, a nie kartami', u.szerokoscOkna > 700 && '1' === u.tryb,
+	ok( 'tabela zostaje tabelą, a nie kartami', u.szerokoscOkna > 840 && '1' === u.tryb,
 		`okno ${ u.szerokoscOkna } px, tryb ${ u.tryb }` );
 	ok( 'tytuł zaczyna się tam, gdzie okno', u.odstepGory <= 40, `${ u.odstepGory } px` );
 
@@ -267,7 +275,7 @@ console.log( '\ndwie kolumny' );
  */
 console.log( '\nna samym progu dwóch kolumn' );
 {
-	const { p, c } = await otworz( 1240, 1000 );
+	const { p, c } = await otworz( 1320, 1000 );
 
 	const u = await p.evaluate( () => {
 		const sc = document.querySelector( '.lst-pl .lstab-scroll' );
@@ -286,7 +294,7 @@ console.log( '\nna samym progu dwóch kolumn' );
 	} );
 
 	ok( 'dwie kolumny już są', 2 === u.kolumn, `${ u.kolumn }` );
-	ok( 'a tabela wciąż jest tabelą', u.okno > 700 && '1' === u.tryb, `okno ${ u.okno } px, tryb ${ u.tryb }` );
+	ok( 'a tabela wciąż jest tabelą', u.okno > 840 && '1' === u.tryb, `okno ${ u.okno } px, tryb ${ u.tryb }` );
 	ok( 'i mieści się w oknie w całości', 0 === u.przewija, `${ u.przewija } px poza oknem` );
 	ok( 'bez suwaka poziomego', 0 === u.poziom, String( u.poziom ) );
 
@@ -296,7 +304,7 @@ console.log( '\nna samym progu dwóch kolumn' );
 /* Tuż pod progiem tekst staje nad obrazkiem i nic nie traci. */
 console.log( '\ntuż pod progiem' );
 {
-	const { p, c } = await otworz( 1180, 1000 );
+	const { p, c } = await otworz( 1300, 1000 );
 
 	const u = await p.evaluate( () => {
 		const slowo = document.querySelector( '.lst-pl-slowo' ).getBoundingClientRect();
@@ -311,7 +319,7 @@ console.log( '\ntuż pod progiem' );
 	} );
 
 	ok( 'jedna kolumna, tekst nad obrazkiem', 1 === u.jednaKolumna && u.nad, `kolumn ${ u.jednaKolumna }` );
-	ok( 'i tabela dalej jest tabelą', u.okno > 700 && '1' === u.tryb, `okno ${ u.okno } px, tryb ${ u.tryb }` );
+	ok( 'i tabela dalej jest tabelą', u.okno > 840 && '1' === u.tryb, `okno ${ u.okno } px, tryb ${ u.tryb }` );
 	ok( 'bez suwaka poziomego', 0 === u.poziom, String( u.poziom ) );
 
 	await c.close();

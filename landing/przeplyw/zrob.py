@@ -37,8 +37,16 @@ M   = json.loads( ( TU / 'markup.json' ).read_text() )
 # lista urwana dokładnie na ostatnim wierszu.
 WIERSZY = 5
 
-# Litery kolumn arkusza — tyle, ile kolumn ma cennik.
-LITERY = [ 'A', 'B', 'C', 'D', 'E' ]
+# Litery kolumn arkusza — tyle, ile kolumn ma cennik, i liczone z niego,
+# a nie wypisane z pamięci: dołożona kolumna zmieniała arkusz po lewej w coś,
+# co ma o jedną literę za mało.
+LITERY = [ chr( 65 + i ) for i in range( len( M.get( 'headers', [] ) ) ) ]
+
+# Szerokości kolumn arkusza: pierwsza wąska na numery wierszy, nazwa produktu
+# najszersza, adres strony drugi co do szerokości, reszta po równo.
+SLUPKI = ( '1.9rem minmax( 0, 1.8fr ) '
+	+ 'minmax( 0, .85fr ) ' * max( 0, len( LITERY ) - 2 )
+	+ 'minmax( 0, 1.3fr )' )
 
 
 def dla_divi( kod ):
@@ -224,6 +232,7 @@ STYL = r"""
 	--pl-papier: #151e1d;
 	--pl-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
 	--pl-szeryf: "Inria Serif", "Iowan Old Style", Georgia, serif;
+	--pl-slupki: SLUPKI_ARKUSZA;
 	--pl-luk: cubic-bezier( .23, 1, .32, 1 );
 
 	font-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -562,7 +571,7 @@ STYL = r"""
 .lst-pl .lst-pl-litery,
 .lst-pl .lst-pl-wiersz {
 	display: grid;
-	grid-template-columns: 1.9rem minmax( 0, 1.7fr ) minmax( 0, .8fr ) minmax( 0, 1fr ) minmax( 0, .7fr ) minmax( 0, 1.4fr );
+	grid-template-columns: var( --pl-slupki );
 	gap: 1px;
 	background-color: rgba( 138, 168, 163, .16 );
 }
@@ -746,14 +755,14 @@ STYL = r"""
 /*
  * Dopiero tutaj, bo dopiero tutaj obie kolumny się mieszczą.
  *
- * Poniżej tej szerokości tabela przestaje się mieścić w swoim oknie: najpierw
- * wystaje jej ostatnia kolumna i okno zaczyna się przewijać w bok, a jeszcze
- * niżej tabela składa się w karty. Karty w tym miejscu nie mówią nic o tym, co
+ * Poniżej tej szerokości tabela nie mieści się już w swoim oknie: sześć kolumn
+ * składa się w karty, kiedy okno schodzi poniżej 840 px własnej szerokości,
+ * a jeszcze wcześniej zaczyna wystawać jej ostatnia kolumna. Karty w tym miejscu nie mówią nic o tym, co
  * wtyczka potrafi. Lepiej postawić tekst nad obrazkiem, niż mieć dwie kolumny
  * i pusty obrazek, więc próg jest tam, gdzie tabela naprawdę się mieści, i jest
  * zmierzony, a nie zgadnięty.
  */
-@media ( min-width: 1240px ) {
+@media ( min-width: 1320px ) {
 	.lst-pl .lst-pl-uklad {
 		/* Wąska kolumna na słowo, cała reszta na obrazek: to obrazek jest tu
 		   treścią, a tekst go podpisuje. */
@@ -1119,6 +1128,8 @@ def skrot( css ):
 CZCIONKI = ( '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?'
 	'family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600'
 	'&family=Inria+Serif:ital,wght@0,300;0,400&display=swap">' )
+
+STYL = STYL.replace( 'SLUPKI_ARKUSZA', SLUPKI )
 
 ARKUSZ = skrot( STYL + CSS )
 
