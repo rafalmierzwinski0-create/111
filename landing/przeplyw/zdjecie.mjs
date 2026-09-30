@@ -63,4 +63,59 @@ const b = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium-11
 	await p.close();
 }
 
+/* --- sam obrazek, bez napisów ---------------------------------------------
+ *
+ * Kompozycja jako obrazek sam dla siebie: dwa okna i łuk, bez kolumny
+ * z tekstem. Do wstawienia jako zwykły obrazek albo obok modułu SLOWO-en.html,
+ * kiedy napisy mają stać osobno.
+ *
+ * Kolumna z tekstem jest wyjmowana ze strony, a nie chowana: schowana zostawia
+ * po sobie kolumnę siatki i obrazek stanąłby w prawej połowie kadru. Scena
+ * wraca przy tym do środka (bez wyjścia poza szynę, bo tu nie ma już żadnej
+ * szyny, z której można by wyjść) i odzyskuje dawne dopełnienie z lewej, żeby
+ * arkusz znowu wystawał z okna tak, jak wystawał, zanim obok stanął tekst.
+ */
+const bezNapisow = async ( p ) => {
+	await p.evaluate( () => {
+		document.querySelector( '.lst-pl-slowo' ).remove();
+		const u = document.querySelector( '.lst-pl-uklad' );
+		u.style.display = 'block';
+		const s = document.querySelector( '.lst-pl-scena' );
+		s.style.setProperty( 'margin-right', '0', 'important' );
+		s.style.paddingLeft = 'clamp( 0rem, 6vw, 7rem )';
+	} );
+	await p.waitForTimeout( 250 );
+};
+
+{
+	const p = await b.newPage( { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 } );
+	await p.goto( pathToFileURL( TU + '/PODGLAD.html' ).href, { waitUntil: 'load' } );
+	await p.waitForTimeout( 500 );
+	await bezNapisow( p );
+
+	const r = await ( await p.$( '.lst-pl' ) ).boundingBox();
+	await p.screenshot( {
+		path: TU + '/przeplyw-obrazek.png',
+		clip: { x: 0, y: Math.max( 0, r.y - 24 ), width: 1440, height: r.height + 48 },
+	} );
+	console.log( '  przeplyw-obrazek.png  ', 1440 * 2, '×', Math.round( ( r.height + 48 ) * 2 ) );
+	await p.close();
+}
+
+{
+	const p = await b.newPage( { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 } );
+	await p.goto( pathToFileURL( TU + '/PODGLAD.html' ).href, { waitUntil: 'load' } );
+	await p.waitForTimeout( 500 );
+	await bezNapisow( p );
+	await p.addStyleTag( { content: 'html,body{background:transparent!important;background-image:none!important}' } );
+	await p.waitForTimeout( 200 );
+
+	const el = await p.$( '.lst-pl' );
+	await el.screenshot( { path: TU + '/przeplyw-obrazek-bez-tla.png', omitBackground: true } );
+
+	const r = await el.boundingBox();
+	console.log( '  przeplyw-obrazek-bez-tla.png  ', Math.round( r.width * 2 ), '×', Math.round( r.height * 2 ) );
+	await p.close();
+}
+
 await b.close();

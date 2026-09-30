@@ -73,6 +73,13 @@ i dopełnienia Divi.
 wklejenia. Robi je `node zdjecie.mjs`: pierwszy na tle strony, drugi
 z przezroczystym tłem, do położenia na czymkolwiek.
 
+`przeplyw-obrazek.png` i `przeplyw-obrazek-bez-tla.png` to **sama kompozycja,
+bez kolumny z napisami** — dwa okna i łuk, do wstawienia jako zwykły obrazek
+albo obok modułu `SLOWO-en.html`, kiedy napisy mają stać osobno. Kolumna
+z tekstem jest przed zrzutem wyjmowana ze strony, a nie chowana: schowana
+zostawiłaby po sobie kolumnę siatki i kompozycja stanęłaby w prawej połowie
+kadru.
+
 **Nie otwieraj `PRZEPLYW-en.html` wprost w przeglądarce.** To fragment do
 wklejenia w Divi i nie ma własnej deklaracji typu dokumentu, więc otwarty jako
 plik wchodzi w tryb zgodności ze starociami — a w nim `<table>` nie dziedziczy
