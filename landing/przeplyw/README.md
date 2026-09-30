@@ -55,11 +55,19 @@ i dopełnienia Divi.
   arkusz kładzie się na zanikniętym rogu i nic działającego nie ginie pod
   spodem. Zanik mówi przy okazji to, co trzeba: wierszy jest więcej.
 * **Arkusz jest odrobinę jaśniejszy od strony klienta** i ma zielony znak
-  Google Sheets zamiast miętowego. Dwa okna w tym samym kolorze czytają się
-  jak jedno okno, a tu chodzi o to, że to są dwa różne miejsca.
+  arkusza zamiast miętowego. Dwa okna w tym samym kolorze czytają się jak jedno
+  okno, a tu chodzi o to, że to są dwa różne miejsca. W belce stoi nazwa pliku
+  (`prices.xls`), bo nazwa pliku mówi „to jest twój arkusz” krócej niż nazwa
+  usługi.
 * **Tabela jest w kolorach strony**: szablon Północ wybrany, a potem odmalowany
   próbnikami wtyczki — tekst, tło, nagłówek, linie, najechanie, akcent. To jest
   dokładnie to, co wtyczka obiecuje, pokazane zamiast opisanego.
+* **Strzałka biegnie pasem pod oknem**, a nie przez tabelę. Cienka miętowa
+  kreska na tle wierszy, pigułek i słupków — czyli na tle rzeczy, które same są
+  miętowe — po prostu ginie. Pod oknem ma pod sobą samo tło strony, więc widać
+  ją całą, a grot i tak dochodzi do dolnej krawędzi okna i pokazuje, dokąd te
+  dane idą. `spr.mjs` liczy część wspólną prostokąta strzałki z widoczną
+  częścią tabeli i wymaga zera.
 * Bez metki przy strzałce. W kompozycji, w której okna na siebie nachodzą, taki
   napis nie ma gdzie stanąć, żeby nie leżeć na tabeli — a strzałka i tak mówi
   wszystko, co miał powiedzieć.
@@ -93,4 +101,4 @@ osiem pigułek, osiem słupków, osiem przycisków, filtr i pomalowany wiersz),
 co widać, z tym, co zapisał render, kontrast najsłabszego napisu, rozmiary
 pisma (tylko 14, 18 i 20), brak myślników, brak suwaka poziomego przy 1500
 i 390 px, to, że nic nie jest niewidoczne w spoczynku, `prefers-reduced-motion`
-i układ na telefonie razem z położeniem strzałki. 17 sprawdzeń.
+i układ na telefonie razem z położeniem strzałki. 18 sprawdzeń.

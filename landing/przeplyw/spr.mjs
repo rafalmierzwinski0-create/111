@@ -76,6 +76,40 @@ console.log( '\nsekcja na stronie' );
 		r.pigulek === 8 && r.slupkow === 8 && r.przyciskow === 8 && r.filtrow === 1 && r.malowanych > 0,
 		`pigułek ${ r.pigulek }, słupków ${ r.slupkow }, przycisków ${ r.przyciskow }, filtrów ${ r.filtrow }, malowanych komórek ${ r.malowanych }` );
 	ok( 'strzałka jest', 1 === r.strzalek, String( r.strzalek ) );
+
+	/*
+	 * I nie leży na tabeli.
+	 *
+	 * Cienka miętowa kreska na tle wierszy, pigułek i słupków — czyli na tle
+	 * rzeczy, które same są miętowe — ginie. Łuk ma pod sobą samo tło strony,
+	 * w pasie pod oknem, i dopiero wtedy widać go całego. Mierzone na
+	 * prostokątach, bo to jedyny sposób, żeby to zostało zmierzone: na oko
+	 * przeszło raz i wyglądało znośnie.
+	 */
+	const luk = await p.evaluate( () => {
+		const a = document.querySelector( '.lst-pl-strzalka' ).getBoundingClientRect();
+		const t = document.querySelector( '.lst-pl .lstab-table' ).getBoundingClientRect();
+		const o = document.querySelector( '.lst-pl-okno.jest-strona' ).getBoundingClientRect();
+
+		/*
+		 * Tabela jest wyższa niż okno i wychodzi poza nie — okno ją przycina.
+		 * Liczy się część WIDOCZNA, czyli tabela przecięta oknem: mierzenie
+		 * całego prostokąta tabeli pokazywałoby nachodzenie tam, gdzie nie ma
+		 * czego narysować.
+		 */
+		const widoczna = {
+			left: Math.max( t.left, o.left ),
+			right: Math.min( t.right, o.right ),
+			top: Math.max( t.top, o.top ),
+			bottom: Math.min( t.bottom, o.bottom ),
+		};
+		const wspolne = Math.max( 0, Math.min( a.right, widoczna.right ) - Math.max( a.left, widoczna.left ) )
+			* Math.max( 0, Math.min( a.bottom, widoczna.bottom ) - Math.max( a.top, widoczna.top ) );
+
+		return { wspolne: Math.round( wspolne ), pole: Math.round( a.width * a.height ) };
+	} );
+
+	ok( 'i nie leży na tabeli', 0 === luk.wspolne, `wspólnych ${ luk.wspolne } z ${ luk.pole } px kw.` );
 	ok( 'bez suwaka poziomego', 0 === r.poziom, String( r.poziom ) );
 	ok( 'rozmiary pisma tylko 14, 18 i 20', r.rozmiary.every( ( x ) => [ 14, 18, 20 ].includes( x ) ), r.rozmiary.join( '/' ) );
 	ok( 'ani jednego myślnika', 0 === r.myslniki, String( r.myslniki ) );

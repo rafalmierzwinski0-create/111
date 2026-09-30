@@ -72,9 +72,9 @@ ZNAK = ( '<svg class="lst-pl-znak" viewBox="0 0 16 20" aria-hidden="true" focusa
 STRZALKA = ( '<svg class="lst-pl-luk" viewBox="0 0 120 120" aria-hidden="true" focusable="false" '
 	'preserveAspectRatio="none">'
 	'<path class="lst-pl-luk-linia" d="M6 108 C 6 46, 54 12, 112 12" fill="none" stroke="currentColor" '
-	'stroke-width="2" stroke-linecap="round"></path>'
+	'stroke-width="2.4" stroke-linecap="round"></path>'
 	'<path class="lst-pl-luk-grot" d="M100 4 L114 12 L100 20" fill="none" stroke="currentColor" '
-	'stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>' )
+	'stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>' )
 
 
 def arkusz():
@@ -99,8 +99,7 @@ def arkusz():
 
 	return ( '<div class="lst-pl-okno jest-arkuszem">'
 		'<div class="lst-pl-belka">' + KROPKI + ZNAK +
-		'<span class="lst-pl-nazwa">Prices</span>'
-		'<span class="lst-pl-belka-prawa">Google Sheets</span></div>'
+		'<span class="lst-pl-nazwa">prices.xls</span></div>'
 		'<div class="lst-pl-siatka">' + litery + srodek + '</div>'
 		'</div>' )
 
@@ -384,11 +383,23 @@ STYL = r"""
  */
 .lst-pl .lst-pl-strzalka {
 	position: absolute;
+	/*
+	 * W pasie POD oknem strony, na prawo od arkusza.
+	 *
+	 * Przedtem łuk biegł przez tabelę i ginął w niej: cienka miętowa kreska na
+	 * tle wierszy, pigułek i słupków, czyli na tle rzeczy, które same są
+	 * miętowe. Tu ma pod sobą samo tło strony, więc widać ją całą, a grot i tak
+	 * dochodzi do dolnej krawędzi okna i pokazuje, dokąd te dane idą.
+	 *
+	 * Wysokość równa dopełnieniu sceny od dołu, czyli dokładnie tyle, ile ten
+	 * pas ma: łuk zaczyna się przy dolnej krawędzi arkusza i kończy przy dolnej
+	 * krawędzi okna.
+	 */
 	left: 100%;
-	bottom: 62%;
-	width: clamp( 4.5rem, 10vw, 8rem );
-	height: clamp( 4.5rem, 10vw, 8rem );
-	margin-left: clamp( .8rem, 2.2vw, 2rem );
+	bottom: 0;
+	width: clamp( 5rem, 12vw, 9rem );
+	height: clamp( 4rem, 11vw, 10rem );
+	margin-left: clamp( 1rem, 3vw, 2.6rem );
 	color: rgb( var( --pl-mieta ) );
 	pointer-events: none;
 }
