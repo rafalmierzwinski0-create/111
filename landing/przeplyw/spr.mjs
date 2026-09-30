@@ -317,6 +317,70 @@ console.log( '\ntuż pod progiem' );
 	await c.close();
 }
 
+/*
+ * Te same napisy jako moduł sam dla siebie (SLOWO-en.html): do wstawienia
+ * w osobną kolumnę Divi. Sprawdzane osobno, bo ma osobny arkusz stylów —
+ * a dwa arkusze do jednego bloku rozjeżdżają się pierwszego dnia, w którym
+ * ktoś poprawi jeden z nich.
+ */
+console.log( '\nsame napisy, osobny moduł' );
+{
+	const c = await b.newContext( { viewport: { width: 520, height: 900 }, deviceScaleFactor: 1 } );
+	const p = await c.newPage();
+	const bledy = [];
+	p.on( 'pageerror', ( e ) => bledy.push( e.message ) );
+	await p.goto( pathToFileURL( '/home/user/111/landing/przeplyw/SLOWO-podglad.html' ).href, { waitUntil: 'load' } );
+	await p.waitForTimeout( 250 );
+
+	const u = await p.evaluate( () => {
+		const cs = getComputedStyle( document.querySelector( '.lst-sl-naglowek' ) );
+
+		return {
+			tytul: document.querySelector( '.lst-sl-naglowek' ).textContent.trim(),
+			kroj: cs.fontFamily.split( ',' )[ 0 ].replace( /["']/g, '' ),
+			px: Math.round( parseFloat( cs.fontSize ) ),
+			punktow: document.querySelectorAll( '.lst-sl-punkt' ).length,
+			ptaszkow: document.querySelectorAll( '.lst-sl-ptaszek' ).length,
+			przycisk: ( document.querySelector( '.lst-sl-przycisk' ) || {} ).getAttribute
+				? document.querySelector( '.lst-sl-przycisk' ).getAttribute( 'href' ) : '',
+			rozmiary: [ ...new Set( [ ...document.querySelectorAll( '.lst-sl [class*="lst-sl-"]:not( .lst-sl-naglowek )' ) ]
+				.filter( ( e ) => [ ...e.childNodes ].some( ( n ) => 3 === n.nodeType && n.nodeValue.trim() ) )
+				.map( ( e ) => Math.round( parseFloat( getComputedStyle( e ).fontSize ) ) ) ) ].sort( ( a, x ) => a - x ),
+			myslniki: ( document.querySelector( '.lst-sl' ).innerText.match( /[–—]/g ) || [] ).length,
+			poziom: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+		};
+	} );
+
+	// Te same słowa co w całej sekcji: jedne stałe, dwa pliki.
+	const wSekcji = await ( async () => {
+		const c2 = await b.newContext( { viewport: { width: 1500, height: 1000 } } );
+		const p2 = await c2.newPage();
+		await p2.goto( pathToFileURL( '/home/user/111/landing/przeplyw/PODGLAD.html' ).href, { waitUntil: 'load' } );
+		const t = await p2.evaluate( () => ( {
+			tytul: document.querySelector( '.lst-pl-naglowek' ).textContent.trim(),
+			punkty: [ ...document.querySelectorAll( '.lst-pl-zdanie' ) ].map( ( e ) => e.textContent.trim() ),
+		} ) );
+		await c2.close();
+		return t;
+	} )();
+
+	const punkty = await p.evaluate( () => [ ...document.querySelectorAll( '.lst-sl-zdanie' ) ].map( ( e ) => e.textContent.trim() ) );
+
+	ok( 'moduł ma tytuł, cztery ptaszki i przycisk',
+		4 === u.punktow && 4 === u.ptaszkow && 'ADRES-POBIERANIA' === u.przycisk,
+		`punktów ${ u.punktow }, ptaszków ${ u.ptaszkow }, przycisk „${ u.przycisk }”` );
+	ok( 'i są to te same słowa co w całej sekcji',
+		u.tytul === wSekcji.tytul && punkty.join( '|' ) === wSekcji.punkty.join( '|' ),
+		`${ u.tytul.slice( 0, 30 ) }… / ${ punkty.length } punktów` );
+	ok( 'tytuł szeryfowy i większy niż reszta', 'Inria Serif' === u.kroj && u.px > 20, `${ u.kroj } ${ u.px }` );
+	ok( 'rozmiary pisma tylko 14, 18 i 20', u.rozmiary.every( ( x ) => [ 14, 18, 20 ].includes( x ) ), u.rozmiary.join( '/' ) );
+	ok( 'ani jednego myślnika', 0 === u.myslniki, String( u.myslniki ) );
+	ok( 'bez suwaka poziomego w wąskiej kolumnie', 0 === u.poziom, String( u.poziom ) );
+	ok( 'bez błędów skryptu', 0 === bledy.length, bledy.join( ' | ' ) || '0' );
+
+	await c.close();
+}
+
 console.log( '\nmniej ruchu' );
 {
 	const { p, c } = await otworz( 1500, 1000, false );

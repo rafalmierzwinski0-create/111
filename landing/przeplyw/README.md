@@ -50,6 +50,16 @@ chodzi `tests/run-all.sh`.
 Całą zawartość `PRZEPLYW-en.html` w jeden moduł Kod w Divi. Nic nie trzeba
 podmieniać — sekcja nie ma żadnego obrazka, wszystko jest kodem.
 
+`SLOWO-en.html` to **same napisy z lewej strony jako osobny moduł**: tytuł,
+zdanie, cztery ptaszki i przycisk, bez okien i bez tabeli. Do wstawienia
+w osobną kolumnę Divi, kiedy obrazek ma stać gdzie indziej albo wcale. Ma
+własny, krótszy arkusz stylów i własny przedrostek klas (`lst-sl`), więc oba
+moduły mogą stać na jednej stronie i nic się nie pomiesza. Słowa biorą się
+z tych samych stałych co w całej sekcji (`TYTUL`, `PTASZKI`, `STOPKA`
+w `zrob.py`), a `spr.mjs` porównuje jeden plik z drugim słowo w słowo: dwa
+pliki z tym samym tekstem rozjeżdżają się pierwszego dnia, w którym ktoś
+poprawi jeden z nich. Podgląd: `SLOWO-podglad.html`.
+
 `PODGLAD.html` to podgląd do otwarcia w przeglądarce: podrabia tło witryny
 (`#232a29` i siatkę 88 × 44, jak `landing/naglowek/HERO-podglad.html`)
 i dopełnienia Divi.
@@ -147,4 +157,6 @@ Do tego sam układ: że tekst stoi po lewej i **nie leży na żadnym z okien**, 
 kompozycja wychodzi poza szynę, ale nie poza ekran, że tytuł jest szeryfowy
 i zaczyna się tam, gdzie okno, oraz — na samym progu dwóch kolumn i tuż pod nim
 — że tabela jest jeszcze tabelą, a nie kartami, i mieści się w swoim oknie
-w całości. 31 sprawdzeń.
+w całości. Na koniec osobny moduł `SLOWO-en.html`: że ma cztery ptaszki
+i przycisk, że stoją w nim te same słowa co w całej sekcji, i że sam w wąskiej
+kolumnie niczego nie rozpycha. 38 sprawdzeń.

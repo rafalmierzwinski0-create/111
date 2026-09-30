@@ -1,0 +1,148 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Inria+Serif:ital,wght@0,300;0,400&display=swap">
+
+<div class="lst-sl"><div class="lst-sl-slowo"><h2 class="lst-sl-naglowek">Stop copying your spreadsheet into WordPress.</h2><p class="lst-sl-akapit">Edit the sheet the way you always do. The page updates itself.</p><ul class="lst-sl-lista"><li class="lst-sl-punkt"><svg class="lst-sl-ptaszek" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8.6 L6.4 12 L13 4.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="lst-sl-zdanie">Search, filters and sorting, built in</span></li><li class="lst-sl-punkt"><svg class="lst-sl-ptaszek" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8.6 L6.4 12 L13 4.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="lst-sl-zdanie">Badges, bars and buttons, no code</span></li><li class="lst-sl-punkt"><svg class="lst-sl-ptaszek" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8.6 L6.4 12 L13 4.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="lst-sl-zdanie">Matches your site&#x27;s colours, not the plugin&#x27;s</span></li><li class="lst-sl-punkt"><svg class="lst-sl-ptaszek" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8.6 L6.4 12 L13 4.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="lst-sl-zdanie">Turns into cards on a phone</span></li></ul><p class="lst-sl-dalej"><a class="lst-sl-przycisk" href="ADRES-POBIERANIA">Download free</a></p><p class="lst-sl-stopka-slowa">Free version, no trial, no row limit, no watermark.</p></div></div>
+
+<style>
+
+.lst-sl {
+	--sl-mieta: 95, 227, 207;
+	--sl-tekst: #eaf3f1;
+	--sl-tekst-2: #9db3b0;
+	--sl-tekst-3: #8fa5a2;
+	--sl-szeryf: "Inria Serif", "Iowan Old Style", Georgia, serif;
+	--sl-luk: cubic-bezier( .23, 1, .32, 1 );
+
+	font-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
+	color: var( --sl-tekst );
+}
+
+.lst-sl.lst-sl { border: 0 !important; outline: 0 !important; background: none !important; }
+.lst-sl * { box-sizing: border-box; }
+.lst-sl br { display: none; }
+
+/* Reset po nazwie klasy, a nie po nazwie znacznika: pod spodem siedzi cudzy
+   motyw i jego divów, paragrafów i list nie wolno tknąć. */
+.lst-sl [class*="lst-sl-"] {
+	margin: 0;
+	padding: 0;
+	background: none;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	text-align: left;
+	text-transform: none;
+	letter-spacing: normal;
+	font: inherit;
+	color: inherit;
+	list-style: none;
+	width: auto;
+	max-width: none;
+	min-width: 0;
+}
+
+.lst-sl .lst-sl-slowo {
+	display: grid;
+	align-content: start;
+	/* Wiersz dłuższy niż mniej więcej 60 znaków przestaje się czytać, a w szerokiej
+	   kolumnie Divi nic go nie trzyma. */
+	max-width: 30rem;
+}
+
+/* Tytuł: szeryfowy i skalujący się z oknem. Jedyne miejsce na tej witrynie,
+   w którym wolno wyjść poza 14, 18 i 20. */
+.lst-sl .lst-sl-naglowek {
+	font-family: var( --sl-szeryf );
+	font-weight: 400;
+	font-size: clamp( 1.4rem, 2vw, 1.85rem );
+	line-height: 1.16;
+	letter-spacing: -.01em;
+	color: var( --sl-tekst );
+	text-wrap: balance;
+}
+
+.lst-sl .lst-sl-akapit {
+	margin-top: .9rem;
+	font-size: 1.125rem;   /* 18 px */
+	line-height: 1.6;
+	color: var( --sl-tekst-2 );
+	text-wrap: pretty;
+}
+
+/* Ptaszek w osobnej kolumnie siatki, a nie przed tekstem w tej samej linijce:
+   zdanie, które się złamie, ma wtedy oba wiersze równo pod sobą. */
+.lst-sl .lst-sl-lista {
+	display: grid;
+	gap: .55rem;
+	margin-top: 1.4rem;
+}
+
+.lst-sl .lst-sl-punkt {
+	display: grid;
+	grid-template-columns: 1.1rem minmax( 0, 1fr );
+	align-items: start;
+	gap: .75rem;
+}
+
+.lst-sl .lst-sl-ptaszek {
+	width: 1.1rem;
+	height: 1.1rem;
+	margin-top: .32rem;
+	color: rgb( var( --sl-mieta ) );
+}
+
+.lst-sl .lst-sl-zdanie {
+	font-size: 1.125rem;   /* 18 px */
+	line-height: 1.5;
+	color: var( --sl-tekst-2 );
+	text-wrap: pretty;
+}
+
+.lst-sl .lst-sl-dalej { margin-top: 1.6rem; }
+
+.lst-sl .lst-sl-przycisk {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: .72rem 1.5rem;
+	font-size: 1.125rem;   /* 18 px */
+	font-weight: 600;
+	line-height: 1.2;
+	border-radius: 999px;
+	background-color: rgb( var( --sl-mieta ) );
+	color: #06100f;
+	text-decoration: none;
+	box-shadow: 0 10px 26px -14px rgba( var( --sl-mieta ), .9 );
+	transition: transform .18s var( --sl-luk ), box-shadow .18s var( --sl-luk );
+}
+
+.lst-sl .lst-sl-przycisk:hover {
+	transform: translateY( -1px );
+	box-shadow: 0 14px 30px -14px rgba( var( --sl-mieta ), 1 );
+}
+
+.lst-sl .lst-sl-przycisk:focus-visible { outline: 2px solid rgb( var( --sl-mieta ) ); outline-offset: 3px; }
+
+.lst-sl .lst-sl-stopka-slowa {
+	margin-top: .95rem;
+	font-size: .875rem;   /* 14 px */
+	line-height: 1.5;
+	color: var( --sl-tekst-3 );
+}
+
+/* Utwardzenie na wrogie motywy. Twardo trzymane jest tylko to, czym motyw
+   pisany z „!important” rozbija ten blok: marginesy, wyrównanie, wersaliki,
+   krój i kolory przycisku. */
+.lst-sl [class*="lst-sl-"] {
+	margin-inline: 0 !important;
+	background-image: none !important;
+	text-align: left !important;
+	text-transform: none !important;
+	letter-spacing: normal !important;
+	font-family: inherit !important;
+}
+
+.lst-sl .lst-sl-naglowek { font-family: var( --sl-szeryf ) !important; }
+.lst-sl .lst-sl-przycisk { background-color: rgb( var( --sl-mieta ) ) !important; color: #06100f !important; }
+.lst-sl .lst-sl-ptaszek { color: rgb( var( --sl-mieta ) ) !important; }
+
+</style>

@@ -138,38 +138,51 @@ PTASZKI = [
 	'Turns into cards on a phone',
 ]
 
-PTASZEK = ( '<svg class="lst-pl-ptaszek" viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
-	'<path d="M3 8.6 L6.4 12 L13 4.6" fill="none" stroke="currentColor" stroke-width="2" '
-	'stroke-linecap="round" stroke-linejoin="round"></path></svg>' )
+TYTUL  = 'Stop copying your spreadsheet into WordPress.'
+ZDANIE = 'Edit the sheet the way you always do. The page updates itself.'
+NAPIS  = 'Download free'
+STOPKA = 'Free version, no trial, no row limit, no watermark.'
 
 
-def lista():
+def ptaszek( p ):
+	"""Ptaszek listy. Rysowany, a nie napisany: „✓” z kroju to znak, który
+	w każdym kroju wygląda inaczej i w połowie z nich stoi za nisko."""
+	return ( '<svg class="' + p + '-ptaszek" viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
+		'<path d="M3 8.6 L6.4 12 L13 4.6" fill="none" stroke="currentColor" stroke-width="2" '
+		'stroke-linecap="round" stroke-linejoin="round"></path></svg>' )
+
+
+def lista( p ):
 	"""Lista z ptaszkami: co jest w pudełku."""
 	pozycje = ''
 
 	for zdanie in PTASZKI:
-		pozycje += ( '<li class="lst-pl-punkt">' + PTASZEK
-			+ '<span class="lst-pl-zdanie">' + html.escape( zdanie ) + '</span></li>' )
+		pozycje += ( '<li class="' + p + '-punkt">' + ptaszek( p )
+			+ '<span class="' + p + '-zdanie">' + html.escape( zdanie ) + '</span></li>' )
 
-	return '<ul class="lst-pl-lista">' + pozycje + '</ul>'
+	return '<ul class="' + p + '-lista">' + pozycje + '</ul>'
 
 
-def slowo():
-	"""Kolumna po lewej: tytuł, lista i przycisk.
+def slowo( p = 'lst-pl' ):
+	"""Kolumna po lewej: tytuł, zdanie, lista i przycisk.
 
 	Nie opisuje obrazka obok — obrazek jest dowodem, a nie tematem. Mówi, czego
 	czytelnik przestaje robić, wymienia cztery rzeczy, których nie będzie musiał
 	zamawiać u nikogo, i daje mu przycisk. To pierwsze miejsce po hero, w którym
 	ktoś jest już przekonany, a do tej pory nie było tu czego kliknąć.
+
+	Przedrostek jest parametrem, bo ten sam blok wychodzi w dwóch plikach: raz
+	w całej sekcji (lst-pl), raz sam, do osobnego modułu (lst-sl). Słowa są
+	jedne, w stałych u góry pliku — dwa pliki z tym samym tekstem rozjeżdżają
+	się pierwszego dnia, w którym ktoś poprawi jeden z nich.
 	"""
-	return ( '<div class="lst-pl-slowo">'
-		'<h2 class="lst-pl-naglowek">Stop copying your spreadsheet into WordPress.</h2>'
-		'<p class="lst-pl-akapit">Edit the sheet the way you always do. '
-		'The page updates itself.</p>'
-		+ lista() +
-		'<p class="lst-pl-dalej"><a class="lst-pl-przycisk" href="ADRES-POBIERANIA">Download free</a></p>'
-		'<p class="lst-pl-stopka-slowa">Free version, no trial, '
-		'no row limit, no watermark.</p>'
+	return ( '<div class="' + p + '-slowo">'
+		'<h2 class="' + p + '-naglowek">' + html.escape( TYTUL ) + '</h2>'
+		'<p class="' + p + '-akapit">' + html.escape( ZDANIE ) + '</p>'
+		+ lista( p ) +
+		'<p class="' + p + '-dalej"><a class="' + p + '-przycisk" href="ADRES-POBIERANIA">'
+		+ html.escape( NAPIS ) + '</a></p>'
+		'<p class="' + p + '-stopka-slowa">' + html.escape( STOPKA ) + '</p>'
 		'</div>' )
 
 
@@ -840,6 +853,178 @@ STYL = r"""
 	.lst-pl .lst-pl-okno.jest-strona { max-height: clamp( 24rem, 62vw, 32rem ); }
 }
 """
+
+# ------------------------------------------------------- same napisy, osobno
+#
+# Ten sam blok co po lewej stronie sekcji, ale jako moduł sam dla siebie: do
+# wstawienia w kolumnę Divi obok czegokolwiek. Słowa są te same, bo biorą się
+# z tych samych stałych; styl jest osobny i celowo krótszy, bo nie ma tu okien,
+# tabeli ani łuku, a moduł nie rozciąga się na całą szerokość ekranu — siedzi
+# w kolumnie, którą dostał.
+STYL_SAM = r"""
+.lst-sl {
+	--sl-mieta: 95, 227, 207;
+	--sl-tekst: #eaf3f1;
+	--sl-tekst-2: #9db3b0;
+	--sl-tekst-3: #8fa5a2;
+	--sl-szeryf: "Inria Serif", "Iowan Old Style", Georgia, serif;
+	--sl-luk: cubic-bezier( .23, 1, .32, 1 );
+
+	font-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
+	color: var( --sl-tekst );
+}
+
+.lst-sl.lst-sl { border: 0 !important; outline: 0 !important; background: none !important; }
+.lst-sl * { box-sizing: border-box; }
+.lst-sl br { display: none; }
+
+/* Reset po nazwie klasy, a nie po nazwie znacznika: pod spodem siedzi cudzy
+   motyw i jego divów, paragrafów i list nie wolno tknąć. */
+.lst-sl [class*="lst-sl-"] {
+	margin: 0;
+	padding: 0;
+	background: none;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	text-align: left;
+	text-transform: none;
+	letter-spacing: normal;
+	font: inherit;
+	color: inherit;
+	list-style: none;
+	width: auto;
+	max-width: none;
+	min-width: 0;
+}
+
+.lst-sl .lst-sl-slowo {
+	display: grid;
+	align-content: start;
+	/* Wiersz dłuższy niż mniej więcej 60 znaków przestaje się czytać, a w szerokiej
+	   kolumnie Divi nic go nie trzyma. */
+	max-width: 30rem;
+}
+
+/* Tytuł: szeryfowy i skalujący się z oknem. Jedyne miejsce na tej witrynie,
+   w którym wolno wyjść poza 14, 18 i 20. */
+.lst-sl .lst-sl-naglowek {
+	font-family: var( --sl-szeryf );
+	font-weight: 400;
+	font-size: clamp( 1.4rem, 2vw, 1.85rem );
+	line-height: 1.16;
+	letter-spacing: -.01em;
+	color: var( --sl-tekst );
+	text-wrap: balance;
+}
+
+.lst-sl .lst-sl-akapit {
+	margin-top: .9rem;
+	font-size: 1.125rem;   /* 18 px */
+	line-height: 1.6;
+	color: var( --sl-tekst-2 );
+	text-wrap: pretty;
+}
+
+/* Ptaszek w osobnej kolumnie siatki, a nie przed tekstem w tej samej linijce:
+   zdanie, które się złamie, ma wtedy oba wiersze równo pod sobą. */
+.lst-sl .lst-sl-lista {
+	display: grid;
+	gap: .55rem;
+	margin-top: 1.4rem;
+}
+
+.lst-sl .lst-sl-punkt {
+	display: grid;
+	grid-template-columns: 1.1rem minmax( 0, 1fr );
+	align-items: start;
+	gap: .75rem;
+}
+
+.lst-sl .lst-sl-ptaszek {
+	width: 1.1rem;
+	height: 1.1rem;
+	margin-top: .32rem;
+	color: rgb( var( --sl-mieta ) );
+}
+
+.lst-sl .lst-sl-zdanie {
+	font-size: 1.125rem;   /* 18 px */
+	line-height: 1.5;
+	color: var( --sl-tekst-2 );
+	text-wrap: pretty;
+}
+
+.lst-sl .lst-sl-dalej { margin-top: 1.6rem; }
+
+.lst-sl .lst-sl-przycisk {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: .72rem 1.5rem;
+	font-size: 1.125rem;   /* 18 px */
+	font-weight: 600;
+	line-height: 1.2;
+	border-radius: 999px;
+	background-color: rgb( var( --sl-mieta ) );
+	color: #06100f;
+	text-decoration: none;
+	box-shadow: 0 10px 26px -14px rgba( var( --sl-mieta ), .9 );
+	transition: transform .18s var( --sl-luk ), box-shadow .18s var( --sl-luk );
+}
+
+.lst-sl .lst-sl-przycisk:hover {
+	transform: translateY( -1px );
+	box-shadow: 0 14px 30px -14px rgba( var( --sl-mieta ), 1 );
+}
+
+.lst-sl .lst-sl-przycisk:focus-visible { outline: 2px solid rgb( var( --sl-mieta ) ); outline-offset: 3px; }
+
+.lst-sl .lst-sl-stopka-slowa {
+	margin-top: .95rem;
+	font-size: .875rem;   /* 14 px */
+	line-height: 1.5;
+	color: var( --sl-tekst-3 );
+}
+
+/* Utwardzenie na wrogie motywy. Twardo trzymane jest tylko to, czym motyw
+   pisany z „!important” rozbija ten blok: marginesy, wyrównanie, wersaliki,
+   krój i kolory przycisku. */
+.lst-sl [class*="lst-sl-"] {
+	margin-inline: 0 !important;
+	background-image: none !important;
+	text-align: left !important;
+	text-transform: none !important;
+	letter-spacing: normal !important;
+	font-family: inherit !important;
+}
+
+.lst-sl .lst-sl-naglowek { font-family: var( --sl-szeryf ) !important; }
+.lst-sl .lst-sl-przycisk { background-color: rgb( var( --sl-mieta ) ) !important; color: #06100f !important; }
+.lst-sl .lst-sl-ptaszek { color: rgb( var( --sl-mieta ) ) !important; }
+"""
+
+SLOWO = (
+	'<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Inria+Serif:ital,wght@0,300;0,400&display=swap">\n'
+	'\n<div class="lst-sl">' + slowo( 'lst-sl' ) + '</div>\n'
+	'\n<style>\n' + STYL_SAM + '\n</style>\n'
+)
+
+( TU / 'SLOWO-en.html' ).write_text( SLOWO )
+
+( TU / 'SLOWO-podglad.html' ).write_text(
+	'<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n'
+	'<title>Stop copying your spreadsheet</title>\n'
+	'<style>\n'
+	'html, body { margin: 0; background: #232a29; }\n'
+	'.podrobka-divi { padding: 60px 0; }\n'
+	'.podrobka-divi-kolumna { width: 90%; max-width: 420px; margin: 0 auto; }\n'
+	'</style>\n'
+	'<div class="podrobka-divi"><div class="podrobka-divi-kolumna">\n'
+	+ SLOWO +
+	'\n</div></div>\n'
+)
+
 
 STRONA = (
 	'<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Inria+Serif:ital,wght@0,300;0,400&display=swap">\n'
