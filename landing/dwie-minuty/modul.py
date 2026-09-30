@@ -181,11 +181,12 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 	 * witryna i tak nosi — i zanikająca w prawo, tak samo jak kreska nad pasem
 	 * z liczbami. Jeden obraz na obie, żeby sekcja mówiła jednym językiem.
 	 */
-	--lst-kreska: rgba( var( --lst-mieta ), .5 );
+	--lst-kreska: rgba( var( --lst-mieta ), .9 );
 	--lst-kreska-obraz: linear-gradient( to right,
-		rgba( var( --lst-mieta ), .5 ),
-		rgba( var( --lst-mieta ), .3 ) 34%,
-		rgba( var( --lst-mieta ), .14 ) 72%,
+		rgba( var( --lst-mieta ), .9 ),
+		rgba( var( --lst-mieta ), .62 ) 40%,
+		rgba( var( --lst-mieta ), .34 ) 75%,
+		rgba( var( --lst-mieta ), .1 ) 93%,
 		transparent );
 	--lst-tekst: #eaf3f1;
 	--lst-tekst-2: #9db3b0;
