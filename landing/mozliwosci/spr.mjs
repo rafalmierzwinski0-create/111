@@ -141,7 +141,7 @@ const kontrast = ( p ) => p.evaluate( () => {
 	 * chodziło to wyłącznie po „lst-mz-*”, żadna wartość w tabeli nigdy nie
 	 * była zmierzona.
 	 */
-	document.querySelectorAll( '.lst-mz [class*="lst-mz-"], .lst-mz .lstab tbody .lstab-cell-value' ).forEach( ( el ) => {
+	document.querySelectorAll( '.lst-mz [class*="lst-mz-"], .lst-mz [class*="lst-ar-"], .lst-mz .lstab tbody .lstab-cell-value' ).forEach( ( el ) => {
 		if ( ! el.textContent.trim() || el.children.length && ! el.childNodes[ 0 ].nodeValue ) return;
 		const ink = parse( getComputedStyle( el ).color ); if ( ! ink ) return;
 		const pap = behind( el );
@@ -157,8 +157,8 @@ console.log( '\nmoduł na stronie' );
 {
 	const { p, c, bledy } = await otworz( strona( modul ) );
 	const r = await p.evaluate( () => ( {
-		krokow: document.querySelectorAll( '.lst-mz-komorka' ).length,
-		etapow: document.querySelectorAll( '.lst-mz-etap' ).length,
+		krokow: document.querySelectorAll( '.lst-ar-komorka' ).length,
+		etapow: document.querySelectorAll( '.lst-ar-etap' ).length,
 		pozycji: document.querySelectorAll( '.lst-mz-pozycja' ).length,
 		tabel: document.querySelectorAll( '.lst-mz .lstab' ).length,
 		wierszy: document.querySelectorAll( '.lst-mz-stol tbody tr.lstab-row' ).length,
@@ -176,7 +176,7 @@ console.log( '\nmoduł na stronie' );
 		 * landing/README.md wyjmuje je spod reguły 14/18/20, bo skalują się
 		 * z szerokością okna. Sprawdzane są osobno, niżej.
 		 */
-		rozmiary: [ ...new Set( [ ...document.querySelectorAll( '.lst-mz [class*="lst-mz-"]:not( .lst-mz-naglowek )' ) ]
+		rozmiary: [ ...new Set( [ ...document.querySelectorAll( '.lst-mz [class*="lst-mz-"]:not( .lst-mz-naglowek ), .lst-mz [class*="lst-ar-"]' ) ]
 			.filter( ( e ) => [ ...e.childNodes ].some( ( n ) => 3 === n.nodeType && n.nodeValue.trim() ) )
 			.map( ( e ) => Math.round( parseFloat( getComputedStyle( e ).fontSize ) ) ) ) ].sort( ( a, x ) => a - x ),
 
@@ -256,16 +256,46 @@ console.log( '\nmoduł na stronie' );
 		/rgba?\(/.test( zrzuty.podniesiony ) && 'none' !== zrzuty.podniesiony, zrzuty.podniesiony );
 
 	const ruch = await p.evaluate( () => ( {
-		niewidoczne: [ ...document.querySelectorAll( '.lst-mz [class*="lst-mz-"]' ) ].filter( ( e ) => getComputedStyle( e ).opacity === '0' ).length,
-		animowane: [ ...document.querySelectorAll( '.lst-mz-komorka' ) ].map( ( e ) => getComputedStyle( e ).animationName ),
-		kreska: getComputedStyle( document.querySelector( '.lst-mz-strzalka' ) ).animationName,
+		niewidoczne: [ ...document.querySelectorAll( '.lst-mz [class*="lst-mz-"], .lst-mz [class*="lst-ar-"]' ) ].filter( ( e ) => getComputedStyle( e ).opacity === '0' ).length,
+		animowane: [ ...document.querySelectorAll( '.lst-ar-komorka' ) ].map( ( e ) => getComputedStyle( e ).animationName ),
+		kreska: getComputedStyle( document.querySelector( '.lst-ar-strzalka' ) ).animationName,
 		puls: getComputedStyle( document.querySelector( '.lst-mz-puls' ) ).animationName,
 		ile: getComputedStyle( document.querySelector( '.lst-mz-puls' ) ).animationIterationCount,
 	} ) );
-	ok( 'jest ruch, a mimo to nic nie jest schowane', ruch.niewidoczne === 0 && ruch.animowane.every( ( x ) => x === 'lst-mz-wejscie' ) && ruch.kreska === 'lst-mz-strzalka' && ruch.puls === 'lst-mz-puls',
+	ok( 'jest ruch, a mimo to nic nie jest schowane', ruch.niewidoczne === 0 && ruch.animowane.every( ( x ) => x === 'lst-ar-wejscie' ) && ruch.kreska === 'lst-ar-strzalka' && ruch.puls === 'lst-mz-puls',
 		`schowanych ${ ruch.niewidoczne }, wejście ${ ruch.animowane[ 0 ] }, strzałka ${ ruch.kreska }, puls ${ ruch.puls }` );
 	// Nic nie może migać bez końca — puls ma odliczoną liczbę powtórzeń.
 	ok( 'żadna animacja nie chodzi w kółko bez końca', ruch.ile !== 'infinite', `powtórzeń pulsu: ${ ruch.ile }` );
+
+	/*
+	 * Arkusz z krokami przyjeżdża z landing/arkusz/ razem ze swoim CSS-em.
+	 * Podświetlenia siedzą w nim na „:has()” i na „!important”, a podstrona
+	 * ma własne utwardzenie na wrogie motywy, też z „!important” — czyli
+	 * dokładnie ta sytuacja, w której jedna reguła cicho zjada drugą. Mierzone
+	 * jest to, co widać po najechaniu, a nie to, co napisane w arkuszu.
+	 */
+	await p.hover( '.lst-ar-komorka:nth-child( 3 )' );
+	await p.waitForTimeout( 160 );
+
+	const siatka = await p.evaluate( () => {
+		const mieta = ( c ) => /95,\s*227,\s*207/.test( c );
+		const litery = [ ...document.querySelectorAll( '.lst-ar-litery > span' ) ].slice( 1 );
+
+		return {
+			zapalone: litery.map( ( e ) => mieta( getComputedStyle( e ).color ) ),
+			tlo: mieta( getComputedStyle( litery[ 1 ] ).backgroundColor ),
+			adres: getComputedStyle( document.querySelector( '.lst-ar-rog' ), '::after' ).content.replace( /"/g, '' ),
+			etapy: [ ...document.querySelectorAll( '.lst-ar-etap-nazwa' ) ].map( ( e ) => mieta( getComputedStyle( e ).color ) ),
+		};
+	} );
+
+	await p.mouse.move( 5, 5 );
+	await p.waitForTimeout( 120 );
+
+	ok( 'arkusz reaguje jak arkusz także wewnątrz podstrony',
+		siatka.zapalone.every( ( x, i ) => x === ( 1 === i ) ) && siatka.tlo && 'B1' === siatka.adres
+			&& siatka.etapy.every( ( x, i ) => x === ( 1 === i ) ),
+		`litery ${ siatka.zapalone.map( ( x ) => x ? '1' : '0' ).join( '' ) }, tło ${ siatka.tlo }, pole nazwy ${ siatka.adres }, etapy ${ siatka.etapy.map( ( x ) => x ? '1' : '0' ).join( '' ) }` );
 
 	/*
 	 * Moduł niesie arkusz wtyczki w tym samym <style>, więc jedna zbłąkana
@@ -305,7 +335,7 @@ console.log( '\nmoduł na stronie' );
 		await p.waitForTimeout( 120 );
 
 		const stan = await p.evaluate( () => {
-			const schowane = [ ...document.querySelectorAll( '.lst-mz [class*="lst-mz-"], .lst-mz .lstab-row' ) ]
+			const schowane = [ ...document.querySelectorAll( '.lst-mz [class*="lst-mz-"], .lst-mz [class*="lst-ar-"], .lst-mz .lstab-row' ) ]
 				.filter( ( e ) => Number( getComputedStyle( e ).opacity ) < 0.99 )
 				.map( ( e ) => e.className.toString().slice( 0, 40 ) );
 			const naOsi = [ ...document.querySelectorAll( '.lst-mz .lst-mz-para, .lst-mz .lst-mz-okno.jest-stolem' ) ]
@@ -366,7 +396,7 @@ console.log( '\nDivi wstawia <br />' );
 	const { p, c, bledy } = await otworz( strona( divi( modul ) ) );
 	const r = await p.evaluate( () => ( {
 		wierszy: document.querySelectorAll( '.lst-mz-stol tbody tr.lstab-row' ).length,
-		krokow: document.querySelectorAll( '.lst-mz-komorka' ).length,
+		krokow: document.querySelectorAll( '.lst-ar-komorka' ).length,
 		brWidoczne: [ ...document.querySelectorAll( '.lst-mz br' ) ].some( ( x ) => getComputedStyle( x ).display !== 'none' ),
 		rozbite: document.body.innerHTML.includes( 'data-lstab-id="' ) === false,
 		poziom: document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -385,8 +415,8 @@ console.log( '\nwrogi motyw' );
 			opis: [ s( '.lst-mz-opis', 'fontFamily' ).split( ',' )[ 0 ].replace( /"/g, '' ),
 				s( '.lst-mz-opis', 'textAlign' ), s( '.lst-mz-opis', 'textTransform' ),
 				s( '.lst-mz-opis', 'marginLeft' ), s( '.lst-mz-opis', 'fontSize' ) ],
-			krok: [ s( '.lst-mz-para-tresc', 'borderTopWidth' ), s( '.lst-mz-komorka', 'backgroundColor' ) ],
-			numer: s( '.lst-mz-adres', 'fontFamily' ).split( ',' )[ 0 ].replace( /"/g, '' ),
+			krok: [ s( '.lst-mz-para-tresc', 'borderTopWidth' ), s( '.lst-ar-komorka', 'backgroundColor' ) ],
+			numer: s( '.lst-ar-adres', 'fontFamily' ).split( ',' )[ 0 ].replace( /"/g, '' ),
 			znak: s( '.lst-mz-znak', 'textTransform' ),
 			// Tabela broni się własnym arkuszem, a przed motywem malującym
 			// każdą komórkę „!important” nie obroni się żadna. Sprawdzamy, że
@@ -410,8 +440,8 @@ console.log( '\nbez JavaScriptu' );
 {
 	const { p, c } = await otworz( strona( modul, { bezJs: true } ) );
 	const r = await p.evaluate( () => ( {
-		widocznych: [ ...document.querySelectorAll( '.lst-mz-komorka, .lst-mz-pozycja, .lst-mz-etap' ) ].filter( ( x ) => getComputedStyle( x ).opacity === '1' ).length,
-		wszystkich: document.querySelectorAll( '.lst-mz-komorka, .lst-mz-pozycja, .lst-mz-etap' ).length,
+		widocznych: [ ...document.querySelectorAll( '.lst-ar-komorka, .lst-mz-pozycja, .lst-ar-etap' ) ].filter( ( x ) => getComputedStyle( x ).opacity === '1' ).length,
+		wszystkich: document.querySelectorAll( '.lst-ar-komorka, .lst-mz-pozycja, .lst-ar-etap' ).length,
 		wierszy: [ ...document.querySelectorAll( '.lst-mz-stol tbody tr.lstab-row' ) ].filter( ( x ) => ! x.hidden ).length,
 	} ) );
 	ok( 'wszystko widoczne bez skryptu', r.widocznych === r.wszystkich && r.wierszy === 10, `${ r.widocznych } z ${ r.wszystkich }, ${ r.wierszy } wierszy` );
@@ -422,9 +452,9 @@ console.log( '\nmniej ruchu' );
 {
 	const { p, c } = await otworz( strona( modul ), { ruch: false } );
 	const r = await p.evaluate( () => ( {
-		widocznych: [ ...document.querySelectorAll( '.lst-mz-komorka, .lst-mz-pozycja, .lst-mz-etap' ) ].filter( ( x ) => getComputedStyle( x ).opacity === '1' ).length,
-		animacje: [ ...document.querySelectorAll( '.lst-mz-komorka' ) ].map( ( x ) => getComputedStyle( x ).animationName ),
-		kreska: getComputedStyle( document.querySelector( '.lst-mz-strzalka' ) ).animationName,
+		widocznych: [ ...document.querySelectorAll( '.lst-ar-komorka, .lst-mz-pozycja, .lst-ar-etap' ) ].filter( ( x ) => getComputedStyle( x ).opacity === '1' ).length,
+		animacje: [ ...document.querySelectorAll( '.lst-ar-komorka' ) ].map( ( x ) => getComputedStyle( x ).animationName ),
+		kreska: getComputedStyle( document.querySelector( '.lst-ar-strzalka' ) ).animationName,
 		puls: getComputedStyle( document.querySelector( '.lst-mz-puls' ) ).animationName,
 	} ) );
 	ok( 'przy prefers-reduced-motion nic się nie rusza, a wszystko widać',
@@ -437,7 +467,7 @@ console.log( '\ntelefon' );
 {
 	const { p, c } = await otworz( strona( modul ), { width: 390, height: 900 } );
 	const r = await p.evaluate( () => ( {
-		kolumny: getComputedStyle( document.querySelector( '.lst-mz-wiersz' ) ).gridTemplateColumns.split( ' ' ).length,
+		kolumny: getComputedStyle( document.querySelector( '.lst-ar-wiersz' ) ).gridTemplateColumns.split( ' ' ).length,
 		karty: getComputedStyle( document.querySelector( '.lst-mz-stol thead' ) ).display,
 		etykiety: getComputedStyle( document.querySelector( '.lst-mz-stol .lstab-cell-label' ) ).display,
 		poziom: document.documentElement.scrollWidth - document.documentElement.clientWidth,

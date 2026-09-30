@@ -1,0 +1,580 @@
+# -*- coding: utf-8 -*-
+"""
+Sekcja „How it works” jako wiersz arkusza — jeden moduł Kod w Divi.
+
+To jest JEDNO źródło tej sekcji. Buduje się z niego dwie rzeczy:
+
+* `ARKUSZ-en.html` — osobny moduł do wklejenia gdziekolwiek na stronie;
+* ta sama sekcja wewnątrz podstrony „what it does” (landing/mozliwosci/strona.py
+  importuje stąd `sekcja()` i `STYL`).
+
+Dwie kopie tego samego CSS w dwóch plikach to dwie okazje, żeby zmienić jedną
+i zapomnieć o drugiej — a to jest dokładnie ten rodzaj usterki, którego się tu
+nie da zobaczyć gołym okiem.
+
+Arkusz reaguje jak arkusz. Najechanie na komórkę:
+
+* zapala literę jej kolumny i numer jej wiersza, tak jak zapala je każdy
+  arkusz kalkulacyjny, kiedy zaznaczy się komórkę;
+* wpisuje jej adres w pole nazwy w lewym górnym rogu (do tej pory ten róg był
+  pustym kwadratem, bo w arkuszu zawsze jest pusty — tyle że w arkuszu on
+  właśnie nie jest pusty, tylko trzyma adres);
+* obrysowuje komórkę ramką zaznaczenia z uchwytem w prawym dolnym rogu;
+* i zapala ten etap w wierszu formuły, który z tego kroku wynika.
+
+To ostatnie jest jedyną rzeczą, która naprawdę czegoś uczy: „udostępnij arkusz”
+to jest „twój arkusz”, „wklej odnośnik” to „kopia w twojej bazie”, „wstaw na
+stronę” to „twoja strona”. Działa w obie strony, więc mapowanie da się odkryć
+z dowolnej połowy sekcji.
+
+Wszystko na `:has()` i na `:hover`, bez ani jednej linijki JavaScriptu.
+Przeglądarka, która `:has()` nie zna, dostaje sekcję bez podświetleń i niczego
+nie traci — żadna informacja nie jest podana wyłącznie najechaniem.
+
+UWAGA przy edycji: każdy znacznik musi zostać w jednej linijce. Divi wstawia
+w miejscu złamanego wiersza <br />, co rozbija znacznik. Wewnątrz <style>
+i <script> Divi nic nie rusza.
+"""
+
+import pathlib
+
+TU = pathlib.Path( __file__ ).parent
+
+# ( adres komórki, tytuł, opis )
+KROKI = [
+	( 'A1', 'Share the sheet',
+	  'In Google Sheets: <em>Share &rarr; Anyone with the link &rarr; Viewer</em>. Nothing is installed '
+	  'at Google&rsquo;s end, and there is no API key to create.' ),
+	( 'B1', 'Paste the link',
+	  'The plugin reads the sheet there and then, and shows what it found: the headings, the rows, '
+	  'anything that looks wrong. You fix it before it reaches a page.' ),
+	( 'C1', 'Put it on a page',
+	  'A block, an Elementor widget or the shortcode. Edit the spreadsheet afterwards and the page '
+	  'follows on its own.' ),
+]
+
+# Wiersz formuły pod arkuszem: co się z arkuszem dzieje, w jednej linii.
+DROGA = [
+	( 'your sheet', 'in Google, where you already work' ),
+	( 'a copy in your database', 'fetched in the background, as often as you like' ),
+	( 'your page', 'built on the server, before the visitor asks' ),
+]
+
+NOTA = ( 'Your page is built from the copy in your own database, so nobody waits for Google. On the day '
+	'Google will not answer, the last good copy stays on the page while the dashboard tells you what '
+	'happened.' )
+
+
+def etap( nazwa, pod, pierwszy ):
+	"""Jeden etap w wierszu formuły, ze strzałką od poprzedniego.
+
+	Strzałka jest znakiem w treści, a nie kreską rysowaną pseudoelementem
+	w odstępie między kolumnami: kreska z grotem wyglądała jak literówka
+	przyklejona do pierwszej litery etapu.
+
+	Stoi PRZED nazwą, bo wtedy jest przy tym odstępie, który pokonuje.
+	"""
+	strzalka = '' if pierwszy else '<span class="lst-ar-strzalka" aria-hidden="true">&rarr;</span>'
+
+	return ( '<span class="lst-ar-etap"><span class="lst-ar-etap-nazwa">' + strzalka + nazwa + '</span>'
+		'<span class="lst-ar-etap-pod">' + pod + '</span></span>' )
+
+
+def komorka( adres, tytul, opis ):
+	"""Jeden krok jako komórka arkusza."""
+	return ( '<div class="lst-ar-komorka"><p class="lst-ar-adres">' + adres + '</p>'
+		'<p class="lst-ar-tytul">' + tytul + '</p>'
+		'<p class="lst-ar-opis">' + opis + '</p></div>' )
+
+
+def sekcja():
+	"""Sam arkusz z wierszem formuły i notą pod spodem, bez nagłówka sekcji.
+
+	Nagłówek dokłada strona, która tę sekcję u siebie stawia: na podstronie
+	jest jednym z sześciu i ma wyglądać jak pozostałe pięć.
+	"""
+	return ( '<div class="lst-ar">'
+		'<div class="lst-ar-arkusz">'
+		'<div class="lst-ar-litery"><span class="lst-ar-rog" aria-hidden="true"></span>'
+		'<span>A</span><span>B</span><span>C</span></div>'
+		'<div class="lst-ar-wiersz"><span class="lst-ar-nr" aria-hidden="true">1</span>'
+		+ ''.join( komorka( *k ) for k in KROKI ) +
+		'</div>'
+		'<div class="lst-ar-formula"><span class="lst-ar-fx" aria-hidden="true">fx</span>'
+		'<span class="lst-ar-droga">'
+		+ ''.join( etap( n, o, 0 == i ) for i, ( n, o ) in enumerate( DROGA ) ) +
+		'</span>'
+		'</div>'
+		'</div>'
+		'<p class="lst-ar-nota">' + NOTA + '</p>'
+		'</div>' )
+
+
+STYL = r"""
+/* ------------------------------------------------------------ arkusz */
+
+/*
+ * Trzy kroki narysowane jako wiersz arkusza.
+ *
+ * Przedtem stały tu trzy zwykłe kafelki, a pod nimi trzy inne zwykłe kafelki
+ * z drogą arkusza: sześć prostokątów, z których żaden nie mówił, o czym jest
+ * ta strona. Arkusz mówi. Pasek kolumn u góry, numer wiersza z boku, komórki
+ * w środku, a pod spodem wiersz formuły — ten sam żart, który strona główna
+ * robi adresami komórek przy krokach, rozwinięty do całego wiersza.
+ *
+ * Wartości są te same co w sekcjach strony głównej (landing/dwie-minuty,
+ * landing/naglowek): ten moduł ma wyglądać jak jej dalszy ciąg, a nie jak
+ * wstawka z innej witryny.
+ */
+.lst-ar {
+	--ar-mieta: 95, 227, 207;
+	--ar-tekst: #eaf3f1;
+	--ar-tekst-2: #9db3b0;
+	--ar-tekst-3: #8fa5a2;
+	--ar-plyta: rgba( 13, 18, 17, .62 );
+	--ar-plyta-linia: rgba( 138, 168, 163, .1 );
+	--ar-linia: rgba( 138, 168, 163, .22 );
+	--ar-ekran: #0a1110;
+	--ar-ekran-gora: #131d1b;
+	--ar-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+	--ar-luk-plyty: 14px;
+	/* Mocniejszy ease-out niż wbudowany: ruch rusza od razu, dochodzi spokojnie. */
+	--ar-luk: cubic-bezier( .23, 1, .32, 1 );
+
+	font-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
+	color: var( --ar-tekst );
+	display: grid;
+	gap: clamp( 1rem, 2.4vw, 1.6rem );
+}
+
+.lst-ar.lst-ar { border: 0 !important; outline: 0 !important; background: none !important; }
+.lst-ar * { box-sizing: border-box; }
+.lst-ar br { display: none; }
+
+/*
+ * Reset po nazwie klasy, a nie po nazwie znacznika: moduł może stać obok
+ * cudzego kodu i nie wolno mu ruszyć niczego, co nie jest jego.
+ */
+.lst-ar [class*="lst-ar-"] {
+	margin: 0;
+	padding: 0;
+	background: none;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	text-align: left;
+	text-transform: none;
+	letter-spacing: normal;
+	font: inherit;
+	color: inherit;
+	list-style: none;
+	width: auto;
+	max-width: none;
+	min-width: 0;
+}
+
+.lst-ar .lst-ar-opis {
+	font-size: 1.125rem;   /* 18 px */
+	line-height: 1.55;
+	color: var( --ar-tekst-2 );
+	max-width: 44rem;
+}
+
+.lst-ar .lst-ar-tytul {
+	font-size: 1.25rem;    /* 20 px */
+	font-weight: 600;
+	line-height: 1.25;
+}
+
+.lst-ar .lst-ar-opis em { font-style: normal; color: rgb( var( --ar-mieta ) ); }
+
+.lst-ar .lst-ar-adres,
+.lst-ar .lst-ar-nota,
+.lst-ar .lst-ar-litery,
+.lst-ar .lst-ar-nr,
+.lst-ar .lst-ar-fx,
+.lst-ar .lst-ar-rog,
+.lst-ar .lst-ar-etap-pod {
+	font-family: var( --ar-mono );
+	font-size: .875rem;    /* 14 px */
+	line-height: 1.5;
+}
+
+/* --------------------------------------------------------- rama arkusza */
+
+/*
+ * Linie siatki to jednopikselowe odstępy na tle w kolorze linii, a nie ramki
+ * na komórkach: ramki na sąsiadujących komórkach dają podwójną kreskę.
+ */
+.lst-ar .lst-ar-arkusz {
+	border: 1px solid var( --ar-linia );
+	border-radius: var( --ar-luk-plyty );
+	overflow: hidden;
+	background-color: var( --ar-plyta );
+}
+
+.lst-ar .lst-ar-litery,
+.lst-ar .lst-ar-wiersz {
+	display: grid;
+	grid-template-columns: 2.4rem repeat( 3, minmax( 0, 1fr ) );
+	gap: 1px;
+	background-color: var( --ar-linia );
+}
+
+.lst-ar .lst-ar-litery > span {
+	padding: .4rem .7rem;
+	background-color: var( --ar-ekran-gora );
+	color: var( --ar-tekst-3 );
+	letter-spacing: .14em;
+	text-align: center;
+	transition: color 120ms ease, background-color 120ms ease;
+}
+
+/*
+ * Pole nazwy.
+ *
+ * W arkuszu lewy górny róg nie jest pustym kwadratem — trzyma adres komórki,
+ * na której się stoi. Do tej pory stało tu puste miejsce, czyli jedyny element
+ * tej sekcji, który udawał arkusz, nie robiąc tego, co arkusz. Teraz pokazuje
+ * A1, a po najechaniu na którąkolwiek komórkę: jej adres.
+ */
+.lst-ar .lst-ar-rog {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: var( --ar-ekran-gora );
+	color: var( --ar-tekst-3 );
+	letter-spacing: .1em;
+	transition: color 120ms ease;
+}
+
+.lst-ar .lst-ar-rog::after { content: "A1"; }
+
+.lst-ar .lst-ar-nr {
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	padding: 1.15rem .4rem;
+	background-color: var( --ar-ekran-gora );
+	color: var( --ar-tekst-3 );
+	transition: color 120ms ease, background-color 120ms ease;
+}
+
+.lst-ar .lst-ar-komorka {
+	position: relative;
+	display: grid;
+	align-content: start;
+	gap: .45rem;
+	padding: 1.15rem 1.3rem 1.3rem;
+	background-color: rgba( 13, 18, 17, .78 );
+	/* Jasna kreska po górnej krawędzi: ciemna komórka bez niej jest dziurą
+	   w stronie, z nią jest płytką, na którą pada światło. */
+	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .04 );
+	transition: background-color 120ms ease;
+	/* Wejście, i tylko ono. Sekcja jest w pierwszym ekranie, więc nie czeka na
+	   przewinięcie; to animacja, a nie „opacity: 0” do odwołania, więc element
+	   bez niej jest po prostu widoczny. */
+	animation: lst-ar-wejscie 380ms var( --ar-luk ) both;
+}
+
+.lst-ar .lst-ar-komorka:nth-child( 3 ) { animation-delay: 70ms; }
+.lst-ar .lst-ar-komorka:nth-child( 4 ) { animation-delay: 140ms; }
+
+@keyframes lst-ar-wejscie {
+	from { opacity: 0; transform: translateY( 12px ) scale( .985 ); }
+}
+
+.lst-ar .lst-ar-adres { letter-spacing: .14em; color: rgb( var( --ar-mieta ) ); }
+
+/* ------------------------------------------------------- wiersz formuły */
+
+/*
+ * Droga arkusza na stronę, napisana tam, gdzie w arkuszu pisze się to, z czego
+ * komórka wynika. Strzałki rysują się raz, po kolei, w stronę, w którą idą
+ * dane, i na tym koniec.
+ */
+.lst-ar .lst-ar-formula {
+	display: grid;
+	grid-template-columns: 2.4rem minmax( 0, 1fr );
+	gap: 1px;
+	background-color: var( --ar-linia );
+	border-top: 1px solid var( --ar-linia );
+}
+
+.lst-ar .lst-ar-fx {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: .85rem .4rem;
+	background-color: var( --ar-ekran-gora );
+	color: var( --ar-tekst-3 );
+	font-style: italic;
+	transition: color 120ms ease;
+}
+
+.lst-ar .lst-ar-droga {
+	display: grid;
+	grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
+	gap: clamp( 1.2rem, 3vw, 2.4rem );
+	padding: .85rem clamp( .9rem, 2vw, 1.3rem );
+	background-color: var( --ar-ekran );
+}
+
+.lst-ar .lst-ar-etap {
+	position: relative;
+	display: grid;
+	gap: .15rem;
+	align-content: start;
+}
+
+.lst-ar .lst-ar-etap-nazwa {
+	font-family: var( --ar-mono );
+	font-size: .875rem;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+	color: var( --ar-tekst );
+	transition: color 120ms ease;
+}
+
+.lst-ar .lst-ar-etap-pod { color: var( --ar-tekst-3 ); transition: color 120ms ease; }
+
+/* Objaśnienie równa się z nazwą, a nie ze strzałką przed nią: w mono znak
+   i jego odstęp to 1,15 szerokości znaku. */
+.lst-ar .lst-ar-etap:not( :first-child ) .lst-ar-etap-pod { padding-left: 1.15em; }
+
+.lst-ar .lst-ar-strzalka {
+	display: inline-block;
+	/* Odstęp dopełnieniem, nie marginesem: utwardzenie na wrogie motywy niżej
+	   zeruje marginesy na boki z „!important”. */
+	padding-right: .55em;
+	color: rgb( var( --ar-mieta ) );
+	animation: lst-ar-strzalka 420ms var( --ar-luk ) both;
+	animation-delay: 320ms;
+}
+
+.lst-ar .lst-ar-etap:nth-child( 3 ) .lst-ar-strzalka { animation-delay: 460ms; }
+
+@keyframes lst-ar-strzalka { from { transform: translateX( -.4em ); } }
+
+.lst-ar .lst-ar-nota { color: var( --ar-tekst-3 ); max-width: 52rem; }
+
+/* ------------------------------------------------------------ mniej ruchu */
+
+/*
+ * „Mniej ruchu” znaczy mniej ruchu, nie mniej treści: animacje i przejścia
+ * znikają, a podświetlenia zostają — tyle że włączają się natychmiast.
+ */
+@media ( prefers-reduced-motion: reduce ) {
+	.lst-ar [class*="lst-ar-"] { animation: none !important; transition: none !important; }
+}
+
+@media print {
+	.lst-ar [class*="lst-ar-"] { animation: none !important; }
+}
+
+/* --------------------------------------------- utwardzenie na wrogie motywy */
+
+/*
+ * Motyw pod modułem bywa pisany z „!important”. Twardo trzymane jest tylko to,
+ * czym taki motyw rozbija układ: marginesy na boki, wyrównanie, wersaliki,
+ * krój i cudze tła z ramkami.
+ */
+.lst-ar [class*="lst-ar-"] {
+	margin-inline: 0 !important;
+	background-image: none !important;
+	text-align: left !important;
+	text-transform: none !important;
+	letter-spacing: normal !important;
+	font-family: inherit !important;
+}
+
+.lst-ar .lst-ar-arkusz { background-color: var( --ar-plyta ) !important; border: 1px solid var( --ar-linia ) !important; }
+.lst-ar .lst-ar-litery,
+.lst-ar .lst-ar-wiersz,
+.lst-ar .lst-ar-formula { background-color: var( --ar-linia ) !important; }
+.lst-ar .lst-ar-komorka { background-color: rgba( 13, 18, 17, .78 ) !important; }
+.lst-ar .lst-ar-litery > span,
+.lst-ar .lst-ar-rog,
+.lst-ar .lst-ar-nr,
+.lst-ar .lst-ar-fx { background-color: var( --ar-ekran-gora ) !important; }
+.lst-ar .lst-ar-droga { background-color: var( --ar-ekran ) !important; }
+
+.lst-ar .lst-ar-etap-nazwa,
+.lst-ar .lst-ar-litery > span { text-transform: uppercase !important; }
+
+.lst-ar .lst-ar-adres,
+.lst-ar .lst-ar-nota,
+.lst-ar .lst-ar-litery,
+.lst-ar .lst-ar-nr,
+.lst-ar .lst-ar-fx,
+.lst-ar .lst-ar-rog,
+.lst-ar .lst-ar-etap-nazwa,
+.lst-ar .lst-ar-etap-pod { font-family: var( --ar-mono ) !important; }
+
+/* ===================================================================== */
+/* ARKUSZ, KTÓRY ZACHOWUJE SIĘ JAK ARKUSZ                                */
+/* ===================================================================== */
+
+/*
+ * Cztery rzeczy dzieją się po najechaniu na komórkę, wszystkie takie, jakie
+ * robi każdy arkusz kalkulacyjny, kiedy zaznaczy się w nim komórkę:
+ *
+ *   1. zapala się litera jej kolumny,
+ *   2. zapala się numer jej wiersza,
+ *   3. jej adres pojawia się w polu nazwy w lewym górnym rogu,
+ *   4. komórka dostaje obrys zaznaczenia z uchwytem w prawym dolnym rogu.
+ *
+ * I piąta, ta jedyna, która naprawdę czegoś uczy: zapala się ten etap
+ * w wierszu formuły, który z tego kroku wynika. Udostępnij arkusz → twój
+ * arkusz. Wklej odnośnik → kopia w twojej bazie. Wstaw na stronę → twoja
+ * strona. Działa w obie strony, więc mapowanie da się odkryć z dowolnej
+ * połowy sekcji.
+ *
+ * Wszystko na „:has()”, bez ani jednej linijki JavaScriptu. Przeglądarka,
+ * która „:has()” nie zna, dostaje sekcję bez podświetleń — i nie traci nic,
+ * bo żadna informacja nie jest podana wyłącznie najechaniem: adres komórki
+ * i tak stoi w niej wydrukowany, a droga arkusza i tak jest wypisana słowami.
+ *
+ * Całość pod „hover: hover”: na dotyku nie ma najechania, a stan, który się
+ * zapala i nie gaśnie, jest gorszy niż brak stanu.
+ *
+ * Blok stoi ZA utwardzeniem na wrogie motywy i tła ma pisane twardo. Utwardzenie
+ * przybija tła paska liter i numeru wiersza, żeby nie domalował się tam cudzy
+ * motyw — a przybijało przy okazji podświetlenie, więc litera zapalała się
+ * samym kolorem pisma, bez tła pod nim. Przy dwóch regułach z „!important”
+ * wygrywa ta stojąca dalej w arkuszu.
+ */
+@media ( hover: hover ) and ( pointer: fine ) {
+
+	/* ---- 1 i 2: litera kolumny i numer wiersza ---- */
+
+	.lst-ar .lst-ar-arkusz:has( .lst-ar-komorka:nth-child( 2 ):hover ) .lst-ar-litery > span:nth-child( 2 ),
+	.lst-ar .lst-ar-arkusz:has( .lst-ar-komorka:nth-child( 3 ):hover ) .lst-ar-litery > span:nth-child( 3 ),
+	.lst-ar .lst-ar-arkusz:has( .lst-ar-komorka:nth-child( 4 ):hover ) .lst-ar-litery > span:nth-child( 4 ),
+	.lst-ar .lst-ar-arkusz:has( .lst-ar-komorka:hover ) .lst-ar-nr {
+		background-color: rgba( var( --ar-mieta ), .14 ) !important;
+		color: rgb( var( --ar-mieta ) );
+	}
+
+	/* ---- 3: adres w polu nazwy ---- */
+
+	.lst-ar .lst-ar-arkusz:has( .lst-ar-komorka:nth-child( 2 ):hover ) .lst-ar-rog::after { content: "A1"; }
+	.lst-ar .lst-ar-arkusz:has( .lst-ar-komorka:nth-child( 3 ):hover ) .lst-ar-rog::after { content: "B1"; }
+	.lst-ar .lst-ar-arkusz:has( .lst-ar-komorka:nth-child( 4 ):hover ) .lst-ar-rog::after { content: "C1"; }
+	.lst-ar .lst-ar-arkusz:has( .lst-ar-komorka:hover ) .lst-ar-rog { color: rgb( var( --ar-mieta ) ); }
+
+	/* ---- 4: obrys zaznaczenia i uchwyt ---- */
+
+	.lst-ar .lst-ar-komorka:hover { background-color: rgba( 20, 30, 28, .86 ) !important; }
+
+	.lst-ar .lst-ar-komorka:hover::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		box-shadow: inset 0 0 0 1px rgb( var( --ar-mieta ) );
+	}
+
+	/*
+	 * Uchwyt wypełniania: mały kwadrat w prawym dolnym rogu zaznaczenia.
+	 * W arkuszu wystaje poza komórkę i tu wystaje tak samo, w jednopikselowy
+	 * odstęp między komórkami.
+	 */
+	.lst-ar .lst-ar-komorka:hover::after {
+		content: "";
+		position: absolute;
+		right: -3px;
+		bottom: -3px;
+		width: 7px;
+		height: 7px;
+		pointer-events: none;
+		background-color: rgb( var( --ar-mieta ) );
+		box-shadow: 0 0 0 1px var( --ar-ekran );
+	}
+
+	/* ---- 5: krok i to, co z niego wynika ---- */
+
+	.lst-ar .lst-ar-arkusz:has( .lst-ar-komorka:nth-child( 2 ):hover ) .lst-ar-etap:nth-child( 1 ) .lst-ar-etap-nazwa,
+	.lst-ar .lst-ar-arkusz:has( .lst-ar-komorka:nth-child( 3 ):hover ) .lst-ar-etap:nth-child( 2 ) .lst-ar-etap-nazwa,
+	.lst-ar .lst-ar-arkusz:has( .lst-ar-komorka:nth-child( 4 ):hover ) .lst-ar-etap:nth-child( 3 ) .lst-ar-etap-nazwa {
+		color: rgb( var( --ar-mieta ) );
+	}
+
+	.lst-ar .lst-ar-arkusz:has( .lst-ar-komorka:nth-child( 2 ):hover ) .lst-ar-etap:nth-child( 1 ) .lst-ar-etap-pod,
+	.lst-ar .lst-ar-arkusz:has( .lst-ar-komorka:nth-child( 3 ):hover ) .lst-ar-etap:nth-child( 2 ) .lst-ar-etap-pod,
+	.lst-ar .lst-ar-arkusz:has( .lst-ar-komorka:nth-child( 4 ):hover ) .lst-ar-etap:nth-child( 3 ) .lst-ar-etap-pod {
+		color: var( --ar-tekst-2 );
+	}
+
+	/* I w drugą stronę: najechanie na etap zapala krok, z którego on wynika. */
+
+	.lst-ar .lst-ar-arkusz:has( .lst-ar-etap:nth-child( 1 ):hover ) .lst-ar-komorka:nth-child( 2 ),
+	.lst-ar .lst-ar-arkusz:has( .lst-ar-etap:nth-child( 2 ):hover ) .lst-ar-komorka:nth-child( 3 ),
+	.lst-ar .lst-ar-arkusz:has( .lst-ar-etap:nth-child( 3 ):hover ) .lst-ar-komorka:nth-child( 4 ) {
+		background-color: rgba( 20, 30, 28, .86 ) !important;
+	}
+
+	.lst-ar .lst-ar-arkusz:has( .lst-ar-etap:nth-child( 1 ):hover ) .lst-ar-litery > span:nth-child( 2 ),
+	.lst-ar .lst-ar-arkusz:has( .lst-ar-etap:nth-child( 2 ):hover ) .lst-ar-litery > span:nth-child( 3 ),
+	.lst-ar .lst-ar-arkusz:has( .lst-ar-etap:nth-child( 3 ):hover ) .lst-ar-litery > span:nth-child( 4 ) {
+		background-color: rgba( var( --ar-mieta ), .14 ) !important;
+		color: rgb( var( --ar-mieta ) );
+	}
+
+	/* „fx” zapala się, kiedy ktoś czyta wiersz formuły. */
+	.lst-ar .lst-ar-formula:hover .lst-ar-fx { color: rgb( var( --ar-mieta ) ); }
+}
+
+/* ------------------------------------------------------------- wąsko */
+
+@media ( max-width: 900px ) {
+	/*
+	 * Wąsko arkusz przestaje być wierszem i staje się kolumną: trzy komórki
+	 * jedna pod drugą, a pasek liter, numer wiersza i „fx” znikają, bo wiersz
+	 * z jedną komórką nie jest już wierszem. Znika z nimi cała zabawa
+	 * z podświetlaniem kolumny — i słusznie, bo na dotyku nie ma najechania.
+	 */
+	.lst-ar .lst-ar-litery { display: none; }
+	.lst-ar .lst-ar-wiersz { grid-template-columns: minmax( 0, 1fr ); }
+	.lst-ar .lst-ar-nr { display: none; }
+	.lst-ar .lst-ar-formula { grid-template-columns: minmax( 0, 1fr ); }
+	.lst-ar .lst-ar-fx { display: none; }
+	.lst-ar .lst-ar-droga { grid-template-columns: minmax( 0, 1fr ); gap: 1.1rem; }
+
+	/* Strzałki pokazywałyby w prawo tam, gdzie droga biegnie w dół. */
+	.lst-ar .lst-ar-strzalka { display: none; }
+	.lst-ar .lst-ar-etap:not( :first-child ) .lst-ar-etap-pod { padding-left: 0; }
+}
+"""
+
+
+# ---------------------------------------------------------------- moduł
+
+MODUL = (
+	'<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">\n'
+	'\n' + sekcja() + '\n'
+	'\n<style>\n' + STYL + '\n</style>\n'
+)
+
+PODGLAD = (
+	'<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n'
+	'<title>How it works</title>\n'
+	'<style>\n'
+	'html, body { margin: 0; background: #232a29; color: #eaf3f1;\n'
+	'\tfont-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif; }\n'
+	'body { background-image: linear-gradient( to right, rgba( 255, 255, 255, .04 ) 1px, transparent 1px ),\n'
+	'\tlinear-gradient( to bottom, rgba( 255, 255, 255, .04 ) 1px, transparent 1px );\n'
+	'\tbackground-size: 88px 44px; }\n'
+	'.podrobka-divi { padding: 60px 0; }\n'
+	'.podrobka-divi-rzad { width: 90%; max-width: 1240px; margin: 0 auto; }\n'
+	'</style>\n'
+	'<div class="podrobka-divi"><div class="podrobka-divi-rzad">\n'
+	+ MODUL +
+	'\n</div></div>\n'
+)
+
+
+if __name__ == '__main__':
+	( TU / 'ARKUSZ-en.html' ).write_text( MODUL )
+	( TU / 'PODGLAD.html' ).write_text( PODGLAD )
+	print( 'ok', len( MODUL ), 'znaków modułu' )

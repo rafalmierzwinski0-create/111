@@ -33,8 +33,15 @@ a moduł ma „br { display: none }”.
 import json
 import pathlib
 import re
+import sys
 
 TU  = pathlib.Path( __file__ ).parent
+
+# Sekcja „How it works” mieszka w landing/arkusz/ i jest stamtąd brana w całości,
+# ze znacznikowaniem i arkuszem stylów. Dwie kopie tego samego CSS w dwóch
+# plikach to dwie okazje, żeby zmienić jedną i zapomnieć o drugiej.
+sys.path.insert( 0, str( TU.parent / 'arkusz' ) )
+import arkusz
 CSS = pathlib.Path( '/home/user/111/live-sheets-table/assets/css/lstab-table.css' ).read_text()
 JS  = pathlib.Path( '/home/user/111/live-sheets-table/assets/js/lstab-table.js' ).read_text()
 M   = json.loads( ( TU / 'markup.json' ).read_text() )
@@ -62,26 +69,6 @@ def dla_divi( html ):
 
 
 TABELA = dla_divi( M[ 'pro' ] )
-
-# ( adres komórki, tytuł, opis )
-KROKI = [
-	( 'A1', 'Share the sheet',
-	  'In Google Sheets: <em>Share &rarr; Anyone with the link &rarr; Viewer</em>. Nothing is installed '
-	  'at Google&rsquo;s end, and there is no API key to create.' ),
-	( 'B1', 'Paste the link',
-	  'The plugin reads the sheet there and then, and shows what it found: the headings, the rows, '
-	  'anything that looks wrong. You fix it before it reaches a page.' ),
-	( 'C1', 'Put it on a page',
-	  'A block, an Elementor widget or the shortcode. Edit the spreadsheet afterwards and the page '
-	  'follows on its own.' ),
-]
-
-# Wiersz formuły pod arkuszem: co się z arkuszem dzieje, w jednej linii.
-DROGA = [
-	( 'your sheet', 'in Google, where you already work' ),
-	( 'a copy in your database', 'fetched in the background, as often as you like' ),
-	( 'your page', 'built on the server, before the visitor asks' ),
-]
 
 # ( kolumny tabeli, których dotyczy, poziom, tytuł, opis )
 LEGENDA = [
@@ -198,30 +185,6 @@ def naglowek( tekst ):
 	return '<h2 class="lst-mz-naglowek">' + tekst + '</h2>'
 
 
-def komorka( adres, tytul, opis ):
-	"""Jeden krok jako komórka arkusza."""
-	return ( '<div class="lst-mz-komorka"><p class="lst-mz-adres">' + adres + '</p>'
-		'<p class="lst-mz-tytul">' + tytul + '</p>'
-		'<p class="lst-mz-opis">' + opis + '</p></div>' )
-
-
-def etap( nazwa, pod, pierwszy ):
-	"""Jeden etap w wierszu formuły, ze strzałką od poprzedniego.
-
-	Strzałka jest znakiem w treści, a nie kreską rysowaną pseudoelementem w
-	odstępie między kolumnami. Kreska z grotem wyglądała dokładnie jak literówka
-	przyklejona do pierwszej litery etapu; znak „→” czyta się jako strzałka
-	w każdej przeglądarce i przy każdej szerokości.
-
-	Stoi PRZED nazwą, a nie po niej: wtedy jest przy tym odstępie, który
-	pokonuje, i mówi „to jest dalszy ciąg tamtego”, zamiast wisieć samotnie na
-	końcu poprzedniej kolumny.
-	"""
-	strzalka = '' if pierwszy else '<span class="lst-mz-strzalka" aria-hidden="true">&rarr;</span>'
-	return ( '<span class="lst-mz-etap"><span class="lst-mz-etap-nazwa">' + strzalka + nazwa + '</span>'
-		'<span class="lst-mz-etap-pod">' + pod + '</span></span>' )
-
-
 def pozycja( kolumny, tier, tytul, opis ):
 	klasa = ' jest-pro' if 'Pro' == tier else ''
 	return ( '<div class="lst-mz-pozycja">'
@@ -298,22 +261,8 @@ SEKCJA = (
 	# --- jak to działa: wiersz arkusza i wiersz formuły pod nim -------------
 	'<div class="lst-mz-blok">'
 	+ etykieta( 'How it works' )
-	+ naglowek( 'Three steps, and then it looks after itself' ) +
-	'<div class="lst-mz-arkusz">'
-	'<div class="lst-mz-litery"><span class="lst-mz-rog"></span>'
-	'<span>A</span><span>B</span><span>C</span></div>'
-	'<div class="lst-mz-wiersz"><span class="lst-mz-nr">1</span>'
-	+ ''.join( komorka( *k ) for k in KROKI ) +
-	'</div>'
-	'<div class="lst-mz-formula"><span class="lst-mz-fx">fx</span>'
-	'<span class="lst-mz-droga">'
-	+ ''.join( etap( n, o, 0 == i ) for i, ( n, o ) in enumerate( DROGA ) ) +
-	'</span>'
-	'</div>'
-	'</div>'
-	'<p class="lst-mz-nota">Your page is built from the copy in your own database, so nobody waits for '
-	'Google. On the day Google will not answer, the last good copy stays on the page while the dashboard '
-	'tells you what happened.</p>'
+	+ naglowek( 'Three steps, and then it looks after itself' )
+	+ arkusz.sekcja() +
 	'</div>'
 
 	# --- tabela na żywo, w takim samym okienku jak zrzuty niżej -------------
@@ -507,11 +456,6 @@ STYL = r"""
 .lst-mz .lst-mz-etykieta,
 .lst-mz .lst-mz-adres,
 .lst-mz .lst-mz-znak,
-.lst-mz .lst-mz-nota,
-.lst-mz .lst-mz-litery,
-.lst-mz .lst-mz-nr,
-.lst-mz .lst-mz-fx,
-.lst-mz .lst-mz-etap-pod,
 .lst-mz .lst-mz-punkty,
 .lst-mz .lst-mz-nazwa-okna,
 .lst-mz .lst-mz-belka-prawa,
@@ -576,162 +520,6 @@ STYL = r"""
 /* Metka nad tytułem jest teraz rzadkością, więc nie ciągnie już własnej
    kreski: dwie kreski jedna nad drugą to nie akcent, tylko szum. */
 .lst-mz .lst-mz-blok > .lst-mz-etykieta + .lst-mz-naglowek { margin-top: -.2rem; }
-
-/* ------------------------------------------------- jak to działa: arkusz */
-
-/*
- * Trzy kroki narysowane jako wiersz arkusza.
- *
- * Wcześniej stały tu trzy zwykłe kafelki, a pod nimi trzy inne zwykłe kafelki
- * z drogą arkusza — sześć prostokątów, z których żaden nie mówił, o czym jest
- * ta strona. Arkusz mówi: pasek kolumn u góry, numer wiersza z boku, komórki
- * w środku, a pod spodem wiersz formuły. Ten sam żart, który strona główna
- * robi adresami komórek przy krokach, tylko rozwinięty do całego wiersza.
- *
- * Linie siatki to odstępy jednopikselowe na tle w kolorze linii, a nie ramki:
- * ramki na sąsiadujących komórkach dają podwójną kreskę.
- */
-.lst-mz .lst-mz-arkusz {
-	border: 1px solid var( --mz-linia );
-	border-radius: var( --mz-luk-plyty );
-	overflow: hidden;
-	background-color: var( --mz-plyta );
-}
-
-.lst-mz .lst-mz-litery,
-.lst-mz .lst-mz-wiersz {
-	display: grid;
-	grid-template-columns: 2.4rem repeat( 3, minmax( 0, 1fr ) );
-	gap: 1px;
-	background-color: var( --mz-linia );
-}
-
-.lst-mz .lst-mz-litery > span {
-	padding: .4rem .7rem;
-	background-color: var( --mz-ekran-gora );
-	color: var( --mz-tekst-3 );
-	letter-spacing: .14em;
-	text-align: center;
-}
-
-.lst-mz .lst-mz-litery .lst-mz-rog { background-color: var( --mz-ekran-gora ); }
-
-.lst-mz .lst-mz-nr {
-	display: flex;
-	align-items: flex-start;
-	justify-content: center;
-	padding: 1.15rem .4rem;
-	background-color: var( --mz-ekran-gora );
-	color: var( --mz-tekst-3 );
-}
-
-.lst-mz .lst-mz-komorka {
-	display: grid;
-	align-content: start;
-	gap: .45rem;
-	padding: 1.15rem 1.3rem 1.3rem;
-	background-color: rgba( 13, 18, 17, .78 );
-	/*
-	 * Jasna kreska po górnej krawędzi. Ciemna komórka bez niej jest dziurą w
-	 * stronie; z nią jest płytką, na którą pada światło.
-	 */
-	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .04 );
-	transition: background-color 200ms ease;
-	/*
-	 * Wejście, i tylko ono. Komórki są w pierwszym ekranie, więc nie czekają na
-	 * przewinięcie; to animacja, a nie „opacity: 0” do odwołania, więc element
-	 * bez niej jest po prostu widoczny.
-	 */
-	animation: lst-mz-wejscie 380ms var( --mz-luk ) both;
-}
-
-.lst-mz .lst-mz-komorka:nth-child( 3 ) { animation-delay: 70ms; }
-.lst-mz .lst-mz-komorka:nth-child( 4 ) { animation-delay: 140ms; }
-
-@keyframes lst-mz-wejscie {
-	from { opacity: 0; transform: translateY( 12px ) scale( .985 ); }
-}
-
-.lst-mz .lst-mz-adres { letter-spacing: .14em; color: rgb( var( --mz-mieta ) ); }
-
-/* ------------------------------------------------------- wiersz formuły */
-
-/*
- * Droga arkusza na stronę, napisana tam, gdzie w arkuszu pisze się to, z czego
- * komórka wynika. Trzy etapy w trzech kolumnach, strzałki rysują się raz, po
- * kolei, w stronę, w którą idą dane — i na tym koniec. Jeździła tędy kiedyś
- * kropka w kółko; ruch bez końca na skraju oka nie pokazuje niczego, czego nie
- * pokazuje sama strzałka, a widać go przez cały czas, kiedy się czyta.
- */
-.lst-mz .lst-mz-formula {
-	display: grid;
-	grid-template-columns: 2.4rem minmax( 0, 1fr );
-	gap: 1px;
-	background-color: var( --mz-linia );
-	border-top: 1px solid var( --mz-linia );
-}
-
-.lst-mz .lst-mz-fx {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: .85rem .4rem;
-	background-color: var( --mz-ekran-gora );
-	color: var( --mz-tekst-3 );
-	font-style: italic;
-}
-
-.lst-mz .lst-mz-droga {
-	display: grid;
-	grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
-	gap: clamp( 1.2rem, 3vw, 2.4rem );
-	padding: .85rem clamp( .9rem, 2vw, 1.3rem );
-	background-color: var( --mz-ekran );
-}
-
-.lst-mz .lst-mz-etap {
-	position: relative;
-	display: grid;
-	gap: .15rem;
-	align-content: start;
-}
-
-.lst-mz .lst-mz-etap-nazwa {
-	font-family: var( --mz-mono );
-	font-size: .875rem;
-	letter-spacing: .06em;
-	text-transform: uppercase;
-	color: var( --mz-tekst );
-}
-
-.lst-mz .lst-mz-etap-pod { color: var( --mz-tekst-3 ); }
-
-/* Objaśnienie równa się z nazwą, a nie ze strzałką przed nią: w mono znak i
-   jego odstęp to 1,15 szerokości znaku. */
-.lst-mz .lst-mz-etap:not( :first-child ) .lst-mz-etap-pod { padding-left: 1.15em; }
-
-/*
- * Strzałka po nazwie etapu, raz, po kolei. Wjeżdża samym przesunięciem — bez
- * ruchu i tak jest na swoim miejscu, więc strona bez animacji niczego nie
- * traci.
- */
-.lst-mz .lst-mz-strzalka {
-	display: inline-block;
-	/* Odstęp dopełnieniem, nie marginesem: utwardzenie na wrogie motywy niżej
-	   zeruje marginesy na boki z „!important”, więc margines tu nie przeżyje. */
-	padding-right: .55em;
-	color: rgb( var( --mz-mieta ) );
-	animation: lst-mz-strzalka 420ms var( --mz-luk ) both;
-	animation-delay: 320ms;
-}
-
-.lst-mz .lst-mz-etap:nth-child( 3 ) .lst-mz-strzalka { animation-delay: 460ms; }
-
-@keyframes lst-mz-kreska { from { transform: scaleX( 0 ); } }
-@keyframes lst-mz-kreska-w-dol { from { transform: scaleY( 0 ); } }
-@keyframes lst-mz-strzalka { from { transform: translateX( -.4em ); } }
-
-.lst-mz .lst-mz-nota { color: var( --mz-tekst-3 ); max-width: 52rem; }
 
 /* ------------------------------------------------------------- okienko */
 
@@ -1147,7 +935,6 @@ STYL = r"""
 /* ------------------------------------------------------------- najechanie */
 
 @media ( hover: hover ) and ( pointer: fine ) {
-	.lst-mz .lst-mz-komorka:hover { background-color: rgba( 20, 30, 28, .86 ); }
 	.lst-mz .lst-mz-pozycja:hover { border-color: rgba( var( --mz-mieta ), .34 ); transform: translateY( -2px ); }
 	.lst-mz .lst-mz-kolumna:hover { border-color: rgba( var( --mz-mieta ), .34 ); }
 	.lst-mz .lst-mz-cta:hover { filter: brightness( 1.08 ); transform: translateY( -1px ); }
@@ -1219,7 +1006,7 @@ STYL = r"""
 
 	/* Okno z tabelą podnosi się: jedyne miejsce, gdzie wysokość coś znaczy. */
 	.lst-mz .lst-mz-okno.jest-stolem {
-		animation: lst-mz-arkusz 640ms var( --mz-luk ) both;
+		animation: lst-mz-podniesienie 640ms var( --mz-luk ) both;
 		animation-timeline: view();
 		animation-range: entry 2% cover 24%;
 	}
@@ -1234,7 +1021,7 @@ STYL = r"""
 	from { transform: translateY( 7px ); }
 }
 
-@keyframes lst-mz-arkusz {
+@keyframes lst-mz-podniesienie {
 	from { transform: translateY( 22px ) scale( .988 ); }
 }
 
@@ -1258,7 +1045,6 @@ STYL = r"""
 	.lst-mz .lst-mz-naglowek::after,
 	.lst-mz .lst-mz-stol .lstab-row { animation: none !important; }
 
-	.lst-mz .lst-mz-komorka,
 	.lst-mz .lst-mz-pozycja,
 	.lst-mz .lst-mz-okno,
 	.lst-mz .lst-mz-okno img,
@@ -1292,18 +1078,7 @@ STYL = r"""
  */
 .lst-mz .lst-mz-rama { margin-inline: auto !important; }
 
-.lst-mz .lst-mz-arkusz,
-.lst-mz .lst-mz-litery,
-.lst-mz .lst-mz-wiersz,
-.lst-mz .lst-mz-formula { background-color: var( --mz-linia ) !important; }
-
-.lst-mz .lst-mz-arkusz { background-color: var( --mz-plyta ) !important; border: 1px solid var( --mz-linia ) !important; }
-.lst-mz .lst-mz-komorka { background-color: rgba( 13, 18, 17, .78 ) !important; }
-.lst-mz .lst-mz-litery > span,
-.lst-mz .lst-mz-nr,
-.lst-mz .lst-mz-fx,
 .lst-mz .lst-mz-kolumna-tytul { background-color: var( --mz-ekran-gora ) !important; }
-.lst-mz .lst-mz-droga { background-color: var( --mz-ekran ) !important; }
 
 .lst-mz .lst-mz-para-tresc,
 .lst-mz .lst-mz-pozycja,
@@ -1326,21 +1101,13 @@ STYL = r"""
 .lst-mz .lst-mz-znak.jest-pro .lst-mz-znak-slowo { background-color: rgba( var( --mz-mieta ), .1 ) !important; }
 
 .lst-mz .lst-mz-etykieta,
-.lst-mz .lst-mz-etap-nazwa,
-.lst-mz .lst-mz-kolumna-tytul,
-.lst-mz .lst-mz-litery > span { text-transform: uppercase !important; }
+.lst-mz .lst-mz-kolumna-tytul { text-transform: uppercase !important; }
 
 .lst-mz .lst-mz-naglowek { font-family: var( --mz-szeryf ) !important; }
 .lst-mz .lst-mz-cta { background-color: rgb( var( --mz-mieta ) ) !important; color: #06100f !important; }
 
 .lst-mz .lst-mz-adres,
 .lst-mz .lst-mz-etykieta,
-.lst-mz .lst-mz-nota,
-.lst-mz .lst-mz-litery,
-.lst-mz .lst-mz-nr,
-.lst-mz .lst-mz-fx,
-.lst-mz .lst-mz-etap-nazwa,
-.lst-mz .lst-mz-etap-pod,
 .lst-mz .lst-mz-punkty,
 .lst-mz .lst-mz-nazwa-okna,
 .lst-mz .lst-mz-belka-prawa,
@@ -1371,23 +1138,6 @@ STYL = r"""
 
 	.lst-mz .lst-mz-para.jest-odwrocona .lst-mz-okno { order: 0; }
 
-	/* Wąsko arkusz przestaje być wierszem i staje się kolumną: trzy komórki
-	   jedna pod drugą, a pasek liter i numer wiersza znikają, bo wiersz
-	   z jedną komórką nie jest już wierszem. */
-	.lst-mz .lst-mz-litery { display: none; }
-	.lst-mz .lst-mz-wiersz { grid-template-columns: minmax( 0, 1fr ); }
-	.lst-mz .lst-mz-nr { display: none; }
-	.lst-mz .lst-mz-formula { grid-template-columns: minmax( 0, 1fr ); }
-	.lst-mz .lst-mz-fx { display: none; }
-	.lst-mz .lst-mz-droga { grid-template-columns: minmax( 0, 1fr ); gap: 1.1rem; }
-
-	/*
-	 * W jednej kolumnie strzałek nie ma: pokazywałyby w prawo tam, gdzie droga
-	 * biegnie w dół. A skoro ich nie ma, to i wcięcie pod nie znika.
-	 */
-	.lst-mz .lst-mz-strzalka { display: none; }
-	.lst-mz .lst-mz-etap:not( :first-child ) .lst-mz-etap-pod { padding-left: 0; }
-
 	/* Kreska za tytułem ma sens, kiedy tytuł mieści się w jednym wierszu.
 	   Przy dwóch łamie się obok pierwszego i wygląda jak zgubiony znak. */
 	.lst-mz .lst-mz-naglowek::after { display: none; }
@@ -1401,7 +1151,7 @@ STYL = r"""
 STRONA = (
 	'<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Inria+Serif:ital,wght@0,300;0,400&display=swap">\n'
 	'\n<div class="lst-mz"><div class="lst-mz-rama">' + SEKCJA + '</div></div>\n'
-	'\n<style>\n' + STYL + CSS + '\n</style>\n'
+	'\n<style>\n' + STYL + arkusz.STYL + CSS + '\n</style>\n'
 	'\n<script>\n' + JS + '\n</script>\n'
 )
 
