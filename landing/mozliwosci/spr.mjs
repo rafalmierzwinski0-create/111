@@ -157,7 +157,7 @@ console.log( '\nmoduł na stronie' );
 {
 	const { p, c, bledy } = await otworz( strona( modul ) );
 	const r = await p.evaluate( () => ( {
-		krokow: document.querySelectorAll( '.lst-mz-krok' ).length,
+		krokow: document.querySelectorAll( '.lst-mz-komorka' ).length,
 		etapow: document.querySelectorAll( '.lst-mz-etap' ).length,
 		pozycji: document.querySelectorAll( '.lst-mz-pozycja' ).length,
 		tabel: document.querySelectorAll( '.lst-mz .lstab' ).length,
@@ -190,12 +190,14 @@ console.log( '\nmoduł na stronie' );
 		ile: document.querySelectorAll( '.lst-mz-okno img' ).length,
 		wczytane: [ ...document.querySelectorAll( '.lst-mz-okno img' ) ].filter( ( i ) => i.complete && i.naturalWidth > 0 ).length,
 		puste: [ ...document.querySelectorAll( '.lst-mz-okno img' ) ].filter( ( i ) => ! i.complete || ! i.naturalWidth ).map( ( i ) => i.getAttribute( 'src' ) ),
-		ksiega: document.querySelectorAll( '.lst-mz-szklo .lstab-style-ledger' ).length,
+		polnoc: document.querySelectorAll( '.lst-mz .lstab-style-midnight' ).length,
 		/*
-		 * Jasność papieru kontra jasność strony. Cała rzecz w tym, że tabela
-		 * jest jedynym jasnym przedmiotem na ciemnej stronie — gdyby kiedyś
-		 * wróciła na ciemny szablon, ten pomiar to wyłapie, a samo sprawdzenie
-		 * nazwy klasy nie.
+		 * Jasność tabeli kontra jasność strony i kontra ekran okienek.
+		 *
+		 * Tabela ma być z tej strony, a nie z innej: ciemna jak okienka pod nią
+		 * i tylko odrobinę ciemniejsza od samej strony. Wcześniej stał tu ciepły
+		 * papier — jedyny jasny przedmiot na ciemnej stronie — i właśnie to
+		 * wyglądało jak wklejone z innej witryny.
 		 */
 		jasnosc: ( () => {
 			const lum = ( c ) => {
@@ -207,31 +209,36 @@ console.log( '\nmoduł na stronie' );
 			};
 			// Papier siedzi na panelu przewijania, nie na samym „.lstab”, którego
 			// własne tło jest przezroczyste — mierzone tam, gdzie naprawdę jest.
-			const papier = lum( getComputedStyle( document.querySelector( '.lst-mz-szklo .lstab-scroll' ) ).backgroundColor );
+			const papier = lum( getComputedStyle( document.querySelector( '.lst-mz-stol .lstab-scroll' ) ).backgroundColor );
 			const strona = lum( getComputedStyle( document.body ).backgroundColor );
+			const okno = lum( getComputedStyle( document.querySelector( '.lst-mz-okno' ) ).backgroundColor );
 
-			return { papier: Math.round( papier * 1000 ) / 1000, strona: Math.round( strona * 1000 ) / 1000 };
+			return {
+				papier: Math.round( papier * 1000 ) / 1000,
+				strona: Math.round( strona * 1000 ) / 1000,
+				okno: Math.round( okno * 1000 ) / 1000,
+			};
 		} )(),
-		podniesiony: getComputedStyle( document.querySelector( '.lst-mz-szklo' ) ).boxShadow,
+		podniesiony: getComputedStyle( document.querySelector( '.lst-mz-okno.jest-stolem' ) ).boxShadow,
 	} ) );
 	ok( 'trzy zrzuty z kokpitu, wszystkie wczytane', zrzuty.ile === 3 && zrzuty.wczytane === 3, zrzuty.puste.join( ', ' ) || '3 z 3' );
-	ok( 'obie tabele są na Księdze, a nie na szablonie, który komuś nie pasował',
-		zrzuty.ksiega === 2, `ksiąg ${ zrzuty.ksiega }` );
-	ok( 'arkusz jest jasny, a strona pod nim ciemna — i to on jest tu przedmiotem',
-		zrzuty.jasnosc.papier > 0.7 && zrzuty.jasnosc.strona < 0.1,
-		`papier ${ zrzuty.jasnosc.papier }, strona ${ zrzuty.jasnosc.strona }` );
-	ok( 'i naprawdę leży na stronie, a nie jest w nią wpuszczony',
+	ok( 'obie tabele są na szablonie Północ, przemalowanym na kolory strony',
+		zrzuty.polnoc === 2, `północy ${ zrzuty.polnoc }` );
+	ok( 'tabela jest z tej strony: ciemna jak okienka, nie jaśniejsza od strony',
+		zrzuty.jasnosc.papier < 0.05 && Math.abs( zrzuty.jasnosc.papier - zrzuty.jasnosc.okno ) < 0.01,
+		`tabela ${ zrzuty.jasnosc.papier }, okno ${ zrzuty.jasnosc.okno }, strona ${ zrzuty.jasnosc.strona }` );
+	ok( 'i naprawdę leży na stronie, a nie jest w nią wpuszczona',
 		/rgba?\(/.test( zrzuty.podniesiony ) && 'none' !== zrzuty.podniesiony, zrzuty.podniesiony );
 
 	const ruch = await p.evaluate( () => ( {
 		niewidoczne: [ ...document.querySelectorAll( '.lst-mz [class*="lst-mz-"]' ) ].filter( ( e ) => getComputedStyle( e ).opacity === '0' ).length,
-		animowane: [ ...document.querySelectorAll( '.lst-mz-krok' ) ].map( ( e ) => getComputedStyle( e ).animationName ),
-		kreska: getComputedStyle( document.querySelector( '.lst-mz-etap + .lst-mz-etap' ), '::before' ).animationName,
+		animowane: [ ...document.querySelectorAll( '.lst-mz-komorka' ) ].map( ( e ) => getComputedStyle( e ).animationName ),
+		kreska: getComputedStyle( document.querySelector( '.lst-mz-strzalka' ) ).animationName,
 		puls: getComputedStyle( document.querySelector( '.lst-mz-puls' ) ).animationName,
 		ile: getComputedStyle( document.querySelector( '.lst-mz-puls' ) ).animationIterationCount,
 	} ) );
-	ok( 'jest ruch, a mimo to nic nie jest schowane', ruch.niewidoczne === 0 && ruch.animowane.every( ( x ) => x === 'lst-mz-wejscie' ) && ruch.kreska === 'lst-mz-kreska' && ruch.puls === 'lst-mz-puls',
-		`schowanych ${ ruch.niewidoczne }, wejście ${ ruch.animowane[ 0 ] }, kreska ${ ruch.kreska }, puls ${ ruch.puls }` );
+	ok( 'jest ruch, a mimo to nic nie jest schowane', ruch.niewidoczne === 0 && ruch.animowane.every( ( x ) => x === 'lst-mz-wejscie' ) && ruch.kreska === 'lst-mz-strzalka' && ruch.puls === 'lst-mz-puls',
+		`schowanych ${ ruch.niewidoczne }, wejście ${ ruch.animowane[ 0 ] }, strzałka ${ ruch.kreska }, puls ${ ruch.puls }` );
 	// Nic nie może migać bez końca — puls ma odliczoną liczbę powtórzeń.
 	ok( 'żadna animacja nie chodzi w kółko bez końca', ruch.ile !== 'infinite', `powtórzeń pulsu: ${ ruch.ile }` );
 
@@ -276,7 +283,7 @@ console.log( '\nmoduł na stronie' );
 			const schowane = [ ...document.querySelectorAll( '.lst-mz [class*="lst-mz-"], .lst-mz .lstab-row' ) ]
 				.filter( ( e ) => Number( getComputedStyle( e ).opacity ) < 0.99 )
 				.map( ( e ) => e.className.toString().slice( 0, 40 ) );
-			const naOsi = [ ...document.querySelectorAll( '.lst-mz .lst-mz-ekran, .lst-mz .lst-mz-szklo' ) ]
+			const naOsi = [ ...document.querySelectorAll( '.lst-mz .lst-mz-para, .lst-mz .lst-mz-okno.jest-stolem' ) ]
 				.filter( ( e ) => 'auto' !== getComputedStyle( e ).animationTimeline ).length;
 
 			return { schowane, naOsi };
@@ -306,9 +313,8 @@ console.log( '\nmoduł na stronie' );
 	await p.locator( '.lst-mz' ).screenshot( { path: 'mozliwosci-1500.png' } );
 	await p.locator( '.lst-mz-legenda' ).screenshot( { path: 'mozliwosci-legenda.png' } );
 	await p.locator( '.lst-mz-stol' ).screenshot( { path: 'mozliwosci-stol.png' } );
-	await p.locator( '.lst-mz-ekran' ).first().screenshot( { path: 'mozliwosci-ekran.png' } );
-	await p.locator( '.lst-mz-telefon-blok' ).screenshot( { path: 'mozliwosci-telefon.png' } );
-	await p.locator( '.lst-mz-telefon-blok' ).screenshot( { path: 'mozliwosci-telefon.png' } );
+	await p.locator( '.lst-mz-para' ).first().screenshot( { path: 'mozliwosci-ekran.png' } );
+	await p.locator( '.lst-mz-para.jest-telefonem' ).screenshot( { path: 'mozliwosci-telefon.png' } );
 	await c.close();
 }
 
@@ -335,7 +341,7 @@ console.log( '\nDivi wstawia <br />' );
 	const { p, c, bledy } = await otworz( strona( divi( modul ) ) );
 	const r = await p.evaluate( () => ( {
 		wierszy: document.querySelectorAll( '.lst-mz-stol tbody tr.lstab-row' ).length,
-		krokow: document.querySelectorAll( '.lst-mz-krok' ).length,
+		krokow: document.querySelectorAll( '.lst-mz-komorka' ).length,
 		brWidoczne: [ ...document.querySelectorAll( '.lst-mz br' ) ].some( ( x ) => getComputedStyle( x ).display !== 'none' ),
 		rozbite: document.body.innerHTML.includes( 'data-lstab-id="' ) === false,
 		poziom: document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -354,8 +360,8 @@ console.log( '\nwrogi motyw' );
 			opis: [ s( '.lst-mz-opis', 'fontFamily' ).split( ',' )[ 0 ].replace( /"/g, '' ),
 				s( '.lst-mz-opis', 'textAlign' ), s( '.lst-mz-opis', 'textTransform' ),
 				s( '.lst-mz-opis', 'marginLeft' ), s( '.lst-mz-opis', 'fontSize' ) ],
-			krok: [ s( '.lst-mz-krok', 'borderTopWidth' ), s( '.lst-mz-krok', 'backgroundColor' ) ],
-			numer: s( '.lst-mz-numer', 'fontFamily' ).split( ',' )[ 0 ].replace( /"/g, '' ),
+			krok: [ s( '.lst-mz-para-tresc', 'borderTopWidth' ), s( '.lst-mz-komorka', 'backgroundColor' ) ],
+			numer: s( '.lst-mz-adres', 'fontFamily' ).split( ',' )[ 0 ].replace( /"/g, '' ),
 			znak: s( '.lst-mz-znak', 'textTransform' ),
 			// Tabela broni się własnym arkuszem, a przed motywem malującym
 			// każdą komórkę „!important” nie obroni się żadna. Sprawdzamy, że
@@ -369,7 +375,7 @@ console.log( '\nwrogi motyw' );
 		r.opis[ 0 ] === 'IBM Plex Sans' && r.opis[ 1 ] === 'left' && r.opis[ 2 ] === 'none' && r.opis[ 3 ] === '0px' && r.opis[ 4 ] === '18px',
 		r.opis.join( ' / ' ) );
 	ok( 'kafelki i etykiety zostają sobą', r.krok[ 0 ] === '1px' && r.numer === 'IBM Plex Mono' && r.znak === 'uppercase',
-		`ramka ${ r.krok[ 0 ] }, numer ${ r.numer }, znak ${ r.znak }` );
+		`ramka ${ r.krok[ 0 ] }, adres ${ r.numer }, znak ${ r.znak }` );
 	ok( 'tabela dalej jest cała i mieści się w stronie', r.wierszy === 10 && r.pigulek === 10 && r.poziom === 0,
 		`${ r.wierszy } wierszy, ${ r.pigulek } pigułek, suwak ${ r.poziom }` );
 	await c.close();
@@ -379,8 +385,8 @@ console.log( '\nbez JavaScriptu' );
 {
 	const { p, c } = await otworz( strona( modul, { bezJs: true } ) );
 	const r = await p.evaluate( () => ( {
-		widocznych: [ ...document.querySelectorAll( '.lst-mz-krok, .lst-mz-pozycja, .lst-mz-etap' ) ].filter( ( x ) => getComputedStyle( x ).opacity === '1' ).length,
-		wszystkich: document.querySelectorAll( '.lst-mz-krok, .lst-mz-pozycja, .lst-mz-etap' ).length,
+		widocznych: [ ...document.querySelectorAll( '.lst-mz-komorka, .lst-mz-pozycja, .lst-mz-etap' ) ].filter( ( x ) => getComputedStyle( x ).opacity === '1' ).length,
+		wszystkich: document.querySelectorAll( '.lst-mz-komorka, .lst-mz-pozycja, .lst-mz-etap' ).length,
 		wierszy: [ ...document.querySelectorAll( '.lst-mz-stol tbody tr.lstab-row' ) ].filter( ( x ) => ! x.hidden ).length,
 	} ) );
 	ok( 'wszystko widoczne bez skryptu', r.widocznych === r.wszystkich && r.wierszy === 10, `${ r.widocznych } z ${ r.wszystkich }, ${ r.wierszy } wierszy` );
@@ -391,9 +397,9 @@ console.log( '\nmniej ruchu' );
 {
 	const { p, c } = await otworz( strona( modul ), { ruch: false } );
 	const r = await p.evaluate( () => ( {
-		widocznych: [ ...document.querySelectorAll( '.lst-mz-krok, .lst-mz-pozycja, .lst-mz-etap' ) ].filter( ( x ) => getComputedStyle( x ).opacity === '1' ).length,
-		animacje: [ ...document.querySelectorAll( '.lst-mz-krok' ) ].map( ( x ) => getComputedStyle( x ).animationName ),
-		kreska: getComputedStyle( document.querySelector( '.lst-mz-etap + .lst-mz-etap' ), '::before' ).animationName,
+		widocznych: [ ...document.querySelectorAll( '.lst-mz-komorka, .lst-mz-pozycja, .lst-mz-etap' ) ].filter( ( x ) => getComputedStyle( x ).opacity === '1' ).length,
+		animacje: [ ...document.querySelectorAll( '.lst-mz-komorka' ) ].map( ( x ) => getComputedStyle( x ).animationName ),
+		kreska: getComputedStyle( document.querySelector( '.lst-mz-strzalka' ) ).animationName,
 		puls: getComputedStyle( document.querySelector( '.lst-mz-puls' ) ).animationName,
 	} ) );
 	ok( 'przy prefers-reduced-motion nic się nie rusza, a wszystko widać',
@@ -406,7 +412,7 @@ console.log( '\ntelefon' );
 {
 	const { p, c } = await otworz( strona( modul ), { width: 390, height: 900 } );
 	const r = await p.evaluate( () => ( {
-		kolumny: getComputedStyle( document.querySelector( '.lst-mz-kroki' ) ).gridTemplateColumns.split( ' ' ).length,
+		kolumny: getComputedStyle( document.querySelector( '.lst-mz-wiersz' ) ).gridTemplateColumns.split( ' ' ).length,
 		karty: getComputedStyle( document.querySelector( '.lst-mz-stol thead' ) ).display,
 		etykiety: getComputedStyle( document.querySelector( '.lst-mz-stol .lstab-cell-label' ) ).display,
 		poziom: document.documentElement.scrollWidth - document.documentElement.clientWidth,

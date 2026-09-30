@@ -16,11 +16,11 @@ cd landing/mozliwosci && node spr.mjs                   # sprawdza go
 ```
 
 `zbierz.php` zakłada w prawdziwym WordPressie źródło z `trails.csv`, ustawia mu
-szablon Księga, reguły kolorów, wygląd kolumn i filtry dokładnie tak, jak robi
-się to w kokpicie, i zostawia witrynę w tym stanie — bo `zrzuty.mjs`
-fotografuje potem właśnie te karty. Na koniec przywraca język wtyczki: to ta
-sama witryna, na której chodzi `tests/run-all.sh`, a zostawione tam `en_US`
-wywraca testy tłumaczeń na wtyczce, której nic nie dolega.
+szablon, reguły kolorów, wygląd kolumn i filtry dokładnie tak, jak robi się to
+w kokpicie, i zostawia witrynę w tym stanie — bo `zrzuty.mjs` fotografuje potem
+właśnie te karty. Na koniec przywraca język wtyczki: to ta sama witryna, na
+której chodzi `tests/run-all.sh`, a zostawione tam `en_US` wywraca testy
+tłumaczeń na wtyczce, której nic nie dolega.
 
 ## Co wkleić
 
@@ -32,58 +32,77 @@ i zamieniasz w pliku `ADRES` na ten adres. Nazwy plików muszą zostać.
 i dopełnienia Divi i wskazuje na lokalne zrzuty. Do Divi idzie wyłącznie
 `MOZLIWOSCI-en.html`.
 
-Plik waży ~190 kB, bo w środku siedzi arkusz stylów i skrypt wtyczki — bez nich
+Podgląd maluje pod modułem **to samo tło co reszta witryny**: `#232a29`
+i siatkę 88 × 44, dokładnie jak `landing/naglowek/HERO-podglad.html`. Przedtem
+malował własną, ciemniejszą czerń — i cała ta podstrona była projektowana pod
+tło, którego na stronie nie ma.
+
+Plik waży ~200 kB, bo w środku siedzi arkusz stylów i skrypt wtyczki — bez nich
 tabela byłaby obrazkiem.
 
 Odsyłacze w tabeli (filtry, pobieranie, kamery) prowadzą do `#`: na stronie
 sprzedażowej nie ma serwera, który by je obsłużył. U klienta prowadzą tam,
 gdzie trzeba.
 
-## Dlaczego tak wygląda
+## Skąd się bierze wygląd
 
-Strona jest ciemna, a tabela jest jedynym ciepłym, jasnym przedmiotem na niej —
-bo tabela jest tym, co się sprzedaje, a cała reszta jest ramą dookoła. Stąd
-Księga: ciepły papier, podwójna kreska pod nagłówkami, pas co drugą kolumnę.
-Arkusz nie jest wpuszczony w stronę, tylko na niej **leży**: ciemna mata pod
-nim, jasny kant u góry i prawdziwy cień pod spodem.
+Nie stąd, tylko ze strony głównej. Ta podstrona ma być jej dalszym ciągiem,
+a nie osobną witryną, więc język jest pożyczony i wszystkie wartości są te
+same co w `landing/dwie-minuty` i `landing/naglowek`:
 
-Etykiety sekcji (`HOW IT WORKS`, `LIVE ON THIS PAGE`) ciągną za sobą włosową
-kreskę przez całą szerokość — ta sama kreska jest podziałem i licznikiem
-postępu strony.
+* **arkusz jako metafora.** „How it works” to pasek kolumn `A B C`, numer
+  wiersza z boku, trzy komórki w środku i wiersz formuły pod spodem, w którym
+  napisane jest, co się z arkuszem dzieje. Strona główna robi ten sam żart
+  adresami komórek przy krokach; tu jest rozwinięty do całego wiersza.
+* **para „płyta + okienko”**, raz z jednej, raz z drugiej strony, z włoskową
+  kreską między wierszami. To jest jeden do jednego sekcja „dwie minuty”.
+  Płyta ma nagłówek u góry i krótkie linijki mono u dołu, a luz ląduje między
+  nimi — inaczej wysoki zrzut obok trzech zdań zostawia pod nimi pół ekranu
+  pustki, co było pierwszą rzeczą, którą widać było na tej stronie.
+* **okienko** z trzema oczkami i mono nazwą, ekran wyraźnie ciemniejszy od
+  strony. Trzyma zrzuty z kokpitu, ekran telefonu i samą tabelę — dzięki temu
+  tabela na żywo i zrzuty czytają się jak rzeczy z jednego miejsca.
+* **znacznik przy każdej pozycji legendy** to komórka: z lewej litera kolumny
+  w tabeli wyżej, z prawej `Free` albo `Pro`. Adres nie jest ozdobą — mówi,
+  gdzie na tabeli tego szukać.
+* mięta `95 227 207`, płyta `rgba( 13 18 17 / .62 )`, ekran `#0a1110`,
+  mono IBM Plex.
+
+**Tabela jest w kolorach strony.** Szablon Północ wybrany, a potem odmalowany
+próbnikami wtyczki: tekst, tło, nagłówek, linie, najechanie i akcent. To jest
+dokładnie to, co wtyczka obiecuje — „wybierz szablon, a potem się z nim nie
+zgódź” — pokazane na stronie, która to obiecuje, zamiast opisane. Wcześniej
+stał tu ciepły papier i tabela wyglądała jak wklejona z innej witryny.
 
 ## Ruch
 
-Trzy rzeczy dzieją się same, raz:
+Dwie rzeczy dzieją się same, raz:
 
-* wejście kafelków i etapów na górze (380 ms, po 70 ms jedno po drugim) — są
-  w pierwszym ekranie, więc nie czekają na przewinięcie;
-* kreski między etapami rysujące się **raz**, w stronę, w którą idą dane;
-* puls przy „Live on this page” — trzy razy i koniec.
+* wejście komórek arkusza (380 ms, po 70 ms jedna po drugiej) — są w pierwszym
+  ekranie, więc nie czekają na przewinięcie;
+* strzałki w wierszu formuły, po kolei, i puls przy „Live on this page” —
+  trzy razy i koniec.
 
-Reszta jest na osi widoku (`animation-timeline: view()`): kafelki, wiersze
-legendy, okna kokpitu i arkusz dojeżdżają na miejsce, kiedy strona je mija.
+Reszta jest na osi widoku (`animation-timeline: view()`): pary, kafelki
+legendy, listy i sama tabela dojeżdżają na miejsce, kiedy strona je mija.
 Robią to **wyłącznie przesunięciem** — żadna klatka nie rusza przezroczystości.
 Element, który nie doszedł jeszcze do swojego zakresu, stoi w klatce
 początkowej, więc `opacity: 0` w klatce startowej znaczyłoby, że przy zrzucie
 całej strony, przy wydruku i w przeglądarce bez tej osi pół strony jest puste.
 Sprawdza to `spr.mjs` na trzech wysokościach strony.
 
-Wcześniej po kresce jeździła kropka w kółko. Została usunięta: ruch bez końca
-na skraju oka nie pokazuje niczego, czego nie pokazuje sama kreska, a widać go
-przez cały czas, kiedy się czyta.
-
 `prefers-reduced-motion` i `@media print` wyłączają wszystko, co się rusza,
 i nie chowają przy tym niczego.
 
 ## Czego pilnuje `spr.mjs`
 
-Układ i rozmiary pisma (tylko 14, 18 i 20), kontrast każdego napisu, brak
-suwaka poziomego przy 1500 i 390 px, wczytanie zrzutów, obie tabele na Księdze,
-jasność arkusza przeciw jasności strony pod nim, cień, który go trzyma nad nią,
-ruch na osi widoku i to, że **na żadnej wysokości strony nic nie jest
-niewidoczne**, `<br />` wstawiane przez Divi, wrogi motyw pisany z `!important`
-(ten sam, którym mierzy się `pokaz-na-zywo/`), stronę bez JavaScriptu,
-`prefers-reduced-motion`, pigułkę w karcie, wyśrodkowanie ramy (luz z lewej
-równy luzowi z prawej), to, że arkusz wtyczki dojechał cały — zbłąkana klamra
-w moim CSS potrafi zjeść regułę wtyczki stojącą za nią — i to, że tabela
-naprawdę sortuje i szuka. 29 sprawdzeń.
+Układ i rozmiary pisma (tylko 14, 18 i 20), kontrast każdego napisu **wraz
+z wartościami w tabeli**, brak suwaka poziomego przy 1500 i 390 px, wczytanie
+zrzutów, obie tabele na Północy, jasność tabeli przeciw jasności okienek
+i strony, cień, który ją trzyma nad stroną, ruch na osi widoku i to, że **na
+żadnej wysokości strony nic nie jest niewidoczne**, `<br />` wstawiane przez
+Divi, wrogi motyw pisany z `!important` (ten sam, którym mierzy się
+`pokaz-na-zywo/`), stronę bez JavaScriptu, `prefers-reduced-motion`, pigułkę
+w karcie, wyśrodkowanie ramy (luz z lewej równy luzowi z prawej), to, że arkusz
+wtyczki dojechał cały — zbłąkana klamra w moim CSS potrafi zjeść regułę wtyczki
+stojącą za nią — i to, że tabela naprawdę sortuje i szuka. 29 sprawdzeń.

@@ -8,6 +8,19 @@ Nic tu nie jest przepisane ręcznie: tabela to kod z prawdziwego renderu
 skrypt wtyczki, więc sortowanie, szukanie i składanie w karty dzieją się na
 stronie sprzedażowej tak samo jak u klienta.
 
+Język strony jest językiem strony głównej, a nie własnym:
+
+* arkusz jako metafora — nagłówek to pasek kolumn, kroki to komórki w wierszu,
+  a droga arkusza na stronę to wiersz formuły pod nim;
+* para „płyta z tekstem + okienko” na przemian raz z jednej, raz z drugiej
+  strony — dokładnie to, co robi sekcja „dwie minuty” na stronie głównej;
+* okienka mają belkę z trzema oczkami i mono nazwą, a ekran w nich jest
+  wyraźnie ciemniejszy od strony;
+* mięta 95 227 207, płyta rgba( 13 18 17 / .62 ), mono IBM Plex.
+
+Sama tabela też jest w kolorach strony: szablon Północ wybrany, a potem
+odmalowany próbnikami wtyczki — bo to jest dokładnie to, co wtyczka obiecuje.
+
 Adresy zrzutów zaczynają się od ADRES. Wgrywasz trzy pliki z zrzuty/ do
 Multimediów, kopiujesz adres folderu i podmieniasz ADRES jeden raz.
 
@@ -50,60 +63,77 @@ def dla_divi( html ):
 
 TABELA = dla_divi( M[ 'pro' ] )
 
+# ( adres komórki, tytuł, opis )
 KROKI = [
-	( '01', 'Share the sheet',
+	( 'A1', 'Share the sheet',
 	  'In Google Sheets: <em>Share &rarr; Anyone with the link &rarr; Viewer</em>. Nothing is installed '
 	  'at Google&rsquo;s end, and there is no API key to create.' ),
-	( '02', 'Paste the link',
+	( 'B1', 'Paste the link',
 	  'The plugin reads the sheet there and then, and shows what it found &mdash; the headings, the rows, '
 	  'anything that looks wrong. You fix it before it reaches a page.' ),
-	( '03', 'Put it on a page',
+	( 'C1', 'Put it on a page',
 	  'A block, an Elementor widget or the shortcode. Edit the spreadsheet afterwards and the page '
 	  'follows on its own.' ),
 ]
 
+# Wiersz formuły pod arkuszem: co się z arkuszem dzieje, w jednej linii.
 DROGA = [
-	( 'Your sheet', 'in Google, where you already work' ),
-	( 'A copy in your database', 'fetched in the background, as often as you like' ),
-	( 'Your page', 'built on the server, before the visitor asks' ),
+	( 'your sheet', 'in Google, where you already work' ),
+	( 'a copy in your database', 'fetched in the background, as often as you like' ),
+	( 'your page', 'built on the server, before the visitor asks' ),
 ]
 
+# ( kolumny tabeli, których dotyczy, poziom, tytuł, opis )
 LEGENDA = [
-	( 'Free', 'Search and sorting',
+	( 'A&ndash;F', 'Free', 'Search and sorting',
 	  'Type and the table narrows down, with every hit marked where it was found. Click a heading to '
 	  'sort: dates sort as dates, clocks as clocks.' ),
-	( 'Free', 'A pinned first column',
+	( 'A', 'Free', 'A pinned first column',
 	  'Drag the table sideways and the trail names stay where they are. Without that, a wide table on a '
 	  'narrow screen is a row of numbers nobody can name.' ),
-	( 'Pro', 'A colour rule',
+	( 'E', 'Pro', 'A colour rule',
 	  'When <em>Status</em> is <em>Closed</em>, paint the whole row. Three closed trails are visible '
 	  'before anyone has read a word.' ),
-	( 'Pro', 'A pill, or just a dot',
+	( 'B&nbsp;E', 'Pro', 'A pill, or just a dot',
 	  'The same rule, quieter. The value keeps its place and takes a badge, or only a dot beside it. '
 	  'Sorting and search still read &ldquo;Open&rdquo;, not a colour.' ),
-	( 'Pro', 'A bar, and a button',
+	( 'C&nbsp;F', 'Pro', 'A bar, and a button',
 	  'The bar behind each depth is its share of the deepest snow in the column, and the number stays a '
 	  'number &mdash; it sorts, and it lands in the download. A column of addresses becomes a column of '
 	  'buttons; two trails have no webcam, and those cells stay empty.' ),
-	( 'Pro', 'Filters and downloads',
+	( 'B&nbsp;E', 'Pro', 'Filters and downloads',
 	  'Above the table, a filter your visitors use themselves. Under it, Excel, CSV and print &mdash; and '
 	  'a download holds exactly what is on the screen, filtered rows and hidden columns included.' ),
 ]
 
-# ( plik, tytuł, zdanie, okno )
+# ( plik, tytuł, zdanie, nazwa okna, trzy krótkie linijki pod spodem )
 EKRANY = [
 	( 'mz-wyglad', 'Ten styles, then the dials',
 	  'Pick a style, then disagree with it: colours one by one, text size, row height and how many lines '
 	  'the table draws. Everything you leave alone keeps following the style.',
-	  'Appearance' ),
+	  'Appearance',
+	  [ 'ten whole-table styles', 'six colour wells, each optional',
+	    'text size &middot; row height &middot; lines &middot; corners' ] ),
 	( 'mz-reguly', 'A rule reads like a sentence',
 	  'When <em>Status</em> is <em>Closed</em>, paint <em>the whole row</em>. No formulas, no code, and '
 	  'the colours are worked out on the server, so they are already in the page a visitor receives.',
-	  'Colour rules' ),
+	  'Colour rules',
+	  [ 'the cell &middot; the row &middot; the words &middot; a pill &middot; a dot',
+	    'is &middot; is not &middot; more than &middot; contains',
+	    'as many rules as the sheet needs' ] ),
 	( 'mz-kolumny', 'A column can wear something',
 	  'Give a column of numbers a bar, or a column of links a button &mdash; in the colours you choose '
 	  'and saying what you tell it to say.',
-	  'Column looks' ),
+	  'Column looks',
+	  [ 'a bar behind a number', 'a button where the cell holds a link',
+	    'a badge, or a colour down the whole column' ] ),
+]
+
+TELEFON = [
+	'the column decides, not the window',
+	'every value keeps the name of its column',
+	'search, sorting and filters, all still there',
+	'one table, not a second mobile copy',
 ]
 
 WOLNE = [
@@ -128,40 +158,86 @@ PRO = [
 	'Private sheets, through a Google connection of your own.',
 ]
 
+KROPKI = ( '<span class="lst-mz-kropka"></span><span class="lst-mz-kropka"></span>'
+	'<span class="lst-mz-kropka"></span>' )
+
 
 def etykieta( tekst ):
 	return '<p class="lst-mz-etykieta">' + tekst + '</p>'
 
 
-def krok( numer, tytul, opis ):
-	return ( '<div class="lst-mz-krok"><p class="lst-mz-numer">' + numer + '</p>'
+def komorka( adres, tytul, opis ):
+	"""Jeden krok jako komórka arkusza."""
+	return ( '<div class="lst-mz-komorka"><p class="lst-mz-adres">' + adres + '</p>'
 		'<p class="lst-mz-tytul">' + tytul + '</p>'
 		'<p class="lst-mz-opis">' + opis + '</p></div>' )
 
 
-def etap( nazwa, pod ):
-	return ( '<div class="lst-mz-etap"><p class="lst-mz-etap-nazwa">' + nazwa + '</p>'
-		'<p class="lst-mz-etap-pod">' + pod + '</p></div>' )
+def etap( nazwa, pod, pierwszy ):
+	"""Jeden etap w wierszu formuły, ze strzałką od poprzedniego.
+
+	Strzałka jest znakiem w treści, a nie kreską rysowaną pseudoelementem w
+	odstępie między kolumnami. Kreska z grotem wyglądała dokładnie jak literówka
+	przyklejona do pierwszej litery etapu; znak „→” czyta się jako strzałka
+	w każdej przeglądarce i przy każdej szerokości.
+
+	Stoi PRZED nazwą, a nie po niej: wtedy jest przy tym odstępie, który
+	pokonuje, i mówi „to jest dalszy ciąg tamtego”, zamiast wisieć samotnie na
+	końcu poprzedniej kolumny.
+	"""
+	strzalka = '' if pierwszy else '<span class="lst-mz-strzalka" aria-hidden="true">&rarr;</span>'
+	return ( '<span class="lst-mz-etap"><span class="lst-mz-etap-nazwa">' + strzalka + nazwa + '</span>'
+		'<span class="lst-mz-etap-pod">' + pod + '</span></span>' )
 
 
-def pozycja( tier, tytul, opis ):
+def pozycja( kolumny, tier, tytul, opis ):
 	klasa = ' jest-pro' if 'Pro' == tier else ''
-	return ( '<div class="lst-mz-pozycja"><p class="lst-mz-znak' + klasa + '">' + tier + '</p>'
+	return ( '<div class="lst-mz-pozycja">'
+		'<p class="lst-mz-znak' + klasa + '"><span class="lst-mz-znak-adres">' + kolumny + '</span>'
+		'<span class="lst-mz-znak-slowo">' + tier + '</span></p>'
 		'<p class="lst-mz-tytul">' + tytul + '</p>'
 		'<p class="lst-mz-opis">' + opis + '</p></div>' )
 
 
-def ekran( plik, tytul, opis, okno, odwrocony ):
+def okno( nazwa, srodek, prawa = '', klasa = '' ):
+	"""Ramka udająca okno: belka z oczkami i nazwą, a pod nią ekran."""
+	po_prawej = ( '<span class="lst-mz-belka-prawa">' + prawa + '</span>' ) if prawa else ''
+	return ( '<div class="lst-mz-okno' + klasa + '"><div class="lst-mz-belka">' + KROPKI +
+		'<span class="lst-mz-nazwa-okna">' + nazwa + '</span>' + po_prawej + '</div>'
+		+ srodek + '</div>' )
+
+
+def para_tresc( gora, linie ):
+	"""Płyta z tekstem: nagłówek u góry, krótkie linijki u dołu.
+
+	Dwa bloki, nie jeden ciąg — luz w wierszu ląduje MIĘDZY nimi, więc płyta
+	wygląda na złożoną, a nie na taką, której zabrakło treści. To jest ta sama
+	usterka, którą widać było na pierwszy rzut oka: wysoki zrzut obok trzech
+	zdań i pół ekranu pustki pod nimi.
+	"""
+	return '<div class="lst-mz-para-gora">' + gora + '</div>' + punkty( linie )
+
+
+def punkty( linie ):
+	return ( '<ul class="lst-mz-punkty">'
+		+ ''.join( '<li>' + x + '</li>' for x in linie ) + '</ul>' )
+
+
+def para( tresc, prawa, odwrocona, klasa = '' ):
+	"""Wiersz strony głównej: płyta z tekstem i okienko obok niej."""
+	return ( '<div class="lst-mz-para' + klasa + ( ' jest-odwrocona' if odwrocona else '' ) + '">'
+		'<div class="lst-mz-para-tresc">' + tresc + '</div>' + prawa + '</div>' )
+
+
+def ekran( plik, tytul, opis, nazwa, linie, odwrocony ):
 	z = ZRZUTY[ plik ]
-	kropki = '<span class="lst-mz-kropka"></span><span class="lst-mz-kropka"></span><span class="lst-mz-kropka"></span>'
-	return ( '<div class="lst-mz-ekran' + ( ' jest-odwrocony' if odwrocony else '' ) + '">'
-		'<div class="lst-mz-ekran-tresc"><p class="lst-mz-tytul">' + tytul + '</p>'
-		'<p class="lst-mz-opis">' + opis + '</p></div>'
-		'<div class="lst-mz-okno"><div class="lst-mz-belka">' + kropki +
-		'<span class="lst-mz-nazwa-okna">' + okno + '</span></div>'
-		'<img src="ADRES/' + plik + '.png" alt="' + okno + '" width="' + str( z[ 'w' ] ) + '" '
-		'height="' + str( z[ 'h' ] ) + '" decoding="async"></div>'
-		'</div>' )
+	tresc = para_tresc(
+		'<p class="lst-mz-adres">' + nazwa + '</p>'
+		'<p class="lst-mz-tytul">' + tytul + '</p>'
+		'<p class="lst-mz-opis">' + opis + '</p>', linie )
+	obraz = ( '<div class="lst-mz-podglad"><img src="ADRES/' + plik + '.png" alt="' + nazwa + '" '
+		'width="' + str( z[ 'w' ] ) + '" height="' + str( z[ 'h' ] ) + '" decoding="async"></div>' )
+	return para( tresc, okno( 'Dashboard &rsaquo; ' + nazwa, obraz ), odwrocony )
 
 
 def lista( tytul, pozycje, klasa = '' ):
@@ -171,27 +247,40 @@ def lista( tytul, pozycje, klasa = '' ):
 
 
 SEKCJA = (
-	# --- jak to działa: trzy kroki i droga arkusza -------------------------
+	# --- jak to działa: wiersz arkusza i wiersz formuły pod nim -------------
 	'<div class="lst-mz-blok">'
 	+ etykieta( 'How it works' ) +
-	'<div class="lst-mz-kroki">' + ''.join( krok( *k ) for k in KROKI ) + '</div>'
-	'<div class="lst-mz-droga">' + ''.join( etap( *e ) for e in DROGA ) + '</div>'
+	'<div class="lst-mz-arkusz">'
+	'<div class="lst-mz-litery"><span class="lst-mz-rog"></span>'
+	'<span>A</span><span>B</span><span>C</span></div>'
+	'<div class="lst-mz-wiersz"><span class="lst-mz-nr">1</span>'
+	+ ''.join( komorka( *k ) for k in KROKI ) +
+	'</div>'
+	'<div class="lst-mz-formula"><span class="lst-mz-fx">fx</span>'
+	'<span class="lst-mz-droga">'
+	+ ''.join( etap( n, o, 0 == i ) for i, ( n, o ) in enumerate( DROGA ) ) +
+	'</span>'
+	'</div>'
+	'</div>'
 	'<p class="lst-mz-nota">Your page is built from the copy in your own database, so nobody waits for '
 	'Google &mdash; and on the day Google will not answer, the last good copy stays on the page while the '
 	'dashboard tells you what happened.</p>'
 	'</div>'
 
-	# --- tabela na żywo ----------------------------------------------------
+	# --- tabela na żywo, w takim samym okienku jak zrzuty niżej -------------
 	'<div class="lst-mz-blok lst-mz-stol">'
 	'<p class="lst-mz-etykieta jest-zywa"><span class="lst-mz-puls"></span>Live on this page</p>'
 	'<p class="lst-mz-opis lst-mz-opis-stolu">Ten trails, one spreadsheet. Sort a column, search the box, '
-	'filter it &mdash; this is the plugin&rsquo;s own output, running here.</p>'
-	'<div class="lst-mz-szklo">' + TABELA + '</div>'
+	'filter it &mdash; this is the plugin&rsquo;s own output, running here, in this site&rsquo;s own '
+	'colours: the Midnight style picked and then disagreed with, one colour well at a time.</p>'
+	+ okno( 'Trail conditions', '<div class="lst-mz-plansza">' + TABELA + '</div>',
+		'10 rows &middot; checked 9 min ago', ' jest-stolem' ) +
 	'</div>'
 
 	# --- co na niej widać --------------------------------------------------
 	'<div class="lst-mz-blok">'
 	+ etykieta( 'What to look for' ) +
+	'<p class="lst-mz-wstep">Six things on the table above, and the column each one is sitting in.</p>'
 	'<div class="lst-mz-legenda">' + ''.join( pozycja( *p ) for p in LEGENDA ) + '</div>'
 	'</div>'
 
@@ -199,23 +288,29 @@ SEKCJA = (
 	'<div class="lst-mz-blok">'
 	+ etykieta( 'Where it comes from' ) +
 	'<p class="lst-mz-wstep">Three screens from the dashboard, on the very sheet above.</p>'
-	'<div class="lst-mz-ekrany">'
+	'<div class="lst-mz-pary">'
 	+ ''.join( ekran( *e, odwrocony = bool( i % 2 ) ) for i, e in enumerate( EKRANY ) ) +
 	'</div>'
 	'</div>'
 
-	# --- telefon -----------------------------------------------------------
-	'<div class="lst-mz-blok lst-mz-telefon-blok">'
-	'<div class="lst-mz-telefon-tekst">'
+	# --- telefon, w tym samym wierszu co wszystko wyżej ---------------------
+	'<div class="lst-mz-blok">'
 	+ etykieta( 'On a phone' ) +
-	'<p class="lst-mz-tytul">Every row becomes a card</p>'
-	'<p class="lst-mz-opis">Each value keeps the name of its column, so nothing has to be guessed from '
-	'position. What decides is the width of the column the table sits in, not the width of the screen '
-	'&mdash; a table in a narrow sidebar folds on a desktop too.'
-	'<span class="lst-mz-szeroko"> The frame beside this is a real phone width, with the same table in it.</span>'
-	'<span class="lst-mz-wasko"> The table above this is doing it right now.</span></p>'
+	'<div class="lst-mz-pary">'
+	+ para(
+		para_tresc(
+			'<p class="lst-mz-adres">340 px</p>'
+			'<p class="lst-mz-tytul">Every row becomes a card</p>'
+			'<p class="lst-mz-opis">Each value keeps the name of its column, so nothing has to be '
+			'guessed from position. What decides is the width of the column the table sits in, not the '
+			'width of the screen &mdash; a table in a narrow sidebar folds on a desktop too.'
+			'<span class="lst-mz-szeroko"> The frame beside this is a real phone width, with the same '
+			'table in it.</span>'
+			'<span class="lst-mz-wasko"> The table above this is doing it right now.</span></p>',
+			TELEFON ),
+		'<div class="lst-mz-telefon-rama"><div class="lst-mz-telefon">' + TABELA + '</div></div>',
+		False, ' jest-telefonem' ) +
 	'</div>'
-	'<div class="lst-mz-telefon-rama"><div class="lst-mz-telefon lst-mz-szklo">' + TABELA + '</div></div>'
 	'</div>'
 
 	# --- co jest w czym ----------------------------------------------------
@@ -234,14 +329,27 @@ SEKCJA = (
 STYL = r"""
 /* ---------------------------------------------------------------- moduł */
 
+/*
+ * Wartości są te same co w sekcjach strony głównej (landing/dwie-minuty,
+ * landing/naglowek): ta podstrona ma wyglądać jak dalszy ciąg tamtej strony,
+ * a nie jak osobna witryna.
+ */
 .lst-mz {
 	--mz-mieta: 95, 227, 207;
 	--mz-tekst: #eaf3f1;
-	--mz-tekst-2: #b3c6c3;
+	--mz-tekst-2: #9db3b0;
 	--mz-tekst-3: #8fa5a2;
 	--mz-plyta: rgba( 13, 18, 17, .62 );
-	--mz-plyta-linia: rgba( 138, 168, 163, .12 );
-	--mz-kreska: rgba( 138, 168, 163, .28 );
+	--mz-plyta-linia: rgba( 138, 168, 163, .1 );
+	--mz-linia: rgba( 138, 168, 163, .22 );
+	--mz-kreska: rgba( 138, 168, 163, .38 );
+
+	/* Ekran: okienka i tabela stoją na tym samym, wyraźnie ciemniejszym od
+	   strony kolorze — inaczej wyglądają jak dziury, a nie jak ekrany. */
+	--mz-ekran: #0a1110;
+	--mz-ekran-gora: #131d1b;
+	--mz-ekran-linia: rgba( 95, 227, 207, .2 );
+
 	--mz-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
 	/* Mocniejszy ease-out niż wbudowany: ruch rusza od razu, a dochodzi
 	   spokojnie. Wbudowane krzywe są na to za miękkie. */
@@ -263,10 +371,10 @@ STYL = r"""
 }
 
 /*
- * Światło na kanwie. Bez niego moduł jest jedną płaską płytą od krawędzi do
- * krawędzi i strona nie ma środka — a ma go mieć tam, gdzie leży tabela.
- * Rysowane pseudoelementem, nie tłem, bo utwardzenie na wrogie motywy niżej
- * zdejmuje tła, a tego jednego zdjąć nie może.
+ * Moduł nie maluje pod sobą tła: pod nim jest tło całej witryny — siatka,
+ * która oddycha pod kursorem. Własna poświata tylko tam, gdzie leży tabela,
+ * żeby strona miała środek. Rysowana pseudoelementem, nie tłem, bo utwardzenie
+ * na wrogie motywy niżej zdejmuje tła, a tego jednego zdjąć nie może.
  */
 .lst-mz::before {
 	content: "";
@@ -275,15 +383,9 @@ STYL = r"""
 	z-index: -1;
 	pointer-events: none;
 	background-image:
-		radial-gradient( 62% 44% at 50% 26%, rgba( var( --mz-mieta ), .07 ) 0%, rgba( var( --mz-mieta ), 0 ) 70% ),
-		radial-gradient( 90% 60% at 50% 100%, rgba( 10, 15, 14, .55 ) 0%, rgba( 10, 15, 14, 0 ) 72% );
+		radial-gradient( 62% 40% at 50% 30%, rgba( var( --mz-mieta ), .05 ) 0%, rgba( var( --mz-mieta ), 0 ) 70% );
 }
 
-/*
- * Utwardzenie zostaje — tło jest wymuszone na przezroczyste, a nie zdjęte:
- * „none” odbierało też moje własne światło z pseudoelementu wyżej, a motyw
- * pod spodem i tak nie może tu nic domalować.
- */
 .lst-mz.lst-mz { border: 0 !important; outline: 0 !important; background-color: transparent !important; background-image: none !important; }
 .lst-mz * { box-sizing: border-box; }
 .lst-mz br { display: none; }
@@ -342,11 +444,16 @@ STYL = r"""
 .lst-mz .lst-mz-opis em { font-style: normal; color: rgb( var( --mz-mieta ) ); }
 
 .lst-mz .lst-mz-etykieta,
-.lst-mz .lst-mz-numer,
+.lst-mz .lst-mz-adres,
 .lst-mz .lst-mz-znak,
 .lst-mz .lst-mz-nota,
+.lst-mz .lst-mz-litery,
+.lst-mz .lst-mz-nr,
+.lst-mz .lst-mz-fx,
 .lst-mz .lst-mz-etap-pod,
+.lst-mz .lst-mz-punkty,
 .lst-mz .lst-mz-nazwa-okna,
+.lst-mz .lst-mz-belka-prawa,
 .lst-mz .lst-mz-kolumna-tytul {
 	font-family: var( --mz-mono );
 	font-size: .875rem;    /* 14 px */
@@ -356,9 +463,7 @@ STYL = r"""
 /*
  * Etykieta sekcji ciągnie za sobą włoskową kreskę do prawej krawędzi. Jeden
  * znak robi tu za dwie rzeczy: dzieli stronę na rozdziały, a przy przewijaniu
- * rysuje się sam i przez to mówi, że ta sekcja właśnie weszła. Nowego elementu
- * do tego nie trzeba — kreska jest pseudoelementem etykiety, która i tak tu
- * stoi.
+ * rysuje się sam i przez to mówi, że ta sekcja właśnie weszła.
  */
 .lst-mz .lst-mz-etykieta {
 	display: flex;
@@ -378,107 +483,251 @@ STYL = r"""
 	transform-origin: left center;
 }
 
-/* ---------------------------------------------------------- trzy kroki */
+/* ------------------------------------------------- jak to działa: arkusz */
 
-.lst-mz .lst-mz-kroki {
-	display: grid;
-	grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
-	gap: clamp( .8rem, 1.6vw, 1.2rem );
+/*
+ * Trzy kroki narysowane jako wiersz arkusza.
+ *
+ * Wcześniej stały tu trzy zwykłe kafelki, a pod nimi trzy inne zwykłe kafelki
+ * z drogą arkusza — sześć prostokątów, z których żaden nie mówił, o czym jest
+ * ta strona. Arkusz mówi: pasek kolumn u góry, numer wiersza z boku, komórki
+ * w środku, a pod spodem wiersz formuły. Ten sam żart, który strona główna
+ * robi adresami komórek przy krokach, tylko rozwinięty do całego wiersza.
+ *
+ * Linie siatki to odstępy jednopikselowe na tle w kolorze linii, a nie ramki:
+ * ramki na sąsiadujących komórkach dają podwójną kreskę.
+ */
+.lst-mz .lst-mz-arkusz {
+	border: 1px solid var( --mz-linia );
+	border-radius: 14px;
+	overflow: hidden;
+	background-color: var( --mz-plyta );
 }
 
-.lst-mz .lst-mz-krok {
+.lst-mz .lst-mz-litery,
+.lst-mz .lst-mz-wiersz {
+	display: grid;
+	grid-template-columns: 2.4rem repeat( 3, minmax( 0, 1fr ) );
+	gap: 1px;
+	background-color: var( --mz-linia );
+}
+
+.lst-mz .lst-mz-litery > span {
+	padding: .4rem .7rem;
+	background-color: var( --mz-ekran-gora );
+	color: var( --mz-tekst-3 );
+	letter-spacing: .14em;
+	text-align: center;
+}
+
+.lst-mz .lst-mz-litery .lst-mz-rog { background-color: var( --mz-ekran-gora ); }
+
+.lst-mz .lst-mz-nr {
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	padding: 1.15rem .4rem;
+	background-color: var( --mz-ekran-gora );
+	color: var( --mz-tekst-3 );
+}
+
+.lst-mz .lst-mz-komorka {
 	display: grid;
 	align-content: start;
 	gap: .45rem;
 	padding: 1.15rem 1.3rem 1.3rem;
-	background-color: var( --mz-plyta );
-	border: 1px solid var( --mz-plyta-linia );
-	border-radius: 14px;
+	background-color: rgba( 13, 18, 17, .78 );
 	/*
-	 * Jasna kreska po górnej krawędzi. Ciemny kafelek bez niej jest dziurą w
-	 * stronie; z nią jest płytką, na którą pada światło — i dlatego stos
-	 * kafelków czyta się jako rzeczy, a nie jako prostokąty.
+	 * Jasna kreska po górnej krawędzi. Ciemna komórka bez niej jest dziurą w
+	 * stronie; z nią jest płytką, na którą pada światło.
 	 */
-	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .055 ), 0 12px 28px -22px rgba( 0, 0, 0, .9 );
-	/* Jedna deklaracja na wszystko, co ten kafelek animuje — inaczej wejście
-	   i najechanie kasują się nawzajem. */
-	transition: transform 200ms var( --mz-luk ), border-color 200ms ease;
+	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .04 );
+	transition: background-color 200ms ease;
 	/*
-	 * Wejście, i tylko ono. Kafelki są w pierwszym ekranie, więc nie czekają na
+	 * Wejście, i tylko ono. Komórki są w pierwszym ekranie, więc nie czekają na
 	 * przewinięcie; to animacja, a nie „opacity: 0” do odwołania, więc element
 	 * bez niej jest po prostu widoczny.
 	 */
 	animation: lst-mz-wejscie 380ms var( --mz-luk ) both;
 }
 
-.lst-mz .lst-mz-krok:nth-child( 2 ) { animation-delay: 70ms; }
-.lst-mz .lst-mz-krok:nth-child( 3 ) { animation-delay: 140ms; }
+.lst-mz .lst-mz-komorka:nth-child( 3 ) { animation-delay: 70ms; }
+.lst-mz .lst-mz-komorka:nth-child( 4 ) { animation-delay: 140ms; }
 
 @keyframes lst-mz-wejscie {
 	from { opacity: 0; transform: translateY( 12px ) scale( .985 ); }
 }
 
-.lst-mz .lst-mz-numer { letter-spacing: .14em; color: rgb( var( --mz-mieta ) ); }
+.lst-mz .lst-mz-adres { letter-spacing: .14em; color: rgb( var( --mz-mieta ) ); }
 
-/* --------------------------------------------------- droga arkusz → strona */
+/* ------------------------------------------------------- wiersz formuły */
+
+/*
+ * Droga arkusza na stronę, napisana tam, gdzie w arkuszu pisze się to, z czego
+ * komórka wynika. Trzy etapy w trzech kolumnach, strzałki rysują się raz, po
+ * kolei, w stronę, w którą idą dane — i na tym koniec. Jeździła tędy kiedyś
+ * kropka w kółko; ruch bez końca na skraju oka nie pokazuje niczego, czego nie
+ * pokazuje sama strzałka, a widać go przez cały czas, kiedy się czyta.
+ */
+.lst-mz .lst-mz-formula {
+	display: grid;
+	grid-template-columns: 2.4rem minmax( 0, 1fr );
+	gap: 1px;
+	background-color: var( --mz-linia );
+	border-top: 1px solid var( --mz-linia );
+}
+
+.lst-mz .lst-mz-fx {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: .85rem .4rem;
+	background-color: var( --mz-ekran-gora );
+	color: var( --mz-tekst-3 );
+	font-style: italic;
+}
 
 .lst-mz .lst-mz-droga {
 	display: grid;
 	grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
-	gap: clamp( 1.4rem, 3vw, 2.6rem );
+	gap: clamp( 1.2rem, 3vw, 2.4rem );
+	padding: .85rem clamp( .9rem, 2vw, 1.3rem );
+	background-color: var( --mz-ekran );
 }
 
 .lst-mz .lst-mz-etap {
 	position: relative;
 	display: grid;
-	gap: .3rem;
+	gap: .15rem;
 	align-content: start;
-	padding: 1rem 1.1rem 1.05rem;
-	border: 1px solid var( --mz-kreska );
-	border-radius: 12px;
-	animation: lst-mz-wejscie 380ms var( --mz-luk ) both;
-	animation-delay: 210ms;
 }
 
-.lst-mz .lst-mz-etap:nth-child( 2 ) { animation-delay: 280ms; }
-.lst-mz .lst-mz-etap:nth-child( 3 ) { animation-delay: 350ms; }
+.lst-mz .lst-mz-etap-nazwa {
+	font-family: var( --mz-mono );
+	font-size: .875rem;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+	color: var( --mz-tekst );
+}
+
+.lst-mz .lst-mz-etap-pod { color: var( --mz-tekst-3 ); }
+
+/* Objaśnienie równa się z nazwą, a nie ze strzałką przed nią: w mono znak i
+   jego odstęp to 1,15 szerokości znaku. */
+.lst-mz .lst-mz-etap:not( :first-child ) .lst-mz-etap-pod { padding-left: 1.15em; }
 
 /*
- * Kreska między etapami rysuje się raz, w stronę, w którą idą dane, i na tym
- * kończy. Jeździła tędy kropka w kółko i to był zły pomysł: ruch bez końca na
- * skraju oka nie pokazuje niczego, czego nie pokazuje sama kreska, a widać go
- * przez cały czas, kiedy się czyta.
+ * Strzałka po nazwie etapu, raz, po kolei. Wjeżdża samym przesunięciem — bez
+ * ruchu i tak jest na swoim miejscu, więc strona bez animacji niczego nie
+ * traci.
  */
-.lst-mz .lst-mz-etap + .lst-mz-etap::before {
-	content: "";
-	position: absolute;
-	top: 50%;
-	right: 100%;
-	width: clamp( 1.4rem, 3vw, 2.6rem );
-	height: 1px;
-	background-color: var( --mz-kreska );
-	transform-origin: left center;
-	animation: lst-mz-kreska 420ms var( --mz-luk ) both;
+.lst-mz .lst-mz-strzalka {
+	display: inline-block;
+	/* Odstęp dopełnieniem, nie marginesem: utwardzenie na wrogie motywy niżej
+	   zeruje marginesy na boki z „!important”, więc margines tu nie przeżyje. */
+	padding-right: .55em;
+	color: rgb( var( --mz-mieta ) );
+	animation: lst-mz-strzalka 420ms var( --mz-luk ) both;
 	animation-delay: 320ms;
 }
 
-.lst-mz .lst-mz-etap:nth-child( 3 )::before { animation-delay: 390ms; }
+.lst-mz .lst-mz-etap:nth-child( 3 ) .lst-mz-strzalka { animation-delay: 460ms; }
 
-@keyframes lst-mz-kreska-w-dol {
-	from { transform: scaleY( 0 ); }
-}
+@keyframes lst-mz-kreska { from { transform: scaleX( 0 ); } }
+@keyframes lst-mz-kreska-w-dol { from { transform: scaleY( 0 ); } }
+@keyframes lst-mz-strzalka { from { transform: translateX( -.4em ); } }
 
-@keyframes lst-mz-kreska {
-	from { transform: scaleX( 0 ); }
-}
-
-.lst-mz .lst-mz-etap-nazwa { font-size: 1.125rem; font-weight: 600; line-height: 1.3; }
-.lst-mz .lst-mz-etap-pod { color: var( --mz-tekst-3 ); }
 .lst-mz .lst-mz-nota { color: var( --mz-tekst-3 ); max-width: 52rem; }
 
-/* ------------------------------------------------------- tabela na żywo */
+/* ------------------------------------------------------------- okienko */
 
-.lst-mz .lst-mz-opis-stolu { margin-top: -.6rem; }
+/*
+ * Jedno okienko na całej stronie: trzyma zrzuty z kokpitu, ekran telefonu
+ * i samą tabelę. Dzięki temu tabela na żywo i zrzuty czytają się jak rzeczy
+ * z jednego miejsca, a nie jak obrazek obok obrazka.
+ */
+.lst-mz .lst-mz-okno {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	border: 1px solid var( --mz-ekran-linia );
+	border-radius: 12px;
+	overflow: hidden;
+	background-color: var( --mz-ekran );
+	box-shadow: 0 22px 46px -30px rgba( 0, 0, 0, .95 ), 0 0 34px -18px rgba( var( --mz-mieta ), .3 );
+	transition: transform 220ms var( --mz-luk ), box-shadow 220ms var( --mz-luk );
+}
+
+.lst-mz .lst-mz-belka {
+	display: flex;
+	align-items: center;
+	gap: .45rem;
+	flex: none;
+	padding: .55rem .8rem;
+	background-color: var( --mz-ekran-gora );
+	border-bottom: 1px solid rgba( var( --mz-mieta ), .14 );
+}
+
+.lst-mz .lst-mz-kropka {
+	width: 8px;
+	height: 8px;
+	flex: none;
+	border-radius: 50%;
+	background-color: rgba( 138, 168, 163, .35 );
+}
+
+.lst-mz .lst-mz-nazwa-okna {
+	margin-left: .4rem;
+	color: var( --mz-tekst-3 );
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.lst-mz .lst-mz-belka-prawa {
+	margin-left: auto;
+	padding-left: 1rem;
+	color: var( --mz-tekst-3 );
+	white-space: nowrap;
+}
+
+/*
+ * Okienko ze zrzutem ma sufit.
+ *
+ * Zrzuty są wysokie: „Wygląd” to 1216 pikseli, czyli po przeskalowaniu do
+ * połowy wiersza ponad sześćset. Wiersz robił się wtedy tak wysoki jak obraz,
+ * a płyta z tekstem obok — mimo że rozciągnięta — miała trzy czwarte wysokości
+ * pustej. Sufit zrównuje obie strony, a ściemnienie u dołu mówi, że ekran ma
+ * dalszy ciąg. To jest uczciwsze niż kadr przycięty na sztywno: nie udaje, że
+ * kokpit kończy się akurat tam.
+ */
+.lst-mz .lst-mz-okno:not( .jest-stolem ) { max-height: clamp( 16rem, 25vw, 22rem ); }
+
+.lst-mz .lst-mz-podglad { flex: 1 1 auto; min-height: 0; overflow: hidden; }
+
+.lst-mz .lst-mz-okno img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: top left;
+	transition: transform 320ms var( --mz-luk );
+}
+
+/* Ściemnienie u dołu okna: „ten ekran ma dalszy ciąg”. */
+.lst-mz .lst-mz-okno:not( .jest-stolem )::after {
+	content: "";
+	position: absolute;
+	inset: auto 0 0 0;
+	height: 3.5rem;
+	pointer-events: none;
+	background-image: linear-gradient( to bottom, rgba( 10, 17, 16, 0 ), rgba( 10, 17, 16, .92 ) );
+}
+
+/* ----------------------------------------------------- tabela na żywo */
+
+.lst-mz .lst-mz-opis-stolu { margin-top: -.6rem; max-width: 52rem; }
 
 .lst-mz .lst-mz-etykieta.jest-zywa { display: flex; align-items: center; gap: .5rem; }
 
@@ -499,31 +748,9 @@ STYL = r"""
 	100% { box-shadow: 0 0 0 0 rgba( var( --mz-mieta ), 0 ); }
 }
 
-/*
- * Szyba musi mieć przez co patrzeć: szablon Szkło jest matową taflą, a tafla
- * nad czernią to czerń. Pod tabelą leży więc światło w barwach strony —
- * mięta z jednej strony, głęboki błękit z drugiej.
- */
-/*
- * Mata pod arkuszem.
- *
- * Do niedawna był tu gradient pod Szkło — panel miał przez co prześwitywać.
- * Tabela stoi teraz na Księdze, czyli na ciepłym papierze, więc panel robi coś
- * odwrotnego: jest ciemną, chłodną matą, na której arkusz leży. Cała strona
- * jest ciemna, a to jedyny jasny przedmiot na niej, i o to chodzi — tabela
- * jest tym, co się sprzedaje, a reszta jest ramą wokół niej.
- *
- * Cień jest prawdziwy, bo to jedyne miejsce na stronie, gdzie wysokość coś
- * znaczy: arkusz leży NA stronie, nie jest w nią wpuszczony.
- */
-.lst-mz .lst-mz-szklo {
-	padding: clamp( .55rem, 1.3vw, 1.05rem );
-	border-radius: 20px;
-	background-color: rgba( 233, 240, 238, .07 );
-	box-shadow:
-		inset 0 1px 0 rgba( 255, 255, 255, .09 ),
-		0 34px 70px -34px rgba( 0, 0, 0, .95 );
-}
+/* Tabela dostaje w okienku trochę powietrza — jej własne tło jest tym samym
+   ekranem, więc nie widać, gdzie kończy się okno, a zaczyna arkusz. */
+.lst-mz .lst-mz-plansza { padding: clamp( .6rem, 1.4vw, 1.1rem ); }
 
 /* ------------------------------------------------------------- legenda */
 
@@ -533,113 +760,125 @@ STYL = r"""
 	gap: clamp( 1.1rem, 2.4vw, 1.8rem );
 }
 
-.lst-mz .lst-mz-pozycja { display: grid; gap: .35rem; align-content: start; }
+/*
+ * Kafelek, a nie luźny tekst. Sześć akapitów stojących na gołym tle czyta się
+ * jak lista rzeczy do zrobienia; sześć płytek czyta się jak sześć rzeczy.
+ */
+.lst-mz .lst-mz-pozycja {
+	display: grid;
+	gap: .4rem;
+	align-content: start;
+	padding: 1.1rem 1.25rem 1.25rem;
+	background-color: var( --mz-plyta );
+	border: 1px solid var( --mz-plyta-linia );
+	border-radius: 14px;
+	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .045 );
+	transition: border-color 200ms ease, transform 200ms var( --mz-luk );
+}
 
+/*
+ * Znacznik jest komórką arkusza, tak jak żetony w nagłówku strony: z lewej
+ * adres, z prawej wartość. Adres nie jest ozdobą — to litera kolumny w tabeli
+ * wyżej, więc żeton mówi, gdzie na niej tego szukać.
+ */
 .lst-mz .lst-mz-znak {
+	display: inline-flex;
 	justify-self: start;
-	padding: .1rem .5rem;
-	border: 1px solid var( --mz-kreska );
-	border-radius: 999px;
+	align-items: stretch;
+	overflow: hidden;
+	border: 1px solid var( --mz-linia );
+	border-radius: 5px;
 	letter-spacing: .1em;
 	text-transform: uppercase;
+}
+
+.lst-mz .lst-mz-znak-adres {
+	padding: .1rem .45rem;
+	background-color: rgba( 138, 168, 163, .12 );
+	border-right: 1px solid var( --mz-linia );
 	color: var( --mz-tekst-3 );
 }
 
-.lst-mz .lst-mz-znak.jest-pro {
-	color: rgb( var( --mz-mieta ) );
-	border-color: rgba( var( --mz-mieta ), .45 );
-	background-color: rgba( var( --mz-mieta ), .1 );
-}
+.lst-mz .lst-mz-znak-slowo { padding: .1rem .55rem; color: var( --mz-tekst-3 ); }
 
-/* ------------------------------------------------------- zrzuty z kokpitu */
+.lst-mz .lst-mz-znak.jest-pro { border-color: rgba( var( --mz-mieta ), .45 ); }
+.lst-mz .lst-mz-znak.jest-pro .lst-mz-znak-adres { border-right-color: rgba( var( --mz-mieta ), .45 ); }
+.lst-mz .lst-mz-znak.jest-pro .lst-mz-znak-slowo { color: rgb( var( --mz-mieta ) ); background-color: rgba( var( --mz-mieta ), .1 ); }
 
-.lst-mz .lst-mz-ekrany { display: grid; gap: clamp( 1.6rem, 3.5vw, 2.8rem ); }
-
-.lst-mz .lst-mz-ekran {
-	display: grid;
-	grid-template-columns: minmax( 0, 1fr ) minmax( 0, 1.25fr );
-	gap: clamp( 1.2rem, 3vw, 2.6rem );
-	align-items: center;
-}
-
-.lst-mz .lst-mz-ekran.jest-odwrocony {
-	grid-template-columns: minmax( 0, 1.25fr ) minmax( 0, 1fr );
-}
-
-.lst-mz .lst-mz-ekran.jest-odwrocony .lst-mz-okno { order: -1; }
-.lst-mz .lst-mz-ekran-tresc { display: grid; gap: .5rem; align-content: start; }
+/* ------------------------------------------- para: tekst i okienko obok */
 
 /*
- * Okno kokpitu ma sufit.
+ * Wiersz strony głównej, przeniesiony tutaj: płyta z tekstem po jednej
+ * stronie, okienko po drugiej, co drugi wiersz odwrócony, a między wierszami
+ * włoskowa kreska.
  *
- * Zrzuty są wysokie, a wiersz obok nich jest tak wysoki jak one — trzy zdania
- * tekstu pływały wtedy w morzu czerni na wysokość ekranu i pół strony było
- * puste. Okno urywa obraz na ustalonej wysokości i ściemnia go u dołu, więc
- * widać, że ekran ciągnie się dalej. To jest też uczciwsze niż kadr przycięty
- * na sztywno: nie udaje, że kokpit kończy się akurat tam.
+ * „stretch” jest tu najważniejszą deklaracją w całym pliku. Przedtem tekst
+ * stał luzem obok wysokiego zrzutu i pod nim zostawał metr pustego miejsca;
+ * teraz obie strony mają tę samą wysokość, a obraz jest przycięty do niej.
  */
-.lst-mz .lst-mz-okno {
+.lst-mz .lst-mz-pary { display: grid; }
+
+.lst-mz .lst-mz-para {
+	display: grid;
+	grid-template-columns: minmax( 0, 1fr ) minmax( 0, 1fr );
+	gap: clamp( 1.2rem, 3vw, 2.6rem );
+	align-items: stretch;
+	padding-block: clamp( 1.4rem, 2.6vw, 2.2rem );
+	border-top: 1px solid var( --mz-kreska );
+}
+
+.lst-mz .lst-mz-pary > .lst-mz-para:first-child { border-top: 0; padding-top: 0; }
+
+.lst-mz .lst-mz-para.jest-odwrocona .lst-mz-okno { order: -1; }
+
+.lst-mz .lst-mz-para-tresc {
+	display: grid;
+	gap: .55rem;
+	/*
+	 * Nagłówek u góry, linijki u dołu, a luz między nimi. Przy „start” cały
+	 * zapas wysokości zbierał się pod tekstem i płyta wyglądała na pustą w
+	 * trzech czwartych — to było dokładnie to, co widać było gołym okiem.
+	 */
+	align-content: space-between;
+	padding: 1.15rem 1.3rem 1.3rem;
+	background-color: var( --mz-plyta );
+	border: 1px solid var( --mz-plyta-linia );
+	border-radius: 14px;
+	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .045 );
+}
+
+.lst-mz .lst-mz-para-gora { display: grid; gap: .55rem; align-content: start; }
+
+/* Trzy krótkie linijki pod zdaniem: płyta ma mieć treść, a nie samo zdanie
+   i pustkę pod nim. Mono, bo to są nazwy ustawień, a nie proza. */
+.lst-mz .lst-mz-punkty {
+	display: grid;
+	gap: .3rem;
+	margin-top: .35rem;
+	padding-top: .7rem;
+	border-top: 1px solid var( --mz-plyta-linia );
+	color: var( --mz-tekst-3 );
+}
+
+.lst-mz .lst-mz-punkty li {
 	position: relative;
-	max-height: clamp( 15rem, 30vw, 22rem );
-	border: 1px solid rgba( var( --mz-mieta ), .2 );
-	border-radius: 12px;
-	overflow: hidden;
-	background-color: #0a1110;
-	box-shadow: 0 22px 46px -30px rgba( 0, 0, 0, .95 ), 0 0 34px -18px rgba( var( --mz-mieta ), .3 );
-	transition: transform 220ms var( --mz-luk ), box-shadow 220ms var( --mz-luk );
+	padding-left: 1.05rem;
+	list-style: none;
 }
 
-.lst-mz .lst-mz-belka {
-	display: flex;
-	align-items: center;
-	gap: .45rem;
-	padding: .55rem .8rem;
-	background-color: #131d1b;
-	border-bottom: 1px solid rgba( var( --mz-mieta ), .14 );
-}
-
-.lst-mz .lst-mz-kropka {
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	background-color: rgba( 138, 168, 163, .35 );
-}
-
-.lst-mz .lst-mz-nazwa-okna { margin-left: .4rem; color: var( --mz-tekst-3 ); }
-
-.lst-mz .lst-mz-okno img {
-	display: block;
-	width: 100%;
-	height: auto;
-	transition: transform 320ms var( --mz-luk );
-}
-
-/* Ściemnienie u dołu okna: „ten ekran ma dalszy ciąg”. */
-.lst-mz .lst-mz-okno::after {
+.lst-mz .lst-mz-punkty li::before {
 	content: "";
 	position: absolute;
-	inset: auto 0 0 0;
-	height: 4.5rem;
-	pointer-events: none;
-	background-image: linear-gradient( to bottom, rgba( 10, 17, 16, 0 ), rgba( 10, 17, 16, .92 ) );
+	left: 0;
+	top: .62em;
+	width: .35rem;
+	height: 1px;
+	background-color: rgba( var( --mz-mieta ), .7 );
 }
-
-/* Tekst trzyma się góry wiersza, a nie jego środka — wiersz jest teraz niższy,
-   ale nierówny, i wyśrodkowane zdanie odjeżdżałoby od swojego nagłówka. */
-.lst-mz .lst-mz-ekran { align-items: start; }
-
-.lst-mz .lst-mz-ekran-tresc { display: grid; gap: .5rem; align-content: start; padding-top: .35rem; }
 
 /* -------------------------------------------------------------- telefon */
 
-.lst-mz .lst-mz-telefon-blok {
-	grid-template-columns: minmax( 0, 34rem ) auto;
-	justify-content: space-between;
-	gap: clamp( 1.4rem, 4vw, 3rem );
-	align-items: start;
-}
-
-.lst-mz .lst-mz-telefon-tekst { display: grid; gap: .5rem; align-content: start; }
+.lst-mz .lst-mz-para.jest-telefonem .lst-mz-telefon-rama { justify-self: center; }
 .lst-mz .lst-mz-wasko { display: none; }
 
 .lst-mz .lst-mz-telefon-rama {
@@ -649,6 +888,7 @@ STYL = r"""
 	border: 1px solid var( --mz-kreska );
 	border-radius: 26px;
 	background-color: var( --mz-plyta );
+	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .06 ), 0 26px 50px -34px rgba( 0, 0, 0, .95 );
 }
 
 /*
@@ -656,11 +896,12 @@ STYL = r"""
  * rozciągnęłoby tę sekcję na dwa ekrany, a widać już po trzech.
  */
 .lst-mz .lst-mz-telefon {
-	width: 360px;
+	width: 340px;
 	max-width: 100%;
-	max-height: 700px;
+	height: clamp( 22rem, 30vw, 26rem );
 	overflow: hidden;
 	border-radius: 16px;
+	background-color: var( --mz-ekran );
 	-webkit-mask-image: linear-gradient( to bottom, #000 78%, transparent 99% );
 	mask-image: linear-gradient( to bottom, #000 78%, transparent 99% );
 }
@@ -675,21 +916,31 @@ STYL = r"""
 
 .lst-mz .lst-mz-kolumna {
 	display: grid;
-	gap: .7rem;
+	gap: 0;
 	align-content: start;
-	padding: 1.2rem 1.35rem 1.35rem;
+	overflow: hidden;
 	background-color: var( --mz-plyta );
 	border: 1px solid var( --mz-plyta-linia );
 	border-radius: 14px;
+	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .045 );
 	transition: border-color 200ms ease;
 }
 
 .lst-mz .lst-mz-kolumna.jest-pro { border-color: rgba( var( --mz-mieta ), .28 ); }
 
-.lst-mz .lst-mz-kolumna-tytul { letter-spacing: .12em; text-transform: uppercase; color: var( --mz-tekst-3 ); }
+/* Tytuł listy siedzi w pasku jak nagłówek kolumny w arkuszu. */
+.lst-mz .lst-mz-kolumna-tytul {
+	padding: .55rem 1.35rem;
+	background-color: var( --mz-ekran-gora );
+	border-bottom: 1px solid var( --mz-plyta-linia );
+	letter-spacing: .12em;
+	text-transform: uppercase;
+	color: var( --mz-tekst-3 );
+}
+
 .lst-mz .lst-mz-kolumna.jest-pro .lst-mz-kolumna-tytul { color: rgb( var( --mz-mieta ) ); }
 
-.lst-mz .lst-mz-lista { display: grid; gap: .55rem; margin: 0; padding: 0; list-style: none; }
+.lst-mz .lst-mz-lista { display: grid; gap: .55rem; margin: 0; padding: 1.1rem 1.35rem 1.35rem; list-style: none; }
 
 .lst-mz .lst-mz-lista li {
 	position: relative;
@@ -734,18 +985,13 @@ STYL = r"""
 /* ------------------------------------------------------------- najechanie */
 
 @media ( hover: hover ) and ( pointer: fine ) {
-	.lst-mz .lst-mz-krok:hover { border-color: rgba( var( --mz-mieta ), .34 ); transform: translateY( -2px ); }
+	.lst-mz .lst-mz-komorka:hover { background-color: rgba( 20, 30, 28, .86 ); }
+	.lst-mz .lst-mz-pozycja:hover { border-color: rgba( var( --mz-mieta ), .34 ); transform: translateY( -2px ); }
 	.lst-mz .lst-mz-kolumna:hover { border-color: rgba( var( --mz-mieta ), .34 ); }
-	.lst-mz .lst-mz-okno:hover { transform: translateY( -2px ); box-shadow: 0 26px 50px -30px rgba( 0, 0, 0, .95 ), 0 0 40px -16px rgba( var( --mz-mieta ), .4 ); }
-	.lst-mz .lst-mz-okno:hover img { transform: scale( 1.012 ); }
+	.lst-mz .lst-mz-okno:not( .jest-stolem ):hover { transform: translateY( -2px ); box-shadow: 0 26px 50px -30px rgba( 0, 0, 0, .95 ), 0 0 40px -16px rgba( var( --mz-mieta ), .4 ); }
+	.lst-mz .lst-mz-okno:not( .jest-stolem ):hover img { transform: scale( 1.012 ); }
 }
 
-/* --------------------------------------------------------- mniej ruchu */
-
-/*
- * Mniej ruchu znaczy mniej ruchu, a nie inny ruch: wejście, kropka i puls
- * znikają, a wszystko, co pokazywały, zostaje na miejscu i widoczne.
- */
 /* --------------------------------------------- ruch, który niesie przewijanie */
 
 /*
@@ -761,21 +1007,15 @@ STYL = r"""
  *
  * Po drugie: całość siedzi w @supports, więc przeglądarka, która osi nie zna,
  * dostaje stronę gotową, bez ani jednej reguły z tego bloku.
- *
- * Zakres kończy się wcześnie — „cover 26%” — żeby sekcja była gotowa, zanim
- * ktoś do niej doczyta, a nie dojeżdżała pod wzrokiem. Ruch przy przewijaniu ma
- * witać treść, a nie kazać na nią czekać.
  */
 @supports ( animation-timeline: view() ) {
 
 	.lst-mz .lst-mz-blok:not( :first-child ) > .lst-mz-etykieta,
 	.lst-mz .lst-mz-blok:not( :first-child ) > .lst-mz-wstep,
 	.lst-mz .lst-mz-legenda .lst-mz-pozycja,
-	.lst-mz .lst-mz-ekran,
+	.lst-mz .lst-mz-para,
 	.lst-mz .lst-mz-listy .lst-mz-kolumna,
 	.lst-mz .lst-mz-kod,
-	.lst-mz .lst-mz-telefon-tekst,
-	.lst-mz .lst-mz-telefon-rama,
 	.lst-mz .lst-mz-stol > .lst-mz-etykieta,
 	.lst-mz .lst-mz-stol > .lst-mz-opis-stolu {
 		animation: lst-mz-wjazd 520ms var( --mz-luk ) both;
@@ -812,8 +1052,8 @@ STYL = r"""
 	.lst-mz .lst-mz-stol .lstab-row:nth-child( 5 ) { animation-delay: 136ms; }
 	.lst-mz .lst-mz-stol .lstab-row:nth-child( 6 ) { animation-delay: 170ms; }
 
-	/* Arkusz podnosi się na matę: jedyne miejsce, gdzie wysokość coś znaczy. */
-	.lst-mz .lst-mz-szklo {
+	/* Okno z tabelą podnosi się: jedyne miejsce, gdzie wysokość coś znaczy. */
+	.lst-mz .lst-mz-okno.jest-stolem {
 		animation: lst-mz-arkusz 640ms var( --mz-luk ) both;
 		animation-timeline: view();
 		animation-range: entry 2% cover 24%;
@@ -835,13 +1075,12 @@ STYL = r"""
 
 /*
  * Na papierze nie ma przewijania, więc nie ma też czego dojeżdżać. Oś widoku w
- * druku jest niczyją ziemią; tu jest po prostu wyłączona i arkusz wychodzi
- * taki, jaki jest na końcu ruchu.
+ * druku jest niczyją ziemią; tu jest po prostu wyłączona i strona wychodzi
+ * taka, jaka jest na końcu ruchu.
  */
 @media print {
 	.lst-mz [class*="lst-mz-"],
 	.lst-mz .lst-mz-etykieta::after,
-	.lst-mz .lst-mz-etap + .lst-mz-etap::before,
 	.lst-mz .lst-mz-stol .lstab-row { animation: none !important; }
 }
 
@@ -852,10 +1091,10 @@ STYL = r"""
 	 */
 	.lst-mz [class*="lst-mz-"],
 	.lst-mz .lst-mz-etykieta::after,
-	.lst-mz .lst-mz-etap + .lst-mz-etap::before,
 	.lst-mz .lst-mz-stol .lstab-row { animation: none !important; }
 
-	.lst-mz .lst-mz-krok,
+	.lst-mz .lst-mz-komorka,
+	.lst-mz .lst-mz-pozycja,
 	.lst-mz .lst-mz-okno,
 	.lst-mz .lst-mz-okno img,
 	.lst-mz .lst-mz-kolumna { transition: none; }
@@ -887,33 +1126,55 @@ STYL = r"""
  */
 .lst-mz .lst-mz-rama { margin-inline: auto !important; }
 
-.lst-mz .lst-mz-szklo { background-color: rgba( 233, 240, 238, .07 ) !important; }
+.lst-mz .lst-mz-arkusz,
+.lst-mz .lst-mz-litery,
+.lst-mz .lst-mz-wiersz,
+.lst-mz .lst-mz-formula { background-color: var( --mz-linia ) !important; }
 
-.lst-mz .lst-mz-krok,
+.lst-mz .lst-mz-arkusz { background-color: var( --mz-plyta ) !important; border: 1px solid var( --mz-linia ) !important; }
+.lst-mz .lst-mz-komorka { background-color: rgba( 13, 18, 17, .78 ) !important; }
+.lst-mz .lst-mz-litery > span,
+.lst-mz .lst-mz-nr,
+.lst-mz .lst-mz-fx,
+.lst-mz .lst-mz-kolumna-tytul { background-color: var( --mz-ekran-gora ) !important; }
+.lst-mz .lst-mz-droga { background-color: var( --mz-ekran ) !important; }
+
+.lst-mz .lst-mz-para-tresc,
+.lst-mz .lst-mz-pozycja,
 .lst-mz .lst-mz-kolumna,
 .lst-mz .lst-mz-kod { background-color: var( --mz-plyta ) !important; border: 1px solid var( --mz-plyta-linia ) !important; }
 
-.lst-mz .lst-mz-etap { background-color: transparent !important; border: 1px solid var( --mz-kreska ) !important; }
 .lst-mz .lst-mz-telefon-rama { background-color: var( --mz-plyta ) !important; border: 1px solid var( --mz-kreska ) !important; }
-.lst-mz .lst-mz-okno { background-color: #0a1110 !important; border: 1px solid rgba( var( --mz-mieta ), .2 ) !important; }
-.lst-mz .lst-mz-belka { background-color: #131d1b !important; border: 0 !important; border-bottom: 1px solid rgba( var( --mz-mieta ), .14 ) !important; }
+.lst-mz .lst-mz-telefon { background-color: var( --mz-ekran ) !important; }
+.lst-mz .lst-mz-okno { background-color: var( --mz-ekran ) !important; border: 1px solid var( --mz-ekran-linia ) !important; }
+.lst-mz .lst-mz-belka { background-color: var( --mz-ekran-gora ) !important; border: 0 !important; border-bottom: 1px solid rgba( var( --mz-mieta ), .14 ) !important; }
 
 .lst-mz .lst-mz-znak {
-	border: 1px solid var( --mz-kreska ) !important;
+	border: 1px solid var( --mz-linia ) !important;
 	text-transform: uppercase !important;
 	font-family: var( --mz-mono ) !important;
 }
 
-.lst-mz .lst-mz-znak.jest-pro { border-color: rgba( var( --mz-mieta ), .45 ) !important; background-color: rgba( var( --mz-mieta ), .1 ) !important; }
+.lst-mz .lst-mz-znak.jest-pro { border-color: rgba( var( --mz-mieta ), .45 ) !important; }
+.lst-mz .lst-mz-znak-adres { background-color: rgba( 138, 168, 163, .12 ) !important; border-right: 1px solid var( --mz-linia ) !important; }
+.lst-mz .lst-mz-znak.jest-pro .lst-mz-znak-slowo { background-color: rgba( var( --mz-mieta ), .1 ) !important; }
 
 .lst-mz .lst-mz-etykieta,
-.lst-mz .lst-mz-kolumna-tytul { text-transform: uppercase !important; }
+.lst-mz .lst-mz-etap-nazwa,
+.lst-mz .lst-mz-kolumna-tytul,
+.lst-mz .lst-mz-litery > span { text-transform: uppercase !important; }
 
-.lst-mz .lst-mz-numer,
+.lst-mz .lst-mz-adres,
 .lst-mz .lst-mz-etykieta,
 .lst-mz .lst-mz-nota,
+.lst-mz .lst-mz-litery,
+.lst-mz .lst-mz-nr,
+.lst-mz .lst-mz-fx,
+.lst-mz .lst-mz-etap-nazwa,
 .lst-mz .lst-mz-etap-pod,
+.lst-mz .lst-mz-punkty,
 .lst-mz .lst-mz-nazwa-okna,
+.lst-mz .lst-mz-belka-prawa,
 .lst-mz .lst-mz-kolumna-tytul,
 .lst-mz .lst-mz-kod,
 .lst-mz .lst-mz-kod-opis,
@@ -923,32 +1184,40 @@ STYL = r"""
    nie wypchnęły jej poza szerokość strony. */
 .lst-mz .lstab-container, .lst-mz .lstab { margin-inline: 0 !important; max-width: 100%; }
 
-/* ------------------------------------------------------------- telefon */
+/* ------------------------------------------------------------- wąsko */
 
 @media ( max-width: 1180px ) {
 	.lst-mz .lst-mz-legenda { grid-template-columns: repeat( 2, minmax( 0, 1fr ) ); }
 }
 
+/* Na wąskim ekranie w belce mieści się nazwa okna albo nic — druga połowa
+   urywała się w połowie słowa. */
+@media ( max-width: 640px ) {
+	.lst-mz .lst-mz-belka-prawa { display: none; }
+}
+
 @media ( max-width: 900px ) {
 	.lst-mz .lst-mz-legenda,
-	.lst-mz .lst-mz-kroki,
-	.lst-mz .lst-mz-droga,
-	.lst-mz .lst-mz-ekran,
-	.lst-mz .lst-mz-telefon-blok { grid-template-columns: minmax( 0, 1fr ); }
+	.lst-mz .lst-mz-para { grid-template-columns: minmax( 0, 1fr ); }
 
-	.lst-mz .lst-mz-ekran.jest-odwrocony .lst-mz-okno { order: 0; }
+	.lst-mz .lst-mz-para.jest-odwrocona .lst-mz-okno { order: 0; }
 
-	/* W jednej kolumnie łącznik biegnie z góry na dół, nie z boku na bok. */
-	.lst-mz .lst-mz-etap + .lst-mz-etap::before {
-		top: auto;
-		bottom: 100%;
-		right: auto;
-		left: 1.5rem;
-		width: 1px;
-		height: clamp( 1.4rem, 3vw, 2.6rem );
-		transform-origin: top center;
-		animation-name: lst-mz-kreska-w-dol;
-	}
+	/* Wąsko arkusz przestaje być wierszem i staje się kolumną: trzy komórki
+	   jedna pod drugą, a pasek liter i numer wiersza znikają, bo wiersz
+	   z jedną komórką nie jest już wierszem. */
+	.lst-mz .lst-mz-litery { display: none; }
+	.lst-mz .lst-mz-wiersz { grid-template-columns: minmax( 0, 1fr ); }
+	.lst-mz .lst-mz-nr { display: none; }
+	.lst-mz .lst-mz-formula { grid-template-columns: minmax( 0, 1fr ); }
+	.lst-mz .lst-mz-fx { display: none; }
+	.lst-mz .lst-mz-droga { grid-template-columns: minmax( 0, 1fr ); gap: 1.1rem; }
+
+	/*
+	 * W jednej kolumnie strzałek nie ma: pokazywałyby w prawo tam, gdzie droga
+	 * biegnie w dół. A skoro ich nie ma, to i wcięcie pod nie znika.
+	 */
+	.lst-mz .lst-mz-strzalka { display: none; }
+	.lst-mz .lst-mz-etap:not( :first-child ) .lst-mz-etap-pod { padding-left: 0; }
 
 	.lst-mz .lst-mz-telefon-rama { display: none; }
 	.lst-mz .lst-mz-szeroko { display: none; }
@@ -967,17 +1236,24 @@ STRONA = (
 
 # Podgląd do otwarcia w przeglądarce: podrabia tło i dopełnienia Divi, i
 # podstawia lokalne adresy zrzutów. Do Divi idzie wyłącznie MOZLIWOSCI-en.html.
+#
+# Tło jest TAKIE SAME jak w landing/naglowek/HERO-podglad.html: #232a29 i
+# siatka 88 × 44. Wcześniej podgląd malował pod modułem własną, ciemniejszą
+# czerń — i cała ta podstrona była projektowana pod tło, którego na stronie
+# nie ma.
+#
 # Podgląd udaje stronę Divi, a strona Divi ma deklarację typu dokumentu. Bez
 # niej przeglądarka idzie w tryb zgodności, w którym tabela NIE dziedziczy
-# koloru tekstu po swoim otoczeniu — a wtedy atrament Księgi ustępuje blademu
-# tekstowi strony i cała tabela robi się nieczytelna. Testy tego nie łapały,
-# bo swoją stronę budują z doctype; kłamał sam podgląd.
+# koloru tekstu po swoim otoczeniu.
 PODGLAD = (
 	'<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n'
 	'<title>What it does</title>\n'
 	'<style>\n'
-	'html, body { margin: 0; background: #141b1a; color: #eaf3f1;\n'
+	'html, body { margin: 0; background: #232a29; color: #eaf3f1;\n'
 	'\tfont-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif; }\n'
+	'body { background-image: linear-gradient( to right, rgba( 255, 255, 255, .04 ) 1px, transparent 1px ),\n'
+	'\tlinear-gradient( to bottom, rgba( 255, 255, 255, .04 ) 1px, transparent 1px );\n'
+	'\tbackground-size: 88px 44px; }\n'
 	'.podrobka-divi { padding: 40px 0; }\n'
 	'.podrobka-divi-rzad { width: 90%; max-width: 1800px; margin: 0 auto; }\n'
 	'</style>\n'

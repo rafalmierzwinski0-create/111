@@ -54,19 +54,25 @@ foreach ( LSTAB_Storage::get_all() as $existing ) {
 }
 
 /*
- * The table's own palette, and it is not the page's.
+ * The page's own palette, worn by the table.
  *
- * The page is dark; the table is the one warm, light object on it, because the
- * table is the thing being sold and everything else is the frame around it.
- * That means the pills, dots and bars have to be read on cream paper rather
- * than on a dark panel — pale mint on cream is a smudge, so these are the same
- * three meanings at ink strength.
+ * The table used to be the one warm, light thing on a dark page. It read as a
+ * sheet of paper somebody had dropped on the site: nothing else up there is
+ * cream, and the one object that is supposed to say "this is what your page
+ * gets" looked as though it came from another site altogether.
+ *
+ * So it wears the site's colours instead — the same near-black screen, the
+ * same mint, the same amber and coral as everything else. And it gets them the
+ * way a customer would: a style picked, then disagreed with, one colour well
+ * at a time. That is the product's own promise, demonstrated on the page that
+ * makes it rather than described.
  */
-$zielen = '#2f7d4f';
-$bursztyn = '#b1700a';
-$ceglany = '#b3452f';
-$atrament = '#2b2520';
-$papier = '#fdfbf5';
+$mieta      = '#5fe3cf';
+$bursztyn   = '#f2b544';
+$koral      = '#ff8d8d';
+$atrament   = '#06100f';
+$ekran      = '#0a1110';
+$ekran_gora = '#131d1b';
 
 $source_id = LSTAB_Storage::insert(
 	array(
@@ -77,18 +83,26 @@ $source_id = LSTAB_Storage::insert(
 		'gid'           => '0',
 		'tab_name'      => 'Trails',
 		'sync_interval' => 900,
-		'style_preset'  => 'ledger',
+		'style_preset'  => 'midnight',
 		'layout'        => 'auto',
 		/*
-		 * Ledger: warm paper, a double rule under the headings, a band down
-		 * every other column. A sheet of trail conditions is a sheet of
-		 * figures and states, which is what this skin is for — and on a dark
-		 * page a warm paper table is the one thing the eye lands on first.
+		 * Midnight, then disagreed with. The style comes blue — a good dark
+		 * table, but a blue one on a green page — so every colour that decides
+		 * the mood is set by hand to the page's own: the screen the mock windows
+		 * further down are drawn on, the mint the site uses for anything live,
+		 * and lines quiet enough that the table reads as one object rather than
+		 * as a grid.
 		 */
 		'style_vars'    => array(
-			'accent'  => $bursztyn,
-			'lines'   => 'normal',
-			'density' => 'normal',
+			'text'       => '#e6f1ee',
+			'background' => $ekran,
+			'headerText' => '#8fa5a2',
+			'headerBg'   => $ekran_gora,
+			'border'     => '#1e2b29',
+			'hover'      => '#152120',
+			'accent'     => $mieta,
+			'lines'      => 'normal',
+			'density'    => 'normal',
 		),
 	)
 );
@@ -100,13 +114,13 @@ LSTAB_Sync::run( $source_id );
 // dot, which is the quietest of the three.
 $rules = array(
 	$source_id => array(
-			array( 'column' => 'Status',     'operator' => '=', 'value' => 'Closed',   'style' => '#3d4c55', 'scope' => 'row' ),
-			array( 'column' => 'Status',     'operator' => '=', 'value' => 'Open',     'style' => $zielen,     'scope' => 'pill' ),
-			array( 'column' => 'Status',     'operator' => '=', 'value' => 'Caution',  'style' => $bursztyn,    'scope' => 'pill' ),
-			array( 'column' => 'Status',     'operator' => '=', 'value' => 'Closed',   'style' => $ceglany,    'scope' => 'pill' ),
-			array( 'column' => 'Difficulty', 'operator' => '=', 'value' => 'Easy',     'style' => $zielen,     'scope' => 'dot' ),
-			array( 'column' => 'Difficulty', 'operator' => '=', 'value' => 'Moderate', 'style' => $bursztyn,    'scope' => 'dot' ),
-		array( 'column' => 'Difficulty', 'operator' => '=', 'value' => 'Hard',     'style' => $ceglany,    'scope' => 'dot' ),
+		array( 'column' => 'Status',     'operator' => '=', 'value' => 'Closed',   'style' => '#5a2733', 'scope' => 'row' ),
+		array( 'column' => 'Status',     'operator' => '=', 'value' => 'Open',     'style' => $mieta,    'scope' => 'pill' ),
+		array( 'column' => 'Status',     'operator' => '=', 'value' => 'Caution',  'style' => $bursztyn, 'scope' => 'pill' ),
+		array( 'column' => 'Status',     'operator' => '=', 'value' => 'Closed',   'style' => $koral,    'scope' => 'pill' ),
+		array( 'column' => 'Difficulty', 'operator' => '=', 'value' => 'Easy',     'style' => $mieta,    'scope' => 'dot' ),
+		array( 'column' => 'Difficulty', 'operator' => '=', 'value' => 'Moderate', 'style' => $bursztyn, 'scope' => 'dot' ),
+		array( 'column' => 'Difficulty', 'operator' => '=', 'value' => 'Hard',     'style' => $koral,    'scope' => 'dot' ),
 	),
 );
 
@@ -114,8 +128,8 @@ update_option( 'lstabp_rules', $rules, false );
 
 $looks = array(
 	$source_id => array(
-		'Snow (cm)' => array( 'look' => 'bar', 'tint' => $zielen, 'ink' => '', 'label' => '' ),
-		'Webcam'    => array( 'look' => 'button', 'tint' => $atrament, 'ink' => $papier, 'label' => 'Live view' ),
+		'Snow (cm)' => array( 'look' => 'bar', 'tint' => $mieta, 'ink' => '', 'label' => '' ),
+		'Webcam'    => array( 'look' => 'button', 'tint' => $mieta, 'ink' => $atrament, 'label' => 'Live view' ),
 	),
 );
 

@@ -273,6 +273,31 @@ const readTable = ( id ) => {
 		containerWidth: Math.round( wrap.getBoundingClientRect().width ),
 		theadDisplay: cs( thead ).display,
 
+		/*
+		 * The backdrop the pinned first column paints, measured against the
+		 * cell that owns it.
+		 *
+		 * It is absolutely positioned, and a pinned cell is positioned too, so
+		 * normally it lands exactly over its own cell. Unpin the column — which
+		 * is what the card layout does — and the cell goes back to static: the
+		 * backdrop then looks further up for something positioned, finds the
+		 * whole table, and paints the row's colour as one slab across it. On a
+		 * phone that slab covered the search box, the filters and the first
+		 * cards. Nothing here is hypothetical; it shipped.
+		 */
+		stickyFaceWidth: ( () => {
+			const first = rows.length ? rows[ 0 ].querySelector( 'td:first-child' ) : null;
+
+			if ( ! first ) {
+				return { face: 0, cell: 0 };
+			}
+
+			return {
+				face: Math.round( parseFloat( cs( first, '::before' ).width ) || 0 ),
+				cell: Math.round( first.getBoundingClientRect().width ),
+			};
+		} )(),
+
 		rowHeight: rows.length ? Math.round( rows[ 0 ].getBoundingClientRect().height ) : 0,
 		/*
 		 * The shortest row, which is the one whose values all fit on one line.
@@ -471,6 +496,12 @@ for ( const skin of skins ) {
 	check( '1' === d.mode, `${ skin }: the table-mode factor is 1 here`, d.mode );
 	check( d.inkRatio >= 4.5, `${ skin }: the values are readable (${ d.inkRatio }:1)`, `${ d.inkRatio }` );
 	check( d.headRatio >= 4.5, `${ skin }: the column names are readable (${ d.headRatio }:1)`, `${ d.headRatio }` );
+	// And in the table layout it covers its own cell and not a pixel more.
+	check(
+		Math.abs( d.stickyFaceWidth.face - d.stickyFaceWidth.cell ) <= 1,
+		`${ skin }: the pinned column's backdrop is exactly its own cell wide`,
+		JSON.stringify( d.stickyFaceWidth )
+	);
 	if ( 'cards' === skin ) {
 		// The card's own right-hand edge, which is the one skin where a line on
 		// the last cell is the point rather than a leak.
@@ -743,6 +774,15 @@ for ( const skin of skins ) {
 	 * come out tinting every other *value*, which says nothing at all.
 	 */
 	check( p.band <= 1.02, `${ skin }: and no band shades one value and not the next`, `${ p.band }` );
+	/*
+	 * Nothing is pinned in a card, so the pinned column's backdrop has no work
+	 * to do — and if it is drawn anyway it is drawn against the whole table.
+	 */
+	check(
+		0 === p.stickyFaceWidth.face,
+		`${ skin }: and the pinned column paints no backdrop where nothing is pinned`,
+		JSON.stringify( p.stickyFaceWidth )
+	);
 }
 
 const cardsPhone = phone.cards[ asIs ];
