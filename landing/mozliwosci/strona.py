@@ -69,7 +69,7 @@ KROKI = [
 	  'In Google Sheets: <em>Share &rarr; Anyone with the link &rarr; Viewer</em>. Nothing is installed '
 	  'at Google&rsquo;s end, and there is no API key to create.' ),
 	( 'B1', 'Paste the link',
-	  'The plugin reads the sheet there and then, and shows what it found &mdash; the headings, the rows, '
+	  'The plugin reads the sheet there and then, and shows what it found: the headings, the rows, '
 	  'anything that looks wrong. You fix it before it reaches a page.' ),
 	( 'C1', 'Put it on a page',
 	  'A block, an Elementor widget or the shortcode. Edit the spreadsheet afterwards and the page '
@@ -85,7 +85,7 @@ DROGA = [
 
 # ( kolumny tabeli, których dotyczy, poziom, tytuł, opis )
 LEGENDA = [
-	( 'A&ndash;F', 'Free', 'Search and sorting',
+	( 'A-F', 'Free', 'Search and sorting',
 	  'Type and the table narrows down, with every hit marked where it was found. Click a heading to '
 	  'sort: dates sort as dates, clocks as clocks.' ),
 	( 'A', 'Free', 'A pinned first column',
@@ -99,11 +99,11 @@ LEGENDA = [
 	  'Sorting and search still read &ldquo;Open&rdquo;, not a colour.' ),
 	( 'C&nbsp;F', 'Pro', 'A bar, and a button',
 	  'The bar behind each depth is its share of the deepest snow in the column, and the number stays a '
-	  'number &mdash; it sorts, and it lands in the download. A column of addresses becomes a column of '
-	  'buttons; two trails have no webcam, and those cells stay empty.' ),
+	  'number: it sorts, and it lands in the download. A column of addresses becomes a column of buttons. '
+	  'Two trails have no webcam, and those cells stay empty.' ),
 	( 'B&nbsp;E', 'Pro', 'Filters and downloads',
-	  'Above the table, a filter your visitors use themselves. Under it, Excel, CSV and print &mdash; and '
-	  'a download holds exactly what is on the screen, filtered rows and hidden columns included.' ),
+	  'Above the table, a filter your visitors use themselves. Under it, Excel, CSV and print. A download '
+	  'holds exactly what is on the screen, filtered rows and hidden columns included.' ),
 ]
 
 # ( plik, tytuł, zdanie, nazwa okna, trzy krótkie linijki pod spodem )
@@ -113,17 +113,17 @@ EKRANY = [
 	  'the table draws. Everything you leave alone keeps following the style.',
 	  'Appearance',
 	  [ 'ten whole-table styles', 'six colour wells, each optional',
-	    'text size &middot; row height &middot; lines &middot; corners' ] ),
+	    'text size, row height, lines, corners' ] ),
 	( 'mz-reguly', 'A rule reads like a sentence',
 	  'When <em>Status</em> is <em>Closed</em>, paint <em>the whole row</em>. No formulas, no code, and '
 	  'the colours are worked out on the server, so they are already in the page a visitor receives.',
 	  'Colour rules',
-	  [ 'the cell &middot; the row &middot; the words &middot; a pill &middot; a dot',
-	    'is &middot; is not &middot; more than &middot; contains',
+	  [ 'the cell, the row, the words, a pill or a dot',
+	    'is, is not, more than, contains',
 	    'as many rules as the sheet needs' ] ),
 	( 'mz-kolumny', 'A column can wear something',
-	  'Give a column of numbers a bar, or a column of links a button &mdash; in the colours you choose '
-	  'and saying what you tell it to say.',
+	  'Give a column of numbers a bar, or a column of links a button, in the colours you choose and '
+	  'saying what you tell it to say.',
 	  'Column looks',
 	  [ 'a bar behind a number', 'a button where the cell holds a link',
 	    'a badge, or a colour down the whole column' ] ),
@@ -137,25 +137,37 @@ TELEFON = [
 ]
 
 WOLNE = [
-	'Every row your sheet has. No cap at 30, 50 or 100.',
-	'A real table in the page code, so Google and screen readers see it.',
-	'Three table styles, plus colours, text size, row height, lines and corners.',
-	'Search, sorting and pages.',
-	'Cards on a narrow screen &mdash; decided by the column, not the window.',
-	'A pinned first column and headings that follow the screen down.',
-	'Rename, hide, reorder and align columns without touching the sheet.',
-	'Your own CSS per table, and a block, an Elementor widget or a shortcode.',
+	( 'The table itself', [
+		'Every row your sheet has. No cap at 30, 50 or 100.',
+		'A real table in the page code, so Google and screen readers see it.',
+		'Search, sorting and pages.',
+	] ),
+	( 'How it looks', [
+		'Three table styles, plus colours, text size, row height, lines and corners.',
+		'Cards on a narrow screen, decided by the column, not the window.',
+		'A pinned first column and headings that follow the screen down.',
+	] ),
+	( 'On your page', [
+		'Rename, hide, reorder and align columns without touching the sheet.',
+		'Your own CSS per table, and a block, an Elementor widget or a shortcode.',
+	] ),
 ]
 
 PRO = [
-	'As many sheets as you like, checked as often as every minute.',
-	'Seven more styles: Cards, Terminal, Glass, Ledger, Contrast, Midnight, Editorial.',
-	'Colour rules: the cell, the whole row, just the words, a pill or a dot.',
-	'Column looks: a bar behind a number, a button where there is a link.',
-	'Filters your visitors use themselves.',
-	'Excel, CSV and print, holding exactly what the page shows.',
-	'An expandable panel under each row, for the columns that do not fit.',
-	'Private sheets, through a Google connection of your own.',
+	( 'More of everything', [
+		'As many sheets as you like, checked as often as every minute.',
+		'Seven more styles: Cards, Terminal, Glass, Ledger, Contrast, Midnight, Editorial.',
+	] ),
+	( 'Colour and column looks', [
+		'Colour rules: the cell, the whole row, just the words, a pill or a dot.',
+		'Column looks: a bar behind a number, a button where there is a link.',
+	] ),
+	( 'For your visitors', [
+		'Filters your visitors use themselves.',
+		'Excel, CSV and print, holding exactly what the page shows.',
+		'An expandable panel under each row, for the columns that do not fit.',
+		'Private sheets, through a Google connection of your own.',
+	] ),
 ]
 
 KROPKI = ( '<span class="lst-mz-kropka"></span><span class="lst-mz-kropka"></span>'
@@ -163,7 +175,27 @@ KROPKI = ( '<span class="lst-mz-kropka"></span><span class="lst-mz-kropka"></spa
 
 
 def etykieta( tekst ):
+	"""Mała metka mono nad tytułem sekcji.
+
+	Na całej stronie są DWIE i ani jednej więcej. Metka nad każdym nagłówkiem
+	to rytm, który każda strona składana maszynowo ma tak samo: po trzech
+	sekcjach przestaje cokolwiek znaczyć, bo miejsce sekcji na stronie i tak
+	mówi, czym ona jest. Zostały tam, gdzie naprawdę coś dokładają: pierwsza
+	sekcja (nazywa całą podstronę) i tabela (mówi, że to dzieje się teraz).
+	"""
 	return '<p class="lst-mz-etykieta">' + tekst + '</p>'
+
+
+def naglowek( tekst ):
+	"""Tytuł sekcji: szeryfowy, skalujący się z oknem, z kreską do krawędzi.
+
+	Przedtem każda sekcja miała tylko metkę mono 14 px, więc na całej stronie
+	nie było ani jednego napisu większego niż 20 px. Strona była płaska jak
+	dokument. Tytuły sekcji na tej witrynie są w Inria Serif i skalują się
+	z szerokością okna (tak mówi landing/README.md) — to jedyne miejsce, gdzie
+	wolno wyjść poza 14, 18 i 20.
+	"""
+	return '<h2 class="lst-mz-naglowek">' + tekst + '</h2>'
 
 
 def komorka( adres, tytul, opis ):
@@ -229,27 +261,44 @@ def para( tresc, prawa, odwrocona, klasa = '' ):
 		'<div class="lst-mz-para-tresc">' + tresc + '</div>' + prawa + '</div>' )
 
 
-def ekran( plik, tytul, opis, nazwa, linie, odwrocony ):
+def podglad( plik, nazwa ):
 	z = ZRZUTY[ plik ]
+	return ( '<div class="lst-mz-podglad"><img src="ADRES/' + plik + '.png" alt="' + nazwa + '" '
+		'width="' + str( z[ 'w' ] ) + '" height="' + str( z[ 'h' ] ) + '" decoding="async"></div>' )
+
+
+def ekran( plik, tytul, opis, nazwa, linie, odwrocony ):
 	tresc = para_tresc(
 		'<p class="lst-mz-adres">' + nazwa + '</p>'
 		'<p class="lst-mz-tytul">' + tytul + '</p>'
 		'<p class="lst-mz-opis">' + opis + '</p>', linie )
-	obraz = ( '<div class="lst-mz-podglad"><img src="ADRES/' + plik + '.png" alt="' + nazwa + '" '
-		'width="' + str( z[ 'w' ] ) + '" height="' + str( z[ 'h' ] ) + '" decoding="async"></div>' )
-	return para( tresc, okno( 'Dashboard &rsaquo; ' + nazwa, obraz ), odwrocony )
+	return para( tresc, okno( 'Dashboard &rsaquo; ' + nazwa, podglad( plik, nazwa ) ), odwrocony )
 
 
-def lista( tytul, pozycje, klasa = '' ):
-	elementy = ''.join( '<li>' + x + '</li>' for x in pozycje )
+def lista( tytul, grupy, klasa = '' ):
+	"""Lista w grupach, a nie osiem punktów jednym ciągiem.
+
+	Osiem wypunktowań pod rząd czyta się jak lista rzeczy do zrobienia i nikt
+	nie dochodzi do końca. Te same osiem pozycji w trzech nazwanych grupach
+	czyta się jak trzy rzeczy — a kto szuka konkretu, wie, w której grupie go
+	szukać. Ani jedna pozycja nie zniknęła.
+	"""
+	srodek = ''
+
+	for nazwa, pozycje in grupy:
+		srodek += ( '<div class="lst-mz-grupa"><p class="lst-mz-grupa-nazwa">' + nazwa + '</p>'
+			'<ul class="lst-mz-lista">'
+			+ ''.join( '<li>' + x + '</li>' for x in pozycje ) + '</ul></div>' )
+
 	return ( '<div class="lst-mz-kolumna' + klasa + '"><p class="lst-mz-kolumna-tytul">' + tytul + '</p>'
-		'<ul class="lst-mz-lista">' + elementy + '</ul></div>' )
+		'<div class="lst-mz-grupy">' + srodek + '</div></div>' )
 
 
 SEKCJA = (
 	# --- jak to działa: wiersz arkusza i wiersz formuły pod nim -------------
 	'<div class="lst-mz-blok">'
-	+ etykieta( 'How it works' ) +
+	+ etykieta( 'How it works' )
+	+ naglowek( 'Three steps, and then it looks after itself' ) +
 	'<div class="lst-mz-arkusz">'
 	'<div class="lst-mz-litery"><span class="lst-mz-rog"></span>'
 	'<span>A</span><span>B</span><span>C</span></div>'
@@ -263,30 +312,31 @@ SEKCJA = (
 	'</div>'
 	'</div>'
 	'<p class="lst-mz-nota">Your page is built from the copy in your own database, so nobody waits for '
-	'Google &mdash; and on the day Google will not answer, the last good copy stays on the page while the '
-	'dashboard tells you what happened.</p>'
+	'Google. On the day Google will not answer, the last good copy stays on the page while the dashboard '
+	'tells you what happened.</p>'
 	'</div>'
 
 	# --- tabela na żywo, w takim samym okienku jak zrzuty niżej -------------
 	'<div class="lst-mz-blok lst-mz-stol">'
 	'<p class="lst-mz-etykieta jest-zywa"><span class="lst-mz-puls"></span>Live on this page</p>'
+	+ naglowek( 'This is the plugin, running here' ) +
 	'<p class="lst-mz-opis lst-mz-opis-stolu">Ten trails, one spreadsheet. Sort a column, search the box, '
-	'filter it &mdash; this is the plugin&rsquo;s own output, running here, in this site&rsquo;s own '
-	'colours: the Midnight style picked and then disagreed with, one colour well at a time.</p>'
+	'filter it. This is the plugin&rsquo;s own output, in the site&rsquo;s own colours: the Midnight '
+	'style picked, then disagreed with one colour well at a time.</p>'
 	+ okno( 'Trail conditions', '<div class="lst-mz-plansza">' + TABELA + '</div>',
 		'10 rows &middot; checked 9 min ago', ' jest-stolem' ) +
 	'</div>'
 
 	# --- co na niej widać --------------------------------------------------
 	'<div class="lst-mz-blok">'
-	+ etykieta( 'What to look for' ) +
+	+ naglowek( 'What to look for' ) +
 	'<p class="lst-mz-wstep">Six things on the table above, and the column each one is sitting in.</p>'
 	'<div class="lst-mz-legenda">' + ''.join( pozycja( *p ) for p in LEGENDA ) + '</div>'
 	'</div>'
 
 	# --- skąd się to bierze ------------------------------------------------
 	'<div class="lst-mz-blok">'
-	+ etykieta( 'Where it comes from' ) +
+	+ naglowek( 'Where it comes from' ) +
 	'<p class="lst-mz-wstep">Three screens from the dashboard, on the very sheet above.</p>'
 	'<div class="lst-mz-pary">'
 	+ ''.join( ekran( *e, odwrocony = bool( i % 2 ) ) for i, e in enumerate( EKRANY ) ) +
@@ -295,33 +345,34 @@ SEKCJA = (
 
 	# --- telefon, w tym samym wierszu co wszystko wyżej ---------------------
 	'<div class="lst-mz-blok">'
-	+ etykieta( 'On a phone' ) +
-	'<div class="lst-mz-pary">'
-	+ para(
-		para_tresc(
-			'<p class="lst-mz-adres">340 px</p>'
-			'<p class="lst-mz-tytul">Every row becomes a card</p>'
-			'<p class="lst-mz-opis">Each value keeps the name of its column, so nothing has to be '
-			'guessed from position. What decides is the width of the column the table sits in, not the '
-			'width of the screen &mdash; a table in a narrow sidebar folds on a desktop too.'
-			'<span class="lst-mz-szeroko"> The frame beside this is a real phone width, with the same '
-			'table in it.</span>'
-			'<span class="lst-mz-wasko"> The table above this is doing it right now.</span></p>',
-			TELEFON ),
-		'<div class="lst-mz-telefon-rama"><div class="lst-mz-telefon">' + TABELA + '</div></div>',
-		False, ' jest-telefonem' ) +
+	+ naglowek( 'On a phone, every row becomes a card' ) +
+	'<div class="lst-mz-pas">'
+	'<div class="lst-mz-pas-bok">'
+	'<p class="lst-mz-opis">Each value keeps the name of its column, so nothing has to be guessed from '
+	'position. What decides is the width of the column the table sits in, not the width of the screen. '
+	'A table in a narrow sidebar folds on a desktop too.'
+	'<span class="lst-mz-szeroko"> The frame in the middle is a real phone width, with the same table '
+	'in it.</span>'
+	'<span class="lst-mz-wasko"> The table above this is doing it right now.</span></p>'
+	'</div>'
+	'<div class="lst-mz-telefon-rama"><div class="lst-mz-telefon">' + TABELA + '</div></div>'
+	'<div class="lst-mz-pas-bok jest-prawy">'
+	'<p class="lst-mz-adres">360 px</p>'
+	+ punkty( TELEFON ) +
+	'</div>'
 	'</div>'
 	'</div>'
 
 	# --- co jest w czym ----------------------------------------------------
 	'<div class="lst-mz-blok">'
-	+ etykieta( 'What is in which' ) +
+	+ naglowek( 'What is in which' ) +
 	'<div class="lst-mz-listy">'
 	+ lista( 'In the free plugin', WOLNE )
 	+ lista( 'Everything above, plus Pro', PRO, ' jest-pro' ) +
 	'</div>'
 	'<p class="lst-mz-kod"><span class="lst-mz-mono">' + L + 'sheet_table id=&quot;1&quot;' + P + '</span>'
-	'<span class="lst-mz-kod-opis">A block, an Elementor widget or this. The same table either way.</span></p>'
+	'<span class="lst-mz-kod-opis">A block, an Elementor widget or this. The same table either way.</span>'
+	'<a class="lst-mz-cta" href="ADRES-POBIERANIA">Download free</a></p>'
 	'</div>'
 )
 
@@ -351,6 +402,16 @@ STYL = r"""
 	--mz-ekran-linia: rgba( 95, 227, 207, .2 );
 
 	--mz-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+	--mz-szeryf: "Inria Serif", "Iowan Old Style", Georgia, serif;
+
+	/*
+	 * Jeden promień na wszystko, co jest płytą albo ekranem, i jeden mniejszy
+	 * na żetony. Przedtem było ich pięć: 14, 12, 5, 16 i 26 — a pięć promieni
+	 * na jednej stronie to nie system, tylko pięć decyzji podjętych osobno.
+	 * Ramka telefonu zostaje poza tym: telefon ma promień telefonu.
+	 */
+	--mz-luk-plyty: 14px;
+	--mz-luk-zetonu: 6px;
 	/* Mocniejszy ease-out niż wbudowany: ruch rusza od razu, a dochodzi
 	   spokojnie. Wbudowane krzywe są na to za miękkie. */
 	--mz-luk: cubic-bezier( .23, 1, .32, 1 );
@@ -474,14 +535,47 @@ STYL = r"""
 	color: rgb( var( --mz-mieta ) );
 }
 
-.lst-mz .lst-mz-etykieta::after {
+
+
+/*
+ * Tytuł sekcji.
+ *
+ * Do niedawna każda sekcja miała nad sobą tylko metkę mono 14 px i nic więcej,
+ * więc na całej stronie nie było ani jednego napisu większego niż dwadzieścia
+ * pikseli: wszystko ważyło tyle samo i strona czytała się jak dokument, a nie
+ * jak strona. Tytuły tej witryny są szeryfowe i skalują się z oknem — to
+ * jedyne miejsce, w którym wolno wyjść poza 14, 18 i 20.
+ *
+ * Kreska, która przedtem ciągnęła się za metką, ciągnie się teraz za tytułem:
+ * dzieli stronę na rozdziały i przy przewijaniu rysuje się sama, więc mówi
+ * też „ta sekcja właśnie weszła”.
+ */
+.lst-mz .lst-mz-naglowek {
+	display: flex;
+	align-items: baseline;
+	gap: clamp( .9rem, 2vw, 1.4rem );
+	font-family: var( --mz-szeryf );
+	font-weight: 400;
+	font-size: clamp( 1.625rem, 2.6vw, 2.25rem );
+	line-height: 1.12;
+	letter-spacing: -.01em;
+	color: var( --mz-tekst );
+}
+
+.lst-mz .lst-mz-naglowek::after {
 	content: "";
 	flex: 1 1 auto;
-	height: 1px;
 	min-width: 2rem;
-	background-image: linear-gradient( to right, rgba( var( --mz-mieta ), .34 ), rgba( var( --mz-mieta ), 0 ) );
+	height: 1px;
+	background-image: linear-gradient( to right, rgba( var( --mz-mieta ), .3 ), rgba( var( --mz-mieta ), 0 ) );
 	transform-origin: left center;
+	/* Sam tytuł ma się łamać przed kreską, a nie razem z nią. */
+	align-self: center;
 }
+
+/* Metka nad tytułem jest teraz rzadkością, więc nie ciągnie już własnej
+   kreski: dwie kreski jedna nad drugą to nie akcent, tylko szum. */
+.lst-mz .lst-mz-blok > .lst-mz-etykieta + .lst-mz-naglowek { margin-top: -.2rem; }
 
 /* ------------------------------------------------- jak to działa: arkusz */
 
@@ -499,7 +593,7 @@ STYL = r"""
  */
 .lst-mz .lst-mz-arkusz {
 	border: 1px solid var( --mz-linia );
-	border-radius: 14px;
+	border-radius: var( --mz-luk-plyty );
 	overflow: hidden;
 	background-color: var( --mz-plyta );
 }
@@ -652,7 +746,7 @@ STYL = r"""
 	flex-direction: column;
 	min-width: 0;
 	border: 1px solid var( --mz-ekran-linia );
-	border-radius: 12px;
+	border-radius: var( --mz-luk-plyty );
 	overflow: hidden;
 	background-color: var( --mz-ekran );
 	box-shadow: 0 22px 46px -30px rgba( 0, 0, 0, .95 ), 0 0 34px -18px rgba( var( --mz-mieta ), .3 );
@@ -715,8 +809,9 @@ STYL = r"""
 	transition: transform 320ms var( --mz-luk );
 }
 
-/* Ściemnienie u dołu okna: „ten ekran ma dalszy ciąg”. */
-.lst-mz .lst-mz-okno:not( .jest-stolem )::after {
+/* Ściemnienie u dołu okna: „ten ekran ma dalszy ciąg”. Szerokiego nie dotyczy,
+   bo tam nic nie zostało urwane i fałszywa zapowiedź dalszego ciągu kłamie. */
+.lst-mz .lst-mz-okno:not( .jest-stolem ):not( .jest-szerokie )::after {
 	content: "";
 	position: absolute;
 	inset: auto 0 0 0;
@@ -771,7 +866,7 @@ STYL = r"""
 	padding: 1.1rem 1.25rem 1.25rem;
 	background-color: var( --mz-plyta );
 	border: 1px solid var( --mz-plyta-linia );
-	border-radius: 14px;
+	border-radius: var( --mz-luk-plyty );
 	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .045 );
 	transition: border-color 200ms ease, transform 200ms var( --mz-luk );
 }
@@ -787,7 +882,7 @@ STYL = r"""
 	align-items: stretch;
 	overflow: hidden;
 	border: 1px solid var( --mz-linia );
-	border-radius: 5px;
+	border-radius: var( --mz-luk-zetonu );
 	letter-spacing: .1em;
 	text-transform: uppercase;
 }
@@ -843,7 +938,7 @@ STYL = r"""
 	padding: 1.15rem 1.3rem 1.3rem;
 	background-color: var( --mz-plyta );
 	border: 1px solid var( --mz-plyta-linia );
-	border-radius: 14px;
+	border-radius: var( --mz-luk-plyty );
 	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .045 );
 }
 
@@ -876,9 +971,34 @@ STYL = r"""
 	background-color: rgba( var( --mz-mieta ), .7 );
 }
 
+/* --------------------------------------------------- telefon: pas z aparatem */
+
+/*
+ * Telefon nie jest kolejną parą „płyta i okienko”.
+ *
+ * Trzy takie pary stoją wyżej i to jest jeden szereg, ten sam, który robi
+ * sekcja „dwie minuty” na stronie głównej. Czwarta para pod nimi nie byłaby
+ * już szeregiem, tylko przyzwyczajeniem. Tu aparat stoi w środku, a tekst po
+ * obu jego stronach: inny układ, a przy okazji telefon przestaje być dodatkiem
+ * obok zdania i staje się przedmiotem sekcji.
+ */
+.lst-mz .lst-mz-pas {
+	display: grid;
+	grid-template-columns: minmax( 0, 1fr ) auto minmax( 0, 1fr );
+	gap: clamp( 1.2rem, 2.6vw, 2.2rem );
+	align-items: center;
+	padding-top: clamp( .6rem, 1.4vw, 1rem );
+}
+
+.lst-mz .lst-mz-pas-bok { display: grid; gap: .6rem; align-content: center; }
+
+/* Obie strony wyrównane tak samo: jedna do środka, druga do góry wygląda
+   jak dwie decyzje podjęte osobno. */
+
+.lst-mz .lst-mz-pas-bok .lst-mz-punkty { margin-top: 0; padding-top: 0; border-top: 0; }
+
 /* -------------------------------------------------------------- telefon */
 
-.lst-mz .lst-mz-para.jest-telefonem .lst-mz-telefon-rama { justify-self: center; }
 .lst-mz .lst-mz-wasko { display: none; }
 
 .lst-mz .lst-mz-telefon-rama {
@@ -896,7 +1016,7 @@ STYL = r"""
  * rozciągnęłoby tę sekcję na dwa ekrany, a widać już po trzech.
  */
 .lst-mz .lst-mz-telefon {
-	width: 340px;
+	width: 360px;
 	max-width: 100%;
 	height: clamp( 22rem, 30vw, 26rem );
 	overflow: hidden;
@@ -921,7 +1041,7 @@ STYL = r"""
 	overflow: hidden;
 	background-color: var( --mz-plyta );
 	border: 1px solid var( --mz-plyta-linia );
-	border-radius: 14px;
+	border-radius: var( --mz-luk-plyty );
 	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .045 );
 	transition: border-color 200ms ease;
 }
@@ -940,7 +1060,26 @@ STYL = r"""
 
 .lst-mz .lst-mz-kolumna.jest-pro .lst-mz-kolumna-tytul { color: rgb( var( --mz-mieta ) ); }
 
-.lst-mz .lst-mz-lista { display: grid; gap: .55rem; margin: 0; padding: 1.1rem 1.35rem 1.35rem; list-style: none; }
+/*
+ * Osiem pozycji w trzech nazwanych grupach zamiast jednego ciągu wypunktowań.
+ * Ciąg ośmiu kropek czyta się jak lista rzeczy do zrobienia i nikt nie dochodzi
+ * do końca; trzy grupy czyta się jak trzy rzeczy, a kto szuka konkretu, wie,
+ * w której grupie szukać.
+ */
+.lst-mz .lst-mz-grupy { display: grid; padding: 1.1rem 1.35rem 1.35rem; gap: 1rem; }
+
+.lst-mz .lst-mz-grupa { display: grid; gap: .5rem; }
+
+.lst-mz .lst-mz-grupa + .lst-mz-grupa { padding-top: 1rem; border-top: 1px solid var( --mz-plyta-linia ); }
+
+.lst-mz .lst-mz-grupa-nazwa {
+	font-size: .875rem;
+	font-weight: 600;
+	line-height: 1.4;
+	color: var( --mz-tekst );
+}
+
+.lst-mz .lst-mz-lista { display: grid; gap: .55rem; margin: 0; padding: 0; list-style: none; }
 
 .lst-mz .lst-mz-lista li {
 	position: relative;
@@ -975,12 +1114,35 @@ STYL = r"""
 	padding: .9rem 1.1rem;
 	background-color: var( --mz-plyta );
 	border: 1px solid var( --mz-plyta-linia );
-	border-radius: 12px;
+	border-radius: var( --mz-luk-plyty );
 	font-size: .875rem;
 }
 
 .lst-mz .lst-mz-kod .lst-mz-mono { font-family: var( --mz-mono ); color: rgb( var( --mz-mieta ) ); }
 .lst-mz .lst-mz-kod-opis { color: var( --mz-tekst-3 ); font-size: .875rem; }
+
+/*
+ * Jedno wezwanie na całej podstronie, i to na samym jej końcu: kto doczytał aż
+ * tutaj, wie już wszystko, czego się dowie. Napis jest ten sam co na stronie
+ * głównej, bo dwa różne napisy na to samo działanie to dwa działania w głowie
+ * czytającego. Ciemny tusz na miętowym tle, czyli to samo, co robi przycisk
+ * w nagłówku witryny.
+ */
+.lst-mz .lst-mz-cta {
+	margin-left: auto;
+	padding: .5rem 1.15rem;
+	border-radius: 999px;
+	background-color: rgb( var( --mz-mieta ) );
+	color: #06100f;
+	font-size: 1.125rem;
+	font-weight: 600;
+	line-height: 1.3;
+	white-space: nowrap;
+	text-decoration: none;
+	transition: transform 160ms var( --mz-luk ), filter 160ms ease;
+}
+
+.lst-mz .lst-mz-cta:active { transform: translateY( 1px ); }
 
 /* ------------------------------------------------------------- najechanie */
 
@@ -988,6 +1150,7 @@ STYL = r"""
 	.lst-mz .lst-mz-komorka:hover { background-color: rgba( 20, 30, 28, .86 ); }
 	.lst-mz .lst-mz-pozycja:hover { border-color: rgba( var( --mz-mieta ), .34 ); transform: translateY( -2px ); }
 	.lst-mz .lst-mz-kolumna:hover { border-color: rgba( var( --mz-mieta ), .34 ); }
+	.lst-mz .lst-mz-cta:hover { filter: brightness( 1.08 ); transform: translateY( -1px ); }
 	.lst-mz .lst-mz-okno:not( .jest-stolem ):hover { transform: translateY( -2px ); box-shadow: 0 26px 50px -30px rgba( 0, 0, 0, .95 ), 0 0 40px -16px rgba( var( --mz-mieta ), .4 ); }
 	.lst-mz .lst-mz-okno:not( .jest-stolem ):hover img { transform: scale( 1.012 ); }
 }
@@ -1012,8 +1175,10 @@ STYL = r"""
 
 	.lst-mz .lst-mz-blok:not( :first-child ) > .lst-mz-etykieta,
 	.lst-mz .lst-mz-blok:not( :first-child ) > .lst-mz-wstep,
+	.lst-mz .lst-mz-blok:not( :first-child ) > .lst-mz-naglowek,
 	.lst-mz .lst-mz-legenda .lst-mz-pozycja,
 	.lst-mz .lst-mz-para,
+	.lst-mz .lst-mz-pas,
 	.lst-mz .lst-mz-listy .lst-mz-kolumna,
 	.lst-mz .lst-mz-kod,
 	.lst-mz .lst-mz-stol > .lst-mz-etykieta,
@@ -1028,7 +1193,7 @@ STYL = r"""
 	 * znak, który dzieli stronę na rozdziały — tu robi dodatkowo za wskaźnik:
 	 * dociągnięta kreska znaczy „ta sekcja jest już twoja”.
 	 */
-	.lst-mz .lst-mz-etykieta::after {
+	.lst-mz .lst-mz-naglowek::after {
 		animation: lst-mz-kreska 620ms var( --mz-luk ) both;
 		animation-timeline: view();
 		animation-range: entry 6% cover 30%;
@@ -1080,7 +1245,7 @@ STYL = r"""
  */
 @media print {
 	.lst-mz [class*="lst-mz-"],
-	.lst-mz .lst-mz-etykieta::after,
+	.lst-mz .lst-mz-naglowek::after,
 	.lst-mz .lst-mz-stol .lstab-row { animation: none !important; }
 }
 
@@ -1090,13 +1255,14 @@ STYL = r"""
 	 * wszystko, co one pokazywały, zostaje na ekranie w stanie końcowym.
 	 */
 	.lst-mz [class*="lst-mz-"],
-	.lst-mz .lst-mz-etykieta::after,
+	.lst-mz .lst-mz-naglowek::after,
 	.lst-mz .lst-mz-stol .lstab-row { animation: none !important; }
 
 	.lst-mz .lst-mz-komorka,
 	.lst-mz .lst-mz-pozycja,
 	.lst-mz .lst-mz-okno,
 	.lst-mz .lst-mz-okno img,
+	.lst-mz .lst-mz-cta,
 	.lst-mz .lst-mz-kolumna { transition: none; }
 }
 
@@ -1164,6 +1330,9 @@ STYL = r"""
 .lst-mz .lst-mz-kolumna-tytul,
 .lst-mz .lst-mz-litery > span { text-transform: uppercase !important; }
 
+.lst-mz .lst-mz-naglowek { font-family: var( --mz-szeryf ) !important; }
+.lst-mz .lst-mz-cta { background-color: rgb( var( --mz-mieta ) ) !important; color: #06100f !important; }
+
 .lst-mz .lst-mz-adres,
 .lst-mz .lst-mz-etykieta,
 .lst-mz .lst-mz-nota,
@@ -1219,6 +1388,10 @@ STYL = r"""
 	.lst-mz .lst-mz-strzalka { display: none; }
 	.lst-mz .lst-mz-etap:not( :first-child ) .lst-mz-etap-pod { padding-left: 0; }
 
+	/* Kreska za tytułem ma sens, kiedy tytuł mieści się w jednym wierszu.
+	   Przy dwóch łamie się obok pierwszego i wygląda jak zgubiony znak. */
+	.lst-mz .lst-mz-naglowek::after { display: none; }
+	.lst-mz .lst-mz-pas { grid-template-columns: minmax( 0, 1fr ); }
 	.lst-mz .lst-mz-telefon-rama { display: none; }
 	.lst-mz .lst-mz-szeroko { display: none; }
 	.lst-mz .lst-mz-wasko { display: inline; }
@@ -1226,7 +1399,7 @@ STYL = r"""
 """
 
 STRONA = (
-	'<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">\n'
+	'<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Inria+Serif:ital,wght@0,300;0,400&display=swap">\n'
 	'\n<div class="lst-mz"><div class="lst-mz-rama">' + SEKCJA + '</div></div>\n'
 	'\n<style>\n' + STYL + CSS + '\n</style>\n'
 	'\n<script>\n' + JS + '\n</script>\n'

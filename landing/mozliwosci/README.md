@@ -50,6 +50,13 @@ Nie stąd, tylko ze strony głównej. Ta podstrona ma być jej dalszym ciągiem,
 a nie osobną witryną, więc język jest pożyczony i wszystkie wartości są te
 same co w `landing/dwie-minuty` i `landing/naglowek`:
 
+* **tytuły sekcji w Inria Serif**, skalujące się z oknem, z włoskową kreską
+  ciągnącą się za nimi do prawej krawędzi. Tak robi cała witryna; przedtem ta
+  podstrona miała nad sekcjami tylko metki mono 14 px, więc nie było na niej
+  ani jednego napisu większego niż dwadzieścia pikseli i czytała się jak
+  dokument. Metka mono została w dwóch miejscach na sześć sekcji: nad pierwszą
+  i nad tabelą. Metka nad każdym tytułem to rytm, który po trzech sekcjach
+  przestaje cokolwiek znaczyć.
 * **arkusz jako metafora.** „How it works” to pasek kolumn `A B C`, numer
   wiersza z boku, trzy komórki w środku i wiersz formuły pod spodem, w którym
   napisane jest, co się z arkuszem dzieje. Strona główna robi ten sam żart
@@ -65,8 +72,21 @@ same co w `landing/dwie-minuty` i `landing/naglowek`:
 * **znacznik przy każdej pozycji legendy** to komórka: z lewej litera kolumny
   w tabeli wyżej, z prawej `Free` albo `Pro`. Adres nie jest ozdobą — mówi,
   gdzie na tabeli tego szukać.
+* **telefon stoi w pasie**, w środku, z tekstem po obu stronach. Trzy pary
+  „płyta i okienko” wyżej to jeden szereg (ten sam, który robi „dwie minuty”);
+  czwarta para pod nimi nie byłaby już szeregiem, tylko przyzwyczajeniem.
+* **listy „co jest w czym” w nazwanych grupach**, po trzy w kolumnie. Osiem
+  wypunktowań jednym ciągiem czyta się jak lista rzeczy do zrobienia i nikt nie
+  dochodzi do końca. Ani jedna pozycja nie zniknęła.
+* **jedno wezwanie na całej podstronie**, na samym końcu, przy skrócie: ten sam
+  napis co na stronie głównej, bo dwa różne napisy na to samo działanie to dwa
+  działania w głowie czytającego. Adres to `ADRES-POBIERANIA` i podmienia się go
+  razem z adresami zrzutów.
 * mięta `95 227 207`, płyta `rgba( 13 18 17 / .62 )`, ekran `#0a1110`,
-  mono IBM Plex.
+  mono IBM Plex, dwa promienie: `14px` na płyty i ekrany, `6px` na żetony.
+* **zero myślników i półpauz w treści.** To znak, po którym poznaje się tekst
+  pisany maszynowo. Zdanie z myślnikiem rozbija się na dwa albo dostaje
+  dwukropek, i przy okazji robi się krótsze. Pilnuje tego `spr.mjs`.
 
 **Tabela jest w kolorach strony.** Szablon Północ wybrany, a potem odmalowany
 próbnikami wtyczki: tekst, tło, nagłówek, linie, najechanie i akcent. To jest
@@ -105,4 +125,6 @@ Divi, wrogi motyw pisany z `!important` (ten sam, którym mierzy się
 `pokaz-na-zywo/`), stronę bez JavaScriptu, `prefers-reduced-motion`, pigułkę
 w karcie, wyśrodkowanie ramy (luz z lewej równy luzowi z prawej), to, że arkusz
 wtyczki dojechał cały — zbłąkana klamra w moim CSS potrafi zjeść regułę wtyczki
-stojącą za nią — i to, że tabela naprawdę sortuje i szuka. 29 sprawdzeń.
+stojącą za nią — i to, że tabela naprawdę sortuje i szuka, że tytuły sekcji są szeryfowe i większe od reszty,
+że metka mono nie pojawia się częściej niż raz na trzy sekcje i że na całej
+stronie nie ma ani jednego myślnika. 32 sprawdzenia.

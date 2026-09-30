@@ -170,11 +170,30 @@ console.log( '\nmoduł na stronie' );
 		filtrow: document.querySelectorAll( '.lst-mz-stol .lstabp-facet' ).length,
 		pobran: document.querySelectorAll( '.lst-mz-stol .lstabp-export-button' ).length,
 		poziom: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-		// Tylko te, które mają własny tekst: pojemnik dziedziczy 16 px po
-		// stronie i niczym nim nie pisze.
-		rozmiary: [ ...new Set( [ ...document.querySelectorAll( '.lst-mz [class*="lst-mz-"]' ) ]
+		/*
+		 * Tylko te, które mają własny tekst: pojemnik dziedziczy 16 px po
+		 * stronie i niczym nim nie pisze. Tytuły sekcji są poza tą listą —
+		 * landing/README.md wyjmuje je spod reguły 14/18/20, bo skalują się
+		 * z szerokością okna. Sprawdzane są osobno, niżej.
+		 */
+		rozmiary: [ ...new Set( [ ...document.querySelectorAll( '.lst-mz [class*="lst-mz-"]:not( .lst-mz-naglowek )' ) ]
 			.filter( ( e ) => [ ...e.childNodes ].some( ( n ) => 3 === n.nodeType && n.nodeValue.trim() ) )
 			.map( ( e ) => Math.round( parseFloat( getComputedStyle( e ).fontSize ) ) ) ) ].sort( ( a, x ) => a - x ),
+
+		// Tytuły sekcji: szeryfowe i większe od reszty, jak na całej witrynie.
+		tytuly: [ ...document.querySelectorAll( '.lst-mz-naglowek' ) ].map( ( e ) => ( {
+			krój: getComputedStyle( e ).fontFamily.split( ',' )[ 0 ].replace( /"/g, '' ),
+			px: Math.round( parseFloat( getComputedStyle( e ).fontSize ) ),
+		} ) ),
+
+		// Metka mono nad tytułem jest rzadkością, a nie rytmem: najwyżej jedna
+		// na trzy sekcje, inaczej przestaje cokolwiek znaczyć.
+		metek: document.querySelectorAll( '.lst-mz-etykieta' ).length,
+		sekcji: document.querySelectorAll( '.lst-mz-blok' ).length,
+
+		// Myślnik i półpauza: zero. Są znakiem, po którym poznaje się tekst
+		// pisany maszynowo, i na tej stronie nie ma ich ani jednej.
+		myslniki: ( document.querySelector( '.lst-mz' ).innerText.match( /[\u2013\u2014]/g ) || [] ).length,
 	} ) );
 
 	ok( 'trzy kroki, trzy etapy, sześć pozycji legendy', r.krokow === 3 && r.etapow === 3 && r.pozycji === 6, `${ r.krokow }/${ r.etapow }/${ r.pozycji }` );
@@ -184,6 +203,12 @@ console.log( '\nmoduł na stronie' );
 		`pigułek ${ r.pigulek }, kropek ${ r.kropek }, słupków ${ r.slupkow }, przycisków ${ r.przyciskow }, filtrów ${ r.filtrow }, pobrań ${ r.pobran }` );
 	ok( 'bez suwaka poziomego', r.poziom === 0, String( r.poziom ) );
 	ok( 'rozmiary pisma tylko 14, 18 i 20', r.rozmiary.every( ( x ) => [ 14, 18, 20 ].includes( x ) ), r.rozmiary.join( '/' ) );
+	ok( 'tytuły sekcji są szeryfowe i większe od reszty',
+		r.tytuly.length === 6 && r.tytuly.every( ( t ) => 'Inria Serif' === t.krój && t.px > 20 ),
+		r.tytuly.map( ( t ) => `${ t.krój } ${ t.px }` ).join( ', ' ) );
+	ok( 'metka mono najwyżej raz na trzy sekcje',
+		r.metek <= Math.ceil( r.sekcji / 3 ), `${ r.metek } metek na ${ r.sekcji } sekcji` );
+	ok( 'ani jednego myślnika na stronie', 0 === r.myslniki, `${ r.myslniki }` );
 	ok( 'bez błędów skryptu', bledy.length === 0, bledy.join( ' | ' ) || '0' );
 
 	const zrzuty = await p.evaluate( () => ( {
@@ -314,7 +339,7 @@ console.log( '\nmoduł na stronie' );
 	await p.locator( '.lst-mz-legenda' ).screenshot( { path: 'mozliwosci-legenda.png' } );
 	await p.locator( '.lst-mz-stol' ).screenshot( { path: 'mozliwosci-stol.png' } );
 	await p.locator( '.lst-mz-para' ).first().screenshot( { path: 'mozliwosci-ekran.png' } );
-	await p.locator( '.lst-mz-para.jest-telefonem' ).screenshot( { path: 'mozliwosci-telefon.png' } );
+	await p.locator( '.lst-mz-pas' ).screenshot( { path: 'mozliwosci-telefon.png' } );
 	await c.close();
 }
 
