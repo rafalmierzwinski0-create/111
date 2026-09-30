@@ -169,7 +169,7 @@ def slowo():
 		+ lista() +
 		'<p class="lst-pl-dalej"><a class="lst-pl-przycisk" href="ADRES-POBIERANIA">Download free</a></p>'
 		'<p class="lst-pl-stopka-slowa">Free version, no trial, '
-		'no nag screens, no watermark.</p>'
+		'no row limit, no watermark.</p>'
 		'</div>' )
 
 
