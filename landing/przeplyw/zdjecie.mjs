@@ -18,7 +18,7 @@ const b = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium-11
 
 // --- na tle strony -------------------------------------------------------
 {
-	const p = await b.newPage( { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 } );
+	const p = await b.newPage( { viewport: { width: 1440, height: 1400 }, deviceScaleFactor: 2 } );
 	await p.goto( pathToFileURL( TU + '/PODGLAD.html' ).href, { waitUntil: 'load' } );
 	await p.waitForTimeout( 500 );
 
@@ -33,7 +33,7 @@ const b = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium-11
 
 // --- bez tła -------------------------------------------------------------
 {
-	const p = await b.newPage( { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 } );
+	const p = await b.newPage( { viewport: { width: 1440, height: 1400 }, deviceScaleFactor: 2 } );
 
 	/*
 	 * Z PODGLĄDU, a nie z samego PRZEPLYW-en.html.
@@ -118,7 +118,7 @@ const kadr = async ( p ) => p.evaluate( () => {
 } );
 
 {
-	const p = await b.newPage( { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 } );
+	const p = await b.newPage( { viewport: { width: 1440, height: 1400 }, deviceScaleFactor: 2 } );
 	await p.goto( pathToFileURL( TU + '/PODGLAD.html' ).href, { waitUntil: 'load' } );
 	await p.waitForTimeout( 500 );
 	await bezNapisow( p );
@@ -130,7 +130,7 @@ const kadr = async ( p ) => p.evaluate( () => {
 }
 
 {
-	const p = await b.newPage( { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 } );
+	const p = await b.newPage( { viewport: { width: 1440, height: 1400 }, deviceScaleFactor: 2 } );
 	await p.goto( pathToFileURL( TU + '/PODGLAD.html' ).href, { waitUntil: 'load' } );
 	await p.waitForTimeout( 500 );
 	await bezNapisow( p );

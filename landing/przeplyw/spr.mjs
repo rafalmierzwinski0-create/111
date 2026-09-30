@@ -55,6 +55,7 @@ console.log( '\nsekcja na stronie' );
 		kolumn: document.querySelectorAll( '.lst-pl .lstab thead th' ).length,
 		// To, czym ta tabela ma się pochwalić: pigułki, słupki, przyciski, filtr.
 		pigulek: document.querySelectorAll( '.lst-pl .lstabp-pill' ).length,
+		kropek: document.querySelectorAll( '.lst-pl .lstabp-dot' ).length,
 		slupkow: document.querySelectorAll( '.lst-pl .lstabp-bar' ).length,
 		przyciskow: document.querySelectorAll( '.lst-pl .lstabp-cta-link' ).length,
 		filtrow: document.querySelectorAll( '.lst-pl .lstabp-facet' ).length,
@@ -82,13 +83,14 @@ console.log( '\nsekcja na stronie' );
 	ok( 'po prawej stoi prawdziwa tabela z wtyczki', 1 === r.tabel && 8 === r.wierszy && 6 === r.kolumn,
 		`${ r.wierszy } wierszy, ${ r.kolumn } kolumn` );
 	/*
-	 * Szesnaście pigułek, bo dwie kolumny je noszą: stan magazynu i stopień
-	 * wypału. Druga jest tu po to, żeby było widać, że pigułka nie jest
-	 * sztuczką jednej kolumny, tylko regułą, którą stawia się nad dowolną.
+	 * Dwa kształty tej samej reguły: pigułka przy stanie magazynu i kropka przy
+	 * stopniu wypału. Dwie kolumny pigułek obok siebie biją się o uwagę, a poza
+	 * tym chodzi o to, żeby było widać, że reguła nie jest sztuczką jednej
+	 * kolumny ani jednego kształtu.
 	 */
 	ok( 'i widać na niej to, czym wtyczka się chwali',
-		r.pigulek === 16 && r.slupkow === 8 && r.przyciskow === 8 && r.filtrow === 2 && r.malowanych > 0,
-		`pigułek ${ r.pigulek }, słupków ${ r.slupkow }, przycisków ${ r.przyciskow }, filtrów ${ r.filtrow }, malowanych komórek ${ r.malowanych }` );
+		r.pigulek === 8 && r.kropek === 8 && r.slupkow === 8 && r.przyciskow === 8 && r.filtrow === 2 && r.malowanych > 0,
+		`pigułek ${ r.pigulek }, kropek ${ r.kropek }, słupków ${ r.slupkow }, przycisków ${ r.przyciskow }, filtrów ${ r.filtrow }, malowanych komórek ${ r.malowanych }` );
 	ok( 'i podpis, który wtyczka rysuje sama', 1 === r.podpisow, String( r.podpisow ) );
 	ok( 'strzałka jest', 1 === r.strzalek, String( r.strzalek ) );
 
@@ -275,7 +277,7 @@ console.log( '\ndwie kolumny' );
  */
 console.log( '\nna samym progu dwóch kolumn' );
 {
-	const { p, c } = await otworz( 1320, 1000 );
+	const { p, c } = await otworz( 1360, 1000 );
 
 	const u = await p.evaluate( () => {
 		const sc = document.querySelector( '.lst-pl .lstab-scroll' );
@@ -304,7 +306,7 @@ console.log( '\nna samym progu dwóch kolumn' );
 /* Tuż pod progiem tekst staje nad obrazkiem i nic nie traci. */
 console.log( '\ntuż pod progiem' );
 {
-	const { p, c } = await otworz( 1300, 1000 );
+	const { p, c } = await otworz( 1340, 1000 );
 
 	const u = await p.evaluate( () => {
 		const slowo = document.querySelector( '.lst-pl-slowo' ).getBoundingClientRect();

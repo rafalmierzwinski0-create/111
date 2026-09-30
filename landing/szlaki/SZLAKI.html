@@ -257,6 +257,50 @@
 	background-attachment: local, local, scroll, scroll;
 }
 
+/*
+ * Rogi, którymi nagłówek wychodzi poza ramkę.
+ *
+ * Ramka ma zaokrąglone rogi, ale nie zawsze obcina to, co w niej stoi: tabela,
+ * która mieści się na szerokość, dostaje „overflow: visible”, żeby jej
+ * nagłówek mógł przykleić się do góry ekranu przy przewijaniu strony. Wtedy
+ * prostokątne tło paska nagłówka maluje się po samo pudełko i w obu górnych
+ * rogach wystaje zza zaokrąglenia ostrym narożnikiem. Widać to na każdym
+ * szablonie z paskiem nagłówka w innym kolorze niż tabela i na każdym, który
+ * maluje ostatni wiersz.
+ *
+ * Skrajne komórki dostają więc to samo zaokrąglenie co ramka, o piksel mniejsze
+ * — tyle, ile zabiera jej obramowanie. Mnożone przez „--lstab-table-mode”, bo
+ * w układzie kart wiersz jest osobną kartą z własnym zaokrągleniem i narożniki
+ * nagłówka nie mają się do czego stosować.
+ */
+.lstab-table thead tr:first-child > th:first-child {
+	border-start-start-radius: calc( var(--lstab-table-mode, 1) * max( 0px, var(--lstab-radius) - 1px ) );
+}
+
+.lstab-table thead tr:first-child > th:last-child {
+	border-start-end-radius: calc( var(--lstab-table-mode, 1) * max( 0px, var(--lstab-radius) - 1px ) );
+}
+
+.lstab-table tbody tr:last-child > td:first-child {
+	border-end-start-radius: calc( var(--lstab-table-mode, 1) * max( 0px, var(--lstab-radius) - 1px ) );
+}
+
+.lstab-table tbody tr:last-child > td:last-child {
+	border-end-end-radius: calc( var(--lstab-table-mode, 1) * max( 0px, var(--lstab-radius) - 1px ) );
+}
+
+/*
+ * Tło przypiętej pierwszej kolumny to osobna warstwa pod komórką, więc jej
+ * własny narożnik wystaje spod zaokrąglonego narożnika komórki tak samo.
+ */
+.lstab-sticky-first .lstab-table thead tr:first-child > th:first-child::before {
+	border-start-start-radius: calc( var(--lstab-table-mode, 1) * max( 0px, var(--lstab-radius) - 1px ) );
+}
+
+.lstab-sticky-first .lstab-table tbody tr:last-child > td:first-child::before {
+	border-end-start-radius: calc( var(--lstab-table-mode, 1) * max( 0px, var(--lstab-radius) - 1px ) );
+}
+
 .lstab-table {
 	width: 100%;
 	/*

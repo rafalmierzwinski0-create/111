@@ -610,6 +610,11 @@ STYL = r"""
    nie wypchnęły jej poza szerokość sekcji. */
 .lst-pl .lstab-container, .lst-pl .lstab { margin-inline: 0 !important; max-width: 100%; }
 
+/* Na stronie tabela ma nad sobą odstęp od tego, co stoi wyżej. W tym oknie nad
+   nią stoi belka okna, a nie strona, więc odstęp jest tylko dopełnieniem ekranu
+   i każdy piksel zabrany stąd to jeden wiersz tabeli więcej widoczny. */
+.lst-pl .lstab-container { margin-block: 0 !important; }
+
 /* --------------------------------------------------------------- strzałka */
 
 /*
@@ -762,7 +767,7 @@ STYL = r"""
  * i pusty obrazek, więc próg jest tam, gdzie tabela naprawdę się mieści, i jest
  * zmierzony, a nie zgadnięty.
  */
-@media ( min-width: 1320px ) {
+@media ( min-width: 1360px ) {
 	.lst-pl .lst-pl-uklad {
 		/* Wąska kolumna na słowo, cała reszta na obrazek: to obrazek jest tu
 		   treścią, a tekst go podpisuje. */
@@ -819,7 +824,7 @@ STYL = r"""
 		 * w jego połowie, a przy 1180 px widać było dwa i pół wiersza: za mało,
 		 * żeby malowany wiersz w ogóle się pokazał, a to on jest tu dowodem.
 		 */
-		max-height: 36rem;
+		max-height: 40rem;
 		/*
 		 * Zanik rozłożony na półtora wiersza, a nie na pół.
 		 *

@@ -84,9 +84,9 @@ $linia      = '#33463f';
  * tylko ozdobę: jasna palona, średnia, ciemna. To jest dokładnie to, co robi
  * reguła koloru w kokpicie, dwoma kliknięciami.
  */
-$jasna      = '#e2c79b';
-$srednia    = '#c08a55';
-$ciemna     = '#9a6b46';
+$jasna      = '#f0dcb0';
+$srednia    = '#c9884a';
+$ciemna     = '#8a5330';
 
 $source_id = LSTAB_Storage::insert(
 	array(
@@ -102,9 +102,12 @@ $source_id = LSTAB_Storage::insert(
 		'style_vars'    => array(
 			'text'       => '#f1f8f6',
 			'background' => $stol,
-			'headerText' => '#a9c2bd',
+			'headerText' => '#bcd6d0',
 			'headerBg'   => $stol_gora,
 			'border'     => $linia,
+			// Tekst odrobinę większy: tabela ma się czytać z odległości, z jakiej
+			// ogląda się stronę sprzedażową, a nie z jakiej czyta się arkusz.
+			'fontSize'     => 'large',
 			'hover'      => '#1b2a27',
 			'accent'       => $mieta,
 			'lines'        => 'normal',
@@ -128,8 +131,12 @@ LSTAB_Sync::run( $source_id );
 
 /*
  * Reguła koloru w słowach kokpitu: stan magazynu nosi pigułkę, a wyprzedany
- * towar maluje cały wiersz. Do tego stopień wypału, też pigułką, ale w kolorze
- * ziarna: kolor niesie tam znaczenie, a nie samą ozdobę.
+ * towar maluje cały wiersz.
+ *
+ * Stopień wypału dostaje kropkę, nie pigułkę. Dwie kolumny pigułek obok siebie
+ * biją się o uwagę i tabela zaczyna wyglądać jak tablica z naklejkami; kropka
+ * mówi to samo ciszej, a kolor ziarna zostaje. Wtyczka ma na to osobny kształt
+ * reguły i to jest dokładnie ten przypadek, do którego jest.
  */
 update_option(
 	'lstabp_rules',
@@ -139,9 +146,9 @@ update_option(
 			array( 'column' => 'Stock', 'operator' => '=', 'value' => 'In stock',     'style' => $mieta,    'scope' => 'pill' ),
 			array( 'column' => 'Stock', 'operator' => '=', 'value' => 'Backorder',    'style' => $bursztyn, 'scope' => 'pill' ),
 			array( 'column' => 'Stock', 'operator' => '=', 'value' => 'Out of stock', 'style' => $koral,    'scope' => 'pill' ),
-			array( 'column' => 'Roast', 'operator' => '=', 'value' => 'Light',        'style' => $jasna,    'scope' => 'pill' ),
-			array( 'column' => 'Roast', 'operator' => '=', 'value' => 'Medium',       'style' => $srednia,  'scope' => 'pill' ),
-			array( 'column' => 'Roast', 'operator' => '=', 'value' => 'Dark',         'style' => $ciemna,   'scope' => 'pill' ),
+			array( 'column' => 'Roast', 'operator' => '=', 'value' => 'Light',        'style' => $jasna,    'scope' => 'dot' ),
+			array( 'column' => 'Roast', 'operator' => '=', 'value' => 'Medium',       'style' => $srednia,  'scope' => 'dot' ),
+			array( 'column' => 'Roast', 'operator' => '=', 'value' => 'Dark',         'style' => $ciemna,   'scope' => 'dot' ),
 		),
 	),
 	false
@@ -180,9 +187,13 @@ $zebrane = array(
 	'pro'   => LSTAB_Renderer::render(
 		array(
 			'source_id' => $source_id,
-			// Podpis, który wtyczka rysuje sama, nad paskiem wyszukiwania.
-			// Bez myślnika: cała sekcja jest bez myślników.
-			'caption'   => 'This week\'s roast list',
+			/*
+			 * Podpis, który wtyczka rysuje sama, nad paskiem wyszukiwania.
+			 * Mówi wprost, co w tabeli stoi: „This week's roast list” brzmiało
+			 * ładnie i nie mówiło nic, bo czytelnik widzi tę tabelę pierwszy raz
+			 * w życiu i nie wie, czym jest „roast list”.
+			 */
+			'caption'   => 'Coffee prices and stock',
 		)
 	),
 	/*
