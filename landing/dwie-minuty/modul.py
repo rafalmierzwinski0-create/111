@@ -368,7 +368,7 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 	 */
 	display: grid;
 	grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
-	column-gap: clamp( 1.6rem, 3.4vw, 3.6rem );
+	gap: clamp( .9rem, 1.8vw, 1.5rem );
 	position: relative;
 	margin-top: clamp( 2.2rem, 4vw, 3.6rem );
 	padding-top: clamp( 1.6rem, 3vw, 2.6rem );
@@ -393,75 +393,56 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 		transparent ) !important;
 }
 
+/*
+ * Trzy osobne bloki, a nie trzy kolumny przedzielone kreską.
+ *
+ * Blok trzyma się kupy sam z siebie i nie potrzebuje niczego, co by go
+ * domykało: ma swoje tło, swoją krawędź i swój cień, więc widać go z drugiego
+ * końca pokoju. To, od czego ten pas uciekał, to nie były kafelki — to była
+ * JEDNA ramka na trzy liczby, ze ściankami na krzyż, czyli tabela. Trzy
+ * osobne bloki z odstępem między nimi to co innego.
+ *
+ * Głębia z trzech warstw, nie z jednej: światło z góry (jasny pasek pod
+ * krawędzią), poświata akcentu w lewym górnym rogu i cień pod spodem. Żadna
+ * z nich sama nie robi wrażenia, a razem blok odrywa się od strony.
+ */
 .lst-2m .lst-2m-liczba {
 	position: relative;
 	display: grid;
 	align-content: start;
-	padding-right: clamp( 0rem, 1.4vw, 1.4rem );
+	padding: clamp( 1.3rem, 2.2vw, 1.75rem ) clamp( 1.2rem, 2vw, 1.6rem ) clamp( 1.4rem, 2.4vw, 1.9rem );
+	border-radius: 18px;
+	border: 1px solid rgba( var( --lst-mieta ), .18 ) !important;
+	background-color: var( --lst-panel ) !important;
+	background-image:
+		linear-gradient( 180deg, rgba( 255, 255, 255, .04 ), rgba( 255, 255, 255, 0 ) 42% ),
+		radial-gradient( 17rem 12rem at 14% -8%, rgba( var( --lst-mieta ), .16 ), transparent ),
+		linear-gradient( var( --lst-panel ), var( --lst-panel-dol ) ) !important;
+	box-shadow:
+		inset 0 1px 0 rgba( 255, 255, 255, .05 ),
+		0 20px 44px -26px rgba( 0, 0, 0, .95 ),
+		0 2px 10px -6px rgba( 0, 0, 0, .6 );
 }
 
 /*
- * Kreska między kolumnami.
+ * Miętowy pasek na górnej krawędzi bloku, w szerokości przyrządu.
  *
- * Szara kreska o stałej jasności ginęła w tle: na ciemnej stronie 1 piksel
- * przy 22 procentach krycia to 1,2 : 1, czyli w praktyce nic. Podniesienie
- * krycia robi z niej ramkę tabeli, czyli dokładnie to, od czego ten pas
- * uciekł.
- *
- * Więc nie jednolita kreska, tylko ZANIKAJĄCA, i w kolorze akcentu: mocna
- * u góry, przy przyrządzie, gdzie oko właśnie jest, i gasnąca ku dołowi.
- * Widać ją od razu, a mimo to niczego nie zamyka — przy dolnej krawędzi nie
- * ma już czego domykać. Osobna warstwa, bo obramowania nie da się zrobić
- * przejściem koloru.
+ * Tyle akcentu, ile potrzeba, żeby trzy bloki czytały się jak jeden zestaw,
+ * a nie trzy przypadkowe kafelki: każdy ma tę samą kreskę w tym samym
+ * miejscu. Gaśnie w prawo, więc nie jest paskiem postępu.
  */
-.lst-2m .lst-2m-liczba + .lst-2m-liczba {
-	padding-left: clamp( 1.6rem, 3.4vw, 3.6rem );
-}
-
-.lst-2m .lst-2m-liczba + .lst-2m-liczba::after {
-	content: "";
-	position: absolute;
-	left: 0;
-	top: 0;
-	bottom: 1.5rem;
-	width: 2px;
-	border-radius: 2px;
-	pointer-events: none;
-	background-image: linear-gradient( to bottom,
-		rgba( var( --lst-mieta ), .5 ),
-		rgba( var( --lst-mieta ), .22 ) 38%,
-		rgba( 138, 168, 163, .07 ) 78%,
-		transparent ) !important;
-}
-
-/*
- * Poświata pod przyrządem.
- *
- * Kolor ma tu robotę do zrobienia: liczby są jedynym miętowym miejscem w tej
- * sekcji i mają się świecić jak wskazania przyrządu, a nie leżeć na płasko.
- *
- * Osobna warstwa, a nie tło kolumny, bo tło kończy się na krawędzi kolumny
- * i widać wtedy jasny prostokąt z ostrymi bokami. Ta warstwa wystaje poza
- * kolumnę i gaśnie w powietrzu. „isolation: isolate" robi z kolumny własne
- * piętro, więc warstwa spod spodu ląduje pod jej treścią, a nie pod tłem
- * całej strony, gdzie po prostu jej nie widać.
- */
-.lst-2m .lst-2m-liczba { isolation: isolate; }
-
 .lst-2m .lst-2m-liczba::before {
 	content: "";
 	position: absolute;
-	left: -3rem;
-	top: -3.5rem;
-	width: 17rem;
-	height: 13rem;
-	z-index: -1;
+	left: clamp( 1.2rem, 2vw, 1.6rem );
+	top: -1px;
+	width: 7.5rem;
+	height: 2px;
+	border-radius: 0 0 2px 2px;
 	pointer-events: none;
-	background-image: radial-gradient( closest-side,
-		rgba( var( --lst-mieta ), .16 ), transparent ) !important;
+	background-image: linear-gradient( to right,
+		rgba( var( --lst-mieta ), .85 ), rgba( var( --lst-mieta ), 0 ) ) !important;
 }
-
-.lst-2m .lst-2m-liczba + .lst-2m-liczba::before { left: clamp( -1.4rem, 1vw, 0rem ); }
 
 /* ---------- przyrządy ---------- */
 
@@ -577,6 +558,24 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 	.lst-2m .lst-2m-kwadrans,
 	.lst-2m .lst-2m-belka-w { transition: opacity .25s ease, stroke-dasharray .25s ease; }
 
+	.lst-2m .lst-2m-liczba {
+		transition: transform .25s cubic-bezier( .23, 1, .32, 1 ),
+			box-shadow .25s cubic-bezier( .23, 1, .32, 1 ),
+			border-color .25s ease;
+	}
+
+	/* Blok unosi się o dwa piksele, a cień robi się głębszy: tyle, żeby było
+	   czuć, że to przedmiot, a nie plama na tle. Nic stąd nie prowadzi dalej,
+	   więc nic nie udaje przycisku. */
+	.lst-2m .lst-2m-liczba:hover {
+		transform: translateY( -2px );
+		border-color: rgba( var( --lst-mieta ), .32 ) !important;
+		box-shadow:
+			inset 0 1px 0 rgba( 255, 255, 255, .07 ),
+			0 26px 52px -26px rgba( 0, 0, 0, .95 ),
+			0 3px 12px -6px rgba( 0, 0, 0, .65 );
+	}
+
 	.lst-2m .lst-2m-liczba:hover .lst-2m-ramka { stroke-dasharray: 130 0; }
 	.lst-2m .lst-2m-liczba:hover .lst-2m-belka-w { opacity: 1; }
 }
@@ -620,33 +619,14 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 @media ( max-width: 900px ) {
 	.lst-2m .lst-2m-para { grid-template-columns: 1fr; gap: 1.1rem; }
 	.lst-2m .lst-2m-para:nth-child( even ) .lst-2m-okno { order: 0; }
-	.lst-2m .lst-2m-liczby { grid-template-columns: 1fr; row-gap: clamp( 1.4rem, 5vw, 2rem ); }
-	.lst-2m .lst-2m-liczba + .lst-2m-liczba {
-		padding-left: 0;
-		padding-top: clamp( 1.4rem, 5vw, 2rem );
-	}
-	/* Wąsko kolumny stoją jedna pod drugą, więc kreska kładzie się w poprzek
-	   i gaśnie w prawo, tam, gdzie kończy się tekst. */
-	.lst-2m .lst-2m-liczba + .lst-2m-liczba::after {
-		left: 0;
-		right: 20%;
-		top: 0;
-		bottom: auto;
-		width: auto;
-		height: 2px;
-		background-image: linear-gradient( to right,
-			rgba( var( --lst-mieta ), .5 ),
-			rgba( var( --lst-mieta ), .22 ) 38%,
-			rgba( 138, 168, 163, .07 ) 78%,
-			transparent ) !important;
-	}
-	.lst-2m .lst-2m-liczba + .lst-2m-liczba::before { left: clamp( -1rem, -2vw, -.5rem ); }
+	.lst-2m .lst-2m-liczby { grid-template-columns: 1fr; }
 }
 
 @media ( prefers-reduced-motion: reduce ) {
 	/* „Mniej ruchu" znaczy mniej ruchu, nie mniej treści: przyrządy zostają na
 	   ekranie w stanie końcowym. */
-	.lst-2m .lst-2m-okno { transition: none; }
+	.lst-2m .lst-2m-okno,
+	.lst-2m .lst-2m-liczba { transition: none; }
 	.lst-2m .lst-2m-ramka,
 	.lst-2m .lst-2m-belka-w,
 	.lst-2m .lst-2m-kwadrans,
