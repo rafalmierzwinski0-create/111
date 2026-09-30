@@ -2513,15 +2513,44 @@ add_action(
 	}
 );
 
-// A source nothing points at, rather than the one under test: the demo page is
-// seeded on this site for the browser run and would keep naming that one.
-$orphan = LSTAB_Storage::insert(
-	array(
-		'title'     => 'Nigdzie nieużywana',
-		'sheet_url' => 'https://docs.google.com/spreadsheets/d/VVV/edit#gid=0',
-		'sheet_id'  => 'VVV',
-	)
-);
+/*
+ * A source nothing points at, rather than the one under test: the demo page is
+ * seeded on this site for the browser run and would keep naming that one.
+ *
+ * Asked for until one really is free, because on a site that has been tested
+ * before, most numbers are taken. This suite empties the sources table when it
+ * starts, so the next row is id 1 again — while the pages published by the
+ * other suites are still there, still naming ids 1, 2, 3 and upwards. The
+ * fresh "orphan" then inherits somebody else's page and the check fails on the
+ * second run of tests/run-all.sh and every run after it, saying the plugin is
+ * broken when what is broken is the arithmetic in this test.
+ *
+ * Cheap, because it is a scan already in memory, and it ends: there are a few
+ * dozen pages and the ids only go up.
+ */
+$taken  = LSTAB_Usage::map();
+$spares = array();
+$orphan = 0;
+
+while ( ! $orphan ) {
+	$try = LSTAB_Storage::insert(
+		array(
+			'title'     => 'Nigdzie nieużywana',
+			'sheet_url' => 'https://docs.google.com/spreadsheets/d/VVV/edit#gid=0',
+			'sheet_id'  => 'VVV',
+		)
+	);
+
+	if ( isset( $taken[ (int) $try ] ) ) {
+		// Kept until the end, because deleting it here would hand the same id
+		// straight back on the next go round.
+		$spares[] = $try;
+		continue;
+	}
+
+	$orphan = $try;
+}
+
 LSTAB_Usage::forget();
 
 lstab_assert( ! LSTAB_Usage::places( $orphan ), 'The orphan table really is on no page' );
@@ -2532,6 +2561,11 @@ $after_site = LSTAB_Cache::last( $orphan );
 lstab_assert( is_array( $after_site ) && 'site' === $after_site['scope'], 'And says so', wp_json_encode( $after_site ) );
 
 LSTAB_Storage::delete( $orphan );
+
+foreach ( $spares as $spare ) {
+	LSTAB_Storage::delete( $spare );
+}
+
 wp_delete_post( $cache_page, true );
 LSTAB_Usage::forget();
 

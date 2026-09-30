@@ -929,6 +929,136 @@ for ( const table of said.pages[ 0 ].tables ) {
 
 await flat.close();
 
+// ---------------------------------- the line under the headings, its height
+
+/*
+ * How many pixels tall the rule under the headings is, counted under the
+ * pinned first column and again out where nothing is pinned. The two have to
+ * agree.
+ *
+ * They did not. The heading used to draw its rule twice — a border, which sits
+ * outside the padding box, and an inset shadow, which sits inside it, both in
+ * the same colour on the belief that they land on the same pixel. They stack:
+ * the rule was two pixels tall everywhere except under the pinned column,
+ * whose opaque backdrop covered the shadow and left the border alone. So the
+ * line under the headings was thin under column one and thick after it, which
+ * is what somebody looking at the table noticed long before any test did.
+ *
+ * Nothing in the computed styles says this: both declarations are exactly what
+ * the stylesheet asked for. It is only visible in paint, so it is counted in
+ * paint, on every skin — including the ones that draw no rule at all, where
+ * the answer is nought on both sides and the check still means something.
+ */
+console.log( '\nThe line under the headings, under the pinned column and away from it' );
+
+const flatHead = await browser.newContext( { viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 } );
+const sharpHead = await flatHead.newPage();
+
+await sharpHead.goto( said.pages[ 0 ].url, { waitUntil: 'networkidle' } );
+
+for ( const table of said.pages[ 0 ].tables ) {
+	const where = await sharpHead.evaluate( ( id ) => {
+		const wrap = document.querySelector( `.lstab[data-lstab-id="${ id }"]` );
+		const scroll = wrap.querySelector( '.lstab-scroll' );
+		const head = wrap.querySelector( 'thead th' );
+
+		if ( ! head || ! head.offsetParent ) {
+			return null;
+		}
+
+		const box = scroll.getBoundingClientRect();
+		const pinned = head.getBoundingClientRect();
+		const last = wrap.querySelector( 'thead th:last-child' ).getBoundingClientRect();
+
+		return {
+			y: pinned.bottom - box.top,
+			edge: pinned.right - box.left,
+			far: ( last.left + last.right ) / 2 - box.left,
+			width: box.width,
+		};
+	}, table.id );
+
+	if ( ! where ) {
+		continue;
+	}
+
+	const shot = decodePng( await ( await sharpHead.$( `.lstab[data-lstab-id="${ table.id }"] .lstab-scroll` ) ).screenshot() );
+
+	/*
+	 * Thickness at one column of pixels: walk down through where the boundary
+	 * is and count the pixels that match neither the heading above nor the row
+	 * below. Read four pixels clear of the boundary on each side, which is
+	 * inside the cells' padding and so clear of the letters.
+	 */
+	const thickness = ( x ) => {
+		const at = Math.min( shot.width - 1, Math.max( 0, Math.round( x ) ) );
+		const top = Math.round( where.y ) - 4;
+		const bottom = Math.round( where.y ) + 4;
+
+		if ( top < 0 || bottom >= shot.height ) {
+			return null;
+		}
+
+		const above = shot.at( at, top );
+		const below = shot.at( at, bottom );
+		const apart = ( p, q ) => Math.abs( p[ 0 ] - q[ 0 ] ) + Math.abs( p[ 1 ] - q[ 1 ] ) + Math.abs( p[ 2 ] - q[ 2 ] ) > 8;
+		let tall = 0;
+
+		for ( let y = top + 1; y < bottom; y += 1 ) {
+			const p = shot.at( at, y );
+
+			if ( apart( p, above ) && apart( p, below ) ) {
+				tall += 1;
+			}
+		}
+
+		return tall;
+	};
+
+	// Four places: two inside the pinned column, two out past it.
+	const near_side = [ thickness( where.edge * 0.35 ), thickness( where.edge * 0.7 ) ];
+	const far_side = [ thickness( where.edge + 24 ), thickness( where.far ) ];
+
+	if ( near_side.includes( null ) || far_side.includes( null ) ) {
+		continue;
+	}
+
+	const pinnedTall = Math.max( ...near_side );
+	const looseTall = Math.max( ...far_side );
+
+	check(
+		pinnedTall === looseTall,
+		`${ table.skin }: the line under the headings is the same height under the pinned column as after it`,
+		`${ pinnedTall }px there against ${ looseTall }px elsewhere`
+	);
+}
+
+/*
+ * And on the skins that do draw one, it is the one pixel the stylesheet says —
+ * not two, which is what two layers in the same colour add up to.
+ */
+const plainHead = await sharpHead.evaluate( () => {
+	const wrap = document.querySelector( '.lstab-style-clean' ) || document.querySelector( '.lstab' );
+	const head = wrap.querySelector( 'thead th' );
+	const cs = getComputedStyle( head );
+
+	return {
+		rule: cs.getPropertyValue( '--lstab-head-rule' ).trim(),
+		shadow: cs.boxShadow,
+		border: cs.borderBottomWidth,
+	};
+} );
+
+check( '1px' === plainHead.rule, 'a plain table asks for a one-pixel rule under its headings', plainHead.rule );
+check(
+	'0px' === plainHead.border,
+	'and draws it with one layer, not a border and a shadow stacked',
+	`border ${ plainHead.border }, shadow ${ plainHead.shadow }`
+);
+
+await flatHead.close();
+
+
 // ------------------------------------ a skin picked, then changed by hand
 
 console.log( '\nA skin picked, then changed by hand' );

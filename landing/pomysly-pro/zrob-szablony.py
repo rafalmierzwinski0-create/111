@@ -172,5 +172,5 @@ h2 { font-family: "Inria Serif", Georgia, serif; font-weight: 300; font-size: 30
 <p class="wstep">Dziś wtyczka ma pięć: Clean, Striped, Bordered, a w Pro Midnight i Editorial. To są propozycje na kolejne — każda narysowana prawdziwym arkuszem stylów wtyczki, na tych samych danych.</p>
 ''' + sekcje + '''</div></body></html>'''
 
-pathlib.Path( 'skorki.html' ).write_text( strona )
+pathlib.Path( __file__ ).with_name( 'POMYSLY-szablony-tabeli.html' ).write_text( strona )
 print( 'ok', len( strona ) )

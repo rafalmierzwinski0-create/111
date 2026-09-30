@@ -223,5 +223,5 @@ h2 { font-family: "Inria Serif", Georgia, serif; font-weight: 300; font-size: 30
 <p class="wstep">Każda próbka jest narysowana prawdziwym arkuszem stylów wtyczki, na tych samych danych. To, co widać, to nie rysunek w programie graficznym — to tabela wtyczki z dołożonym kawałkiem CSS, który trzeba by do niej dopisać.</p>
 ''' + sekcje + '''</div></body></html>'''
 
-pathlib.Path( 'pomysly.html' ).write_text( strona )
+pathlib.Path( __file__ ).with_name( 'POMYSLY-wyglad-pro.html' ).write_text( strona )
 print( 'ok', len( strona ) )
