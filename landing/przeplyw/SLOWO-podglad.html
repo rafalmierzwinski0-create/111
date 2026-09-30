@@ -24,6 +24,17 @@ html, body { margin: 0; background: #232a29; }
 
 	font-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
 	color: var( --sl-tekst );
+
+	/*
+	 * Moduł mierzy sam siebie.
+	 *
+	 * Tytuł skaluje się z szerokością KOLUMNY, w której ten moduł stoi, a nie
+	 * z szerokością okna przeglądarki: ten sam blok raz ląduje w kolumnie na
+	 * jedną trzecią strony, raz na całą, i w obu ma wyglądać tak, jak został
+	 * zaprojektowany. Przy mierze od okna w wąskiej kolumnie tytuł wychodziłby
+	 * na trzy słowa w wierszu.
+	 */
+	container-type: inline-size;
 }
 
 .lst-sl.lst-sl { border: 0 !important; outline: 0 !important; background: none !important; }
@@ -63,8 +74,11 @@ html, body { margin: 0; background: #232a29; }
 .lst-sl .lst-sl-naglowek {
 	font-family: var( --sl-szeryf );
 	font-weight: 400;
-	font-size: clamp( 1.4rem, 2vw, 1.85rem );
-	line-height: 1.16;
+	/* Najpierw zwykła liczba, potem miara od kolumny: przeglądarka, która nie
+	   zna „cqi”, odrzuca drugą linijkę i zostaje przy pierwszej. */
+	font-size: 1.85rem;
+	font-size: clamp( 1.85rem, 8.5cqi, 2.75rem );
+	line-height: 1.12;
 	letter-spacing: -.01em;
 	color: var( --sl-tekst );
 	text-wrap: balance;

@@ -48,20 +48,30 @@ body { background-image: linear-gradient( to right, rgba( 255, 255, 255, .04 ) 1
 	font-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
 	color: var( --pl-tekst );
 
-	--pl-szerokosc: 90%;
-	--pl-max: 1240px;
+	/*
+	 * Ta sekcja idzie przez całą szerokość ekranu.
+	 *
+	 * Reszta strony stoi na szynie szerokiej na 1240 px i wyśrodkowanej, i tak
+	 * było tu przedtem — po bokach zostawały wtedy dwa puste pasy, a w nich nic,
+	 * bo tło strony jest jedno. Kompozycja jest tu treścią, a nie ilustracją
+	 * wstawioną w akapit, więc dostaje wszystko, co jest: od krawędzi do
+	 * krawędzi, minus tyle, ile trzeba, żeby napisy nie leżały na samym brzegu.
+	 *
+	 * Margines jest jedną liczbą i tylko on decyduje, jak daleko od krawędzi to
+	 * wszystko stoi. Chcesz węziej — podnosisz go, i nic innego nie trzeba ruszać.
+	 */
+	--pl-margines: clamp( 1rem, 3vw, 2.5rem );
+	--pl-max: 2200px;
 	--pl-pelna: 100vw;
 	/*
-	 * O ile kompozycja wychodzi poza szynę, na której stoi reszta strony.
+	 * O ile samo okno z tabelą wychodzi jeszcze poza to.
 	 *
-	 * Dokładnie tyle, ile zostaje z marginesu do krawędzi okna, ale nie więcej
-	 * niż 6rem: okno strony klienta ma dojść najwyżej DO krawędzi ekranu i ani
-	 * piksela dalej. Przycięte okno wyglądałoby jak zrzut zrobiony byle jak,
+	 * Połowa marginesu: prawa strona dochodzi wtedy prawie do krawędzi ekranu,
+	 * ale jej nie dotyka. Okno oparte dokładnie o brzeg wygląda jak przycięte,
 	 * a przycięta byłaby akurat kolumna z przyciskami, czyli to, czym ta tabela
-	 * się chwali. Wystaje, a nie ucieka: tyle wystarczy, żeby było widać, że
-	 * prawa strona jest szersza niż wszystko inne na tej stronie.
+	 * się chwali.
 	 */
-	--pl-wyjscie: min( 4rem, calc( max( 5vw, ( 100vw - var( --pl-max ) ) / 2 ) * .55 ) );
+	--pl-wyjscie: calc( var( --pl-margines ) * .5 );
 
 	width: var( --pl-pelna );
 	margin: 0 calc( 50% - var( --pl-pelna ) / 2 );
@@ -96,7 +106,7 @@ body { background-image: linear-gradient( to right, rgba( 255, 255, 255, .04 ) 1
 }
 
 .lst-pl .lst-pl-rama {
-	width: var( --pl-szerokosc );
+	width: calc( 100% - 2 * var( --pl-margines ) );
 	max-width: var( --pl-max );
 	margin-inline: auto;
 }
@@ -566,7 +576,7 @@ body { background-image: linear-gradient( to right, rgba( 255, 255, 255, .04 ) 1
 	.lst-pl .lst-pl-uklad {
 		/* Wąska kolumna na słowo, cała reszta na obrazek: to obrazek jest tu
 		   treścią, a tekst go podpisuje. */
-		grid-template-columns: clamp( 18rem, 21vw, 21rem ) minmax( 0, 1fr );
+		grid-template-columns: clamp( 18rem, 21vw, 26rem ) minmax( 0, 1fr );
 		align-items: start;
 		gap: clamp( 2rem, 3.2vw, 3.4rem );
 	}
@@ -619,9 +629,18 @@ body { background-image: linear-gradient( to right, rgba( 255, 255, 255, .04 ) 1
 		 * w jego połowie, a przy 1180 px widać było dwa i pół wiersza: za mało,
 		 * żeby malowany wiersz w ogóle się pokazał, a to on jest tu dowodem.
 		 */
-		max-height: 32rem;
-		--pl-zanik: 72%;
-		--pl-koniec: 85%;
+		max-height: 36rem;
+		/*
+		 * Zanik rozłożony na półtora wiersza, a nie na pół.
+		 *
+		 * Krótki zanik przecina wiersz w poziomie, w połowie liter, i wygląda to
+		 * jak ucięty zrzut. Rozciągnięty gaśnie tak, że nie widać, w którym
+		 * miejscu się zaczął, a okno jest o tyle wyższe, żeby cztery wiersze
+		 * zdążyły być ostre, zanim to się zacznie. Cztery, bo czwarty to ten
+		 * pomalowany, a on jest tu dowodem.
+		 */
+		--pl-zanik: 66%;
+		--pl-koniec: 87%;
 	}
 
 	/*

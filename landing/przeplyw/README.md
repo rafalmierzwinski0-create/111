@@ -60,6 +60,11 @@ w `zrob.py`), a `spr.mjs` porównuje jeden plik z drugim słowo w słowo: dwa
 pliki z tym samym tekstem rozjeżdżają się pierwszego dnia, w którym ktoś
 poprawi jeden z nich. Podgląd: `SLOWO-podglad.html`.
 
+Tytuł w tym module jest większy niż w sekcji i mierzy się **szerokością
+kolumny**, w której moduł stoi (`container-type: inline-size` i `cqi`), a nie
+szerokością okna przeglądarki. Ten sam blok raz ląduje w kolumnie na jedną
+trzecią strony, raz na całą, i w obu ma wyglądać tak, jak został zaprojektowany.
+
 `PODGLAD.html` to podgląd do otwarcia w przeglądarce: podrabia tło witryny
 (`#232a29` i siatkę 88 × 44, jak `landing/naglowek/HERO-podglad.html`)
 i dopełnienia Divi.
@@ -83,10 +88,13 @@ i stąd też robią się zrzuty.
   w karty. Karty w tym miejscu nie mówią nic o tym, co wtyczka potrafi, więc
   poniżej progu tekst staje nad obrazkiem i obrazek dostaje całą szerokość.
   Lepiej jedna kolumna z pełnym obrazkiem niż dwie z pustym.
-* **Kompozycja wychodzi poza szynę, ale nie poza ekran.** Prawa strona jest
-  szersza niż wszystko inne na tej stronie, bo to ona jest tu treścią. Wystaje
-  najwyżej o tyle, ile zostaje marginesu do krawędzi okna, i nigdy nie jest
-  przycięta: ucięta byłaby akurat kolumna z przyciskami.
+* **Sekcja idzie przez całą szerokość ekranu.** Reszta strony stoi na szynie
+  szerokiej na 1240 px i wyśrodkowanej; tu po bokach zostawały przez to dwa
+  puste pasy. Kompozycja jest treścią, a nie ilustracją wstawioną w akapit,
+  więc dostaje wszystko, co jest, minus jeden margines (`--pl-margines`), żeby
+  napisy nie leżały na brzegu. Prawa strona wychodzi jeszcze o pół tego
+  marginesu poza szynę, ale nigdy nie jest przycięta: ucięta byłaby akurat
+  kolumna z przyciskami.
 * **Dwa okna, jedno na drugim.** Strona klienta stoi z tyłu i zajmuje całą
   szerokość, bo to ona jest tym, co się sprzedaje. Arkusz leży na niej
   z przodu, przy lewej krawędzi, mniejszy: jest źródłem, a nie celem.
