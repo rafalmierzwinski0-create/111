@@ -128,3 +128,29 @@ wtyczki dojechał cały — zbłąkana klamra w moim CSS potrafi zjeść reguł�
 stojącą za nią — i to, że tabela naprawdę sortuje i szuka, że tytuły sekcji są szeryfowe i większe od reszty,
 że metka mono nie pojawia się częściej niż raz na trzy sekcje i że na całej
 stronie nie ma ani jednego myślnika. 32 sprawdzenia.
+
+## Co wkleić
+
+**W trzech kawałkach, a nie w jednym.** Cała podstrona w jednym polu edytora
+wizualnego to ponad sto sześćdziesiąt kilobajtów, a edytor trzyma to w pamięci
+i przerysowuje przy każdym naciśnięciu klawisza. Potrafi na tym stanąć razem
+z całą stroną; zdarzyło się to na żywo przy sekcji pod hero.
+
+| plik | gdzie |
+|---|---|
+| `MOZLIWOSCI-kod.html` | moduł Kod w Divi (sam znacznik, ~59 kB) |
+| `MOZLIWOSCI-css.css` | Divi → Opcje motywu → **Własny CSS** (~68 kB) |
+| `MOZLIWOSCI-js.js` | Divi → Opcje motywu → **Integracja** → przed `</body>`, w `<script>` |
+
+Skrypt jest nieobowiązkowy: bez niego tabela na tej stronie jest kompletna
+i wygląda tak samo, nie działa tylko wyszukiwarka, sortowanie i filtry.
+
+Arkusz stylów jest przed zapisaniem skracany, bez komentarzy i pustych miejsc.
+Cięte są tylko komentarze i białe znaki; spacje wokół działań zostają, bo
+`calc( 100% - 2 * x )` bez nich przestaje być poprawnym wyrażeniem.
+
+`MOZLIWOSCI-en.html` to ta sama podstrona **w jednym pliku**. Zostaje dla
+porządku i do podglądu; do Divi lepiej brać trzy kawałki wyżej.
+
+Do podmiany zostają dwa adresy: `ADRES` (folder z trzema zrzutami z `zrzuty/`
+wgranymi do Multimediów) i `ADRES-POBIERANIA` (przycisk na dole).

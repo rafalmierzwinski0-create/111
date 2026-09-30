@@ -1148,14 +1148,97 @@ STYL = r"""
 }
 """
 
+def skrot( css ):
+	"""Ten sam arkusz stylów, bez komentarzy i bez pustych miejsc.
+
+	Arkusz wtyczki jest w połowie komentarzem, bo tak jest napisany cały ten
+	projekt, i to jest dobrze — ale do modułu w Divi idzie nie po to, żeby go
+	ktoś czytał. Dwieście kilobajtów w jednym polu edytora wizualnego potrafi
+	zawiesić edytor razem z całą stroną; zdarzyło się to na żywo.
+
+	Cięte są komentarze i ciągi białych znaków, i nic więcej: spacje wokół
+	działań zostają, bo „calc( 100% - 2 * x )" bez spacji przestaje być
+	poprawnym wyrażeniem. Cudzysłowy są pilnowane, żeby „content" z gwiazdką
+	w środku nie został wzięty za początek komentarza.
+	"""
+	wynik = []
+	i = 0
+	cudzyslow = ''
+
+	while i < len( css ):
+		z = css[ i ]
+
+		if cudzyslow:
+			wynik.append( z )
+			if '\\' == z and i + 1 < len( css ):
+				wynik.append( css[ i + 1 ] )
+				i += 2
+				continue
+			if z == cudzyslow:
+				cudzyslow = ''
+			i += 1
+			continue
+
+		if z in '"\'':
+			cudzyslow = z
+			wynik.append( z )
+			i += 1
+			continue
+
+		if '/' == z and css[ i + 1 : i + 2 ] == '*':
+			koniec = css.find( '*/', i + 2 )
+			i = len( css ) if -1 == koniec else koniec + 2
+			if wynik and not wynik[ -1 ].isspace():
+				wynik.append( ' ' )
+			continue
+
+		if z.isspace():
+			if wynik and not wynik[ -1 ].isspace():
+				wynik.append( ' ' )
+			i += 1
+			continue
+
+		wynik.append( z )
+		i += 1
+
+	return ''.join( wynik ).strip()
+
+
+CZCIONKI = ( '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?'
+	'family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600'
+	'&family=Inria+Serif:ital,wght@0,300;0,400&display=swap">' )
+
+ZNACZNIK = '<div class="lst-mz"><div class="lst-mz-rama">' + SEKCJA + '</div></div>'
+ARKUSZ = skrot( STYL + arkusz.STYL + CSS )
+
 STRONA = (
-	'<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Inria+Serif:ital,wght@0,300;0,400&display=swap">\n'
-	'\n<div class="lst-mz"><div class="lst-mz-rama">' + SEKCJA + '</div></div>\n'
-	'\n<style>\n' + STYL + arkusz.STYL + CSS + '\n</style>\n'
+	CZCIONKI + '\n'
+	'\n' + ZNACZNIK + '\n'
+	'\n<style>\n' + ARKUSZ + '\n</style>\n'
 	'\n<script>\n' + JS + '\n</script>\n'
 )
 
 ( TU / 'MOZLIWOSCI-en.html' ).write_text( STRONA )
+
+"""
+Do wklejenia w Divi, w trzech kawałkach.
+
+Cała podstrona w jednym polu edytora wizualnego to ponad dwieście kilobajtów,
+a edytor trzyma to w pamięci i przerysowuje przy każdym naciśnięciu klawisza.
+Potrafi na tym stanąć razem z całą stroną. Rozdzielone idzie tam, gdzie każdy
+kawałek waży tyle, ile ma ważyć:
+
+* MOZLIWOSCI-kod.html -> moduł Kod (sam znacznik)
+* MOZLIWOSCI-css.css  -> Divi > Opcje motywu > Własny CSS
+* MOZLIWOSCI-js.js    -> Divi > Opcje motywu > Integracja > przed </body>,
+                         w <script>. Bez niego tabela na tej stronie jest
+                         kompletna i wygląda tak samo, tylko wyszukiwarka,
+                         sortowanie i filtry nic nie robią.
+"""
+
+( TU / 'MOZLIWOSCI-kod.html' ).write_text( CZCIONKI + '\n\n' + ZNACZNIK + '\n' )
+( TU / 'MOZLIWOSCI-css.css' ).write_text( ARKUSZ + '\n' )
+( TU / 'MOZLIWOSCI-js.js' ).write_text( JS )
 
 # Podgląd do otwarcia w przeglądarce: podrabia tło i dopełnienia Divi, i
 # podstawia lokalne adresy zrzutów. Do Divi idzie wyłącznie MOZLIWOSCI-en.html.
