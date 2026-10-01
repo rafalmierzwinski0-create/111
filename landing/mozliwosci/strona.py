@@ -1545,6 +1545,33 @@ SKAD_HTML = osobno( 'SKAD', BLOK_SKAD, 'Where it comes from',
 	'i trzy zrzuty sie nie pokazuja. Adres bierzesz tak: Multimedia > klikasz '
 	'wgrany zrzut > kopiujesz adres pliku > odcinasz z niego sama nazwe pliku.' )
 
+# --- to samo, ale z wpisanym adresem Multimediów ----------------------------
+#
+# Pliki z `ADRES` zostają: są przenośne i przeżyją przeniesienie witryny albo
+# wgranie zrzutów jeszcze raz w innym miesiącu. Obok nich leżą bliźniaki, w
+# których adres jest już wpisany, bo podmiana w edytorze Divi to miejsce, w
+# którym łatwo o pomyłkę, a bez niej strona prosi o plik „ADRES/mz-wyglad.png”
+# i zrzuty się nie pokazują.
+ADRES_MEDIA = 'https://rizznet.pl/wp-content/uploads/2026/10/'
+
+for plik in sorted( TU.glob( '*.html' ) ):
+	if plik.name.endswith( '-gotowe.html' ):
+		continue
+
+	tresc = plik.read_text()
+	if 'ADRES/' not in tresc:
+		continue
+
+	tresc = tresc.replace( 'ADRES/', ADRES_MEDIA )
+	# Uwaga o podmianie przestaje być prawdą w pliku, w którym podmiana już jest.
+	tresc = re.sub(
+		r'<!-- ZANIM WKLEISZ:.*?-->',
+		'<!-- Adres Multimediow jest juz wpisany: ' + ADRES_MEDIA + ' '
+		'Wklejasz bez zadnych podmian. Zrzuty musza lezec pod tym adresem pod '
+		'nazwami mz-wyglad.png, mz-reguly.png i mz-kolumny.png. -->',
+		tresc, flags = re.S )
+	( TU / plik.name.replace( '.html', '-gotowe.html' ) ).write_text( tresc )
+
 print( 'ok', len( STRONA ), 'znaków modułu,', len( STOL ), 'znaków sekcji z tabelą,',
 	len( LEGENDA_HTML ), 'znaków „What to look for”,', len( SKAD_HTML ), 'znaków „Where it comes from”' )
 

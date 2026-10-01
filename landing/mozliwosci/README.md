@@ -28,6 +28,11 @@ Całą zawartość `MOZLIWOSCI-en.html` w jeden moduł Kod. Potem jedna podmiana
 trzy pliki z `zrzuty/` wgrywasz do Multimediów, kopiujesz adres folderu
 i zamieniasz w pliku `ADRES` na ten adres. Nazwy plików muszą zostać.
 
+Obok każdego pliku ze zrzutami leży bliźniak `…-gotowe.html`, w którym adres
+jest już wpisany — adres siedzi w `ADRES_MEDIA` na końcu `strona.py`. Pliki
+z `ADRES` zostają, bo przeżyją przeniesienie witryny albo wgranie zrzutów
+jeszcze raz w innym miesiącu; wtedy wystarczy poprawić tę jedną stałą.
+
 `PODGLAD.html` to tylko podgląd do otwarcia w przeglądarce — podrabia tło
 i dopełnienia Divi i wskazuje na lokalne zrzuty. Do Divi idzie wyłącznie
 `MOZLIWOSCI-en.html`.
@@ -66,7 +71,8 @@ Tak samo wychodzą dwie sekcje bez tabeli:
   + `LEGENDA-css.css`,
 * **Where it comes from** — `SKAD-en.html` (21 kB), albo `SKAD-kod.html`
   + `SKAD-css.css`. Tu zostaje podmiana `ADRES` na adres folderu
-  w Multimediach, bo w środku są trzy zrzuty z kokpitu.
+  w Multimediach, bo w środku są trzy zrzuty z kokpitu — albo bierzesz
+  `SKAD-en-gotowe.html`, w którym adres jest już wpisany.
 
 Obie ważą tyle, że spokojnie idą w jeden moduł Kod. Nie niosą arkusza ani
 skryptu wtyczki, bo nie ma w nich tabeli, i **nie mają pliku JS** — nie

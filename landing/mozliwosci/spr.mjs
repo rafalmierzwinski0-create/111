@@ -701,6 +701,23 @@ for ( const [ nazwa, plik, co ] of [
 	await c.close();
 }
 
+/*
+ * Bliźniaki z wpisanym adresem Multimediów. Sprawdzane jest to, co da się
+ * sprawdzić stąd: że nie został ani jeden `ADRES`, że każdy obrazek ma adres
+ * bezwzględny po https i że nazwy plików są te, które poszły do Multimediów.
+ * Czy pod tym adresem naprawdę coś leży, wie tylko ta witryna.
+ */
+console.log( '\nz wpisanym adresem' );
+for ( const plik of [ 'SKAD-kod-gotowe.html', 'SKAD-en-gotowe.html', 'MOZLIWOSCI-kod-gotowe.html' ] ) {
+	const tresc = czytaj( plik );
+	const adresy = [ ...tresc.matchAll( /<img[^>]*src="([^"]*)"/g ) ].map( ( m ) => m[ 1 ] );
+	const nazwy = adresy.map( ( a ) => a.split( '/' ).pop() ).sort().join( ' ' );
+	ok( plik + ': żadnego ADRES, same adresy https',
+		! tresc.includes( 'ADRES/' ) && adresy.length > 0 && adresy.every( ( a ) => a.startsWith( 'https://' ) )
+			&& nazwy === 'mz-kolumny.png mz-reguly.png mz-wyglad.png',
+		`${ adresy.length } obrazków, ${ nazwy }` );
+}
+
 console.log( `\n${ pass } PASS, ${ fail } FAIL` );
 await b.close();
 process.exit( fail ? 1 : 0 );
