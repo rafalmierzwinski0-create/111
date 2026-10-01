@@ -313,6 +313,25 @@ BLOK_STOL = (
 	'</div>' )
 
 
+# Dwa bloki wyjęte do zmiennych z tego samego powodu co BLOK_STOL: wychodzą
+# i w całej podstronie, i osobno, do wklejenia gdzie indziej. Jedno źródło.
+BLOK_LEGENDA = (
+	'<div class="lst-mz-blok">'
+	+ naglowek( 'What to look for' ) +
+	'<p class="lst-mz-wstep">Nine things on the table above. Five of them are in the free plugin.</p>'
+	'<div class="lst-mz-legenda">' + ''.join( pozycja( *p ) for p in LEGENDA ) + '</div>'
+	'</div>' )
+
+BLOK_SKAD = (
+	'<div class="lst-mz-blok">'
+	+ naglowek( 'Where it comes from' ) +
+	'<p class="lst-mz-wstep">Three screens from the dashboard, on the very sheet above.</p>'
+	'<div class="lst-mz-pary">'
+	+ ''.join( ekran( *e, odwrocony = bool( i % 2 ) ) for i, e in enumerate( EKRANY ) ) +
+	'</div>'
+	'</div>' )
+
+
 SEKCJA = (
 	# --- jak to działa: wiersz arkusza i wiersz formuły pod nim -------------
 	'<div class="lst-mz-blok">'
@@ -325,23 +344,13 @@ SEKCJA = (
 	+ BLOK_STOL
 
 	# --- co na niej widać --------------------------------------------------
-	+ '<div class="lst-mz-blok">'
-	+ naglowek( 'What to look for' ) +
-	'<p class="lst-mz-wstep">Nine things on the table above. Five of them are in the free plugin.</p>'
-	'<div class="lst-mz-legenda">' + ''.join( pozycja( *p ) for p in LEGENDA ) + '</div>'
-	'</div>'
+	+ BLOK_LEGENDA
 
 	# --- skąd się to bierze ------------------------------------------------
-	'<div class="lst-mz-blok">'
-	+ naglowek( 'Where it comes from' ) +
-	'<p class="lst-mz-wstep">Three screens from the dashboard, on the very sheet above.</p>'
-	'<div class="lst-mz-pary">'
-	+ ''.join( ekran( *e, odwrocony = bool( i % 2 ) ) for i, e in enumerate( EKRANY ) ) +
-	'</div>'
-	'</div>'
+	+ BLOK_SKAD
 
 	# --- telefon, w tym samym wierszu co wszystko wyżej ---------------------
-	'<div class="lst-mz-blok">'
+	+ '<div class="lst-mz-blok">'
 	+ naglowek( 'On a phone, every row becomes a card' ) +
 	'<div class="lst-mz-pas">'
 	'<div class="lst-mz-pas-bok">'
@@ -1424,4 +1433,50 @@ STOL = (
 )
 
 
-print( 'ok', len( STRONA ), 'znaków modułu,', len( STOL ), 'znaków samej sekcji z tabelą' )
+# --- dwie sekcje bez tabeli, do wklejenia osobno -----------------------------
+#
+# Tu nie ma tabeli, więc nie ma po co nieść arkusza ani skryptu wtyczki: same
+# te dwa pliki ważyłyby osiem razy tyle, co cała reszta modułu. Idzie tylko CSS
+# tej strony.
+MALY_ARKUSZ = skrot( STYL )
+
+
+def osobno( nazwa, blok, opis ):
+	"""Jeden blok jako samodzielny moduł: całość i to samo w trzech kawałkach."""
+	znacznik = '<div class="lst-mz"><div class="lst-mz-rama">' + blok + '</div></div>'
+	calosc = (
+		CZCIONKI + '\n'
+		'\n' + znacznik + '\n'
+		'\n<style>\n' + MALY_ARKUSZ + '\n</style>\n'
+	)
+
+	( TU / ( nazwa + '-en.html' ) ).write_text( calosc )
+	( TU / ( nazwa + '-kod.html' ) ).write_text( CZCIONKI + '\n\n' + znacznik + '\n' )
+	( TU / ( nazwa + '-css.css' ) ).write_text( MALY_ARKUSZ + '\n' )
+
+	( TU / ( nazwa + '-podglad.html' ) ).write_text(
+		'<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n'
+		'<title>' + opis + '</title>\n'
+		'<style>\n'
+		'html, body { margin: 0; background: #232a29; color: #eaf3f1;\n'
+		'\tfont-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif; }\n'
+		'body { background-image: linear-gradient( to right, rgba( 255, 255, 255, .04 ) 1px, transparent 1px ),\n'
+		'\tlinear-gradient( to bottom, rgba( 255, 255, 255, .04 ) 1px, transparent 1px );\n'
+		'\tbackground-size: 88px 44px; }\n'
+		'.podrobka-divi { padding: 40px 0; }\n'
+		'.podrobka-divi-rzad { width: 90%; max-width: 1800px; margin: 0 auto; }\n'
+		'</style>\n'
+		'<div class="podrobka-divi"><div class="podrobka-divi-rzad">\n'
+		+ calosc.replace( 'ADRES/', 'zrzuty/' ) +
+		'\n</div></div>\n'
+	)
+
+	return calosc
+
+
+LEGENDA_HTML = osobno( 'LEGENDA', BLOK_LEGENDA, 'What to look for' )
+SKAD_HTML = osobno( 'SKAD', BLOK_SKAD, 'Where it comes from' )
+
+print( 'ok', len( STRONA ), 'znaków modułu,', len( STOL ), 'znaków sekcji z tabelą,',
+	len( LEGENDA_HTML ), 'znaków „What to look for”,', len( SKAD_HTML ), 'znaków „Where it comes from”' )
+

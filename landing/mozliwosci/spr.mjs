@@ -623,6 +623,43 @@ console.log( '\ntelefon' );
 	await c.close();
 }
 
+/*
+ * Dwie sekcje wychodzą też osobno, do wklejenia gdzie indziej bez reszty
+ * podstrony. Sprawdzane jako samodzielne strony, bo tak będą wklejone: czy
+ * niosą ze sobą swój CSS, czy nic nie zostało przezroczyste i czy nie wloką
+ * za sobą arkusza i skryptu wtyczki, których nie mają po co nieść.
+ */
+console.log( '\nsekcje osobno' );
+for ( const [ nazwa, plik, co ] of [
+	[ 'What to look for', 'LEGENDA-en.html', '.lst-mz-legenda .lst-mz-pozycja' ],
+	[ 'Where it comes from', 'SKAD-en.html', '.lst-mz-pary .lst-mz-para' ],
+] ) {
+	const tresc = czytaj( plik ).replace( /ADRES\//g, 'zrzuty/' );
+	const { p, c } = await otworz( tresc );
+	const r = await p.evaluate( ( sel ) => ( {
+		ile: document.querySelectorAll( sel ).length,
+		// Kroj z <style> w module, a nie odziedziczony po stronie: gdyby CSS
+		// nie dojechał, tytuł byłby bezszeryfowy.
+		krojTytulu: getComputedStyle( document.querySelector( '.lst-mz-naglowek' ) ).fontFamily.split( ',' )[ 0 ].replace( /"/g, '' ),
+		niewidoczne: [ ...document.querySelectorAll( '.lst-mz [class*="lst-mz-"]' ) ].filter( ( e ) => getComputedStyle( e ).opacity === '0' ).length,
+		poziom: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+	} ), co );
+	ok( nazwa + ' stoi sam: treść, własny krój, nic przezroczystego, bez suwaka',
+		r.ile > 0 && r.krojTytulu === 'Inria Serif' && r.niewidoczne === 0 && r.poziom === 0,
+		`${ r.ile } sztuk, ${ r.krojTytulu }, przezroczystych ${ r.niewidoczne }, suwak ${ r.poziom }` );
+	/*
+	 * Szukany jest ARKUSZ wtyczki, a nie nazwy jej klas: CSS tej strony ma
+	 * własne reguły pisane na `.lstab-*` (utwardzenie, tabela w okienku)
+	 * i jedzie z każdym modułem, bo to jeden plik. Szablon Karty istnieje
+	 * wyłącznie w arkuszu wtyczki, więc po nim poznać, że ktoś doczepił tu
+	 * całe 40 kB, którego ta sekcja nie ma po co nieść.
+	 */
+	ok( nazwa + ' nie wlecze za sobą arkusza ani skryptu wtyczki',
+		! tresc.includes( 'lstab-style-cards' ) && ! tresc.includes( '<script' ) && tresc.length < 40 * 1024,
+		`${ Math.round( tresc.length / 1024 ) } kB` );
+	await c.close();
+}
+
 console.log( `\n${ pass } PASS, ${ fail } FAIL` );
 await b.close();
 process.exit( fail ? 1 : 0 );

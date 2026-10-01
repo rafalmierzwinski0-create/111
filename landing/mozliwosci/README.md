@@ -58,6 +58,20 @@ z żywą tabelą — można wkleić gdziekolwiek indziej bez reszty podstrony:
 sama zmienna, którą niesie podstrona, więc poprawka w jednym miejscu wychodzi
 w obu.
 
+## Dwie pozostałe sekcje, osobno
+
+Tak samo wychodzą dwie sekcje bez tabeli:
+
+* **What to look for** — `LEGENDA-en.html` (24 kB), albo `LEGENDA-kod.html`
+  + `LEGENDA-css.css`,
+* **Where it comes from** — `SKAD-en.html` (21 kB), albo `SKAD-kod.html`
+  + `SKAD-css.css`. Tu zostaje podmiana `ADRES` na adres folderu
+  w Multimediach, bo w środku są trzy zrzuty z kokpitu.
+
+Obie ważą tyle, że spokojnie idą w jeden moduł Kod. Nie niosą arkusza ani
+skryptu wtyczki, bo nie ma w nich tabeli, i **nie mają pliku JS** — nie
+potrzebują żadnego. Podglądy: `LEGENDA-podglad.html`, `SKAD-podglad.html`.
+
 ## Skąd się bierze wygląd
 
 Nie stąd, tylko ze strony głównej. Ta podstrona ma być jej dalszym ciągiem,
