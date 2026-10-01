@@ -21,3 +21,8 @@ landing/mozliwosci/mozliwosci-*.png
 landing/pokaz-na-zywo/pokaz-*.png
 landing/jak-dziala/jak-*.png
 landing/przeplyw/markup.json
+
+# Python trzyma obok modułów skompilowane kopie. Wchodziły do repozytorium
+# przy każdym przebudowaniu strony jako zmieniony plik binarny.
+__pycache__/
+*.pyc
