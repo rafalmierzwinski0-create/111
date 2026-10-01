@@ -74,7 +74,14 @@ Tak samo wychodzą dwie sekcje bez tabeli:
   w Multimediach, bo w środku są trzy zrzuty z kokpitu — albo bierzesz
   `SKAD-en-gotowe.html`, w którym adres jest już wpisany.
 
-Obie ważą tyle, że spokojnie idą w jeden moduł Kod. Nie niosą arkusza ani
+* **What is in which** — `LISTY-en.html` (24 kB). Zostaje podmiana
+  `ADRES-POBIERANIA` na adres, pod którym leży wtyczka do pobrania.
+* **On a phone, every row becomes a card** — `TELEFON-*`. Ta jedna **niesie
+  arkusz i skrypt wtyczki** (123 kB), bo w ramce telefonu siedzi prawdziwa
+  tabela, więc idzie w trzech kawałkach jak podstrona: `TELEFON-kod.html`,
+  `TELEFON-css.css`, `TELEFON-js.js`.
+
+Pozostałe ważą tyle, że spokojnie idą w jeden moduł Kod. Nie niosą arkusza ani
 skryptu wtyczki, bo nie ma w nich tabeli — niosą tylko własny, półkilobajtowy
 skrypt wjazdu (`LEGENDA-js.js`, `SKAD-js.js`, te same pół kilobajta w obu).
 Podglądy: `LEGENDA-podglad.html`, `SKAD-podglad.html`; mają nad sekcją i pod

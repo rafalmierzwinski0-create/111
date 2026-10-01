@@ -745,9 +745,12 @@ console.log( '\nnajechanie' );
 }
 
 console.log( '\nsekcje osobno' );
-for ( const [ nazwa, plik, co ] of [
-	[ 'What to look for', 'LEGENDA-en.html', '.lst-mz-legenda .lst-mz-pozycja' ],
-	[ 'Where it comes from', 'SKAD-en.html', '.lst-mz-pary .lst-mz-para' ],
+for ( const [ nazwa, plik, co, zTabela ] of [
+	[ 'What to look for', 'LEGENDA-en.html', '.lst-mz-legenda .lst-mz-pozycja', false ],
+	[ 'Where it comes from', 'SKAD-en.html', '.lst-mz-pary .lst-mz-para', false ],
+	[ 'What is in which', 'LISTY-en.html', '.lst-mz-listy .lst-mz-kolumna', false ],
+	// Ta jedna niesie prawdziwą tabelę, więc arkusz i skrypt wtyczki ma nieść.
+	[ 'On a phone', 'TELEFON-en.html', '.lst-mz-telefon .lstab-row', true ],
 ] ) {
 	const tresc = czytaj( plik ).replace( /ADRES\//g, 'zrzuty/' );
 	const { p, c } = await otworz( tresc );
@@ -772,9 +775,11 @@ for ( const [ nazwa, plik, co ] of [
 	 * Skrypt jest, ale wlasny i jeden: pol kilobajta wjazdu. Skrypt wtyczki
 	 * poznac po jego wlasnej nazwie w naglowku pliku.
 	 */
-	ok( nazwa + ' nie wlecze za sobą arkusza ani skryptu wtyczki',
-		! tresc.includes( 'lstab-style-cards' ) && ! tresc.includes( 'Live Sheets Table' )
-			&& 1 === ( tresc.match( /<script/g ) || [] ).length && tresc.length < 40 * 1024,
+	ok( nazwa + ( zTabela ? ' niesie arkusz i skrypt wtyczki, bo ma tabelę' : ' nie wlecze za sobą arkusza ani skryptu wtyczki' ),
+		zTabela
+			? tresc.includes( 'lstab-style-cards' ) && tresc.includes( 'Live Sheets Table' )
+			: ! tresc.includes( 'lstab-style-cards' ) && ! tresc.includes( 'Live Sheets Table' )
+				&& 1 === ( tresc.match( /<script/g ) || [] ).length && tresc.length < 40 * 1024,
 		`${ Math.round( tresc.length / 1024 ) } kB` );
 	await c.close();
 }

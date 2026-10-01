@@ -332,6 +332,39 @@ BLOK_SKAD = (
 	'</div>' )
 
 
+BLOK_TELEFON = (
+	'<div class="lst-mz-blok">'
+	+ naglowek( 'On a phone, every row becomes a card' ) +
+	'<div class="lst-mz-pas">'
+	'<div class="lst-mz-pas-bok">'
+	'<p class="lst-mz-opis">Each value keeps the name of its column, so nothing has to be guessed from '
+	'position. What decides is the width of the column the table sits in, not the width of the screen. '
+	'A table in a narrow sidebar folds on a desktop too.'
+	'<span class="lst-mz-szeroko"> The frame in the middle is a real phone width, with the same table '
+	'in it.</span>'
+	'<span class="lst-mz-wasko"> The table above this is doing it right now.</span></p>'
+	'</div>'
+	'<div class="lst-mz-telefon-rama"><div class="lst-mz-telefon">' + TABELA + '</div></div>'
+	'<div class="lst-mz-pas-bok jest-prawy">'
+	'<p class="lst-mz-adres">360 px</p>'
+	+ punkty( TELEFON ) +
+	'</div>'
+	'</div>'
+	'</div>' )
+
+BLOK_LISTY = (
+	'<div class="lst-mz-blok">'
+	+ naglowek( 'What is in which' ) +
+	'<div class="lst-mz-listy">'
+	+ lista( 'In the free plugin', WOLNE )
+	+ lista( 'Everything above, plus Pro', PRO, ' jest-pro' ) +
+	'</div>'
+	'<p class="lst-mz-kod"><span class="lst-mz-mono">' + L + 'sheet_table id=&quot;1&quot;' + P + '</span>'
+	'<span class="lst-mz-kod-opis">A block, an Elementor widget or this. The same table either way.</span>'
+	'<a class="lst-mz-cta" href="ADRES-POBIERANIA">Download free</a></p>'
+	'</div>' )
+
+
 SEKCJA = (
 	# --- jak to działa: wiersz arkusza i wiersz formuły pod nim -------------
 	'<div class="lst-mz-blok">'
@@ -350,36 +383,10 @@ SEKCJA = (
 	+ BLOK_SKAD
 
 	# --- telefon, w tym samym wierszu co wszystko wyżej ---------------------
-	+ '<div class="lst-mz-blok">'
-	+ naglowek( 'On a phone, every row becomes a card' ) +
-	'<div class="lst-mz-pas">'
-	'<div class="lst-mz-pas-bok">'
-	'<p class="lst-mz-opis">Each value keeps the name of its column, so nothing has to be guessed from '
-	'position. What decides is the width of the column the table sits in, not the width of the screen. '
-	'A table in a narrow sidebar folds on a desktop too.'
-	'<span class="lst-mz-szeroko"> The frame in the middle is a real phone width, with the same table '
-	'in it.</span>'
-	'<span class="lst-mz-wasko"> The table above this is doing it right now.</span></p>'
-	'</div>'
-	'<div class="lst-mz-telefon-rama"><div class="lst-mz-telefon">' + TABELA + '</div></div>'
-	'<div class="lst-mz-pas-bok jest-prawy">'
-	'<p class="lst-mz-adres">360 px</p>'
-	+ punkty( TELEFON ) +
-	'</div>'
-	'</div>'
-	'</div>'
+	+ BLOK_TELEFON
 
 	# --- co jest w czym ----------------------------------------------------
-	'<div class="lst-mz-blok">'
-	+ naglowek( 'What is in which' ) +
-	'<div class="lst-mz-listy">'
-	+ lista( 'In the free plugin', WOLNE )
-	+ lista( 'Everything above, plus Pro', PRO, ' jest-pro' ) +
-	'</div>'
-	'<p class="lst-mz-kod"><span class="lst-mz-mono">' + L + 'sheet_table id=&quot;1&quot;' + P + '</span>'
-	'<span class="lst-mz-kod-opis">A block, an Elementor widget or this. The same table either way.</span>'
-	'<a class="lst-mz-cta" href="ADRES-POBIERANIA">Download free</a></p>'
-	'</div>'
+	+ BLOK_LISTY
 )
 
 
@@ -1636,7 +1643,56 @@ def osobno( nazwa, blok, opis, uwaga = '' ):
 	return calosc
 
 
+def osobno_z_tabela( nazwa, blok, opis ):
+	"""Blok, w którym siedzi prawdziwa tabela: niesie arkusz i skrypt wtyczki.
+
+	Osobna droga niż `osobno()`, bo tam chodzi właśnie o to, żeby tych
+	czterdziestu kilobajtów nie wlec.
+	"""
+	znacznik = '<div class="lst-mz"><div class="lst-mz-rama">' + blok + '</div></div>'
+	arkusz_tu = skrot( STYL + CSS )
+	calosc = (
+		CZCIONKI + '\n'
+		'\n' + znacznik + '\n'
+		'\n<style>\n' + arkusz_tu + '\n</style>\n'
+		'\n<script>\n' + JS + '\n\n' + RUCH + '\n</script>\n'
+	)
+
+	( TU / ( nazwa + '-en.html' ) ).write_text( calosc )
+	( TU / ( nazwa + '-kod.html' ) ).write_text( CZCIONKI + '\n\n' + znacznik + '\n' )
+	( TU / ( nazwa + '-css.css' ) ).write_text( arkusz_tu + '\n' )
+	( TU / ( nazwa + '-js.js' ) ).write_text( JS + '\n\n' + RUCH + '\n' )
+
+	( TU / ( nazwa + '-podglad.html' ) ).write_text(
+		'<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n'
+		'<title>' + opis + '</title>\n'
+		'<style>\n'
+		'html, body { margin: 0; background: #232a29; color: #eaf3f1;\n'
+		'\tfont-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif; }\n'
+		'body { background-image: linear-gradient( to right, rgba( 255, 255, 255, .04 ) 1px, transparent 1px ),\n'
+		'\tlinear-gradient( to bottom, rgba( 255, 255, 255, .04 ) 1px, transparent 1px );\n'
+		'\tbackground-size: 88px 44px; }\n'
+		'.podrobka-divi { padding: 40px 0; }\n'
+		'.podrobka-divi-rzad { width: 90%; max-width: 1800px; margin: 0 auto; }\n'
+		'.pusto { height: 90vh; margin: 0; display: grid; place-items: center;\n'
+		'\tfont: 14px "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .12em;\n'
+		'\ttext-transform: uppercase; color: rgba( 234, 243, 241, .35 ); }\n'
+		'</style>\n'
+		'<div class="podrobka-divi"><div class="podrobka-divi-rzad">\n'
+		'<p class="pusto">przewiń w dół</p>\n'
+		+ calosc +
+		'\n<p class="pusto"></p>\n'
+		'</div></div>\n'
+	)
+
+	return calosc
+
+
 LEGENDA_HTML = osobno( 'LEGENDA', BLOK_LEGENDA, 'What to look for' )
+TELEFON_HTML = osobno_z_tabela( 'TELEFON', BLOK_TELEFON, 'On a phone, every row becomes a card' )
+LISTY_HTML = osobno( 'LISTY', BLOK_LISTY, 'What is in which',
+	'ZANIM WKLEISZ: w tym pliku jest jeden przycisk Download free z adresem '
+	'ADRES-POBIERANIA. Zamien go na adres, pod ktorym lezy wtyczka do pobrania.' )
 SKAD_HTML = osobno( 'SKAD', BLOK_SKAD, 'Where it comes from',
 	'ZANIM WKLEISZ: zamien w tym pliku kazde ADRES/ na adres folderu '
 	'z Multimediow, np. https://rizznet.pl/wp-content/uploads/2026/10/ '
@@ -1671,6 +1727,13 @@ for plik in sorted( TU.glob( '*.html' ) ):
 		tresc, flags = re.S )
 	( TU / plik.name.replace( '.html', '-gotowe.html' ) ).write_text( tresc )
 
-print( 'ok', len( STRONA ), 'znaków modułu,', len( STOL ), 'znaków sekcji z tabelą,',
-	len( LEGENDA_HTML ), 'znaków „What to look for”,', len( SKAD_HTML ), 'znaków „Where it comes from”' )
+print( 'ok', len( STRONA ), 'znaków modułu' )
+for nazwa, ile in (
+	( 'sekcja z tabelą', len( STOL ) ),
+	( 'What to look for', len( LEGENDA_HTML ) ),
+	( 'Where it comes from', len( SKAD_HTML ) ),
+	( 'On a phone', len( TELEFON_HTML ) ),
+	( 'What is in which', len( LISTY_HTML ) ),
+):
+	print( '   ', nazwa, '-', ile, 'znaków' )
 
