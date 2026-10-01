@@ -217,6 +217,28 @@ console.log( '\nmoduł na stronie' );
 
 			return slowa[ pierwsze ] || Number( pierwsze ) || 0;
 		} )(),
+		/*
+		 * Kazda pozycja ma swoj rysunek, i zaden nie jest uzyty dwa razy.
+		 * Przedtem stala tu litera kolumny, a przy rzeczach, ktore nie siedza
+		 * w zadnej kolumnie, wychodzilo z tego „Under it” i „Narrow it”.
+		 * Powtorzony rysunek to zwykle pomylka przy kopiowaniu.
+		 */
+		rysunki: ( () => {
+			const karty = [ ...document.querySelectorAll( '.lst-mz-legenda .lst-mz-pozycja' ) ];
+			const ksztalty = karty.map( ( k ) => {
+				const svg = k.querySelector( '.lst-mz-znak-adres .lst-mz-ikona' );
+
+				return svg ? svg.innerHTML.replace( /\s+/g, '' ) : '';
+			} );
+
+			return {
+				kart: karty.length,
+				zRysunkiem: ksztalty.filter( Boolean ).length,
+				roznych: new Set( ksztalty.filter( Boolean ) ).size,
+				// Litery kolumn i polecenia dla czytelnika: ma ich tam nie byc.
+				litery: karty.filter( ( k ) => /\S/.test( ( k.querySelector( '.lst-mz-znak-adres' ) || {} ).textContent || '' ) ).length,
+			};
+		} )(),
 		wolnych: [ ...document.querySelectorAll( '.lst-mz-legenda .lst-mz-znak-slowo' ) ].filter( ( e ) => /free/i.test( e.textContent ) ).length,
 		platnych: [ ...document.querySelectorAll( '.lst-mz-legenda .lst-mz-znak-slowo' ) ].filter( ( e ) => /pro/i.test( e.textContent ) ).length,
 
@@ -233,6 +255,9 @@ console.log( '\nmoduł na stronie' );
 	 * być widać więcej rzeczy z wersji darmowej niż z płatnej. Liczone, bo
 	 * legenda rośnie o kolejne „a to jest w Pro” samo z siebie.
 	 */
+	ok( 'każda pozycja legendy ma swój rysunek, żaden nie powtórzony, żadnych liter',
+		r.rysunki.zRysunkiem === r.rysunki.kart && r.rysunki.roznych === r.rysunki.kart && r.rysunki.litery === 0,
+		`kart ${ r.rysunki.kart }, z rysunkiem ${ r.rysunki.zRysunkiem }, różnych ${ r.rysunki.roznych }, z napisem ${ r.rysunki.litery }` );
 	ok( 'na tabeli widać więcej rzeczy z wersji darmowej niż z Pro',
 		r.wolnych > r.platnych, `Free ${ r.wolnych }, Pro ${ r.platnych }` );
 	ok( 'dwie tabele: na stronie i w telefonie', r.tabel === 2, String( r.tabel ) );

@@ -70,38 +70,64 @@ def dla_divi( html ):
 
 TABELA = dla_divi( M[ 'pro' ] )
 
-# ( kolumny tabeli, których dotyczy, poziom, tytuł, opis )
+# Ikonki legendy: 24 x 24, rysowane kreska, bez wypelnienia poza tym, co ma
+# klase `jest-pelna`. Ten sam zestaw regul co w landing/droga, zeby cala
+# witryna miala jedna reke.
+IKONY = {
+	'szukaj':   '<circle cx="11" cy="11" r="6.4"/><path d="M15.8 15.8L20.5 20.5"/>',
+	'kolory':   '<rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/>'
+	            '<rect x="3.5" y="13.5" width="7" height="7" rx="1.6" class="jest-pelna"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/>',
+	'odsylacz': '<path d="M10.4 13.6a3.7 3.7 0 0 0 5.2 0l2.7-2.7a3.7 3.7 0 0 0-5.2-5.2l-1.3 1.3"/>'
+	            '<path d="M13.6 10.4a3.7 3.7 0 0 0-5.2 0l-2.7 2.7a3.7 3.7 0 0 0 5.2 5.2l1.3-1.3"/>',
+	'odswiez':  '<path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v4.6h-4.6"/>',
+	'telefon':  '<rect x="6.8" y="2.6" width="10.4" height="18.8" rx="2.6"/><path d="M10.4 18.4h3.2"/>',
+	# Trzy paski jeden na drugim zlewaly sie przy 15 px w jeden kloc. Tabela
+	# z jednym pomalowanym wierszem w srodku czyta sie od razu.
+	# Dwa paski: jeden zwykly, drugi pomalowany. Trzy elementy w tej ikonce
+	# zlewaly sie przy 16 px w jeden kloc, bo kreska zjadala przerwy.
+	'wiersz':   '<rect x="3" y="6.2" width="18" height="4.4" rx="1.5"/>'
+	            '<rect x="3" y="13.4" width="18" height="4.4" rx="1.5" class="jest-pelna"/>',
+	'pigulka':  '<rect x="2.6" y="8" width="12.6" height="8" rx="4"/><circle cx="19.6" cy="12" r="1.7" class="jest-pelna"/>',
+	# Trzy poziome kreski to ikonka wyrownania do lewej, a nie slupkow.
+	'slupki':   '<rect x="3.4" y="12" width="4.4" height="7.6" rx="1.2" class="jest-pelna"/>'
+	            '<rect x="9.8" y="6.2" width="4.4" height="13.4" rx="1.2"/>'
+	            '<rect x="16.2" y="9.4" width="4.4" height="10.2" rx="1.2"/>',
+	'lejek':    '<path d="M3.6 5h16.8l-6.5 7.5v5.6l-3.8 2.3v-7.9z"/>',
+}
+
+
+# ( ikona, poziom, tytul, opis )
 LEGENDA = [
-	( 'A-F', 'Free', 'Search and sorting',
+	( 'szukaj', 'Free', 'Search and sorting',
 	  'Type in the box and the table keeps only the rows that match, with the matching words marked. '
 	  'Click any column heading to sort by it. Dates sort as dates and times as times, not as text.' ),
-	( 'A-F', 'Free', 'All the colours are settings',
+	( 'kolory', 'Free', 'All the colours are settings',
 	  'Pick one of nine ready-made looks, then change whatever you want: the background, the heading bar, '
 	  'the text, the lines, the row height, the size of the column names. Colour pickers and dropdowns, '
 	  'nothing else. This table was made that way and nobody wrote any CSS for it.' ),
-	( 'F', 'Free', 'Web addresses become links',
+	( 'odsylacz', 'Free', 'Web addresses become links',
 	  'Put a web address in a column and your visitors get something they can click, instead of a long '
 	  'line of text to copy out by hand. In the table above that column is wearing the Pro button look, '
 	  'but the clickable link itself is free.' ),
-	( 'Under&nbsp;it', 'Free', 'It checks the sheet for you',
+	( 'odswiez', 'Free', 'It checks the sheet for you',
 	  'This table looks at the spreadsheet every 15 minutes, and the line underneath tells visitors when '
 	  'it last looked. If Google is slow or unreachable, the page keeps showing the last copy it got, so '
 	  'nobody lands on an empty table.' ),
-	( 'Narrow&nbsp;it', 'Free', 'It works on phones',
+	( 'telefon', 'Free', 'It works on phones',
 	  'Make the window narrow and watch what happens. Each row turns into its own card, with the column '
 	  'name written next to every value. Nobody has to drag a six-column table sideways on a phone.' ),
-	( 'E', 'Pro', 'Colour a whole row',
+	( 'wiersz', 'Pro', 'Colour a whole row',
 	  'Set a rule: when <em>Status</em> says <em>Closed</em>, paint that row red. The three closed trails '
 	  'stand out straight away, before anyone has read a word.' ),
-	( 'B&nbsp;E', 'Pro', 'Or just a badge, or a dot',
+	( 'pigulka', 'Pro', 'Or just a badge, or a dot',
 	  'The same kind of rule, only quieter. The value gets a coloured badge around it, or just a small '
 	  'dot next to it. The text stays text, so search and sorting still work on it.' ),
-	( 'C&nbsp;F', 'Pro', 'Bars and buttons in a column',
+	( 'slupki', 'Pro', 'Bars and buttons in a column',
 	  'A number can show a bar behind it. The longer the bar, the bigger that number is next to the '
 	  'biggest one in the same column. It is still a real number underneath: it sorts, and it goes into '
 	  'the download. Web addresses can become buttons with your own wording on them. Cells with nothing '
 	  'in them stay empty.' ),
-	( 'B&nbsp;E', 'Pro', 'Filters and downloads',
+	( 'lejek', 'Pro', 'Filters and downloads',
 	  'Above the table, dropdowns your visitors use to narrow it down themselves. Underneath, buttons for '
 	  'Excel, CSV and print. A download holds exactly what is on the screen: only the rows left after '
 	  'filtering, and none of the hidden columns.' ),
@@ -199,10 +225,11 @@ def naglowek( tekst ):
 	return '<h2 class="lst-mz-naglowek">' + tekst + '</h2>'
 
 
-def pozycja( kolumny, tier, tytul, opis ):
+def pozycja( ikona, tier, tytul, opis ):
 	klasa = ' jest-pro' if 'Pro' == tier else ''
+	rysunek = '<svg class="lst-mz-ikona" viewBox="0 0 24 24" aria-hidden="true">' + IKONY[ ikona ] + '</svg>'
 	return ( '<div class="lst-mz-pozycja">'
-		'<p class="lst-mz-znak' + klasa + '"><span class="lst-mz-znak-adres">' + kolumny + '</span>'
+		'<p class="lst-mz-znak' + klasa + '"><span class="lst-mz-znak-adres">' + rysunek + '</span>'
 		'<span class="lst-mz-znak-slowo">' + tier + '</span></p>'
 		'<p class="lst-mz-tytul">' + tytul + '</p>'
 		'<p class="lst-mz-opis">' + opis + '</p></div>' )
@@ -300,7 +327,7 @@ SEKCJA = (
 	# --- co na niej widać --------------------------------------------------
 	+ '<div class="lst-mz-blok">'
 	+ naglowek( 'What to look for' ) +
-	'<p class="lst-mz-wstep">Nine things on the table above, and where to look for each one. Five of them are in the free plugin.</p>'
+	'<p class="lst-mz-wstep">Nine things on the table above. Five of them are in the free plugin.</p>'
 	'<div class="lst-mz-legenda">' + ''.join( pozycja( *p ) for p in LEGENDA ) + '</div>'
 	'</div>'
 
@@ -689,8 +716,10 @@ STYL = r"""
 
 /*
  * Znacznik jest komórką arkusza, tak jak żetony w nagłówku strony: z lewej
- * adres, z prawej wartość. Adres nie jest ozdobą — to litera kolumny w tabeli
- * wyżej, więc żeton mówi, gdzie na niej tego szukać.
+ * rysunek, z prawej wartość. Przedtem po lewej stały litery kolumn, czyli
+ * „A-F”, „Under it”, „Narrow it”. Przy rzeczach, które nie siedzą w żadnej
+ * kolumnie, nie było czego tam wpisać i wychodziły z tego polecenia dla
+ * czytelnika. Rysunek mówi to samo bez słowa i nie udaje adresu.
  */
 .lst-mz .lst-mz-znak {
 	display: inline-flex;
@@ -704,11 +733,31 @@ STYL = r"""
 }
 
 .lst-mz .lst-mz-znak-adres {
-	padding: .1rem .45rem;
+	display: inline-flex;
+	align-items: center;
+	padding: .25rem .5rem;
 	background-color: rgba( 138, 168, 163, .12 );
 	border-right: 1px solid var( --mz-linia );
 	color: var( --mz-tekst-3 );
 }
+
+/*
+ * Kreska, nie plama: wypełnione jest tylko to, co ma „jest-pelna”, czyli
+ * pomalowany wiersz i kropka. Reszta ma być tak samo lekka jak włoskowe
+ * kreski pod tytułami.
+ */
+.lst-mz .lst-mz-ikona {
+	width: 16px;
+	height: 16px;
+	display: block;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.6;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.lst-mz .lst-mz-ikona .jest-pelna { fill: currentColor; stroke: none; }
 
 .lst-mz .lst-mz-znak-slowo { padding: .1rem .55rem; color: var( --mz-tekst-3 ); }
 
@@ -1125,6 +1174,10 @@ STYL = r"""
 }
 
 .lst-mz .lst-mz-znak.jest-pro { border-color: rgba( var( --mz-mieta ), .45 ) !important; }
+
+/* Motyw malujący wszystkie svg zalałby rysunki na płask. */
+.lst-mz .lst-mz-ikona { fill: none !important; stroke: currentColor !important; }
+.lst-mz .lst-mz-ikona .jest-pelna { fill: currentColor !important; stroke: none !important; }
 .lst-mz .lst-mz-znak-adres { background-color: rgba( 138, 168, 163, .12 ) !important; border-right: 1px solid var( --mz-linia ) !important; }
 .lst-mz .lst-mz-znak.jest-pro .lst-mz-znak-slowo { background-color: rgba( var( --mz-mieta ), .1 ) !important; }
 
