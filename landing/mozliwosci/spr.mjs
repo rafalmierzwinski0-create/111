@@ -744,6 +744,51 @@ console.log( '\nnajechanie' );
 	await c.close();
 }
 
+/*
+ * Przykład shortcode'u ma się CZYTAĆ, a nie wykonywać.
+ *
+ * Na żywej stronie wykonał się i zamiast przykładu stanął komunikat wtyczki
+ * „Nie wybrano jeszcze arkusza.", po polsku na angielskiej stronie. Same
+ * encje nie wystarczają, bo Divi zamienia je z powrotem na nawiasy; nazwa nie
+ * może się z nawiasem stykać w ogóle. Zmiana numeru nic by tu nie dała, bo
+ * wykonywała się nazwa.
+ */
+console.log( '\nprzykład shortcode\'u' );
+{
+	const { p, c } = await otworz( strona( modul ) );
+	const widac = await p.evaluate( () => {
+		const e = document.querySelector( '.lst-mz-kod .lst-mz-mono' );
+
+		return e ? e.textContent.trim() : '';
+	} );
+	const zbitki = [ '[sheet_table', '&#91;sheet_table', '&#x5B;sheet_table' ].filter( ( z ) => modul.includes( z ) );
+	ok( 'przykład czyta się jak shortcode, a nie da się go wykonać',
+		'[sheet_table id="1"]' === widac && 0 === zbitki.length,
+		`na ekranie ${ widac }, zbitek w pliku ${ zbitki.length }` );
+
+	/*
+	 * Obudowa ma wyglądać jak telefon. Poznaje się go po sylwetce, nie po
+	 * ozdobach, więc mierzone jest to: wyraźnie wyższa niż szersza, mocno
+	 * zaokrąglone rogi, wyspa u góry i kreska gestu u dołu.
+	 */
+	const fon = await p.evaluate( () => {
+		const rama = document.querySelector( '.lst-mz-telefon-rama' );
+		const k = rama.getBoundingClientRect();
+
+		return {
+			proporcja: Math.round( ( k.height / k.width ) * 100 ) / 100,
+			promien: parseFloat( getComputedStyle( rama ).borderTopLeftRadius ),
+			wyspa: !! rama.querySelector( '.lst-mz-telefon-wyspa' ),
+			kreska: !! rama.querySelector( '.lst-mz-telefon-kreska' ),
+			guzikow: rama.querySelectorAll( '.lst-mz-telefon-guzik' ).length,
+		};
+	} );
+	ok( 'ramka wygląda jak telefon, a nie jak prostokąt',
+		fon.proporcja > 1.4 && fon.promien >= 36 && fon.wyspa && fon.kreska && 2 === fon.guzikow,
+		`proporcja ${ fon.proporcja }, róg ${ fon.promien }px, wyspa ${ fon.wyspa }, kreska ${ fon.kreska }, guzików ${ fon.guzikow }` );
+	await c.close();
+}
+
 console.log( '\nsekcje osobno' );
 for ( const [ nazwa, plik, co, zTabela ] of [
 	[ 'What to look for', 'LEGENDA-en.html', '.lst-mz-legenda .lst-mz-pozycja', false ],

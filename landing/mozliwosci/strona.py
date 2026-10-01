@@ -49,6 +49,21 @@ ZRZUTY = { z[ 'nazwa' ]: z for z in json.loads( ( TU / 'zrzuty' / 'rozmiary.json
 
 L, P = '&#91;', '&#93;'
 
+# I jeszcze pusty znacznik zaraz za nawiasem otwierającym.
+#
+# Same encje nie wystarczają. Divi zapisuje treść modułu po swojemu i potrafi
+# zamienić „&#91;" z powrotem na „[" — a wtedy WordPress widzi prawdziwy
+# shortcode i WYKONUJE go. Na żywej stronie zamiast przykładu do przeczytania
+# stanął komunikat wtyczki „Nie wybrano jeszcze arkusza.", w dodatku po polsku
+# na angielskiej stronie. Zmiana jedynki na iks by tego nie zdjęła: wykonywała
+# się nazwa, a nie numer.
+#
+# Shortcode rozpoznaje się po nazwie STYKAJĄCEJ SIĘ z nawiasem, więc pusty
+# znacznik między jednym a drugim wyklucza dopasowanie raz na zawsze. Dla
+# czytającego i dla kopiującego nic się nie zmienia: nie wnosi do tekstu ani
+# jednego znaku.
+PRZERWA = '<span class="lst-mz-nic"></span>' 
+
 
 def dla_divi( html ):
 	"""Kod tabeli tak, żeby przeżył wklejenie w moduł Kod."""
@@ -344,9 +359,15 @@ BLOK_TELEFON = (
 	'in it.</span>'
 	'<span class="lst-mz-wasko"> The table above this is doing it right now.</span></p>'
 	'</div>'
-	'<div class="lst-mz-telefon-rama"><div class="lst-mz-telefon">' + TABELA + '</div></div>'
+	'<div class="lst-mz-telefon-rama">'
+	'<span class="lst-mz-telefon-guzik jest-lewy"></span>'
+	'<span class="lst-mz-telefon-guzik jest-prawy"></span>'
+	'<span class="lst-mz-telefon-wyspa"></span>'
+	'<div class="lst-mz-telefon">' + TABELA + '</div>'
+	'<span class="lst-mz-telefon-kreska"></span>'
+	'</div>'
 	'<div class="lst-mz-pas-bok jest-prawy">'
-	'<p class="lst-mz-adres">360 px</p>'
+	'<p class="lst-mz-adres">390 px</p>'
 	+ punkty( TELEFON ) +
 	'</div>'
 	'</div>'
@@ -359,7 +380,7 @@ BLOK_LISTY = (
 	+ lista( 'In the free plugin', WOLNE )
 	+ lista( 'Everything above, plus Pro', PRO, ' jest-pro' ) +
 	'</div>'
-	'<p class="lst-mz-kod"><span class="lst-mz-mono">' + L + 'sheet_table id=&quot;1&quot;' + P + '</span>'
+	'<p class="lst-mz-kod"><span class="lst-mz-mono">' + L + PRZERWA + 'sheet_table id=&quot;1&quot;' + P + '</span>'
 	'<span class="lst-mz-kod-opis">A block, an Elementor widget or this. The same table either way.</span>'
 	'<a class="lst-mz-cta" href="ADRES-POBIERANIA">Download free</a></p>'
 	'</div>' )
@@ -899,26 +920,100 @@ STYL = r"""
 
 .lst-mz .lst-mz-wasko { display: none; }
 
+/*
+ * Obudowa ma wyglądać jak telefon, a nie jak prostokąt wokół tabeli.
+ *
+ * Trzy rzeczy robią całą robotę i wszystkie trzy są w sylwetce, nie w ozdobach:
+ * bardzo duży promień rogów, cienka ramka ekranu równej szerokości ze wszystkich
+ * stron, i wyspa u góry. Czwarta, kreska u dołu, mówi, gdzie jest spód.
+ *
+ * Bez obrazka i bez gradientu: utwardzenie na wrogie motywy zdejmuje wszystkim
+ * elementom modułu „background-image", więc gradientowa obudowa zniknęłaby
+ * u pierwszego klienta z takim motywem. Metal robią tu cienie wewnętrzne.
+ */
 .lst-mz .lst-mz-telefon-rama {
+	position: relative;
 	width: fit-content;
 	max-width: 100%;
-	padding: 14px;
-	border: 1px solid var( --mz-kreska );
-	border-radius: 26px;
-	background-color: var( --mz-plyta );
-	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .06 ), 0 26px 50px -34px rgba( 0, 0, 0, .95 );
+	padding: 11px;
+	border: 1px solid rgba( 255, 255, 255, .1 );
+	border-radius: 46px;
+	background-color: #16201e;
+	box-shadow:
+		inset 0 1px 0 rgba( 255, 255, 255, .13 ),
+		inset 0 -1px 0 rgba( 255, 255, 255, .05 ),
+		inset 1px 0 0 rgba( 255, 255, 255, .07 ),
+		inset -1px 0 0 rgba( 255, 255, 255, .07 ),
+		0 30px 60px -34px rgba( 0, 0, 0, .95 );
 }
+
+/* Krawędź szkła tuż przy ekranie: jedna ciemna kreska, która oddziela ekran
+   od obudowy tak jak na prawdziwym aparacie. */
+.lst-mz .lst-mz-telefon-rama::after {
+	content: "";
+	position: absolute;
+	inset: 10px;
+	border-radius: 36px;
+	border: 1px solid rgba( 0, 0, 0, .55 );
+	pointer-events: none;
+}
+
+/* Wyspa. Leży NA ekranie, więc treść pod nią dostaje u góry tyle miejsca,
+   ile zajmuje, i nic się za nią nie chowa. */
+.lst-mz .lst-mz-telefon-wyspa {
+	position: absolute;
+	z-index: 2;
+	top: 20px;
+	left: 50%;
+	transform: translateX( -50% );
+	width: 78px;
+	height: 20px;
+	border-radius: 999px;
+	background-color: #000;
+	box-shadow: inset 0 0 0 1px rgba( 255, 255, 255, .05 );
+}
+
+/* Kreska gestu u dołu ekranu, pod zanikiem treści. */
+.lst-mz .lst-mz-telefon-kreska {
+	position: absolute;
+	z-index: 2;
+	bottom: 18px;
+	left: 50%;
+	transform: translateX( -50% );
+	width: 112px;
+	height: 4px;
+	border-radius: 999px;
+	background-color: rgba( 234, 243, 241, .35 );
+}
+
+/* Guziki na bokach obudowy. Krótki po lewej u góry to głośność, długi po
+   prawej to przycisk boczny. */
+.lst-mz .lst-mz-telefon-guzik {
+	position: absolute;
+	width: 2px;
+	border-radius: 2px;
+	background-color: rgba( 255, 255, 255, .16 );
+}
+
+.lst-mz .lst-mz-telefon-guzik.jest-lewy { left: -3px; top: 104px; height: 58px; }
+.lst-mz .lst-mz-telefon-guzik.jest-prawy { right: -3px; top: 132px; height: 88px; }
 
 /*
  * Ekran telefonu jest oknem, nie kartką: dziesięć kart jedna pod drugą
  * rozciągnęłoby tę sekcję na dwa ekrany, a widać już po trzech.
  */
 .lst-mz .lst-mz-telefon {
-	width: 360px;
+	position: relative;
+	/* 390 px: szerokość dzisiejszego telefonu, a nie sprzed dekady. Przy 360
+	   licznik wierszy dotykał krawędzi szkła i wyglądał na ucięty. */
+	width: 390px;
 	max-width: 100%;
-	height: clamp( 22rem, 30vw, 26rem );
+	height: clamp( 36rem, 46vw, 42rem );
 	overflow: hidden;
-	border-radius: 16px;
+	/* Tyle, żeby wyspa nie stanęła na treści, i trochę luzu na boki, bo
+	   treść dotykająca krawędzi szkła wygląda na uciętą. */
+	padding: 44px 6px 0;
+	border-radius: 36px;
 	background-color: var( --mz-ekran );
 	-webkit-mask-image: linear-gradient( to bottom, #000 78%, transparent 99% );
 	mask-image: linear-gradient( to bottom, #000 78%, transparent 99% );
@@ -1259,8 +1354,11 @@ STYL = r"""
 .lst-mz .lst-mz-kolumna,
 .lst-mz .lst-mz-kod { background-color: var( --mz-plyta ) !important; border: 1px solid var( --mz-plyta-linia ) !important; }
 
-.lst-mz .lst-mz-telefon-rama { background-color: var( --mz-plyta ) !important; border: 1px solid var( --mz-kreska ) !important; }
-.lst-mz .lst-mz-telefon { background-color: var( --mz-ekran ) !important; }
+.lst-mz .lst-mz-telefon-rama { background-color: #16201e !important; border: 1px solid rgba( 255, 255, 255, .1 ) !important; border-radius: 46px !important; }
+.lst-mz .lst-mz-telefon-wyspa { background-color: #000 !important; border-radius: 999px !important; }
+.lst-mz .lst-mz-telefon-kreska { background-color: rgba( 234, 243, 241, .35 ) !important; border-radius: 999px !important; }
+.lst-mz .lst-mz-telefon-guzik { background-color: rgba( 255, 255, 255, .12 ) !important; border-radius: 2px !important; }
+.lst-mz .lst-mz-telefon { background-color: var( --mz-ekran ) !important; border-radius: 36px !important; }
 .lst-mz .lst-mz-okno { background-color: var( --mz-ekran ) !important; border: 1px solid var( --mz-ekran-linia ) !important; }
 .lst-mz .lst-mz-belka { background-color: var( --mz-ekran-gora ) !important; border: 0 !important; border-bottom: 1px solid rgba( var( --mz-mieta ), .14 ) !important; }
 
@@ -1493,6 +1591,13 @@ STRONA = (
 	'\n<style>\n' + ARKUSZ + '\n</style>\n'
 	'\n<script>\n' + JS + '\n\n' + RUCH + '\n</script>\n'
 )
+
+# Strażnik: nazwa shortcode'u nigdzie nie może stykać się z nawiasem, ani
+# wprost, ani przez encję. Inaczej WordPress wykona przykład zamiast go
+# pokazać, a zobaczy się to dopiero na żywej stronie.
+for _zbitka in ( '[sheet_table', '&#91;sheet_table', '&#x5B;sheet_table' ):
+	if _zbitka in ZNACZNIK:
+		raise SystemExit( 'w module jest „' + _zbitka + '" — WordPress wykona to jako shortcode' )
 
 ( TU / 'MOZLIWOSCI-en.html' ).write_text( STRONA )
 
