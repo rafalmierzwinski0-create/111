@@ -257,15 +257,10 @@ def lista( tytul, grupy, klasa = '' ):
 		'<div class="lst-mz-grupy">' + srodek + '</div></div>' )
 
 
-SEKCJA = (
-	# --- jak to działa: wiersz arkusza i wiersz formuły pod nim -------------
-	'<div class="lst-mz-blok">'
-	+ etykieta( 'How it works' )
-	+ naglowek( 'Three steps, and then it looks after itself' )
-	+ arkusz.sekcja() +
-	'</div>'
-
-	# --- tabela na żywo, w takim samym okienku jak zrzuty niżej -------------
+# Sekcja z tabelą, wyjęta do zmiennej, bo wychodzi w dwóch miejscach: w całej
+# podstronie i jako osobny moduł do wklejenia gdzie indziej. Jedno źródło, więc
+# nie da się poprawić jednego i zapomnieć o drugim.
+BLOK_STOL = (
 	'<div class="lst-mz-blok lst-mz-stol">'
 	'<p class="lst-mz-etykieta jest-zywa"><span class="lst-mz-puls"></span>Live on this page</p>'
 	+ naglowek( 'This is the plugin, running here' ) +
@@ -276,10 +271,22 @@ SEKCJA = (
 	'a list of cards on a phone.</p>'
 	+ okno( 'Trail conditions', '<div class="lst-mz-plansza">' + TABELA + '</div>',
 		'10 rows &middot; checked 9 min ago', ' jest-stolem' ) +
+	'</div>' )
+
+
+SEKCJA = (
+	# --- jak to działa: wiersz arkusza i wiersz formuły pod nim -------------
+	'<div class="lst-mz-blok">'
+	+ etykieta( 'How it works' )
+	+ naglowek( 'Three steps, and then it looks after itself' )
+	+ arkusz.sekcja() +
 	'</div>'
 
+	# --- tabela na żywo, w takim samym okienku jak zrzuty niżej -------------
+	+ BLOK_STOL
+
 	# --- co na niej widać --------------------------------------------------
-	'<div class="lst-mz-blok">'
+	+ '<div class="lst-mz-blok">'
 	+ naglowek( 'What to look for' ) +
 	'<p class="lst-mz-wstep">Six things on the table above, and the column each one is sitting in.</p>'
 	'<div class="lst-mz-legenda">' + ''.join( pozycja( *p ) for p in LEGENDA ) + '</div>'
@@ -1272,4 +1279,43 @@ PODGLAD = (
 
 ( TU / 'PODGLAD.html' ).write_text( PODGLAD )
 
-print( 'ok', len( STRONA ), 'znaków modułu' )
+# --- sama sekcja z tabelą, do wklejenia osobno -------------------------------
+#
+# Ta sama zmienna BLOK_STOL, którą niesie podstrona, więc nie da się poprawić
+# jednego i zapomnieć o drugim. Arkusz jest ten sam minus CSS sekcji „jak to
+# działa”, bo tego bloku tu nie ma — a sam arkusz wtyczki zostaje, bo bez niego
+# tabela to goła kratka.
+STOL_ZNACZNIK = '<div class="lst-mz"><div class="lst-mz-rama">' + BLOK_STOL + '</div></div>'
+STOL_ARKUSZ   = skrot( STYL + CSS )
+
+STOL = (
+	CZCIONKI + '\n'
+	'\n' + STOL_ZNACZNIK + '\n'
+	'\n<style>\n' + STOL_ARKUSZ + '\n</style>\n'
+	'\n<script>\n' + JS + '\n</script>\n'
+)
+
+( TU / 'STOL-en.html' ).write_text( STOL )
+( TU / 'STOL-kod.html' ).write_text( CZCIONKI + '\n\n' + STOL_ZNACZNIK + '\n' )
+( TU / 'STOL-css.css' ).write_text( STOL_ARKUSZ + '\n' )
+( TU / 'STOL-js.js' ).write_text( JS )
+
+( TU / 'STOL-podglad.html' ).write_text(
+	'<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n'
+	'<title>This is the plugin, running here</title>\n'
+	'<style>\n'
+	'html, body { margin: 0; background: #232a29; color: #eaf3f1;\n'
+	'\tfont-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif; }\n'
+	'body { background-image: linear-gradient( to right, rgba( 255, 255, 255, .04 ) 1px, transparent 1px ),\n'
+	'\tlinear-gradient( to bottom, rgba( 255, 255, 255, .04 ) 1px, transparent 1px );\n'
+	'\tbackground-size: 88px 44px; }\n'
+	'.podrobka-divi { padding: 40px 0; }\n'
+	'.podrobka-divi-rzad { width: 90%; max-width: 1800px; margin: 0 auto; }\n'
+	'</style>\n'
+	'<div class="podrobka-divi"><div class="podrobka-divi-rzad">\n'
+	+ STOL +
+	'\n</div></div>\n'
+)
+
+
+print( 'ok', len( STRONA ), 'znaków modułu,', len( STOL ), 'znaków samej sekcji z tabelą' )

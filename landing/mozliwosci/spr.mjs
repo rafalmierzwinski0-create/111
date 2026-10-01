@@ -7,13 +7,23 @@
  * wiersza, czy wrogi motyw nie rozbija ani modułu, ani tabeli pod nim, i czy
  * bez JavaScriptu wszystko jest widoczne.
  *
- * Użycie: node landing/mozliwosci/spr.mjs   (z katalogu landing/mozliwosci)
+ * Użycie: node landing/mozliwosci/spr.mjs   (skądkolwiek)
  */
 
 import { chromium } from '/tmp/lstab-env/node_modules/playwright/index.mjs';
 import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const modul = fs.readFileSync( 'MOZLIWOSCI-en.html', 'utf8' )
+// Pliki czytane są względem TEGO pliku, nie względem katalogu, z którego ktoś
+// uruchomił sprawdzenie. Inaczej `node landing/mozliwosci/spr.mjs` z korzenia
+// repozytorium wywraca się na ENOENT, choć wszystko jest na miejscu.
+const TU = path.dirname( fileURLToPath( import.meta.url ) );
+const czytaj = ( nazwa ) => fs.readFileSync( path.join( TU, nazwa ), 'utf8' );
+// To samo dotyczy zrzutów niżej: zapisywane obok pliku, bo uruchomione
+// z korzenia repozytorium zasypywały korzeń sześcioma plikami png.
+
+const modul = czytaj( 'MOZLIWOSCI-en.html' )
 	// Zrzuty na żywej stronie leżą w Multimediach; tu leżą obok pliku.
 	.replace( /ADRES\//g, 'zrzuty/' );
 
@@ -48,7 +58,7 @@ const otworz = async ( html, { width = 1500, height = 1100, ruch = true } = {} )
 	const p = await c.newPage();
 	const bledy = [];
 	p.on( 'pageerror', ( e ) => bledy.push( e.message ) );
-	await p.goto( 'file://' + process.cwd() + '/' );
+	await p.goto( 'file://' + TU + '/' );
 	await p.setContent( html, { waitUntil: 'load' } );
 	// Obrazki mają loading="lazy", a wejście kafelków trwa 260 ms z opóźnieniem.
 	await p.evaluate( async () => {
@@ -247,9 +257,17 @@ console.log( '\nmoduł na stronie' );
 
 				return 0.2126 * f( n[ 0 ] ) + 0.7152 * f( n[ 1 ] ) + 0.0722 * f( n[ 2 ] );
 			};
-			// Papier siedzi na panelu przewijania, nie na samym „.lstab”, którego
-			// własne tło jest przezroczyste — mierzone tam, gdzie naprawdę jest.
-			const papier = lum( getComputedStyle( document.querySelector( '.lst-mz-stol .lstab-scroll' ) ).backgroundColor );
+			/*
+			 * Mierzona jest KARTA, nie panel przewijania.
+			 *
+			 * W szablonie Karty panel nie ma własnego tła — kolor siedzi na
+			 * komórkach, bo tylko tak karta zachowuje zaokrąglone rogi. Czytany
+			 * stamtąd „papier” wychodził rgba(0, 0, 0, 0), czyli jasność zero,
+			 * i sprawdzenie przechodziło na przezroczystości: przepuściłoby
+			 * dowolny kolor tabeli, byle sama tabela nic nie malowała. Czytana
+			 * jest komórka, czyli to, co widać.
+			 */
+			const papier = lum( getComputedStyle( document.querySelector( '.lst-mz-stol .lstab-table tbody td' ) ).backgroundColor );
 			const strona = lum( getComputedStyle( document.body ).backgroundColor );
 			const okno = lum( getComputedStyle( document.querySelector( '.lst-mz-okno' ) ).backgroundColor );
 
@@ -257,6 +275,28 @@ console.log( '\nmoduł na stronie' );
 				papier: Math.round( papier * 1000 ) / 1000,
 				strona: Math.round( strona * 1000 ) / 1000,
 				okno: Math.round( okno * 1000 ) / 1000,
+			};
+		} )(),
+		/*
+		 * Pasek nagłówków ma SWÓJ kolor.
+		 *
+		 * Karty przychodzą z przezroczystym nagłówkiem, więc napisy kolumn
+		 * leżały wprost na ekranie okienka i nic ich nie trzymało razem.
+		 * Sprawdzane trzy rzeczy naraz: że pasek jest w ogóle pomalowany, że
+		 * nie jest tym samym kolorem co karty pod nim (bo wtedy pierwsza karta
+		 * zlewa się z paskiem) i że nie jest ekranem okienka (czyli że próbnik
+		 * „Tło nagłówka” naprawdę dotarł na stronę, a nie został zjedzony przez
+		 * szablon).
+		 */
+		pasek: ( () => {
+			const th = document.querySelector( '.lst-mz-stol .lstab-table thead th' );
+			const td = document.querySelector( '.lst-mz-stol .lstab-table tbody td' );
+			const ek = document.querySelector( '.lst-mz-stol .lstab-scroll' );
+
+			return {
+				glowa: getComputedStyle( th ).backgroundColor,
+				karta: getComputedStyle( td ).backgroundColor,
+				ekran: getComputedStyle( ek ).backgroundColor,
 			};
 		} )(),
 		podniesiony: getComputedStyle( document.querySelector( '.lst-mz-okno.jest-stolem' ) ).boxShadow,
@@ -269,6 +309,11 @@ console.log( '\nmoduł na stronie' );
 	ok( 'tabela jest z tej strony: ciemna jak okienka, nie jaśniejsza od strony',
 		zrzuty.jasnosc.papier < 0.05 && Math.abs( zrzuty.jasnosc.papier - zrzuty.jasnosc.okno ) < 0.01,
 		`tabela ${ zrzuty.jasnosc.papier }, okno ${ zrzuty.jasnosc.okno }, strona ${ zrzuty.jasnosc.strona }` );
+	ok( 'pasek nagłówków ma własny kolor, inny niż karty i niż ekran pod nimi',
+		! /rgba\(0, 0, 0, 0\)|transparent/.test( zrzuty.pasek.glowa )
+			&& zrzuty.pasek.glowa !== zrzuty.pasek.karta
+			&& zrzuty.pasek.glowa !== zrzuty.pasek.ekran,
+		`pasek ${ zrzuty.pasek.glowa }, karta ${ zrzuty.pasek.karta }, ekran ${ zrzuty.pasek.ekran }` );
 	ok( 'i naprawdę leży na stronie, a nie jest w nią wpuszczona',
 		/rgba?\(/.test( zrzuty.podniesiony ) && 'none' !== zrzuty.podniesiony, zrzuty.podniesiony );
 
@@ -382,11 +427,11 @@ console.log( '\nmoduł na stronie' );
 	const k = await kontrast( p );
 	ok( 'najsłabszy napis ma co najmniej 4,5 : 1', k.r >= 4.5, `${ k.r } : 1 — ${ k.co }` );
 
-	await p.locator( '.lst-mz' ).screenshot( { path: 'mozliwosci-1500.png' } );
-	await p.locator( '.lst-mz-legenda' ).screenshot( { path: 'mozliwosci-legenda.png' } );
-	await p.locator( '.lst-mz-stol' ).screenshot( { path: 'mozliwosci-stol.png' } );
-	await p.locator( '.lst-mz-para' ).first().screenshot( { path: 'mozliwosci-ekran.png' } );
-	await p.locator( '.lst-mz-pas' ).screenshot( { path: 'mozliwosci-telefon.png' } );
+	await p.locator( '.lst-mz' ).screenshot( { path: path.join( TU, 'mozliwosci-1500.png' ) } );
+	await p.locator( '.lst-mz-legenda' ).screenshot( { path: path.join( TU, 'mozliwosci-legenda.png' ) } );
+	await p.locator( '.lst-mz-stol' ).screenshot( { path: path.join( TU, 'mozliwosci-stol.png' ) } );
+	await p.locator( '.lst-mz-para' ).first().screenshot( { path: path.join( TU, 'mozliwosci-ekran.png' ) } );
+	await p.locator( '.lst-mz-pas' ).screenshot( { path: path.join( TU, 'mozliwosci-telefon.png' ) } );
 	await c.close();
 }
 
@@ -499,7 +544,7 @@ console.log( '\ntelefon' );
 	ok( 'pigułka w karcie jest szerokości słowa, nie karty', pigulka.pigulka < pigulka.karta * 0.6,
 		`${ pigulka.pigulka } px w karcie ${ pigulka.karta } px` );
 	ok( 'bez suwaka poziomego na telefonie', r.poziom === 0, String( r.poziom ) );
-	await p.locator( '.lst-mz' ).screenshot( { path: 'mozliwosci-390.png' } );
+	await p.locator( '.lst-mz' ).screenshot( { path: path.join( TU, 'mozliwosci-390.png' ) } );
 	await c.close();
 }
 

@@ -44,6 +44,20 @@ Odsyłacze w tabeli (filtry, pobieranie, kamery) prowadzą do `#`: na stronie
 sprzedażowej nie ma serwera, który by je obsłużył. U klienta prowadzą tam,
 gdzie trzeba.
 
+## Sama sekcja z tabelą, osobno
+
+Sekcję „This is the plugin, running here” — metka, tytuł, akapit i okienko
+z żywą tabelą — można wkleić gdziekolwiek indziej bez reszty podstrony:
+
+* `STOL-en.html` — wszystko w jednym module Kod (~120 kB),
+* albo w trzech kawałkach, tak jak całą podstronę:
+  `STOL-kod.html` → moduł Kod, `STOL-css.css` → Divi > Opcje motywu > Własny
+  CSS, `STOL-js.js` → Integracja > przed `</body>`, w `<script>`.
+
+`STOL-podglad.html` otwiera to w przeglądarce na tle witryny. Znacznik jest ta
+sama zmienna, którą niesie podstrona, więc poprawka w jednym miejscu wychodzi
+w obu.
+
 ## Skąd się bierze wygląd
 
 Nie stąd, tylko ze strony głównej. Ta podstrona ma być jej dalszym ciągiem,
