@@ -250,6 +250,52 @@ def pozycja( ikona, tier, tytul, opis ):
 		'<p class="lst-mz-opis">' + opis + '</p></div>' )
 
 
+# Pasek stanu telefonu: godzina i trzy ikonki. To on, bardziej niż cokolwiek
+# innego, każe oku uznać prostokąt za telefon — bez niego ekran zaczyna się od
+# razu treścią, czego żaden telefon nie robi.
+PASEK_STANU = (
+	'<div class="lst-mz-telefon-pasek" aria-hidden="true">'
+	'<span class="lst-mz-telefon-godzina">9:41</span>'
+	'<span class="lst-mz-telefon-ikonki">'
+	'<svg class="lst-mz-ikona jest-stan" viewBox="0 0 18 12">'
+	'<rect x="0" y="8.4" width="3" height="3.6" rx="1" class="jest-pelna"/>'
+	'<rect x="4.6" y="6" width="3" height="6" rx="1" class="jest-pelna"/>'
+	'<rect x="9.2" y="3.2" width="3" height="8.8" rx="1" class="jest-pelna"/>'
+	'<rect x="13.8" y="0" width="3" height="12" rx="1" class="jest-pelna"/>'
+	'</svg>'
+	'<svg class="lst-mz-ikona jest-stan" viewBox="0 0 16 12">'
+	'<path d="M1 4.3a10.4 10.4 0 0 1 14 0"/>'
+	'<path d="M3.6 7.1a6.7 6.7 0 0 1 8.8 0"/>'
+	'<circle cx="8" cy="10.2" r="1.3" class="jest-pelna"/>'
+	'</svg>'
+	'<svg class="lst-mz-ikona jest-stan jest-bateria" viewBox="0 0 26 12">'
+	'<rect x="0.6" y="0.6" width="21" height="10.8" rx="3"/>'
+	'<rect x="2.4" y="2.4" width="14" height="7.2" rx="1.8" class="jest-pelna"/>'
+	'<path d="M23.6 4.4v3.2" stroke-width="2.6"/>'
+	'</svg>'
+	'</span>'
+	'</div>' )
+
+
+def telefon( srodek ):
+	"""Aparat: obudowa, przyciski, wyspa z okiem, szkło i ekran.
+
+	Wszystko, co ma znaczyć „telefon”, siedzi w sylwetce i w czterech
+	szczegółach: wyspa z obiektywem, pasek stanu, odbicie na szkle i kreska
+	gestu. Bez nich to zaokrąglony prostokąt wokół tabeli.
+	"""
+	return ( '<div class="lst-mz-telefon-rama">'
+		'<span class="lst-mz-telefon-guzik jest-cisza"></span>'
+		'<span class="lst-mz-telefon-guzik jest-glosniej"></span>'
+		'<span class="lst-mz-telefon-guzik jest-ciszej"></span>'
+		'<span class="lst-mz-telefon-guzik jest-bok"></span>'
+		'<div class="lst-mz-telefon">' + PASEK_STANU + srodek + '</div>'
+		'<span class="lst-mz-telefon-wyspa"><span class="lst-mz-telefon-oko"></span></span>'
+		'<span class="lst-mz-telefon-blysk"></span>'
+		'<span class="lst-mz-telefon-kreska"></span>'
+		'</div>' )
+
+
 def okno( nazwa, srodek, prawa = '', klasa = '' ):
 	"""Ramka udająca okno: belka z oczkami i nazwą, a pod nią ekran."""
 	po_prawej = ( '<span class="lst-mz-belka-prawa">' + prawa + '</span>' ) if prawa else ''
@@ -359,13 +405,7 @@ BLOK_TELEFON = (
 	'in it.</span>'
 	'<span class="lst-mz-wasko"> The table above this is doing it right now.</span></p>'
 	'</div>'
-	'<div class="lst-mz-telefon-rama">'
-	'<span class="lst-mz-telefon-guzik jest-lewy"></span>'
-	'<span class="lst-mz-telefon-guzik jest-prawy"></span>'
-	'<span class="lst-mz-telefon-wyspa"></span>'
-	'<div class="lst-mz-telefon">' + TABELA + '</div>'
-	'<span class="lst-mz-telefon-kreska"></span>'
-	'</div>'
+	+ telefon( TABELA ) +
 	'<div class="lst-mz-pas-bok jest-prawy">'
 	'<p class="lst-mz-adres">390 px</p>'
 	+ punkty( TELEFON ) +
@@ -921,102 +961,211 @@ STYL = r"""
 .lst-mz .lst-mz-wasko { display: none; }
 
 /*
- * Obudowa ma wyglądać jak telefon, a nie jak prostokąt wokół tabeli.
+ * Aparat.
  *
- * Trzy rzeczy robią całą robotę i wszystkie trzy są w sylwetce, nie w ozdobach:
- * bardzo duży promień rogów, cienka ramka ekranu równej szerokości ze wszystkich
- * stron, i wyspa u góry. Czwarta, kreska u dołu, mówi, gdzie jest spód.
+ * Telefon poznaje się po sylwetce, a dopiero potem po szczegółach, więc
+ * najpierw sylwetka: wysoki, bardzo mocno zaokrąglony, z ramką ekranu równej
+ * szerokości ze wszystkich czterech stron. Potem cztery szczegóły, które
+ * robią resztę: metalowy bok łapiący światło, wyspa z obiektywem, pasek stanu
+ * nad treścią i odbicie na szkle.
  *
- * Bez obrazka i bez gradientu: utwardzenie na wrogie motywy zdejmuje wszystkim
- * elementom modułu „background-image", więc gradientowa obudowa zniknęłaby
- * u pierwszego klienta z takim motywem. Metal robią tu cienie wewnętrzne.
+ * Gradienty są tu wyjątkiem od utwardzenia na wrogie motywy, które zdejmuje
+ * wszystkim elementom modułu „background-image". Bez nich bok telefonu jest
+ * płaską plamą, a metalu nie da się udać samym cieniem. Wyjątek jest wąski
+ * i wypisany z nazwy na dole, w bloku utwardzenia.
  */
 .lst-mz .lst-mz-telefon-rama {
+	--mz-fon-bok: linear-gradient( 145deg,
+		#5a6f6a 0%, #2c3b38 12%, #1a2422 34%,
+		#161f1d 62%, #2a3936 84%, #536862 100% );
+	--mz-fon-szklo: linear-gradient( 128deg,
+		rgba( 255, 255, 255, .11 ) 0%,
+		rgba( 255, 255, 255, .045 ) 14%,
+		rgba( 255, 255, 255, 0 ) 34%,
+		rgba( 255, 255, 255, 0 ) 100% );
+
 	position: relative;
 	width: fit-content;
 	max-width: 100%;
-	padding: 11px;
-	border: 1px solid rgba( 255, 255, 255, .1 );
-	border-radius: 46px;
-	background-color: #16201e;
+	padding: 12px;
+	border-radius: 52px;
+	background-color: #1a2422;
+	background-image: var( --mz-fon-bok );
 	box-shadow:
-		inset 0 1px 0 rgba( 255, 255, 255, .13 ),
-		inset 0 -1px 0 rgba( 255, 255, 255, .05 ),
-		inset 1px 0 0 rgba( 255, 255, 255, .07 ),
-		inset -1px 0 0 rgba( 255, 255, 255, .07 ),
-		0 30px 60px -34px rgba( 0, 0, 0, .95 );
+		/* krawędź metalu: jasna u góry, ciemna u dołu */
+		inset 0 1.5px 0 rgba( 255, 255, 255, .28 ),
+		inset 0 -1.5px 0 rgba( 0, 0, 0, .5 ),
+		inset 1.5px 0 0 rgba( 255, 255, 255, .1 ),
+		inset -1.5px 0 0 rgba( 255, 255, 255, .1 ),
+		/* aparat leży na stronie, a nie jest w nią wpuszczony */
+		0 2px 2px -1px rgba( 0, 0, 0, .5 ),
+		0 36px 70px -38px rgba( 0, 0, 0, .95 ),
+		0 0 60px -30px rgba( var( --mz-mieta ), .35 );
 }
 
-/* Krawędź szkła tuż przy ekranie: jedna ciemna kreska, która oddziela ekran
-   od obudowy tak jak na prawdziwym aparacie. */
+/* Czarna szczelina między metalem a ekranem: na prawdziwym aparacie to ona
+   oddziela jedno od drugiego i bez niej ekran wygląda jak naklejka. */
 .lst-mz .lst-mz-telefon-rama::after {
 	content: "";
 	position: absolute;
 	inset: 10px;
-	border-radius: 36px;
-	border: 1px solid rgba( 0, 0, 0, .55 );
+	border-radius: 42px;
+	border: 2px solid #05100e;
 	pointer-events: none;
 }
 
-/* Wyspa. Leży NA ekranie, więc treść pod nią dostaje u góry tyle miejsca,
-   ile zajmuje, i nic się za nią nie chowa. */
-.lst-mz .lst-mz-telefon-wyspa {
-	position: absolute;
-	z-index: 2;
-	top: 20px;
-	left: 50%;
-	transform: translateX( -50% );
-	width: 78px;
-	height: 20px;
-	border-radius: 999px;
-	background-color: #000;
-	box-shadow: inset 0 0 0 1px rgba( 255, 255, 255, .05 );
-}
+/* ----------------------------------------------------------------- ekran */
 
-/* Kreska gestu u dołu ekranu, pod zanikiem treści. */
-.lst-mz .lst-mz-telefon-kreska {
-	position: absolute;
-	z-index: 2;
-	bottom: 18px;
-	left: 50%;
-	transform: translateX( -50% );
-	width: 112px;
-	height: 4px;
-	border-radius: 999px;
-	background-color: rgba( 234, 243, 241, .35 );
-}
-
-/* Guziki na bokach obudowy. Krótki po lewej u góry to głośność, długi po
-   prawej to przycisk boczny. */
-.lst-mz .lst-mz-telefon-guzik {
-	position: absolute;
-	width: 2px;
-	border-radius: 2px;
-	background-color: rgba( 255, 255, 255, .16 );
-}
-
-.lst-mz .lst-mz-telefon-guzik.jest-lewy { left: -3px; top: 104px; height: 58px; }
-.lst-mz .lst-mz-telefon-guzik.jest-prawy { right: -3px; top: 132px; height: 88px; }
-
-/*
- * Ekran telefonu jest oknem, nie kartką: dziesięć kart jedna pod drugą
- * rozciągnęłoby tę sekcję na dwa ekrany, a widać już po trzech.
- */
 .lst-mz .lst-mz-telefon {
 	position: relative;
-	/* 390 px: szerokość dzisiejszego telefonu, a nie sprzed dekady. Przy 360
-	   licznik wierszy dotykał krawędzi szkła i wyglądał na ucięty. */
+	/* 390 px: szerokość dzisiejszego telefonu, a nie sprzed dekady. */
 	width: 390px;
 	max-width: 100%;
 	height: clamp( 36rem, 46vw, 42rem );
 	overflow: hidden;
-	/* Tyle, żeby wyspa nie stanęła na treści, i trochę luzu na boki, bo
-	   treść dotykająca krawędzi szkła wygląda na uciętą. */
-	padding: 44px 6px 0;
-	border-radius: 36px;
+	/* Trochę luzu na boki: treść dotykająca krawędzi szkła wygląda na uciętą,
+	   a na prawdziwym ekranie nic nie leży przy samej krawędzi. */
+	padding-inline: 7px;
+	border-radius: 40px;
 	background-color: var( --mz-ekran );
 	-webkit-mask-image: linear-gradient( to bottom, #000 78%, transparent 99% );
 	mask-image: linear-gradient( to bottom, #000 78%, transparent 99% );
+}
+
+/* --------------------------------------------------------- pasek stanu */
+
+/*
+ * Godzina po lewej, zasięg, wi-fi i bateria po prawej, a między nimi miejsce
+ * na wyspę. Dziewiąta czterdzieści jeden, bo tak chodzą zegary na wszystkich
+ * zdjęciach tego aparatu i oko nie zatrzymuje się na tym ani na chwilę.
+ */
+.lst-mz .lst-mz-telefon-pasek {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: 44px;
+	padding: 0 14px 0 18px;
+	color: #eef7f4;
+}
+
+.lst-mz .lst-mz-telefon-godzina {
+	font-size: .875rem;    /* 14 px */
+	font-weight: 600;
+	line-height: 1;
+	letter-spacing: .01em;
+}
+
+.lst-mz .lst-mz-telefon-ikonki { display: inline-flex; align-items: center; gap: 5px; }
+
+.lst-mz .lst-mz-ikona.jest-stan { width: auto; height: 11px; stroke-width: 1.5; }
+.lst-mz .lst-mz-ikona.jest-stan.jest-bateria { height: 12px; }
+
+/* ----------------------------------------------------------------- wyspa */
+
+/*
+ * Wyspa leży NA ekranie, a pasek stanu ma dokładnie jej wysokość, więc nic
+ * się pod nią nie chowa. W środku obiektyw: ciemne oko z cienkim, zimnym
+ * pierścieniem i jednym punktem światła. To ten punkt sprawia, że wyspa
+ * przestaje być czarną pigułką.
+ */
+.lst-mz .lst-mz-telefon-wyspa {
+	position: absolute;
+	z-index: 3;
+	top: 24px;
+	left: 50%;
+	transform: translateX( -50% );
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	width: 92px;
+	height: 26px;
+	padding-right: 7px;
+	border-radius: 999px;
+	background-color: #000;
+	box-shadow: inset 0 0 0 1px rgba( 255, 255, 255, .06 );
+}
+
+.lst-mz .lst-mz-telefon-oko {
+	position: relative;
+	width: 11px;
+	height: 11px;
+	border-radius: 50%;
+	background-color: #0b1a19;
+	box-shadow:
+		inset 0 0 0 1px rgba( 120, 200, 190, .28 ),
+		inset 0 0 3px 1px rgba( 0, 0, 0, .9 );
+}
+
+.lst-mz .lst-mz-telefon-oko::after {
+	content: "";
+	position: absolute;
+	top: 2px;
+	left: 2.4px;
+	width: 3px;
+	height: 3px;
+	border-radius: 50%;
+	background-color: rgba( 180, 240, 230, .55 );
+}
+
+/* ------------------------------------------------------------------ szkło */
+
+/* Odbicie: jedno miękkie pasmo światła z lewego górnego rogu. Nic więcej,
+   bo szkło, po którym biegnie pięć refleksów, wygląda jak kalkomania. */
+.lst-mz .lst-mz-telefon-blysk {
+	position: absolute;
+	z-index: 4;
+	inset: 12px;
+	border-radius: 40px;
+	pointer-events: none;
+	background-image: var( --mz-fon-szklo );
+	box-shadow: inset 0 0 0 1px rgba( 255, 255, 255, .055 );
+}
+
+/* Kreska gestu u dołu ekranu. */
+.lst-mz .lst-mz-telefon-kreska {
+	position: absolute;
+	z-index: 5;
+	bottom: 20px;
+	left: 50%;
+	transform: translateX( -50% );
+	width: 134px;
+	height: 5px;
+	border-radius: 999px;
+	background-color: rgba( 234, 243, 241, .4 );
+}
+
+/* --------------------------------------------------------------- guziki */
+
+/*
+ * Cztery, tak jak na aparacie: przełącznik ciszy i dwa klawisze głośności po
+ * lewej, przycisk boczny po prawej. Każdy ma jasną górę i ciemny spód, więc
+ * wygląda na wycięty w metalu, a nie namalowany na nim.
+ */
+.lst-mz .lst-mz-telefon-guzik {
+	position: absolute;
+	width: 3px;
+	border-radius: 0 3px 3px 0;
+	background-color: #33433f;
+	box-shadow:
+		inset 0 1px 0 rgba( 255, 255, 255, .3 ),
+		inset 0 -1px 0 rgba( 0, 0, 0, .55 ),
+		1px 0 1px rgba( 0, 0, 0, .4 );
+}
+
+.lst-mz .lst-mz-telefon-guzik.jest-cisza { left: -3px; top: 104px; height: 28px; }
+.lst-mz .lst-mz-telefon-guzik.jest-glosniej { left: -3px; top: 150px; height: 56px; }
+.lst-mz .lst-mz-telefon-guzik.jest-ciszej { left: -3px; top: 218px; height: 56px; }
+
+.lst-mz .lst-mz-telefon-guzik.jest-bok {
+	left: auto;
+	right: -3px;
+	top: 176px;
+	height: 92px;
+	border-radius: 3px 0 0 3px;
+	box-shadow:
+		inset 0 1px 0 rgba( 255, 255, 255, .3 ),
+		inset 0 -1px 0 rgba( 0, 0, 0, .55 ),
+		-1px 0 1px rgba( 0, 0, 0, .4 );
 }
 
 /* --------------------------------------------------------- co jest w czym */
@@ -1354,11 +1503,19 @@ STYL = r"""
 .lst-mz .lst-mz-kolumna,
 .lst-mz .lst-mz-kod { background-color: var( --mz-plyta ) !important; border: 1px solid var( --mz-plyta-linia ) !important; }
 
-.lst-mz .lst-mz-telefon-rama { background-color: #16201e !important; border: 1px solid rgba( 255, 255, 255, .1 ) !important; border-radius: 46px !important; }
+/*
+ * Aparat jest jedynym miejscem w module, gdzie gradient MUSI przejść przez
+ * utwardzenie: bok telefonu bez niego jest płaską plamą, a metalu nie da się
+ * udać samym cieniem. Wyjątek jest wąski i wypisany z nazwy.
+ */
+.lst-mz .lst-mz-telefon-rama { background-color: #1a2422 !important; background-image: var( --mz-fon-bok ) !important; border: 0 !important; border-radius: 52px !important; }
+.lst-mz .lst-mz-telefon-blysk { background-image: var( --mz-fon-szklo ) !important; border-radius: 40px !important; }
 .lst-mz .lst-mz-telefon-wyspa { background-color: #000 !important; border-radius: 999px !important; }
-.lst-mz .lst-mz-telefon-kreska { background-color: rgba( 234, 243, 241, .35 ) !important; border-radius: 999px !important; }
-.lst-mz .lst-mz-telefon-guzik { background-color: rgba( 255, 255, 255, .12 ) !important; border-radius: 2px !important; }
-.lst-mz .lst-mz-telefon { background-color: var( --mz-ekran ) !important; border-radius: 36px !important; }
+.lst-mz .lst-mz-telefon-oko { background-color: #0b1a19 !important; border-radius: 50% !important; }
+.lst-mz .lst-mz-telefon-kreska { background-color: rgba( 234, 243, 241, .4 ) !important; border-radius: 999px !important; }
+.lst-mz .lst-mz-telefon-guzik { background-color: #33433f !important; }
+.lst-mz .lst-mz-telefon-godzina { font-family: inherit !important; }
+.lst-mz .lst-mz-telefon { background-color: var( --mz-ekran ) !important; border-radius: 40px !important; }
 .lst-mz .lst-mz-okno { background-color: var( --mz-ekran ) !important; border: 1px solid var( --mz-ekran-linia ) !important; }
 .lst-mz .lst-mz-belka { background-color: var( --mz-ekran-gora ) !important; border: 0 !important; border-bottom: 1px solid rgba( var( --mz-mieta ), .14 ) !important; }
 
@@ -1372,6 +1529,7 @@ STYL = r"""
 
 /* Motyw malujący wszystkie svg zalałby rysunki na płask. */
 .lst-mz .lst-mz-ikona { fill: none !important; stroke: currentColor !important; }
+.lst-mz .lst-mz-ikona.jest-stan { height: 11px !important; }
 .lst-mz .lst-mz-ikona .jest-pelna { fill: currentColor !important; stroke: none !important; }
 .lst-mz .lst-mz-znak-adres { background-color: rgba( 138, 168, 163, .12 ) !important; border-right: 1px solid var( --mz-linia ) !important; }
 .lst-mz .lst-mz-znak.jest-pro .lst-mz-znak-slowo { background-color: rgba( var( --mz-mieta ), .1 ) !important; }

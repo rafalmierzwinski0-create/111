@@ -773,19 +773,32 @@ console.log( '\nprzykład shortcode\'u' );
 	 */
 	const fon = await p.evaluate( () => {
 		const rama = document.querySelector( '.lst-mz-telefon-rama' );
+		const ekran = rama.querySelector( '.lst-mz-telefon' );
 		const k = rama.getBoundingClientRect();
+		const e = ekran.getBoundingClientRect();
 
 		return {
 			proporcja: Math.round( ( k.height / k.width ) * 100 ) / 100,
 			promien: parseFloat( getComputedStyle( rama ).borderTopLeftRadius ),
-			wyspa: !! rama.querySelector( '.lst-mz-telefon-wyspa' ),
+			// Ramka ekranu równej szerokości z czterech stron: nierówna od razu
+			// zdradza, że to prostokąt, a nie aparat.
+			ramkaRowna: Math.round( e.left - k.left ) === Math.round( k.right - e.right ),
+			// Metal: bok musi nieść gradient, inaczej jest płaską plamą.
+			metal: /gradient/.test( getComputedStyle( rama ).backgroundImage ),
+			szklo: /gradient/.test( getComputedStyle( rama.querySelector( '.lst-mz-telefon-blysk' ) || rama ).backgroundImage ),
+			oko: !! rama.querySelector( '.lst-mz-telefon-wyspa .lst-mz-telefon-oko' ),
+			godzina: ( rama.querySelector( '.lst-mz-telefon-godzina' ) || {} ).textContent || '',
+			ikonekStanu: rama.querySelectorAll( '.lst-mz-telefon-pasek .lst-mz-ikona' ).length,
 			kreska: !! rama.querySelector( '.lst-mz-telefon-kreska' ),
 			guzikow: rama.querySelectorAll( '.lst-mz-telefon-guzik' ).length,
 		};
 	} );
-	ok( 'ramka wygląda jak telefon, a nie jak prostokąt',
-		fon.proporcja > 1.4 && fon.promien >= 36 && fon.wyspa && fon.kreska && 2 === fon.guzikow,
-		`proporcja ${ fon.proporcja }, róg ${ fon.promien }px, wyspa ${ fon.wyspa }, kreska ${ fon.kreska }, guzików ${ fon.guzikow }` );
+	ok( 'to wygląda jak telefon: sylwetka, metal, szkło, wyspa z okiem, pasek stanu',
+		fon.proporcja > 1.5 && fon.promien >= 44 && fon.ramkaRowna && fon.metal && fon.szklo
+			&& fon.oko && /\d/.test( fon.godzina ) && 3 === fon.ikonekStanu
+			&& fon.kreska && 4 === fon.guzikow,
+		`proporcja ${ fon.proporcja }, róg ${ fon.promien }px, ramka równa ${ fon.ramkaRowna }, metal ${ fon.metal }, `
+		+ `szkło ${ fon.szklo }, oko ${ fon.oko }, zegar ${ fon.godzina }, ikonek ${ fon.ikonekStanu }, guzików ${ fon.guzikow }` );
 	await c.close();
 }
 
