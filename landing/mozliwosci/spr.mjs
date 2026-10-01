@@ -629,6 +629,47 @@ console.log( '\ntelefon' );
  * niosą ze sobą swój CSS, czy nic nie zostało przezroczyste i czy nie wloką
  * za sobą arkusza i skryptu wtyczki, których nie mają po co nieść.
  */
+/*
+ * Najechanie na kafelek legendy ma byc przejsciem, a nie skokiem.
+ *
+ * Animacja wjazdu chodzi na osi widoku i ma `both`, wiec po przejechaniu
+ * sekcji dalej trzyma wlasciwosc, ktora ruszala. Kiedy ruszala `transform`,
+ * zabierala go najechaniu i karta podskakiwala natychmiast: przejscie nie
+ * mialo czego animowac. Mierzone jest to, co widac: ile kafelek przejechal
+ * tuz po najechaniu i ile po zakonczeniu.
+ */
+console.log( '\nnajechanie' );
+{
+	const { p, c } = await otworz( strona( modul ) );
+	const karta = await p.$( '.lst-mz-legenda .lst-mz-pozycja' );
+	await karta.scrollIntoViewIfNeeded();
+	await p.waitForTimeout( 400 );
+	const ile = ( e ) => e.evaluate( ( x ) => {
+		const m = new DOMMatrixReadOnly( getComputedStyle( x ).transform );
+
+		return Math.round( m.m42 * 100 ) / 100;
+	} );
+	const spoczynek = await ile( karta );
+	await karta.hover();
+	const zaraz = await ile( karta );
+	await p.waitForTimeout( 400 );
+	const koniec = await ile( karta );
+	ok( 'kafelek podnosi się płynnie, a nie skacze',
+		0 === spoczynek && koniec < -1 && zaraz > koniec * 0.9,
+		`spoczynek ${ spoczynek }, zaraz po ${ zaraz }, koniec ${ koniec }` );
+
+	const kreska = await p.evaluate( () => {
+		const g = getComputedStyle( document.querySelector( '.lst-mz-naglowek' ), '::after' );
+
+		return { wysokosc: g.height, obraz: g.backgroundImage };
+	} );
+	// Ta sama kreska co na stronie glownej: 2 px i mieta, a nie wlos.
+	ok( 'kreska przy tytule jest gruba i zielona, jak na stronie głównej',
+		'2px' === kreska.wysokosc && /95,\s*227,\s*207/.test( kreska.obraz ),
+		`${ kreska.wysokosc }, ${ kreska.obraz.slice( 0, 60 ) }` );
+	await c.close();
+}
+
 console.log( '\nsekcje osobno' );
 for ( const [ nazwa, plik, co ] of [
 	[ 'What to look for', 'LEGENDA-en.html', '.lst-mz-legenda .lst-mz-pozycja' ],

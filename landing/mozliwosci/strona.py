@@ -574,8 +574,20 @@ STYL = r"""
 	content: "";
 	flex: 1 1 auto;
 	min-width: 2rem;
-	height: 1px;
-	background-image: linear-gradient( to right, rgba( var( --mz-mieta ), .3 ), rgba( var( --mz-mieta ), 0 ) );
+	/*
+	 * Ta sama kreska co na stronie głównej: 2 px, zaokrąglona i miętowa od
+	 * mocnego końca do zera. Przedtem był tu włos o przezroczystości .3, który
+	 * na tle tej witryny ledwo było widać, i podstrona wyglądała przy głównej
+	 * jak wyblakła.
+	 */
+	height: 2px;
+	border-radius: 2px;
+	background-image: linear-gradient( to right,
+		rgba( var( --mz-mieta ), .9 ),
+		rgba( var( --mz-mieta ), .62 ) 40%,
+		rgba( var( --mz-mieta ), .34 ) 75%,
+		rgba( var( --mz-mieta ), .1 ) 93%,
+		transparent );
 	transform-origin: left center;
 	/* Sam tytuł ma się łamać przed kreską, a nie razem z nią. */
 	align-self: center;
@@ -720,7 +732,12 @@ STYL = r"""
 	border: 1px solid var( --mz-plyta-linia );
 	border-radius: var( --mz-luk-plyty );
 	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .045 );
-	transition: border-color 200ms ease, transform 200ms var( --mz-luk );
+	/*
+	 * W tę stronę 160 ms, z powrotem 240 ms (patrz „:hover” niżej): odpowiedź
+	 * natychmiastowa, powrót spokojny. Wypisane właściwości, nigdy „all”.
+	 */
+	transition: border-color 240ms var( --mz-luk ), box-shadow 240ms var( --mz-luk ),
+		transform 240ms var( --mz-luk );
 }
 
 /*
@@ -1021,7 +1038,19 @@ STYL = r"""
 /* ------------------------------------------------------------- najechanie */
 
 @media ( hover: hover ) and ( pointer: fine ) {
-	.lst-mz .lst-mz-pozycja:hover { border-color: rgba( var( --mz-mieta ), .34 ); transform: translateY( -2px ); }
+	/*
+	 * Karta jest pod kursorem dziesiątki razy na jednej stronie, więc ruch ma
+	 * być ledwie wyczuwalny: trzy piksele w górę, cień, który je uzasadnia,
+	 * i cieplejsza krawędź. Samo przesunięcie bez cienia wyglądało jak skok.
+	 */
+	.lst-mz .lst-mz-pozycja:hover {
+		border-color: rgba( var( --mz-mieta ), .34 );
+		transform: translateY( -3px );
+		box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .07 ),
+			0 18px 30px -26px rgba( 0, 0, 0, .95 ),
+			0 0 26px -18px rgba( var( --mz-mieta ), .5 );
+		transition-duration: 160ms;
+	}
 	.lst-mz .lst-mz-kolumna:hover { border-color: rgba( var( --mz-mieta ), .34 ); }
 	.lst-mz .lst-mz-cta:hover { filter: brightness( 1.08 ); transform: translateY( -1px ); }
 	.lst-mz .lst-mz-okno:not( .jest-stolem ):hover { transform: translateY( -2px ); box-shadow: 0 26px 50px -30px rgba( 0, 0, 0, .95 ), 0 0 40px -16px rgba( var( --mz-mieta ), .4 ); }
@@ -1062,6 +1091,24 @@ STYL = r"""
 	}
 
 	/*
+	 * Kafelki legendy wchodzą po kolei, nie wszystkie naraz.
+	 *
+	 * Na osi widoku nie da się opóźnić animacji o milisekundy: każdy kafelek
+	 * ma własną oś i jedzie od swojego położenia na ekranie. Przesuwany jest
+	 * więc ZAKRES — druga i trzecia kolumna zaczynają kawałek później, co daje
+	 * ukos przez siatkę. Robione osobno dla trzech i dla dwóch kolumn, bo przy
+	 * dwóch „co trzeci” nie jest już żadną kolumną.
+	 */
+	@media ( min-width: 1181px ) {
+		.lst-mz .lst-mz-legenda .lst-mz-pozycja:nth-child( 3n + 2 ) { animation-range: entry 8% cover 30%; }
+		.lst-mz .lst-mz-legenda .lst-mz-pozycja:nth-child( 3n ) { animation-range: entry 12% cover 34%; }
+	}
+
+	@media ( min-width: 901px ) and ( max-width: 1180px ) {
+		.lst-mz .lst-mz-legenda .lst-mz-pozycja:nth-child( 2n ) { animation-range: entry 10% cover 32%; }
+	}
+
+	/*
 	 * Kreska przy etykiecie rysuje się sama, kiedy sekcja wchodzi. To ten sam
 	 * znak, który dzieli stronę na rozdziały — tu robi dodatkowo za wskaźnik:
 	 * dociągnięta kreska znaczy „ta sekcja jest już twoja”.
@@ -1098,17 +1145,27 @@ STYL = r"""
 	}
 }
 
-/* Same przesunięcia — patrz zasada pierwsza wyżej. */
+/*
+ * Same przesunięcia — patrz zasada pierwsza wyżej. Pisane na `translate`
+ * i `scale`, a NIE na `transform`.
+ *
+ * Powód: te animacje chodzą na osi widoku i mają „both”, więc po przejechaniu
+ * sekcji dalej trzymają właściwość, którą ruszają. Kiedy ruszały `transform`,
+ * zabierały go najechaniu: karta podskakiwała o te dwa piksele NATYCHMIAST,
+ * bez przejścia, bo wartość podawała skończona animacja, a nie przejście.
+ * `translate` i `scale` to osobne właściwości i składają się z `transform`,
+ * więc jedno nie wchodzi drugiemu w drogę.
+ */
 @keyframes lst-mz-wjazd {
-	from { transform: translateY( 14px ); }
+	from { translate: 0 14px; }
 }
 
 @keyframes lst-mz-wiersz {
-	from { transform: translateY( 7px ); }
+	from { translate: 0 7px; }
 }
 
 @keyframes lst-mz-podniesienie {
-	from { transform: translateY( 22px ) scale( .988 ); }
+	from { translate: 0 22px; scale: .988; }
 }
 
 /*
@@ -1441,17 +1498,23 @@ STOL = (
 MALY_ARKUSZ = skrot( STYL )
 
 
-def osobno( nazwa, blok, opis ):
-	"""Jeden blok jako samodzielny moduł: całość i to samo w trzech kawałkach."""
+def osobno( nazwa, blok, opis, uwaga = '' ):
+	"""Jeden blok jako samodzielny moduł: całość i to samo w trzech kawałkach.
+
+	`uwaga` ląduje komentarzem na samej górze pliku. Sekcja ze zrzutami nie
+	zadziała bez jednej podmiany, a instrukcja w README to instrukcja, której
+	przy wklejaniu nikt nie ma przed oczami.
+	"""
+	czapka = ( '<!-- ' + uwaga + ' -->\n\n' ) if uwaga else ''
 	znacznik = '<div class="lst-mz"><div class="lst-mz-rama">' + blok + '</div></div>'
-	calosc = (
+	calosc = ( czapka + 
 		CZCIONKI + '\n'
 		'\n' + znacznik + '\n'
 		'\n<style>\n' + MALY_ARKUSZ + '\n</style>\n'
 	)
 
 	( TU / ( nazwa + '-en.html' ) ).write_text( calosc )
-	( TU / ( nazwa + '-kod.html' ) ).write_text( CZCIONKI + '\n\n' + znacznik + '\n' )
+	( TU / ( nazwa + '-kod.html' ) ).write_text( czapka + CZCIONKI + '\n\n' + znacznik + '\n' )
 	( TU / ( nazwa + '-css.css' ) ).write_text( MALY_ARKUSZ + '\n' )
 
 	( TU / ( nazwa + '-podglad.html' ) ).write_text(
@@ -1475,7 +1538,12 @@ def osobno( nazwa, blok, opis ):
 
 
 LEGENDA_HTML = osobno( 'LEGENDA', BLOK_LEGENDA, 'What to look for' )
-SKAD_HTML = osobno( 'SKAD', BLOK_SKAD, 'Where it comes from' )
+SKAD_HTML = osobno( 'SKAD', BLOK_SKAD, 'Where it comes from',
+	'ZANIM WKLEISZ: zamien w tym pliku kazde ADRES/ na adres folderu '
+	'z Multimediow, np. https://rizznet.pl/wp-content/uploads/2026/10/ '
+	'Bez tego przegladarka prosi o plik ADRES/mz-wyglad.png, ktorego nie ma, '
+	'i trzy zrzuty sie nie pokazuja. Adres bierzesz tak: Multimedia > klikasz '
+	'wgrany zrzut > kopiujesz adres pliku > odcinasz z niego sama nazwe pliku.' )
 
 print( 'ok', len( STRONA ), 'znaków modułu,', len( STOL ), 'znaków sekcji z tabelą,',
 	len( LEGENDA_HTML ), 'znaków „What to look for”,', len( SKAD_HTML ), 'znaków „Where it comes from”' )
