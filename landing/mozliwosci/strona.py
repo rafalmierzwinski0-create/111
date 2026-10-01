@@ -263,11 +263,10 @@ def lista( tytul, grupy, klasa = '' ):
 BLOK_STOL = (
 	'<div class="lst-mz-blok lst-mz-stol">'
 	'<p class="lst-mz-etykieta jest-zywa"><span class="lst-mz-puls"></span>Live on this page</p>'
-	+ naglowek( 'This table is a Google Sheet' ) +
-	'<p class="lst-mz-opis lst-mz-opis-stolu">Not a picture of one. The sheet itself, read nine '
-	'minutes ago and drawn on this page. Sort a column, search it, narrow it down. Change a cell '
-	'in the spreadsheet and the page follows on its own. Nobody logs in, nobody copies anything '
-	'across.</p>'
+	+ naglowek( 'Set it up once, then forget it' ) +
+	'<p class="lst-mz-opis lst-mz-opis-stolu">The sheet changes, the page changes. No logging in, '
+	'no pasting rows, no asking the developer. Set it up once and go back to whatever you were '
+	'doing.</p>'
 	+ okno( 'Trail conditions', '<div class="lst-mz-plansza">' + TABELA + '</div>',
 		'10 rows &middot; checked 9 min ago', ' jest-stolem' ) +
 	'</div>' )
