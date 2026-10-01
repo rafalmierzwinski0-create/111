@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edit the sheet, watch the page — próba</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inria+Serif:ital,wght@0,300;0,400&display=swap">
+<style>
+/* Tło witryny, dokładnie jak w pozostałych podglądach. */
+html, body { margin: 0; background: #232a29; color: #eaf3f1;
+	font-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif; }
+body { background-image: linear-gradient( to right, rgba( 255, 255, 255, .04 ) 1px, transparent 1px ),
+	linear-gradient( to bottom, rgba( 255, 255, 255, .04 ) 1px, transparent 1px );
+	background-size: 88px 44px; }
+.podrobka-divi { padding: 40px 0; }
+.podrobka-divi-rzad { width: 90%; max-width: 1800px; margin: 0 auto; }
+
+.zm {
+	--mieta: 95, 227, 207;
+	--bursztyn: #f2b544;
+	--koral: #ff8d8d;
+	--zamkniete: #5a2733;
+	--karta: #16211f;
+	--ekran: #0a1110;
+	--ekran-gora: #131d1b;
+	--plyta: rgba( 13, 18, 17, .62 );
+	--linia: rgba( 138, 168, 163, .22 );
+	--tekst: #eef7f4;
+	--cichy: #9fb6b1;
+	--mono: "IBM Plex Mono", ui-monospace, monospace;
+	--szeryf: "Inria Serif", Georgia, serif;
+	--takt: 9s;
+
+	color: var( --tekst );
+	display: grid;
+	gap: clamp( 1rem, 2.4vw, 1.6rem );
+}
+
+.zm * { box-sizing: border-box; }
+
+.zm-etykieta {
+	margin: 0;
+	font-family: var( --mono );
+	font-size: 14px;
+	letter-spacing: .12em;
+	text-transform: uppercase;
+	color: rgb( var( --mieta ) );
+}
+
+.zm-tytul {
+	margin: 0;
+	font-family: var( --szeryf );
+	font-weight: 400;
+	font-size: clamp( 2rem, 4.4vw, 3.4rem );
+	line-height: 1.08;
+	display: flex;
+	align-items: center;
+	gap: 1.2rem;
+}
+
+/* Włoskowa kreska ciągnąca się za tytułem, jak w reszcie witryny. */
+.zm-tytul::after {
+	content: "";
+	flex: 1;
+	height: 1px;
+	background-image: linear-gradient( to right, rgba( var( --mieta ), .3 ), rgba( var( --mieta ), 0 ) );
+}
+
+.zm-opis { margin: 0; max-width: 52rem; font-size: 18px; line-height: 1.6; color: var( --cichy ); }
+
+/* --------------------------------------------------------------- scena */
+
+.zm-scena {
+	margin-top: clamp( .6rem, 1.6vw, 1.2rem );
+	display: grid;
+	gap: clamp( 1rem, 2.2vw, 1.8rem );
+	align-items: center;
+	grid-template-columns: 1fr;
+}
+
+@media ( min-width: 1000px ) {
+	.zm-scena { grid-template-columns: minmax( 0, 1fr ) auto minmax( 0, 1fr ); }
+}
+
+.zm-pudlo {
+	background-color: var( --ekran );
+	border: 1px solid var( --linia );
+	border-radius: 16px;
+	overflow: hidden;
+}
+
+.zm-belka {
+	display: flex;
+	align-items: center;
+	gap: .6rem;
+	padding: .7rem 1rem;
+	background-color: var( --ekran-gora );
+	border-bottom: 1px solid rgba( var( --mieta ), .14 );
+	font-family: var( --mono );
+	font-size: 14px;
+	color: var( --cichy );
+}
+
+.zm-kropki { display: flex; gap: .35rem; }
+.zm-kropki span { width: 8px; height: 8px; border-radius: 50%; background-color: rgba( 138, 168, 163, .35 ); }
+
+/* ------------------------------------------------------------- arkusz */
+
+.zm-arkusz { padding: .9rem 1rem 1.1rem; }
+
+.zm-siatka {
+	display: grid;
+	grid-template-columns: 2rem minmax( 0, 1.5fr ) minmax( 0, 1fr ) minmax( 0, 1fr );
+	font-size: 14px;
+	font-family: var( --mono );
+}
+
+.zm-siatka > * {
+	padding: .55rem .6rem;
+	border-right: 1px solid rgba( 138, 168, 163, .13 );
+	border-bottom: 1px solid rgba( 138, 168, 163, .13 );
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.zm-siatka > *:nth-child(4n) { border-right: 0; }
+
+.zm-adres { color: var( --cichy ); background-color: rgba( 138, 168, 163, .07 ); text-align: center; }
+.zm-naglowek { color: var( --cichy ); background-color: rgba( 138, 168, 163, .07 ); text-transform: uppercase; letter-spacing: .08em; }
+.zm-pole { color: var( --tekst ); }
+
+/* Komórka, którą ktoś właśnie poprawia. */
+.zm-cel { position: relative; }
+
+.zm-cel::after {
+	content: "";
+	position: absolute;
+	inset: -1px;
+	border: 2px solid rgb( var( --mieta ) );
+	border-radius: 3px;
+	opacity: 0;
+	animation: zm-ramka var( --takt ) linear infinite;
+}
+
+/*
+ * Dłuższe słowo trzyma szerokość, a oba widoczne leżą na nim.
+ * Bez tego „Closed” wychodziło poza pigułkę skrojoną na „Open”.
+ */
+.zm-slowo { position: relative; display: inline-block; }
+.zm-slowo .zm-miara { visibility: hidden; display: block; }
+.zm-slowo .jest-przedtem,
+.zm-slowo .jest-potem { position: absolute; inset: 0; display: block; text-align: inherit; }
+.zm-slowo .jest-przedtem { animation: zm-znika var( --takt ) linear infinite; }
+.zm-slowo .jest-potem { opacity: 0; animation: zm-wchodzi var( --takt ) linear infinite; }
+
+/*
+ * Arkusz zmienia się od razu, strona dopiero po sprawdzeniu — więc napis
+ * w pigułce przeskakuje w tej samej chwili co kolor karty, nie wcześniej.
+ */
+.zm-slowo.jest-pozniej .jest-przedtem { animation-name: zm-znika-pozno; }
+.zm-slowo.jest-pozniej .jest-potem { animation-name: zm-wchodzi-pozno; }
+
+/* Kursor, który wjeżdża w komórkę. */
+.zm-kursor {
+	position: absolute;
+	left: 26%;
+	top: 84%;
+	width: 15px;
+	height: 21px;
+	opacity: 0;
+	pointer-events: none;
+	animation: zm-kursor var( --takt ) cubic-bezier( .23, 1, .32, 1 ) infinite;
+	z-index: 3;
+}
+
+/* --------------------------------------------------------------- łącze */
+
+.zm-lacze {
+	display: grid;
+	justify-items: center;
+	gap: .5rem;
+	padding: .4rem 0;
+}
+
+.zm-tor {
+	position: relative;
+	width: 100%;
+	min-width: 120px;
+	height: 2px;
+	background-color: rgba( 138, 168, 163, .18 );
+	border-radius: 2px;
+	overflow: hidden;
+}
+
+@media ( min-width: 1000px ) { .zm-tor { width: 150px; } }
+
+.zm-tor::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	width: 40%;
+	border-radius: 2px;
+	background-image: linear-gradient( to right, rgba( var( --mieta ), 0 ), rgb( var( --mieta ) ) );
+	transform: translateX( -120% );
+	animation: zm-iskra var( --takt ) linear infinite;
+}
+
+.zm-podpis {
+	font-family: var( --mono );
+	font-size: 14px;
+	color: var( --cichy );
+	text-align: center;
+}
+
+@media ( max-width: 999px ) {
+	.zm-tor::after { animation-name: zm-iskra-pion; }
+}
+
+/* ---------------------------------------------------------------- karta */
+
+.zm-plansza { padding: 1.1rem 1rem 1.2rem; display: grid; gap: .7rem; }
+
+.zm-karta {
+	display: grid;
+	grid-template-columns: minmax( 0, 1.8fr ) minmax( 0, .85fr ) minmax( 0, .85fr ) auto;
+	align-items: center;
+	gap: .8rem;
+	padding: 1rem 1.1rem;
+	border-radius: 14px;
+	background-color: var( --karta );
+	box-shadow: 0 1px 2px -1px rgba( 0, 0, 0, .5 ), 0 6px 16px -10px rgba( 0, 0, 0, .7 );
+	font-size: 18px;
+	animation: zm-karta var( --takt ) linear infinite;
+}
+
+.zm-karta.jest-cicha { opacity: .45; animation: none; }
+
+.zm-nazwa { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.zm-poziom { display: flex; align-items: center; gap: .55rem; color: var( --tekst ); }
+.zm-kropka { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+
+.zm-slupek {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	padding: .25rem 0 .25rem .5rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.zm-slupek::before {
+	content: "";
+	position: absolute;
+	inset: 0 1.6em 0 0;
+	width: var( --ile, 30% );
+	border-radius: 4px;
+	background-color: rgb( var( --mieta ) );
+	opacity: .28;
+}
+
+/* Przemalowuje się słupek TEJ karty, nie sąsiadek: one stoją tam, gdzie stały. */
+.zm-karta:not( .jest-cicha ) .zm-slupek::before {
+	animation: zm-slupek var( --takt ) linear infinite;
+}
+
+.zm-pigulka {
+	justify-self: end;
+	padding: .3rem .85rem;
+	border-radius: 999px;
+	border: 1px solid rgb( var( --mieta ) );
+	color: rgb( var( --mieta ) );
+	font-family: var( --mono );
+	font-size: 14px;
+	letter-spacing: .08em;
+	text-transform: uppercase;
+	position: relative;
+	animation: zm-pigulka var( --takt ) linear infinite;
+}
+
+.zm-pigulka .zm-slowo .jest-potem { text-align: center; }
+
+/* ------------------------------------------------------------ przebieg */
+
+/*  0 – 8 %   spokój
+    8 – 16 %  kursor wjeżdża w komórkę
+   16 – 22 %  komórka zaznaczona
+   22 – 28 %  „Open” ustępuje „Closed”
+   28 – 36 %  iskra biegnie łączem
+   36 – 42 %  karta się przemalowuje
+   42 – 84 %  stoi
+   84 – 94 %  wraca po cichu                                             */
+
+@keyframes zm-kursor {
+	0%, 5%    { opacity: 0; left: 26%; top: 84%; }
+	9%        { opacity: 1; }
+	17%, 30%  { opacity: 1; left: 72%; top: 62%; }
+	35%       { opacity: 0; left: 74%; top: 66%; }
+	100%      { opacity: 0; left: 26%; top: 84%; }
+}
+
+@keyframes zm-ramka {
+	0%, 15%   { opacity: 0; }
+	18%, 84%  { opacity: 1; }
+	92%, 100% { opacity: 0; }
+}
+
+@keyframes zm-znika {
+	0%, 22%   { opacity: 1; }
+	27%, 86%  { opacity: 0; }
+	93%, 100% { opacity: 1; }
+}
+
+@keyframes zm-wchodzi {
+	0%, 22%   { opacity: 0; }
+	27%, 86%  { opacity: 1; }
+	93%, 100% { opacity: 0; }
+}
+
+@keyframes zm-znika-pozno {
+	0%, 36%   { opacity: 1; }
+	41%, 86%  { opacity: 0; }
+	93%, 100% { opacity: 1; }
+}
+
+@keyframes zm-wchodzi-pozno {
+	0%, 36%   { opacity: 0; }
+	41%, 86%  { opacity: 1; }
+	93%, 100% { opacity: 0; }
+}
+
+@keyframes zm-iskra {
+	0%, 28%   { transform: translateX( -120% ); }
+	36%, 100% { transform: translateX( 260% ); }
+}
+
+@keyframes zm-iskra-pion {
+	0%, 28%   { transform: translateX( -120% ); }
+	36%, 100% { transform: translateX( 260% ); }
+}
+
+@keyframes zm-karta {
+	0%, 36%   { background-color: #16211f; }
+	42%, 84%  { background-color: #5a2733; }
+	92%, 100% { background-color: #16211f; }
+}
+
+/* Zmierzone na prawdziwej tabeli: na pomalowanym wierszu słupek jest biały. */
+@keyframes zm-slupek {
+	0%, 36%   { background-color: #5fe3cf; }
+	42%, 84%  { background-color: #ffffff; }
+	92%, 100% { background-color: #5fe3cf; }
+}
+
+@keyframes zm-pigulka {
+	0%, 36%   { border-color: #5fe3cf; color: #5fe3cf; }
+	42%, 84%  { border-color: #ff8d8d; color: #ff8d8d; }
+	92%, 100% { border-color: #5fe3cf; color: #5fe3cf; }
+}
+
+/*
+ * Mniej ruchu znaczy mniej ruchu, nie mniej treści: obie strony stają
+ * w stanie KOŃCOWYM, czyli zgodnym ze sobą — arkusz mówi „Closed”, karta
+ * jest czerwona. Nic nie miga i nic nie znika.
+ */
+@media ( prefers-reduced-motion: reduce ) {
+	.zm *, .zm *::before, .zm *::after { animation: none !important; }
+	.zm-kursor { opacity: 0; }
+	.zm-cel::after { opacity: 1; }
+	.zm-slowo .jest-przedtem { opacity: 0; }
+	.zm-slowo .jest-potem { opacity: 1; }
+	.zm-karta { background-color: #5a2733; }
+	.zm-pigulka { border-color: #ff8d8d; color: #ff8d8d; }
+	.zm-karta:not( .jest-cicha ) .zm-slupek::before { background-color: #ffffff; }
+}
+</style>
+
+<div class="podrobka-divi"><div class="podrobka-divi-rzad">
+
+<div class="zm">
+	<p class="zm-etykieta">The whole point</p>
+	<h2 class="zm-tytul">Edit the sheet, watch the page</h2>
+	<p class="zm-opis">Somebody closes a trail in the spreadsheet. Nobody opens WordPress, nobody edits a page, nobody is asked to. The row on the left is the sheet. The card on the right is this website.</p>
+
+	<div class="zm-scena">
+
+		<!-- arkusz -->
+		<div class="zm-pudlo">
+			<div class="zm-belka"><span class="zm-kropki"><span></span><span></span><span></span></span>Trails &middot; Google Sheets</div>
+			<div class="zm-arkusz" style="position: relative;">
+				<svg class="zm-kursor" viewBox="0 0 15 21" fill="none" aria-hidden="true"><path d="M1 1l12 11-5.2.6L10.4 19l-2.6 1-2.6-6.3L1 17V1z" fill="#eef7f4" stroke="#0a1110" stroke-width="1.2" stroke-linejoin="round"/></svg>
+				<div class="zm-siatka">
+					<div class="zm-adres"></div>
+					<div class="zm-naglowek">A &nbsp;Trail</div>
+					<div class="zm-naglowek">B &nbsp;Snow</div>
+					<div class="zm-naglowek">C &nbsp;Status</div>
+
+					<div class="zm-adres">8</div>
+					<div class="zm-pole">Red Ridge Traverse</div>
+					<div class="zm-pole">30</div>
+					<div class="zm-pole">Caution</div>
+
+					<div class="zm-adres">9</div>
+					<div class="zm-pole">North Col Crossing</div>
+					<div class="zm-pole">38</div>
+					<div class="zm-pole zm-cel"><span class="zm-slowo"><span class="zm-miara">Closed</span><span class="jest-przedtem">Open</span><span class="jest-potem">Closed</span></span></div>
+
+					<div class="zm-adres">10</div>
+					<div class="zm-pole">Windgap Pass</div>
+					<div class="zm-pole">45</div>
+					<div class="zm-pole">Closed</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- łącze -->
+		<div class="zm-lacze">
+			<div class="zm-tor"></div>
+			<p class="zm-podpis">checked every 15&nbsp;min</p>
+		</div>
+
+		<!-- strona -->
+		<div class="zm-pudlo">
+			<div class="zm-belka"><span class="zm-kropki"><span></span><span></span><span></span></span>Trail conditions &middot; your website</div>
+			<div class="zm-plansza">
+				<div class="zm-karta jest-cicha" style="background-color: #16211f;">
+					<span class="zm-nazwa">Red Ridge Traverse</span>
+					<span class="zm-poziom"><span class="zm-kropka" style="background:#ff8d8d"></span>Hard</span>
+					<span class="zm-slupek" style="--ile: 58%">30</span>
+					<span class="zm-pigulka" style="animation: none; border-color: #f2b544; color: #f2b544;">Caution</span>
+				</div>
+
+				<div class="zm-karta">
+					<span class="zm-nazwa">North Col Crossing</span>
+					<span class="zm-poziom"><span class="zm-kropka" style="background:#ff8d8d"></span>Hard</span>
+					<span class="zm-slupek" style="--ile: 73%">38</span>
+					<span class="zm-pigulka"><span class="zm-slowo jest-pozniej"><span class="zm-miara">Closed</span><span class="jest-przedtem">Open</span><span class="jest-potem">Closed</span></span></span>
+				</div>
+
+				<div class="zm-karta jest-cicha" style="background-color: #5a2733;">
+					<span class="zm-nazwa">Windgap Pass</span>
+					<span class="zm-poziom"><span class="zm-kropka" style="background:#ff8d8d"></span>Hard</span>
+					<span class="zm-slupek" style="--ile: 87%">45</span>
+					<span class="zm-pigulka" style="animation: none; border-color: #ff8d8d; color: #ff8d8d;">Closed</span>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+</div></div>
