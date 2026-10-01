@@ -486,6 +486,23 @@ console.log( '\nwrogi motyw' );
 			wierszy: document.querySelectorAll( '.lst-mz-stol tbody tr.lstab-row' ).length,
 			pigulek: document.querySelectorAll( '.lst-mz-stol .lstabp-pill' ).length,
 			poziom: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+			/*
+			 * Trzy pudła nośne tabeli bez cudzej ramki.
+			 *
+			 * Panel przewijania to zwykły <div>, więc motyw malujący ramkę
+			 * każdemu divowi obrysowywał całą tabelę kreską, której nie ma
+			 * w szablonie — u klienta białą. Ten wrogi motyw robi dokładnie
+			 * to samo, a sprawdzenie tego nie widziało: patrzyło tylko, czy
+			 * wierszy jest dziesięć.
+			 */
+			rama: [ '.lst-mz-stol .lstab', '.lst-mz-stol .lstab-container', '.lst-mz-stol .lstab-scroll' ]
+				.map( ( sel ) => {
+					const e = document.querySelector( sel );
+					if ( ! e ) { return sel + ' brak'; }
+					const g = getComputedStyle( e );
+
+					return sel.split( ' ' )[ 1 ] + ' ' + g.borderTopWidth + '/' + g.outlineWidth;
+				} ),
 		};
 	} );
 	ok( 'motyw nie przejmuje modułu',
@@ -493,6 +510,8 @@ console.log( '\nwrogi motyw' );
 		r.opis.join( ' / ' ) );
 	ok( 'kafelki i etykiety zostają sobą', r.krok[ 0 ] === '1px' && r.numer === 'IBM Plex Mono' && r.znak === 'uppercase',
 		`ramka ${ r.krok[ 0 ] }, adres ${ r.numer }, znak ${ r.znak }` );
+	ok( 'i nie dostaje od motywu ramki, której nie ma w szablonie',
+		r.rama.every( ( x ) => /0px\/0px$/.test( x ) ), r.rama.join( ', ' ) );
 	ok( 'tabela dalej jest cała i mieści się w stronie', r.wierszy === 10 && r.pigulek === 10 && r.poziom === 0,
 		`${ r.wierszy } wierszy, ${ r.pigulek } pigułek, suwak ${ r.poziom }` );
 	await c.close();

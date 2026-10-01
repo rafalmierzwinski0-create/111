@@ -247,7 +247,7 @@ PODGLAD = (
 	'<style>\n'
 	'html, body { margin: 0; background: #232a29; color: #eaf3f1; }\n'
 	'.podrobka-divi { padding: 60px 0; }\n'
-	'.podrobka-divi-rzad { width: 90%; max-width: 1240px; margin: 0 auto; }\n'
+	'.podrobka-divi-rzad { width: 90%; max-width: 1800px; margin: 0 auto; }\n'
 	+ TLO_CSS +
 	'\n</style>\n'
 	+ TLO_HTML +

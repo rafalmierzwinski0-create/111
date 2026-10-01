@@ -566,7 +566,7 @@ PODGLAD = (
 	'\tlinear-gradient( to bottom, rgba( 255, 255, 255, .04 ) 1px, transparent 1px );\n'
 	'\tbackground-size: 88px 44px; }\n'
 	'.podrobka-divi { padding: 60px 0; }\n'
-	'.podrobka-divi-rzad { width: 90%; max-width: 1240px; margin: 0 auto; }\n'
+	'.podrobka-divi-rzad { width: 90%; max-width: 1800px; margin: 0 auto; }\n'
 	'</style>\n'
 	'<div class="podrobka-divi"><div class="podrobka-divi-rzad">\n'
 	+ MODUL +

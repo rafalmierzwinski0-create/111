@@ -263,12 +263,11 @@ def lista( tytul, grupy, klasa = '' ):
 BLOK_STOL = (
 	'<div class="lst-mz-blok lst-mz-stol">'
 	'<p class="lst-mz-etykieta jest-zywa"><span class="lst-mz-puls"></span>Live on this page</p>'
-	+ naglowek( 'This is the plugin, running here' ) +
-	'<p class="lst-mz-opis lst-mz-opis-stolu">Ten trails, one spreadsheet. Sort a column, search the box, '
-	'filter it. This is the plugin&rsquo;s own output, in the site&rsquo;s own colours: the Cards '
-	'style picked, then disagreed with one colour well at a time. Every row is a card of its own, '
-	'so a rule that paints a row paints a whole card, and the same setting turns the table into '
-	'a list of cards on a phone.</p>'
+	+ naglowek( 'This table is a Google Sheet' ) +
+	'<p class="lst-mz-opis lst-mz-opis-stolu">Not a picture of one. The sheet itself, read nine '
+	'minutes ago and drawn on this page. Sort a column, search it, narrow it down. Change a cell '
+	'in the spreadsheet and the page follows on its own. Nobody logs in, nobody copies anything '
+	'across.</p>'
 	+ okno( 'Trail conditions', '<div class="lst-mz-plansza">' + TABELA + '</div>',
 		'10 rows &middot; checked 9 min ago', ' jest-stolem' ) +
 	'</div>' )
@@ -377,8 +376,15 @@ STYL = r"""
 	font-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
 	color: var( --mz-tekst );
 
+	/*
+	 * Dokładnie tyle, ile ma wiersz Divi na tej witrynie: 90% i nie więcej
+	 * niż 1800 px. Moduł wychodzi z wiersza na całą szerokość okna i sam
+	 * odtwarza tę kolumnę, więc jego treść staje w jednej linii ze wszystkim
+	 * innym na stronie. Przedtem stało tu 1240 px — węziej niż reszta witryny,
+	 * i ta podstrona wyglądała jak wklejona z innego projektu.
+	 */
 	--mz-szerokosc: 90%;
-	--mz-max: 1240px;
+	--mz-max: 1800px;
 	--mz-pelna: 100vw;
 
 	width: var( --mz-pelna );
@@ -1128,6 +1134,32 @@ STYL = r"""
 /* Sama tabela broni się swoim arkuszem; tu tylko tyle, żeby cudze marginesy
    nie wypchnęły jej poza szerokość strony. */
 .lst-mz .lstab-container, .lst-mz .lstab { margin-inline: 0 !important; max-width: 100%; }
+
+/*
+ * Cudza ramka wokół tabeli.
+ *
+ * Panel przewijania tabeli to zwykły <div>, więc motyw, który maluje ramkę
+ * wszystkim divom, maluje ją i jemu: na stronie klienta wokół całej tabeli
+ * stanęła biała kreska, której nie ma ani w szablonie, ani w próbnikach.
+ * Arkusz wtyczki pisze tam „border: var( --lstab-frame-border )” bez
+ * „!important”, więc z motywem przegrywa — a nie dostanie „!important”,
+ * bo u klienta motyw bywa jedynym miejscem, gdzie da się tabelę obrysować.
+ *
+ * Tutaj szablon jest znany i jest nim Karty, w których ramki nie ma wcale:
+ * karty trzymają się własnym cieniem. Zdejmowane są tylko trzy pudła nośne,
+ * nigdy komórki — to komórka rysuje obrys karty i „border: 0” zmiotłoby
+ * wszystkie karty naraz.
+ */
+.lst-mz .lstab,
+.lst-mz .lstab-container,
+.lst-mz .lstab-scroll { border: 0 !important; }
+
+/* Obwódka od klawiatury zostaje: zdejmowana jest tylko ta, której nikt nie
+   prosił. Panel przewijania da się przewinąć klawiszami i musi być widać,
+   że jest zaznaczony. */
+.lst-mz .lstab:not( :focus-visible ),
+.lst-mz .lstab-container:not( :focus-visible ),
+.lst-mz .lstab-scroll:not( :focus-visible ) { outline: 0 !important; }
 
 /* ------------------------------------------------------------- wąsko */
 
