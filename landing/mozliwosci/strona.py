@@ -267,8 +267,8 @@ BLOK_STOL = (
 	'<p class="lst-mz-opis lst-mz-opis-stolu">The sheet changes, the page changes. No logging in, '
 	'no pasting rows, no asking the developer. Set it up once and go back to whatever you were '
 	'doing.</p>'
-	+ okno( 'Trail conditions', '<div class="lst-mz-plansza">' + TABELA + '</div>',
-		'10 rows &middot; checked 9 min ago', ' jest-stolem' ) +
+	+ okno( 'Example table, built with the plugin', '<div class="lst-mz-plansza">' + TABELA + '</div>',
+		'10 rows from one Google Sheet', ' jest-stolem' ) +
 	'</div>' )
 
 
@@ -1145,13 +1145,21 @@ STYL = r"""
  * bo u klienta motyw bywa jedynym miejscem, gdzie da się tabelę obrysować.
  *
  * Tutaj szablon jest znany i jest nim Karty, w których ramki nie ma wcale:
- * karty trzymają się własnym cieniem. Zdejmowane są tylko trzy pudła nośne,
- * nigdy komórki — to komórka rysuje obrys karty i „border: 0” zmiotłoby
- * wszystkie karty naraz.
+ * karty trzymają się własnym cieniem.
+ *
+ * Zdejmowane są pudła nośne i sam <table>, bo „table { border: 1px solid }”
+ * siedzi w arkuszu niejednego motywu — i to ono rysowało tę białą obwódkę,
+ * a nie panel przewijania. Nigdy komórki i nigdy wiersz: komórka rysuje obrys
+ * karty, a wiersz nosi ramkę karty na telefonie. „border: 0” zmiotłoby jedno
+ * i drugie.
  */
 .lst-mz .lstab,
 .lst-mz .lstab-container,
-.lst-mz .lstab-scroll { border: 0 !important; }
+.lst-mz .lstab-scroll,
+.lst-mz .lstab-table,
+.lst-mz .lstab-table > thead,
+.lst-mz .lstab-table > tbody,
+.lst-mz .lstab-table > tfoot { border: 0 !important; }
 
 /* Obwódka od klawiatury zostaje: zdejmowana jest tylko ta, której nikt nie
    prosił. Panel przewijania da się przewinąć klawiszami i musi być widać,

@@ -107,11 +107,14 @@ $source_id = LSTAB_Storage::insert(
 			// Pasek nagłówków ma swój kolor, jaśniejszy od kart pod nim.
 			// Karty przychodzą z nagłówkiem przezroczystym, więc nazwy kolumn
 			// leżały wprost na ekranie okienka i nic ich nie trzymało razem.
-			'headerBg'   => '#1f312d',
+			'headerBg'   => '#24413a',
 			'border'     => '#2b3c37',
 			'hover'      => '#1d2c29',
 			'accent'     => $mieta,
 			'lines'      => 'normal',
+			// Większe nazwy kolumn: pasek nagłówków jest tu jedyną rzeczą,
+			// która porządkuje dziesięć kart, więc ma być czytany pierwszy.
+			'headFontSize' => 'large',
 			// Luźniej: karta, w której napisy leżą przy krawędziach, nie
 			// wygląda na kartę, tylko na wiersz, który komuś urósł.
 			'density'    => 'roomy',

@@ -37,7 +37,10 @@ const divi = ( s ) => {
 };
 
 // Ten sam motyw, którym mierzy się landing/pokaz-na-zywo/spr.mjs.
-const WROGI = 'div,span,p,button,td,th{border:2px solid #f0a!important}'
+// „table{border}” siedzi w arkuszu niejednego motywu i to ono rysowało
+// białą obwódkę wokół tabeli na stronie klienta. Tu jest w wrogim motywie,
+// żeby sprawdzenie niżej miało co mierzyć.
+const WROGI = 'div,span,p,button,td,th,table,thead,tbody,tr{border:2px solid #f0a!important}'
 	+ 'p,td{margin:40px!important;background:#ff0!important;font-family:"Comic Sans MS"!important;text-transform:uppercase!important}'
 	+ 'button{color:#00f!important;font-family:"Comic Sans MS"!important}'
 	+ 'ul{list-style:disc;padding-left:3em}';
@@ -495,13 +498,14 @@ console.log( '\nwrogi motyw' );
 			 * to samo, a sprawdzenie tego nie widziało: patrzyło tylko, czy
 			 * wierszy jest dziesięć.
 			 */
-			rama: [ '.lst-mz-stol .lstab', '.lst-mz-stol .lstab-container', '.lst-mz-stol .lstab-scroll' ]
+			rama: [ '.lst-mz-stol .lstab', '.lst-mz-stol .lstab-container', '.lst-mz-stol .lstab-scroll',
+				'.lst-mz-stol .lstab-table', '.lst-mz-stol .lstab-table > thead', '.lst-mz-stol .lstab-table > tbody' ]
 				.map( ( sel ) => {
 					const e = document.querySelector( sel );
 					if ( ! e ) { return sel + ' brak'; }
 					const g = getComputedStyle( e );
 
-					return sel.split( ' ' )[ 1 ] + ' ' + g.borderTopWidth + '/' + g.outlineWidth;
+					return sel.split( ' ' ).slice( 1 ).join( ' ' ) + ' ' + g.borderTopWidth + '/' + g.outlineWidth;
 				} ),
 		};
 	} );
