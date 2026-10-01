@@ -1060,34 +1060,57 @@ STYL = r"""
 /* --------------------------------------------- ruch, który niesie przewijanie */
 
 /*
- * Dwie zasady, obie wymuszone, a nie deklarowane.
+ * Trzy zasady, wszystkie wymuszone, a nie deklarowane.
  *
- * Po pierwsze: ruch na osi widoku NIE RUSZA PRZEZROCZYSTOŚCI. Tylko przesunięcia.
- * Kuszące jest wjechać treścią z „opacity: 0”, i tak to tu najpierw stało — po
- * czym test pokazał dziewiętnaście elementów niewidocznych w spoczynku. Element
- * przed swoim zakresem siedzi w klatce startowej, więc „jeszcze nie wszedł”
- * znaczy „niewidoczny”: na zrzucie całej strony, na wydruku, w czytniku, który
- * nie przewija, i u każdego, komu oś widoku zadziała inaczej, niż zakładałem.
- * Przesunięte o czternaście pikseli zdanie jest zdaniem. Przezroczyste nie ma.
+ * Po pierwsze: ruch na osi widoku NIGDY NIE SCHODZI DO ZERA PRZEZROCZYSTOŚCI.
+ * Wjazd z „opacity: 0” tu już kiedyś stał i test pokazał dziewiętnaście
+ * elementów niewidocznych w spoczynku: element przed swoim zakresem siedzi
+ * w klatce startowej, więc „jeszcze nie wszedł” znaczyło „nie ma go” — na
+ * zrzucie całej strony, na wydruku, w czytniku, który nie przewija.
  *
- * Po drugie: całość siedzi w @supports, więc przeglądarka, która osi nie zna,
+ * Zamiast wybierać między „ładnie wchodzi” a „zawsze widać”, klatka startowa
+ * ma 0.4. Rozjaśnienie z 0.4 do 1 widać w ruchu tak samo dobrze jak z zera,
+ * a najgorsze, co może się stać, kiedy oś nigdy nie ruszy, to przygaszony
+ * akapit, który nadal się czyta i nadal drukuje. Pilnuje tego sprawdzenie:
+ * nic na tej stronie nie schodzi poniżej 0.4.
+ *
+ * Po drugie: ruszane są `translate`, `scale` i `opacity`, nigdy `transform` —
+ * `transform` należy do najechania i animacja z „both” zabierałaby mu go po
+ * wyjściu z zakresu.
+ *
+ * Po trzecie: całość siedzi w @supports, więc przeglądarka, która osi nie zna,
  * dostaje stronę gotową, bez ani jednej reguły z tego bloku.
  */
 @supports ( animation-timeline: view() ) {
 
-	.lst-mz .lst-mz-blok:not( :first-child ) > .lst-mz-etykieta,
-	.lst-mz .lst-mz-blok:not( :first-child ) > .lst-mz-wstep,
-	.lst-mz .lst-mz-blok:not( :first-child ) > .lst-mz-naglowek,
-	.lst-mz .lst-mz-legenda .lst-mz-pozycja,
-	.lst-mz .lst-mz-para,
-	.lst-mz .lst-mz-pas,
-	.lst-mz .lst-mz-listy .lst-mz-kolumna,
-	.lst-mz .lst-mz-kod,
+	/*
+	 * Nagłówki, metki i wstępy. Zakres kończy się, zanim rzecz dojedzie na
+	 * środek ekranu: tytuł ma być gotowy w chwili, w której się go czyta,
+	 * a nie dojeżdżać pod okiem.
+	 */
+	.lst-mz .lst-mz-blok > .lst-mz-etykieta,
+	.lst-mz .lst-mz-blok > .lst-mz-wstep,
+	.lst-mz .lst-mz-blok > .lst-mz-naglowek,
 	.lst-mz .lst-mz-stol > .lst-mz-etykieta,
 	.lst-mz .lst-mz-stol > .lst-mz-opis-stolu {
 		animation: lst-mz-wjazd 520ms var( --mz-luk ) both;
 		animation-timeline: view();
-		animation-range: entry 4% cover 26%;
+		animation-range: entry 5% entry 70%;
+	}
+
+	/*
+	 * Rzeczy, na które się patrzy: kafelki, pary ze zrzutami, pas z telefonem,
+	 * kolumny i ramka z kodem. Dłuższa droga i cały wjazd na ekran do dyspozycji,
+	 * bo to one robią za ruch tej strony.
+	 */
+	.lst-mz .lst-mz-legenda .lst-mz-pozycja,
+	.lst-mz .lst-mz-para,
+	.lst-mz .lst-mz-pas,
+	.lst-mz .lst-mz-listy .lst-mz-kolumna,
+	.lst-mz .lst-mz-kod {
+		animation: lst-mz-podniesienie 560ms var( --mz-luk ) both;
+		animation-timeline: view();
+		animation-range: entry 8% entry 88%;
 	}
 
 	/*
@@ -1095,17 +1118,17 @@ STYL = r"""
 	 *
 	 * Na osi widoku nie da się opóźnić animacji o milisekundy: każdy kafelek
 	 * ma własną oś i jedzie od swojego położenia na ekranie. Przesuwany jest
-	 * więc ZAKRES — druga i trzecia kolumna zaczynają kawałek później, co daje
-	 * ukos przez siatkę. Robione osobno dla trzech i dla dwóch kolumn, bo przy
-	 * dwóch „co trzeci” nie jest już żadną kolumną.
+	 * więc ZAKRES — druga i trzecia kolumna zaczynają kawałek później i kończą
+	 * kawałek później, co daje ukos przez siatkę. Robione osobno dla trzech
+	 * i dla dwóch kolumn, bo przy dwóch „co trzeci” nie jest już żadną kolumną.
 	 */
 	@media ( min-width: 1181px ) {
-		.lst-mz .lst-mz-legenda .lst-mz-pozycja:nth-child( 3n + 2 ) { animation-range: entry 8% cover 30%; }
-		.lst-mz .lst-mz-legenda .lst-mz-pozycja:nth-child( 3n ) { animation-range: entry 12% cover 34%; }
+		.lst-mz .lst-mz-legenda .lst-mz-pozycja:nth-child( 3n + 2 ) { animation-range: entry 14% entry 94%; }
+		.lst-mz .lst-mz-legenda .lst-mz-pozycja:nth-child( 3n ) { animation-range: entry 20% entry 100%; }
 	}
 
 	@media ( min-width: 901px ) and ( max-width: 1180px ) {
-		.lst-mz .lst-mz-legenda .lst-mz-pozycja:nth-child( 2n ) { animation-range: entry 10% cover 32%; }
+		.lst-mz .lst-mz-legenda .lst-mz-pozycja:nth-child( 2n ) { animation-range: entry 17% entry 97%; }
 	}
 
 	/*
@@ -1157,15 +1180,15 @@ STYL = r"""
  * więc jedno nie wchodzi drugiemu w drogę.
  */
 @keyframes lst-mz-wjazd {
-	from { translate: 0 14px; }
+	from { translate: 0 18px; opacity: .4; }
 }
 
 @keyframes lst-mz-wiersz {
-	from { translate: 0 7px; }
+	from { translate: 0 7px; opacity: .55; }
 }
 
 @keyframes lst-mz-podniesienie {
-	from { translate: 0 22px; scale: .988; }
+	from { translate: 0 30px; scale: .985; opacity: .4; }
 }
 
 /*
@@ -1528,10 +1551,19 @@ def osobno( nazwa, blok, opis, uwaga = '' ):
 		'\tbackground-size: 88px 44px; }\n'
 		'.podrobka-divi { padding: 40px 0; }\n'
 		'.podrobka-divi-rzad { width: 90%; max-width: 1800px; margin: 0 auto; }\n'
+		'.pusto { height: 90vh; margin: 0; display: grid; place-items: center;\n'
+		'\tfont: 14px "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .12em;\n'
+		'\ttext-transform: uppercase; color: rgba( 234, 243, 241, .35 ); }\n'
 		'</style>\n'
+		# Pusty ekran nad sekcją i pod nią. Bez tego cała sekcja mieści się
+		# w oknie zaraz po otwarciu, czyli jest już PO swoim zakresie wjazdu
+		# i stoi gotowa: wygląda, jakby animacji nie było wcale. Na stronie nad
+		# nią jest hero i dojeżdża się do niej przewijaniem.
 		'<div class="podrobka-divi"><div class="podrobka-divi-rzad">\n'
+		'<p class="pusto">przewiń w dół</p>\n'
 		+ calosc.replace( 'ADRES/', 'zrzuty/' ) +
-		'\n</div></div>\n'
+		'\n<p class="pusto"></p>\n'
+		'</div></div>\n'
 	)
 
 	return calosc

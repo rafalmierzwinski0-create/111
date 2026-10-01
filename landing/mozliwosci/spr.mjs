@@ -436,12 +436,18 @@ console.log( '\nmoduł na stronie' );
 	 */
 	/*
 	 * Mierzone zachowaniem, nie czytaniem reguł: strona jest przewijana na trzy
-	 * wysokości i za każdym razem nic w module nie ma prawa być niewidoczne.
-	 * Element przed swoim zakresem siedzi w klatce startowej, więc gdyby ta
-	 * klatka ruszała przezroczystość, „jeszcze nie wszedł” znaczyłoby „nie ma
-	 * go” — na zrzucie całej strony, na wydruku i u każdego, komu oś widoku
-	 * zadziała inaczej, niż zakładałem.
+	 * wysokości i za każdym razem nic w module nie ma prawa być NIECZYTELNE.
+	 *
+	 * Próg, nie zero. Element przed swoim zakresem siedzi w klatce startowej,
+	 * więc „jeszcze nie wszedł” to stan, w jakim ktoś może go zastać: na
+	 * zrzucie całej strony, na wydruku, w czytniku, który nie przewija. Dawniej
+	 * było tu „musi mieć 1”, co znaczyło, że wjazd nie mógł ruszać
+	 * przezroczystości w ogóle i sekcje wchodziły sztywno. Klatka startowa ma
+	 * dziś 0.4: rozjaśnienie widać w ruchu, a w spoczynku to przygaszony
+	 * akapit, który nadal się czyta. Pilnowane jest właśnie to 0.4 — zejście
+	 * niżej, a tym bardziej do zera, jest usterką.
 	 */
+	const PROG = 0.4;
 	const znikajace = [];
 	let osiUzyte = 0;
 
@@ -449,15 +455,15 @@ console.log( '\nmoduł na stronie' );
 		await p.evaluate( ( u ) => window.scrollTo( 0, ( document.body.scrollHeight - innerHeight ) * u ), gdzie );
 		await p.waitForTimeout( 120 );
 
-		const stan = await p.evaluate( () => {
+		const stan = await p.evaluate( ( prog ) => {
 			const schowane = [ ...document.querySelectorAll( '.lst-mz [class*="lst-mz-"], .lst-mz [class*="lst-ar-"], .lst-mz .lstab-row' ) ]
-				.filter( ( e ) => Number( getComputedStyle( e ).opacity ) < 0.99 )
-				.map( ( e ) => e.className.toString().slice( 0, 40 ) );
+				.filter( ( e ) => Number( getComputedStyle( e ).opacity ) < prog - 0.001 )
+				.map( ( e ) => e.className.toString().slice( 0, 40 ) + ' ' + getComputedStyle( e ).opacity );
 			const naOsi = [ ...document.querySelectorAll( '.lst-mz .lst-mz-para, .lst-mz .lst-mz-okno.jest-stolem' ) ]
 				.filter( ( e ) => 'auto' !== getComputedStyle( e ).animationTimeline ).length;
 
 			return { schowane, naOsi };
-		} );
+		}, PROG );
 
 		osiUzyte = Math.max( osiUzyte, stan.naOsi );
 		znikajace.push( ...stan.schowane );
@@ -467,8 +473,36 @@ console.log( '\nmoduł na stronie' );
 	await p.waitForTimeout( 120 );
 
 	ok( 'ruch na osi widoku naprawdę jest', osiUzyte > 0, `elementów na osi: ${ osiUzyte }` );
-	ok( 'i na żadnej wysokości strony nic nie jest niewidoczne',
-		0 === znikajace.length, znikajace.slice( 0, 4 ).join( ' | ' ) || 'nic' );
+	/*
+	 * Kafelki legendy mają wchodzić PO KOLEI. Zakres kolumny trzeciej jest
+	 * przesunięty względem pierwszej, więc w połowie wjazdu pierwsza ma być
+	 * wyraźnie dalej niż trzecia. Mierzone w ruchu, bo regułę łatwo zostawić
+	 * w arkuszu i wyzerować ją gdzie indziej.
+	 */
+	const ukos = await ( async () => {
+		const gora = await p.evaluate( () => {
+			const k = document.querySelector( '.lst-mz-legenda' ).getBoundingClientRect();
+
+			return Math.round( k.top + scrollY - innerHeight );
+		} );
+		await p.evaluate( ( y ) => window.scrollTo( 0, y ), gora + 80 );
+		await p.waitForTimeout( 150 );
+		const stan = await p.evaluate( () => [ 0, 2 ].map( ( i ) => {
+			const e = document.querySelectorAll( '.lst-mz-legenda .lst-mz-pozycja' )[ i ];
+
+			return Number( getComputedStyle( e ).opacity );
+		} ) );
+		await p.evaluate( () => window.scrollTo( 0, 0 ) );
+		await p.waitForTimeout( 120 );
+
+		return stan;
+	} )();
+	ok( 'kafelki legendy wchodzą po kolei, a nie wszystkie naraz',
+		ukos[ 0 ] - ukos[ 1 ] > 0.05,
+		`pierwsza kolumna ${ ukos[ 0 ].toFixed( 2 ) }, trzecia ${ ukos[ 1 ].toFixed( 2 ) }` );
+
+	ok( 'i na żadnej wysokości strony nic nie schodzi poniżej czytelności',
+		0 === znikajace.length, znikajace.slice( 0, 4 ).join( ' | ' ) || `nic poniżej ${ PROG }` );
 
 	const rama = await p.evaluate( () => {
 		const k = document.querySelector( '.lst-mz-rama' ).getBoundingClientRect();
@@ -575,11 +609,19 @@ console.log( '\nbez JavaScriptu' );
 {
 	const { p, c } = await otworz( strona( modul, { bezJs: true } ) );
 	const r = await p.evaluate( () => ( {
-		widocznych: [ ...document.querySelectorAll( '.lst-ar-komorka, .lst-mz-pozycja, .lst-ar-etap' ) ].filter( ( x ) => getComputedStyle( x ).opacity === '1' ).length,
+		/*
+		 * Czytelne, nie „pełne jedynki”. Bez skryptu strona nadal ma wjazdy na
+		 * osi widoku, bo one są z CSS-a, więc rzecz, do której jeszcze nikt nie
+		 * dojechał, jest przygaszona i tak ma być. Usterką jest dopiero zejście
+		 * poniżej progu, czyli coś, czego nie da się przeczytać.
+		 */
+		czytelnych: [ ...document.querySelectorAll( '.lst-ar-komorka, .lst-mz-pozycja, .lst-ar-etap' ) ].filter( ( x ) => Number( getComputedStyle( x ).opacity ) >= 0.4 - 0.001 ).length,
 		wszystkich: document.querySelectorAll( '.lst-ar-komorka, .lst-mz-pozycja, .lst-ar-etap' ).length,
+		najciemniejszy: Math.min( ...[ ...document.querySelectorAll( '.lst-ar-komorka, .lst-mz-pozycja, .lst-ar-etap' ) ].map( ( x ) => Number( getComputedStyle( x ).opacity ) ) ),
 		wierszy: [ ...document.querySelectorAll( '.lst-mz-stol tbody tr.lstab-row' ) ].filter( ( x ) => ! x.hidden ).length,
 	} ) );
-	ok( 'wszystko widoczne bez skryptu', r.widocznych === r.wszystkich && r.wierszy === 10, `${ r.widocznych } z ${ r.wszystkich }, ${ r.wierszy } wierszy` );
+	ok( 'bez skryptu wszystko czytelne', r.czytelnych === r.wszystkich && r.wierszy === 10,
+		`${ r.czytelnych } z ${ r.wszystkich }, najciemniejszy ${ r.najciemniejszy }, ${ r.wierszy } wierszy` );
 	await c.close();
 }
 
