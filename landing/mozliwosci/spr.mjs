@@ -204,12 +204,37 @@ console.log( '\nmoduł na stronie' );
 		metek: document.querySelectorAll( '.lst-mz-etykieta' ).length,
 		sekcji: document.querySelectorAll( '.lst-mz-blok' ).length,
 
+		/*
+		 * Ile pozycji legendy obiecuje zdanie nad nią. Liczba wpisana tu na
+		 * sztywno znaczyła tylko tyle, że ktoś ją ostatnio poprawił; to pilnuje
+		 * prawdziwej usterki: wstęp mówi „dziewięć”, a kafli jest osiem.
+		 */
+		obiecane: ( () => {
+			const slowa = { three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12 };
+			const wstep = [ ...document.querySelectorAll( '.lst-mz-wstep' ) ]
+				.find( ( e ) => /on the table above/i.test( e.textContent ) );
+			const pierwsze = wstep ? wstep.textContent.trim().split( /\s+/ )[ 0 ].toLowerCase() : '';
+
+			return slowa[ pierwsze ] || Number( pierwsze ) || 0;
+		} )(),
+		wolnych: [ ...document.querySelectorAll( '.lst-mz-legenda .lst-mz-znak-slowo' ) ].filter( ( e ) => /free/i.test( e.textContent ) ).length,
+		platnych: [ ...document.querySelectorAll( '.lst-mz-legenda .lst-mz-znak-slowo' ) ].filter( ( e ) => /pro/i.test( e.textContent ) ).length,
+
 		// Myślnik i półpauza: zero. Są znakiem, po którym poznaje się tekst
 		// pisany maszynowo, i na tej stronie nie ma ich ani jednej.
 		myslniki: ( document.querySelector( '.lst-mz' ).innerText.match( /[\u2013\u2014]/g ) || [] ).length,
 	} ) );
 
-	ok( 'trzy kroki, trzy etapy, sześć pozycji legendy', r.krokow === 3 && r.etapow === 3 && r.pozycji === 6, `${ r.krokow }/${ r.etapow }/${ r.pozycji }` );
+	ok( 'trzy kroki, trzy etapy, a legenda tyle pozycji, ile obiecuje jej wstęp',
+		r.krokow === 3 && r.etapow === 3 && r.pozycji === r.obiecane,
+		`${ r.krokow }/${ r.etapow }, pozycji ${ r.pozycji }, wstęp obiecuje ${ r.obiecane }` );
+	/*
+	 * Ta podstrona ma sprzedawać wtyczkę, a nie sam dodatek Pro: na tabeli ma
+	 * być widać więcej rzeczy z wersji darmowej niż z płatnej. Liczone, bo
+	 * legenda rośnie o kolejne „a to jest w Pro” samo z siebie.
+	 */
+	ok( 'na tabeli widać więcej rzeczy z wersji darmowej niż z Pro',
+		r.wolnych > r.platnych, `Free ${ r.wolnych }, Pro ${ r.platnych }` );
 	ok( 'dwie tabele: na stronie i w telefonie', r.tabel === 2, String( r.tabel ) );
 	ok( 'dziesięć wierszy, sześć kolumn', r.wierszy === 10 && r.kolumn === 6, `${ r.wierszy } × ${ r.kolumn }` );
 	ok( 'wszystko z Pro jest na tabeli', r.pigulek === 10 && r.kropek === 10 && r.slupkow === 10 && r.przyciskow === 8 && r.filtrow === 2 && r.pobran === 3,
@@ -538,13 +563,15 @@ console.log( '\nmniej ruchu' );
 	const { p, c } = await otworz( strona( modul ), { ruch: false } );
 	const r = await p.evaluate( () => ( {
 		widocznych: [ ...document.querySelectorAll( '.lst-ar-komorka, .lst-mz-pozycja, .lst-ar-etap' ) ].filter( ( x ) => getComputedStyle( x ).opacity === '1' ).length,
+		// Liczone, nie wpisane: dołożona pozycja legendy nie jest usterką.
+		wszystkich: document.querySelectorAll( '.lst-ar-komorka, .lst-mz-pozycja, .lst-ar-etap' ).length,
 		animacje: [ ...document.querySelectorAll( '.lst-ar-komorka' ) ].map( ( x ) => getComputedStyle( x ).animationName ),
 		kreska: getComputedStyle( document.querySelector( '.lst-ar-strzalka' ) ).animationName,
 		puls: getComputedStyle( document.querySelector( '.lst-mz-puls' ) ).animationName,
 	} ) );
 	ok( 'przy prefers-reduced-motion nic się nie rusza, a wszystko widać',
-		r.widocznych === 12 && r.animacje.every( ( x ) => x === 'none' ) && r.kreska === 'none' && r.puls === 'none',
-		`widocznych ${ r.widocznych }, wejście ${ r.animacje[ 0 ] }, kreska ${ r.kreska }, puls ${ r.puls }` );
+		r.widocznych === r.wszystkich && r.animacje.every( ( x ) => x === 'none' ) && r.kreska === 'none' && r.puls === 'none',
+		`widocznych ${ r.widocznych } z ${ r.wszystkich }, wejście ${ r.animacje[ 0 ] }, kreska ${ r.kreska }, puls ${ r.puls }` );
 	await c.close();
 }
 

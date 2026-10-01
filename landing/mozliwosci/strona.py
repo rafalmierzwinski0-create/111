@@ -75,9 +75,19 @@ LEGENDA = [
 	( 'A-F', 'Free', 'Search and sorting',
 	  'Type and the table narrows down, with every hit marked where it was found. Click a heading to '
 	  'sort: dates sort as dates, clocks as clocks.' ),
-	( 'A', 'Free', 'A pinned first column',
-	  'Drag the table sideways and the trail names stay where they are. Without that, a wide table on a '
-	  'narrow screen is a row of numbers nobody can name.' ),
+	( 'A-F', 'Free', 'The whole look, from a panel',
+	  'A style picked, then disagreed with one colour well at a time: the screen it sits on, the heading '
+	  'band, the line colour, the row height, the size of the column names. Not a line of CSS was '
+	  'written for this table.' ),
+	( 'A-F', 'Free', 'A sheet, not a picture of one',
+	  'Every row is in the page itself, written out by the server before the browser asks for anything. '
+	  'Turn JavaScript off and the table is still there, and so is everything Google reads.' ),
+	( 'Under&nbsp;it', 'Free', 'It fetches, and it says when',
+	  'This one looks at the spreadsheet every 15 minutes; the line under the table says how long ago '
+	  'that was. If Google is slow, the last good copy stays on the page rather than a gap.' ),
+	( 'Narrow&nbsp;it', 'Free', 'On a phone it stops being a table',
+	  'Squeeze the window. Past a certain width each row folds into a card with the column names beside '
+	  'the values, so nobody has to drag a six-column table sideways on a phone.' ),
 	( 'E', 'Pro', 'A colour rule',
 	  'When <em>Status</em> is <em>Closed</em>, paint the whole row. Three closed trails are visible '
 	  'before anyone has read a word.' ),
@@ -286,7 +296,7 @@ SEKCJA = (
 	# --- co na niej widać --------------------------------------------------
 	+ '<div class="lst-mz-blok">'
 	+ naglowek( 'What to look for' ) +
-	'<p class="lst-mz-wstep">Six things on the table above, and the column each one is sitting in.</p>'
+	'<p class="lst-mz-wstep">Nine things on the table above, and where to look for each one. Five of them are in the free plugin.</p>'
 	'<div class="lst-mz-legenda">' + ''.join( pozycja( *p ) for p in LEGENDA ) + '</div>'
 	'</div>'
 
