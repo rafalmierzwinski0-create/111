@@ -667,10 +667,24 @@ check(
 	'the cards are painted by their cells, not by the row',
 	`row ${ cards.rowPaper }, cell ${ cards.cellPaper }`
 );
+/*
+ * The pinned first cell keeps the card's own colour — the one place where this
+ * skin has to disagree with the rest.
+ *
+ * Everywhere else a pinned first cell takes its background from the row, so a
+ * stripe or a colour rule reaches it, and the opaque backdrop underneath does
+ * the painting. Here the row has no colour at all: a row background is a
+ * rectangle behind the cells and would show at the card's four rounded
+ * corners, so the colour lives on the cells. Inheriting from the row left the
+ * first cell transparent and the backdrop was the only thing painting it — a
+ * backdrop that stops a line short at the bottom and has square corners on its
+ * right. Every card carried a seam down it and a hairline under its first
+ * cell.
+ */
 check(
-	'rgba(0, 0, 0, 0)' === cards.firstCellPaper,
-	'the pinned first cell leaves its face to the backdrop, as every skin does',
-	cards.firstCellPaper
+	cards.firstCellPaper === cards.cellPaper && 'rgba(0, 0, 0, 0)' !== cards.firstCellPaper,
+	'the pinned first cell wears the card\'s own colour, so the card has no seam',
+	`first ${ cards.firstCellPaper }, the rest ${ cards.cellPaper }`
 );
 check(
 	'none' !== desktop.cards[ asIs ].cellImage,

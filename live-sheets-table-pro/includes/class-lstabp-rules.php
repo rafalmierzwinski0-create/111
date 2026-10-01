@@ -344,6 +344,19 @@ class LSTABP_Rules {
 		 */
 		$paint .= '--lstabp-pill-fill-set:transparent;';
 
+		/*
+		 * And the same for a bar standing on this paint.
+		 *
+		 * A bar is a wash of its column's colour over whatever the row wears.
+		 * Over a rule's paint that stops being a paler version of anything: a
+		 * mint bar on a dark red row came out the colour of wet ash, and the
+		 * number in front of it lost the thing the bar was there to say. The
+		 * ink worked out above is readable on this paint by construction, so
+		 * the bar wears a wash of it. Off a painted row the column keeps its
+		 * own colour, which is where that colour means something.
+		 */
+		$paint .= '--lstabp-bar-set:' . $ink . ';';
+
 		if ( 'row' === $scope ) {
 			/*
 			 * A pinned first column paints its own opaque backdrop, over the

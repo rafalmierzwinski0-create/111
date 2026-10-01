@@ -1196,6 +1196,14 @@
 	border-spacing: 0 var(--lstab-card-gap);
 }
 
+/* Cień karty, wypisany raz: biorą go wszystkie komórki, a te, które muszą
+   jeszcze zakryć włos między sobą a sąsiadką, dokładają go do swojego. */
+.lstab-style-cards {
+	--lstab-card-cien:
+		0 var(--lstab-card-lift) calc(2 * var(--lstab-card-lift)) calc(-1 * var(--lstab-card-lift)) var(--lstab-shadow-near),
+		0 calc(6 * var(--lstab-card-lift)) calc(16 * var(--lstab-card-lift)) calc(-10 * var(--lstab-card-lift)) var(--lstab-shadow-far);
+}
+
 /*
  * Nagłówek kart jest przezroczysty i cichy — ale przez tokeny, nie wprost.
  * Wpisane tu „background-color: transparent” i „color” wygrywały z próbnikami
@@ -1236,9 +1244,28 @@
 	 */
 	border-top: calc(var(--lstab-row-line) * var(--lstab-table-mode)) solid var(--lstab-border);
 	border-bottom: var(--lstab-row-line) solid var(--lstab-border);
-	box-shadow:
-		0 var(--lstab-card-lift) calc(2 * var(--lstab-card-lift)) calc(-1 * var(--lstab-card-lift)) var(--lstab-shadow-near),
-		0 calc(6 * var(--lstab-card-lift)) calc(16 * var(--lstab-card-lift)) calc(-10 * var(--lstab-card-lift)) var(--lstab-shadow-far);
+	box-shadow: var(--lstab-card-cien);
+}
+
+/*
+ * The hairline between two cells of the same card.
+ *
+ * A card is painted by its cells, one box each, and a column rarely lands on
+ * a whole pixel: where two cells meet, each covers part of the boundary pixel
+ * and a sliver of what is behind the table shows through. On a dark page that
+ * is a thin dark line down the card, at every column, on every card. It does
+ * not happen on the other styles because there the row itself is painted and
+ * the sliver lands on the row's own colour; here the row is deliberately
+ * transparent, so that a rounded corner stays a corner.
+ *
+ * So each cell paints half a pixel further right, in whatever the row is
+ * wearing: the sliver lands on the card's colour instead of on the page. Only
+ * to the right, and not on the last cell, so nothing paints past the card's
+ * own edge. "--lstab-row-tint" is what a colour rule and hover set, so a
+ * painted card bridges in its paint rather than in the table's paper.
+ */
+.lstab-style-cards .lstab-table tbody td:not(:last-child) {
+	box-shadow: 0.5px 0 0 var(--lstab-row-tint, var(--lstab-bg)), var(--lstab-card-cien);
 }
 
 .lstab-style-cards .lstab-table tbody td:first-child {
@@ -1269,6 +1296,25 @@
 .lstab-style-cards.lstab-sticky-first .lstab-table thead th:first-child::before {
 	border-start-start-radius: var(--lstab-radius);
 	border-end-start-radius: var(--lstab-radius);
+}
+
+/*
+ * And the first cell keeps the card's own colour.
+ *
+ * A pinned first cell takes its background from the row, so that a stripe or a
+ * colour rule reaches it. In this style the row has no colour at all: a row
+ * background is a rectangle behind the cells and it would show at the card's
+ * four rounded corners, so the colour lives on the cells instead. Inheriting
+ * from the row therefore left the first cell transparent, and the only thing
+ * painting it was the pinned backdrop — which stops a line short at the bottom
+ * and has square corners on its right. The card came out with a visible seam
+ * down it and a hairline under its first cell, on every card, all the time.
+ *
+ * Said after the rule that sets "inherit", because that one is the more
+ * specific of the two and would otherwise win.
+ */
+.lstab-style-cards.lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child {
+	background-color: var(--lstab-bg);
 }
 
 .lstab-style-cards.lstab-sticky-first .lstab-table thead th:first-child::before {
@@ -2328,7 +2374,18 @@
 	bottom: 14%;
 	width: var( --lstabp-bar, 0 );
 	border-radius: 3px;
-	background-color: var( --lstabp-bar-colour, var( --lstab-accent ) );
+	/*
+	 * Two colours, and the handed-down one comes first.
+	 *
+	 * A bar is a wash of the colour it was given, and it is laid over whatever
+	 * the row is wearing. On a row a colour rule has painted, that is the
+	 * rule's paint, and a wash of mint over dark red is not a paler mint: it
+	 * is mud, the colour of nothing. The rule hands down an ink it has already
+	 * proved readable on its own paint, and the bar wears a wash of that
+	 * instead. The column's own colour still shows on every row the rule has
+	 * not touched, which is where it says something.
+	 */
+	background-color: var( --lstabp-bar-set, var( --lstabp-bar-colour, var( --lstab-accent ) ) );
 	opacity: 0.28;
 	pointer-events: none;
 }

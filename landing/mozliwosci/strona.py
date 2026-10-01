@@ -270,8 +270,10 @@ SEKCJA = (
 	'<p class="lst-mz-etykieta jest-zywa"><span class="lst-mz-puls"></span>Live on this page</p>'
 	+ naglowek( 'This is the plugin, running here' ) +
 	'<p class="lst-mz-opis lst-mz-opis-stolu">Ten trails, one spreadsheet. Sort a column, search the box, '
-	'filter it. This is the plugin&rsquo;s own output, in the site&rsquo;s own colours: the Midnight '
-	'style picked, then disagreed with one colour well at a time.</p>'
+	'filter it. This is the plugin&rsquo;s own output, in the site&rsquo;s own colours: the Cards '
+	'style picked, then disagreed with one colour well at a time. Every row is a card of its own, '
+	'so a rule that paints a row paints a whole card, and the same setting turns the table into '
+	'a list of cards on a phone.</p>'
 	+ okno( 'Trail conditions', '<div class="lst-mz-plansza">' + TABELA + '</div>',
 		'10 rows &middot; checked 9 min ago', ' jest-stolem' ) +
 	'</div>'

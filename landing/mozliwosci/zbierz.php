@@ -83,26 +83,35 @@ $source_id = LSTAB_Storage::insert(
 		'gid'           => '0',
 		'tab_name'      => 'Trails',
 		'sync_interval' => 900,
-		'style_preset'  => 'midnight',
+		'style_preset'  => 'cards',
 		'layout'        => 'auto',
 		/*
-		 * Midnight, then disagreed with. The style comes blue — a good dark
-		 * table, but a blue one on a green page — so every colour that decides
-		 * the mood is set by hand to the page's own: the screen the mock windows
-		 * further down are drawn on, the mint the site uses for anything live,
-		 * and lines quiet enough that the table reads as one object rather than
-		 * as a grid.
+		 * Karty, a potem odmalowane.
+		 *
+		 * Ta strona pokazuje, co wtyczka potrafi, a nie że umie narysować
+		 * kratkę. Karty są tu najlepszym dowodem: każdy wiersz staje się
+		 * osobnym przedmiotem z własnym tłem i zaokrągleniem, więc pomalowany
+		 * wiersz jest naprawdę pomalowaną KARTĄ, a pigułka, kropka i słupek
+		 * leżą na niej, a nie w komórce tabeli. To samo ustawienie robi z tego
+		 * na telefonie listę kart, więc strona i telefon wyglądają jak jedno.
+		 *
+		 * Styl przychodzi jasny, więc każdy kolor, który decyduje o nastroju,
+		 * jest ustawiony ręcznie na kolor tej strony: ekran, na którym rysowane
+		 * są okna niżej, mięta od wszystkiego, co żyje, i linie na tyle ciche,
+		 * żeby karty trzymały się kupy samym tłem.
 		 */
 		'style_vars'    => array(
-			'text'       => '#e6f1ee',
-			'background' => $ekran,
-			'headerText' => '#8fa5a2',
-			'headerBg'   => $ekran_gora,
-			'border'     => '#1e2b29',
-			'hover'      => '#152120',
+			'text'       => '#eef7f4',
+			'background' => '#16211f',
+			'headerText' => '#93aca7',
+			'headerBg'   => 'transparent',
+			'border'     => '#2b3c37',
+			'hover'      => '#1d2c29',
 			'accent'     => $mieta,
 			'lines'      => 'normal',
-			'density'    => 'normal',
+			// Luźniej: karta, w której napisy leżą przy krawędziach, nie
+			// wygląda na kartę, tylko na wiersz, który komuś urósł.
+			'density'    => 'roomy',
 		),
 	)
 );

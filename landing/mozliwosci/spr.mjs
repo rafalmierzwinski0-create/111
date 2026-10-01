@@ -215,7 +215,22 @@ console.log( '\nmoduł na stronie' );
 		ile: document.querySelectorAll( '.lst-mz-okno img' ).length,
 		wczytane: [ ...document.querySelectorAll( '.lst-mz-okno img' ) ].filter( ( i ) => i.complete && i.naturalWidth > 0 ).length,
 		puste: [ ...document.querySelectorAll( '.lst-mz-okno img' ) ].filter( ( i ) => ! i.complete || ! i.naturalWidth ).map( ( i ) => i.getAttribute( 'src' ) ),
-		polnoc: document.querySelectorAll( '.lst-mz .lstab-style-midnight' ).length,
+		/*
+		 * Obie tabele na tej stronie (ta na szerokim ekranie i ta w telefonie)
+		 * stoją na szablonie KARTY, przemalowanym na kolory strony. Karty, bo
+		 * strona pokazuje, co wtyczka potrafi, a nie że umie narysować kratkę:
+		 * pomalowany wiersz jest tu pomalowaną kartą, a na telefonie to samo
+		 * ustawienie robi z tabeli listę kart, więc jedno i drugie wygląda jak
+		 * jedno. Sprawdzane, bo szablon wraca do Północy przy każdej próbie
+		 * „przywrócenia jak było".
+		 */
+		karty: document.querySelectorAll( '.lst-mz .lstab-style-cards' ).length,
+		/* I że karty naprawdę są kartami: wiersz bez własnego koloru, a kolor
+		   na komórkach, bo inaczej zaokrąglone rogi nie byłyby zaokrąglone. */
+		wierszBezTla: ( () => {
+			const w = document.querySelector( '.lst-mz .lstab-style-cards tbody tr.lstab-row' );
+			return w ? getComputedStyle( w ).backgroundColor : '';
+		} )(),
 		/*
 		 * Jasność tabeli kontra jasność strony i kontra ekran okienek.
 		 *
@@ -247,8 +262,10 @@ console.log( '\nmoduł na stronie' );
 		podniesiony: getComputedStyle( document.querySelector( '.lst-mz-okno.jest-stolem' ) ).boxShadow,
 	} ) );
 	ok( 'trzy zrzuty z kokpitu, wszystkie wczytane', zrzuty.ile === 3 && zrzuty.wczytane === 3, zrzuty.puste.join( ', ' ) || '3 z 3' );
-	ok( 'obie tabele są na szablonie Północ, przemalowanym na kolory strony',
-		zrzuty.polnoc === 2, `północy ${ zrzuty.polnoc }` );
+	ok( 'obie tabele są na szablonie Karty, przemalowanym na kolory strony',
+		zrzuty.karty === 2, `kart ${ zrzuty.karty }` );
+	ok( 'i wiersz nie ma własnego tła, bo inaczej karta straciłaby rogi',
+		/rgba\(0, 0, 0, 0\)|transparent/.test( zrzuty.wierszBezTla ), zrzuty.wierszBezTla );
 	ok( 'tabela jest z tej strony: ciemna jak okienka, nie jaśniejsza od strony',
 		zrzuty.jasnosc.papier < 0.05 && Math.abs( zrzuty.jasnosc.papier - zrzuty.jasnosc.okno ) < 0.01,
 		`tabela ${ zrzuty.jasnosc.papier }, okno ${ zrzuty.jasnosc.okno }, strona ${ zrzuty.jasnosc.strona }` );
