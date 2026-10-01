@@ -75,8 +75,31 @@ Tak samo wychodzą dwie sekcje bez tabeli:
   `SKAD-en-gotowe.html`, w którym adres jest już wpisany.
 
 Obie ważą tyle, że spokojnie idą w jeden moduł Kod. Nie niosą arkusza ani
-skryptu wtyczki, bo nie ma w nich tabeli, i **nie mają pliku JS** — nie
-potrzebują żadnego. Podglądy: `LEGENDA-podglad.html`, `SKAD-podglad.html`.
+skryptu wtyczki, bo nie ma w nich tabeli — niosą tylko własny, półkilobajtowy
+skrypt wjazdu (`LEGENDA-js.js`, `SKAD-js.js`, te same pół kilobajta w obu).
+Podglądy: `LEGENDA-podglad.html`, `SKAD-podglad.html`; mają nad sekcją i pod
+nią pusty ekran, bo inaczej cała sekcja mieści się w oknie od razu, jest już
+po swoim wjeździe i wygląda, jakby animacji nie było.
+
+## Wjazd przy przewijaniu
+
+Uzbraja go **skrypt**, nie arkusz: `IntersectionObserver` dokłada klasę
+`lst-mz-ruch` na korzeń modułu i `jest-tu` każdej rzeczy, która wjedzie
+w ekran. Bez JavaScriptu nic nie jest uzbrojone i strona stoi gotowa.
+
+Przedtem stała tu oś widoku (`animation-timeline: view()`) — i to jest powód
+zmiany: tej funkcji nie ma ani Firefox, ani Safari starsze niż 26, więc u ich
+użytkowników nie działo się nic. Obserwator działa wszędzie i da się go
+zmierzyć w teście.
+
+Dwie zasady, obie pilnowane testami:
+
+* **nic nie schodzi poniżej 0.4 przezroczystości.** Wjazd od zera zostawiał
+  dziewiętnaście elementów niewidocznych w spoczynku: na zrzucie całej strony,
+  na wydruku, w czytniku, który nie przewija.
+* **ruszane są `translate`, `scale` i `opacity`, nigdy `transform`.**
+  `transform` należy do najechania; animacja z `both` zabierałaby mu go po
+  zakończeniu i kafelek podskakiwał wtedy bez przejścia.
 
 ## Skąd się bierze wygląd
 

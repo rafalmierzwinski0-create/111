@@ -428,13 +428,6 @@ console.log( '\nmoduł na stronie' );
 		arkusz.typ === 'inline-size' && arkusz.sierotki === 0, `container-type ${ arkusz.typ }, pokiereszowanych selektorów ${ arkusz.sierotki }` );
 
 	/*
-	 * Zasada, przez którą ten ruch jest taki, jaki jest: animacja na osi widoku
-	 * nie ma prawa dotknąć przezroczystości. Element przed swoim zakresem siedzi
-	 * w klatce startowej — „jeszcze nie wszedł” znaczyłoby „niewidoczny”, i to
-	 * na zrzucie całej strony, na wydruku i u każdego, komu oś zadziała inaczej,
-	 * niż zakładałem. Przesunięte zdanie jest zdaniem; przezroczyste nie ma.
-	 */
-	/*
 	 * Mierzone zachowaniem, nie czytaniem reguł: strona jest przewijana na trzy
 	 * wysokości i za każdym razem nic w module nie ma prawa być NIECZYTELNE.
 	 *
@@ -459,48 +452,29 @@ console.log( '\nmoduł na stronie' );
 			const schowane = [ ...document.querySelectorAll( '.lst-mz [class*="lst-mz-"], .lst-mz [class*="lst-ar-"], .lst-mz .lstab-row' ) ]
 				.filter( ( e ) => Number( getComputedStyle( e ).opacity ) < prog - 0.001 )
 				.map( ( e ) => e.className.toString().slice( 0, 40 ) + ' ' + getComputedStyle( e ).opacity );
-			const naOsi = [ ...document.querySelectorAll( '.lst-mz .lst-mz-para, .lst-mz .lst-mz-okno.jest-stolem' ) ]
-				.filter( ( e ) => 'auto' !== getComputedStyle( e ).animationTimeline ).length;
+			// Uzbrojone, czyli skrypt ruszyl i stan startowy jest na miejscu.
+			const uzbrojone = document.querySelectorAll( '.lst-mz.lst-mz-ruch' ).length;
+			const dojechaly = document.querySelectorAll( '.lst-mz .jest-tu' ).length;
 
-			return { schowane, naOsi };
+			return { schowane, uzbrojone, dojechaly };
 		}, PROG );
 
-		osiUzyte = Math.max( osiUzyte, stan.naOsi );
+		osiUzyte = Math.max( osiUzyte, stan.uzbrojone && stan.dojechaly ? stan.dojechaly : 0 );
 		znikajace.push( ...stan.schowane );
 	}
 
 	await p.evaluate( () => window.scrollTo( 0, 0 ) );
 	await p.waitForTimeout( 120 );
 
-	ok( 'ruch na osi widoku naprawdę jest', osiUzyte > 0, `elementów na osi: ${ osiUzyte }` );
 	/*
-	 * Kafelki legendy mają wchodzić PO KOLEI. Zakres kolumny trzeciej jest
-	 * przesunięty względem pierwszej, więc w połowie wjazdu pierwsza ma być
-	 * wyraźnie dalej niż trzecia. Mierzone w ruchu, bo regułę łatwo zostawić
-	 * w arkuszu i wyzerować ją gdzie indziej.
+	 * Wjazd uzbraja skrypt, nie arkusz.
+	 *
+	 * Przedtem siedzial on na `animation-timeline: view()`, czyli na funkcji,
+	 * ktorej nie ma ani Firefox, ani Safari starsze niz 26: tam nie dzialo sie
+	 * nic. Obserwator widocznosci dziala wszedzie, wiec sprawdzane jest to, co
+	 * naprawde widac — ile rzeczy dojechało po przewinieciu strony.
 	 */
-	const ukos = await ( async () => {
-		const gora = await p.evaluate( () => {
-			const k = document.querySelector( '.lst-mz-legenda' ).getBoundingClientRect();
-
-			return Math.round( k.top + scrollY - innerHeight );
-		} );
-		await p.evaluate( ( y ) => window.scrollTo( 0, y ), gora + 80 );
-		await p.waitForTimeout( 150 );
-		const stan = await p.evaluate( () => [ 0, 2 ].map( ( i ) => {
-			const e = document.querySelectorAll( '.lst-mz-legenda .lst-mz-pozycja' )[ i ];
-
-			return Number( getComputedStyle( e ).opacity );
-		} ) );
-		await p.evaluate( () => window.scrollTo( 0, 0 ) );
-		await p.waitForTimeout( 120 );
-
-		return stan;
-	} )();
-	ok( 'kafelki legendy wchodzą po kolei, a nie wszystkie naraz',
-		ukos[ 0 ] - ukos[ 1 ] > 0.05,
-		`pierwsza kolumna ${ ukos[ 0 ].toFixed( 2 ) }, trzecia ${ ukos[ 1 ].toFixed( 2 ) }` );
-
+	ok( 'wjazd naprawdę się odpala', osiUzyte > 0, `rzeczy, które dojechały: ${ osiUzyte }` );
 	ok( 'i na żadnej wysokości strony nic nie schodzi poniżej czytelności',
 		0 === znikajace.length, znikajace.slice( 0, 4 ).join( ' | ' ) || `nic poniżej ${ PROG }` );
 
@@ -680,6 +654,49 @@ console.log( '\ntelefon' );
  * mialo czego animowac. Mierzone jest to, co widac: ile kafelek przejechal
  * tuz po najechaniu i ile po zakonczeniu.
  */
+/*
+ * Kafelki legendy maja wchodzic PO KOLEI.
+ *
+ * Na swiezej stronie, bo `otworz` przewija ja na dol i z powrotem: po tym
+ * wszystko juz dojechalo i nie ma czego mierzyc. Tu strona jest otwierana
+ * sama, przewijana raz do legendy i czytana w trakcie wjazdu.
+ */
+console.log( '\nukos' );
+{
+	const c = await b.newContext( { viewport: { width: 1500, height: 1100 } } );
+	const p = await c.newPage();
+	await p.goto( 'file://' + TU + '/' );
+	await p.setContent( strona( modul ), { waitUntil: 'load' } );
+	await p.waitForTimeout( 200 );
+	const gora = await p.evaluate( () => {
+		const k = document.querySelector( '.lst-mz-legenda' ).getBoundingClientRect();
+
+		return Math.round( k.top + scrollY - innerHeight * 0.55 );
+	} );
+	await p.evaluate( ( y ) => window.scrollTo( 0, y ), gora );
+
+	/*
+	 * Próbkowane przez całe wejście, nie w jednej chwili. Pierwsza kolumna
+	 * rusza od razu, trzecia ma 120 ms odstępu, więc różnica rośnie i znika;
+	 * trafienie w jedną klatkę zależałoby od tego, jak szybko tego dnia chodzi
+	 * maszyna. Brana jest największa różnica, jaka w ogóle wystąpiła.
+	 */
+	let ukos = [ 0.4, 0.4 ];
+	for ( let i = 0; i < 16; i++ ) {
+		await p.waitForTimeout( 50 );
+		const teraz = await p.evaluate( () => [ 0, 2 ].map( ( k ) => {
+			const e = document.querySelectorAll( '.lst-mz-legenda .lst-mz-pozycja' )[ k ];
+
+			return Number( getComputedStyle( e ).opacity );
+		} ) );
+		if ( teraz[ 0 ] - teraz[ 1 ] > ukos[ 0 ] - ukos[ 1 ] ) { ukos = teraz; }
+	}
+	ok( 'kafelki legendy wchodzą po kolei, a nie wszystkie naraz',
+		ukos[ 0 ] - ukos[ 1 ] > 0.05,
+		`pierwsza kolumna ${ ukos[ 0 ].toFixed( 2 ) }, trzecia ${ ukos[ 1 ].toFixed( 2 ) }` );
+	await c.close();
+}
+
 console.log( '\nnajechanie' );
 {
 	const { p, c } = await otworz( strona( modul ) );
@@ -736,9 +753,13 @@ for ( const [ nazwa, plik, co ] of [
 	 * i jedzie z każdym modułem, bo to jeden plik. Szablon Karty istnieje
 	 * wyłącznie w arkuszu wtyczki, więc po nim poznać, że ktoś doczepił tu
 	 * całe 40 kB, którego ta sekcja nie ma po co nieść.
+	 *
+	 * Skrypt jest, ale wlasny i jeden: pol kilobajta wjazdu. Skrypt wtyczki
+	 * poznac po jego wlasnej nazwie w naglowku pliku.
 	 */
 	ok( nazwa + ' nie wlecze za sobą arkusza ani skryptu wtyczki',
-		! tresc.includes( 'lstab-style-cards' ) && ! tresc.includes( '<script' ) && tresc.length < 40 * 1024,
+		! tresc.includes( 'lstab-style-cards' ) && ! tresc.includes( 'Live Sheets Table' )
+			&& 1 === ( tresc.match( /<script/g ) || [] ).length && tresc.length < 40 * 1024,
 		`${ Math.round( tresc.length / 1024 ) } kB` );
 	await c.close();
 }

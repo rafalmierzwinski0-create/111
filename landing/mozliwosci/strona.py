@@ -1060,113 +1060,94 @@ STYL = r"""
 /* --------------------------------------------- ruch, który niesie przewijanie */
 
 /*
+ * Wjazd sekcji przy przewijaniu.
+ *
  * Trzy zasady, wszystkie wymuszone, a nie deklarowane.
  *
- * Po pierwsze: ruch na osi widoku NIGDY NIE SCHODZI DO ZERA PRZEZROCZYSTOŚCI.
- * Wjazd z „opacity: 0” tu już kiedyś stał i test pokazał dziewiętnaście
- * elementów niewidocznych w spoczynku: element przed swoim zakresem siedzi
- * w klatce startowej, więc „jeszcze nie wszedł” znaczyło „nie ma go” — na
- * zrzucie całej strony, na wydruku, w czytniku, który nie przewija.
+ * Po pierwsze: NIGDY NIE SCHODZI DO ZERA PRZEZROCZYSTOŚCI. Wjazd z „opacity: 0”
+ * tu już kiedyś stał i test pokazał dziewiętnaście elementów niewidocznych
+ * w spoczynku: rzecz, do której nikt jeszcze nie dojechał, znikała na zrzucie
+ * całej strony, na wydruku i w czytniku, który nie przewija. Klatka startowa
+ * ma 0.4 — rozjaśnienie widać w ruchu tak samo dobrze, a najgorsze, co może
+ * się stać, to przygaszony akapit, który nadal się czyta.
  *
- * Zamiast wybierać między „ładnie wchodzi” a „zawsze widać”, klatka startowa
- * ma 0.4. Rozjaśnienie z 0.4 do 1 widać w ruchu tak samo dobrze jak z zera,
- * a najgorsze, co może się stać, kiedy oś nigdy nie ruszy, to przygaszony
- * akapit, który nadal się czyta i nadal drukuje. Pilnuje tego sprawdzenie:
- * nic na tej stronie nie schodzi poniżej 0.4.
+ * Po drugie: ruszane są `translate`, `scale` i `opacity`, nigdy `transform`.
+ * `transform` należy do najechania, a animacja z „both” zabierałaby mu go po
+ * zakończeniu — karta podskakiwała wtedy natychmiast, bez przejścia.
  *
- * Po drugie: ruszane są `translate`, `scale` i `opacity`, nigdy `transform` —
- * `transform` należy do najechania i animacja z „both” zabierałaby mu go po
- * wyjściu z zakresu.
- *
- * Po trzecie: całość siedzi w @supports, więc przeglądarka, która osi nie zna,
- * dostaje stronę gotową, bez ani jednej reguły z tego bloku.
+ * Po trzecie: uzbraja to SKRYPT, nie arkusz. Stan startowy wisi na klasie
+ * `lst-mz-ruch`, którą dokłada JavaScript; bez skryptu nic nie jest uzbrojone
+ * i strona stoi gotowa. Przedtem stała tu oś widoku (`animation-timeline`),
+ * przez co ruch istniał wyłącznie w Chrome, Edge i Safari 26 — w Firefoksie
+ * i w starszym Safari nie działo się nic. Obserwator widoczności działa
+ * wszędzie i da się go sprawdzić w teście.
  */
-@supports ( animation-timeline: view() ) {
-
-	/*
-	 * Nagłówki, metki i wstępy. Zakres kończy się, zanim rzecz dojedzie na
-	 * środek ekranu: tytuł ma być gotowy w chwili, w której się go czyta,
-	 * a nie dojeżdżać pod okiem.
-	 */
-	.lst-mz .lst-mz-blok > .lst-mz-etykieta,
-	.lst-mz .lst-mz-blok > .lst-mz-wstep,
-	.lst-mz .lst-mz-blok > .lst-mz-naglowek,
-	.lst-mz .lst-mz-stol > .lst-mz-etykieta,
-	.lst-mz .lst-mz-stol > .lst-mz-opis-stolu {
-		animation: lst-mz-wjazd 520ms var( --mz-luk ) both;
-		animation-timeline: view();
-		animation-range: entry 5% entry 70%;
-	}
-
-	/*
-	 * Rzeczy, na które się patrzy: kafelki, pary ze zrzutami, pas z telefonem,
-	 * kolumny i ramka z kodem. Dłuższa droga i cały wjazd na ekran do dyspozycji,
-	 * bo to one robią za ruch tej strony.
-	 */
-	.lst-mz .lst-mz-legenda .lst-mz-pozycja,
-	.lst-mz .lst-mz-para,
-	.lst-mz .lst-mz-pas,
-	.lst-mz .lst-mz-listy .lst-mz-kolumna,
-	.lst-mz .lst-mz-kod {
-		animation: lst-mz-podniesienie 560ms var( --mz-luk ) both;
-		animation-timeline: view();
-		animation-range: entry 8% entry 88%;
-	}
-
-	/*
-	 * Kafelki legendy wchodzą po kolei, nie wszystkie naraz.
-	 *
-	 * Na osi widoku nie da się opóźnić animacji o milisekundy: każdy kafelek
-	 * ma własną oś i jedzie od swojego położenia na ekranie. Przesuwany jest
-	 * więc ZAKRES — druga i trzecia kolumna zaczynają kawałek później i kończą
-	 * kawałek później, co daje ukos przez siatkę. Robione osobno dla trzech
-	 * i dla dwóch kolumn, bo przy dwóch „co trzeci” nie jest już żadną kolumną.
-	 */
-	@media ( min-width: 1181px ) {
-		.lst-mz .lst-mz-legenda .lst-mz-pozycja:nth-child( 3n + 2 ) { animation-range: entry 14% entry 94%; }
-		.lst-mz .lst-mz-legenda .lst-mz-pozycja:nth-child( 3n ) { animation-range: entry 20% entry 100%; }
-	}
-
-	@media ( min-width: 901px ) and ( max-width: 1180px ) {
-		.lst-mz .lst-mz-legenda .lst-mz-pozycja:nth-child( 2n ) { animation-range: entry 17% entry 97%; }
-	}
-
-	/*
-	 * Kreska przy etykiecie rysuje się sama, kiedy sekcja wchodzi. To ten sam
-	 * znak, który dzieli stronę na rozdziały — tu robi dodatkowo za wskaźnik:
-	 * dociągnięta kreska znaczy „ta sekcja jest już twoja”.
-	 */
-	.lst-mz .lst-mz-naglowek::after {
-		animation: lst-mz-kreska 620ms var( --mz-luk ) both;
-		animation-timeline: view();
-		animation-range: entry 6% cover 30%;
-	}
-
-	/*
-	 * Wiersze tabeli przyjeżdżają po kolei. To jedyna animacja na tej stronie,
-	 * która mówi coś o produkcie, a nie o stronie: tak właśnie arkusz ląduje na
-	 * stronie, wiersz po wierszu. Tylko sześć pierwszych i tylko 34 ms odstępu —
-	 * dziesięć wierszy po kolei to już czekanie, a nie powitanie.
-	 */
-	.lst-mz .lst-mz-stol .lstab-row:nth-child( -n + 6 ) {
-		animation: lst-mz-wiersz 420ms var( --mz-luk ) both;
-		animation-timeline: view( block );
-		animation-range: entry 2% cover 22%;
-	}
-
-	.lst-mz .lst-mz-stol .lstab-row:nth-child( 2 ) { animation-delay: 34ms; }
-	.lst-mz .lst-mz-stol .lstab-row:nth-child( 3 ) { animation-delay: 68ms; }
-	.lst-mz .lst-mz-stol .lstab-row:nth-child( 4 ) { animation-delay: 102ms; }
-	.lst-mz .lst-mz-stol .lstab-row:nth-child( 5 ) { animation-delay: 136ms; }
-	.lst-mz .lst-mz-stol .lstab-row:nth-child( 6 ) { animation-delay: 170ms; }
-
-	/* Okno z tabelą podnosi się: jedyne miejsce, gdzie wysokość coś znaczy. */
-	.lst-mz .lst-mz-okno.jest-stolem {
-		animation: lst-mz-podniesienie 640ms var( --mz-luk ) both;
-		animation-timeline: view();
-		animation-range: entry 2% cover 24%;
-	}
+.lst-mz-ruch .lst-mz-blok > .lst-mz-etykieta,
+.lst-mz-ruch .lst-mz-blok > .lst-mz-wstep,
+.lst-mz-ruch .lst-mz-blok > .lst-mz-naglowek,
+.lst-mz-ruch .lst-mz-stol > .lst-mz-etykieta,
+.lst-mz-ruch .lst-mz-stol > .lst-mz-opis-stolu {
+	translate: 0 18px;
+	opacity: .4;
 }
+
+.lst-mz-ruch .lst-mz-legenda .lst-mz-pozycja,
+.lst-mz-ruch .lst-mz-para,
+.lst-mz-ruch .lst-mz-pas,
+.lst-mz-ruch .lst-mz-listy .lst-mz-kolumna,
+.lst-mz-ruch .lst-mz-kod,
+.lst-mz-ruch .lst-mz-okno.jest-stolem {
+	translate: 0 30px;
+	scale: .985;
+	opacity: .4;
+}
+
+.lst-mz-ruch .lst-mz-stol .lstab-row {
+	translate: 0 7px;
+	opacity: .55;
+}
+
+/* Kreska przy tytule dociąga się razem z nim. */
+.lst-mz-ruch .lst-mz-naglowek::after { transform: scaleX( 0 ); }
+
+/*
+ * Dojechało. Animacja, nie przejście: kafelek ma już własne `transition` na
+ * najechanie i dopisanie się do niego tą samą właściwością skasowałoby tamto.
+ */
+.lst-mz-ruch .lst-mz-blok > .lst-mz-etykieta.jest-tu,
+.lst-mz-ruch .lst-mz-blok > .lst-mz-wstep.jest-tu,
+.lst-mz-ruch .lst-mz-blok > .lst-mz-naglowek.jest-tu,
+.lst-mz-ruch .lst-mz-stol > .lst-mz-etykieta.jest-tu,
+.lst-mz-ruch .lst-mz-stol > .lst-mz-opis-stolu.jest-tu {
+	animation: lst-mz-wjazd 520ms var( --mz-luk ) both;
+}
+
+.lst-mz-ruch .lst-mz-legenda .lst-mz-pozycja.jest-tu,
+.lst-mz-ruch .lst-mz-para.jest-tu,
+.lst-mz-ruch .lst-mz-pas.jest-tu,
+.lst-mz-ruch .lst-mz-listy .lst-mz-kolumna.jest-tu,
+.lst-mz-ruch .lst-mz-kod.jest-tu,
+.lst-mz-ruch .lst-mz-okno.jest-stolem.jest-tu {
+	animation: lst-mz-podniesienie 560ms var( --mz-luk ) both;
+}
+
+.lst-mz-ruch .lst-mz-stol .lstab-row.jest-tu {
+	animation: lst-mz-wiersz 420ms var( --mz-luk ) both;
+}
+
+.lst-mz-ruch .lst-mz-naglowek.jest-tu::after {
+	animation: lst-mz-kreska 620ms var( --mz-luk ) both;
+}
+
+/*
+ * Odstęp między sąsiadami: kafelki legendy i wiersze tabeli wchodzą po kolei.
+ * Numer wpisuje skrypt, bo tylko on wie, które dziecko jest które po złożeniu
+ * siatki. Sześćdziesiąt milisekund na kafelek, trzydzieści cztery na wiersz —
+ * dziesięć wierszy po kolei to już czekanie, a nie powitanie, więc numer jest
+ * ucinany po szóstym.
+ */
+.lst-mz-ruch .lst-mz-legenda .lst-mz-pozycja.jest-tu { animation-delay: calc( var( --mz-kolej, 0 ) * 60ms ); }
+.lst-mz-ruch .lst-mz-stol .lstab-row.jest-tu { animation-delay: calc( var( --mz-kolej, 0 ) * 34ms ); }
 
 /*
  * Same przesunięcia — patrz zasada pierwsza wyżej. Pisane na `translate`
@@ -1181,14 +1162,22 @@ STYL = r"""
  */
 @keyframes lst-mz-wjazd {
 	from { translate: 0 18px; opacity: .4; }
+	to { translate: none; opacity: 1; }
 }
 
 @keyframes lst-mz-wiersz {
 	from { translate: 0 7px; opacity: .55; }
+	to { translate: none; opacity: 1; }
 }
 
 @keyframes lst-mz-podniesienie {
 	from { translate: 0 30px; scale: .985; opacity: .4; }
+	to { translate: none; scale: none; opacity: 1; }
+}
+
+@keyframes lst-mz-kreska {
+	from { transform: scaleX( 0 ); }
+	to { transform: none; }
 }
 
 /*
@@ -1200,6 +1189,12 @@ STYL = r"""
 	.lst-mz [class*="lst-mz-"],
 	.lst-mz .lst-mz-naglowek::after,
 	.lst-mz .lst-mz-stol .lstab-row { animation: none !important; }
+
+	/* Samo wyłączenie animacji zostawiłoby stan startowy, czyli przygaszoną
+	   i przesuniętą treść. Rozbrajany jest też on. */
+	.lst-mz-ruch [class*="lst-mz-"],
+	.lst-mz-ruch .lstab-row { translate: none !important; scale: none !important; opacity: 1 !important; }
+	.lst-mz-ruch .lst-mz-naglowek::after { transform: none !important; }
 }
 
 @media ( prefers-reduced-motion: reduce ) {
@@ -1210,6 +1205,12 @@ STYL = r"""
 	.lst-mz [class*="lst-mz-"],
 	.lst-mz .lst-mz-naglowek::after,
 	.lst-mz .lst-mz-stol .lstab-row { animation: none !important; }
+
+	/* Skrypt przy „mniej ruchu” nic nie uzbraja, ale gdyby ustawienie zmieniło
+	   się już po wczytaniu strony, stan startowy ma zniknąć razem z animacją. */
+	.lst-mz-ruch [class*="lst-mz-"],
+	.lst-mz-ruch .lstab-row { translate: none !important; scale: none !important; opacity: 1 !important; }
+	.lst-mz-ruch .lst-mz-naglowek::after { transform: none !important; }
 
 	.lst-mz .lst-mz-pozycja,
 	.lst-mz .lst-mz-okno,
@@ -1408,6 +1409,53 @@ def skrot( css ):
 	return ''.join( wynik ).strip()
 
 
+# Skrypt wjazdu. Pół kilobajta, bez zależności, nie dotyka tabeli.
+#
+# Uzbraja stan startowy klasą na korzeniu modułu i dokłada `jest-tu`, kiedy
+# rzecz wjedzie w ekran. Uzbraja SKRYPT, nie arkusz, więc bez JavaScriptu nic
+# nie jest przygaszone ani przesunięte: strona stoi gotowa.
+RUCH = r"""( function () {
+	var korzenie = document.querySelectorAll( '.lst-mz' );
+	if ( ! korzenie.length || ! window.IntersectionObserver ) { return; }
+	if ( window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches ) { return; }
+
+	var CELE = '.lst-mz-blok > .lst-mz-etykieta, .lst-mz-blok > .lst-mz-wstep, .lst-mz-blok > .lst-mz-naglowek,'
+		+ '.lst-mz-stol > .lst-mz-etykieta, .lst-mz-stol > .lst-mz-opis-stolu,'
+		+ '.lst-mz-legenda .lst-mz-pozycja, .lst-mz-para, .lst-mz-pas,'
+		+ '.lst-mz-listy .lst-mz-kolumna, .lst-mz-kod, .lst-mz-okno.jest-stolem,'
+		+ '.lst-mz-stol .lstab-row';
+
+	var oko = new IntersectionObserver( function ( wpisy ) {
+		for ( var i = 0; i < wpisy.length; i++ ) {
+			if ( wpisy[ i ].isIntersecting ) {
+				wpisy[ i ].target.classList.add( 'jest-tu' );
+				oko.unobserve( wpisy[ i ].target );
+			}
+		}
+	}, { rootMargin: '0px 0px -10% 0px', threshold: 0.1 } );
+
+	for ( var k = 0; k < korzenie.length; k++ ) {
+		korzenie[ k ].classList.add( 'lst-mz-ruch' );
+
+		var cele = korzenie[ k ].querySelectorAll( CELE );
+		for ( var i = 0; i < cele.length; i++ ) {
+			var el = cele[ i ];
+
+			// Numer w swojej grupie: po nim idzie odstęp między sąsiadami.
+			// Ucinany po szóstym, bo dziesięć rzeczy po kolei to czekanie.
+			var bracia = el.parentNode.children;
+			var n = 0;
+			for ( var j = 0; j < bracia.length && bracia[ j ] !== el; j++ ) {
+				if ( bracia[ j ].className && ( ' ' + bracia[ j ].className + ' ' ).indexOf( el.className.split( ' ' )[ 0 ] ) > -1 ) { n++; }
+			}
+			if ( n > 0 ) { el.style.setProperty( '--mz-kolej', n > 6 ? 6 : n ); }
+
+			oko.observe( el );
+		}
+	}
+} )();"""
+
+
 CZCIONKI = ( '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?'
 	'family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600'
 	'&family=Inria+Serif:ital,wght@0,300;0,400&display=swap">' )
@@ -1419,7 +1467,7 @@ STRONA = (
 	CZCIONKI + '\n'
 	'\n' + ZNACZNIK + '\n'
 	'\n<style>\n' + ARKUSZ + '\n</style>\n'
-	'\n<script>\n' + JS + '\n</script>\n'
+	'\n<script>\n' + JS + '\n\n' + RUCH + '\n</script>\n'
 )
 
 ( TU / 'MOZLIWOSCI-en.html' ).write_text( STRONA )
@@ -1442,7 +1490,7 @@ kawałek waży tyle, ile ma ważyć:
 
 ( TU / 'MOZLIWOSCI-kod.html' ).write_text( CZCIONKI + '\n\n' + ZNACZNIK + '\n' )
 ( TU / 'MOZLIWOSCI-css.css' ).write_text( ARKUSZ + '\n' )
-( TU / 'MOZLIWOSCI-js.js' ).write_text( JS )
+( TU / 'MOZLIWOSCI-js.js' ).write_text( JS + '\n\n' + RUCH + '\n' )
 
 # Podgląd do otwarcia w przeglądarce: podrabia tło i dopełnienia Divi, i
 # podstawia lokalne adresy zrzutów. Do Divi idzie wyłącznie MOZLIWOSCI-en.html.
@@ -1487,13 +1535,13 @@ STOL = (
 	CZCIONKI + '\n'
 	'\n' + STOL_ZNACZNIK + '\n'
 	'\n<style>\n' + STOL_ARKUSZ + '\n</style>\n'
-	'\n<script>\n' + JS + '\n</script>\n'
+	'\n<script>\n' + JS + '\n\n' + RUCH + '\n</script>\n'
 )
 
 ( TU / 'STOL-en.html' ).write_text( STOL )
 ( TU / 'STOL-kod.html' ).write_text( CZCIONKI + '\n\n' + STOL_ZNACZNIK + '\n' )
 ( TU / 'STOL-css.css' ).write_text( STOL_ARKUSZ + '\n' )
-( TU / 'STOL-js.js' ).write_text( JS )
+( TU / 'STOL-js.js' ).write_text( JS + '\n\n' + RUCH + '\n' )
 
 ( TU / 'STOL-podglad.html' ).write_text(
 	'<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n'
@@ -1534,11 +1582,13 @@ def osobno( nazwa, blok, opis, uwaga = '' ):
 		CZCIONKI + '\n'
 		'\n' + znacznik + '\n'
 		'\n<style>\n' + MALY_ARKUSZ + '\n</style>\n'
+		'\n<script>\n' + RUCH + '\n</script>\n'
 	)
 
 	( TU / ( nazwa + '-en.html' ) ).write_text( calosc )
 	( TU / ( nazwa + '-kod.html' ) ).write_text( czapka + CZCIONKI + '\n\n' + znacznik + '\n' )
 	( TU / ( nazwa + '-css.css' ) ).write_text( MALY_ARKUSZ + '\n' )
+	( TU / ( nazwa + '-js.js' ) ).write_text( RUCH + '\n' )
 
 	( TU / ( nazwa + '-podglad.html' ) ).write_text(
 		'<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n'
