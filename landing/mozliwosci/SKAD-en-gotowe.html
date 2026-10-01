@@ -27,7 +27,7 @@
 				oko.unobserve( wpisy[ i ].target );
 			}
 		}
-	}, { rootMargin: '0px 0px -10% 0px', threshold: 0.1 } );
+	}, { rootMargin: '0px 0px -6% 0px', threshold: 0.06 } );
 
 	for ( var k = 0; k < korzenie.length; k++ ) {
 		korzenie[ k ].classList.add( 'lst-mz-ruch' );
@@ -36,14 +36,31 @@
 		for ( var i = 0; i < cele.length; i++ ) {
 			var el = cele[ i ];
 
-			// Numer w swojej grupie: po nim idzie odstęp między sąsiadami.
-			// Ucinany po szóstym, bo dziesięć rzeczy po kolei to czekanie.
+			/*
+			 * Numer W SWOIM WIERSZU, nie w całej siatce.
+			 *
+			 * Przedtem szedł numer po kolei przez wszystkie dziewięć kafelków,
+			 * więc ostatni czekał 360 ms. Siedział wtedy przygaszony na środku
+			 * ekranu, po czym skakał do pełni: dokładnie ten przeskok na dole,
+			 * który widać na filmie. Teraz każdy wiersz zaczyna od nowa, więc
+			 * żaden kafelek nie czeka dłużej niż dwa odstępy.
+			 *
+			 * Wiersz poznajemy po tym, że sąsiad stoi na tej samej wysokości.
+			 * Działa tak samo przy trzech kolumnach, przy dwóch i przy jednej,
+			 * bo przy jednej każdy kafelek jest sam w swoim wierszu i odstępu
+			 * nie dostaje wcale.
+			 */
 			var bracia = el.parentNode.children;
+			var wTabeli = 'TR' === el.tagName;
+			var moja = el.offsetTop;
 			var n = 0;
 			for ( var j = 0; j < bracia.length && bracia[ j ] !== el; j++ ) {
-				if ( bracia[ j ].className && ( ' ' + bracia[ j ].className + ' ' ).indexOf( el.className.split( ' ' )[ 0 ] ) > -1 ) { n++; }
+				// Wiersze tabeli stoją jeden pod drugim i mają schodzić po kolei,
+				// więc tam liczą się wszystkie, a nie tylko te z tej samej linii.
+				if ( wTabeli || bracia[ j ].offsetTop === moja ) { n++; }
 			}
-			if ( n > 0 ) { el.style.setProperty( '--mz-kolej', n > 6 ? 6 : n ); }
+			var ile = wTabeli ? 5 : 3;
+			if ( n > 0 ) { el.style.setProperty( '--mz-kolej', n > ile ? ile : n ); }
 
 			oko.observe( el );
 		}

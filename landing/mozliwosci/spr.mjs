@@ -691,6 +691,21 @@ console.log( '\nukos' );
 		} ) );
 		if ( teraz[ 0 ] - teraz[ 1 ] > ukos[ 0 ] - ukos[ 1 ] ) { ukos = teraz; }
 	}
+	/*
+	 * Odstep liczony W WIERSZU, nie przez cala siatke.
+	 *
+	 * Przy plaskim numerze ostatni kafelek czekal 360 ms: siedzial przygaszony
+	 * na srodku ekranu i dopiero potem skakal do pelni. Sprawdzane jest wiec,
+	 * ze numery wracaja do zera na poczatku kazdego wiersza, a nie rosna do
+	 * konca.
+	 */
+	const odstepy = await p.evaluate( () => [ ...document.querySelectorAll( '.lst-mz-legenda .lst-mz-pozycja' ) ]
+		.map( ( e ) => Number( e.style.getPropertyValue( '--mz-kolej' ) || 0 ) ) );
+	ok( 'odstęp wraca do zera w każdym wierszu, więc nikt nie czeka na dole',
+		odstepy.length > 3 && Math.max.apply( null, odstepy ) <= 3
+			&& odstepy.filter( ( n ) => 0 === n ).length > 1,
+		`[ ${ odstepy.join( ', ' ) } ]` );
+
 	ok( 'kafelki legendy wchodzą po kolei, a nie wszystkie naraz',
 		ukos[ 0 ] - ukos[ 1 ] > 0.05,
 		`pierwsza kolumna ${ ukos[ 0 ].toFixed( 2 ) }, trzecia ${ ukos[ 1 ].toFixed( 2 ) }` );
