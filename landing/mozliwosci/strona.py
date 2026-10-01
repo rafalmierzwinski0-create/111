@@ -73,34 +73,38 @@ TABELA = dla_divi( M[ 'pro' ] )
 # ( kolumny tabeli, których dotyczy, poziom, tytuł, opis )
 LEGENDA = [
 	( 'A-F', 'Free', 'Search and sorting',
-	  'Type and the table narrows down, with every hit marked where it was found. Click a heading to '
-	  'sort: dates sort as dates, clocks as clocks.' ),
-	( 'A-F', 'Free', 'The whole look, from a panel',
-	  'A style picked, then disagreed with one colour well at a time: the screen it sits on, the heading '
-	  'band, the line colour, the row height, the size of the column names. Not a line of CSS was '
-	  'written for this table.' ),
-	( 'A-F', 'Free', 'A sheet, not a picture of one',
-	  'Every row is in the page itself, written out by the server before the browser asks for anything. '
-	  'Turn JavaScript off and the table is still there, and so is everything Google reads.' ),
-	( 'Under&nbsp;it', 'Free', 'It fetches, and it says when',
-	  'This one looks at the spreadsheet every 15 minutes; the line under the table says how long ago '
-	  'that was. If Google is slow, the last good copy stays on the page rather than a gap.' ),
-	( 'Narrow&nbsp;it', 'Free', 'On a phone it stops being a table',
-	  'Squeeze the window. Past a certain width each row folds into a card with the column names beside '
-	  'the values, so nobody has to drag a six-column table sideways on a phone.' ),
-	( 'E', 'Pro', 'A colour rule',
-	  'When <em>Status</em> is <em>Closed</em>, paint the whole row. Three closed trails are visible '
-	  'before anyone has read a word.' ),
-	( 'B&nbsp;E', 'Pro', 'A pill, or just a dot',
-	  'The same rule, quieter. The value keeps its place and takes a badge, or only a dot beside it. '
-	  'Sorting and search still read &ldquo;Open&rdquo;, not a colour.' ),
-	( 'C&nbsp;F', 'Pro', 'A bar, and a button',
-	  'The bar behind each depth is its share of the deepest snow in the column, and the number stays a '
-	  'number: it sorts, and it lands in the download. A column of addresses becomes a column of buttons. '
-	  'Two trails have no webcam, and those cells stay empty.' ),
+	  'Type in the box and the table keeps only the rows that match, with the matching words marked. '
+	  'Click any column heading to sort by it. Dates sort as dates and times as times, not as text.' ),
+	( 'A-F', 'Free', 'All the colours are settings',
+	  'Pick one of nine ready-made looks, then change whatever you want: the background, the heading bar, '
+	  'the text, the lines, the row height, the size of the column names. Colour pickers and dropdowns, '
+	  'nothing else. This table was made that way and nobody wrote any CSS for it.' ),
+	( 'F', 'Free', 'Web addresses become links',
+	  'Put a web address in a column and your visitors get something they can click, instead of a long '
+	  'line of text to copy out by hand. In the table above that column is wearing the Pro button look, '
+	  'but the clickable link itself is free.' ),
+	( 'Under&nbsp;it', 'Free', 'It checks the sheet for you',
+	  'This table looks at the spreadsheet every 15 minutes, and the line underneath tells visitors when '
+	  'it last looked. If Google is slow or unreachable, the page keeps showing the last copy it got, so '
+	  'nobody lands on an empty table.' ),
+	( 'Narrow&nbsp;it', 'Free', 'It works on phones',
+	  'Make the window narrow and watch what happens. Each row turns into its own card, with the column '
+	  'name written next to every value. Nobody has to drag a six-column table sideways on a phone.' ),
+	( 'E', 'Pro', 'Colour a whole row',
+	  'Set a rule: when <em>Status</em> says <em>Closed</em>, paint that row red. The three closed trails '
+	  'stand out straight away, before anyone has read a word.' ),
+	( 'B&nbsp;E', 'Pro', 'Or just a badge, or a dot',
+	  'The same kind of rule, only quieter. The value gets a coloured badge around it, or just a small '
+	  'dot next to it. The text stays text, so search and sorting still work on it.' ),
+	( 'C&nbsp;F', 'Pro', 'Bars and buttons in a column',
+	  'A number can show a bar behind it. The longer the bar, the bigger that number is next to the '
+	  'biggest one in the same column. It is still a real number underneath: it sorts, and it goes into '
+	  'the download. Web addresses can become buttons with your own wording on them. Cells with nothing '
+	  'in them stay empty.' ),
 	( 'B&nbsp;E', 'Pro', 'Filters and downloads',
-	  'Above the table, a filter your visitors use themselves. Under it, Excel, CSV and print. A download '
-	  'holds exactly what is on the screen, filtered rows and hidden columns included.' ),
+	  'Above the table, dropdowns your visitors use to narrow it down themselves. Underneath, buttons for '
+	  'Excel, CSV and print. A download holds exactly what is on the screen: only the rows left after '
+	  'filtering, and none of the hidden columns.' ),
 ]
 
 # ( plik, tytuł, zdanie, nazwa okna, trzy krótkie linijki pod spodem )
