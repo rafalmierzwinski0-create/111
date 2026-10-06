@@ -2406,11 +2406,31 @@
 	left: 0;
 	top: 14%;
 	bottom: 14%;
-	width: var( --lstabp-bar, 0 );
+	/* Only in the table; on a card the bar moves under the column's name. */
+	width: calc( var( --lstab-table-mode, 1 ) * var( --lstabp-bar, 0% ) );
 	border-radius: 3px;
 	background-color: var( --lstabp-bar-colour, var( --lstab-accent ) );
 	opacity: 1;
 	pointer-events: none;
+}
+
+/*
+ * On a phone, where the row is a card and every value has its column's name
+ * above it, the bar is a slim line under that name and the number stands
+ * below it on the card's own background. Behind the value, a card's narrow
+ * bar sat under the name and the number at once and both got hard to read;
+ * here nothing is ever printed on the bar. The name is only shown on a card,
+ * so this line only exists there.
+ */
+.lstabp-bar .lstab-cell-label::after {
+	content: "";
+	display: block;
+	width: var( --lstabp-bar, 0% );
+	min-width: 3px;
+	height: 6px;
+	margin-top: 0.4em;
+	border-radius: 3px;
+	background-color: var( --lstabp-bar-colour, var( --lstab-accent ) );
 }
 
 .lstabp-bar .lstab-cell-label,

@@ -162,6 +162,51 @@ check(
 	JSON.stringify( besideOld )
 );
 
+/*
+ * On a phone the row is a card and every value has its column's name above
+ * it. There the bar is a slim line under that name, and the number stands
+ * below it on the card's own background: behind the value, a card's narrow
+ * bar sat under the name and the number at once and both got hard to read.
+ */
+await tab.setViewportSize( { width: 360, height: 900 } );
+await tab.waitForTimeout( 100 );
+
+const onPhone = await tab.evaluate( () => [ ...document.querySelectorAll( '#light .lstabp-bar' ) ].map( ( cell ) => {
+	const label = cell.querySelector( '.lstab-cell-label' );
+	const value = cell.querySelector( '.lstab-cell-value' );
+	const line = getComputedStyle( label, '::after' );
+	const labelBox = label.getBoundingClientRect();
+
+	return {
+		says: value.textContent.trim(),
+		wanted: parseFloat( getComputedStyle( cell ).getPropertyValue( '--lstabp-bar' ) ),
+		behind: parseFloat( getComputedStyle( cell, '::after' ).width ),
+		line: parseFloat( line.width ) / labelBox.width * 100,
+		colour: line.backgroundColor,
+		above: labelBox.bottom <= value.getBoundingClientRect().top + 0.5,
+		card: 'none' !== getComputedStyle( label ).display,
+	};
+} ) );
+
+await tab.setViewportSize( { width: 1100, height: 900 } );
+await tab.waitForTimeout( 100 );
+
+check(
+	onPhone.length > 0 && onPhone.every( ( b ) => b.card ),
+	'at the width of a phone the rows really are cards',
+	onPhone.map( ( b ) => b.card ).join( ' ' )
+);
+check(
+	onPhone.every( ( b ) => 0 === b.behind ),
+	'there, nothing is drawn behind the value',
+	onPhone.map( ( b ) => `${ b.says }: ${ b.behind }px` ).join( ' | ' )
+);
+check(
+	onPhone.every( ( b ) => b.above && 'rgb(95, 227, 207)' === b.colour && ( Math.abs( b.line - b.wanted ) < 1.5 || b.wanted < 5 ) ),
+	'the bar is a line under the column\'s name, as long as its share, above the number',
+	onPhone.map( ( b ) => `${ b.says }: ${ b.line.toFixed( 1 ) }% of ${ b.wanted }%, above ${ b.above }` ).join( ' | ' )
+);
+
 const widest = await tab.evaluate( () => {
 	const cells = [ ...document.querySelectorAll( '#light .lstabp-bar' ) ];
 	const largest = cells.find( ( c ) => c.querySelector( '.lstab-cell-value' ).textContent === '120' );
