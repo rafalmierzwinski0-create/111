@@ -2040,8 +2040,15 @@ kawałek waży tyle, ile ma ważyć:
 # takiego nie robi, a arkusz w <style> działa tam dokładnie tak samo.
 # Znaczniki są dołożone tutaj, bo dopisywane ręcznie to kolejny krok, w którym
 # łatwo o pomyłkę.
-( TU / 'MOZLIWOSCI-head.html' ).write_text( '<style>\n' + ARKUSZ + '\n</style>\n' )
-( TU / 'MOZLIWOSCI-body.html' ).write_text( '<script>\n' + JS + '\n\n' + RUCH + '\n</script>\n' )
+# Nazwa zaczyna się od INTEGRACJA, a nie od nazwy podstrony, bo pliki
+# „MOZLIWOSCI-…html” wyglądały jak jeszcze jedna sekcja do modułu Kod. Wklejony
+# tam sam <style> albo sam <script> nie pokazuje niczego.
+( TU / 'INTEGRACJA-head.html' ).write_text(
+	'<!-- DO: Divi > Opcje motywu > Integracja > Dodaj kod do <head>. NIE do modulu Kod. -->\n'
+	'<style>\n' + ARKUSZ + '\n</style>\n' )
+( TU / 'INTEGRACJA-body.html' ).write_text(
+	'<!-- DO: Divi > Opcje motywu > Integracja > Dodaj kod do <body>. NIE do modulu Kod. -->\n'
+	'<script>\n' + JS + '\n\n' + RUCH + '\n</script>\n' )
 
 # Podgląd do otwarcia w przeglądarce: podrabia tło i dopełnienia Divi, i
 # podstawia lokalne adresy zrzutów. Do Divi idzie wyłącznie MOZLIWOSCI-en.html.

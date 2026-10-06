@@ -910,8 +910,8 @@ console.log( '\nskrypt przed modułem' );
 	const c = await b.newContext( { viewport: { width: 1500, height: 1100 } } );
 	const p = await c.newPage();
 	await p.goto( 'file://' + TU + '/' );
-	await p.setContent( '<!doctype html><html><head><meta charset="utf-8">' + czytaj( 'MOZLIWOSCI-head.html' )
-		+ czytaj( 'MOZLIWOSCI-body.html' ) + '</head><body>' + czytaj( 'TELEFON-kod.html' ) + '</body></html>', { waitUntil: 'load' } );
+	await p.setContent( '<!doctype html><html><head><meta charset="utf-8">' + czytaj( 'INTEGRACJA-head.html' )
+		+ czytaj( 'INTEGRACJA-body.html' ) + '</head><body>' + czytaj( 'TELEFON-kod.html' ) + '</body></html>', { waitUntil: 'load' } );
 	const fon = await p.$( '.lst-mz-telefon-rama' );
 	await fon.scrollIntoViewIfNeeded();
 	await p.waitForTimeout( 400 );
@@ -924,6 +924,40 @@ console.log( '\nskrypt przed modułem' );
 	} ) );
 	ok( 'skrypt w <head> i tak uzbraja wjazd i nachyla telefon', s.uzbrojony && s.nachylony,
 		`wjazd ${ s.uzbrojony }, nachylenie ${ s.nachylony }` );
+	await c.close();
+}
+
+/*
+ * Podstrona złożona tak, jak ma stać: każda sekcja jako sam kod, jeden arkusz
+ * w <head>, jeden skrypt. Sekcje wklejane w całości niosą własny <style>
+ * z kopią arkusza z dnia, w którym je wklejono, i taka kopia przykrywa nowy
+ * arkusz w każdej innej sekcji: tak telefon zrobił się na żywej stronie niski
+ * i płaski, choć w „Własnym CSS” niczego starego nie było.
+ */
+console.log( '\npodstrona z samych kodów sekcji' );
+{
+	const sekcje = [ 'STOL-kod.html', 'LEGENDA-kod.html', 'SKAD-kod-gotowe.html', 'TELEFON-kod.html', 'LISTY-kod.html' ];
+	const c = await b.newContext( { viewport: { width: 1920, height: 1100 } } );
+	const p = await c.newPage();
+	const ostrz = [];
+	p.on( 'console', ( m ) => 'warning' === m.type() && /lst-mz/.test( m.text() ) && ostrz.push( m.text() ) );
+	await p.goto( 'file://' + TU + '/' );
+	await p.setContent( '<!doctype html><html><head><meta charset="utf-8">' + czytaj( 'INTEGRACJA-head.html' ) + '</head><body>'
+		+ sekcje.map( czytaj ).join( '' ) + czytaj( 'INTEGRACJA-body.html' ) + '</body></html>', { waitUntil: 'load' } );
+	await p.waitForTimeout( 300 );
+	const s = await p.evaluate( () => {
+		const k = document.querySelector( '.lst-mz-telefon-rama' ).getBoundingClientRect();
+
+		return {
+			kodow: [ ...document.querySelectorAll( '.lst-mz' ) ].length,
+			stylow: document.querySelectorAll( 'body style' ).length,
+			wysokosc: Math.round( k.height ),
+			wyspa: getComputedStyle( document.querySelector( '.lst-mz-telefon-wyspa' ) ).width,
+		};
+	} );
+	ok( 'pięć sekcji z samych kodów: żadnego <style> w treści, telefon pełny, konsola cicha',
+		5 === s.kodow && 0 === s.stylow && s.wysokosc > 700 && '92px' === s.wyspa && 0 === ostrz.length,
+		`sekcji ${ s.kodow }, <style> w treści ${ s.stylow }, telefon ${ s.wysokosc }px, wyspa ${ s.wyspa }, ostrzeżeń ${ ostrz.length }` );
 	await c.close();
 }
 

@@ -223,9 +223,9 @@ wgranymi do Multimediów) i `ADRES-POBIERANIA` (przycisk na dole).
 
 | plik | gdzie |
 |---|---|
-| `…-kod.html` danej sekcji | moduł Kod tej sekcji |
-| `MOZLIWOSCI-head.html` | Divi → Opcje motywu → Integracja → „Dodaj kod do &lt;head&gt;” |
-| `MOZLIWOSCI-body.html` | Divi → Opcje motywu → Integracja → „Dodaj kod do &lt;body&gt;” |
+| `…-kod.html` danej sekcji (dla zrzutów `SKAD-kod-gotowe.html`) | moduł Kod tej sekcji |
+| `INTEGRACJA-head.html` | Divi → Opcje motywu → Integracja → „Dodaj kod do &lt;head&gt;” |
+| `INTEGRACJA-body.html` | Divi → Opcje motywu → Integracja → „Dodaj kod do &lt;body&gt;” |
 
 Oba pliki integracji są już w znacznikach `<style>` i `<script>`, wkleja się je
 w całości. Jeden arkusz i jeden skrypt obsługują wszystkie sekcje podstrony.
@@ -234,3 +234,11 @@ w całości. Jeden arkusz i jeden skrypt obsługują wszystkie sekcje podstrony.
 (CSSLint), który nie zna zmiennych CSS, `color-mix`, osobnych `translate`
 i `scale` ani niczego nowszego, i zasypuje poprawny arkusz setką błędów
 „Expected RBRACE”. Arkusz jest poprawny; to walidator jest sprzed lat.
+
+
+**Sekcje tylko jako `-kod.html`, nigdy jako `-en.html`, kiedy na stronie stoi
+arkusz w `<head>`.** Plik `-en.html` niesie własny `<style>` z kopią arkusza
+z dnia, w którym go wklejono. Taka kopia wczytuje się po arkuszu z `<head>`
+i przykrywa go we WSZYSTKICH sekcjach, nie tylko w swojej: tak telefon zrobił
+się na żywej stronie niski i płaski, z wyspą skurczoną do kropki, choć w polu
+„Własny CSS” nie było niczego starego. Skrypt zgłasza taką kopię w konsoli.
