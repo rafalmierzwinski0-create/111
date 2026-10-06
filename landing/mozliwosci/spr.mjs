@@ -999,6 +999,68 @@ console.log( '\ntelefon jako jeden moduł' );
 	await c.close();
 }
 
+/*
+ * Ruch aparatu bez artefaktów, z nagrania z żywej strony:
+ * - przewijanie pod nieruchomym kursorem przechylało aparat samo,
+ * - przy krawędzi aparat migał, bo odsuwał się spod kursora,
+ * - jeden przejazd ręką w prawo dawał cztery zmiany kierunku, bo położenie
+ *   aparatu było mierzone raz, sprzed przewinięcia.
+ */
+console.log( '\nruch aparatu bez artefaktów' );
+{
+	const c = await b.newContext( { viewport: { width: 1600, height: 900 } } );
+	const p = await c.newPage();
+	await p.goto( 'file://' + TU + '/' );
+	await p.setContent( '<!doctype html><html><head><meta charset="utf-8"></head><body style="margin:0">'
+		+ '<div style="height:900px"></div>' + czytaj( 'TELEFON-sam.html' ) + '<div style="height:1400px"></div></body></html>', { waitUntil: 'load' } );
+	const kat = () => p.evaluate( () => {
+		const e = document.querySelector( '.lst-mz-telefon-rama' );
+		const m = new DOMMatrixReadOnly( getComputedStyle( e ).transform );
+
+		return { y: Math.asin( Math.max( -1, Math.min( 1, -m.m13 ) ) ) * 180 / Math.PI, nad: e.classList.contains( 'jest-nad' ) };
+	} );
+
+	await p.mouse.move( 800, 450 );
+	let przewijanie = false;
+	for ( let k = 0; k < 14; k++ ) {
+		await p.mouse.wheel( 0, 90 );
+		await p.waitForTimeout( 50 );
+		const s = await kat();
+		if ( s.nad || Math.abs( s.y ) > 0.2 ) { przewijanie = true; }
+	}
+
+	const r = await ( await p.$( '.lst-mz-telefon-stojak' ) ).boundingBox();
+	await p.mouse.move( r.x + r.width * 0.3, r.y + r.height / 2, { steps: 4 } );
+	await p.waitForTimeout( 400 );
+	const proby = [];
+	for ( let k = 0; k <= 20; k++ ) {
+		await p.mouse.move( r.x + r.width * ( 0.3 + 0.65 * k / 20 ), r.y + r.height / 2 );
+		await p.waitForTimeout( 16 );
+		proby.push( ( await kat() ).y );
+	}
+	let zawrotki = 0;
+	let poprz = 0;
+	for ( let k = 1; k < proby.length; k++ ) {
+		const d = proby[ k ] - proby[ k - 1 ];
+		if ( Math.abs( d ) > 0.05 ) {
+			if ( poprz && Math.sign( d ) !== Math.sign( poprz ) ) { zawrotki++; }
+			poprz = d;
+		}
+	}
+
+	const brzeg = [];
+	for ( let k = 0; k < 16; k++ ) {
+		await p.mouse.move( r.x + r.width * 0.985, r.y + r.height / 2 + ( k % 2 ) );
+		await p.waitForTimeout( 25 );
+		brzeg.push( ( await kat() ).nad );
+	}
+
+	ok( 'przewijanie nie przechyla, ręka prowadzi bez zawrotek, przy krawędzi nie miga',
+		! przewijanie && 0 === zawrotki && proby[ proby.length - 1 ] > proby[ 0 ] && brzeg.every( Boolean ),
+		`przechyla przy przewijaniu ${ przewijanie }, zawrotek ${ zawrotki }, od ${ proby[ 0 ].toFixed( 1 ) }° do ${ proby[ proby.length - 1 ].toFixed( 1 ) }°, krawędź stała ${ brzeg.every( Boolean ) }` );
+	await c.close();
+}
+
 console.log( '\nsekcje osobno' );
 for ( const [ nazwa, plik, co, zTabela ] of [
 	[ 'What to look for', 'LEGENDA-en.html', '.lst-mz-legenda .lst-mz-pozycja', false ],

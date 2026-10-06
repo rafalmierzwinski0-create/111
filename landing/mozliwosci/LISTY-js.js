@@ -1,11 +1,4 @@
 ( function () {
-	/*
-	 * Skrypt może stać w <head>, na początku <body> albo na końcu — Divi
-	 * w zakładce Integracja wkleja kod tam, gdzie mu wygodnie, a nie tam,
-	 * gdzie skrypt by chciał. Przed złożeniem strony nie ma jeszcze ani
-	 * modułów, ani aparatu: wjazd nic by nie uzbroił, a telefon nie dostałby
-	 * nachylenia. Dlatego oba czekają, aż strona będzie gotowa.
-	 */
 	var poGotowej = function ( zrob ) {
 		if ( 'loading' === document.readyState ) {
 			document.addEventListener( 'DOMContentLoaded', zrob );
@@ -13,18 +6,15 @@
 			zrob();
 		}
 	};
-
 	poGotowej( function () {
 		var korzenie = document.querySelectorAll( '.lst-mz' );
 		if ( ! korzenie.length || ! window.IntersectionObserver ) { return; }
 		if ( window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches ) { return; }
-
 		var CELE = '.lst-mz-blok > .lst-mz-etykieta, .lst-mz-blok > .lst-mz-wstep, .lst-mz-blok > .lst-mz-naglowek,'
 			+ '.lst-mz-stol > .lst-mz-etykieta, .lst-mz-stol > .lst-mz-opis-stolu,'
 			+ '.lst-mz-legenda .lst-mz-pozycja, .lst-mz-para, .lst-mz-pas,'
 			+ '.lst-mz-listy .lst-mz-kolumna, .lst-mz-kod, .lst-mz-okno.jest-stolem,'
 			+ '.lst-mz-stol .lstab-row';
-
 		var oko = new IntersectionObserver( function ( wpisy ) {
 			for ( var i = 0; i < wpisy.length; i++ ) {
 				if ( wpisy[ i ].isIntersecting ) {
@@ -33,26 +23,8 @@
 				}
 			}
 		}, { rootMargin: '0px 0px -6% 0px', threshold: 0.06 } );
-
 		for ( var k = 0; k < korzenie.length; k++ ) {
-			/*
-			 * Czy arkusz pasuje do znacznikowania.
-			 *
-			 * Moduł idzie do Divi w dwóch kawałkach i łatwo podmienić jeden,
-			 * a drugi zostawić. Strona wygląda wtedy jak zepsuta i nie ma po czym
-			 * poznać dlaczego. Odcisk mówi to jednym zdaniem w konsoli.
-			 */
 			var wKodzie = korzenie[ k ].getAttribute( 'data-odcisk' );
-
-			/*
-			 * Starsza wersja tego samego arkusza gdzieś na stronie.
-			 *
-			 * Stary arkusz nie zna odcisku, więc porównanie niżej go nie widzi,
-			 * a wczytany PO nowym przykrywa go regułami o tej samej wadze: aparat
-			 * robi się niski i płaski, wyspa kurczy się do kropki, godzina chowa
-			 * się za rogiem ekranu. Tak było na żywej stronie. Arkusz tej strony
-			 * poznać po „--mz-mieta” na .lst-mz; aktualny niesie też odcisk.
-			 */
 			if ( 0 === k && wKodzie && window.console ) {
 				var starych = 0;
 				for ( var s = 0; s < document.styleSheets.length; s++ ) {
@@ -78,99 +50,107 @@
 				console.warn( 'lst-mz: arkusz stylow nie pasuje do kodu modulu (kod ' + wKodzie
 					+ ', arkusz ' + wArkuszu + '). Wklej obie czesci z tej samej paczki.' );
 			}
-
 			korzenie[ k ].classList.add( 'lst-mz-ruch' );
-
 			var cele = korzenie[ k ].querySelectorAll( CELE );
 			for ( var i = 0; i < cele.length; i++ ) {
 				var el = cele[ i ];
-
-				/*
-				 * Numer W SWOIM WIERSZU, nie w całej siatce.
-				 *
-				 * Przedtem szedł numer po kolei przez wszystkie dziewięć kafelków,
-				 * więc ostatni czekał 360 ms. Siedział wtedy przygaszony na środku
-				 * ekranu, po czym skakał do pełni: dokładnie ten przeskok na dole,
-				 * który widać na filmie. Teraz każdy wiersz zaczyna od nowa, więc
-				 * żaden kafelek nie czeka dłużej niż dwa odstępy.
-				 *
-				 * Wiersz poznajemy po tym, że sąsiad stoi na tej samej wysokości.
-				 * Działa tak samo przy trzech kolumnach, przy dwóch i przy jednej,
-				 * bo przy jednej każdy kafelek jest sam w swoim wierszu i odstępu
-				 * nie dostaje wcale.
-				 */
 				var bracia = el.parentNode.children;
 				var wTabeli = 'TR' === el.tagName;
 				var moja = el.offsetTop;
 				var n = 0;
 				for ( var j = 0; j < bracia.length && bracia[ j ] !== el; j++ ) {
-					// Wiersze tabeli stoją jeden pod drugim i mają schodzić po kolei,
-					// więc tam liczą się wszystkie, a nie tylko te z tej samej linii.
 					if ( wTabeli || bracia[ j ].offsetTop === moja ) { n++; }
 				}
 				var ile = wTabeli ? 5 : 3;
 				if ( n > 0 ) { el.style.setProperty( '--mz-kolej', n > ile ? ile : n ); }
-
 				oko.observe( el );
 			}
 		}
 	} );
-
-	/*
-	 * Nachylenie aparatu za kursorem.
-	 *
-	 * Tylko tam, gdzie jest prawdziwa mysz: na dotyku „najechanie” odpala się
-	 * przy stuknięciu i aparat zostawałby przekrzywiony. Przy „mniej ruchu” nic.
-	 * Prostokąt aparatu jest mierzony raz, przy wejściu kursora: mierzony w ruchu
-	 * zmieniałby się razem z nachyleniem i aparat drgałby, goniąc sam siebie.
-	 * Zapis do stylu raz na klatkę, nie przy każdym ruchu myszy.
-	 */
 	poGotowej( function () {
 		if ( ! window.matchMedia || ! window.matchMedia( '(hover: hover) and (pointer: fine)' ).matches ) { return; }
 		if ( window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches ) { return; }
-
-		var fony = document.querySelectorAll( '.lst-mz .lst-mz-telefon-rama' );
-
-		for ( var i = 0; i < fony.length; i++ ) {
-			( function ( fon ) {
-				// Skrypt bywa na stronie kilka razy, bo każda sekcja wklejona
-				// w całości niesie swój. Aparat podpinany jest raz.
-				if ( fon.getAttribute( 'data-mz-nachyl' ) ) { return; }
-				fon.setAttribute( 'data-mz-nachyl', '1' );
-
-				var r = null;
-				var x = 0.5;
-				var y = 0.5;
-				var klatka = 0;
-
-				var rysuj = function () {
-					klatka = 0;
-					fon.style.setProperty( '--mz-nachyl-y', ( ( x - 0.5 ) * 26 ).toFixed( 2 ) + 'deg' );
-					fon.style.setProperty( '--mz-nachyl-x', ( ( 0.5 - y ) * 16 ).toFixed( 2 ) + 'deg' );
-					fon.style.setProperty( '--mz-blask-x', ( x * 100 ).toFixed( 1 ) + '%' );
-					fon.style.setProperty( '--mz-blask-y', ( y * 100 ).toFixed( 1 ) + '%' );
-				};
-
-				fon.addEventListener( 'pointerenter', function () {
-					r = fon.getBoundingClientRect();
-					fon.classList.add( 'jest-nad' );
-				} );
-
-				fon.addEventListener( 'pointermove', function ( e ) {
-					if ( ! r ) { r = fon.getBoundingClientRect(); }
-					x = Math.min( 1, Math.max( 0, ( e.clientX - r.left ) / r.width ) );
-					y = Math.min( 1, Math.max( 0, ( e.clientY - r.top ) / r.height ) );
-					if ( ! klatka ) { klatka = window.requestAnimationFrame( rysuj ); }
-				} );
-
-				fon.addEventListener( 'pointerleave', function () {
-					if ( klatka ) { window.cancelAnimationFrame( klatka ); klatka = 0; }
-					r = null;
-					fon.classList.remove( 'jest-nad' );
-					fon.style.setProperty( '--mz-nachyl-x', '0deg' );
-					fon.style.setProperty( '--mz-nachyl-y', '0deg' );
-				} );
-			} )( fony[ i ] );
+		var stojaki = document.querySelectorAll( '.lst-mz .lst-mz-telefon-stojak' );
+		var aparaty = [];
+		for ( var i = 0; i < stojaki.length; i++ ) {
+			var fon = stojaki[ i ].querySelector( '.lst-mz-telefon-rama' );
+			if ( ! fon || fon.getAttribute( 'data-mz-nachyl' ) ) { continue; }
+			fon.setAttribute( 'data-mz-nachyl', '1' );
+			aparaty.push( { stojak: stojaki[ i ], fon: fon, nad: false,
+				x: 0, y: 0, unies: 0, cx: 0, cy: 0, cunies: 0, bx: 0.5, by: 0.5 } );
 		}
+		if ( ! aparaty.length ) { return; }
+		var klatka = 0;
+		var ostatnio = 0;
+		var poPrzewinieciu = false;
+		var ekranX = -1;
+		var ekranY = -1;
+		var krok = function ( teraz ) {
+			var dt = ostatnio ? Math.min( 64, teraz - ostatnio ) : 16;
+			ostatnio = teraz;
+			var dalej = false;
+			for ( var k = 0; k < aparaty.length; k++ ) {
+				var a = aparaty[ k ];
+				var sila = 1 - Math.pow( a.nad ? 0.84 : 0.9, dt / 16.7 );
+				a.cx += ( a.x - a.cx ) * sila;
+				a.cy += ( a.y - a.cy ) * sila;
+				a.cunies += ( a.unies - a.cunies ) * sila;
+				if ( Math.abs( a.x - a.cx ) > 0.01 || Math.abs( a.y - a.cy ) > 0.01 || Math.abs( a.unies - a.cunies ) > 0.02 ) {
+					dalej = true;
+				} else {
+					a.cx = a.x; a.cy = a.y; a.cunies = a.unies;
+				}
+				a.fon.style.setProperty( '--mz-nachyl-y', a.cx.toFixed( 3 ) + 'deg' );
+				a.fon.style.setProperty( '--mz-nachyl-x', a.cy.toFixed( 3 ) + 'deg' );
+				a.fon.style.setProperty( '--mz-uniesienie', a.cunies.toFixed( 2 ) + 'px' );
+				a.fon.style.setProperty( '--mz-blask-x', ( a.bx * 100 ).toFixed( 1 ) + '%' );
+				a.fon.style.setProperty( '--mz-blask-y', ( a.by * 100 ).toFixed( 1 ) + '%' );
+			}
+			klatka = dalej ? window.requestAnimationFrame( krok ) : 0;
+			if ( ! dalej ) { ostatnio = 0; }
+		};
+		var ruszaj = function () {
+			if ( ! klatka ) { klatka = window.requestAnimationFrame( krok ); }
+		};
+		var odloz = function ( a ) {
+			if ( ! a.nad ) { return; }
+			a.nad = false;
+			a.x = 0; a.y = 0; a.unies = 0;
+			a.fon.classList.remove( 'jest-nad' );
+			ruszaj();
+		};
+		document.addEventListener( 'pointermove', function ( e ) {
+			if ( 'mouse' !== e.pointerType && 'pen' !== e.pointerType ) { return; }
+			if ( poPrzewinieciu && e.screenX === ekranX && e.screenY === ekranY ) { return; }
+			poPrzewinieciu = false;
+			ekranX = e.screenX;
+			ekranY = e.screenY;
+			for ( var k = 0; k < aparaty.length; k++ ) {
+				var a = aparaty[ k ];
+				var r = a.stojak.getBoundingClientRect();
+				var w = r.width ? ( e.clientX - r.left ) / r.width : -1;
+				var h = r.height ? ( e.clientY - r.top ) / r.height : -1;
+				if ( w < 0 || w > 1 || h < 0 || h > 1 ) { odloz( a ); continue; }
+				if ( ! a.nad ) {
+					a.nad = true;
+					a.fon.classList.add( 'jest-nad' );
+				}
+				a.x = ( w - 0.5 ) * 26;
+				a.y = ( 0.5 - h ) * 16;
+				a.unies = -6;
+				a.bx = w;
+				a.by = h;
+				ruszaj();
+			}
+		}, { passive: true } );
+		var wszystkieOdloz = function () {
+			for ( var k = 0; k < aparaty.length; k++ ) { odloz( aparaty[ k ] ); }
+		};
+		window.addEventListener( 'scroll', function () {
+			poPrzewinieciu = true;
+			wszystkieOdloz();
+		}, { passive: true } );
+		document.documentElement.addEventListener( 'pointerleave', wszystkieOdloz );
+		window.addEventListener( 'blur', wszystkieOdloz );
 	} );
 } )();

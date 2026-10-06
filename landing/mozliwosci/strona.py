@@ -314,7 +314,11 @@ def telefon( srodek ):
 	korpus = ''.join( '<span class="lst-mz-telefon-warstwa" style="--i:' + str( i ) + '"></span>'
 		for i in range( 1, 13 ) )
 
-	return ( '<div class="lst-mz-telefon-rama">'
+	# Stojak się nie rusza. Mierzony jest on, a nie aparat: aparat w ruchu
+	# zmienia kształt razem z nachyleniem, więc mierzony w ruchu goniłby sam
+	# siebie i drgał na brzegach.
+	return ( '<div class="lst-mz-telefon-stojak">'
+		'<div class="lst-mz-telefon-rama">'
 		+ korpus +
 		'<span class="lst-mz-telefon-guzik jest-cisza"></span>'
 		'<span class="lst-mz-telefon-guzik jest-glosniej"></span>'
@@ -324,6 +328,7 @@ def telefon( srodek ):
 		'<span class="lst-mz-telefon-wyspa"><span class="lst-mz-telefon-oko"></span></span>'
 		'<span class="lst-mz-telefon-blysk"></span>'
 		'<span class="lst-mz-telefon-kreska"></span>'
+		'</div>'
 		'</div>' )
 
 
@@ -989,6 +994,12 @@ STYL = r"""
 
 .lst-mz .lst-mz-wasko { display: none; }
 
+.lst-mz .lst-mz-telefon-stojak {
+	display: block;
+	width: fit-content;
+	max-width: 100%;
+}
+
 /*
  * Aparat.
  *
@@ -1048,13 +1059,15 @@ STYL = r"""
 		rotateX( var( --mz-nachyl-x, 0deg ) )
 		rotateY( var( --mz-nachyl-y, 0deg ) )
 		translateY( var( --mz-uniesienie, 0px ) );
-	transition: transform 560ms var( --mz-luk ), box-shadow 560ms var( --mz-luk );
+	/*
+	 * Bez przejścia na transform: ruch prowadzi skrypt, klatka po klatce,
+	 * z wygładzeniem. Przejście CSS przy każdym ruchu myszy zaczynało od
+	 * nowa i przy szybkim ruchu aparat szarpał.
+	 */
+	transition: box-shadow 420ms var( --mz-luk );
 }
 
 .lst-mz .lst-mz-telefon-rama.jest-nad {
-	--mz-uniesienie: -6px;
-	/* Za kursorem krótko: dłużej i aparat wlecze się za ręką. */
-	transition-duration: 140ms;
 	box-shadow:
 		inset 0 1.5px 0 rgba( 255, 255, 255, .32 ),
 		inset 0 -1.5px 0 rgba( 0, 0, 0, .5 ),
@@ -1715,6 +1728,7 @@ STYL = r"""
 	   Przy dwóch łamie się obok pierwszego i wygląda jak zgubiony znak. */
 	.lst-mz .lst-mz-naglowek::after { display: none; }
 	.lst-mz .lst-mz-pas { grid-template-columns: minmax( 0, 1fr ); }
+	.lst-mz .lst-mz-telefon-stojak,
 	.lst-mz .lst-mz-telefon-rama { display: none; }
 	.lst-mz .lst-mz-szeroko { display: none; }
 	.lst-mz .lst-mz-wasko { display: inline; }
@@ -1913,51 +1927,154 @@ RUCH = r"""( function () {
 		if ( ! window.matchMedia || ! window.matchMedia( '(hover: hover) and (pointer: fine)' ).matches ) { return; }
 		if ( window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches ) { return; }
 
-		var fony = document.querySelectorAll( '.lst-mz .lst-mz-telefon-rama' );
+		/*
+		 * Nachylenie aparatu za kursorem, płynne.
+		 *
+		 * Trzy rzeczy, które psuły poprzednią wersję i które widać było na
+		 * nagraniu ze strony:
+		 *
+		 * 1. Położenie aparatu było mierzone raz, przy wejściu kursora. Po
+		 *    przewinięciu strony ten pomiar był nieaktualny, więc przy
+		 *    następnym ruchu myszy aparat przeskakiwał na drugą stronę.
+		 *    Teraz mierzony jest przy każdym ruchu, i to stojak, który się
+		 *    nie rusza, a nie sam aparat.
+		 * 2. Przewijanie pod nieruchomym kursorem przechylało aparat samo:
+		 *    przeglądarka uznawała, że kursor „wszedł”. Teraz przewijanie
+		 *    odkłada aparat, a do ruchu wraca on dopiero, gdy ręka naprawdę
+		 *    poruszy myszą.
+		 * 3. Wejście i wyjście zależały od kształtu aparatu w ruchu, który
+		 *    przy brzegu odsuwał się spod kursora, a potem wracał: aparat
+		 *    migał. Teraz decyduje prostokąt stojaka.
+		 *
+		 * Sam ruch: aparat goni swój cel z wygładzeniem, klatka po klatce,
+		 * niezależnie od tego, jak często przychodzą zdarzenia myszy.
+		 */
+		var stojaki = document.querySelectorAll( '.lst-mz .lst-mz-telefon-stojak' );
+		var aparaty = [];
 
-		for ( var i = 0; i < fony.length; i++ ) {
-			( function ( fon ) {
-				// Skrypt bywa na stronie kilka razy, bo każda sekcja wklejona
-				// w całości niesie swój. Aparat podpinany jest raz.
-				if ( fon.getAttribute( 'data-mz-nachyl' ) ) { return; }
-				fon.setAttribute( 'data-mz-nachyl', '1' );
-
-				var r = null;
-				var x = 0.5;
-				var y = 0.5;
-				var klatka = 0;
-
-				var rysuj = function () {
-					klatka = 0;
-					fon.style.setProperty( '--mz-nachyl-y', ( ( x - 0.5 ) * 26 ).toFixed( 2 ) + 'deg' );
-					fon.style.setProperty( '--mz-nachyl-x', ( ( 0.5 - y ) * 16 ).toFixed( 2 ) + 'deg' );
-					fon.style.setProperty( '--mz-blask-x', ( x * 100 ).toFixed( 1 ) + '%' );
-					fon.style.setProperty( '--mz-blask-y', ( y * 100 ).toFixed( 1 ) + '%' );
-				};
-
-				fon.addEventListener( 'pointerenter', function () {
-					r = fon.getBoundingClientRect();
-					fon.classList.add( 'jest-nad' );
-				} );
-
-				fon.addEventListener( 'pointermove', function ( e ) {
-					if ( ! r ) { r = fon.getBoundingClientRect(); }
-					x = Math.min( 1, Math.max( 0, ( e.clientX - r.left ) / r.width ) );
-					y = Math.min( 1, Math.max( 0, ( e.clientY - r.top ) / r.height ) );
-					if ( ! klatka ) { klatka = window.requestAnimationFrame( rysuj ); }
-				} );
-
-				fon.addEventListener( 'pointerleave', function () {
-					if ( klatka ) { window.cancelAnimationFrame( klatka ); klatka = 0; }
-					r = null;
-					fon.classList.remove( 'jest-nad' );
-					fon.style.setProperty( '--mz-nachyl-x', '0deg' );
-					fon.style.setProperty( '--mz-nachyl-y', '0deg' );
-				} );
-			} )( fony[ i ] );
+		for ( var i = 0; i < stojaki.length; i++ ) {
+			var fon = stojaki[ i ].querySelector( '.lst-mz-telefon-rama' );
+			// Skrypt bywa na stronie kilka razy, bo każda sekcja wklejona
+			// w całości niesie swój. Aparat podpinany jest raz.
+			if ( ! fon || fon.getAttribute( 'data-mz-nachyl' ) ) { continue; }
+			fon.setAttribute( 'data-mz-nachyl', '1' );
+			aparaty.push( { stojak: stojaki[ i ], fon: fon, nad: false,
+				x: 0, y: 0, unies: 0, cx: 0, cy: 0, cunies: 0, bx: 0.5, by: 0.5 } );
 		}
+		if ( ! aparaty.length ) { return; }
+
+		var klatka = 0;
+		var ostatnio = 0;
+		var poPrzewinieciu = false;
+		var ekranX = -1;
+		var ekranY = -1;
+
+		var krok = function ( teraz ) {
+			var dt = ostatnio ? Math.min( 64, teraz - ostatnio ) : 16;
+			ostatnio = teraz;
+			var dalej = false;
+
+			for ( var k = 0; k < aparaty.length; k++ ) {
+				var a = aparaty[ k ];
+				// Za ręką szybciej, z powrotem wolniej: odkłada się, a nie odskakuje.
+				var sila = 1 - Math.pow( a.nad ? 0.84 : 0.9, dt / 16.7 );
+				a.cx += ( a.x - a.cx ) * sila;
+				a.cy += ( a.y - a.cy ) * sila;
+				a.cunies += ( a.unies - a.cunies ) * sila;
+
+				if ( Math.abs( a.x - a.cx ) > 0.01 || Math.abs( a.y - a.cy ) > 0.01 || Math.abs( a.unies - a.cunies ) > 0.02 ) {
+					dalej = true;
+				} else {
+					a.cx = a.x; a.cy = a.y; a.cunies = a.unies;
+				}
+
+				a.fon.style.setProperty( '--mz-nachyl-y', a.cx.toFixed( 3 ) + 'deg' );
+				a.fon.style.setProperty( '--mz-nachyl-x', a.cy.toFixed( 3 ) + 'deg' );
+				a.fon.style.setProperty( '--mz-uniesienie', a.cunies.toFixed( 2 ) + 'px' );
+				a.fon.style.setProperty( '--mz-blask-x', ( a.bx * 100 ).toFixed( 1 ) + '%' );
+				a.fon.style.setProperty( '--mz-blask-y', ( a.by * 100 ).toFixed( 1 ) + '%' );
+			}
+
+			klatka = dalej ? window.requestAnimationFrame( krok ) : 0;
+			if ( ! dalej ) { ostatnio = 0; }
+		};
+
+		var ruszaj = function () {
+			if ( ! klatka ) { klatka = window.requestAnimationFrame( krok ); }
+		};
+
+		var odloz = function ( a ) {
+			if ( ! a.nad ) { return; }
+			a.nad = false;
+			a.x = 0; a.y = 0; a.unies = 0;
+			a.fon.classList.remove( 'jest-nad' );
+			ruszaj();
+		};
+
+		document.addEventListener( 'pointermove', function ( e ) {
+			if ( 'mouse' !== e.pointerType && 'pen' !== e.pointerType ) { return; }
+
+			// Po przewinięciu przeglądarka sama dosyła ruch myszy w tym samym
+			// miejscu ekranu. To nie jest ręka; ruszamy dopiero po prawdziwym.
+			if ( poPrzewinieciu && e.screenX === ekranX && e.screenY === ekranY ) { return; }
+			poPrzewinieciu = false;
+			ekranX = e.screenX;
+			ekranY = e.screenY;
+
+			for ( var k = 0; k < aparaty.length; k++ ) {
+				var a = aparaty[ k ];
+				var r = a.stojak.getBoundingClientRect();
+				var w = r.width ? ( e.clientX - r.left ) / r.width : -1;
+				var h = r.height ? ( e.clientY - r.top ) / r.height : -1;
+
+				if ( w < 0 || w > 1 || h < 0 || h > 1 ) { odloz( a ); continue; }
+
+				if ( ! a.nad ) {
+					a.nad = true;
+					a.fon.classList.add( 'jest-nad' );
+				}
+				a.x = ( w - 0.5 ) * 26;
+				a.y = ( 0.5 - h ) * 16;
+				a.unies = -6;
+				a.bx = w;
+				a.by = h;
+				ruszaj();
+			}
+		}, { passive: true } );
+
+		var wszystkieOdloz = function () {
+			for ( var k = 0; k < aparaty.length; k++ ) { odloz( aparaty[ k ] ); }
+		};
+
+		window.addEventListener( 'scroll', function () {
+			poPrzewinieciu = true;
+			wszystkieOdloz();
+		}, { passive: true } );
+
+		document.documentElement.addEventListener( 'pointerleave', wszystkieOdloz );
+		window.addEventListener( 'blur', wszystkieOdloz );
 	} );
 } )();"""
+
+
+def bez_komentarzy_js( js ):
+	"""Skrypt wjazdu bez komentarzy, w takim kształcie, w jakim idzie do Divi.
+
+	Komentarze są pisane dla tego repozytorium i są dłuższe niż sam kod;
+	w polu edytora wizualnego tylko ważą. Cięte są wyłącznie bloki komentarzy
+	i linie zaczynające się od „//”: w tym skrypcie nie ma napisów ani
+	wyrażeń regularnych, w których stałby taki znak, i pilnuje tego warunek
+	niżej.
+	"""
+	assert '//' not in re.sub( r'^\s*//.*$', '', re.sub( r'/\*.*?\*/', '', js, flags = re.S ), flags = re.M ), 'w kodzie stoi //, którego nie da się bezpiecznie ciąć'
+	js = re.sub( r'/\*.*?\*/', '', js, flags = re.S )
+	js = re.sub( r'^\s*//.*\n', '', js, flags = re.M )
+	js = re.sub( r'\n\s*\n+', '\n', js )
+
+	return js.strip()
+
+
+RUCH = bez_komentarzy_js( RUCH )
 
 
 def z_odciskiem( arkusz_css, znacznik_html ):
