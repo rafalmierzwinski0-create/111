@@ -26,7 +26,7 @@
 	 * is prevented here, so the browser is left to follow the link the ordinary
 	 * way — which is all these links ever needed.
 	 */
-	var NAV_LINKS = 'a.lstab-page-link, a.lstab-sort, a.lstabp-facet-value, a.lstabp-facets-clear';
+	var NAV_LINKS = 'a.lstab-page-link, a.lstab-sort, a.lstab-search-clear, a.lstabp-facet-value, a.lstabp-facets-clear';
 
 	document.addEventListener(
 		'click',
@@ -59,6 +59,39 @@
 			// page three. If any part of that is unavailable, the link is
 			// left alone and the browser follows it the ordinary way.
 			if ( swapInPlace( link.href, link ) ) {
+				event.preventDefault();
+			}
+		},
+		true
+	);
+
+	/*
+	 * A paged table searches on the server, through an ordinary form. Sent
+	 * the ordinary way it reloads the whole page for what is, to the reader,
+	 * typing in a box — the page flashes white and jumps back to the top. The
+	 * address the form would go to is worked out here instead and fetched
+	 * like any other page of the table. Without what that needs, the form is
+	 * left to do what forms do.
+	 */
+	document.addEventListener(
+		'submit',
+		function ( event ) {
+			var form = event.target;
+
+			if ( ! form || ! form.matches || ! form.matches( 'form.lstab-search-form' ) ) {
+				return;
+			}
+
+			if ( ! window.URLSearchParams || ! window.FormData ) {
+				return;
+			}
+
+			// A GET form replaces the whole query of its address with its own
+			// fields, and the fields already carry everything worth keeping.
+			var query = new window.URLSearchParams( new window.FormData( form ) ).toString();
+			var url = form.action.split( '#' )[ 0 ].split( '?' )[ 0 ] + ( query ? '?' + query : '' );
+
+			if ( swapInPlace( url, form ) ) {
 				event.preventDefault();
 			}
 		},
@@ -176,7 +209,14 @@
 				// than back at the top of the document.
 				var landing = watched.querySelector( '.lstab' );
 
-				if ( landing && from ) {
+				// Somebody who has just searched is still typing: they stay
+				// in the box, with the caret after what they wrote.
+				var typing = from && from.matches && from.matches( 'form' ) ? watched.querySelector( '.lstab-search-input' ) : null;
+
+				if ( typing ) {
+					typing.focus( { preventScroll: true } );
+					typing.setSelectionRange( typing.value.length, typing.value.length );
+				} else if ( landing && from ) {
 					landing.setAttribute( 'tabindex', '-1' );
 					landing.focus( { preventScroll: true } );
 				}
@@ -390,6 +430,29 @@
 		}
 		var value = cell.querySelector( '.lstab-cell-value' );
 		return ( value ? value.textContent : cell.textContent ).trim();
+	}
+
+	/**
+	 * Where a cell stands in an order somebody chose for its column.
+	 *
+	 * Easy, Moderate, Hard is an order, and the alphabet does not know it:
+	 * sorted as words it comes out Easy, Hard, Moderate. A cell whose value
+	 * has a place in such an order says so in data-lstab-rank. The twin of
+	 * the ranks LSTAB_Paging::sort() is handed in PHP.
+	 *
+	 * @param {HTMLTableRowElement} row   Row.
+	 * @param {number}              index Column index.
+	 * @return {number|null} The place, or null when the value has none.
+	 */
+	function cellRank( row, index ) {
+		var cell = row.children[ index ];
+		var rank = cell ? cell.getAttribute( 'data-lstab-rank' ) : null;
+
+		if ( null === rank || '' === rank || isNaN( Number( rank ) ) ) {
+			return null;
+		}
+
+		return Number( rank );
 	}
 
 	/**
@@ -1104,6 +1167,25 @@
 						}
 						if ( '' === right ) {
 							return -1;
+						}
+
+						/*
+						 * An order the author chose comes before anything the
+						 * values say about themselves. Values that have a
+						 * place go first, in that place; the rest follow and
+						 * sort among themselves as usual.
+						 */
+						var leftPlace = cellRank( a, index );
+						var rightPlace = cellRank( b, index );
+
+						if ( null !== leftPlace || null !== rightPlace ) {
+							if ( null === leftPlace || null === rightPlace ) {
+								return ( null === leftPlace ? 1 : -1 ) * direction;
+							}
+
+							if ( leftPlace !== rightPlace ) {
+								return ( leftPlace - rightPlace ) * direction;
+							}
 						}
 
 						/*

@@ -99,6 +99,7 @@
 					dalej = true;
 				} else {
 					a.cx = a.x; a.cy = a.y; a.cunies = a.unies;
+					if ( ! a.nad ) { a.fon.classList.remove( 'jest-3d' ); }
 				}
 				a.fon.style.setProperty( '--mz-nachyl-y', a.cx.toFixed( 3 ) + 'deg' );
 				a.fon.style.setProperty( '--mz-nachyl-x', a.cy.toFixed( 3 ) + 'deg' );
@@ -133,7 +134,7 @@
 				if ( w < 0 || w > 1 || h < 0 || h > 1 ) { odloz( a ); continue; }
 				if ( ! a.nad ) {
 					a.nad = true;
-					a.fon.classList.add( 'jest-nad' );
+					a.fon.classList.add( 'jest-nad', 'jest-3d' );
 				}
 				a.x = ( w - 0.5 ) * 26;
 				a.y = ( 0.5 - h ) * 16;

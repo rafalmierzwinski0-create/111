@@ -99,7 +99,9 @@ foreach ( $cases['columns'] as $column ) {
 		$column['values']
 	);
 
-	$up = array_column( $sort->invoke( null, $rows, 0, 'asc' ), 0 );
+	// A column can carry an order somebody chose, handed in by an add-on.
+	$ranks = isset( $column['ranks'] ) ? $column['ranks'] : array();
+	$up    = array_column( $sort->invoke( null, $rows, 0, 'asc', $ranks ), 0 );
 
 	lstab_check(
 		$up === $column['ascending'],
@@ -113,7 +115,7 @@ foreach ( $cases['columns'] as $column ) {
 	 * they stay at the bottom whichever way the column is sorted.
 	 */
 	$wanted_down = isset( $column['descending'] ) ? $column['descending'] : array_reverse( $column['ascending'] );
-	$down        = array_column( $sort->invoke( null, $rows, 0, 'desc' ), 0 );
+	$down        = array_column( $sort->invoke( null, $rows, 0, 'desc', $ranks ), 0 );
 
 	lstab_check(
 		$down === $wanted_down,

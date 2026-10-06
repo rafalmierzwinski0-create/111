@@ -629,6 +629,12 @@
 	font-size: 11px;
 }
 
+/* A bar stands beside its number, so the number has to give it the chip's width. */
+.lstabp-look-face.lstabp-bar .lstab-cell-value {
+	flex: 1 1 auto;
+	text-align: left;
+}
+
 /* A painted column fills its chip, which is the whole point of it. */
 .lstabp-look-face.is-tinted {
 	width: 100%;

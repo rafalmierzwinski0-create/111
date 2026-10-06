@@ -178,6 +178,15 @@ lstab_check(
 	isset( $dressed['style'] ) && false !== strpos( $dressed['style'], '--lstabp-bar-colour:#5fe3cf' ),
 	'the chosen colour reaches the cell'
 );
+lstab_check(
+	isset( $dressed['style'] ) && false !== strpos( $dressed['style'], '--lstabp-bar-n:1.0000;' ) && false !== strpos( $dressed['style'], '--lstabp-bar-room:3ch;' ),
+	'with its share as a plain number and the room its widest number needs',
+	isset( $dressed['style'] ) ? $dressed['style'] : '(none)'
+);
+lstab_check(
+	false === strpos( LSTABP_Rules::css_for( '#7a1f2b', 'row' ), '--lstabp-bar' ),
+	'a painted row leaves a bar its own colour: the colour chosen is the colour on every row'
+);
 
 echo "\nOnly an address becomes a button\n";
 
@@ -364,6 +373,73 @@ lstab_check(
 	$lstabp_look_at > 0 && $lstabp_rule_at > 0 && $lstabp_look_at < $lstabp_rule_at,
 	'a column look is written before a colour rule, so the rule has the last word',
 	"look at {$lstabp_look_at}, rule at {$lstabp_rule_at}"
+);
+
+echo "\nA scale its rules name sorts in the rules' order\n";
+
+/*
+ * Easy, Moderate, Hard sorted as words is Easy, Hard, Moderate, and a table
+ * that does that looks as though sorting is broken. Three "is" rules on the
+ * column already say which way the scale runs, so the cells carry their place
+ * in it and the free plugin sorts by that first.
+ */
+$GLOBALS['lstab_options'][ LSTABP_Rules::OPTION ] = array(
+	9 => array(
+		array( 'column' => 'Difficulty', 'operator' => '=', 'value' => 'Easy', 'style' => '#5fe3cf', 'scope' => 'dot' ),
+		array( 'column' => 'Difficulty', 'operator' => '=', 'value' => 'Moderate', 'style' => '#f2b544', 'scope' => 'dot' ),
+		array( 'column' => 'Difficulty', 'operator' => '=', 'value' => 'Hard', 'style' => '#ff8d8d', 'scope' => 'dot' ),
+		array( 'column' => 'Status', 'operator' => '=', 'value' => 'Closed', 'style' => '#5a6b80', 'scope' => 'row' ),
+		array( 'column' => 'Status', 'operator' => '=', 'value' => 'Open', 'style' => '#5fe3cf', 'scope' => 'pill' ),
+	),
+);
+
+$trail_headers = array( 'Trail', 'Difficulty', 'Status' );
+$trail_rows    = array(
+	array( 'Windgap', 'Hard', 'Closed' ),
+	array( 'Blue Lake', 'easy', 'Open' ),
+	array( 'Five Tarns', 'Moderate', 'Open' ),
+	array( 'Unnamed', 'Unrated', 'Open' ),
+);
+$trail_source  = array( 'id' => 9 );
+$ruled         = new LSTABP_Rules();
+$ruled->capture( $trail_rows, $trail_headers, $trail_source, array() );
+
+$places = array();
+
+foreach ( $trail_rows as $lstabp_row_index => $lstabp_row ) {
+	$lstabp_cell = $ruled->attributes( array(), $lstabp_row[1], 1, $lstabp_row_index, $trail_source );
+	$places[]    = isset( $lstabp_cell['data-lstab-rank'] ) ? $lstabp_cell['data-lstab-rank'] : '-';
+}
+
+lstab_check(
+	array( '2', '0', '1', '-' ) === $places,
+	'each value carries its place in the order the rules are listed, any case, and an unnamed one carries none',
+	implode( ' ', $places )
+);
+
+$lstabp_status = $ruled->attributes( array(), 'Closed', 2, 0, $trail_source );
+
+lstab_check(
+	! isset( $lstabp_status['data-lstab-rank'] ),
+	'a rule that paints the whole row is about the row, so with one rule left the column sorts as before'
+);
+
+$server = $ruled->sort_ranks( array(), $trail_headers, $trail_source );
+
+lstab_check(
+	array( 1 => array( 'easy' => 0, 'moderate' => 1, 'hard' => 2 ) ) === $server,
+	'a paged table, sorted on the server, is handed the same order',
+	json_encode( $server )
+);
+
+$moved = new LSTABP_Rules();
+$moved->capture( $trail_rows, $trail_headers, $trail_source, array( 'columns' => array( 0 => array( 'hidden' => true ) ) ) );
+$lstabp_moved = $moved->attributes( array(), 'Hard', 0, 0, $trail_source );
+
+lstab_check(
+	isset( $lstabp_moved['data-lstab-rank'] ) && '2' === $lstabp_moved['data-lstab-rank'],
+	'with a column hidden in front of it, the place lands on the cell the column moved to',
+	json_encode( $lstabp_moved )
 );
 
 echo "\nWhat it refuses to do\n";

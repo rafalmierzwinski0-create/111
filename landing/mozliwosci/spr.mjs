@@ -262,7 +262,7 @@ console.log( '\nmoduł na stronie' );
 		r.wolnych > r.platnych, `Free ${ r.wolnych }, Pro ${ r.platnych }` );
 	ok( 'dwie tabele: na stronie i w telefonie', r.tabel === 2, String( r.tabel ) );
 	ok( 'dziesięć wierszy, sześć kolumn', r.wierszy === 10 && r.kolumn === 6, `${ r.wierszy } × ${ r.kolumn }` );
-	ok( 'wszystko z Pro jest na tabeli', r.pigulek === 10 && r.kropek === 10 && r.slupkow === 10 && r.przyciskow === 8 && r.filtrow === 2 && r.pobran === 3,
+	ok( 'wszystko z Pro jest na tabeli', r.pigulek === 10 && r.kropek === 10 && r.slupkow === 10 && r.przyciskow === 10 && r.filtrow === 2 && r.pobran === 3,
 		`pigułek ${ r.pigulek }, kropek ${ r.kropek }, słupków ${ r.slupkow }, przycisków ${ r.przyciskow }, filtrów ${ r.filtrow }, pobrań ${ r.pobran }` );
 	ok( 'bez suwaka poziomego', r.poziom === 0, String( r.poziom ) );
 	ok( 'rozmiary pisma tylko 14, 18 i 20', r.rozmiary.every( ( x ) => [ 14, 18, 20 ].includes( x ) ), r.rozmiary.join( '/' ) );
@@ -832,9 +832,6 @@ console.log( '\nnachylenie aparatu' );
 	await p.waitForTimeout( 350 );
 	const lewo = await obrotY();
 
-	await p.mouse.move( 5, 5, { steps: 3 } );
-	await p.waitForTimeout( 800 );
-	const potem = await obrotY();
 
 	/*
 	 * Grubość: warstwy korpusu muszą naprawdę stać w przestrzeni, za
@@ -852,6 +849,25 @@ console.log( '\nnachylenie aparatu' );
 			glebia: ostatnia ? Math.round( new DOMMatrixReadOnly( getComputedStyle( ostatnia ).transform ).m43 ) : 0,
 		};
 	} );
+	// Powrót jest celowo wolniejszy niż wejście: aparat się odkłada.
+	await p.mouse.move( 5, 5, { steps: 3 } );
+	await p.waitForTimeout( 1600 );
+	const potem = await obrotY();
+
+	/*
+	 * W spoczynku bez sceny 3D. Scena z warstwami korpusu, zostawiona na
+	 * stałe, rozsypywała się w Chrome przy przewijaniu: dolny kafel wychodził
+	 * jasnym prostokątem z ostrymi rogami, szerszym niż aparat.
+	 */
+	const plasko = await fon.evaluate( ( e ) => ( {
+		przestrzen: getComputedStyle( e ).transformStyle,
+		ksztalt: getComputedStyle( e ).transform,
+		widacWarstw: [ ...e.querySelectorAll( '.lst-mz-telefon-warstwa, .lst-mz-telefon-guzik' ) ].filter( ( w ) => 'none' !== getComputedStyle( w ).display ).length,
+	} ) );
+	ok( 'odłożony telefon jest płaski: bez sceny 3D, korpus schowany',
+		'flat' === plasko.przestrzen && 'none' === plasko.ksztalt && 0 === plasko.widacWarstw,
+		`${ plasko.przestrzen }, ${ plasko.ksztalt }, widocznych warstw ${ plasko.widacWarstw }` );
+
 	ok( 'telefon ma grubość: korpus stoi za ekranem w przestrzeni',
 		'preserve-3d' === bryla.przestrzen && 12 === bryla.warstw && bryla.glebia <= -36,
 		`${ bryla.przestrzen }, warstw ${ bryla.warstw }, najgłębsza ${ bryla.glebia }px` );

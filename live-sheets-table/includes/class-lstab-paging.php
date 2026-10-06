@@ -179,7 +179,23 @@ class LSTAB_Paging {
 			return $rows;
 		}
 
-		$result = self::apply( $rows, $source_id, $per_page, self::visible_columns( $headers, $source, $args ) );
+		/**
+		 * Filters the order some columns sort in, by position in the sheet.
+		 *
+		 * A column whose values are a scale rather than words — Easy,
+		 * Moderate, Hard — can be given that scale here, as a map of the
+		 * value, lowercased, to its place. The browser reads the same places
+		 * from data-lstab-rank on each cell, so whoever hands them out here
+		 * hands them out there too.
+		 *
+		 * @param array $ranks   Position => array( value => place ).
+		 * @param array $headers Sheet headings.
+		 * @param array $source  Source row.
+		 * @param array $args    Rendering options.
+		 */
+		$ranks = (array) apply_filters( 'lstab_sort_ranks', array(), $headers, $source, $args );
+
+		$result = self::apply( $rows, $source_id, $per_page, self::visible_columns( $headers, $source, $args ), $ranks );
 
 		self::$state[ $source_id ] = $result;
 
@@ -286,7 +302,7 @@ class LSTAB_Paging {
 	 * @param int                          $per_page  Rows per page.
 	 * @return array{rows:array,total:int,matched:int,page:int,pages:int,request:array}
 	 */
-	public static function apply( $rows, $source_id, $per_page, $columns = null ) {
+	public static function apply( $rows, $source_id, $per_page, $columns = null, $ranks = array() ) {
 		$rows     = array_values( (array) $rows );
 		$total    = count( $rows );
 		$per_page = min( self::MAX_PER_PAGE, max( 1, (int) $per_page ) );
@@ -297,7 +313,12 @@ class LSTAB_Paging {
 		}
 
 		if ( $request['sort'] >= 0 ) {
-			$rows = self::sort( $rows, $request['sort'], $request['dir'] );
+			$rows = self::sort(
+				$rows,
+				$request['sort'],
+				$request['dir'],
+				isset( $ranks[ $request['sort'] ] ) ? (array) $ranks[ $request['sort'] ] : array()
+			);
 		}
 
 		$matched = count( $rows );
@@ -371,10 +392,14 @@ class LSTAB_Paging {
 	 * @param array<int,array<int,string>> $rows   Rows.
 	 * @param int                          $column Column index.
 	 * @param string                       $dir    asc or desc.
+	 * @param array<string,int>            $ranks  Places some values hold in an
+	 *                                             order the author chose, keyed
+	 *                                             by the lowercased value.
 	 * @return array<int,array<int,string>>
 	 */
-	protected static function sort( $rows, $column, $dir ) {
+	protected static function sort( $rows, $column, $dir, $ranks = array() ) {
 		$direction = 'desc' === $dir ? -1 : 1;
+		$ranks     = (array) $ranks;
 
 		/*
 		 * Decided per pair, not per column, and deliberately the same rule the
@@ -387,7 +412,7 @@ class LSTAB_Paging {
 		 */
 		usort(
 			$rows,
-			function ( $a, $b ) use ( $column, $direction ) {
+			function ( $a, $b ) use ( $column, $direction, $ranks ) {
 				$left  = isset( $a[ $column ] ) ? trim( (string) $a[ $column ] ) : '';
 				$right = isset( $b[ $column ] ) ? trim( (string) $b[ $column ] ) : '';
 
@@ -403,6 +428,29 @@ class LSTAB_Paging {
 
 				if ( '' === $right ) {
 					return -1;
+				}
+
+				/*
+				 * An order the author chose comes before anything the values
+				 * say about themselves: Easy, Moderate, Hard rather than the
+				 * alphabet's Easy, Hard, Moderate. Values that have a place go
+				 * first, in that place; the rest follow and sort as usual.
+				 */
+				if ( $ranks ) {
+					$left_key    = self::fold( $left );
+					$right_key   = self::fold( $right );
+					$left_place  = isset( $ranks[ $left_key ] ) ? (int) $ranks[ $left_key ] : null;
+					$right_place = isset( $ranks[ $right_key ] ) ? (int) $ranks[ $right_key ] : null;
+
+					if ( null !== $left_place || null !== $right_place ) {
+						if ( null === $left_place || null === $right_place ) {
+							return ( null === $left_place ? 1 : -1 ) * $direction;
+						}
+
+						if ( $left_place !== $right_place ) {
+							return ( $left_place < $right_place ? -1 : 1 ) * $direction;
+						}
+					}
 				}
 
 				/*

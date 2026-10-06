@@ -127,6 +127,12 @@
 			"name": "plain words",
 			"values": [ "Studio", "Hall B", "Main hall" ],
 			"ascending": [ "Hall B", "Main hall", "Studio" ]
+		},
+		{
+			"name": "a scale its colour rules name, in the rules' order",
+			"values": [ "Hard", "Easy", "Unrated", "Moderate", "Easy", "Hard" ],
+			"ranks": { "easy": 0, "moderate": 1, "hard": 2 },
+			"ascending": [ "Easy", "Easy", "Moderate", "Hard", "Hard", "Unrated" ]
 		}
 	]
 }

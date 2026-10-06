@@ -21,7 +21,7 @@
                     "data-label": "Seats left",
                     "data-lstab-align": "end",
                     "class": "lstabp-bar",
-                    "style": "--lstabp-bar:100.00%;--lstabp-bar-colour:#5fe3cf;"
+                    "style": "--lstabp-bar:100.00%;--lstabp-bar-n:1.0000;--lstabp-bar-room:3ch;--lstabp-bar-colour:#5fe3cf;"
                 }
             },
             {
@@ -51,7 +51,7 @@
                     "data-label": "Seats left",
                     "data-lstab-align": "end",
                     "class": "lstabp-bar",
-                    "style": "--lstabp-bar:16.70%;--lstabp-bar-colour:#5fe3cf;"
+                    "style": "--lstabp-bar:16.70%;--lstabp-bar-n:0.1670;--lstabp-bar-room:3ch;--lstabp-bar-colour:#5fe3cf;"
                 }
             },
             {
@@ -81,7 +81,7 @@
                     "data-label": "Seats left",
                     "data-lstab-align": "end",
                     "class": "lstabp-bar",
-                    "style": "--lstabp-bar:54.27%;--lstabp-bar-colour:#5fe3cf;"
+                    "style": "--lstabp-bar:54.27%;--lstabp-bar-n:0.5427;--lstabp-bar-room:3ch;--lstabp-bar-colour:#5fe3cf;"
                 }
             },
             {
@@ -111,7 +111,7 @@
                     "data-label": "Seats left",
                     "data-lstab-align": "end",
                     "class": "lstabp-bar",
-                    "style": "--lstabp-bar:2.00%;--lstabp-bar-colour:#5fe3cf;"
+                    "style": "--lstabp-bar:2.00%;--lstabp-bar-n:0.0200;--lstabp-bar-room:3ch;--lstabp-bar-colour:#5fe3cf;"
                 }
             },
             {

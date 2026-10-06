@@ -53,8 +53,15 @@ const check = ( ok, what, detail = '' ) => {
 
 // One table per column of the fixture, each with a single sortable heading.
 const body = cases.columns.map( ( column, i ) => {
+	// The place a value holds in its column's order rides on the cell, as the
+	// Pro rules write it.
+	const rank = ( value ) => {
+		const place = column.ranks ? column.ranks[ value.toLowerCase() ] : undefined;
+
+		return undefined === place ? '' : ` data-lstab-rank="${ place }"`;
+	};
 	const rows = column.values.map( ( value ) =>
-		`<tr class="lstab-row"><td data-label="Value"><span class="lstab-cell-label">Value</span><span class="lstab-cell-value">${ value }</span></td></tr>` ).join( '' );
+		`<tr class="lstab-row"><td data-label="Value"${ rank( value ) }><span class="lstab-cell-label">Value</span><span class="lstab-cell-value">${ value }</span></td></tr>` ).join( '' );
 
 	return `<div class="lstab-container"><div class="lstab lstab-style-clean lstab-cols-1" id="c${ i }">
 <table class="lstab-table"><thead><tr><th data-lstab-col="0" data-lstab-align="start">

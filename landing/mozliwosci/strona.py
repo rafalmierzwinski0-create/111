@@ -87,27 +87,8 @@ def dla_divi( html ):
 TABELA = dla_divi( M[ 'pro' ] )
 
 
-def na_wierzch( html, nazwa ):
-	"""Ta sama tabela, ale z jednym wierszem przeniesionym na sam początek.
-
-	W ramce telefonu widać ledwie jedną kartę, a pierwsza z kolei to szlak bez
-	śniegu, z kropką „Easy” i pustym słupkiem: najnudniejszy wiersz w całym
-	arkuszu. Na wierzch idzie więc ten, który pokazuje najwięcej naraz.
-	Przestawiany jest tylko znacznik, nie dane: sortowanie i szukanie w
-	telefonie działają tak samo jak w tabeli wyżej.
-	"""
-	wiersze = re.findall( r'<tr role="row" class="lstab-row[^"]*">.*?</tr>', html, re.S )
-	ten = [ w for w in wiersze if nazwa in w ]
-	assert 1 == len( ten ), nazwa + ': nie ma takiego wiersza albo jest dwa razy'
-	bez = html.replace( ten[ 0 ], '', 1 )
-	pierwszy = re.search( r'<tr role="row" class="lstab-row', bez )
-
-	return bez[ : pierwszy.start() ] + ten[ 0 ] + bez[ pierwszy.start() : ]
-
-
-# Najgłębszy śnieg, zamknięty szlak i kamera: czerwona karta, pełny słupek,
-# pigułka CLOSED i przycisk naraz.
-TABELA_W_TELEFONIE = na_wierzch( TABELA, 'Blackpine Summit' )
+# W ramce telefonu ta sama tabela co wyżej, w tej samej kolejności: od
+# pierwszego wiersza arkusza, tak jak zobaczy ją czytelnik na telefonie.
 
 # Ikonki legendy: 24 x 24, rysowane kreska, bez wypelnienia poza tym, co ma
 # klase `jest-pelna`. Ten sam zestaw regul co w landing/droga, zeby cala
@@ -439,7 +420,7 @@ BLOK_TELEFON = (
 	'nothing extra to set up or maintain. Most of your visitors read on a phone, and they get the same '
 	'up-to-date data as everyone else.</p>'
 	'</div>'
-	+ telefon( TABELA_W_TELEFONIE ) +
+	+ telefon( TABELA ) +
 	'<div class="lst-mz-pas-bok jest-prawy">'
 	'<p class="lst-mz-adres">On a phone</p>'
 	+ punkty( TELEFON ) +
@@ -1054,17 +1035,29 @@ STYL = r"""
 	 * mniej więcej proporcja prawdziwego aparatu przy tej szerokości.
 	 */
 	--mz-grubosc: 3.5px;
-	transform-style: preserve-3d;
-	transform: perspective( 1000px )
-		rotateX( var( --mz-nachyl-x, 0deg ) )
-		rotateY( var( --mz-nachyl-y, 0deg ) )
-		translateY( var( --mz-uniesienie, 0px ) );
+	/*
+	 * W spoczynku aparat jest płaski, bez sceny 3D. Scena z kilkunastoma
+	 * warstwami jest dla przeglądarki ciężka: przy przewijaniu Chrome
+	 * składał ją kaflami i dolny kafel potrafił wyjść jasnym prostokątem
+	 * z ostrymi rogami, szerszym niż sam aparat. Głębię włącza skrypt
+	 * klasą „jest-3d” na czas najechania i zdejmuje, gdy aparat się odłoży.
+	 */
+	transform-style: flat;
+	transform: none;
 	/*
 	 * Bez przejścia na transform: ruch prowadzi skrypt, klatka po klatce,
 	 * z wygładzeniem. Przejście CSS przy każdym ruchu myszy zaczynało od
 	 * nowa i przy szybkim ruchu aparat szarpał.
 	 */
 	transition: box-shadow 420ms var( --mz-luk );
+}
+
+.lst-mz .lst-mz-telefon-rama.jest-3d {
+	transform-style: preserve-3d;
+	transform: perspective( 1000px )
+		rotateX( var( --mz-nachyl-x, 0deg ) )
+		rotateY( var( --mz-nachyl-y, 0deg ) )
+		translateY( var( --mz-uniesienie, 0px ) );
 }
 
 .lst-mz .lst-mz-telefon-rama.jest-nad {
@@ -1081,10 +1074,12 @@ STYL = r"""
 /*
  * Warstwy korpusu. Każda kolejna dalej w głąb i odrobinę ciemniejsza, więc
  * bok czyta się jak metal oświetlony od przodu. Jasny, nie czarny: ciemny bok
- * zlewał się z ciemną stroną i grubości nie było widać wcale. W spoczynku wszystkie chowają się za przodem, bo perspektywa
- * zmniejsza to, co dalej; wychodzą dopiero, gdy aparat się odchyli.
+ * zlewał się z ciemną stroną i grubości nie było widać wcale. W spoczynku
+ * ich nie ma wcale (patrz „jest-3d” wyżej); stają za przodem dopiero, gdy
+ * aparat zaczyna się odchylać.
  */
 .lst-mz .lst-mz-telefon-warstwa {
+	display: none;
 	position: absolute;
 	inset: 0;
 	border-radius: 52px;
@@ -1253,6 +1248,7 @@ STYL = r"""
  * wygląda na wycięty w metalu, a nie namalowany na nim.
  */
 .lst-mz .lst-mz-telefon-guzik {
+	display: none;
 	position: absolute;
 	width: 4px;
 	/* W połowie grubości: siedzą na boku, a nie przyklejone do szyby. */
@@ -1264,6 +1260,10 @@ STYL = r"""
 		inset 0 -1px 0 rgba( 0, 0, 0, .55 ),
 		1px 0 1px rgba( 0, 0, 0, .4 );
 }
+
+/* Korpus i guziki stoją tylko w scenie 3D; na płasko i tak są za przodem. */
+.lst-mz .lst-mz-telefon-rama.jest-3d .lst-mz-telefon-warstwa,
+.lst-mz .lst-mz-telefon-rama.jest-3d .lst-mz-telefon-guzik { display: block; }
 
 .lst-mz .lst-mz-telefon-guzik.jest-cisza { left: -4px; top: 104px; height: 28px; }
 .lst-mz .lst-mz-telefon-guzik.jest-glosniej { left: -4px; top: 150px; height: 56px; }
@@ -1986,6 +1986,9 @@ RUCH = r"""( function () {
 					dalej = true;
 				} else {
 					a.cx = a.x; a.cy = a.y; a.cunies = a.unies;
+					// Odłożony do końca: scena 3D schodzi ze strony, zostaje
+					// płaski aparat, którego przewijanie nie rozsypie.
+					if ( ! a.nad ) { a.fon.classList.remove( 'jest-3d' ); }
 				}
 
 				a.fon.style.setProperty( '--mz-nachyl-y', a.cx.toFixed( 3 ) + 'deg' );
@@ -2031,7 +2034,7 @@ RUCH = r"""( function () {
 
 				if ( ! a.nad ) {
 					a.nad = true;
-					a.fon.classList.add( 'jest-nad' );
+					a.fon.classList.add( 'jest-nad', 'jest-3d' );
 				}
 				a.x = ( w - 0.5 ) * 26;
 				a.y = ( 0.5 - h ) * 16;

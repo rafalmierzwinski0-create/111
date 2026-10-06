@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.33.0
+Stable tag: 3.34.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -180,6 +180,11 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.34.0 =
+* Fixed (Pro): a bar in a column of numbers was never quite the colour chosen for it. It was a translucent wash laid behind the number, so whatever the row wore showed through: a green picked in the dashboard came out teal on a dark table, and on a row a colour rule had painted it was swapped for the rule's own ink altogether. The bar is now solid and exactly the colour chosen, on every row. It stands beside the number instead of under it — the number keeps the cell's own background, so it is as readable as every other value — and every bar in a column is drawn to one scale. In a table it grows towards a right-aligned number; on a phone's card it follows the number.
+* Fixed (Pro): a column whose colour rules name a scale sorted as words. Three rules on a Difficulty column — is Easy, is Moderate, is Hard — came out Easy, Hard, Moderate when the heading was clicked, which looks like a table that cannot sort. When two or more "is" rules dress the cells of one column — with a dot, a pill or a colour — the column now sorts in the order those rules are listed; values no rule names follow, in their usual order. One rule alone is a highlight rather than an order, and a rule that paints the whole row is about the row, so neither changes how a column sorts. A paged table, which sorts on the server, follows the same order.
+* Fixed: searching a paged table reloaded the whole page. Turning pages, sorting and filtering already fetched the new rows on their own; the search box was an ordinary form and went the long way round, with a white flash and a jump to the top. It now works like the rest, and whoever typed stays in the search box. Clearing the search does the same.
 
 = 3.33.0 =
 * Fixed (Pro): the Midnight style painted its heading in two colours. It drew a gradient of its own, in two shades written into the stylesheet by hand, and that had two consequences. A heading recoloured on the Appearance screen stayed the style's own blue, because a background image is painted over a background colour, so the "Header background" well did nothing on Midnight. And the heading came out two-toned: a pinned first column paints its own flat backdrop, because a see-through one would let the scrolling columns show underneath, and flat beside a gradient is a seam straight down the heading, right where the eye starts reading. The heading is now the heading colour and nothing else, like every other style, and the colour well reaches it. Every style is now measured for this: a heading painted in more than one colour is a heading a pinned column cannot match.

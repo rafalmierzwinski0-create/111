@@ -2348,44 +2348,46 @@
 /*
  * A whole column given a look of its own (Pro).
  *
- * The bar is drawn with ::after rather than ::before, because a pinned first
- * column already uses ::before to paint the backdrop that hides the columns
- * sliding underneath it — and the bar has to be able to sit in that column too.
+ * The bar stands beside the value, never under it, and it is the colour it
+ * was given — solid, exactly. It used to be a translucent wash laid behind
+ * the number: readable, but whatever the row wore showed through, so a green
+ * chosen in the dashboard came out teal on a dark table and muddy on a
+ * painted row. Somebody who picks green means green.
  *
- * Both are only ever a wash of colour behind the value. The value keeps its
- * place on top and keeps being text, so it is still searched, still sorted and
- * still downloaded as what the sheet says.
+ * Beside rather than under is what makes solid possible: the number keeps the
+ * cell's own background and stays as readable as every other value in the
+ * row. The room the number needs is measured per column by the add-on, in
+ * figures (--lstabp-bar-room), so the bars of one column all share one scale.
+ *
+ * In a table a right-aligned number keeps its edge and the bar grows from the
+ * left towards it. On a card, where every value starts on the left, the bar
+ * follows the number instead. --lstab-table-mode is 1 in a table and 0 on a
+ * card, which is how one rule tells the two apart.
+ *
+ * The value stays text, so it is still searched, sorted and downloaded as
+ * what the sheet says.
  */
-.lstabp-bar {
+.lstabp-bar .lstab-cell-value {
+	--lstabp-bar-gap: 0.6em;
+	--lstabp-bar-reserve: calc( var( --lstabp-bar-room, 4ch ) + var( --lstabp-bar-gap ) );
 	position: relative;
 }
 
-.lstabp-bar::after {
+.lstabp-bar .lstab-cell-value::after {
 	content: "";
 	position: absolute;
-	left: 0;
-	top: 14%;
-	bottom: 14%;
-	width: var( --lstabp-bar, 0 );
+	top: 50%;
+	left: var( --lstabp-bar-reserve );
+	width: max( 3px, calc( ( 100% - var( --lstabp-bar-reserve ) ) * var( --lstabp-bar-n, 0 ) ) );
+	height: 0.9em;
+	translate: 0 -50%;
 	border-radius: 3px;
-	/*
-	 * Two colours, and the handed-down one comes first.
-	 *
-	 * A bar is a wash of the colour it was given, and it is laid over whatever
-	 * the row is wearing. On a row a colour rule has painted, that is the
-	 * rule's paint, and a wash of mint over dark red is not a paler mint: it
-	 * is mud, the colour of nothing. The rule hands down an ink it has already
-	 * proved readable on its own paint, and the bar wears a wash of that
-	 * instead. The column's own colour still shows on every row the rule has
-	 * not touched, which is where it says something.
-	 */
-	background-color: var( --lstabp-bar-set, var( --lstabp-bar-colour, var( --lstab-accent ) ) );
-	opacity: 0.28;
+	background-color: var( --lstabp-bar-colour, var( --lstab-accent ) );
 	pointer-events: none;
 }
 
-.lstabp-bar .lstab-cell-value {
-	position: relative;
+.lstab-table td[data-lstab-align="end"].lstabp-bar .lstab-cell-value::after {
+	left: calc( var( --lstabp-bar-reserve ) * ( 1 - var( --lstab-table-mode, 1 ) ) );
 }
 
 /*

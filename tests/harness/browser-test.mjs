@@ -2676,6 +2676,49 @@ check(
 );
 
 /*
+ * Searching a paged table goes to the server too, through a form, and a form
+ * sent the ordinary way reloads the whole page: a white flash and a jump to
+ * the top for what is, to the reader, typing in a box.
+ */
+const searchBox = page.locator( 'form.lstab-search-form .lstab-search-input' ).first();
+
+check( await searchBox.count() > 0, 'A paged table searches through a form', String( await searchBox.count() ) );
+
+if ( await searchBox.count() > 0 ) {
+	const looked = pageTwo.split( /\s+/ )[ 0 ];
+
+	await searchBox.fill( looked );
+	await searchBox.press( 'Enter' );
+	await page.waitForFunction(
+		( q ) => /lstab-q/.test( window.location.search ) && document.querySelector( '.lstab-search-input' ).value === q,
+		looked,
+		{ timeout: 15000 }
+	).catch( () => {} );
+
+	check( /lstab-q/.test( page.url() ), 'Searching asks the server for the whole sheet', page.url() );
+	const found = await page.evaluate( ( q ) => {
+		const rows = [ ...document.querySelector( '.lstab-table' ).tBodies[ 0 ].rows ];
+
+		return { rows: rows.length, matching: rows.filter( ( r ) => r.innerText.toLowerCase().includes( q.toLowerCase() ) ).length };
+	}, looked );
+
+	check(
+		found.rows > 0 && found.rows === found.matching,
+		'And the rows that come back are the ones that match',
+		`${ looked }: ${ found.matching } of ${ found.rows }`
+	);
+	check(
+		'yes' === await page.evaluate( () => window.lstabStillHere ),
+		'And the page was never reloaded to search',
+		'the mark survived the search'
+	);
+	check(
+		await page.evaluate( () => document.activeElement && document.activeElement.classList.contains( 'lstab-search-input' ) ),
+		'And whoever typed is still in the search box'
+	);
+}
+
+/*
  * The pinned column has to hide what slides under it. Inheriting the row's
  * colour is not enough: an unstriped table, or any custom CSS that clears cell
  * backgrounds, leaves the column see-through and the second column's text

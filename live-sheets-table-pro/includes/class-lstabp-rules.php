@@ -72,6 +72,13 @@ class LSTABP_Rules {
 	protected $rows = array();
 
 	/**
+	 * Where each cell stands in the order its column's rules give it.
+	 *
+	 * @var array<int,array<int,int>>
+	 */
+	protected $places = array();
+
+	/**
 	 * Register hooks.
 	 *
 	 * @return void
@@ -83,6 +90,8 @@ class LSTABP_Rules {
 		// run before this.
 		add_filter( 'lstab_source_rows', array( $this, 'capture' ), 20, 4 );
 		add_filter( 'lstab_cell_attributes', array( $this, 'attributes' ), 10, 5 );
+		// The same order for a paged table, which sorts on the server.
+		add_filter( 'lstab_sort_ranks', array( $this, 'sort_ranks' ), 10, 3 );
 		// A drawer belongs to the row above it, so a rule that painted the row
 		// paints the panel it opens too.
 		add_filter( 'lstab_detail_attributes', array( $this, 'detail_attributes' ), 10, 2 );
@@ -345,17 +354,12 @@ class LSTABP_Rules {
 		$paint .= '--lstabp-pill-fill-set:transparent;';
 
 		/*
-		 * And the same for a bar standing on this paint.
-		 *
-		 * A bar is a wash of its column's colour over whatever the row wears.
-		 * Over a rule's paint that stops being a paler version of anything: a
-		 * mint bar on a dark red row came out the colour of wet ash, and the
-		 * number in front of it lost the thing the bar was there to say. The
-		 * ink worked out above is readable on this paint by construction, so
-		 * the bar wears a wash of it. Off a painted row the column keeps its
-		 * own colour, which is where that colour means something.
+		 * A bar on this row is left its own colour. It used to be handed this
+		 * ink instead, because it was a translucent wash and mint washed over
+		 * dark red came out the colour of wet ash. It is solid now and stands
+		 * beside the number rather than under it, so the colour somebody
+		 * chose for the column is the colour on every row, painted or not.
 		 */
-		$paint .= '--lstabp-bar-set:' . $ink . ';';
 
 		if ( 'row' === $scope ) {
 			/*
@@ -719,9 +723,10 @@ class LSTABP_Rules {
 	 * @return array<int,array<int,string>>
 	 */
 	public function capture( $rows, $headers, $source, $args ) {
-		$this->cells = array();
+		$this->cells  = array();
 		$this->shapes = array();
-		$this->rows  = array();
+		$this->rows   = array();
+		$this->places = array();
 
 		$rules = self::for_source( isset( $source['id'] ) ? $source['id'] : 0 );
 
@@ -732,8 +737,17 @@ class LSTABP_Rules {
 		$headers  = array_values( (array) $headers );
 		$columns  = LSTABP_Filters::column_map( $headers, $source );
 		$rendered = self::rendered_positions( $headers, $source, $args );
+		$ranks    = self::ranks( $rules, $headers, $source );
 
 		foreach ( array_values( (array) $rows ) as $row_index => $row ) {
+			foreach ( $ranks as $position => $order ) {
+				$value = isset( $row[ $position ] ) ? self::key( (string) $row[ $position ] ) : '';
+
+				if ( isset( $rendered[ $position ], $order[ $value ] ) ) {
+					$this->places[ $row_index ][ $rendered[ $position ] ] = $order[ $value ];
+				}
+			}
+
 			foreach ( $rules as $rule ) {
 				$key = self::key( $rule['column'] );
 
@@ -799,6 +813,10 @@ class LSTABP_Rules {
 	 * @return array<string,string>
 	 */
 	public function attributes( $attributes, $value, $col_index, $row_index, $source ) {
+		if ( isset( $this->places[ $row_index ][ $col_index ] ) ) {
+			$attributes['data-lstab-rank'] = (string) $this->places[ $row_index ][ $col_index ];
+		}
+
 		$css = '';
 
 		if ( isset( $this->rows[ $row_index ] ) ) {
@@ -825,6 +843,77 @@ class LSTABP_Rules {
 		$attributes['style'] = isset( $attributes['style'] ) ? $attributes['style'] . $css : $css;
 
 		return $attributes;
+	}
+
+	/**
+	 * The order a column sorts in when its rules name its values.
+	 *
+	 * Three rules on Difficulty — is Easy, is Moderate, is Hard — say more
+	 * than how to colour those words: they say the column is a scale, and in
+	 * which direction it runs. Sorted as words the same column comes out
+	 * Easy, Hard, Moderate, which reads as a table that cannot sort.
+	 *
+	 * So when two or more "is" rules name values in one column, the column
+	 * sorts in the order those rules are listed. One rule is not an order,
+	 * only a highlight, and a column with one keeps sorting as before. Values
+	 * no rule names come after the named ones, in their usual order.
+	 *
+	 * Only rules that dress the cell itself count. A rule that paints the
+	 * whole row is about the row: "paint closed trails grey" is usually
+	 * listed first because it matters most, not because Closed comes first,
+	 * and counting it put Closed ahead of Open and Caution.
+	 *
+	 * @param array<int,array<string,mixed>> $rules   Rules for the source.
+	 * @param array<int,string>              $headers Sheet headings.
+	 * @param array<string,mixed>            $source  Source row.
+	 * @return array<int,array<string,int>> Sheet position => value => place.
+	 */
+	public static function ranks( $rules, $headers, $source ) {
+		$columns = LSTABP_Filters::column_map( array_values( (array) $headers ), $source );
+		$named   = array();
+
+		foreach ( (array) $rules as $rule ) {
+			$value = self::key( (string) $rule['value'] );
+			$key   = self::key( (string) $rule['column'] );
+
+			if ( '=' !== $rule['operator'] || 'row' === $rule['scope'] || '' === $value || ! isset( $columns[ $key ] ) ) {
+				continue;
+			}
+
+			$position = $columns[ $key ];
+
+			if ( ! isset( $named[ $position ] ) ) {
+				$named[ $position ] = array();
+			}
+
+			if ( ! in_array( $value, $named[ $position ], true ) ) {
+				$named[ $position ][] = $value;
+			}
+		}
+
+		$ranks = array();
+
+		foreach ( $named as $position => $values ) {
+			if ( count( $values ) >= 2 ) {
+				$ranks[ $position ] = array_flip( $values );
+			}
+		}
+
+		return $ranks;
+	}
+
+	/**
+	 * Hand the rules' order to a paged table, which sorts on the server.
+	 *
+	 * @param array<int,array<string,int>> $ranks   Orders other code gave.
+	 * @param array<int,string>            $headers Sheet headings.
+	 * @param array<string,mixed>          $source  Source row.
+	 * @return array<int,array<string,int>>
+	 */
+	public function sort_ranks( $ranks, $headers, $source ) {
+		$rules = self::for_source( isset( $source['id'] ) ? $source['id'] : 0 );
+
+		return (array) $ranks + self::ranks( $rules, $headers, $source );
 	}
 
 	/**

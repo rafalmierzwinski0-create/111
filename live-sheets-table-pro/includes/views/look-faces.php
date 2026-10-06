@@ -36,7 +36,7 @@ $lstabp_face_number = '1 240';
 $lstabp_face_word   = '' !== trim( $lstabp_face_says ) ? $lstabp_face_says : __( 'Open', 'live-sheets-table-pro' );
 ?>
 <?php if ( 'bar' === $lstabp_face_look ) : ?>
-	<span class="lstabp-look-face lstabp-bar" style="--lstabp-bar:64%;<?php echo esc_attr( $lstabp_face_css ); ?>">
+	<span class="lstabp-look-face lstabp-bar" style="--lstabp-bar:64%;--lstabp-bar-n:0.64;--lstabp-bar-room:5ch;<?php echo esc_attr( $lstabp_face_css ); ?>">
 		<span class="lstab-cell-value"><?php echo esc_html( $lstabp_face_number ); ?></span>
 	</span>
 <?php elseif ( 'pill' === $lstabp_face_look ) : ?>
