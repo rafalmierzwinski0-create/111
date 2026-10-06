@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.37.0
+Stable tag: 3.38.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -180,6 +180,17 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.38.0 =
+* Added (Pro): Aurora, a colourful style in place of Glass. The heading bar sweeps through violet, fuchsia, rose and amber, cell by cell so it travels with headings that follow the screen down, over a crisp white table with a violet first column. Every colour in the sweep carries white lettering at 5 to 1 or better. "Header background" changes where the sweep starts. A table saved with Glass is now drawn in Aurora rather than falling back to Clean.
+* Added: the style picker shows a picture of every style — a small table drawn in that style's own colours and shapes, tilted on a stage of its own, which straightens and lifts when the style is pointed at or chosen.
+* Changed: text size and heading size are now numbers, in pixels, each kept inside a sensible range (text 11 to 24, headings 10 to 22) — a size past the ceiling is held at the ceiling, so nobody ends up with sixty-pixel values. Left empty, each follows the style. The two are independent now: the text size reaches the values in the rows and leaves the column names alone. Tables saved with Small or Large keep their size, carried over in pixels.
+* Added (Pro): "Set every column back to ordinary" on the Column looks card, which clears every column's look, colours and words in one go. It works in place like every other change on the screen, and saves the reset if JavaScript is off.
+* Fixed: the Striped style left a table all one colour when its rows had drawers. A drawer is a row of its own in the markup, hidden until opened, so every row a reader could see stood at an odd position. Rows are now counted among the visible ones, a search keeps the shading alternating, and an opened drawer wears its row's shade.
+* Fixed: a pinned first column now shows a clear edge on every style once the table is dragged sideways — a line mixed from the text colour, so it shows on a dark table as on a light one, and a soft shadow onto the columns sliding underneath. On Terminal the edge used to vanish, because a shadow on a cell is not painted in a table that collapses its borders; it is drawn by the pinned backdrop now.
+* Fixed (Pro): in the Cards style a pinned first column looked broken while the cards slid sideways. Letters of the passing columns showed in a strip to the left of it, and without a divider the card read as cut in two. It now pins to the very edge and carries the same divider as the other styles.
+* Fixed: in a table that scrolls sideways, the line between two rows could stop short under the pinned first column, depending on how the row's height fell on the pixel grid. The pinned cell now draws that line itself.
+* Fixed: in the editor's preview the table's slider hung over the rows partway down the box, with part of the next row showing beneath it, and the box added a second, browser scrollbar of its own under the table. The slider now docks on the preview's bottom edge, and the preview scrolls up and down only.
 
 = 3.37.0 =
 * Changed (Pro): on a phone the bar is the same solid block as in the table again, rather than the slim line 3.36.0 drew — it starts under the column's name, behind the value's own line only, with a little room before the number. Drawn on the whole cell it covered the name as well, and a grey name on a bright bar was the hardest thing on the card to read. In a table nothing changes.

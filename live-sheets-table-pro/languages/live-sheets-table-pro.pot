@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
-"POT-Creation-Date: 2026-09-29 21:43+0000\n"
+"POT-Creation-Date: 2026-10-06 23:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,7 +37,7 @@ msgstr ""
 msgid "A bar behind the number"
 msgstr ""
 
-#: includes/views/column-looks-card.php:206
+#: includes/views/column-looks-card.php:236
 msgid "A bar is as long as its number is large, measured against the largest in the column. A column that never goes below zero is measured from zero, so numbers that are all much the same do not look wildly different."
 msgstr ""
 
@@ -65,7 +65,7 @@ msgstr ""
 msgid "A hidden column is matched by its heading, a hidden row by its line number. Reordering columns, renaming a heading or inserting a row above breaks that match."
 msgstr ""
 
-#: includes/views/column-looks-card.php:210
+#: includes/views/column-looks-card.php:240
 msgid "A pill and a whole-column colour dress every row the same, whatever the value says — that is the difference from a colour rule, which dresses only the rows that match it. Where both have something to say about the same cell the rule wins, so a rule can still single one row out of a column that already has a look."
 msgstr ""
 
@@ -89,7 +89,7 @@ msgstr ""
 msgid "Availability"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:143
+#: includes/class-lstabp-rules.php:152
 msgid "B"
 msgstr ""
 
@@ -101,11 +101,11 @@ msgstr ""
 msgid "Billing is handled in your account, not on this site. Cancelling takes effect at the end of the period you have paid for."
 msgstr ""
 
-#: includes/class-lstabp-rules.php:127
+#: includes/class-lstabp-rules.php:136
 msgid "Blue"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:142
+#: includes/class-lstabp-rules.php:151
 msgid "Bold text"
 msgstr ""
 
@@ -271,11 +271,11 @@ msgstr ""
 msgid "Google rejected the sign-in: %s"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:125
+#: includes/class-lstabp-rules.php:134
 msgid "Green"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:130
+#: includes/class-lstabp-rules.php:139
 msgid "Grey"
 msgstr ""
 
@@ -385,7 +385,7 @@ msgid_plural "%s rules name columns your sheet no longer has."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/views/column-looks-card.php:214
+#: includes/views/column-looks-card.php:244
 msgid "Only a cell holding a web address becomes a button. A note or a blank in the same column is left as it is, because a button that goes nowhere is worse than the note it replaced."
 msgstr ""
 
@@ -403,7 +403,7 @@ msgstr ""
 msgid "Open Google Cloud Console and create a project."
 msgstr ""
 
-#: includes/class-lstabp-rules.php:123
+#: includes/class-lstabp-rules.php:132
 msgid "Orange"
 msgstr ""
 
@@ -415,7 +415,7 @@ msgstr ""
 msgid "Pick a colour of your own"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:129
+#: includes/class-lstabp-rules.php:138
 msgid "Pink"
 msgstr ""
 
@@ -452,7 +452,7 @@ msgstr ""
 msgid "Pro settings"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:128
+#: includes/class-lstabp-rules.php:137
 msgid "Purple"
 msgstr ""
 
@@ -464,7 +464,7 @@ msgstr ""
 msgid "Read through the connected account"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:122
+#: includes/class-lstabp-rules.php:131
 msgid "Red"
 msgstr ""
 
@@ -481,7 +481,7 @@ msgstr ""
 msgid "Rules are read from the top down. If two of them colour the same place, the lower one wins, so put the general rule first."
 msgstr ""
 
-#: includes/class-lstabp-rules.php:148
+#: includes/class-lstabp-rules.php:157
 msgid "S"
 msgstr ""
 
@@ -501,6 +501,10 @@ msgstr ""
 msgid "Says"
 msgstr ""
 
+#: includes/views/column-looks-card.php:229
+msgid "Set every column back to ordinary"
+msgstr ""
+
 #: includes/class-lstabp-settings.php:195
 msgid "Sheet settings saved."
 msgstr ""
@@ -511,7 +515,7 @@ msgstr ""
 
 #. translators: 1: how many more are about to be shown, 2: how many are still
 #. hidden.
-#: includes/class-lstabp-rules.php:883
+#: includes/class-lstabp-rules.php:1022
 msgid "Show %1$s more — %2$s still hidden"
 msgstr ""
 
@@ -523,7 +527,7 @@ msgstr ""
 msgid "Show only:"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:884
+#: includes/class-lstabp-rules.php:1023
 msgid "Show them all"
 msgstr ""
 
@@ -544,7 +548,7 @@ msgstr ""
 msgid "Sign in to Google"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:147
+#: includes/class-lstabp-rules.php:156
 msgid "Struck through"
 msgstr ""
 
@@ -560,7 +564,7 @@ msgstr ""
 msgid "Table"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:126
+#: includes/class-lstabp-rules.php:135
 msgid "Teal"
 msgstr ""
 
@@ -683,7 +687,7 @@ msgstr ""
 msgid "Write"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:124
+#: includes/class-lstabp-rules.php:133
 msgid "Yellow"
 msgstr ""
 
@@ -724,7 +728,7 @@ msgstr ""
 msgid "any"
 msgstr ""
 
-#: includes/views/settings-page.php:225 includes/class-lstabp-rules.php:554
+#: includes/views/settings-page.php:225 includes/class-lstabp-rules.php:608
 msgid "contains"
 msgstr ""
 
@@ -732,7 +736,7 @@ msgstr ""
 msgid "filter=\"Column is value\""
 msgstr ""
 
-#: includes/class-lstabp-rules.php:552
+#: includes/class-lstabp-rules.php:606
 msgid "is"
 msgstr ""
 
@@ -740,11 +744,11 @@ msgstr ""
 msgid "is anything but"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:556
+#: includes/class-lstabp-rules.php:610
 msgid "is at least"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:558
+#: includes/class-lstabp-rules.php:612
 msgid "is at most"
 msgstr ""
 
@@ -752,7 +756,7 @@ msgstr ""
 msgid "is exactly"
 msgstr ""
 
-#: includes/views/settings-page.php:226 includes/class-lstabp-rules.php:555
+#: includes/views/settings-page.php:226 includes/class-lstabp-rules.php:609
 msgid "is greater than"
 msgstr ""
 
@@ -760,7 +764,7 @@ msgstr ""
 msgid "is greater than or equal to"
 msgstr ""
 
-#: includes/views/settings-page.php:228 includes/class-lstabp-rules.php:557
+#: includes/views/settings-page.php:228 includes/class-lstabp-rules.php:611
 msgid "is less than"
 msgstr ""
 
@@ -768,7 +772,7 @@ msgstr ""
 msgid "is less than or equal to"
 msgstr ""
 
-#: includes/class-lstabp-rules.php:553
+#: includes/class-lstabp-rules.php:607
 msgid "is not"
 msgstr ""
 

@@ -320,4 +320,7 @@ return array(
 	// Lists folded to ten.
 	'Show %1$s more — %2$s still hidden'         => 'Pokaż kolejne %1$s — ukrytych jeszcze %2$s',
 	'Show them all'                              => 'Pokaż wszystkie',
+
+	// Column looks, all at once.
+	'Set every column back to ordinary'          => 'Przywróć wszystkim kolumnom zwykły wygląd',
 );

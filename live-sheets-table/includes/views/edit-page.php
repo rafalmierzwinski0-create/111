@@ -478,10 +478,11 @@ if ( ! $lstab_is_edit ) {
 
 				<h3 class="lstab-subhead"><?php esc_html_e( 'Table style', 'live-sheets-table' ); ?></h3>
 
-				<div class="lstab-presets">
+				<div class="lstab-presets lstab-style-picks">
 					<?php foreach ( $lstab_presets as $lstab_slug => $lstab_preset ) : ?>
 						<?php $lstab_locked = ! empty( $lstab_preset['pro'] ) && ! $lstab_is_pro; ?>
-						<label class="lstab-preset <?php echo $lstab_locked ? 'is-locked' : ''; ?>">
+						<label class="lstab-preset has-thumb <?php echo $lstab_locked ? 'is-locked' : ''; ?>">
+							<?php echo LSTAB_Styles::thumbnail( $lstab_slug ); // phpcs:ignore WordPress.Security.EscapeOutput -- Built from a fixed slug, escaped inside. ?>
 							<input type="radio"
 								name="style_preset"
 								value="<?php echo esc_attr( $lstab_slug ); ?>"
@@ -557,6 +558,40 @@ if ( ! $lstab_is_edit ) {
 					</div>
 
 					<div class="lstab-metrics">
+						<?php foreach ( LSTAB_Customizer::sizes() as $lstab_key => $lstab_size ) : ?>
+							<?php $lstab_size_value = isset( $lstab_vars[ $lstab_key ] ) ? (string) $lstab_vars[ $lstab_key ] : ''; ?>
+							<p class="lstab-metric lstab-size">
+								<label for="lstab-size-<?php echo esc_attr( $lstab_key ); ?>">
+									<strong><?php echo esc_html( $lstab_size['label'] ); ?></strong>
+								</label>
+								<span class="lstab-swatch-note">
+									<?php
+									echo esc_html( $lstab_size['note'] ) . ' ';
+									printf(
+										/* translators: 1: smallest size in pixels, 2: largest size in pixels. */
+										esc_html__( 'From %1$d to %2$d px.', 'live-sheets-table' ),
+										(int) $lstab_size['min'],
+										(int) $lstab_size['max']
+									);
+									?>
+								</span>
+								<span class="lstab-size-field">
+									<input type="number"
+										id="lstab-size-<?php echo esc_attr( $lstab_key ); ?>"
+										class="lstab-size-input"
+										name="style_vars[<?php echo esc_attr( $lstab_key ); ?>]"
+										min="<?php echo esc_attr( (string) $lstab_size['min'] ); ?>"
+										max="<?php echo esc_attr( (string) $lstab_size['max'] ); ?>"
+										step="1"
+										inputmode="numeric"
+										placeholder="<?php esc_attr_e( 'Style', 'live-sheets-table' ); ?>"
+										value="<?php echo esc_attr( $lstab_size_value ); ?>"
+										data-lstab-var="<?php echo esc_attr( $lstab_size['var'] ); ?>">
+									<span class="lstab-size-unit" aria-hidden="true">px</span>
+								</span>
+							</p>
+						<?php endforeach; ?>
+
 						<?php foreach ( LSTAB_Customizer::metrics() as $lstab_key => $lstab_metric ) : ?>
 							<p class="lstab-metric">
 								<label for="lstab-metric-<?php echo esc_attr( $lstab_key ); ?>">

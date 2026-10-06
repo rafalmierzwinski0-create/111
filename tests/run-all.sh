@@ -34,6 +34,12 @@ node "$REPO/tests/sort-browser.mjs"
 
 echo
 echo "=============================================="
+echo " Striped rows — every other row a reader can see"
+echo "=============================================="
+node "$REPO/tests/stripes-browser.mjs"
+
+echo
+echo "=============================================="
 echo " Column looks — bars, buttons and the shapes a rule wears"
 echo "=============================================="
 # Same shape as the sorting pair: the PHP run writes the cells it produced and

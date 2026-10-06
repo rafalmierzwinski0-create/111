@@ -708,6 +708,65 @@
 			looks.addEventListener( 'input', redraw );
 			looks.addEventListener( 'change', redraw );
 
+			/*
+			 * Every column back to ordinary, in place and unsaved, like every
+			 * other change on this screen. The colours and words chosen along
+			 * the way go too, so a look picked afterwards starts from scratch
+			 * rather than from what was there before.
+			 */
+			var resetLooks = looks.querySelector( '.lstabp-looks-reset' );
+
+			var anyLook = function () {
+				return Array.prototype.some.call( looks.querySelectorAll( '.lstabp-look-pick:checked' ), function ( radio ) {
+					return '' !== radio.value;
+				} );
+			};
+
+			if ( resetLooks ) {
+				resetLooks.addEventListener( 'click', function ( event ) {
+					event.preventDefault();
+
+					var tint = resetLooks.getAttribute( 'data-lstabp-default-tint' ) || '#c7e0f4';
+
+					Array.prototype.forEach.call( looks.querySelectorAll( '.lstabp-look' ), function ( row ) {
+						var plain = row.querySelector( '.lstabp-look-pick[value=""]' );
+						var set = function ( selector, value ) {
+							var field = row.querySelector( selector );
+
+							if ( field ) {
+								field.value = value;
+							}
+						};
+
+						set( '.lstabp-look-tint', tint );
+						set( '.lstabp-look-ink', '#06100f' );
+						set( '.lstabp-look-label', '' );
+
+						if ( plain ) {
+							plain.checked = true;
+							lookChanged( plain );
+						}
+
+						paintLook( row );
+
+						var box = row.querySelector( 'details' );
+
+						if ( box ) {
+							box.open = false;
+						}
+					} );
+
+					resetLooks.disabled = true;
+					redraw();
+				} );
+
+				looks.addEventListener( 'change', function ( event ) {
+					if ( event.target.classList.contains( 'lstabp-look-pick' ) ) {
+						resetLooks.disabled = ! anyLook();
+					}
+				} );
+			}
+
 			var lookList = looks.querySelector( '.lstabp-looks' );
 
 			if ( lookList ) {

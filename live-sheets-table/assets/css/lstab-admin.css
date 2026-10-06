@@ -1457,11 +1457,41 @@
 	background: var( --lstab-card );
 	border: 1px solid var( --lstab-line );
 	border-radius: 6px;
-	padding: 1rem 1.2rem;
+	/*
+	 * No padding at the foot: a slider pinned to the bottom of this box stops
+	 * at the edge of its padding, and the strip of padding below it showed
+	 * the next row through. The table's own margin keeps it off the edge.
+	 */
+	padding: 1rem 1.2rem 0;
 	min-height: 12rem;
 	max-height: 60vh;
-	overflow: auto;
+	/*
+	 * Up and down only. Sideways is the table's own business: a wide table
+	 * scrolls inside itself and brings its own slider. Left on "auto", a
+	 * couple of pixels of shadow room poking past the edge was enough for the
+	 * browser to add a scrollbar of its own under the table's — two sliders,
+	 * one of which moved nothing anybody wanted moved.
+	 */
+	overflow-x: hidden;
+	overflow-y: auto;
 }
+
+/*
+ * The table's slider, in the preview. On a page it floats over the rows while
+ * the table runs past the bottom of the screen; here the "screen" is this box,
+ * and floating half an em above its edge left a strip of the next row showing
+ * underneath, so the slider looked as though it had stopped halfway down the
+ * table. In here it docks flush on the box's bottom edge instead.
+ */
+.lstab-preview .lstab-scrollbar {
+	bottom: 0;
+}
+
+/* Floating, it is a strip of the table's own paper, so no row shows around it. */
+.lstab-preview .lstab-scrollbar.is-floating {
+	box-shadow: 0 0 0 0.5em var( --lstab-bg ), 0 -10px 18px -10px var( --lstab-edge-shadow, rgba( 0, 0, 0, 0.2 ) );
+}
+
 
 .lstab-placeholder {
 	color: #8c8f94;
@@ -1823,6 +1853,20 @@
 }
 
 /* Appearance panel */
+
+.lstab-size-field {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.lstab-size-field .lstab-size-input {
+	width: 6.5rem;
+}
+
+.lstab-size-unit {
+	color: #646970;
+}
 
 .lstab-swatches {
 	display: grid;
@@ -2232,23 +2276,283 @@
 	display: none;
 }
 
-.lstab-appearance[ data-lstab-style="striped" ] .lstab-swatch[ data-lstab-only-style="striped" ],
-.lstab-appearance[ data-lstab-style="glass" ] .lstab-swatch[ data-lstab-only-style="glass" ] {
+.lstab-appearance[ data-lstab-style="striped" ] .lstab-swatch[ data-lstab-only-style="striped" ] {
 	display: flex;
 }
 
+
+/* ------------------------------------------------- pictures of the styles */
+
 /*
- * The preview stands on a gradient while Glass is chosen, and only then.
- * Glass is see-through on purpose: over the dashboard's own white it darkens
- * white, which is a flat grey slab and tells nobody anything. The skin's own
- * description says it needs a photograph or a gradient under it, and this is
- * the preview keeping that promise rather than making the reader imagine it.
+ * Each style card opens with a picture of the style: a table in miniature,
+ * built from spans and painted here in that style's own colours and shapes.
+ * It sits tilted on a little stage of its own, catching a shadow, and lifts
+ * and straightens when the card is pointed at or chosen — the card is a thing
+ * to pick up, not a line in a list. Every style sets the same few tokens; the
+ * shapes that set one apart (cards, stripes, bands, a grid, a double rule) are
+ * a rule or two each underneath.
  */
-.lstab-preview-pane[ data-lstab-style="glass" ] .lstab-preview-stage {
-	padding: 18px;
-	border-radius: 10px;
+.lstab-preset.has-thumb {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	column-gap: 0.55rem;
+	align-items: start;
+	/* Cards in one row are as tall as the tallest; the spare height goes
+	   below the words, not between the picture and the name. */
+	align-content: start;
+	overflow: hidden;
+}
+
+.lstab-thumb {
+	--thumb-stage: linear-gradient( 140deg, #eef3f8, #dce6f0 );
+	--thumb-paper: #fff;
+	--thumb-head: transparent;
+	--thumb-head-ink: #9aa5b1;
+	--thumb-ink: #3b4652;
+	--thumb-first: var( --thumb-ink );
+	--thumb-line: #e3e9ee;
+	--thumb-row: transparent;
+	--thumb-radius: 7px;
+	--thumb-under-head: 1px solid var( --thumb-line );
+	--thumb-shadow: 0 22px 30px -18px rgba( 15, 23, 42, 0.5 ), 0 2px 5px rgba( 15, 23, 42, 0.12 );
+
+	grid-column: 1 / -1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 118px;
+	margin: -0.7rem -0.8rem 0.75rem;
+	background: var( --thumb-stage );
+	border-bottom: 1px solid rgba( 0, 0, 0, 0.06 );
+	perspective: 640px;
+	overflow: hidden;
+}
+
+/* A soft light falling on the stage from the top left. */
+.lstab-thumb::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: radial-gradient( 120% 90% at 10% 0%, rgba( 255, 255, 255, 0.55 ), rgba( 255, 255, 255, 0 ) 60% );
+	pointer-events: none;
+}
+
+.lstab-thumb {
+	position: relative;
+}
+
+.lstab-thumb-panel {
+	position: relative;
+	display: grid;
+	width: 76%;
+	border-radius: var( --thumb-radius );
+	background: var( --thumb-paper );
+	box-shadow: var( --thumb-shadow );
+	overflow: hidden;
+	transform: rotateX( 20deg ) rotateY( -16deg ) rotateZ( 3deg );
+	transform-origin: 50% 60%;
+	transition: transform 260ms cubic-bezier( 0.2, 0.7, 0.2, 1 ), box-shadow 260ms ease;
+}
+
+.lstab-preset:hover .lstab-thumb-panel,
+.lstab-preset:focus-within .lstab-thumb-panel,
+.lstab-preset:has( input:checked ) .lstab-thumb-panel {
+	transform: rotateX( 6deg ) rotateY( -5deg ) rotateZ( 0deg ) translateY( -3px ) scale( 1.04 );
+	box-shadow: 0 28px 34px -18px rgba( 15, 23, 42, 0.55 ), 0 3px 8px rgba( 15, 23, 42, 0.14 );
+}
+
+.lstab-thumb-head,
+.lstab-thumb-row {
+	display: grid;
+	grid-template-columns: 1.3fr 1fr 0.8fr;
+	align-items: center;
+	gap: 9px;
+	padding: 6px 10px;
+}
+
+.lstab-thumb-head {
+	padding-block: 7px;
+	background: var( --thumb-head );
+	border-bottom: var( --thumb-under-head );
+}
+
+.lstab-thumb-row {
+	background: var( --thumb-row );
+}
+
+.lstab-thumb-row + .lstab-thumb-row {
+	border-top: 1px solid var( --thumb-line );
+}
+
+.lstab-thumb i {
+	display: block;
+	height: 4px;
+	border-radius: 2px;
+	background: var( --thumb-ink );
+	opacity: 0.5;
+}
+
+.lstab-thumb-head i {
+	height: 3px;
+	background: var( --thumb-head-ink );
+	opacity: 0.95;
+}
+
+.lstab-thumb-row i:first-child {
+	background: var( --thumb-first );
+	opacity: 0.85;
+}
+
+/* Ragged, the way real values are. */
+.lstab-thumb i:nth-child( 2 ) { width: 72%; justify-self: end; }
+.lstab-thumb i:nth-child( 3 ) { width: 58%; }
+.lstab-thumb-row:nth-child( 3 ) i:first-child { width: 78%; }
+.lstab-thumb-row:nth-child( 4 ) i:nth-child( 3 ) { width: 80%; }
+.lstab-thumb-row:nth-child( 5 ) i:first-child { width: 64%; }
+
+/* --- Striped: every other row shaded. */
+.lstab-thumb-striped .lstab-thumb-row:nth-child( odd ) {
+	background: #eaf0f4;
+}
+
+/* --- Bordered: the full grid and a shaded heading. */
+.lstab-thumb-bordered {
+	--thumb-head: #eef2f6;
+	--thumb-line: #d7dee5;
+	--thumb-radius: 4px;
+}
+
+.lstab-thumb-bordered .lstab-thumb-panel {
+	border: 1px solid var( --thumb-line );
 	background-image:
-		radial-gradient( 70% 80% at 12% 10%, #2a7f70 0%, rgba( 42, 127, 112, 0 ) 60% ),
-		radial-gradient( 60% 70% at 90% 88%, #33507f 0%, rgba( 51, 80, 127, 0 ) 58% ),
-		linear-gradient( 150deg, #15332f 0%, #101a24 100% );
+		linear-gradient( 90deg, transparent calc( 41.5% - 0.5px ), var( --thumb-line ) 0, var( --thumb-line ) calc( 41.5% + 0.5px ), transparent 0 ),
+		linear-gradient( 90deg, transparent calc( 73.5% - 0.5px ), var( --thumb-line ) 0, var( --thumb-line ) calc( 73.5% + 0.5px ), transparent 0 );
+}
+
+/* --- Midnight: a dark table, high contrast. */
+.lstab-thumb-midnight {
+	--thumb-stage: linear-gradient( 140deg, #26324a, #0b1120 );
+	--thumb-paper: #0f172a;
+	--thumb-head: #1b2539;
+	--thumb-head-ink: #8ea0b8;
+	--thumb-ink: #e2e8f0;
+	--thumb-line: #1f2a3d;
+	--thumb-shadow: 0 22px 30px -16px rgba( 0, 0, 0, 0.8 ), 0 0 0 1px rgba( 255, 255, 255, 0.06 );
+}
+
+/* --- Editorial: warm paper, a strong rule under the headings, hairlines. */
+.lstab-thumb-editorial {
+	--thumb-stage: linear-gradient( 140deg, #f6efe4, #e6dac7 );
+	--thumb-paper: #fffdf8;
+	--thumb-head-ink: #2b2118;
+	--thumb-ink: #3d342b;
+	--thumb-line: #ece4d8;
+	--thumb-under-head: 2px solid #2b2118;
+	--thumb-radius: 2px;
+}
+
+.lstab-thumb-editorial .lstab-thumb-head i {
+	height: 5px;
+	border-radius: 1px;
+}
+
+/* --- Cards: no table at all, a stack of separate cards. */
+.lstab-thumb-cards {
+	--thumb-stage: linear-gradient( 140deg, #e9eff6, #d6e1ec );
+}
+
+.lstab-thumb-cards .lstab-thumb-panel {
+	gap: 5px;
+	background: transparent;
+	box-shadow: none;
+	overflow: visible;
+}
+
+.lstab-thumb-cards .lstab-thumb-head {
+	border: 0;
+	padding-block: 2px;
+}
+
+.lstab-thumb-cards .lstab-thumb-row {
+	border: 0;
+	border-radius: 6px;
+	background: #fff;
+	box-shadow: 0 8px 12px -8px rgba( 15, 23, 42, 0.45 ), 0 1px 2px rgba( 15, 23, 42, 0.1 );
+}
+
+.lstab-thumb-cards .lstab-thumb-row + .lstab-thumb-row {
+	border-top: 0;
+}
+
+/* --- Terminal: mint lettering on near-black, one width of letter. */
+.lstab-thumb-terminal {
+	--thumb-stage: linear-gradient( 140deg, #13312b, #040b0a );
+	--thumb-paper: #07110f;
+	--thumb-head-ink: #5fe3cf;
+	--thumb-ink: #b9f3e8;
+	--thumb-line: #173129;
+	--thumb-radius: 4px;
+	--thumb-shadow: 0 22px 30px -16px rgba( 0, 0, 0, 0.85 ), 0 0 24px -6px rgba( 95, 227, 207, 0.35 );
+}
+
+.lstab-thumb-terminal i {
+	background: repeating-linear-gradient( 90deg, var( --thumb-ink ) 0 4px, transparent 4px 6px );
+	border-radius: 0;
+}
+
+.lstab-thumb-terminal .lstab-thumb-head i {
+	background: repeating-linear-gradient( 90deg, var( --thumb-head-ink ) 0 4px, transparent 4px 6px );
+}
+
+/* --- Aurora: the heading bar sweeps through the colours. */
+.lstab-thumb-aurora {
+	--thumb-stage: linear-gradient( 140deg, #f3e8ff, #ffe4e6 55%, #ffedd5 );
+	--thumb-head: linear-gradient( 90deg, #6d28d9, #a21caf, #be123c, #c2410c );
+	--thumb-head-ink: #fff;
+	--thumb-ink: #3b3050;
+	--thumb-first: #3b0764;
+	--thumb-line: #efe6fb;
+	--thumb-under-head: 0;
+	--thumb-radius: 9px;
+	--thumb-shadow: 0 22px 30px -16px rgba( 109, 40, 217, 0.55 ), 0 10px 22px -14px rgba( 219, 39, 119, 0.5 );
+}
+
+/* --- Ledger: warm paper, a band down the middle column, a double rule. */
+.lstab-thumb-ledger {
+	--thumb-stage: linear-gradient( 140deg, #f1e7d1, #dccba8 );
+	--thumb-paper: #fdfbf5;
+	--thumb-head-ink: #2b2520;
+	--thumb-ink: #2b2520;
+	--thumb-line: #ece3d0;
+	--thumb-under-head: 3px double #2b2520;
+	--thumb-radius: 3px;
+}
+
+.lstab-thumb-ledger .lstab-thumb-panel {
+	background-image: linear-gradient( 90deg, transparent 41.5%, #f3ecdb 41.5%, #f3ecdb 73.5%, transparent 73.5% );
+}
+
+/* --- Contrast: a solid dark heading bar and a first column with weight. */
+.lstab-thumb-contrast {
+	--thumb-stage: linear-gradient( 140deg, #e3eeec, #c9dbd8 );
+	--thumb-head: #14201f;
+	--thumb-head-ink: #eaf3f1;
+	--thumb-first: #14201f;
+	--thumb-under-head: 0;
+	--thumb-radius: 8px;
+}
+
+.lstab-thumb-contrast .lstab-thumb-row {
+	background-image: linear-gradient( 90deg, #eef3f2 41.5%, transparent 41.5% );
+}
+
+.lstab-thumb-contrast .lstab-thumb-row i:first-child {
+	height: 5px;
+	opacity: 1;
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+	.lstab-thumb-panel {
+		transition: none;
+	}
 }

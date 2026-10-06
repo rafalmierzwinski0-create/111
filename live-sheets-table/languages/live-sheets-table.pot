@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
-"POT-Creation-Date: 2026-09-29 21:43+0000\n"
+"POT-Creation-Date: 2026-10-06 23:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -110,7 +110,7 @@ msgid_plural "%s years"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/views/edit-page.php:687
+#: includes/views/edit-page.php:722
 msgid "(no longer there)"
 msgstr ""
 
@@ -162,12 +162,12 @@ msgstr ""
 msgid "A dark table with high contrast."
 msgstr ""
 
-#: includes/class-lstab-styles.php:59
-msgid "A frosted panel that lets what is behind it show through. Needs a photograph or a gradient underneath to mean anything."
-msgstr ""
-
 #: includes/class-lstab-styles.php:34
 msgid "A full grid with a shaded heading row. Suits dense columns of numbers."
+msgstr ""
+
+#: includes/class-lstab-styles.php:59
+msgid "A heading bar that sweeps through violet, pink and amber over a crisp white table. Colourful without getting in the way of the figures."
 msgstr ""
 
 #: includes/class-lstab-styles.php:69
@@ -178,7 +178,7 @@ msgstr ""
 msgid "A table on a computer. On a phone each row becomes a block with its heading beside every value."
 msgstr ""
 
-#: includes/views/edit-page.php:790
+#: includes/views/edit-page.php:825
 msgid "A wide table becomes one card per row when its column is too narrow."
 msgstr ""
 
@@ -186,7 +186,7 @@ msgstr ""
 msgid "A wide table keeps its shape and gains a draggable slider. Card layouts stack each row instead, which suits tables of long text."
 msgstr ""
 
-#: includes/class-lstab-customizer.php:87
+#: includes/class-lstab-customizer.php:81
 msgid "Accent"
 msgstr ""
 
@@ -268,6 +268,10 @@ msgstr ""
 msgid "Applies to http, https and e-mail addresses only."
 msgstr ""
 
+#: includes/class-lstab-styles.php:58
+msgid "Aurora"
+msgstr ""
+
 #: includes/class-lstab-example.php:88
 msgid "Availability"
 msgstr ""
@@ -292,7 +296,7 @@ msgstr ""
 msgid "Between rows and around cells"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:153
+#: includes/class-lstab-customizer.php:121
 msgid "Between the rows, and down between the columns"
 msgstr ""
 
@@ -316,7 +320,7 @@ msgstr ""
 msgid "Cables included, housing extra"
 msgstr ""
 
-#: includes/views/edit-page.php:887
+#: includes/views/edit-page.php:922
 msgid "Cancel"
 msgstr ""
 
@@ -333,7 +337,7 @@ msgstr ""
 msgid "Cards when it stops fitting"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:181
+#: includes/class-lstab-customizer.php:149
 msgid "Centred"
 msgstr ""
 
@@ -367,7 +371,7 @@ msgstr ""
 
 #. translators: 1: column number, 2: heading that used to be there, 3: heading
 #. there now.
-#: includes/views/edit-page.php:684
+#: includes/views/edit-page.php:719
 msgid "Column %1$d was “%2$s”, now “%3$s”"
 msgstr ""
 
@@ -377,7 +381,7 @@ msgid "Column %1$s"
 msgstr ""
 
 #. translators: %d: column number.
-#: includes/views/edit-page.php:708 includes/class-lstab-csv-parser.php:371
+#: includes/views/edit-page.php:743 includes/class-lstab-csv-parser.php:371
 #: includes/class-lstab-csv-parser.php:398
 msgid "Column %d"
 msgstr ""
@@ -387,7 +391,7 @@ msgstr ""
 msgid "Column %s"
 msgstr ""
 
-#: includes/views/edit-page.php:652
+#: includes/views/edit-page.php:687
 msgid "Columns"
 msgstr ""
 
@@ -405,7 +409,7 @@ msgstr ""
 msgid "Columns stay columns at every width. A slider under the table moves it sideways."
 msgstr ""
 
-#: includes/class-lstab-customizer.php:135
+#: includes/class-lstab-customizer.php:103
 msgid "Compact"
 msgstr ""
 
@@ -426,7 +430,7 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:207
+#: includes/class-lstab-customizer.php:175
 msgid "Corners"
 msgstr ""
 
@@ -473,7 +477,7 @@ msgstr ""
 
 #. translators: %s: the CSS selector this table's rules are given, e.g.
 #. [data-lstab-id="7"].
-#: includes/views/edit-page.php:624
+#: includes/views/edit-page.php:659
 msgid "Each rule is saved with %s in front, so it only ever affects this table."
 msgstr ""
 
@@ -522,7 +526,7 @@ msgstr ""
 msgid "Every row its own card, with the page showing between them. A list of things rather than a spreadsheet."
 msgstr ""
 
-#: includes/views/edit-page.php:766
+#: includes/views/edit-page.php:801
 msgid "Exactly what the plugin read from your sheet. Check the headings and a few rows before saving."
 msgstr ""
 
@@ -548,7 +552,7 @@ msgstr ""
 msgid "Filter"
 msgstr ""
 
-#: includes/views/edit-page.php:511
+#: includes/views/edit-page.php:512
 msgid "Fine-tune the look"
 msgstr ""
 
@@ -556,15 +560,20 @@ msgstr ""
 msgid "Found %1$s rows across %2$s columns."
 msgstr ""
 
+#. translators: 1: smallest size in pixels, 2: largest size in pixels.
+#: includes/views/edit-page.php:572
+msgid "From %1$d to %2$d px."
+msgstr ""
+
 #: includes/class-lstab-example.php:151
 msgid "Full check, wash and lubrication"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:155
+#: includes/class-lstab-customizer.php:123
 msgid "Full grid"
 msgstr ""
 
-#: includes/views/edit-page.php:774
+#: includes/views/edit-page.php:809
 msgid "Full width"
 msgstr ""
 
@@ -574,14 +583,6 @@ msgstr ""
 
 #: includes/views/edit-page.php:79
 msgid "General"
-msgstr ""
-
-#: includes/class-lstab-styles.php:58
-msgid "Glass"
-msgstr ""
-
-#: includes/class-lstab-customizer.php:76
-msgid "Glass colour"
 msgstr ""
 
 #: includes/class-lstab-elementor.php:49
@@ -635,11 +636,11 @@ msgstr ""
 msgid "Header text"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:120
+#: includes/class-lstab-customizer.php:223
 msgid "Heading text size"
 msgstr ""
 
-#: includes/views/edit-page.php:736
+#: includes/views/edit-page.php:771
 msgid "Hidden"
 msgstr ""
 
@@ -659,7 +660,7 @@ msgstr ""
 msgid "Hiding columns and rows is a Pro feature, and Pro is not active on this site. Your choices are still applied for now."
 msgstr ""
 
-#: includes/views/edit-page.php:656
+#: includes/views/edit-page.php:691
 msgid "Hiding columns and rows is part of Pro; you choose them by clicking your own sheet."
 msgstr ""
 
@@ -712,15 +713,15 @@ msgstr ""
 msgid "In stock"
 msgstr ""
 
-#: includes/views/edit-page.php:738
+#: includes/views/edit-page.php:773
 msgid "In the details"
 msgstr ""
 
-#: includes/views/edit-page.php:701
+#: includes/views/edit-page.php:736
 msgid "In the table"
 msgstr ""
 
-#: includes/views/edit-page.php:699
+#: includes/views/edit-page.php:734
 msgid "In your sheet"
 msgstr ""
 
@@ -748,11 +749,6 @@ msgstr ""
 msgid "Language of this plugin"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:111
-#: includes/class-lstab-customizer.php:124
-msgid "Large"
-msgstr ""
-
 #: includes/views/list-page.php:184
 msgid "Last checks"
 msgstr ""
@@ -771,7 +767,7 @@ msgstr ""
 msgid "Ledger"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:180
+#: includes/class-lstab-customizer.php:148
 msgid "Left"
 msgstr ""
 
@@ -788,11 +784,11 @@ msgstr ""
 msgid "Line colour"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:152
+#: includes/class-lstab-customizer.php:120
 msgid "Lines"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:88
+#: includes/class-lstab-customizer.php:82
 msgid "Links, sort arrows and page numbers"
 msgstr ""
 
@@ -849,7 +845,7 @@ msgstr ""
 msgid "Name it and set the schedule"
 msgstr ""
 
-#: includes/views/edit-page.php:775
+#: includes/views/edit-page.php:810
 msgid "Narrow column"
 msgstr ""
 
@@ -865,7 +861,7 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:157
+#: includes/class-lstab-customizer.php:125
 msgid "No lines"
 msgstr ""
 
@@ -901,9 +897,7 @@ msgstr ""
 msgid "No, keep one long table"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:110
-#: includes/class-lstab-customizer.php:123
-#: includes/class-lstab-customizer.php:136
+#: includes/class-lstab-customizer.php:104
 msgid "Normal"
 msgstr ""
 
@@ -943,11 +937,11 @@ msgstr ""
 msgid "Open your sheet, copy the address from the browser bar and paste it here. The table appears straight away, before anything is saved."
 msgstr ""
 
-#: includes/views/edit-page.php:513
+#: includes/views/edit-page.php:514
 msgid "Optional. Anything left empty follows the style chosen above."
 msgstr ""
 
-#: includes/views/edit-page.php:607
+#: includes/views/edit-page.php:642
 msgid "Ordinary CSS rules, confined to this table automatically. Write & for the table element itself, as in &.lstab-paged."
 msgstr ""
 
@@ -960,7 +954,7 @@ msgstr ""
 msgid "Page %1$s of %2$s"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:178
+#: includes/class-lstab-customizer.php:146
 msgid "Page buttons"
 msgstr ""
 
@@ -988,7 +982,7 @@ msgstr ""
 msgid "Paste a Google Sheets link first."
 msgstr ""
 
-#: includes/views/edit-page.php:822
+#: includes/views/edit-page.php:857
 msgid "Paste a link and choose “Load preview”."
 msgstr ""
 
@@ -1000,7 +994,7 @@ msgstr ""
 msgid "Paste the link to your Google Sheet first."
 msgstr ""
 
-#: includes/views/edit-page.php:776
+#: includes/views/edit-page.php:811
 msgid "Phone"
 msgstr ""
 
@@ -1016,7 +1010,7 @@ msgstr ""
 msgid "Press Ctrl+C"
 msgstr ""
 
-#: includes/views/edit-page.php:764
+#: includes/views/edit-page.php:799
 msgid "Preview"
 msgstr ""
 
@@ -1024,7 +1018,7 @@ msgstr ""
 msgid "Preview failed"
 msgstr ""
 
-#: includes/views/edit-page.php:770
+#: includes/views/edit-page.php:805
 msgid "Preview width"
 msgstr ""
 
@@ -1040,7 +1034,7 @@ msgstr ""
 msgid "Price list"
 msgstr ""
 
-#: includes/views/edit-page.php:494
+#: includes/views/edit-page.php:495
 msgid "Pro"
 msgstr ""
 
@@ -1077,27 +1071,27 @@ msgstr ""
 msgid "Refresh failed: %s"
 msgstr ""
 
-#: includes/views/edit-page.php:654
+#: includes/views/edit-page.php:689
 msgid "Renames a column for visitors. Your spreadsheet keeps its own headings."
 msgstr ""
 
-#: includes/views/edit-page.php:552
+#: includes/views/edit-page.php:553
 msgid "Reset"
 msgstr ""
 
-#: includes/views/edit-page.php:586
+#: includes/views/edit-page.php:621
 msgid "Reset everything to the chosen style"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:182
+#: includes/class-lstab-customizer.php:150
 msgid "Right"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:137
+#: includes/class-lstab-customizer.php:105
 msgid "Roomy"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:210
+#: includes/class-lstab-customizer.php:178
 msgid "Rounded"
 msgstr ""
 
@@ -1109,11 +1103,11 @@ msgid_plural "%1$d rows came back with a different number of cells than the rest
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-lstab-customizer.php:133
+#: includes/class-lstab-customizer.php:101
 msgid "Row height"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:82
+#: includes/class-lstab-customizer.php:76
 msgid "Row hover"
 msgstr ""
 
@@ -1121,7 +1115,7 @@ msgstr ""
 msgid "Rows on each page"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:156
+#: includes/class-lstab-customizer.php:124
 msgid "Rows only"
 msgstr ""
 
@@ -1129,11 +1123,11 @@ msgstr ""
 msgid "Same as the site"
 msgstr ""
 
-#: includes/views/edit-page.php:878
+#: includes/views/edit-page.php:913
 msgid "Save changes"
 msgstr ""
 
-#: includes/views/edit-page.php:881
+#: includes/views/edit-page.php:916
 msgid "Save changes and sync"
 msgstr ""
 
@@ -1141,11 +1135,11 @@ msgstr ""
 msgid "Save settings"
 msgstr ""
 
-#: includes/views/edit-page.php:882
+#: includes/views/edit-page.php:917
 msgid "Save source and sync"
 msgstr ""
 
-#: includes/views/edit-page.php:666
+#: includes/views/edit-page.php:701
 msgid "Save this source first. It is read straight away, and your real columns appear here."
 msgstr ""
 
@@ -1222,7 +1216,7 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: includes/views/edit-page.php:676
+#: includes/views/edit-page.php:711
 msgid "Settings are matched by position, so a column added or removed in Google shifts them. Check each row:"
 msgstr ""
 
@@ -1298,17 +1292,12 @@ msgstr ""
 msgid "Showing the first 25 rows."
 msgstr ""
 
-#: includes/views/edit-page.php:740 includes/class-lstab-admin.php:306
+#: includes/views/edit-page.php:775 includes/class-lstab-admin.php:306
 msgid "Shown"
 msgstr ""
 
-#: includes/views/edit-page.php:700
+#: includes/views/edit-page.php:735
 msgid "Shown as"
-msgstr ""
-
-#: includes/class-lstab-customizer.php:109
-#: includes/class-lstab-customizer.php:122
-msgid "Small"
 msgstr ""
 
 #: includes/views/edit-page.php:50
@@ -1337,7 +1326,7 @@ msgstr ""
 msgid "Split the table into pages"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:209
+#: includes/class-lstab-customizer.php:177
 msgid "Square"
 msgstr ""
 
@@ -1352,6 +1341,10 @@ msgstr ""
 
 #: includes/class-lstab-customizer.php:70
 msgid "Striped rows"
+msgstr ""
+
+#: includes/views/edit-page.php:587
+msgid "Style"
 msgstr ""
 
 #: includes/views/edit-page.php:367
@@ -1407,7 +1400,7 @@ msgstr ""
 msgid "Text"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:107
+#: includes/class-lstab-customizer.php:210
 msgid "Text size"
 msgstr ""
 
@@ -1431,6 +1424,10 @@ msgstr ""
 msgid "The colour of every other row"
 msgstr ""
 
+#: includes/class-lstab-customizer.php:224
+msgid "The column names. Leave empty to follow the style."
+msgstr ""
+
 #. translators: 1: heading that was taken out, 2: heading in that position now.
 #: includes/class-lstab-hidden-alerts.php:250
 msgid "The column you hid was headed “%1$s”; that position now holds “%2$s”, so the column is back on the page. Select the column you want and save."
@@ -1442,11 +1439,11 @@ msgstr ""
 msgid "The column you renamed to “%2$s” was headed “%1$s”; that position now holds “%3$s”, so the sheet's own heading is shown again."
 msgstr ""
 
-#: includes/views/edit-page.php:674
+#: includes/views/edit-page.php:709
 msgid "The columns in your sheet have moved."
 msgstr ""
 
-#: includes/views/edit-page.php:840
+#: includes/views/edit-page.php:875
 msgid "The exported text as it arrived, before the plugin read it. If a value is wrong here too, fix it in the sheet."
 msgstr ""
 
@@ -1514,6 +1511,10 @@ msgstr ""
 msgid "The value given to each new table. Existing tables are not affected, and every table can be set separately."
 msgstr ""
 
+#: includes/class-lstab-customizer.php:211
+msgid "The values in the rows. Leave empty to follow the style."
+msgstr ""
+
 #: includes/views/edit-page.php:109
 msgid "This is the built-in example"
 msgstr ""
@@ -1531,7 +1532,7 @@ msgstr ""
 msgid "This sheet has not been fetched yet, so there is nothing to redraw."
 msgstr ""
 
-#: includes/views/edit-page.php:665
+#: includes/views/edit-page.php:700
 msgid "This sheet has not been read yet. Choose “Refresh” on the sources list."
 msgstr ""
 
@@ -1545,10 +1546,6 @@ msgstr ""
 
 #: includes/class-lstab-example.php:86
 msgid "Time"
-msgstr ""
-
-#: includes/class-lstab-customizer.php:77
-msgid "Tints the pane; the page still shows through it"
 msgstr ""
 
 #: includes/views/edit-page.php:187
@@ -1623,7 +1620,7 @@ msgstr ""
 msgid "Usually an unclosed quotation mark, or a comma inside a value that was not quoted. Open those rows in your sheet and compare them with the rest."
 msgstr ""
 
-#: includes/class-lstab-customizer.php:211
+#: includes/class-lstab-customizer.php:179
 msgid "Very rounded"
 msgstr ""
 
@@ -1635,7 +1632,7 @@ msgstr ""
 msgid "Warm paper, a double rule under the headings and a band down every other column. For a sheet of figures: the bands hold the eye in one column, and the numbers line up of their own accord."
 msgstr ""
 
-#: includes/views/edit-page.php:838
+#: includes/views/edit-page.php:873
 msgid "What Google actually sent"
 msgstr ""
 
@@ -1647,7 +1644,7 @@ msgstr ""
 msgid "Wheel truing"
 msgstr ""
 
-#: includes/class-lstab-customizer.php:83
+#: includes/class-lstab-customizer.php:77
 msgid "When the mouse is over a row"
 msgstr ""
 
@@ -1681,7 +1678,7 @@ msgstr ""
 msgid "Why it happens, and how to fix it for good"
 msgstr ""
 
-#: includes/views/edit-page.php:771
+#: includes/views/edit-page.php:806
 msgid "Width:"
 msgstr ""
 
@@ -1728,7 +1725,7 @@ msgstr ""
 msgid "You do not have permission to do that."
 msgstr ""
 
-#: includes/views/edit-page.php:605
+#: includes/views/edit-page.php:640
 msgid "Your own CSS"
 msgstr ""
 

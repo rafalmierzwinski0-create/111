@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table Pro 1.0.0\n"
-"POT-Creation-Date: 2026-09-29 21:43+0000\n"
-"PO-Revision-Date: 2026-09-29 21:43+0000\n"
+"POT-Creation-Date: 2026-10-06 23:42+0000\n"
+"PO-Revision-Date: 2026-10-06 23:42+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -38,7 +38,7 @@ msgstr "%s — już nie ma tego w arkuszu"
 msgid "A bar behind the number"
 msgstr "Słupek za liczbą"
 
-#: includes/views/column-looks-card.php:206
+#: includes/views/column-looks-card.php:236
 msgid "A bar is as long as its number is large, measured against the largest in the column. A column that never goes below zero is measured from zero, so numbers that are all much the same do not look wildly different."
 msgstr "Słupek jest tak długi, jak duża jest liczba, mierzony względem największej w kolumnie. Kolumnę, która nigdy nie schodzi poniżej zera, mierzy się od zera, więc liczby zbliżone do siebie nie wyglądają na skrajnie różne."
 
@@ -66,7 +66,7 @@ msgstr "Filtr wybiera wiersze, nie kolumny. To, które kolumny pokazuje tabela, 
 msgid "A hidden column is matched by its heading, a hidden row by its line number. Reordering columns, renaming a heading or inserting a row above breaks that match."
 msgstr "Ukryta kolumna jest dopasowywana po nagłówku, a ukryty wiersz po numerze wiersza. Przestawienie kolumn, zmiana nagłówka lub wstawienie wiersza powyżej przerywa to dopasowanie."
 
-#: includes/views/column-looks-card.php:210
+#: includes/views/column-looks-card.php:240
 msgid "A pill and a whole-column colour dress every row the same, whatever the value says — that is the difference from a colour rule, which dresses only the rows that match it. Where both have something to say about the same cell the rule wins, so a rule can still single one row out of a column that already has a look."
 msgstr "Pigułka i kolor całej kolumny ubierają każdy wiersz tak samo, cokolwiek mówi wartość — i tym różnią się od reguły koloru, która ubiera tylko pasujące wiersze. Tam, gdzie obie mają coś do powiedzenia o tej samej komórce, wygrywa reguła, więc regułą nadal da się wyróżnić jeden wiersz w kolumnie, która ma już swój wygląd."
 
@@ -90,7 +90,7 @@ msgstr "Najpierw podaj identyfikator klienta Google i klucz tajny."
 msgid "Availability"
 msgstr "Dostępność"
 
-#: includes/class-lstabp-rules.php:143
+#: includes/class-lstabp-rules.php:152
 msgid "B"
 msgstr "B"
 
@@ -102,11 +102,11 @@ msgstr "Płatności i rezygnacja"
 msgid "Billing is handled in your account, not on this site. Cancelling takes effect at the end of the period you have paid for."
 msgstr "Płatnościami zarządzasz na swoim koncie, nie w witrynie. Rezygnacja działa od końca opłaconego okresu."
 
-#: includes/class-lstabp-rules.php:127
+#: includes/class-lstabp-rules.php:136
 msgid "Blue"
 msgstr "Niebieski"
 
-#: includes/class-lstabp-rules.php:142
+#: includes/class-lstabp-rules.php:151
 msgid "Bold text"
 msgstr "Pogrubienie"
 
@@ -272,11 +272,11 @@ msgstr "Google odrzuciło połączenie: %s"
 msgid "Google rejected the sign-in: %s"
 msgstr "Google odrzuciło logowanie: %s"
 
-#: includes/class-lstabp-rules.php:125
+#: includes/class-lstabp-rules.php:134
 msgid "Green"
 msgstr "Zielony"
 
-#: includes/class-lstabp-rules.php:130
+#: includes/class-lstabp-rules.php:139
 msgid "Grey"
 msgstr "Szary"
 
@@ -387,7 +387,7 @@ msgstr[0] "Jedna reguła wskazuje kolumnę, której nie ma już w arkuszu."
 msgstr[1] "%s reguły wskazują kolumny, których nie ma już w arkuszu."
 msgstr[2] "%s reguł wskazuje kolumny, których nie ma już w arkuszu."
 
-#: includes/views/column-looks-card.php:214
+#: includes/views/column-looks-card.php:244
 msgid "Only a cell holding a web address becomes a button. A note or a blank in the same column is left as it is, because a button that goes nowhere is worse than the note it replaced."
 msgstr "Przyciskiem staje się tylko komórka z adresem internetowym. Notatka albo pustka w tej samej kolumnie zostaje, jak jest, bo przycisk donikąd jest gorszy od notatki, którą zastąpił."
 
@@ -405,7 +405,7 @@ msgstr "Otwórz"
 msgid "Open Google Cloud Console and create a project."
 msgstr "Otwórz Google Cloud Console i utwórz projekt."
 
-#: includes/class-lstabp-rules.php:123
+#: includes/class-lstabp-rules.php:132
 msgid "Orange"
 msgstr "Pomarańczowy"
 
@@ -417,7 +417,7 @@ msgstr "Zwyczajnie"
 msgid "Pick a colour of your own"
 msgstr "Wybierz własny kolor"
 
-#: includes/class-lstabp-rules.php:129
+#: includes/class-lstabp-rules.php:138
 msgid "Pink"
 msgstr "Różowy"
 
@@ -454,7 +454,7 @@ msgstr "Pro nie działa w tej witrynie. Ukryte kolumny i wiersze zaczną znów s
 msgid "Pro settings"
 msgstr "Ustawienia Pro"
 
-#: includes/class-lstabp-rules.php:128
+#: includes/class-lstabp-rules.php:137
 msgid "Purple"
 msgstr "Fioletowy"
 
@@ -466,7 +466,7 @@ msgstr "Tylko odczyt — to nigdy niczego nie zmieni w Google"
 msgid "Read through the connected account"
 msgstr "Odczyt przez połączone konto"
 
-#: includes/class-lstabp-rules.php:122
+#: includes/class-lstabp-rules.php:131
 msgid "Red"
 msgstr "Czerwony"
 
@@ -483,7 +483,7 @@ msgstr "Wiersze — strona %1$s z %2$s (razem %3$s)"
 msgid "Rules are read from the top down. If two of them colour the same place, the lower one wins, so put the general rule first."
 msgstr "Reguły są czytane od góry. Jeśli dwie kolorują to samo miejsce, wygrywa niższa, więc regułę ogólną umieść wyżej."
 
-#: includes/class-lstabp-rules.php:148
+#: includes/class-lstabp-rules.php:157
 msgid "S"
 msgstr "S"
 
@@ -503,6 +503,10 @@ msgstr "Zapisz klienta"
 msgid "Says"
 msgstr "Napis"
 
+#: includes/views/column-looks-card.php:229
+msgid "Set every column back to ordinary"
+msgstr "Przywróć wszystkim kolumnom zwykły wygląd"
+
 #: includes/class-lstabp-settings.php:195
 msgid "Sheet settings saved."
 msgstr "Ustawienia arkuszy zapisane."
@@ -513,7 +517,7 @@ msgstr "Źródło arkusza"
 
 #. translators: 1: how many more are about to be shown, 2: how many are still
 #. hidden.
-#: includes/class-lstabp-rules.php:883
+#: includes/class-lstabp-rules.php:1022
 msgid "Show %1$s more — %2$s still hidden"
 msgstr "Pokaż kolejne %1$s — ukrytych jeszcze %2$s"
 
@@ -525,7 +529,7 @@ msgstr "Pokazuje tylko pasujące wiersze, więc jeden arkusz może zasilać kilk
 msgid "Show only:"
 msgstr "Pokaż tylko:"
 
-#: includes/class-lstabp-rules.php:884
+#: includes/class-lstabp-rules.php:1023
 msgid "Show them all"
 msgstr "Pokaż wszystkie"
 
@@ -546,7 +550,7 @@ msgstr "Widoczna"
 msgid "Sign in to Google"
 msgstr "Zaloguj się do Google"
 
-#: includes/class-lstabp-rules.php:147
+#: includes/class-lstabp-rules.php:156
 msgid "Struck through"
 msgstr "Przekreślenie"
 
@@ -562,7 +566,7 @@ msgstr "Symbole takie jak = i > również działają, ale WordPress usuwa znak �
 msgid "Table"
 msgstr "Tabela"
 
-#: includes/class-lstabp-rules.php:126
+#: includes/class-lstabp-rules.php:135
 msgid "Teal"
 msgstr "Morski"
 
@@ -685,7 +689,7 @@ msgstr "Słowa, które rozumie filtr"
 msgid "Write"
 msgstr "Wpisz"
 
-#: includes/class-lstabp-rules.php:124
+#: includes/class-lstabp-rules.php:133
 msgid "Yellow"
 msgstr "Żółty"
 
@@ -726,7 +730,7 @@ msgstr "pigułkę wokół tej wartości"
 msgid "any"
 msgstr "dowolne"
 
-#: includes/views/settings-page.php:225 includes/class-lstabp-rules.php:554
+#: includes/views/settings-page.php:225 includes/class-lstabp-rules.php:608
 msgid "contains"
 msgstr "zawiera"
 
@@ -734,7 +738,7 @@ msgstr "zawiera"
 msgid "filter=\"Column is value\""
 msgstr "filter=\"Kolumna is wartość\""
 
-#: includes/class-lstabp-rules.php:552
+#: includes/class-lstabp-rules.php:606
 msgid "is"
 msgstr "jest"
 
@@ -742,11 +746,11 @@ msgstr "jest"
 msgid "is anything but"
 msgstr "jest czymkolwiek poza"
 
-#: includes/class-lstabp-rules.php:556
+#: includes/class-lstabp-rules.php:610
 msgid "is at least"
 msgstr "jest co najmniej"
 
-#: includes/class-lstabp-rules.php:558
+#: includes/class-lstabp-rules.php:612
 msgid "is at most"
 msgstr "jest najwyżej"
 
@@ -754,7 +758,7 @@ msgstr "jest najwyżej"
 msgid "is exactly"
 msgstr "jest dokładnie"
 
-#: includes/views/settings-page.php:226 includes/class-lstabp-rules.php:555
+#: includes/views/settings-page.php:226 includes/class-lstabp-rules.php:609
 msgid "is greater than"
 msgstr "jest większe niż"
 
@@ -762,7 +766,7 @@ msgstr "jest większe niż"
 msgid "is greater than or equal to"
 msgstr "jest większe lub równe"
 
-#: includes/views/settings-page.php:228 includes/class-lstabp-rules.php:557
+#: includes/views/settings-page.php:228 includes/class-lstabp-rules.php:611
 msgid "is less than"
 msgstr "jest mniejsze niż"
 
@@ -770,7 +774,7 @@ msgstr "jest mniejsze niż"
 msgid "is less than or equal to"
 msgstr "jest mniejsze lub równe"
 
-#: includes/class-lstabp-rules.php:553
+#: includes/class-lstabp-rules.php:607
 msgid "is not"
 msgstr "nie jest"
 

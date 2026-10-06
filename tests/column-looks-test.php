@@ -53,6 +53,15 @@ function checked( $one, $two = true, $echo = true ) {
 
 	return $out;
 }
+function disabled( $one, $two = true, $echo = true ) {
+	$out = (string) $one === (string) $two ? " disabled='disabled'" : '';
+
+	if ( $echo ) {
+		echo $out;
+	}
+
+	return $out;
+}
 function selected( $one, $two, $echo = true ) {
 	$out = (string) $one === (string) $two ? " selected='selected'" : '';
 
@@ -505,6 +514,17 @@ lstab_check(
 	'a button cannot carry an essay',
 	isset( $stored['Booking']['label'] ) ? mb_strlen( $stored['Booking']['label'] ) . ' characters' : '(none)'
 );
+
+// "Set every column back to ordinary", pressed with JavaScript off: the form
+// still carries every look, and the button says to drop them all.
+$_POST = array(
+	'_lstabp_looks_present' => '1',
+	'lstabp_looks_reset'    => '1',
+	'lstabp_looks'          => array( 'Seats left' => array( 'look' => 'bar', 'tint' => '#5fe3cf' ) ),
+);
+$saver->save( 7 );
+
+lstab_check( array() === LSTABP_Column_Looks::for_source( 7 ), 'the reset button, without a script, sets every column back to ordinary' );
 
 $_POST = array( '_lstabp_looks_present' => '1', 'lstabp_looks' => array() );
 $saver->save( 7 );

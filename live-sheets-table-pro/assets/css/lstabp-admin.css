@@ -705,6 +705,10 @@
 	}
 }
 
+.lstabp-looks-reset-line {
+	margin: 0.8rem 0 0;
+}
+
 .lstabp-looks-card.is-waiting .lstabp-looks {
 	display: none;
 }

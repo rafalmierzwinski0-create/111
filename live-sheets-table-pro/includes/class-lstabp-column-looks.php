@@ -573,6 +573,12 @@ class LSTABP_Column_Looks {
 		$raw   = isset( $_POST['lstabp_looks'] ) ? (array) wp_unslash( $_POST['lstabp_looks'] ) : array();
 		$clean = self::sanitize( $raw );
 
+		// "Set every column back to ordinary", pressed with JavaScript off.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( ! empty( $_POST['lstabp_looks_reset'] ) ) {
+			$clean = array();
+		}
+
 		$all                     = self::all();
 		$all[ (int) $source_id ] = $clean;
 

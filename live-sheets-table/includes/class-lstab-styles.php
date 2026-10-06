@@ -54,9 +54,9 @@ class LSTAB_Styles {
 				'description' => __( 'Typewriter lettering and thin mint lines on near-black. Figures line up of their own accord.', 'live-sheets-table' ),
 				'pro'         => true,
 			),
-			'glass'     => array(
-				'label'       => __( 'Glass', 'live-sheets-table' ),
-				'description' => __( 'A frosted panel that lets what is behind it show through. Needs a photograph or a gradient underneath to mean anything.', 'live-sheets-table' ),
+			'aurora'    => array(
+				'label'       => __( 'Aurora', 'live-sheets-table' ),
+				'description' => __( 'A heading bar that sweeps through violet, pink and amber over a crisp white table. Colourful without getting in the way of the figures.', 'live-sheets-table' ),
 				'pro'         => true,
 			),
 			'ledger'    => array(
@@ -80,6 +80,30 @@ class LSTAB_Styles {
 		 * @param array $presets Preset definitions keyed by slug.
 		 */
 		return (array) apply_filters( 'lstab_style_presets', $presets );
+	}
+
+	/**
+	 * A small picture of a style, for the screen where one is chosen.
+	 *
+	 * Drawn, not photographed: a table in miniature built from a handful of
+	 * spans and painted by the admin stylesheet in each style's own colours
+	 * and shapes — rows or cards, a heading bar or none, stripes, bands, a
+	 * grid. It stays sharp at any size, weighs nothing, and cannot drift from
+	 * the style the way a screenshot taken once would.
+	 *
+	 * @param string $slug Preset slug.
+	 * @return string HTML.
+	 */
+	public static function thumbnail( $slug ) {
+		$cells = '<i></i><i></i><i></i>';
+		$rows  = str_repeat( '<span class="lstab-thumb-row">' . $cells . '</span>', 4 );
+
+		return '<span class="lstab-thumb lstab-thumb-' . esc_attr( sanitize_html_class( (string) $slug ) ) . '" aria-hidden="true">'
+			. '<span class="lstab-thumb-panel">'
+			. '<span class="lstab-thumb-head">' . $cells . '</span>'
+			. $rows
+			. '</span>'
+			. '</span>';
 	}
 
 	/**
@@ -109,6 +133,15 @@ class LSTAB_Styles {
 	public static function sanitize( $slug ) {
 		$slug      = sanitize_key( (string) $slug );
 		$available = self::available();
+
+		/*
+		 * Glass was retired in favour of Aurora. A table saved with it keeps a
+		 * premium, colourful style rather than dropping to Clean, which would
+		 * read as the setting having been lost.
+		 */
+		if ( 'glass' === $slug ) {
+			$slug = 'aurora';
+		}
 
 		return isset( $available[ $slug ] ) ? $slug : 'clean';
 	}

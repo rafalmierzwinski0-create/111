@@ -173,7 +173,7 @@ const readTable = ( id ) => {
 		 * The layers between this text and something opaque, outermost last —
 		 * and, where an element frosts what is behind it, the multiplication
 		 * that does the darkening. backdrop-filter: brightness() does not cover
-		 * the backdrop, it multiplies it, which is the whole reason the Glass
+		 * the backdrop, it multiplies it, which is how a frosted
 		 * skin can be see-through and still legible; a walker that only added up
 		 * background colours would read that panel as nearly transparent and
 		 * report a contrast the screen never shows.
@@ -537,8 +537,13 @@ for ( const skin of skins ) {
 	 * be matched by the pinned column's flat backdrop, and paints over the
 	 * Header background well besides.
 	 */
+	/*
+	 * Aurora is the one exception, by design: its heading sweeps through four
+	 * colours, cell by cell, and the pinned heading's backdrop draws the same
+	 * sweep — checked with the rest of Aurora, further down.
+	 */
 	check(
-		d.headGradient.stops <= 1,
+		d.headGradient.stops <= 1 || 'aurora' === skin,
 		`${ skin }: the heading is one colour, so the pinned column can match it`,
 		JSON.stringify( d.headGradient )
 	);
@@ -558,14 +563,7 @@ for ( const skin of skins ) {
 	const sticky = d.stickyBackdrop.match( /rgba?\(([^)]+)\)/ );
 	const alpha = sticky ? Number( sticky[ 1 ].split( /[\s,\/]+/ ).filter( ( s ) => '' !== s )[ 3 ] ?? 1 ) : 0;
 
-	if ( 'glass' === skin ) {
-		// The one skin that waits: a solid band down a see-through panel is
-		// only worth having once something is sliding underneath it. Checked
-		// while it is sliding, further down.
-		check( 0 === alpha, `${ skin }: the panel is not interrupted while nothing is scrolling`, d.stickyBackdrop );
-	} else {
-		check( alpha > 0.5, `${ skin }: the pinned column has something solid behind it`, d.stickyBackdrop );
-	}
+	check( alpha > 0.5, `${ skin }: the pinned column has something solid behind it`, d.stickyBackdrop );
 	// And that backdrop stops short of the line between rows, which is painted
 	// underneath it; see the pixel count further down.
 	check(
@@ -724,40 +722,104 @@ check( /rgb/.test( hovered.image ), 'and the tint is painted on the cell, corner
 
 // ------------------------------------------------------- the other three
 
-console.log( '\nTerminal, Glass and Contrast' );
+console.log( '\nTerminal, Aurora and Contrast' );
 
 const terminal = desktop.terminal[ asIs ];
 check( /mono/i.test( terminal.fontFamily ), 'Terminal is set in one width of letter', terminal.fontFamily );
 check( terminal.rowLine > 0, 'and it keeps a line between its rows', `${ terminal.rowLine }` );
 check( terminal.inkRatio >= 7, `Terminal is high contrast (${ terminal.inkRatio }:1)`, `${ terminal.inkRatio }` );
 
-const glass = desktop.glass[ asIs ];
-check( /blur/.test( glass.backdrop ), 'Glass blurs what is behind it', glass.backdrop );
-check( 'rgba(0, 0, 0, 0)' === glass.rowPaper, 'and its rows add no second tint', glass.rowPaper );
-check( glass.inkRatio >= 4.5, `Glass stays readable over its gradient (${ glass.inkRatio }:1)`, `${ glass.inkRatio }` );
+/*
+ * Aurora: the colour is in the heading bar, drawn cell by cell so that a
+ * heading row following the screen down takes its colours with it. Every one
+ * of the four colours carries white lettering at 4.5 to 1 or better, and the
+ * body under it stays as readable as Clean.
+ */
+const aurora = desktop.aurora[ asIs ];
+const auroraId = said.pages[ 0 ].tables.find( ( t ) => 'aurora' === t.skin ).id;
 
-const glassId = said.pages[ 0 ].tables.find( ( t ) => 'glass' === t.skin ).id;
-
-const dragged = await page.evaluate( async ( id ) => {
+const sweep = await page.evaluate( ( id ) => {
 	const wrap = document.querySelector( `.lstab[data-lstab-id="${ id }"]` );
-	const scroll = wrap.querySelector( '.lstab-scroll' );
 
-	scroll.scrollLeft = 140;
-	await new Promise( ( done ) => setTimeout( done, 200 ) );
+	return [ ...wrap.querySelectorAll( 'thead th' ) ].map( ( th ) => ( {
+		image: getComputedStyle( th ).backgroundImage,
+		ink: getComputedStyle( th ).color,
+	} ) );
+}, auroraId );
 
-	const first = wrap.querySelector( 'tbody tr.lstab-row' ).children[ 0 ];
+const stops = new Set( sweep.flatMap( ( h ) => ( h.image.match( /rgb\([^)]+\)/g ) || [] ) ) );
 
-	return {
-		scrolled: wrap.classList.contains( 'lstab-is-scrolled' ),
-		backdrop: getComputedStyle( first, '::before' ).backgroundColor,
+check(
+	sweep.length > 0 && sweep.every( ( h ) => /linear-gradient/.test( h.image ) ),
+	'Aurora paints every heading with its sweep, cell by cell',
+	sweep.map( ( h ) => h.image.slice( 0, 60 ) ).join( ' | ' )
+);
+check( stops.size >= 4, `through four colours or more (${ stops.size })`, [ ...stops ].join( ' ' ) );
+
+const auroraInk = await page.evaluate( ( colours ) => {
+	const lum = ( c ) => {
+		const [ r, g, b ] = c.match( /[\d.]+/g ).slice( 0, 3 ).map( Number ).map( ( v ) => {
+			v /= 255;
+
+			return v <= 0.03928 ? v / 12.92 : Math.pow( ( v + 0.055 ) / 1.055, 2.4 );
+		} );
+
+		return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 	};
-}, glassId );
 
-const draggedAlpha = Number( ( dragged.backdrop.match( /rgba?\(([^)]+)\)/ ) || [ , '0,0,0,0' ] )[ 1 ]
-	.split( /[\s,\/]+/ ).filter( ( s ) => '' !== s )[ 3 ] ?? 1 );
+	return Math.min( ...colours.map( ( c ) => ( lum( 'rgb(255, 255, 255)' ) + 0.05 ) / ( lum( c ) + 0.05 ) ) );
+}, [ ...stops ] );
 
-check( dragged.scrolled, 'Glass knows when it has been dragged sideways', JSON.stringify( dragged ) );
-check( draggedAlpha > 0.5, 'and then its pinned column has something solid behind it', dragged.backdrop );
+check( auroraInk >= 4.5, `and white names stay readable on the palest of them (${ auroraInk.toFixed( 2 ) }:1)`, `${ auroraInk }` );
+check( sweep.every( ( h ) => 'rgb(255, 255, 255)' === h.ink ), 'the names on it are white', sweep.map( ( h ) => h.ink ).join( ' ' ) );
+
+const pinnedSweep = await page.evaluate( ( id ) => {
+	const th = document.querySelector( `.lstab[data-lstab-id="${ id }"] thead th` );
+
+	return getComputedStyle( th, '::before' ).backgroundImage;
+}, auroraId );
+
+check( /linear-gradient/.test( pinnedSweep ), 'and the pinned heading\'s backdrop draws the same sweep', pinnedSweep );
+check( aurora.inkRatio >= 7, `and the values under it read as calmly as Clean (${ aurora.inkRatio }:1)`, `${ aurora.inkRatio }` );
+
+/*
+ * The divider down a pinned column, on every style, once something is sliding
+ * underneath it. A shadow on a table cell is not painted at all where a table
+ * collapses its borders, so it is drawn on the pinned backdrop instead — and
+ * checked here on all of them, Terminal among them, where it used to vanish.
+ */
+for ( const skin of skins ) {
+	const tableId = said.pages[ 0 ].tables.find( ( t ) => skin === t.skin ).id;
+
+	const dragged = await page.evaluate( async ( id ) => {
+		const wrap = document.querySelector( `.lstab[data-lstab-id="${ id }"]` );
+		const scroll = wrap.querySelector( '.lstab-scroll' );
+
+		scroll.scrollLeft = 140;
+		await new Promise( ( done ) => setTimeout( done, 200 ) );
+
+		const first = wrap.querySelector( 'tbody tr.lstab-row' ).children[ 0 ];
+		const seen = {
+			scrolled: wrap.classList.contains( 'lstab-is-scrolled' ),
+			edge: getComputedStyle( first, '::before' ).boxShadow,
+			pinned: wrap.classList.contains( 'lstab-sticky-first' ),
+		};
+
+		scroll.scrollLeft = 0;
+
+		return seen;
+	}, tableId );
+
+	if ( ! dragged.pinned || ! dragged.scrolled ) {
+		continue;
+	}
+
+	check(
+		'none' !== dragged.edge && /\b1px 0px 0px 0px\b|1px 0px 0px/.test( dragged.edge ),
+		`${ skin }: dragged sideways, the pinned column shows its edge`,
+		dragged.edge
+	);
+}
 
 const contrast = desktop.contrast[ asIs ];
 const headAlpha = ( contrast.headPaper.match( /rgba?\(([^)]+)\)/ ) || [ , '0,0,0,0' ] )[ 1 ]
@@ -1002,12 +1064,17 @@ for ( const table of said.pages[ 0 ].tables ) {
 		const box = scroll.getBoundingClientRect();
 		const pinned = head.getBoundingClientRect();
 		const last = wrap.querySelector( 'thead th:last-child' ).getBoundingClientRect();
+		const second = wrap.querySelector( 'thead th:nth-child(2)' );
 
 		return {
 			y: pinned.bottom - box.top,
 			edge: pinned.right - box.left,
 			far: ( last.left + last.right ) / 2 - box.left,
 			width: box.width,
+			// Ledger shades every other column, and its double rule's gap then
+			// reads against a different paper in the second column than in the
+			// first. Only columns dressed alike are compared.
+			secondAlike: ! second || getComputedStyle( second ).backgroundColor === getComputedStyle( head ).backgroundColor,
 		};
 	}, table.id );
 
@@ -1050,7 +1117,7 @@ for ( const table of said.pages[ 0 ].tables ) {
 
 	// Four places: two inside the pinned column, two out past it.
 	const near_side = [ thickness( where.edge * 0.35 ), thickness( where.edge * 0.7 ) ];
-	const far_side = [ thickness( where.edge + 24 ), thickness( where.far ) ];
+	const far_side = where.secondAlike ? [ thickness( where.edge + 24 ), thickness( where.far ) ] : [ thickness( where.far ) ];
 
 	if ( near_side.includes( null ) || far_side.includes( null ) ) {
 		continue;
@@ -1137,74 +1204,6 @@ check(
 	'rgb(43, 26, 74)' === naglowek.tlo && 'rgb(255, 233, 199)' === naglowek.ink,
 	'and the heading really wears the colours that were picked for it',
 	`${ naglowek.tlo } / ${ naglowek.ink }`
-);
-
-// -------------------------------------------- glass, in a colour of its own
-
-console.log( '\nGlass, tinted, over the worst backdrop there is' );
-
-/*
- * "Glass colour" takes an ordinary opaque colour, as every colour well on that
- * screen does, and the pane lays it on at a seventh so the page still shows
- * through. A tint can only lighten, so white over a white page is the case
- * that decides whether the setting is safe to offer at all — and it is the
- * case somebody reaches by picking the first colour in the picker.
- */
-await page.goto( said.glass.url, { waitUntil: 'networkidle' } );
-await page.waitForTimeout( 300 );
-
-const tinted = await page.evaluate( ( id ) => {
-	const root = document.querySelector( `.lstab[data-lstab-id="${ id }"]` );
-	const pane = root.querySelector( '.lstab-scroll' );
-	const seen = getComputedStyle( pane );
-
-	return {
-		tint: getComputedStyle( root ).getPropertyValue( '--lstab-glass-tint' ).trim(),
-		paneBg: seen.backgroundColor,
-		filter: seen.backdropFilter || seen.webkitBackdropFilter,
-	};
-}, said.glass.id );
-
-check( '#ffffff' === tinted.tint.toLowerCase(), 'the colour chosen for the glass reaches the table', tinted.tint );
-/*
- * The alpha, whichever way the browser writes it: color-mix() comes back as
- * "color(srgb 1 1 1 / 0.14)" rather than as rgba(), and a check written for
- * rgba() alone would fail on a pane that is perfectly correct.
- */
-const alpha = ( colour ) => {
-	const slashed = /\/\s*([\d.]+%?)\s*\)/.exec( colour );
-
-	if ( slashed ) {
-		return slashed[ 1 ].endsWith( '%' ) ? parseFloat( slashed[ 1 ] ) / 100 : parseFloat( slashed[ 1 ] );
-	}
-
-	const parts = colour.replace( /^[a-z]+\(|\)$/g, '' ).split( ',' );
-
-	return 4 === parts.length ? parseFloat( parts[ 3 ] ) : 1;
-};
-
-check(
-	alpha( tinted.paneBg ) > 0 && alpha( tinted.paneBg ) < 0.5,
-	'and tints the pane without closing it — it is still see-through',
-	`${ tinted.paneBg } → alpha ${ alpha( tinted.paneBg ) }`
-);
-check(
-	/blur/.test( tinted.filter ) && /brightness/.test( tinted.filter ),
-	'the pane is still frosted, and still darkens what is behind it',
-	tinted.filter
-);
-
-const tintedInk = await page.evaluate( readTable, said.glass.id );
-
-check(
-	tintedInk.inkRatio >= 4.5,
-	`and the values on it are still readable (${ tintedInk.inkRatio }:1)`,
-	`${ tintedInk.inkRatio }`
-);
-check(
-	tintedInk.labelRatio >= 4.5 || 'none' === tintedInk.labelShown,
-	`including the quietest print on it (${ tintedInk.labelRatio }:1)`,
-	`${ tintedInk.labelRatio } / ${ tintedInk.labelShown }`
 );
 
 /*

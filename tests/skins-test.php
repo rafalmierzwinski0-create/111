@@ -92,7 +92,7 @@ lstab_skins_section( 'The premium skins are registered' );
 
 $all = LSTAB_Styles::all();
 
-foreach ( array( 'cards', 'terminal', 'glass', 'contrast', 'ledger' ) as $slug ) {
+foreach ( array( 'cards', 'terminal', 'aurora', 'contrast', 'ledger' ) as $slug ) {
 	lstab_skins_assert( isset( $all[ $slug ] ), "{$slug} is a preset" );
 	lstab_skins_assert( ! empty( $all[ $slug ]['pro'] ), "{$slug} is premium" );
 	lstab_skins_assert( '' !== (string) $all[ $slug ]['description'], "{$slug} says what it looks like" );
@@ -117,6 +117,29 @@ foreach ( array_keys( $all ) as $slug ) {
 		false !== strpos( $css, '.lstab-style-' . $slug ),
 		"The stylesheet has rules for {$slug}"
 	);
+}
+
+/*
+ * And a picture of its own on the screen where it is chosen. The picture is
+ * markup painted by the admin stylesheet, so a style registered without its
+ * rules there would arrive in the picker as a plain white tile.
+ */
+$admin_css = file_get_contents( dirname( __DIR__ ) . '/live-sheets-table/assets/css/lstab-admin.css' );
+
+foreach ( array_keys( $all ) as $slug ) {
+	$thumb = LSTAB_Styles::thumbnail( $slug );
+
+	lstab_skins_assert(
+		false !== strpos( $thumb, 'lstab-thumb-' . $slug ) && 4 === substr_count( $thumb, 'lstab-thumb-row' ),
+		"{$slug} has a picture in the picker: a heading and four rows"
+	);
+
+	if ( 'clean' !== $slug ) {
+		lstab_skins_assert(
+			false !== strpos( $admin_css, '.lstab-thumb-' . $slug ),
+			"and the admin stylesheet paints the {$slug} picture in its own colours"
+		);
+	}
 }
 
 // ------------------------------------------------------------------- dials
@@ -222,16 +245,7 @@ foreach ( $variants as $variant ) {
 			'lines'   => $variant['lines'],
 		);
 
-		/*
-		 * Glass is the one skin that means nothing on plain paper: it is a
-		 * window, and a window onto a white wall is a white rectangle. It gets
-		 * the gradient it was designed for, through the table's own CSS field —
-		 * which is also how an author would do it — so that what is measured is
-		 * the skin in the situation it is for, white text and all.
-		 */
-		$custom_css = 'glass' === $skin
-			? "&{background-image:linear-gradient(135deg,#1f6f8b,#6b3fa0 55%,#c2557a);padding:22px;border-radius:20px}"
-			: '';
+		$custom_css = '';
 
 		$source_id = LSTAB_Storage::insert(
 			array(
@@ -393,59 +407,12 @@ foreach ( array(
 }
 
 /*
- * Glass, with a colour of somebody's own on the pane — and the worst colour
- * there is. "Glass colour" takes an ordinary opaque colour, as every well on
- * that screen does, and the pane lays it on at a seventh so the page still
- * shows through. A tint can only lighten, so white is the case that decides
- * whether the setting is safe to offer at all; the browser suite measures what
- * it does to the ink.
+ * Glass was retired in favour of Aurora. A table saved with it must come back
+ * as Aurora — a colourful premium style, as it was — and not drop to Clean,
+ * which would read as the setting having been lost.
  */
-$glass_id = LSTAB_Storage::insert(
-	array(
-		'title'         => 'Glass, tinted white',
-		'custom_css'    => '&{background-image:linear-gradient(135deg,#ffffff,#f4f6f8 60%,#ffffff);padding:22px;border-radius:20px}',
-		'sheet_url'     => 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0',
-		'sheet_id'      => '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789',
-		'sheet_kind'    => 'doc',
-		'gid'           => '0',
-		'tab_name'      => 'Cennik',
-		'sync_interval' => 900,
-		'style_preset'  => 'glass',
-		'layout'        => 'auto',
-		'style_vars'    => array( 'glassTint' => '#ffffff' ),
-	)
-);
-
-LSTAB_Sync::run( $glass_id );
-
-$glass_html = LSTAB_Renderer::render( array( 'source_id' => $glass_id ) );
-
-lstab_skins_assert(
-	false !== strpos( $glass_html, '--lstab-glass-tint:#ffffff' ),
-	'A colour chosen for the glass reaches the table',
-	$glass_html
-);
-
-$glass_slug = 'lstab-skins-szklo';
-$glass_old  = get_page_by_path( $glass_slug, OBJECT, 'page' );
-if ( $glass_old ) {
-	wp_delete_post( $glass_old->ID, true );
-}
-
-$glass_page = wp_insert_post(
-	array(
-		'post_title'   => 'Skins — glass, tinted white',
-		'post_name'    => $glass_slug,
-		'post_content' => '<!-- wp:live-sheets-table/sheet-table {"sourceId":' . (int) $glass_id . ',"align":"wide","showSearch":true,"showSort":true,"showUpdated":true} /-->',
-		'post_status'  => 'publish',
-		'post_type'    => 'page',
-	)
-);
-
-$manifest['glass'] = array(
-	'id'  => (int) $glass_id,
-	'url' => get_permalink( $glass_page ),
-);
+lstab_skins_assert( 'aurora' === LSTAB_Styles::sanitize( 'glass' ), 'A table saved with Glass is drawn in Aurora', LSTAB_Styles::sanitize( 'glass' ) );
+lstab_skins_assert( ! isset( LSTAB_Styles::all()['glass'] ), 'and Glass is no longer offered' );
 
 $slug     = 'lstab-skins-wlasne';
 $existing = get_page_by_path( $slug, OBJECT, 'page' );
@@ -523,11 +490,7 @@ foreach ( $skins as $skin ) {
 	$pill_id = LSTAB_Storage::insert(
 		array(
 			'title'         => 'Pills — ' . ucfirst( $skin ),
-			// Glass is a window: onto a white wall it is a white rectangle, and
-			// a badge measured against one says nothing about the skin.
-			'custom_css'    => 'glass' === $skin
-				? "&{background-image:linear-gradient(135deg,#1f6f8b,#6b3fa0 55%,#c2557a);padding:22px;border-radius:20px}"
-				: '',
+			'custom_css'    => '',
 			'sheet_url'     => 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0',
 			'sheet_id'      => '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789',
 			'sheet_kind'    => 'doc',
@@ -622,12 +585,11 @@ file_put_contents( $out, wp_json_encode( $manifest, JSON_PRETTY_PRINT | JSON_UNE
 
 lstab_skins_section( 'What the browser run will open' );
 lstab_skins_assert( file_exists( $out ), 'The manifest was written', $out );
-echo '        ' . count( $manifest['pages'] ) . " pages, " . ( $made + 2 ) . " tables\n";
+echo '        ' . count( $manifest['pages'] ) . " pages, " . ( $made + 1 ) . " tables\n";
 foreach ( $manifest['pages'] as $page ) {
 	echo '        ' . $page['url'] . "\n";
 }
 echo '        ' . $manifest['tuned']['url'] . "\n";
-echo '        ' . $manifest['glass']['url'] . "\n";
 echo '        ' . $manifest['pills']['url'] . "\n";
 
 // ------------------------------------------------------------------ result

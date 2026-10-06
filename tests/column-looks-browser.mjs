@@ -722,6 +722,46 @@ check( buttonGone, 'with the button gone once there is nothing left to show' );
 
 check( longErrors.length === 0, 'no errors on the long card', longErrors.join( ' | ' ) );
 
+console.log( '\nEvery column back to ordinary, in one go' );
+
+/*
+ * The card was rendered with Seats left wearing a bar and Booking a button,
+ * and Session was given a button above. One press puts every one of them back
+ * to ordinary — in place, unsaved, with the preview told — and clears the
+ * colours and words chosen along the way.
+ */
+const resetReady = await card.$eval( '.lstabp-looks-reset', ( b ) => ! b.disabled ).catch( () => false );
+
+check( resetReady, 'the button is there, and live while any column has a look' );
+
+const navigated = [];
+card.on( 'framenavigated', () => navigated.push( 1 ) );
+await card.click( '.lstabp-looks-reset' );
+await card.waitForTimeout( 120 );
+
+const afterReset = await card.evaluate( () => {
+	const fields = {};
+
+	( window.lstabPreviewFields || [] ).forEach( ( collect ) => Object.assign( fields, collect() ) );
+
+	return {
+		looks: fields.looks || {},
+		on: document.querySelectorAll( '.lstabp-look.is-on' ).length,
+		words: [ ...document.querySelectorAll( '.lstabp-look-label' ) ].map( ( f ) => f.value ).join( '' ),
+		pictures: document.querySelectorAll( '.lstabp-look-now .lstabp-look-face' ).length,
+		disabled: document.querySelector( '.lstabp-looks-reset' ).disabled,
+	};
+} );
+
+check(
+	0 === Object.keys( afterReset.looks ).length && 0 === afterReset.on && 0 === afterReset.pictures,
+	'every column is ordinary again, and every closed line says so',
+	JSON.stringify( afterReset )
+);
+check( '' === afterReset.words, 'the words a button was given are cleared too', afterReset.words );
+check( 0 === navigated.length && afterReset.disabled, 'without leaving the screen, and the button rests until there is something to reset' );
+check( cardErrors.length === 0, 'no errors on the card', cardErrors.join( ' | ' ) );
+
 check( errors.length === 0, 'no errors in the console', errors.join( ' | ' ) );
 
 await tab.screenshot( { path: path.join( repo, 'build/column-looks.png' ), fullPage: true } );

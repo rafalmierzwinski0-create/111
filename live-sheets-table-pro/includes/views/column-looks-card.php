@@ -200,6 +200,36 @@ $lstabp_offer = array( '' => __( 'Ordinary', 'live-sheets-table-pro' ) ) + $lsta
 			<?php endforeach; ?>
 		</ul>
 
+		<?php
+		/*
+		 * Every column back to ordinary, in one go. A sheet that was dressed
+		 * column by column has to be undressed column by column otherwise —
+		 * open each line, pick "Ordinary", close it — and the colours chosen
+		 * along the way stay behind in the fields, ready to come back the next
+		 * time a look is picked. This clears those too.
+		 *
+		 * A submit button, so it still does its job with JavaScript off: the
+		 * form is saved with every look dropped. With JavaScript on the click
+		 * is taken over and the card is reset in place, unsaved, like every
+		 * other change on this screen, and the preview follows.
+		 */
+		$lstabp_any = false;
+
+		foreach ( $lstabp_chosen as $lstabp_set ) {
+			if ( ! empty( $lstabp_set['look'] ) ) {
+				$lstabp_any = true;
+				break;
+			}
+		}
+		?>
+		<p class="lstabp-looks-reset-line">
+			<button type="submit" class="lstab-mini lstabp-looks-reset" name="lstabp_looks_reset" value="1"
+				data-lstabp-default-tint="<?php echo esc_attr( LSTABP_Column_Looks::DEFAULT_TINT ); ?>"
+				<?php disabled( ! $lstabp_any ); ?>>
+				<?php esc_html_e( 'Set every column back to ordinary', 'live-sheets-table-pro' ); ?>
+			</button>
+		</p>
+
 		<ul class="lstabp-rules-how">
 			<li>
 				<?php echo LSTAB_Icons::icon( 'layers' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>

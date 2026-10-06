@@ -2024,7 +2024,7 @@ lstab_assert( '' === $hostile['text'], 'A colour with a CSS payload is dropped',
 lstab_assert( '' === $hostile['background'], 'expression() is dropped', $hostile['background'] );
 lstab_assert( '' === $hostile['stripe'], 'A markup payload is dropped', $hostile['stripe'] );
 lstab_assert( 'roomy' === $hostile['density'], 'A known metric choice survives', $hostile['density'] );
-lstab_assert( 'normal' === $hostile['fontSize'], 'An unknown metric choice falls back to normal', $hostile['fontSize'] );
+lstab_assert( '' === $hostile['fontSize'], 'A text size that is not a number is dropped, and the style decides', $hostile['fontSize'] );
 lstab_assert( ! array_key_exists( 'unknownKey', $hostile ), 'Unknown keys are removed entirely' );
 
 $style_attr = LSTAB_Customizer::inline_style( $hostile );
@@ -2064,7 +2064,8 @@ lstab_assert(
  * rather than in the middle. Both are metrics like any other, so the test is
  * that they travel the same road — registry, database, style attribute, page.
  */
-lstab_assert( array_key_exists( 'headFontSize', LSTAB_Customizer::metrics() ), 'Heading text size is offered' );
+lstab_assert( array_key_exists( 'headFontSize', LSTAB_Customizer::sizes() ), 'Heading text size is offered' );
+lstab_assert( array_key_exists( 'fontSize', LSTAB_Customizer::sizes() ), 'Text size is offered' );
 lstab_assert( array_key_exists( 'pagerAlign', LSTAB_Customizer::metrics() ), 'Page button placement is offered' );
 
 $typo = LSTAB_Customizer::inline_style(
@@ -2075,9 +2076,28 @@ $typo = LSTAB_Customizer::inline_style(
 		)
 	)
 );
-lstab_assert( false !== strpos( $typo, '--lstab-head-font-size:0.72em' ), 'Small headings map onto their own size', $typo );
+lstab_assert( false !== strpos( $typo, '--lstab-head-font-size:11px' ), 'A heading size saved as "small" becomes its size in pixels', $typo );
 lstab_assert( false !== strpos( $typo, '--lstab-pager-place:end' ), 'Page buttons can be sent to the right', $typo );
-lstab_assert( false === strpos( $typo, '--lstab-font-size' ), 'And heading size leaves the row size alone', $typo );
+lstab_assert( false === strpos( $typo, '--lstab-text-size' ) && false === strpos( $typo, '--lstab-font-size' ), 'And heading size leaves the row size alone', $typo );
+
+/*
+ * Sizes are numbers now, in pixels, held inside a range: a table with
+ * sixty-pixel values is not a table any more. Past the ceiling is held at the
+ * ceiling rather than refused, so a big number still gets the biggest size.
+ */
+$sized = LSTAB_Customizer::sanitize( array( 'fontSize' => '18', 'headFontSize' => '13px' ) );
+lstab_assert( '18' === $sized['fontSize'] && '13' === $sized['headFontSize'], 'Sizes are kept as whole pixels', wp_json_encode( $sized ) );
+
+$sized_style = LSTAB_Customizer::inline_style( $sized );
+lstab_assert( false !== strpos( $sized_style, '--lstab-text-size:18px' ), 'The text size reaches the rows', $sized_style );
+lstab_assert( false !== strpos( $sized_style, '--lstab-head-font-size:13px' ), 'The heading size reaches the headings', $sized_style );
+
+$huge = LSTAB_Customizer::sanitize( array( 'fontSize' => '60', 'headFontSize' => '1' ) );
+lstab_assert( '24' === $huge['fontSize'], 'Sixty pixels of text is held at the largest size offered', $huge['fontSize'] );
+lstab_assert( '10' === $huge['headFontSize'], 'And one pixel of heading at the smallest', $huge['headFontSize'] );
+
+$legacy_large = LSTAB_Customizer::sanitize( array( 'fontSize' => 'large', 'headFontSize' => 'normal' ) );
+lstab_assert( '17' === $legacy_large['fontSize'] && '' === $legacy_large['headFontSize'], 'The old Large and Normal carry over', wp_json_encode( $legacy_large ) );
 
 $typo_left = LSTAB_Customizer::inline_style( LSTAB_Customizer::sanitize( array( 'pagerAlign' => 'left' ) ) );
 lstab_assert( false !== strpos( $typo_left, '--lstab-pager-place:start' ), 'Or to the left', $typo_left );
@@ -2087,7 +2107,7 @@ lstab_assert( '' === $typo_mid, 'Centred is the default and writes nothing', $ty
 
 $typo_junk = LSTAB_Customizer::sanitize( array( 'pagerAlign' => 'sideways', 'headFontSize' => '9999px' ) );
 lstab_assert( 'normal' === $typo_junk['pagerAlign'], 'An invented placement falls back to centred' );
-lstab_assert( 'normal' === $typo_junk['headFontSize'], 'An invented heading size falls back to normal' );
+lstab_assert( '22' === $typo_junk['headFontSize'], 'An enormous heading size is held at the largest size offered', $typo_junk['headFontSize'] );
 
 LSTAB_Storage::update(
 	$source_id,
@@ -2099,7 +2119,7 @@ LSTAB_Storage::update(
 	)
 );
 $typo_page = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
-lstab_assert( false !== strpos( $typo_page, '--lstab-head-font-size:0.95em' ), 'Large headings reach the page' );
+lstab_assert( false !== strpos( $typo_page, '--lstab-head-font-size:14px' ), 'Large headings reach the page, in pixels' );
 lstab_assert( false !== strpos( $typo_page, '--lstab-pager-place:start' ), 'And the placement travels with them' );
 
 /*

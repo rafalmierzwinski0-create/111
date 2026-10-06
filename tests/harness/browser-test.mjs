@@ -471,6 +471,54 @@ check(
 	`${ beforeCustomising.padding } → ${ afterDensity.padding }`
 );
 
+/*
+ * Sizes are typed in pixels and held inside a range: sixty pixels of text is
+ * previewed — and saved — as the largest size offered. The text size reaches
+ * the rows and leaves the column names alone; the heading size does the
+ * opposite.
+ */
+const sizesOf = () => page.evaluate( () => {
+	const table = document.querySelector( '.lstab-preview .lstab' );
+
+	return {
+		cell: parseFloat( getComputedStyle( table.querySelector( 'tbody td' ) ).fontSize ),
+		head: parseFloat( getComputedStyle( table.querySelector( 'thead th' ) ).fontSize ),
+	};
+} );
+
+const sizesBefore = await sizesOf();
+
+await page.fill( '#lstab-size-fontSize', '60' );
+await page.waitForTimeout( 150 );
+
+const sizesText = await sizesOf();
+
+check( 24 === sizesText.cell, 'A text size of 60 is held at the largest offered, 24px', JSON.stringify( sizesText ) );
+check( sizesText.head === sizesBefore.head, 'and the column names keep their own size', `${ sizesBefore.head } → ${ sizesText.head }` );
+
+await page.fill( '#lstab-size-headFontSize', '15' );
+await page.waitForTimeout( 150 );
+
+const sizesHead = await sizesOf();
+
+check( 15 === sizesHead.head && 24 === sizesHead.cell, 'A heading size moves the headings and nothing else', JSON.stringify( sizesHead ) );
+
+await page.locator( '#lstab-size-fontSize' ).blur();
+await page.waitForTimeout( 80 );
+check( '24' === await page.inputValue( '#lstab-size-fontSize' ), 'and the field itself says what will be saved', await page.inputValue( '#lstab-size-fontSize' ) );
+
+await page.fill( '#lstab-size-fontSize', '' );
+await page.fill( '#lstab-size-headFontSize', '' );
+await page.waitForTimeout( 150 );
+
+const sizesAfter = await sizesOf();
+
+check(
+	sizesAfter.cell === sizesBefore.cell && sizesAfter.head === sizesBefore.head,
+	'Emptied, both follow the style again',
+	`${ JSON.stringify( sizesBefore ) } → ${ JSON.stringify( sizesAfter ) }`
+);
+
 // Every colour control must actually reach the page. A token that maps to a
 // property nothing reads looks like a working control and does nothing — which
 // is exactly what "Header background" did on every preset but Bordered.

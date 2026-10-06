@@ -199,9 +199,9 @@ return array(
 	'Terminal'                                   => 'Terminal',
 	'Typewriter lettering and thin mint lines on near-black. Figures line up of their own accord.'
 		=> 'Pismo maszynowe i cienkie miętowe linie na prawie czarnym tle. Cyfry same ustawiają się w kolumnę.',
-	'Glass'                                      => 'Szkło',
-	'A frosted panel that lets what is behind it show through. Needs a photograph or a gradient underneath to mean anything.'
-		=> 'Matowy panel, przez który widać to, co jest pod nim. Ma sens tylko na zdjęciu albo gradiencie.',
+	'Aurora'                                     => 'Zorza',
+	'A heading bar that sweeps through violet, pink and amber over a crisp white table. Colourful without getting in the way of the figures.'
+		=> 'Pasek nagłówków przechodzący przez fiolet, róż i bursztyn nad czystą, białą tabelą. Kolorowo, ale bez przeszkadzania liczbom.',
 	'Contrast'                                   => 'Kontrast',
 	'Ledger'                                     => 'Księga',
 	'Warm paper, a double rule under the headings and a band down every other column. For a sheet of figures: the bands hold the eye in one column, and the numbers line up of their own accord.'
@@ -685,9 +685,6 @@ return array(
 	'Only used by the Striped style'             => 'Używane tylko w stylu Paski',
 	// Swatches that belong to one style, shown only while it is chosen.
 	'The colour of every other row'              => 'Kolor co drugiego wiersza',
-	'Glass colour'                               => 'Kolor szkła',
-	'Tints the pane; the page still shows through it'
-		=> 'Barwi taflę; strona dalej przez nią prześwituje',
 	'When the mouse is over a row'               => 'Gdy myszka jest nad wierszem',
 	'Links, sort arrows and page numbers'        => 'Odnośniki, strzałki sortowania i numery stron',
 
@@ -731,4 +728,12 @@ return array(
 	'“%1$s” is now shown %2$s rows at a time. Change the number, or go back to one long table, under “%3$s” on its own screen.'
 		=> '„%1$s” jest teraz pokazywany po %2$s wierszy naraz. Liczbę zmienisz — albo wrócisz do jednej długiej tabeli — w zakładce „%3$s” na ekranie tego arkusza.',
 	'That sheet is gone.'                        => 'Tego arkusza już nie ma.',
+
+	// Sizes in pixels.
+	'The values in the rows. Leave empty to follow the style.'
+		=> 'Wartości w wierszach. Puste pole: tak jak w stylu.',
+	'The column names. Leave empty to follow the style.'
+		=> 'Nazwy kolumn. Puste pole: tak jak w stylu.',
+	'From %1$d to %2$d px.'                      => 'Od %1$d do %2$d px.',
+	'Style'                                      => 'Styl',
 );

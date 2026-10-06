@@ -300,11 +300,9 @@
 
 		/*
 		 * Two panels are told which style is chosen, and the stylesheet does
-		 * the rest: the appearance panel, which shows a colour well only while
-		 * the style that uses it is chosen, and the preview, which stands the
-		 * table on a gradient for Glass. Glass is see-through on purpose, and
-		 * over the dashboard's own white it darkens white — a flat grey slab
-		 * that says nothing about what the style does.
+		 * the rest: the appearance panel shows a colour well only while the
+		 * style that uses it is chosen, and the preview can dress itself for
+		 * a style that needs something particular around it.
 		 */
 		Array.prototype.forEach.call(
 			document.querySelectorAll( '.lstab-appearance, .lstab-preview-pane' ),
@@ -799,6 +797,28 @@
 
 	var swatches = document.querySelectorAll( '.lstab-swatch' );
 	var metricInputs = document.querySelectorAll( '.lstab-metric-input' );
+	var sizeInputs = document.querySelectorAll( '.lstab-size-input' );
+
+	/**
+	 * A size as the server will store it: a whole number of pixels held inside
+	 * the field's own range, or nothing. The preview has to show what saving
+	 * will keep, so "60" previews as the largest size there is, not as sixty.
+	 *
+	 * @param {HTMLInputElement} input Size field.
+	 * @return {string} Pixels, or ''.
+	 */
+	function sizeOf( input ) {
+		var raw = parseInt( input.value, 10 );
+
+		if ( isNaN( raw ) ) {
+			return '';
+		}
+
+		var min = parseInt( input.getAttribute( 'min' ), 10 ) || 0;
+		var max = parseInt( input.getAttribute( 'max' ), 10 ) || raw;
+
+		return String( Math.max( min, Math.min( max, raw ) ) );
+	}
 	var resetAppearance = document.getElementById( 'lstab-reset-appearance' );
 
 	/**
@@ -840,6 +860,17 @@
 			Object.keys( chosen ).forEach( function ( property ) {
 				table.style.setProperty( property, chosen[ property ] );
 			} );
+		} );
+
+		Array.prototype.forEach.call( sizeInputs, function ( input ) {
+			var property = input.getAttribute( 'data-lstab-var' );
+			var size = sizeOf( input );
+
+			if ( size ) {
+				table.style.setProperty( property, size + 'px' );
+			} else {
+				table.style.removeProperty( property );
+			}
 		} );
 	}
 
@@ -948,11 +979,24 @@
 		input.addEventListener( 'change', applyAppearance );
 	} );
 
+	Array.prototype.forEach.call( sizeInputs, function ( input ) {
+		// While typing the preview follows; on leaving the field the number
+		// itself is put inside the range, so the field says what will be saved.
+		input.addEventListener( 'input', applyAppearance );
+		input.addEventListener( 'change', function () {
+			input.value = sizeOf( input );
+			applyAppearance();
+		} );
+	} );
+
 	if ( resetAppearance ) {
 		resetAppearance.addEventListener( 'click', function () {
 			Array.prototype.forEach.call( swatches, clearSwatch );
 			Array.prototype.forEach.call( metricInputs, function ( input ) {
 				input.value = 'normal';
+			} );
+			Array.prototype.forEach.call( sizeInputs, function ( input ) {
+				input.value = '';
 			} );
 
 			var table = stage.querySelector( '.lstab' );

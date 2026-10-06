@@ -49,7 +49,6 @@
 	 * property did not exist, so the screen had nothing to read back, and the
 	 * "Glass colour" well came up white on a table that said it was grey.
 	 */
-	--lstab-glass-tint: #ffffff;
 	/* Split out so the scheme can change the colour without restating the
 	   geometry: a shadow list has commas of its own, and light-dark() reads
 	   commas as the boundary between its two answers. */
@@ -106,7 +105,7 @@
 	--lstab-sticky-max: min( 38cqi, 22rem );
 	--lstab-row-gap: 0;
 	--lstab-row-border-width: 0 0 var(--lstab-row-line) 0;
-	--lstab-row-last-bottom: 0;
+	--lstab-row-last-bottom: 0px;
 	--lstab-row-radius: 0px;
 	--lstab-cell-border: 0;
 	--lstab-cell-cols: minmax(0, 38%) 1fr;
@@ -359,6 +358,12 @@
 
 .lstab-table tbody {
 	display: var(--lstab-tbody-display);
+	/*
+	 * The rows' own size, set in pixels in the appearance panel. On the rows
+	 * and not on the table, so the headings above keep the size they were
+	 * given: enlarging the figures used to enlarge the column names with them.
+	 */
+	font-size: var(--lstab-text-size, 1em);
 }
 
 .lstab-table tr {
@@ -421,7 +426,7 @@
 	background-color: var(--lstab-bg);
 	border-width: var(--lstab-row-border-width);
 	border-style: solid;
-	border-color: var(--lstab-border);
+	border-color: var(--lstab-row-line-colour, var(--lstab-border));
 	margin-bottom: var(--lstab-row-gap);
 	border-radius: var(--lstab-row-radius);
 	background-clip: padding-box;
@@ -612,6 +617,27 @@
 }
 
 /*
+ * The line under a pinned cell, drawn by the cell itself.
+ *
+ * In a table that scrolls sideways the pinned cell is put on a layer of its
+ * own, above the lines the table draws, and that layer is rounded to whole
+ * pixels on its own terms. Depending on how a row's height fell on the pixel
+ * grid, the cell's background landed on the line below it: the line ran the
+ * width of the table and stopped under the one column a reader looks at
+ * first. Drawn inside the cell, in the row's own line colour and width, it is
+ * on the same layer as what would cover it and rounds with it.
+ */
+.lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child {
+	/* Only in the table: on a card the first value has a line of its own. */
+	box-shadow: inset 0 calc(-1 * var(--lstab-pin-under, var(--lstab-row-line)) * var(--lstab-table-mode, 1)) 0 var(--lstab-row-line-colour, var(--lstab-border));
+}
+
+/* The last row has the line the table gives it there, which is usually none. */
+.lstab-table tbody tr:last-child {
+	--lstab-pin-under: var(--lstab-row-last-bottom);
+}
+
+/*
  * The cell also paints its own opaque backdrop, under its text and over the
  * columns sliding past underneath.
  *
@@ -702,24 +728,34 @@
 	max-width: var(--lstab-sticky-max, min( 38cqi, 22rem ));
 }
 
-/* The divider only earns its place once there is something hidden behind it. */
-.lstab-sticky-first.lstab-is-scrolled .lstab-table tbody tr:not(.lstab-detail) > td:first-child,
-.lstab-sticky-first.lstab-is-scrolled .lstab-table thead th:first-child {
-	box-shadow: 1px 0 0 var(--lstab-border), 6px 0 8px -6px rgba( 16, 24, 40, 0.22 );
+/*
+ * The divider only earns its place once there is something hidden behind it —
+ * and then it has to be seen. It used to be the table's faintest line and a
+ * whisper of shadow: on the dark styles both vanished, and on Cards the card's
+ * own shadow replaced it, so a pinned column read as a card cut in two rather
+ * than as a column standing still. Now it is the strong line and a shadow
+ * that falls onto the columns sliding underneath, on every style.
+ */
+.lstab {
+	/* Mixed from the text colour, so it shows on a dark table as on a light one:
+	   a style's own line colour is tuned to whisper, and on Terminal it did. */
+	--lstab-pin-line: color-mix(in srgb, var(--lstab-fg) 25%, transparent);
+	/* The blur no wider than the shadow is pulled in, so nothing spills above
+	   or below the pinned cell onto the lines between rows. */
+	--lstab-pin-shadow: 9px 0 9px -9px rgba( 16, 24, 40, 0.42 );
 }
 
 /*
- * The heading cell carries its rule in the same property, so the divider has
- * to be written next to it rather than instead of it: one shadow list with
- * both. Without this the first heading loses its underline for as long as the
- * table is dragged sideways — one column out of step with the rest, and only
- * sometimes, which is the hardest kind of fault to be told about.
+ * Drawn by the pinned cell's backdrop rather than by the cell. A shadow on a
+ * table cell is not painted at all where the table collapses its borders,
+ * which is how Terminal and a few others are built — there the divider simply
+ * never appeared. The backdrop is a box of its own inside the pinned cell's
+ * layer, so what it casts lands on the columns sliding underneath whatever the
+ * table's border model, and the heading keeps the rule it draws on itself.
  */
-.lstab-sticky-first.lstab-is-scrolled .lstab-table thead th:first-child {
-	box-shadow:
-		1px 0 0 var(--lstab-border),
-		6px 0 8px -6px rgba( 16, 24, 40, 0.22 ),
-		inset 0 calc( -1 * var(--lstab-head-rule) ) 0 var(--lstab-border-strong);
+.lstab-sticky-first.lstab-is-scrolled .lstab-table tbody tr:not(.lstab-detail) > td:first-child::before,
+.lstab-sticky-first.lstab-is-scrolled .lstab-table thead th:first-child::before {
+	box-shadow: 1px 0 0 var(--lstab-pin-line), var(--lstab-pin-shadow);
 }
 
 /* ------------------------------------------------------ what matched */
@@ -985,9 +1021,43 @@
 
 /* ---------------------------------------------------------------- presets */
 
+/*
+ * Every other row — counted among the rows a reader can see.
+ *
+ * A plain :nth-child(even) counts every <tr> in the body, and two kinds of
+ * them are not rows anybody sees: the drawer under a row, which is a row of
+ * its own in the markup and hidden until opened, and a row a search has just
+ * hidden. A table with drawers has one after every row, so every row a reader
+ * sees stood at an odd position and the whole table came out one colour; a
+ * search scrambled the shading in the same way. Counted "of" the visible
+ * rows instead, and a drawer that is opened wears its row's shade.
+ *
+ * The plain rule stays first, for the few browsers that cannot count "of"
+ * a selector, and those that can put it back the way it was before shading
+ * the right rows.
+ */
 .lstab-style-striped .lstab-table tbody tr:nth-child(even) {
 	--lstab-row-tint: var(--lstab-stripe);
 	background-color: var(--lstab-stripe);
+}
+
+@supports selector(:nth-child(1 of .x)) {
+	.lstab-style-striped .lstab-table tbody tr:nth-child(even) {
+		--lstab-row-tint: initial;
+		background-color: var(--lstab-bg);
+	}
+
+	.lstab-style-striped .lstab-table tbody tr.lstab-row:nth-child(even of .lstab-row:not([hidden])),
+	.lstab-style-striped .lstab-table tbody tr.lstab-row:nth-child(even of .lstab-row:not([hidden])) + tr.lstab-detail {
+		--lstab-row-tint: var(--lstab-stripe);
+		background-color: var(--lstab-stripe);
+	}
+
+	/* Hover still has the last word, so it says it as precisely. */
+	.lstab-style-striped .lstab-table tbody tr.lstab-row:nth-child(n of .lstab-row:not([hidden])):hover {
+		--lstab-row-tint: var(--lstab-hover);
+		background-color: var(--lstab-hover);
+	}
 }
 
 .lstab-style-striped .lstab-table tbody tr:hover {
@@ -1091,6 +1161,8 @@
 /* A rule under the last row closes the block, the way a printed table does —
    unless the author has asked for no lines at all, which this follows. */
 .lstab-style-editorial .lstab-table tbody tr:last-child {
+	--lstab-row-line-colour: var(--lstab-border-strong);
+	--lstab-pin-under: var(--lstab-row-line);
 	border-bottom-width: var(--lstab-row-line);
 	border-bottom-color: var(--lstab-border-strong);
 }
@@ -1339,6 +1411,23 @@
 	background-color: var(--lstab-bg);
 }
 
+/*
+ * A pinned card edge, while the cards slide sideways under it.
+ *
+ * Two things made it look broken. The pinned cell kept the card's own shadow
+ * and lost the divider every other style draws, so the card read as cut in
+ * two. And the scrolling box keeps a strip of room down its left side for the
+ * cards' shadow; a pinned cell stops at the inside of that strip, so letters
+ * of the columns sliding past showed through it, to the left of the pinned
+ * column. The cell now pins to the very edge of the box, over that strip;
+ * the divider is the one every style draws, on the pinned backdrop.
+ */
+.lstab-style-cards.lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child,
+.lstab-style-cards.lstab-sticky-first .lstab-table thead th:first-child {
+	left: calc(-1 * var(--lstab-card-bleed) * var(--lstab-table-mode));
+}
+
+
 .lstab-style-cards.lstab-sticky-first .lstab-table thead th:first-child::before {
 	background-color: transparent;
 	transition: background-color 0.15s ease;
@@ -1395,148 +1484,94 @@
  * and the mint, which cost nothing to be sure of.
  */
 .lstab-style-terminal .lstab-table tbody tr {
+	--lstab-row-line-colour: #22362f;
 	border-bottom-color: #22362f;
 }
 
 /*
- * Glass — the table itself made of frosted glass.
+ * Aurora — colour, on purpose.
  *
- * The first version was a dark slab: an opaque scrim over whatever was behind,
- * because white ink needs a dark floor and a slab is the simplest way to get
- * one. It was legible and it was not glass — you could not see through it.
+ * The other styles keep their colour for the data: a rule's paint, a pill, a
+ * bar. This one is colourful in itself, and puts all of it in one place, the
+ * heading bar, where it frames the table instead of competing with it. The bar
+ * sweeps through violet, fuchsia, rose and amber, and the table under it stays
+ * white, with lavender lines and a violet first column, so the values read as
+ * calmly as on Clean.
  *
- * The floor comes from the backdrop instead now. `brightness()` inside
- * backdrop-filter multiplies what is behind the panel rather than covering it,
- * so a photograph stays a photograph, only darker, and the saturation put back
- * on top keeps its colour. The multiplication is what makes the contrast safe:
- * the worst backdrop white ink can land on is white, and even that comes out at
- * 30 per cent — 8.52 to 1, with the quietest label at 7.05.
+ * The sweep is drawn cell by cell, each heading running from its own colour to
+ * the next, rather than once across the row. A heading row that follows the
+ * screen down is a row of separately pinned cells, and a gradient painted on
+ * the row would stay behind with the table while its names floated off without
+ * it. Four colours repeat every four columns, so a table of any width sweeps
+ * the whole way across.
  *
- * Thirty rather than thirty-eight because the pane can now be tinted, and a
- * tint can only lighten. White is the worst colour somebody can choose for it,
- * and at thirty-eight a white tint left the quietest label at 3.88 — under the
- * bar, from a colour well that gave no hint it could do that. With this floor
- * the same worst case is 4.92, and the untinted panel is better than it was.
+ * Each of the four carries white lettering at 4.5 to 1 or better; amber was
+ * taken a shade deeper than a sunset would have it for exactly that reason.
+ * "Header background" in the panel replaces the first colour, so a table can
+ * still be made to start the sweep in a brand's own colour.
  *
- * A browser without backdrop-filter gets the old scrim, which is why the colour
- * is declared twice: the plain one first, the see-through one only where the
- * filter exists to darken behind it.
+ * Paper, not a mood: it stays light on a dark page, like Ledger and Editorial.
  */
-.lstab-style-glass {
-	--lstab-fg: #fff;
-	--lstab-fg-muted: rgba(255, 255, 255, 0.92);
-	--lstab-fg-faint: rgba(255, 255, 255, 0.88);
-	--lstab-bg: rgba(18, 24, 32, 0.66);
-	--lstab-head-bg: rgba(0, 0, 0, 0.16);
-	--lstab-head-fg: rgba(255, 255, 255, 0.94);
-	/* Brighter than the first version: on glass the hairlines are the only
-	   thing saying where one row ends, and at 22 per cent they were a rumour. */
-	--lstab-border: rgba(255, 255, 255, 0.28);
-	--lstab-border-strong: rgba(255, 255, 255, 0.5);
-	--lstab-stripe: rgba(255, 255, 255, 0.07);
-	--lstab-hover: rgba(255, 255, 255, 0.14);
-	--lstab-accent: #fff;
-	/* The pinned column has to be solid enough to hide what slides under it,
-	   which a pane of glass cannot do. */
-	--lstab-sticky-bg: rgba(12, 18, 25, 0.9);
-	--lstab-radius: 18px;
-	/* A near-white flag with dark ink on it: the one place in this skin where
-	   the colours turn over, because a search hit has to shout. */
-	--lstab-hit-bg: rgba(255, 255, 255, 0.86);
-	--lstab-hit-fg: #101418;
-	--lstab-hit-edge: rgba(255, 255, 255, 0.55);
-	--lstab-bg-fade: rgba(18, 24, 32, 0);
-	--lstab-edge-shadow: rgba(0, 0, 0, 0.35);
-	/* The lit top edge is what tells the eye this is a pane and not a hole. */
-	--lstab-frame-border: 1px solid rgba(255, 255, 255, 0.22);
+.lstab-style-aurora {
+	--lstab-fg: #24183b;
+	--lstab-fg-muted: #594c70;
+	--lstab-fg-faint: #65587d;
+	--lstab-bg: #ffffff;
+	--lstab-head-bg: #6d28d9;
+	--lstab-head-fg: #ffffff;
+	--lstab-aurora-2: #a21caf;
+	--lstab-aurora-3: #be123c;
+	--lstab-aurora-4: #c2410c;
+	--lstab-border: #eee5fb;
+	--lstab-border-strong: #d8c6f5;
+	--lstab-stripe: #faf6ff;
+	--lstab-hover: #f5edff;
+	--lstab-accent: #9d174d;
+	--lstab-radius: 16px;
+	--lstab-sticky-bg: #ffffff;
+	--lstab-bg-fade: rgba(255, 255, 255, 0);
+	--lstab-frame-border: 1px solid #e6d8fb;
 	--lstab-frame-shadow:
-		0 18px 50px -20px rgba(0, 0, 0, 0.7),
-		inset 0 1px 0 rgba(255, 255, 255, 0.3);
+		0 1px 2px rgba(76, 29, 149, 0.06),
+		0 22px 44px -26px rgba(109, 40, 217, 0.55),
+		0 14px 30px -24px rgba(219, 39, 119, 0.45);
+	color-scheme: light;
 }
 
-@supports ( backdrop-filter: blur(1px) ) or ( -webkit-backdrop-filter: blur(1px) ) {
-	.lstab-style-glass {
-		/*
-		 * Only a sheen — the darkening is the filter's job, and a scrim on top
-		 * of it would be the slab all over again.
-		 *
-		 * The sheen is mixed rather than given outright, and that is what lets
-		 * the pane be coloured at all. "Glass colour" hands over an ordinary
-		 * opaque colour, as every colour well on that screen does; laid on the
-		 * pane as it came it would stop the glass being glass. At a seventh it
-		 * tints what is behind instead of hiding it.
-		 *
-		 * It is painted through --lstab-paper, the token the panel prefers over
-		 * --lstab-bg, so a colour chosen here reaches the pane and nothing
-		 * else: the rows are clear, and the search box keeps its own.
-		 */
-		--lstab-glass-pane: color-mix( in srgb, var(--lstab-glass-tint) 14%, transparent );
-		--lstab-paper: var(--lstab-glass-pane);
-		--lstab-bg: rgba(255, 255, 255, 0.06);
-		--lstab-bg-fade: rgba(255, 255, 255, 0);
-	}
-
-	/*
-	 * The search box, the filters and the download buttons are panes too, and
-	 * take the same tint — a coloured table must not arrive with a search box
-	 * and three buttons in plain grey. The same strength as the panel, not a
-	 * stronger one: they carry their own border and lit edge to stand out
-	 * with, and a stronger tint is the one thing that costs contrast.
-	 */
-	.lstab-style-glass .lstab-search-input,
-	.lstab-style-glass .lstabp-facet summary,
-	.lstab-style-glass .lstabp-export-button {
-		background-color: var(--lstab-glass-pane);
-	}
-
-	.lstab-style-glass .lstab-scroll,
-	.lstab-style-glass .lstab-search-input,
-	.lstab-style-glass .lstabp-facet summary,
-	.lstab-style-glass .lstabp-export-button {
-		backdrop-filter: blur(18px) saturate(1.4) brightness(0.30);
-		-webkit-backdrop-filter: blur(18px) saturate(1.4) brightness(0.30);
-	}
-
-	/* The controls are panes too, smaller ones. */
-	.lstab-style-glass .lstab-search-input,
-	.lstab-style-glass .lstabp-facet summary,
-	.lstab-style-glass .lstabp-export-button {
-		border-color: rgba(255, 255, 255, 0.28);
-		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
-	}
-}
-
-/*
- * The panel is already tinted, and a row tinted the same again is twice as
- * opaque as the skin intends. The rows go clear and take their hover — and a
- * colour rule's row tint — as a layer on top.
- */
-.lstab-style-glass .lstab-table tbody tr {
-	background-color: transparent;
-	background-image: linear-gradient(var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent));
-}
-
-/*
- * The pinned column's backdrop has to be solid, and a solid band down a pane of
- * glass is a black stripe across the one skin whose whole point is that you can
- * see through it. It is only doing anything once the table has actually been
- * dragged sideways, so that is when it appears.
- */
-.lstab-style-glass .lstab-table tbody tr:not(.lstab-detail) > td:first-child::before,
-.lstab-style-glass .lstab-table thead th:first-child::before {
-	background-color: transparent;
-	transition: background-color 0.15s ease;
-}
-
-.lstab-style-glass.lstab-is-scrolled .lstab-table tbody tr:not(.lstab-detail) > td:first-child::before,
-.lstab-style-glass.lstab-is-scrolled .lstab-table thead th:first-child::before {
-	background-color: var(--lstab-sticky-bg);
-}
-
-/* Glass is a pane, so its heading sits on the pane rather than on a bar of its
-   own: the base hairline, and the weight carried by the letters. */
-.lstab-style-glass .lstab-table thead th {
+.lstab-style-aurora .lstab-table thead th {
+	--lstab-head-rule: 0px;
+	box-shadow: none;
+	padding-block: calc(var(--lstab-pad-y) * 1.15);
 	letter-spacing: 0.08em;
+	background-image: linear-gradient(90deg, var(--lstab-aurora-from), var(--lstab-aurora-to));
+	/* Mixed through the hue wheel rather than straight across: amber back to
+	   violet in plain RGB passes through mud, in OKLCH through red and pink. */
+	background-image: linear-gradient(in oklch 90deg, var(--lstab-aurora-from), var(--lstab-aurora-to));
+}
+
+.lstab-style-aurora .lstab-table thead th:nth-child(4n+1) { --lstab-aurora-from: var(--lstab-head-bg); --lstab-aurora-to: var(--lstab-aurora-2); }
+.lstab-style-aurora .lstab-table thead th:nth-child(4n+2) { --lstab-aurora-from: var(--lstab-aurora-2); --lstab-aurora-to: var(--lstab-aurora-3); }
+.lstab-style-aurora .lstab-table thead th:nth-child(4n+3) { --lstab-aurora-from: var(--lstab-aurora-3); --lstab-aurora-to: var(--lstab-aurora-4); }
+.lstab-style-aurora .lstab-table thead th:nth-child(4n+4) { --lstab-aurora-from: var(--lstab-aurora-4); --lstab-aurora-to: var(--lstab-head-bg); }
+
+/* The sort arrows and the pinned heading's backdrop wear the sweep too. */
+.lstab-style-aurora .lstab-table thead th .lstab-sort {
+	color: inherit;
+}
+
+.lstab-style-aurora.lstab-sticky-first .lstab-table thead th:first-child::before {
+	background-image: linear-gradient(90deg, var(--lstab-aurora-from), var(--lstab-aurora-to));
+	background-image: linear-gradient(in oklch 90deg, var(--lstab-aurora-from), var(--lstab-aurora-to));
+}
+
+/* The name of each row in the deepest of the four colours: the one place the
+   palette reaches into the body, and the column a reader looks along first. */
+/* Not on a row a colour rule has painted: the rule worked out an ink for
+   its own paint, and violet on that paint is not it. */
+.lstab-style-aurora .lstab-table tbody td:first-child:not(.lstab-ruled) {
+	/* Deep enough that a pill's word, mixed from the cell's ink, stays readable. */
+	color: #3b0764;
+	font-weight: 600;
 }
 
 /*
@@ -1825,7 +1860,7 @@
 	--lstab-sticky-max: min( 38cqi, 22rem );
 	--lstab-row-gap: 0;
 	--lstab-row-border-width: 0 0 1px 0;
-	--lstab-row-last-bottom: 0;
+	--lstab-row-last-bottom: 0px;
 	--lstab-row-radius: 0px;
 	--lstab-cell-border: 0;
 	--lstab-table-mode: 1;

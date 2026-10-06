@@ -60,7 +60,7 @@ class LSTAB_Customizer {
 					'var'   => '--lstab-border',
 				),
 				/*
-				 * Two of these belong to one style each, and until now they
+				 * One of these belongs to one style, and until now it
 				 * sat among the rest on all nine — a colour well that does
 				 * nothing is a colour well somebody sets, saves, and then goes
 				 * looking for on the page. 'style' says which style a swatch
@@ -71,12 +71,6 @@ class LSTAB_Customizer {
 					'note'  => __( 'The colour of every other row', 'live-sheets-table' ),
 					'var'   => '--lstab-stripe',
 					'style' => 'striped',
-				),
-				'glassTint'  => array(
-					'label' => __( 'Glass colour', 'live-sheets-table' ),
-					'note'  => __( 'Tints the pane; the page still shows through it', 'live-sheets-table' ),
-					'var'   => '--lstab-glass-tint',
-					'style' => 'glass',
 				),
 				'hover'      => array(
 					'label' => __( 'Row hover', 'live-sheets-table' ),
@@ -103,32 +97,6 @@ class LSTAB_Customizer {
 			'lstab_customizer_metrics',
 			array
 			(
-				'fontSize' => array(
-					'label'   => __( 'Text size', 'live-sheets-table' ),
-					'choices' => array(
-						'small'  => __( 'Small', 'live-sheets-table' ),
-						'normal' => __( 'Normal', 'live-sheets-table' ),
-						'large'  => __( 'Large', 'live-sheets-table' ),
-					),
-					'vars'    => array(
-						'small'  => array( '--lstab-font-size' => '0.86em' ),
-						'normal' => array(),
-						'large'  => array( '--lstab-font-size' => '1.04em' ),
-					),
-				),
-				'headFontSize' => array(
-					'label'   => __( 'Heading text size', 'live-sheets-table' ),
-					'choices' => array(
-						'small'  => __( 'Small', 'live-sheets-table' ),
-						'normal' => __( 'Normal', 'live-sheets-table' ),
-						'large'  => __( 'Large', 'live-sheets-table' ),
-					),
-					'vars'    => array(
-						'small'  => array( '--lstab-head-font-size' => '0.72em' ),
-						'normal' => array(),
-						'large'  => array( '--lstab-head-font-size' => '0.95em' ),
-					),
-				),
 				'density'  => array(
 					'label'   => __( 'Row height', 'live-sheets-table' ),
 					'choices' => array(
@@ -221,6 +189,73 @@ class LSTAB_Customizer {
 	}
 
 	/**
+	 * Editable sizes, in whole pixels, each held between a floor and a ceiling.
+	 *
+	 * Small, Normal and Large were too coarse to match a theme by, and a free
+	 * number is how a table ends up with sixty-pixel values. So: a number, and
+	 * a range that keeps it a table. Anything past the ceiling is held at the
+	 * ceiling rather than refused, so "60" still gets the biggest size there is.
+	 *
+	 * The two are independent. The text size reaches the values in the rows and
+	 * nothing else; the headings keep their own size whatever the rows are set
+	 * to, which is what somebody enlarging the figures expects.
+	 *
+	 * @return array<string,array{label:string,note:string,var:string,min:int,max:int,legacy:array<string,int>}>
+	 */
+	public static function sizes() {
+		return (array) apply_filters(
+			'lstab_customizer_sizes',
+			array(
+				'fontSize'     => array(
+					'label'  => __( 'Text size', 'live-sheets-table' ),
+					'note'   => __( 'The values in the rows. Leave empty to follow the style.', 'live-sheets-table' ),
+					'var'    => '--lstab-text-size',
+					'min'    => 11,
+					'max'    => 24,
+					// What the old Small, Normal and Large came to, on the
+					// sixteen-pixel text most themes set.
+					'legacy' => array(
+						'small' => 14,
+						'large' => 17,
+					),
+				),
+				'headFontSize' => array(
+					'label'  => __( 'Heading text size', 'live-sheets-table' ),
+					'note'   => __( 'The column names. Leave empty to follow the style.', 'live-sheets-table' ),
+					'var'    => '--lstab-head-font-size',
+					'min'    => 10,
+					'max'    => 22,
+					'legacy' => array(
+						'small' => 11,
+						'large' => 14,
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * One size, made safe: a whole number of pixels inside its range, or ''.
+	 *
+	 * @param mixed                $raw  What was submitted or stored.
+	 * @param array<string,mixed> $size The size's definition.
+	 * @return string
+	 */
+	public static function sanitize_size( $raw, $size ) {
+		$raw = strtolower( trim( (string) $raw ) );
+
+		if ( isset( $size['legacy'][ $raw ] ) ) {
+			return (string) (int) $size['legacy'][ $raw ];
+		}
+
+		if ( ! preg_match( '/^(\d{1,4})(?:\.\d+)?\s*(?:px)?$/', $raw, $found ) ) {
+			return '';
+		}
+
+		return (string) max( (int) $size['min'], min( (int) $size['max'], (int) $found[1] ) );
+	}
+
+	/**
 	 * Empty override set.
 	 *
 	 * @return array<string,string>
@@ -233,6 +268,9 @@ class LSTAB_Customizer {
 		}
 		foreach ( array_keys( self::metrics() ) as $key ) {
 			$defaults[ $key ] = 'normal';
+		}
+		foreach ( array_keys( self::sizes() ) as $key ) {
+			$defaults[ $key ] = '';
 		}
 
 		return $defaults;
@@ -265,6 +303,12 @@ class LSTAB_Customizer {
 			}
 			$value = sanitize_key( (string) $raw[ $key ] );
 			$clean[ $key ] = isset( $metric['choices'][ $value ] ) ? $value : 'normal';
+		}
+
+		foreach ( self::sizes() as $key => $size ) {
+			if ( isset( $raw[ $key ] ) ) {
+				$clean[ $key ] = self::sanitize_size( $raw[ $key ], $size );
+			}
 		}
 
 		return $clean;
@@ -307,6 +351,12 @@ class LSTAB_Customizer {
 			}
 			foreach ( $metric['vars'][ $choice ] as $property => $value ) {
 				$map[ $property ] = $value;
+			}
+		}
+
+		foreach ( self::sizes() as $key => $size ) {
+			if ( isset( $values[ $key ] ) && '' !== $values[ $key ] ) {
+				$map[ $size['var'] ] = (int) $values[ $key ] . 'px';
 			}
 		}
 
