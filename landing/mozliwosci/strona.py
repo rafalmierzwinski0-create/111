@@ -1871,6 +1871,11 @@ RUCH = r"""( function () {
 
 	for ( var i = 0; i < fony.length; i++ ) {
 		( function ( fon ) {
+			// Skrypt bywa na stronie kilka razy, bo każda sekcja wklejona
+			// w całości niesie swój. Aparat podpinany jest raz.
+			if ( fon.getAttribute( 'data-mz-nachyl' ) ) { return; }
+			fon.setAttribute( 'data-mz-nachyl', '1' );
+
 			var r = null;
 			var x = 0.5;
 			var y = 0.5;
@@ -1917,12 +1922,18 @@ def z_odciskiem( arkusz_css, znacznik_html ):
 	to z telefonem: nowe znacznikowanie trafiło na stary arkusz, ikonki paska
 	stanu ustawiły się w słupek, a obudowa została płaskim prostokątem.
 
-	Skrót z treści arkusza ląduje jako wartość w CSS i jako atrybut przy
-	znacznikowaniu. Skrypt porównuje jedno z drugim i mówi w konsoli, że się
-	rozjechało. Ten sam arkusz daje ten sam odcisk, więc przebudowanie bez
-	zmian niczego w repozytorium nie rusza.
+	Skrót ląduje jako wartość w CSS i jako atrybut przy znacznikowaniu.
+	Skrypt porównuje jedno z drugim i mówi w konsoli, że się rozjechało.
+
+	Liczony z arkusza TEJ STRONY, a nie z całego pliku, który idzie do Divi.
+	Pliki różnych sekcji różnią się tym, czy niosą jeszcze arkusz wtyczki albo
+	sekcji „jak to działa”, i jeden arkusz z całej podstrony w opcjach motywu
+	obsługuje wszystkie sekcje naraz. Liczony z całego pliku, odcisk krzyczałby
+	przy dokładnie tym ustawieniu, które jest zalecane. Tak mówi tylko to, co
+	ma mówić: czy kod i arkusz są z tego samego wydania strony. To samo wydanie
+	daje ten sam odcisk, więc przebudowanie bez zmian niczego nie rusza.
 	"""
-	odcisk = hashlib.sha1( arkusz_css.encode( 'utf-8' ) ).hexdigest()[ :8 ]
+	odcisk = hashlib.sha1( skrot( STYL ).encode( 'utf-8' ) ).hexdigest()[ :8 ]
 	css = arkusz_css + '\n.lst-mz { --mz-odcisk: "' + odcisk + '"; }'
 	html = znacznik_html.replace( '<div class="lst-mz">', '<div class="lst-mz" data-odcisk="' + odcisk + '">', 1 )
 

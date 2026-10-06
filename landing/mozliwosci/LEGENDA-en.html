@@ -97,6 +97,11 @@
 
 	for ( var i = 0; i < fony.length; i++ ) {
 		( function ( fon ) {
+			// Skrypt bywa na stronie kilka razy, bo każda sekcja wklejona
+			// w całości niesie swój. Aparat podpinany jest raz.
+			if ( fon.getAttribute( 'data-mz-nachyl' ) ) { return; }
+			fon.setAttribute( 'data-mz-nachyl', '1' );
+
 			var r = null;
 			var x = 0.5;
 			var y = 0.5;
