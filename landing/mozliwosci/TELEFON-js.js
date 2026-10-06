@@ -1287,8 +1287,8 @@
 
 			var rysuj = function () {
 				klatka = 0;
-				fon.style.setProperty( '--mz-nachyl-y', ( ( x - 0.5 ) * 14 ).toFixed( 2 ) + 'deg' );
-				fon.style.setProperty( '--mz-nachyl-x', ( ( 0.5 - y ) * 10 ).toFixed( 2 ) + 'deg' );
+				fon.style.setProperty( '--mz-nachyl-y', ( ( x - 0.5 ) * 26 ).toFixed( 2 ) + 'deg' );
+				fon.style.setProperty( '--mz-nachyl-x', ( ( 0.5 - y ) * 16 ).toFixed( 2 ) + 'deg' );
 				fon.style.setProperty( '--mz-blask-x', ( x * 100 ).toFixed( 1 ) + '%' );
 				fon.style.setProperty( '--mz-blask-y', ( y * 100 ).toFixed( 1 ) + '%' );
 			};

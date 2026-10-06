@@ -836,6 +836,26 @@ console.log( '\nnachylenie aparatu' );
 	await p.waitForTimeout( 800 );
 	const potem = await obrotY();
 
+	/*
+	 * Grubość: warstwy korpusu muszą naprawdę stać w przestrzeni, za
+	 * przodem. Gdyby coś w obudowie spłaszczyło przestrzeń (overflow, filtr,
+	 * maska na samej ramie), warstwy ległyby w płaszczyźnie przodu i bok by
+	 * zniknął, a nic by tego nie zgłosiło.
+	 */
+	const bryla = await fon.evaluate( ( e ) => {
+		const w = e.querySelectorAll( '.lst-mz-telefon-warstwa' );
+		const ostatnia = w[ w.length - 1 ];
+
+		return {
+			przestrzen: getComputedStyle( e ).transformStyle,
+			warstw: w.length,
+			glebia: ostatnia ? Math.round( new DOMMatrixReadOnly( getComputedStyle( ostatnia ).transform ).m43 ) : 0,
+		};
+	} );
+	ok( 'telefon ma grubość: korpus stoi za ekranem w przestrzeni',
+		'preserve-3d' === bryla.przestrzen && 12 === bryla.warstw && bryla.glebia <= -36,
+		`${ bryla.przestrzen }, warstw ${ bryla.warstw }, najgłębsza ${ bryla.glebia }px` );
+
 	ok( 'aparat odchyla się w stronę kursora, świeci blaskiem i wraca na zero',
 		prawo * lewo < 0 && Math.abs( prawo ) > 0.03 && '1' === blask && 0 === potem,
 		`z prawej ${ prawo }, z lewej ${ lewo }, blask ${ blask }, po wyjściu ${ potem }` );

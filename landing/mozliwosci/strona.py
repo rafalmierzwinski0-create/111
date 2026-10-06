@@ -196,10 +196,10 @@ EKRANY = [
 ]
 
 TELEFON = [
-	'the column decides, not the window',
-	'every value keeps the name of its column',
-	'search, sorting and filters, all still there',
-	'one table, not a second mobile copy',
+	'No zooming, no scrolling sideways',
+	'Search, sorting and filters still work',
+	'Nothing to set up, it happens on its own',
+	'Every detail shows its column heading',
 ]
 
 WOLNE = [
@@ -308,7 +308,14 @@ def telefon( srodek ):
 	szczegółach: wyspa z obiektywem, pasek stanu, odbicie na szkle i kreska
 	gestu. Bez nich to zaokrąglony prostokąt wokół tabeli.
 	"""
+	# Korpus: dwanaście warstw obudowy jedna za drugą. Kiedy aparat się
+	# odchyla, ich brzegi układają się w bok telefonu — z grubością,
+	# zaokrąglonymi rogami i światłem, które gaśnie w głąb.
+	korpus = ''.join( '<span class="lst-mz-telefon-warstwa" style="--i:' + str( i ) + '"></span>'
+		for i in range( 1, 13 ) )
+
 	return ( '<div class="lst-mz-telefon-rama">'
+		+ korpus +
 		'<span class="lst-mz-telefon-guzik jest-cisza"></span>'
 		'<span class="lst-mz-telefon-guzik jest-glosniej"></span>'
 		'<span class="lst-mz-telefon-guzik jest-ciszej"></span>'
@@ -422,16 +429,14 @@ BLOK_TELEFON = (
 	+ naglowek( 'On a phone, every row becomes a card' ) +
 	'<div class="lst-mz-pas">'
 	'<div class="lst-mz-pas-bok">'
-	'<p class="lst-mz-opis">Each value keeps the name of its column, so nothing has to be guessed from '
-	'position. What decides is the width of the column the table sits in, not the width of the screen. '
-	'A table in a narrow sidebar folds on a desktop too.'
-	'<span class="lst-mz-szeroko"> The frame in the middle is a real phone width, with the same table '
-	'in it.</span>'
-	'<span class="lst-mz-wasko"> The table above this is doing it right now.</span></p>'
+	'<p class="lst-mz-opis">No zooming, no scrolling sideways. On a phone every row becomes a card you '
+	'can read at a glance, with search and filters right above it. It is the same table, so there is '
+	'nothing extra to set up or maintain. Most of your visitors read on a phone, and they get the same '
+	'up-to-date data as everyone else.</p>'
 	'</div>'
 	+ telefon( TABELA_W_TELEFONIE ) +
 	'<div class="lst-mz-pas-bok jest-prawy">'
-	'<p class="lst-mz-adres">390 px</p>'
+	'<p class="lst-mz-adres">On a phone</p>'
 	+ punkty( TELEFON ) +
 	'</div>'
 	'</div>'
@@ -1032,7 +1037,14 @@ STYL = r"""
 	 * wpisuje skrypt; tu jest tylko to, jak za nimi nadąża. Powrót jest
 	 * wolniejszy niż wejście, żeby aparat odkładał się, a nie odskakiwał.
 	 */
-	transform: perspective( 1100px )
+	/*
+	 * Grubość. Telefon ma bok, a nie tylko przód: za ekranem stoi dwanaście
+	 * warstw obudowy, co trzy i pół piksela, razem czterdzieści dwa. To
+	 * mniej więcej proporcja prawdziwego aparatu przy tej szerokości.
+	 */
+	--mz-grubosc: 3.5px;
+	transform-style: preserve-3d;
+	transform: perspective( 1000px )
 		rotateX( var( --mz-nachyl-x, 0deg ) )
 		rotateY( var( --mz-nachyl-y, 0deg ) )
 		translateY( var( --mz-uniesienie, 0px ) );
@@ -1051,6 +1063,23 @@ STYL = r"""
 		0 2px 2px -1px rgba( 0, 0, 0, .5 ),
 		0 50px 90px -40px rgba( 0, 0, 0, 1 ),
 		0 0 80px -28px rgba( var( --mz-mieta ), .5 );
+}
+
+/*
+ * Warstwy korpusu. Każda kolejna dalej w głąb i odrobinę ciemniejsza, więc
+ * bok czyta się jak metal oświetlony od przodu. Jasny, nie czarny: ciemny bok
+ * zlewał się z ciemną stroną i grubości nie było widać wcale. W spoczynku wszystkie chowają się za przodem, bo perspektywa
+ * zmniejsza to, co dalej; wychodzą dopiero, gdy aparat się odchyli.
+ */
+.lst-mz .lst-mz-telefon-warstwa {
+	position: absolute;
+	inset: 0;
+	border-radius: 52px;
+	pointer-events: none;
+	background-color: #2a3835;
+	background-color: color-mix( in srgb, #26332f calc( var( --i ) * 5.5% ), #7d958f );
+	box-shadow: inset 0 0 0 1px rgba( 255, 255, 255, .04 );
+	transform: translateZ( calc( var( --i ) * var( --mz-grubosc ) * -1 ) );
 }
 
 /* Czarna szczelina między metalem a ekranem: na prawdziwym aparacie to ona
@@ -1212,7 +1241,9 @@ STYL = r"""
  */
 .lst-mz .lst-mz-telefon-guzik {
 	position: absolute;
-	width: 3px;
+	width: 4px;
+	/* W połowie grubości: siedzą na boku, a nie przyklejone do szyby. */
+	transform: translateZ( calc( var( --mz-grubosc ) * -6 ) );
 	border-radius: 0 3px 3px 0;
 	background-color: #33433f;
 	box-shadow:
@@ -1221,13 +1252,13 @@ STYL = r"""
 		1px 0 1px rgba( 0, 0, 0, .4 );
 }
 
-.lst-mz .lst-mz-telefon-guzik.jest-cisza { left: -3px; top: 104px; height: 28px; }
-.lst-mz .lst-mz-telefon-guzik.jest-glosniej { left: -3px; top: 150px; height: 56px; }
-.lst-mz .lst-mz-telefon-guzik.jest-ciszej { left: -3px; top: 218px; height: 56px; }
+.lst-mz .lst-mz-telefon-guzik.jest-cisza { left: -4px; top: 104px; height: 28px; }
+.lst-mz .lst-mz-telefon-guzik.jest-glosniej { left: -4px; top: 150px; height: 56px; }
+.lst-mz .lst-mz-telefon-guzik.jest-ciszej { left: -4px; top: 218px; height: 56px; }
 
 .lst-mz .lst-mz-telefon-guzik.jest-bok {
 	left: auto;
-	right: -3px;
+	right: -4px;
 	top: 176px;
 	height: 92px;
 	border-radius: 3px 0 0 3px;
@@ -1587,6 +1618,7 @@ STYL = r"""
 .lst-mz .lst-mz-telefon-oko { background-color: #0b1a19 !important; border-radius: 50% !important; }
 .lst-mz .lst-mz-telefon-kreska { background-color: rgba( 234, 243, 241, .4 ) !important; border-radius: 999px !important; }
 .lst-mz .lst-mz-telefon-guzik { background-color: #33433f !important; }
+.lst-mz .lst-mz-telefon-warstwa { background-color: color-mix( in srgb, #26332f calc( var( --i ) * 5.5% ), #7d958f ) !important; border: 0 !important; border-radius: 52px !important; }
 .lst-mz .lst-mz-telefon-godzina { font-family: inherit !important; }
 .lst-mz .lst-mz-telefon { background-color: var( --mz-ekran ) !important; border-radius: 40px !important; }
 .lst-mz .lst-mz-okno { background-color: var( --mz-ekran ) !important; border: 1px solid var( --mz-ekran-linia ) !important; }
@@ -1846,8 +1878,8 @@ RUCH = r"""( function () {
 
 			var rysuj = function () {
 				klatka = 0;
-				fon.style.setProperty( '--mz-nachyl-y', ( ( x - 0.5 ) * 14 ).toFixed( 2 ) + 'deg' );
-				fon.style.setProperty( '--mz-nachyl-x', ( ( 0.5 - y ) * 10 ).toFixed( 2 ) + 'deg' );
+				fon.style.setProperty( '--mz-nachyl-y', ( ( x - 0.5 ) * 26 ).toFixed( 2 ) + 'deg' );
+				fon.style.setProperty( '--mz-nachyl-x', ( ( 0.5 - y ) * 16 ).toFixed( 2 ) + 'deg' );
 				fon.style.setProperty( '--mz-blask-x', ( x * 100 ).toFixed( 1 ) + '%' );
 				fon.style.setProperty( '--mz-blask-y', ( y * 100 ).toFixed( 1 ) + '%' );
 			};
