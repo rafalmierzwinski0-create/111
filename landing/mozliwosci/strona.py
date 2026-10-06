@@ -86,6 +86,29 @@ def dla_divi( html ):
 
 TABELA = dla_divi( M[ 'pro' ] )
 
+
+def na_wierzch( html, nazwa ):
+	"""Ta sama tabela, ale z jednym wierszem przeniesionym na sam początek.
+
+	W ramce telefonu widać ledwie jedną kartę, a pierwsza z kolei to szlak bez
+	śniegu, z kropką „Easy” i pustym słupkiem: najnudniejszy wiersz w całym
+	arkuszu. Na wierzch idzie więc ten, który pokazuje najwięcej naraz.
+	Przestawiany jest tylko znacznik, nie dane: sortowanie i szukanie w
+	telefonie działają tak samo jak w tabeli wyżej.
+	"""
+	wiersze = re.findall( r'<tr role="row" class="lstab-row[^"]*">.*?</tr>', html, re.S )
+	ten = [ w for w in wiersze if nazwa in w ]
+	assert 1 == len( ten ), nazwa + ': nie ma takiego wiersza albo jest dwa razy'
+	bez = html.replace( ten[ 0 ], '', 1 )
+	pierwszy = re.search( r'<tr role="row" class="lstab-row', bez )
+
+	return bez[ : pierwszy.start() ] + ten[ 0 ] + bez[ pierwszy.start() : ]
+
+
+# Najgłębszy śnieg, zamknięty szlak i kamera: czerwona karta, pełny słupek,
+# pigułka CLOSED i przycisk naraz.
+TABELA_W_TELEFONIE = na_wierzch( TABELA, 'Blackpine Summit' )
+
 # Ikonki legendy: 24 x 24, rysowane kreska, bez wypelnienia poza tym, co ma
 # klase `jest-pelna`. Ten sam zestaw regul co w landing/droga, zeby cala
 # witryna miala jedna reke.
@@ -406,7 +429,7 @@ BLOK_TELEFON = (
 	'in it.</span>'
 	'<span class="lst-mz-wasko"> The table above this is doing it right now.</span></p>'
 	'</div>'
-	+ telefon( TABELA ) +
+	+ telefon( TABELA_W_TELEFONIE ) +
 	'<div class="lst-mz-pas-bok jest-prawy">'
 	'<p class="lst-mz-adres">390 px</p>'
 	+ punkty( TELEFON ) +
@@ -1048,7 +1071,8 @@ STYL = r"""
 	/* 390 px: szerokość dzisiejszego telefonu, a nie sprzed dekady. */
 	width: 390px;
 	max-width: 100%;
-	height: clamp( 36rem, 46vw, 42rem );
+	/* Wyżej niż przedtem: przy 1,68 aparat czytał się jak mały tablet. */
+	height: clamp( 42rem, 52vw, 48rem );
 	overflow: hidden;
 	/* Trochę luzu na boki: treść dotykająca krawędzi szkła wygląda na uciętą,
 	   a na prawdziwym ekranie nic nie leży przy samej krawędzi. */
