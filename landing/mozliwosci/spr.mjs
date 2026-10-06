@@ -870,6 +870,63 @@ console.log( '\nnachylenie aparatu' );
 	await c.close();
 }
 
+/*
+ * Starszy arkusz na stronie. Na żywej stronie stara kopia z pola „Własny CSS”
+ * wczytywała się PO nowej i przykrywała ją: aparat 390 × 446 zamiast
+ * 414 × 792, wyspa skurczona do kropki, godzina schowana za rogiem. Stary
+ * arkusz nie zna odcisku, więc tu jest udawany: ten sam arkusz bez reguły
+ * z odciskiem, dołożony za nowym. Skrypt ma to zauważyć, a bez niego milczeć.
+ */
+console.log( '\nstarsza kopia arkusza' );
+{
+	const nowy = czytaj( 'MOZLIWOSCI-css.css' );
+	const stary = nowy.replace( /\.lst-mz \{ --mz-odcisk: "[^"]*"; \}/, '' );
+	const glosy = [];
+	for ( const zeStarym of [ false, true ] ) {
+		const c = await b.newContext( { viewport: { width: 1500, height: 1100 } } );
+		const p = await c.newPage();
+		const ostrz = [];
+		p.on( 'console', ( m ) => 'warning' === m.type() && /starsza wersja/.test( m.text() ) && ostrz.push( m.text() ) );
+		await p.goto( 'file://' + TU + '/' );
+		await p.setContent( '<!doctype html><html><head><meta charset="utf-8"><style>' + nowy + '</style>'
+			+ ( zeStarym ? '<style>' + stary + '</style>' : '' ) + '</head><body>'
+			+ czytaj( 'TELEFON-kod.html' ) + '<script>' + czytaj( 'MOZLIWOSCI-js.js' ) + '</script></body></html>', { waitUntil: 'load' } );
+		await p.waitForTimeout( 200 );
+		glosy.push( ostrz.length );
+		await c.close();
+	}
+	ok( 'starszy arkusz na stronie jest zgłaszany, a sam nowy nie',
+		0 === glosy[ 0 ] && 1 === glosy[ 1 ], `sam nowy: ${ glosy[ 0 ] } ostrzeżeń, z kopią bez odcisku: ${ glosy[ 1 ] }` );
+}
+
+/*
+ * Skrypt przed modułem. Divi wkleja kod z zakładki Integracja tam, gdzie mu
+ * wygodnie — do <head> albo na początek <body> — czyli zanim na stronie
+ * stoi jakikolwiek moduł. Poprzednia wersja szukała modułów od razu, nic nie
+ * znajdowała i milczała: bez wjazdu, bez nachylenia, bez jednego błędu.
+ */
+console.log( '\nskrypt przed modułem' );
+{
+	const c = await b.newContext( { viewport: { width: 1500, height: 1100 } } );
+	const p = await c.newPage();
+	await p.goto( 'file://' + TU + '/' );
+	await p.setContent( '<!doctype html><html><head><meta charset="utf-8">' + czytaj( 'MOZLIWOSCI-head.html' )
+		+ czytaj( 'MOZLIWOSCI-body.html' ) + '</head><body>' + czytaj( 'TELEFON-kod.html' ) + '</body></html>', { waitUntil: 'load' } );
+	const fon = await p.$( '.lst-mz-telefon-rama' );
+	await fon.scrollIntoViewIfNeeded();
+	await p.waitForTimeout( 400 );
+	const r = await fon.boundingBox();
+	await p.mouse.move( r.x + r.width * 0.9, r.y + r.height * 0.5, { steps: 5 } );
+	await p.waitForTimeout( 300 );
+	const s = await p.evaluate( () => ( {
+		uzbrojony: !! document.querySelector( '.lst-mz.lst-mz-ruch' ),
+		nachylony: document.querySelector( '.lst-mz-telefon-rama' ).classList.contains( 'jest-nad' ),
+	} ) );
+	ok( 'skrypt w <head> i tak uzbraja wjazd i nachyla telefon', s.uzbrojony && s.nachylony,
+		`wjazd ${ s.uzbrojony }, nachylenie ${ s.nachylony }` );
+	await c.close();
+}
+
 console.log( '\nsekcje osobno' );
 for ( const [ nazwa, plik, co, zTabela ] of [
 	[ 'What to look for', 'LEGENDA-en.html', '.lst-mz-legenda .lst-mz-pozycja', false ],
