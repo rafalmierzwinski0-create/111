@@ -448,6 +448,13 @@ const readTable = ( id ) => {
 		headRuleStyle: headStyle ? headStyle.borderBottomStyle : '',
 		numerals: cs( table ).fontVariantNumeric,
 		radiusFirst: firstStyle ? firstStyle.borderTopLeftRadius : '',
+		// The four corners a card's cells have to round where its frame is
+		// round: the first cell's top two, the last cell's bottom two.
+		cardCorners: cells.length ? {
+			row: parseFloat( cs( rows[ 0 ] ).borderTopLeftRadius ),
+			first: [ cs( cells[ 0 ] ).borderTopLeftRadius, cs( cells[ 0 ] ).borderTopRightRadius ].map( parseFloat ),
+			last: [ cs( cells[ cells.length - 1 ] ).borderBottomLeftRadius, cs( cells[ cells.length - 1 ] ).borderBottomRightRadius ].map( parseFloat ),
+		} : null,
 
 		stickyBackdrop: cells.length ? cs( cells[ 0 ], '::before' ).backgroundColor : '',
 		stickyBackdropBottom: cells.length ? cs( cells[ 0 ], '::before' ).bottom : '',
@@ -839,7 +846,19 @@ for ( const skin of skins ) {
 }
 
 const cardsPhone = phone.cards[ asIs ];
-check( 0 === parseFloat( cardsPhone.radiusFirst ), 'Cards: the cell corners let the row do the rounding on a phone', cardsPhone.radiusFirst );
+/*
+ * On a phone the card is the row's frame, rounded, and the cells stand one
+ * under another inside it, each painting its own rectangle. Square cells
+ * poked a sharp corner out of the frame at the top of the first and the
+ * bottom of the last, on every card. Those four corners follow the frame,
+ * a pixel smaller for its line.
+ */
+const corners = cardsPhone.cardCorners;
+check(
+	corners && corners.row > 8 && [ ...corners.first, ...corners.last ].every( ( r ) => near( r, corners.row - 1 ) ),
+	'Cards: on a phone the first and last cell round off with the card, so no square corner pokes out',
+	JSON.stringify( corners )
+);
 check( 0 === cardsPhone.frameMarginTop && 0 === cardsPhone.frameMarginBottom, 'Cards: and nothing is pulled up when there is no border-spacing to pull', `${ cardsPhone.frameMarginTop } / ${ cardsPhone.frameMarginBottom }` );
 check( 0 === cardsPhone.framePadLeft, 'Cards: no shadow room reserved where there is no shadow', `${ cardsPhone.framePadLeft }` );
 
@@ -1099,7 +1118,7 @@ check( '#fff7ed' === tunedVars.bg.toLowerCase(), 'with the background colour the
 check( '#e7c9a9' === tunedVars.border.toLowerCase(), 'the line colour the author chose', tunedVars.border );
 check( '1.05em' === tunedVars.padY, 'the roomier row the author chose', tunedVars.padY );
 check( '1px' === tunedVars.colLine, 'the grid the author chose', tunedVars.colLine );
-check( '0' === tunedVars.radius, 'and square corners, over the skin\'s own 14px', tunedVars.radius );
+check( [ '0', '0px' ].includes( tunedVars.radius ), 'and square corners, over the skin\'s own 14px', tunedVars.radius );
 check( 0 === parseFloat( tuned.radiusFirst ), 'which the cards really are drawn with', tuned.radiusFirst );
 check( near( tuned.colLine, 1 ), 'the lines really are drawn down the cards', `${ tuned.colLine }` );
 check(

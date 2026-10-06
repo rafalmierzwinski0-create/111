@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.34.0
+Stable tag: 3.35.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -180,6 +180,10 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.35.0 =
+* Changed (Pro): a bar in a column of numbers is back where it was — behind the value, from the cell's left edge — and keeps the one thing 3.34.0 fixed: it is solid and exactly the colour chosen. Standing beside the number made it a different shape from the one people had set up, and on a page that still carried an older copy of the stylesheet the two shapes were drawn at once, two bars in one cell. It is drawn on the same element as before again, and more specifically, so an old copy can only lose the argument rather than add a second bar. The value and its label stand above it, with a halo in the table's own colour so a light number stays readable where it sits on a light bar.
+* Fixed: on a phone, every card in the Cards style had square corners poking out of its rounded frame — at the top of the first value and the bottom of the last. The cells paint their own background, and in the stacked layout nothing rounded them. They now follow the card's frame. The same holds on any style for a first or last value a colour rule has painted.
 
 = 3.34.0 =
 * Fixed (Pro): a bar in a column of numbers was never quite the colour chosen for it. It was a translucent wash laid behind the number, so whatever the row wore showed through: a green picked in the dashboard came out teal on a dark table, and on a row a colour rule had painted it was swapped for the rule's own ink altogether. The bar is now solid and exactly the colour chosen, on every row. It stands beside the number instead of under it — the number keeps the cell's own background, so it is as readable as every other value — and every bar in a column is drawn to one scale. In a table it grows towards a right-aligned number; on a phone's card it follows the number.

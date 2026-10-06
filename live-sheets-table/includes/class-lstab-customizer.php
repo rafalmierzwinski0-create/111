@@ -211,7 +211,7 @@ class LSTAB_Customizer {
 						'pill'    => __( 'Very rounded', 'live-sheets-table' ),
 					),
 					'vars'    => array(
-						'square' => array( '--lstab-radius' => '0' ),
+						'square' => array( '--lstab-radius' => '0px' ),
 						'normal' => array(),
 						'pill'   => array( '--lstab-radius' => '18px' ),
 					),

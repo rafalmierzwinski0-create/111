@@ -87,31 +87,25 @@ await tab.waitForTimeout( 300 );
 console.log( '\nThe bar' );
 
 /*
- * The bar stands beside its number, solid, in exactly the colour chosen. It
- * used to be a translucent wash behind the number, and whatever the row wore
- * showed through it: a green picked in the dashboard was never the green on
- * the page. So: the colour is the colour, nothing is see-through, and the bar
- * never runs under the number it belongs to.
+ * The bar is exactly the colour chosen, solid. It used to be a translucent
+ * wash, and whatever the row wore showed through it: a green picked in the
+ * dashboard was never the green on the page. The number and its label stand
+ * above it, so a solid bar never hides them.
  */
 const bars = await tab.evaluate( () => [ ...document.querySelectorAll( '#light .lstabp-bar' ) ].map( ( cell ) => {
+	const drawn = getComputedStyle( cell, '::after' );
 	const value = cell.querySelector( '.lstab-cell-value' );
-	const drawn = getComputedStyle( value, '::after' );
-	const range = document.createRange();
-
-	range.selectNodeContents( value );
-
-	const text = range.getBoundingClientRect();
-	const box = value.getBoundingClientRect();
-	const left = box.left + parseFloat( drawn.left );
 
 	return {
-		says: value.textContent.trim(),
+		says: value.textContent,
 		wanted: getComputedStyle( cell ).getPropertyValue( '--lstabp-bar' ).trim(),
 		width: parseFloat( drawn.width ),
+		cell: cell.getBoundingClientRect().width,
 		colour: drawn.backgroundColor,
 		opacity: parseFloat( drawn.opacity ),
-		clear: left + parseFloat( drawn.width ) <= text.left + 0.5 || left >= text.right - 0.5,
-		gapToNumber: text.left - ( left + parseFloat( drawn.width ) ),
+		barLayer: parseInt( drawn.zIndex, 10 ),
+		valueLayer: parseInt( getComputedStyle( value ).zIndex, 10 ),
+		valueOnTop: getComputedStyle( value ).position,
 	};
 } ) );
 
@@ -119,15 +113,13 @@ const bars = await tab.evaluate( () => [ ...document.querySelectorAll( '#light .
 // than nothing, so that a row with a value can never look like a blank.
 check( bars.length === 4, 'a bar on every row that has a number', `${ bars.length } bars` );
 
-const longest = Math.max( ...bars.map( ( b ) => b.width ) );
-
 for ( const bar of bars ) {
 	const share = parseFloat( bar.wanted );
-	const drawn = bar.width / longest * 100;
+	const drawn = bar.width / bar.cell * 100;
 
 	check(
-		Math.abs( drawn - share ) < 1.5 || ( share < 5 && bar.width <= 4 ),
-		`"${ bar.says }" — the bar is ${ share.toFixed( 0 ) }% of the longest`,
+		Math.abs( drawn - share ) < 1.5,
+		`"${ bar.says }" — the bar is ${ share.toFixed( 0 ) }% of the cell`,
 		`drawn ${ drawn.toFixed( 1 ) }%`
 	);
 }
@@ -138,18 +130,46 @@ check(
 	bars.map( ( b ) => `${ b.colour } × ${ b.opacity }` ).join( ' | ' )
 );
 check(
-	bars.every( ( b ) => b.clear ),
-	'and it never runs under its number',
-	bars.map( ( b ) => `${ b.says }: ${ b.clear }` ).join( ' | ' )
+	bars.every( ( b ) => 'relative' === b.valueOnTop && b.valueLayer > b.barLayer ),
+	'the number stands above its bar',
+	bars.map( ( b ) => `${ b.barLayer } < ${ b.valueLayer }` ).join( ' | ' )
 );
 
-const widest = bars.find( ( b ) => '120' === b.says );
+/*
+ * One bar per cell, even beside an older copy of the stylesheet. A page can
+ * carry one — a builder keeps every pasted section's own <style> — and the
+ * older copy drew a translucent wash on this same ::after. The current rule is
+ * the more specific one, so the old copy loses, wherever it stands.
+ */
+const besideOld = await tab.evaluate( () => {
+	const old = document.createElement( 'style' );
+
+	old.textContent = '.lstabp-bar::after { content: ""; position: absolute; opacity: 0.28; background-color: var( --lstabp-bar-set, var( --lstabp-bar-colour ) ); }';
+	document.head.appendChild( old );
+
+	const cell = document.querySelector( '#light .lstabp-bar' );
+	const drawn = getComputedStyle( cell, '::after' );
+	const seen = { opacity: drawn.opacity, colour: drawn.backgroundColor, valueBar: getComputedStyle( cell.querySelector( '.lstab-cell-value' ), '::after' ).content };
+
+	old.remove();
+
+	return seen;
+} );
 
 check(
-	widest && widest.gapToNumber > 2 && widest.gapToNumber < 16,
-	'the largest number\'s bar reaches all the way to it',
-	widest ? `${ widest.gapToNumber.toFixed( 1 ) }px short` : 'no 120'
+	'1' === besideOld.opacity && 'rgb(95, 227, 207)' === besideOld.colour && 'none' === besideOld.valueBar,
+	'beside an older copy of the stylesheet there is still one bar, solid',
+	JSON.stringify( besideOld )
 );
+
+const widest = await tab.evaluate( () => {
+	const cells = [ ...document.querySelectorAll( '#light .lstabp-bar' ) ];
+	const largest = cells.find( ( c ) => c.querySelector( '.lstab-cell-value' ).textContent === '120' );
+
+	return parseFloat( getComputedStyle( largest, '::after' ).width ) / largest.getBoundingClientRect().width;
+} );
+
+check( widest > 0.97, 'the largest number fills its cell', `${ ( widest * 100 ).toFixed( 1 ) }%` );
 
 console.log( '\nThe button' );
 
@@ -222,7 +242,7 @@ check( shapesSeen.pillText === 'Open', 'and its value is untouched too', shapesS
 console.log( '\nOn a dark table' );
 
 const night = await tab.evaluate( () => {
-	const bar = document.querySelector( '#night .lstabp-bar .lstab-cell-value' );
+	const bar = document.querySelector( '#night .lstabp-bar' );
 	const link = document.querySelector( '#night .lstabp-cta-link' );
 
 	return {
@@ -477,8 +497,8 @@ const chips = await card.evaluate( () => {
 	const plain = face( '' );
 
 	return {
-		barWidth: getComputedStyle( bar.querySelector( '.lstab-cell-value' ), '::after' ).width,
-		barColour: getComputedStyle( bar.querySelector( '.lstab-cell-value' ), '::after' ).backgroundColor,
+		barWidth: getComputedStyle( bar, '::after' ).width,
+		barColour: getComputedStyle( bar, '::after' ).backgroundColor,
 		badgeRound: getComputedStyle( badge ).borderRadius,
 		badgeBorder: getComputedStyle( badge ).borderTopWidth,
 		tintedBg: getComputedStyle( tinted ).backgroundColor,
@@ -533,7 +553,7 @@ const repainted = await card.evaluate( `( () => {
 	const face = ( look ) => row.querySelector( '.lstabp-look-pick[value="' + look + '"]' ).closest( '.lstabp-look-opt' ).querySelector( '.lstabp-look-face' );
 
 	return {
-		bar: getComputedStyle( face( 'bar' ).querySelector( '.lstab-cell-value' ), '::after' ).backgroundColor,
+		bar: getComputedStyle( face( 'bar' ), '::after' ).backgroundColor,
 		badge: getComputedStyle( face( 'pill' ).querySelector( '.lstabp-pill-face' ) ).borderTopColor,
 		tinted: getComputedStyle( face( 'tint' ) ).backgroundColor,
 	};

@@ -445,7 +445,7 @@
 
 				// The same three shapes the server draws, from the same colours.
 				if ( 'bar' === radio.value ) {
-					face.style.cssText = '--lstabp-bar:64%;--lstabp-bar-n:0.64;--lstabp-bar-room:5ch;--lstabp-bar-colour:' + tint + ';';
+					face.style.cssText = '--lstabp-bar:64%;--lstabp-bar-colour:' + tint + ';';
 				} else if ( 'pill' === radio.value ) {
 					var badge = face.querySelector( '.lstabp-pill-face' );
 

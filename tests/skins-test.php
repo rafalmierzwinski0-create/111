@@ -385,7 +385,7 @@ foreach ( array(
 	'--lstab-border:#e7c9a9' => 'its own line colour',
 	'--lstab-pad-y:1.05em' => 'a roomier row',
 	'--lstab-col-line:1px' => 'lines it asked for itself',
-	'--lstab-radius:0'     => 'square corners',
+	'--lstab-radius:0px'   => 'square corners',
 	'--lstab-head-bg:#2b1a4a'  => 'its own heading colour',
 	'--lstab-head-fg:#ffe9c7'  => 'its own heading ink',
 ) as $needle => $what ) {
@@ -473,7 +473,7 @@ $manifest['tuned'] = array(
 		'--lstab-border'   => '#e7c9a9',
 		'--lstab-pad-y'    => '1.05em',
 		'--lstab-col-line' => '1px',
-		'--lstab-radius'   => '0',
+		'--lstab-radius'   => '0px',
 	),
 );
 

@@ -59,17 +59,6 @@ class LSTABP_Column_Looks {
 	protected $bars = array();
 
 	/**
-	 * Room the widest value of each bar column needs, in figures.
-	 *
-	 * The bar stands beside the number, so it starts, or stops, that far from
-	 * the number's edge. One width per column, so every bar in it is drawn to
-	 * the same scale whatever its own number is.
-	 *
-	 * @var array<int,int>
-	 */
-	protected $rooms = array();
-
-	/**
 	 * Rendered column positions wearing each look.
 	 *
 	 * @var array<int,string>
@@ -306,7 +295,6 @@ class LSTABP_Column_Looks {
 	 */
 	public function capture( $rows, $headers, $source, $args ) {
 		$this->bars     = array();
-		$this->rooms    = array();
 		$this->columns  = array();
 		$this->settings = array();
 
@@ -404,15 +392,6 @@ class LSTABP_Column_Looks {
 		foreach ( $numbers as $row_index => $number ) {
 			$this->bars[ $row_index ][ $at ] = ( $number - $floor ) / $span;
 		}
-
-		$widest = 1;
-
-		foreach ( array_keys( $numbers ) as $row_index ) {
-			$text   = trim( (string) $rows[ $row_index ][ $position ] );
-			$widest = max( $widest, function_exists( 'mb_strlen' ) ? mb_strlen( $text, 'UTF-8' ) : strlen( $text ) );
-		}
-
-		$this->rooms[ $at ] = $widest;
 	}
 
 	/**
@@ -445,11 +424,7 @@ class LSTABP_Column_Looks {
 			 * than nothing, and an empty cell stays empty.
 			 */
 			$share = 2 + $this->bars[ $row_index ][ $col_index ] * 98;
-			$room  = isset( $this->rooms[ $col_index ] ) ? $this->rooms[ $col_index ] : 4;
-			$css   = '--lstabp-bar:' . number_format( $share, 2, '.', '' ) . '%;'
-				. '--lstabp-bar-n:' . number_format( $share / 100, 4, '.', '' ) . ';'
-				. '--lstabp-bar-room:' . (int) $room . 'ch;'
-				. $css;
+			$css   = '--lstabp-bar:' . number_format( $share, 2, '.', '' ) . '%;' . $css;
 		}
 
 		/*

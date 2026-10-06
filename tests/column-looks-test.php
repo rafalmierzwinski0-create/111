@@ -179,11 +179,6 @@ lstab_check(
 	'the chosen colour reaches the cell'
 );
 lstab_check(
-	isset( $dressed['style'] ) && false !== strpos( $dressed['style'], '--lstabp-bar-n:1.0000;' ) && false !== strpos( $dressed['style'], '--lstabp-bar-room:3ch;' ),
-	'with its share as a plain number and the room its widest number needs',
-	isset( $dressed['style'] ) ? $dressed['style'] : '(none)'
-);
-lstab_check(
 	false === strpos( LSTABP_Rules::css_for( '#7a1f2b', 'row' ), '--lstabp-bar' ),
 	'a painted row leaves a bar its own colour: the colour chosen is the colour on every row'
 );

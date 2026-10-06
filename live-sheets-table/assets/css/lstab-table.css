@@ -107,7 +107,7 @@
 	--lstab-row-gap: 0;
 	--lstab-row-border-width: 0 0 var(--lstab-row-line) 0;
 	--lstab-row-last-bottom: 0;
-	--lstab-row-radius: 0;
+	--lstab-row-radius: 0px;
 	--lstab-cell-border: 0;
 	--lstab-cell-cols: minmax(0, 38%) 1fr;
 	--lstab-table-layout: auto;
@@ -280,7 +280,7 @@
 }
 
 .lstab-table tbody tr:last-child > td:last-child {
-	border-end-end-radius: calc( var(--lstab-table-mode, 1) * max( 0px, var(--lstab-radius) - 1px ) );
+	border-end-end-radius: calc( var(--lstab-table-mode, 1) * max( 0px, var(--lstab-radius) - 1px ) + ( 1 - var(--lstab-table-mode, 1) ) * max( 0px, var(--lstab-row-radius) - 1px ) );
 }
 
 /*
@@ -293,6 +293,25 @@
 
 .lstab-sticky-first .lstab-table tbody tr:last-child > td:first-child::before {
 	border-end-start-radius: calc( var(--lstab-table-mode, 1) * max( 0px, var(--lstab-radius) - 1px ) );
+}
+
+/*
+ * I to samo w układzie kart, tylko w poprzek. Na telefonie każdy wiersz jest
+ * kartą z zaokrągloną ramką, a komórki stoją w niej jedna pod drugą. Komórka
+ * z własnym tłem — w szablonie Karty każda, gdzie indziej ta pomalowana
+ * regułą — malowała prostokąt po samą ramkę i u góry pierwszej, a u dołu
+ * ostatniej wystawał zza zaokrąglenia ostry narożnik. Mnożone przez
+ * „1 - --lstab-table-mode”, czyli tylko w kartach; w tabeli te rogi należą
+ * do reguł wyżej.
+ */
+.lstab-table tbody tr > td:first-child {
+	border-start-start-radius: calc( ( 1 - var(--lstab-table-mode, 1) ) * max( 0px, var(--lstab-row-radius) - 1px ) );
+	border-start-end-radius: calc( ( 1 - var(--lstab-table-mode, 1) ) * max( 0px, var(--lstab-row-radius) - 1px ) );
+}
+
+.lstab-table tbody tr > td:last-child {
+	border-end-start-radius: calc( ( 1 - var(--lstab-table-mode, 1) ) * max( 0px, var(--lstab-row-radius) - 1px ) );
+	border-end-end-radius: calc( ( 1 - var(--lstab-table-mode, 1) ) * max( 0px, var(--lstab-row-radius) - 1px ) );
 }
 
 .lstab-table {
@@ -1044,7 +1063,7 @@
 	--lstab-stripe: #f7f4ed;
 	--lstab-hover: #f1ece1;
 	--lstab-accent: #9a5b2c;
-	--lstab-radius: 0;
+	--lstab-radius: 0px;
 	--lstab-frame-border: 0;
 	--lstab-frame-shadow: none;
 	--lstab-font-size: 1.02em;
@@ -1262,9 +1281,17 @@
 	box-shadow: 0.5px 0 0 var(--lstab-row-tint, var(--lstab-bg)), var(--lstab-card-cien);
 }
 
+/*
+ * In a table the card's corners are on its first and last cell, left and
+ * right. On a phone the cells stand one under another inside the card's own
+ * frame, so the first cell takes the frame's top corners and the last its
+ * bottom ones instead — a pixel smaller, the frame's line — or a square cell
+ * pokes out of a rounded card.
+ */
 .lstab-style-cards .lstab-table tbody td:first-child {
 	border-left: calc(var(--lstab-row-line) * var(--lstab-table-mode)) solid var(--lstab-border);
-	border-start-start-radius: calc(var(--lstab-radius) * var(--lstab-table-mode));
+	border-start-start-radius: calc(var(--lstab-radius) * var(--lstab-table-mode) + (1 - var(--lstab-table-mode)) * max(0px, var(--lstab-row-radius) - 1px));
+	border-start-end-radius: calc((1 - var(--lstab-table-mode)) * max(0px, var(--lstab-row-radius) - 1px));
 	border-end-start-radius: calc(var(--lstab-radius) * var(--lstab-table-mode));
 	font-weight: 600;
 }
@@ -1272,7 +1299,8 @@
 .lstab-style-cards .lstab-table tbody td:last-child {
 	border-right: calc(var(--lstab-row-line) * var(--lstab-table-mode)) solid var(--lstab-border);
 	border-start-end-radius: calc(var(--lstab-radius) * var(--lstab-table-mode));
-	border-end-end-radius: calc(var(--lstab-radius) * var(--lstab-table-mode));
+	border-end-start-radius: calc((1 - var(--lstab-table-mode)) * max(0px, var(--lstab-row-radius) - 1px));
+	border-end-end-radius: calc(var(--lstab-radius) * var(--lstab-table-mode) + (1 - var(--lstab-table-mode)) * max(0px, var(--lstab-row-radius) - 1px));
 }
 
 /*
@@ -1798,7 +1826,7 @@
 	--lstab-row-gap: 0;
 	--lstab-row-border-width: 0 0 1px 0;
 	--lstab-row-last-bottom: 0;
-	--lstab-row-radius: 0;
+	--lstab-row-radius: 0px;
 	--lstab-cell-border: 0;
 	--lstab-table-mode: 1;
 	--lstab-cell-align: inherit;
@@ -2348,46 +2376,52 @@
 /*
  * A whole column given a look of its own (Pro).
  *
- * The bar stands beside the value, never under it, and it is the colour it
- * was given — solid, exactly. It used to be a translucent wash laid behind
- * the number: readable, but whatever the row wore showed through, so a green
- * chosen in the dashboard came out teal on a dark table and muddy on a
- * painted row. Somebody who picks green means green.
+ * The bar is drawn with ::after rather than ::before, because a pinned first
+ * column already uses ::before to paint the backdrop that hides the columns
+ * sliding underneath it — and the bar has to be able to sit in that column too.
  *
- * Beside rather than under is what makes solid possible: the number keeps the
- * cell's own background and stays as readable as every other value in the
- * row. The room the number needs is measured per column by the add-on, in
- * figures (--lstabp-bar-room), so the bars of one column all share one scale.
+ * It is solid and exactly the colour it was given. It used to be a wash at 28
+ * per cent, so whatever the row wore showed through and a green chosen in the
+ * dashboard was never the green on the page. The label and the value are
+ * lifted above it, and a halo in the table's own background keeps a light
+ * number readable where it stands on a light bar; off the bar the halo is the
+ * colour of what is already there, so it cannot be seen.
  *
- * In a table a right-aligned number keeps its edge and the bar grows from the
- * left towards it. On a card, where every value starts on the left, the bar
- * follows the number instead. --lstab-table-mode is 1 in a table and 0 on a
- * card, which is how one rule tells the two apart.
- *
- * The value stays text, so it is still searched, sorted and downloaded as
- * what the sheet says.
+ * Written one step more specific than the bare class on purpose. A page can
+ * hold an older copy of this stylesheet — a builder that keeps every pasted
+ * section's own <style> does exactly that — and the older rule drew the wash
+ * on this same ::after. Drawing on the same element means a stale copy can
+ * only ever argue about this one bar, never add a second one, and the extra
+ * specificity means it loses the argument.
  */
-.lstabp-bar .lstab-cell-value {
-	--lstabp-bar-gap: 0.6em;
-	--lstabp-bar-reserve: calc( var( --lstabp-bar-room, 4ch ) + var( --lstabp-bar-gap ) );
+.lstabp-bar {
 	position: relative;
 }
 
-.lstabp-bar .lstab-cell-value::after {
+.lstabp-bar::after,
+.lstab-table td.lstabp-bar::after {
 	content: "";
 	position: absolute;
-	top: 50%;
-	left: var( --lstabp-bar-reserve );
-	width: max( 3px, calc( ( 100% - var( --lstabp-bar-reserve ) ) * var( --lstabp-bar-n, 0 ) ) );
-	height: 0.9em;
-	translate: 0 -50%;
+	z-index: 0;
+	left: 0;
+	top: 14%;
+	bottom: 14%;
+	width: var( --lstabp-bar, 0 );
 	border-radius: 3px;
 	background-color: var( --lstabp-bar-colour, var( --lstab-accent ) );
+	opacity: 1;
 	pointer-events: none;
 }
 
-.lstab-table td[data-lstab-align="end"].lstabp-bar .lstab-cell-value::after {
-	left: calc( var( --lstabp-bar-reserve ) * ( 1 - var( --lstab-table-mode, 1 ) ) );
+.lstabp-bar .lstab-cell-label,
+.lstabp-bar .lstab-cell-value {
+	position: relative;
+	z-index: 1;
+}
+
+.lstabp-bar .lstab-cell-label,
+.lstabp-bar .lstab-cell-value {
+	text-shadow: 0 0 2px var( --lstab-bg ), 0 0 4px var( --lstab-bg );
 }
 
 /*
