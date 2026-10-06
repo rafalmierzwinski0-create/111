@@ -961,6 +961,44 @@ console.log( '\npodstrona z samych kodów sekcji' );
 	await c.close();
 }
 
+/*
+ * Telefon jako JEDEN moduł, bez Integracji i bez „Własnego CSS”, wśród sekcji
+ * wklejonych kiedyś w całości. Ich stare kopie arkusza wczytują się później
+ * i mają te same selektory; tu są udawane regułami, które robiły na żywej
+ * stronie dokładnie to, co było widać: zerowały dopełnienia i szerokości,
+ * skracały ekran i malowały obudowę na płasko, także z !important. Sekcja
+ * z identyfikatorem ma z nimi wygrać bez względu na kolejność.
+ */
+console.log( '\ntelefon jako jeden moduł' );
+{
+	const stare = '<style>.lst-mz [class*="lst-mz-"]{padding:0;width:auto;background:none;border-radius:0}'
+		+ '.lst-mz .lst-mz-telefon{height:26rem}'
+		+ '.lst-mz .lst-mz-telefon-rama{background-color:#123 !important;border-radius:26px !important}</style>';
+	const c = await b.newContext( { viewport: { width: 1920, height: 1100 } } );
+	const p = await c.newPage();
+	await p.goto( 'file://' + TU + '/' );
+	await p.setContent( '<!doctype html><html><head><meta charset="utf-8"></head><body>'
+		+ czytaj( 'TELEFON-sam.html' ) + stare + '</body></html>', { waitUntil: 'load' } );
+	const fon = await p.$( '#lst-mz-fon .lst-mz-telefon-rama' );
+	await fon.scrollIntoViewIfNeeded();
+	await p.waitForTimeout( 400 );
+	const r = await fon.boundingBox();
+	await p.mouse.move( r.x + r.width * 0.9, r.y + r.height * 0.5, { steps: 5 } );
+	await p.waitForTimeout( 300 );
+	const s = await fon.evaluate( ( e ) => ( {
+		wysokosc: e.offsetHeight,
+		rog: getComputedStyle( e ).borderTopLeftRadius,
+		metal: /gradient/.test( getComputedStyle( e ).backgroundImage ),
+		wyspa: getComputedStyle( e.querySelector( '.lst-mz-telefon-wyspa' ) ).width,
+		pasek: getComputedStyle( e.querySelector( '.lst-mz-telefon-pasek' ) ).paddingLeft,
+		przechyla: e.classList.contains( 'jest-nad' ),
+	} ) );
+	ok( 'telefon jako jeden moduł wygrywa ze starszymi kopiami arkusza i sam się przechyla',
+		s.wysokosc > 700 && '52px' === s.rog && s.metal && '92px' === s.wyspa && '18px' === s.pasek && s.przechyla,
+		JSON.stringify( s ) );
+	await c.close();
+}
+
 console.log( '\nsekcje osobno' );
 for ( const [ nazwa, plik, co, zTabela ] of [
 	[ 'What to look for', 'LEGENDA-en.html', '.lst-mz-legenda .lst-mz-pozycja', false ],

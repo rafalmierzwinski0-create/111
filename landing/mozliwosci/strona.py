@@ -2226,6 +2226,47 @@ def osobno_z_tabela( nazwa, blok, opis ):
 
 LEGENDA_HTML = osobno( 'LEGENDA', BLOK_LEGENDA, 'What to look for' )
 TELEFON_HTML = osobno_z_tabela( 'TELEFON', BLOK_TELEFON, 'On a phone, every row becomes a card' )
+
+
+# --- sekcja z telefonem SAMA, odporna na starsze kopie arkusza --------------
+#
+# Na żywej stronie stoją sekcje wklejone kiedyś w całości, każda z własnym
+# <style> z kopią arkusza z tamtego dnia. Te kopie wczytują się PO tej sekcji
+# i mają te same selektory, więc wygrywają: telefon robił się niski i płaski,
+# wyspa kurczyła się do kropki. Żeby podmienić JEDNĄ sekcję i nie ruszać
+# reszty, ta sekcja dostaje identyfikator, a jej arkusz przypina go do każdego
+# selektora korzenia. Identyfikator waży więcej niż każda liczba klas, więc
+# jej reguły wygrywają ze starszymi kopiami niezależnie od kolejności, także
+# te z !important.
+#
+# Bez skryptu wtyczki: na stronie i tak stoi on już przy sekcji z tabelą,
+# a pilnuje się sam, żeby nie podpiąć tej samej tabeli dwa razy. Arkusz
+# wtyczki zostaje, bo bez niego tabela w telefonie to goła kratka. Skrypt
+# wjazdu i nachylenia zostaje, bo to on rusza telefonem.
+KOTWICA = 'lst-mz-fon'
+
+
+def zakotwicz( css, kotwica ):
+	"""Każde odwołanie do korzenia modułu dostaje identyfikator sekcji."""
+	css = re.sub( r'(?<![\w-])\.lst-mz-ruch(?![\w-])', '#' + kotwica + '.lst-mz-ruch', css )
+	css = re.sub( r'(?<![\w-])\.lst-mz(?![\w-])', '#' + kotwica + '.lst-mz', css )
+
+	return css
+
+
+_fon_arkusz, _fon_znacznik = z_odciskiem( skrot( STYL ),
+	'<div class="lst-mz"><div class="lst-mz-rama">' + BLOK_TELEFON + '</div></div>' )
+_fon_znacznik = _fon_znacznik.replace( '<div class="lst-mz" ', '<div class="lst-mz" id="' + KOTWICA + '" ', 1 )
+_fon_arkusz = zakotwicz( _fon_arkusz, KOTWICA ) + '\n' + skrot( CSS )
+
+TELEFON_SAM = (
+	'<!-- Sekcja "On a phone" w calosci: wklej do JEDNEGO modulu Kod, w miejsce poprzedniej. -->\n'
+	+ CZCIONKI + '\n'
+	'\n' + _fon_znacznik + '\n'
+	'\n<style>\n' + _fon_arkusz + '\n</style>\n'
+	'\n<script>\n' + RUCH + '\n</script>\n'
+)
+( TU / 'TELEFON-sam.html' ).write_text( TELEFON_SAM )
 LISTY_HTML = osobno( 'LISTY', BLOK_LISTY, 'What is in which',
 	'ZANIM WKLEISZ: w tym pliku jest jeden przycisk Download free z adresem '
 	'ADRES-POBIERANIA. Zamien go na adres, pod ktorym lezy wtyczka do pobrania.' )
