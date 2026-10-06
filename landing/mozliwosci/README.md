@@ -218,3 +218,19 @@ porządku i do podglądu; do Divi lepiej brać trzy kawałki wyżej.
 
 Do podmiany zostają dwa adresy: `ADRES` (folder z trzema zrzutami z `zrzuty/`
 wgranymi do Multimediów) i `ADRES-POBIERANIA` (przycisk na dole).
+
+## Gdzie wkleić w Divi (zalecane)
+
+| plik | gdzie |
+|---|---|
+| `…-kod.html` danej sekcji | moduł Kod tej sekcji |
+| `MOZLIWOSCI-head.html` | Divi → Opcje motywu → Integracja → „Dodaj kod do &lt;head&gt;” |
+| `MOZLIWOSCI-body.html` | Divi → Opcje motywu → Integracja → „Dodaj kod do &lt;body&gt;” |
+
+Oba pliki integracji są już w znacznikach `<style>` i `<script>`, wkleja się je
+w całości. Jeden arkusz i jeden skrypt obsługują wszystkie sekcje podstrony.
+
+**Nie do pola „Własny CSS”.** Tamto pole sprawdza CSS starym walidatorem
+(CSSLint), który nie zna zmiennych CSS, `color-mix`, osobnych `translate`
+i `scale` ani niczego nowszego, i zasypuje poprawny arkusz setką błędów
+„Expected RBRACE”. Arkusz jest poprawny; to walidator jest sprzed lat.

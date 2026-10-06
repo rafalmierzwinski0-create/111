@@ -1984,6 +1984,18 @@ kawałek waży tyle, ile ma ważyć:
 ( TU / 'MOZLIWOSCI-css.css' ).write_text( ARKUSZ + '\n' )
 ( TU / 'MOZLIWOSCI-js.js' ).write_text( JS + '\n\n' + RUCH + '\n' )
 
+# Gotowe do wklejenia w Divi → Opcje motywu → Integracja, już w znacznikach.
+#
+# Arkusz NIE idzie do pola „Własny CSS”. Tamto pole sprawdza CSS starym
+# walidatorem (CSSLint), który nie zna zmiennych CSS, color-mix, osobnych
+# „translate” i „scale” ani niczego nowszego z ostatnich lat, i zasypuje
+# poprawny arkusz setką błędów „Expected RBRACE”. Pole „kod w <head>” niczego
+# takiego nie robi, a arkusz w <style> działa tam dokładnie tak samo.
+# Znaczniki są dołożone tutaj, bo dopisywane ręcznie to kolejny krok, w którym
+# łatwo o pomyłkę.
+( TU / 'MOZLIWOSCI-head.html' ).write_text( '<style>\n' + ARKUSZ + '\n</style>\n' )
+( TU / 'MOZLIWOSCI-body.html' ).write_text( '<script>\n' + JS + '\n\n' + RUCH + '\n</script>\n' )
+
 # Podgląd do otwarcia w przeglądarce: podrabia tło i dopełnienia Divi, i
 # podstawia lokalne adresy zrzutów. Do Divi idzie wyłącznie MOZLIWOSCI-en.html.
 #
