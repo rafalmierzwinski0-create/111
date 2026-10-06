@@ -32,6 +32,7 @@ a moduł ma „br { display: none }”.
 
 import json
 import pathlib
+import hashlib
 import re
 import sys
 
@@ -1001,6 +1002,32 @@ STYL = r"""
 		0 2px 2px -1px rgba( 0, 0, 0, .5 ),
 		0 36px 70px -38px rgba( 0, 0, 0, .95 ),
 		0 0 60px -30px rgba( var( --mz-mieta ), .35 );
+
+	/*
+	 * Najechanie jak w bibliotece Steama: aparat odchyla się w stronę kursora
+	 * i lekko unosi, a po szkle przesuwa się blask. Kąty i położenie blasku
+	 * wpisuje skrypt; tu jest tylko to, jak za nimi nadąża. Powrót jest
+	 * wolniejszy niż wejście, żeby aparat odkładał się, a nie odskakiwał.
+	 */
+	transform: perspective( 1100px )
+		rotateX( var( --mz-nachyl-x, 0deg ) )
+		rotateY( var( --mz-nachyl-y, 0deg ) )
+		translateY( var( --mz-uniesienie, 0px ) );
+	transition: transform 560ms var( --mz-luk ), box-shadow 560ms var( --mz-luk );
+}
+
+.lst-mz .lst-mz-telefon-rama.jest-nad {
+	--mz-uniesienie: -6px;
+	/* Za kursorem krótko: dłużej i aparat wlecze się za ręką. */
+	transition-duration: 140ms;
+	box-shadow:
+		inset 0 1.5px 0 rgba( 255, 255, 255, .32 ),
+		inset 0 -1.5px 0 rgba( 0, 0, 0, .5 ),
+		inset 1.5px 0 0 rgba( 255, 255, 255, .12 ),
+		inset -1.5px 0 0 rgba( 255, 255, 255, .12 ),
+		0 2px 2px -1px rgba( 0, 0, 0, .5 ),
+		0 50px 90px -40px rgba( 0, 0, 0, 1 ),
+		0 0 80px -28px rgba( var( --mz-mieta ), .5 );
 }
 
 /* Czarna szczelina między metalem a ekranem: na prawdziwym aparacie to ona
@@ -1120,6 +1147,24 @@ STYL = r"""
 	background-image: var( --mz-fon-szklo );
 	box-shadow: inset 0 0 0 1px rgba( 255, 255, 255, .055 );
 }
+
+/*
+ * Blask, który idzie za kursorem: miękkie białe światło w miejscu, nad którym
+ * jest wskaźnik. Na pseudoelemencie, bo jego przezroczystość da się płynnie
+ * zgasić, a gradientu sterowanego zmiennymi już nie.
+ */
+.lst-mz .lst-mz-telefon-blysk::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	background-image: radial-gradient( 300px circle at var( --mz-blask-x, 50% ) var( --mz-blask-y, 20% ),
+		rgba( 255, 255, 255, .16 ), rgba( 255, 255, 255, .05 ) 38%, rgba( 255, 255, 255, 0 ) 70% );
+	opacity: 0;
+	transition: opacity 420ms ease;
+}
+
+.lst-mz .lst-mz-telefon-rama.jest-nad .lst-mz-telefon-blysk::after { opacity: 1; transition-duration: 180ms; }
 
 /* Kreska gestu u dołu ekranu. */
 .lst-mz .lst-mz-telefon-kreska {
@@ -1468,6 +1513,10 @@ STYL = r"""
 	.lst-mz .lst-mz-okno img,
 	.lst-mz .lst-mz-cta,
 	.lst-mz .lst-mz-kolumna { transition: none; }
+
+	/* Skrypt przy „mniej ruchu” aparatu nie nachyla; to na wypadek, gdyby
+	   ustawienie zmieniło się już po wczytaniu strony. */
+	.lst-mz .lst-mz-telefon-rama { transform: none !important; }
 }
 
 /* --------------------------------------------- utwardzenie na wrogie motywy */
@@ -1698,6 +1747,20 @@ RUCH = r"""( function () {
 	}, { rootMargin: '0px 0px -6% 0px', threshold: 0.06 } );
 
 	for ( var k = 0; k < korzenie.length; k++ ) {
+		/*
+		 * Czy arkusz pasuje do znacznikowania.
+		 *
+		 * Moduł idzie do Divi w dwóch kawałkach i łatwo podmienić jeden,
+		 * a drugi zostawić. Strona wygląda wtedy jak zepsuta i nie ma po czym
+		 * poznać dlaczego. Odcisk mówi to jednym zdaniem w konsoli.
+		 */
+		var wKodzie = korzenie[ k ].getAttribute( 'data-odcisk' );
+		var wArkuszu = ( getComputedStyle( korzenie[ k ] ).getPropertyValue( '--mz-odcisk' ) || '' ).replace( /["'\s]/g, '' );
+		if ( wKodzie && wArkuszu && wKodzie !== wArkuszu && window.console ) {
+			console.warn( 'lst-mz: arkusz stylow nie pasuje do kodu modulu (kod ' + wKodzie
+				+ ', arkusz ' + wArkuszu + '). Wklej obie czesci z tej samej paczki.' );
+		}
+
 		korzenie[ k ].classList.add( 'lst-mz-ruch' );
 
 		var cele = korzenie[ k ].querySelectorAll( CELE );
@@ -1733,7 +1796,81 @@ RUCH = r"""( function () {
 			oko.observe( el );
 		}
 	}
+} )();
+
+/*
+ * Nachylenie aparatu za kursorem.
+ *
+ * Tylko tam, gdzie jest prawdziwa mysz: na dotyku „najechanie” odpala się
+ * przy stuknięciu i aparat zostawałby przekrzywiony. Przy „mniej ruchu” nic.
+ * Prostokąt aparatu jest mierzony raz, przy wejściu kursora: mierzony w ruchu
+ * zmieniałby się razem z nachyleniem i aparat drgałby, goniąc sam siebie.
+ * Zapis do stylu raz na klatkę, nie przy każdym ruchu myszy.
+ */
+( function () {
+	if ( ! window.matchMedia || ! window.matchMedia( '(hover: hover) and (pointer: fine)' ).matches ) { return; }
+	if ( window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches ) { return; }
+
+	var fony = document.querySelectorAll( '.lst-mz .lst-mz-telefon-rama' );
+
+	for ( var i = 0; i < fony.length; i++ ) {
+		( function ( fon ) {
+			var r = null;
+			var x = 0.5;
+			var y = 0.5;
+			var klatka = 0;
+
+			var rysuj = function () {
+				klatka = 0;
+				fon.style.setProperty( '--mz-nachyl-y', ( ( x - 0.5 ) * 14 ).toFixed( 2 ) + 'deg' );
+				fon.style.setProperty( '--mz-nachyl-x', ( ( 0.5 - y ) * 10 ).toFixed( 2 ) + 'deg' );
+				fon.style.setProperty( '--mz-blask-x', ( x * 100 ).toFixed( 1 ) + '%' );
+				fon.style.setProperty( '--mz-blask-y', ( y * 100 ).toFixed( 1 ) + '%' );
+			};
+
+			fon.addEventListener( 'pointerenter', function () {
+				r = fon.getBoundingClientRect();
+				fon.classList.add( 'jest-nad' );
+			} );
+
+			fon.addEventListener( 'pointermove', function ( e ) {
+				if ( ! r ) { r = fon.getBoundingClientRect(); }
+				x = Math.min( 1, Math.max( 0, ( e.clientX - r.left ) / r.width ) );
+				y = Math.min( 1, Math.max( 0, ( e.clientY - r.top ) / r.height ) );
+				if ( ! klatka ) { klatka = window.requestAnimationFrame( rysuj ); }
+			} );
+
+			fon.addEventListener( 'pointerleave', function () {
+				if ( klatka ) { window.cancelAnimationFrame( klatka ); klatka = 0; }
+				r = null;
+				fon.classList.remove( 'jest-nad' );
+				fon.style.setProperty( '--mz-nachyl-x', '0deg' );
+				fon.style.setProperty( '--mz-nachyl-y', '0deg' );
+			} );
+		} )( fony[ i ] );
+	}
 } )();"""
+
+
+def z_odciskiem( arkusz_css, znacznik_html ):
+	"""Odcisk arkusza wpisany i w CSS, i w znacznikowanie.
+
+	Moduł idzie do Divi w dwóch kawałkach: znacznikowanie do modułu Kod, arkusz
+	do opcji motywu. Kto podmieni jedno i zapomni o drugim, dostaje stronę,
+	która wygląda jak zepsuta, i nie ma po czym poznać dlaczego — zdarzyło się
+	to z telefonem: nowe znacznikowanie trafiło na stary arkusz, ikonki paska
+	stanu ustawiły się w słupek, a obudowa została płaskim prostokątem.
+
+	Skrót z treści arkusza ląduje jako wartość w CSS i jako atrybut przy
+	znacznikowaniu. Skrypt porównuje jedno z drugim i mówi w konsoli, że się
+	rozjechało. Ten sam arkusz daje ten sam odcisk, więc przebudowanie bez
+	zmian niczego w repozytorium nie rusza.
+	"""
+	odcisk = hashlib.sha1( arkusz_css.encode( 'utf-8' ) ).hexdigest()[ :8 ]
+	css = arkusz_css + '\n.lst-mz { --mz-odcisk: "' + odcisk + '"; }'
+	html = znacznik_html.replace( '<div class="lst-mz">', '<div class="lst-mz" data-odcisk="' + odcisk + '">', 1 )
+
+	return css, html
 
 
 CZCIONKI = ( '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?'
@@ -1742,6 +1879,7 @@ CZCIONKI = ( '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?'
 
 ZNACZNIK = '<div class="lst-mz"><div class="lst-mz-rama">' + SEKCJA + '</div></div>'
 ARKUSZ = skrot( STYL + arkusz.STYL + CSS )
+ARKUSZ, ZNACZNIK = z_odciskiem( ARKUSZ, ZNACZNIK )
 
 STRONA = (
 	CZCIONKI + '\n'
@@ -1817,6 +1955,7 @@ PODGLAD = (
 # tabela to goła kratka.
 STOL_ZNACZNIK = '<div class="lst-mz"><div class="lst-mz-rama">' + BLOK_STOL + '</div></div>'
 STOL_ARKUSZ   = skrot( STYL + CSS )
+STOL_ARKUSZ, STOL_ZNACZNIK = z_odciskiem( STOL_ARKUSZ, STOL_ZNACZNIK )
 
 STOL = (
 	CZCIONKI + '\n'
@@ -1865,16 +2004,17 @@ def osobno( nazwa, blok, opis, uwaga = '' ):
 	"""
 	czapka = ( '<!-- ' + uwaga + ' -->\n\n' ) if uwaga else ''
 	znacznik = '<div class="lst-mz"><div class="lst-mz-rama">' + blok + '</div></div>'
-	calosc = ( czapka + 
+	arkusz_tu, znacznik = z_odciskiem( MALY_ARKUSZ, znacznik )
+	calosc = ( czapka +
 		CZCIONKI + '\n'
 		'\n' + znacznik + '\n'
-		'\n<style>\n' + MALY_ARKUSZ + '\n</style>\n'
+		'\n<style>\n' + arkusz_tu + '\n</style>\n'
 		'\n<script>\n' + RUCH + '\n</script>\n'
 	)
 
 	( TU / ( nazwa + '-en.html' ) ).write_text( calosc )
 	( TU / ( nazwa + '-kod.html' ) ).write_text( czapka + CZCIONKI + '\n\n' + znacznik + '\n' )
-	( TU / ( nazwa + '-css.css' ) ).write_text( MALY_ARKUSZ + '\n' )
+	( TU / ( nazwa + '-css.css' ) ).write_text( arkusz_tu + '\n' )
 	( TU / ( nazwa + '-js.js' ) ).write_text( RUCH + '\n' )
 
 	( TU / ( nazwa + '-podglad.html' ) ).write_text(
@@ -1913,7 +2053,7 @@ def osobno_z_tabela( nazwa, blok, opis ):
 	czterdziestu kilobajtów nie wlec.
 	"""
 	znacznik = '<div class="lst-mz"><div class="lst-mz-rama">' + blok + '</div></div>'
-	arkusz_tu = skrot( STYL + CSS )
+	arkusz_tu, znacznik = z_odciskiem( skrot( STYL + CSS ), znacznik )
 	calosc = (
 		CZCIONKI + '\n'
 		'\n' + znacznik + '\n'

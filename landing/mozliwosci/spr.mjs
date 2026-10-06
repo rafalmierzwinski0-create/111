@@ -802,6 +802,54 @@ console.log( '\nprzykład shortcode\'u' );
 	await c.close();
 }
 
+/*
+ * Najechanie na aparat jak w bibliotece Steama: odchyla się w stronę kursora,
+ * blask idzie za wskaźnikiem, a po wyjściu wszystko wraca na zero. Mierzony
+ * jest kierunek nachylenia z dwóch przeciwnych rogów, bo efekt, który
+ * przechyla aparat zawsze w tę samą stronę, wygląda dokładnie tak samo
+ * zepsuty, jak brak efektu.
+ */
+console.log( '\nnachylenie aparatu' );
+{
+	const { p, c } = await otworz( strona( modul ) );
+	const fon = await p.$( '.lst-mz-telefon-rama' );
+	await fon.scrollIntoViewIfNeeded();
+	await p.waitForTimeout( 300 );
+	const r = await fon.boundingBox();
+	const obrotY = () => fon.evaluate( ( e ) => {
+		const m = new DOMMatrixReadOnly( getComputedStyle( e ).transform );
+
+		// m13 to składowa obrotu wokół osi pionowej: znak mówi, w którą stronę.
+		return Math.round( m.m13 * 1000 ) / 1000;
+	} );
+
+	await p.mouse.move( r.x + r.width * 0.9, r.y + r.height * 0.5, { steps: 6 } );
+	await p.waitForTimeout( 350 );
+	const prawo = await obrotY();
+	const blask = await fon.evaluate( ( e ) => getComputedStyle( e.querySelector( '.lst-mz-telefon-blysk' ), '::after' ).opacity );
+
+	await p.mouse.move( r.x + r.width * 0.1, r.y + r.height * 0.5, { steps: 6 } );
+	await p.waitForTimeout( 350 );
+	const lewo = await obrotY();
+
+	await p.mouse.move( 5, 5, { steps: 3 } );
+	await p.waitForTimeout( 800 );
+	const potem = await obrotY();
+
+	ok( 'aparat odchyla się w stronę kursora, świeci blaskiem i wraca na zero',
+		prawo * lewo < 0 && Math.abs( prawo ) > 0.03 && '1' === blask && 0 === potem,
+		`z prawej ${ prawo }, z lewej ${ lewo }, blask ${ blask }, po wyjściu ${ potem }` );
+
+	// Odcisk: kod modułu i arkusz z tej samej paczki muszą się zgadzać.
+	const odcisk = await p.evaluate( () => {
+		const k = document.querySelector( '.lst-mz' );
+
+		return [ k.getAttribute( 'data-odcisk' ), getComputedStyle( k ).getPropertyValue( '--mz-odcisk' ).replace( /["\s]/g, '' ) ];
+	} );
+	ok( 'kod i arkusz noszą ten sam odcisk', !! odcisk[ 0 ] && odcisk[ 0 ] === odcisk[ 1 ], odcisk.join( ' / ' ) );
+	await c.close();
+}
+
 console.log( '\nsekcje osobno' );
 for ( const [ nazwa, plik, co, zTabela ] of [
 	[ 'What to look for', 'LEGENDA-en.html', '.lst-mz-legenda .lst-mz-pozycja', false ],

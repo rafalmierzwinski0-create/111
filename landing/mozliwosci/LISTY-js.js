@@ -19,6 +19,20 @@
 	}, { rootMargin: '0px 0px -6% 0px', threshold: 0.06 } );
 
 	for ( var k = 0; k < korzenie.length; k++ ) {
+		/*
+		 * Czy arkusz pasuje do znacznikowania.
+		 *
+		 * Moduł idzie do Divi w dwóch kawałkach i łatwo podmienić jeden,
+		 * a drugi zostawić. Strona wygląda wtedy jak zepsuta i nie ma po czym
+		 * poznać dlaczego. Odcisk mówi to jednym zdaniem w konsoli.
+		 */
+		var wKodzie = korzenie[ k ].getAttribute( 'data-odcisk' );
+		var wArkuszu = ( getComputedStyle( korzenie[ k ] ).getPropertyValue( '--mz-odcisk' ) || '' ).replace( /["'\s]/g, '' );
+		if ( wKodzie && wArkuszu && wKodzie !== wArkuszu && window.console ) {
+			console.warn( 'lst-mz: arkusz stylow nie pasuje do kodu modulu (kod ' + wKodzie
+				+ ', arkusz ' + wArkuszu + '). Wklej obie czesci z tej samej paczki.' );
+		}
+
 		korzenie[ k ].classList.add( 'lst-mz-ruch' );
 
 		var cele = korzenie[ k ].querySelectorAll( CELE );
@@ -53,5 +67,58 @@
 
 			oko.observe( el );
 		}
+	}
+} )();
+
+/*
+ * Nachylenie aparatu za kursorem.
+ *
+ * Tylko tam, gdzie jest prawdziwa mysz: na dotyku „najechanie” odpala się
+ * przy stuknięciu i aparat zostawałby przekrzywiony. Przy „mniej ruchu” nic.
+ * Prostokąt aparatu jest mierzony raz, przy wejściu kursora: mierzony w ruchu
+ * zmieniałby się razem z nachyleniem i aparat drgałby, goniąc sam siebie.
+ * Zapis do stylu raz na klatkę, nie przy każdym ruchu myszy.
+ */
+( function () {
+	if ( ! window.matchMedia || ! window.matchMedia( '(hover: hover) and (pointer: fine)' ).matches ) { return; }
+	if ( window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches ) { return; }
+
+	var fony = document.querySelectorAll( '.lst-mz .lst-mz-telefon-rama' );
+
+	for ( var i = 0; i < fony.length; i++ ) {
+		( function ( fon ) {
+			var r = null;
+			var x = 0.5;
+			var y = 0.5;
+			var klatka = 0;
+
+			var rysuj = function () {
+				klatka = 0;
+				fon.style.setProperty( '--mz-nachyl-y', ( ( x - 0.5 ) * 14 ).toFixed( 2 ) + 'deg' );
+				fon.style.setProperty( '--mz-nachyl-x', ( ( 0.5 - y ) * 10 ).toFixed( 2 ) + 'deg' );
+				fon.style.setProperty( '--mz-blask-x', ( x * 100 ).toFixed( 1 ) + '%' );
+				fon.style.setProperty( '--mz-blask-y', ( y * 100 ).toFixed( 1 ) + '%' );
+			};
+
+			fon.addEventListener( 'pointerenter', function () {
+				r = fon.getBoundingClientRect();
+				fon.classList.add( 'jest-nad' );
+			} );
+
+			fon.addEventListener( 'pointermove', function ( e ) {
+				if ( ! r ) { r = fon.getBoundingClientRect(); }
+				x = Math.min( 1, Math.max( 0, ( e.clientX - r.left ) / r.width ) );
+				y = Math.min( 1, Math.max( 0, ( e.clientY - r.top ) / r.height ) );
+				if ( ! klatka ) { klatka = window.requestAnimationFrame( rysuj ); }
+			} );
+
+			fon.addEventListener( 'pointerleave', function () {
+				if ( klatka ) { window.cancelAnimationFrame( klatka ); klatka = 0; }
+				r = null;
+				fon.classList.remove( 'jest-nad' );
+				fon.style.setProperty( '--mz-nachyl-x', '0deg' );
+				fon.style.setProperty( '--mz-nachyl-y', '0deg' );
+			} );
+		} )( fony[ i ] );
 	}
 } )();
