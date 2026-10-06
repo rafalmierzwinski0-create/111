@@ -2416,21 +2416,24 @@
 
 /*
  * On a phone, where the row is a card and every value has its column's name
- * above it, the bar is a slim line under that name and the number stands
- * below it on the card's own background. Behind the value, a card's narrow
- * bar sat under the name and the number at once and both got hard to read;
- * here nothing is ever printed on the bar. The name is only shown on a card,
- * so this line only exists there.
+ * above it, the bar is the same block as in the table, but it starts under
+ * that name: behind the value's own line and nothing else. Drawn on the whole
+ * cell it covered the name as well, and a grey name on a bright bar was the
+ * hardest thing on the card to read. The value is lifted above it (z-index 1
+ * above), so the bar sits behind the number, inside the value's own layer.
  */
-.lstabp-bar .lstab-cell-label::after {
+.lstabp-bar .lstab-cell-value::after {
 	content: "";
-	display: block;
-	width: var( --lstabp-bar, 0% );
-	min-width: 3px;
-	height: 6px;
-	margin-top: 0.4em;
+	position: absolute;
+	z-index: -1;
+	/* A little room before the number, so it does not sit on the bar's edge. */
+	left: -0.45em;
+	top: -0.3em;
+	bottom: -0.3em;
+	width: calc( ( 1 - var( --lstab-table-mode, 1 ) ) * ( var( --lstabp-bar, 0% ) + 0.45em ) );
 	border-radius: 3px;
 	background-color: var( --lstabp-bar-colour, var( --lstab-accent ) );
+	pointer-events: none;
 }
 
 .lstabp-bar .lstab-cell-label,
@@ -2442,6 +2445,8 @@
 .lstabp-bar .lstab-cell-label,
 .lstabp-bar .lstab-cell-value {
 	text-shadow: 0 0 2px var( --lstab-bg ), 0 0 4px var( --lstab-bg );
+	/* On a card, room between the column's name and the bar under it. */
+	margin-top: calc( ( 1 - var( --lstab-table-mode, 1 ) ) * 0.35em );
 }
 
 /*

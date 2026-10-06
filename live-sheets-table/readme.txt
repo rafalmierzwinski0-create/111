@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.36.0
+Stable tag: 3.37.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -180,6 +180,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.37.0 =
+* Changed (Pro): on a phone the bar is the same solid block as in the table again, rather than the slim line 3.36.0 drew — it starts under the column's name, behind the value's own line only, with a little room before the number. Drawn on the whole cell it covered the name as well, and a grey name on a bright bar was the hardest thing on the card to read. In a table nothing changes.
 
 = 3.36.0 =
 * Changed (Pro): on a phone, where each row becomes a card, a column's bar is now a slim line under the column's name, with the number below it on the card's own background. Behind the value, a card's narrow bar sat under the name and the number at once, and both were hard to read. In a table nothing changes: the bar stays behind the value, from the cell's left edge.

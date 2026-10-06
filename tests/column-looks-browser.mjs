@@ -149,7 +149,7 @@ const besideOld = await tab.evaluate( () => {
 
 	const cell = document.querySelector( '#light .lstabp-bar' );
 	const drawn = getComputedStyle( cell, '::after' );
-	const seen = { opacity: drawn.opacity, colour: drawn.backgroundColor, valueBar: getComputedStyle( cell.querySelector( '.lstab-cell-value' ), '::after' ).content };
+	const seen = { opacity: drawn.opacity, colour: drawn.backgroundColor, valueBar: parseFloat( getComputedStyle( cell.querySelector( '.lstab-cell-value' ), '::after' ).width ) || 0 };
 
 	old.remove();
 
@@ -157,16 +157,16 @@ const besideOld = await tab.evaluate( () => {
 } );
 
 check(
-	'1' === besideOld.opacity && 'rgb(95, 227, 207)' === besideOld.colour && 'none' === besideOld.valueBar,
+	'1' === besideOld.opacity && 'rgb(95, 227, 207)' === besideOld.colour && 0 === besideOld.valueBar,
 	'beside an older copy of the stylesheet there is still one bar, solid',
 	JSON.stringify( besideOld )
 );
 
 /*
  * On a phone the row is a card and every value has its column's name above
- * it. There the bar is a slim line under that name, and the number stands
- * below it on the card's own background: behind the value, a card's narrow
- * bar sat under the name and the number at once and both got hard to read.
+ * it. There the bar is the same block as in the table, but it starts under
+ * that name, behind the value's own line: drawn on the whole cell it covered
+ * the name too, and a grey name on a bright bar was hard to read.
  */
 await tab.setViewportSize( { width: 360, height: 900 } );
 await tab.waitForTimeout( 100 );
@@ -174,16 +174,16 @@ await tab.waitForTimeout( 100 );
 const onPhone = await tab.evaluate( () => [ ...document.querySelectorAll( '#light .lstabp-bar' ) ].map( ( cell ) => {
 	const label = cell.querySelector( '.lstab-cell-label' );
 	const value = cell.querySelector( '.lstab-cell-value' );
-	const line = getComputedStyle( label, '::after' );
-	const labelBox = label.getBoundingClientRect();
+	const block = getComputedStyle( value, '::after' );
+	const valueBox = value.getBoundingClientRect();
 
 	return {
 		says: value.textContent.trim(),
 		wanted: parseFloat( getComputedStyle( cell ).getPropertyValue( '--lstabp-bar' ) ),
-		behind: parseFloat( getComputedStyle( cell, '::after' ).width ),
-		line: parseFloat( line.width ) / labelBox.width * 100,
-		colour: line.backgroundColor,
-		above: labelBox.bottom <= value.getBoundingClientRect().top + 0.5,
+		behindCell: parseFloat( getComputedStyle( cell, '::after' ).width ),
+		share: parseFloat( block.width ) / valueBox.width * 100,
+		colour: block.backgroundColor,
+		clearOfName: label.getBoundingClientRect().bottom <= valueBox.top + parseFloat( block.top ) + 0.5,
 		card: 'none' !== getComputedStyle( label ).display,
 	};
 } ) );
@@ -197,14 +197,14 @@ check(
 	onPhone.map( ( b ) => b.card ).join( ' ' )
 );
 check(
-	onPhone.every( ( b ) => 0 === b.behind ),
-	'there, nothing is drawn behind the value',
-	onPhone.map( ( b ) => `${ b.says }: ${ b.behind }px` ).join( ' | ' )
+	onPhone.every( ( b ) => 0 === b.behindCell ),
+	'there, nothing is drawn across the whole cell',
+	onPhone.map( ( b ) => `${ b.says }: ${ b.behindCell }px` ).join( ' | ' )
 );
 check(
-	onPhone.every( ( b ) => b.above && 'rgb(95, 227, 207)' === b.colour && ( Math.abs( b.line - b.wanted ) < 1.5 || b.wanted < 5 ) ),
-	'the bar is a line under the column\'s name, as long as its share, above the number',
-	onPhone.map( ( b ) => `${ b.says }: ${ b.line.toFixed( 1 ) }% of ${ b.wanted }%, above ${ b.above }` ).join( ' | ' )
+	onPhone.every( ( b ) => b.clearOfName && 'rgb(95, 227, 207)' === b.colour && b.share >= b.wanted && b.share < b.wanted + 15 ),
+	'the bar stands behind the value, under the column\'s name, as long as its share',
+	onPhone.map( ( b ) => `${ b.says }: ${ b.share.toFixed( 1 ) }% for ${ b.wanted }%, clear of the name ${ b.clearOfName }` ).join( ' | ' )
 );
 
 const widest = await tab.evaluate( () => {
