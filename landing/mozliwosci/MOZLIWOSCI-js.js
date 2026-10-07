@@ -1351,8 +1351,11 @@
 			var fon = stojaki[ i ].querySelector( '.lst-mz-telefon-rama' );
 			if ( ! fon || fon.getAttribute( 'data-mz-nachyl' ) ) { continue; }
 			fon.setAttribute( 'data-mz-nachyl', '1' );
-			aparaty.push( { stojak: stojaki[ i ], fon: fon, nad: false,
-				x: 0, y: 0, unies: 0, cx: 0, cy: 0, cunies: 0, bx: 0.5, by: 0.5 } );
+			var styl = window.getComputedStyle( fon );
+			var pozaY = parseFloat( styl.getPropertyValue( '--mz-poza-y' ) ) || 0;
+			var pozaX = parseFloat( styl.getPropertyValue( '--mz-poza-x' ) ) || 0;
+			aparaty.push( { stojak: stojaki[ i ], fon: fon, nad: false, px: pozaX, py: pozaY,
+				x: pozaY, y: pozaX, unies: 0, cx: pozaY, cy: pozaX, cunies: 0, bx: 0.5, by: 0.5 } );
 		}
 		if ( ! aparaty.length ) { return; }
 		var klatka = 0;
@@ -1391,7 +1394,7 @@
 		var odloz = function ( a ) {
 			if ( ! a.nad ) { return; }
 			a.nad = false;
-			a.x = 0; a.y = 0; a.unies = 0;
+			a.x = a.py; a.y = a.px; a.unies = 0;
 			a.fon.classList.remove( 'jest-nad' );
 			ruszaj();
 		};

@@ -774,8 +774,12 @@ console.log( '\nprzykład shortcode\'u' );
 	const fon = await p.evaluate( () => {
 		const rama = document.querySelector( '.lst-mz-telefon-rama' );
 		const ekran = rama.querySelector( '.lst-mz-telefon' );
-		const k = rama.getBoundingClientRect();
-		const e = ekran.getBoundingClientRect();
+		/*
+		 * Układ przed obrotem: aparat stoi w pozie, a prostokąty z ekranu
+		 * są rzutem w perspektywie, w którym bliższy bok jest zawsze szerszy.
+		 */
+		const k = { left: 0, right: rama.offsetWidth, width: rama.offsetWidth, height: rama.offsetHeight };
+		const e = { left: ekran.offsetLeft, right: ekran.offsetLeft + ekran.offsetWidth };
 
 		return {
 			proporcja: Math.round( ( k.height / k.width ) * 100 ) / 100,
@@ -813,7 +817,8 @@ console.log( '\nnachylenie aparatu' );
 {
 	const { p, c } = await otworz( strona( modul ) );
 	const fon = await p.$( '.lst-mz-telefon-rama' );
-	await fon.scrollIntoViewIfNeeded();
+	// Bez czekania, aż „przestanie się ruszać”: aparat w spoczynku unosi się.
+	await fon.evaluate( ( e ) => e.scrollIntoView( { block: 'center' } ) );
 	await p.waitForTimeout( 300 );
 	const r = await fon.boundingBox();
 	const obrotY = () => fon.evaluate( ( e ) => {
@@ -822,6 +827,15 @@ console.log( '\nnachylenie aparatu' );
 		// m13 to składowa obrotu wokół osi pionowej: znak mówi, w którą stronę.
 		return Math.round( m.m13 * 1000 ) / 1000;
 	} );
+
+	/*
+	 * Aparat stoi w pozie, obrócony bokiem jak na zdjęciu produktu, a nie na
+	 * wprost: w spoczynku też ma być widać, że to bryła.
+	 */
+	await p.mouse.move( 5, 5 );
+	await p.waitForTimeout( 200 );
+	const poza = await obrotY();
+	const pozaKsztalt = await fon.evaluate( ( e ) => getComputedStyle( e ).transform );
 
 	await p.mouse.move( r.x + r.width * 0.9, r.y + r.height * 0.5, { steps: 6 } );
 	await p.waitForTimeout( 350 );
@@ -851,7 +865,7 @@ console.log( '\nnachylenie aparatu' );
 	} );
 	// Powrót jest celowo wolniejszy niż wejście: aparat się odkłada.
 	await p.mouse.move( 5, 5, { steps: 3 } );
-	await p.waitForTimeout( 1600 );
+	await p.waitForFunction( () => ! document.querySelector( '.lst-mz-telefon-rama' ).classList.contains( 'jest-3d' ), null, { timeout: 5000 } ).catch( () => {} );
 	const potem = await obrotY();
 
 	/*
@@ -862,19 +876,24 @@ console.log( '\nnachylenie aparatu' );
 	const plasko = await fon.evaluate( ( e ) => ( {
 		przestrzen: getComputedStyle( e ).transformStyle,
 		ksztalt: getComputedStyle( e ).transform,
-		widacWarstw: [ ...e.querySelectorAll( '.lst-mz-telefon-warstwa, .lst-mz-telefon-guzik' ) ].filter( ( w ) => 'none' !== getComputedStyle( w ).display ).length,
+		widacWarstw: [ ...e.querySelectorAll( '.lst-mz-telefon-warstwa' ) ].filter( ( w ) => 'none' !== getComputedStyle( w ).display ).length,
+		// Bok w spoczynku rysuje cień ramy, a guziki stoją na nim widoczne.
+		bok: ( getComputedStyle( e ).boxShadow.match( /rgba?\(/g ) || [] ).length,
+		cien: getComputedStyle( e ).boxShadow.slice( 0, 60 ),
+		guzikow: [ ...e.querySelectorAll( '.lst-mz-telefon-guzik' ) ].filter( ( w ) => 'none' !== getComputedStyle( w ).display ).length,
 	} ) );
-	ok( 'odłożony telefon jest płaski: bez sceny 3D, korpus schowany',
-		'flat' === plasko.przestrzen && 'none' === plasko.ksztalt && 0 === plasko.widacWarstw,
-		`${ plasko.przestrzen }, ${ plasko.ksztalt }, widocznych warstw ${ plasko.widacWarstw }` );
+	ok( 'odłożony telefon nie jest sceną 3D, ale stoi w pozie z bokiem i guzikami',
+		'flat' === plasko.przestrzen && 0 === plasko.widacWarstw && Math.abs( poza ) > 0.15
+			&& plasko.ksztalt === pozaKsztalt && plasko.bok >= 14 && 3 === plasko.guzikow,
+		`${ plasko.przestrzen }, warstw ${ plasko.widacWarstw }, poza ${ poza }, ten sam kształt co przed najechaniem ${ plasko.ksztalt === pozaKsztalt }, cieni boku ${ plasko.bok } (${ plasko.cien }), guzików ${ plasko.guzikow }` );
 
 	ok( 'telefon ma grubość: korpus stoi za ekranem w przestrzeni',
 		'preserve-3d' === bryla.przestrzen && 12 === bryla.warstw && bryla.glebia <= -36,
 		`${ bryla.przestrzen }, warstw ${ bryla.warstw }, najgłębsza ${ bryla.glebia }px` );
 
-	ok( 'aparat odchyla się w stronę kursora, świeci blaskiem i wraca na zero',
-		prawo * lewo < 0 && Math.abs( prawo ) > 0.03 && '1' === blask && 0 === potem,
-		`z prawej ${ prawo }, z lewej ${ lewo }, blask ${ blask }, po wyjściu ${ potem }` );
+	ok( 'aparat odchyla się w stronę kursora, świeci blaskiem i wraca do swojej pozy',
+		prawo * lewo < 0 && Math.abs( prawo ) > 0.03 && '1' === blask && Math.abs( potem - poza ) < 0.002,
+		`z prawej ${ prawo }, z lewej ${ lewo }, blask ${ blask }, poza ${ poza }, po wyjściu ${ potem }` );
 
 	// Odcisk: kod modułu i arkusz z tej samej paczki muszą się zgadzać.
 	const odcisk = await p.evaluate( () => {
@@ -929,7 +948,8 @@ console.log( '\nskrypt przed modułem' );
 	await p.setContent( '<!doctype html><html><head><meta charset="utf-8">' + czytaj( 'INTEGRACJA-head.html' )
 		+ czytaj( 'INTEGRACJA-body.html' ) + '</head><body>' + czytaj( 'TELEFON-kod.html' ) + '</body></html>', { waitUntil: 'load' } );
 	const fon = await p.$( '.lst-mz-telefon-rama' );
-	await fon.scrollIntoViewIfNeeded();
+	// Bez czekania, aż „przestanie się ruszać”: aparat w spoczynku unosi się.
+	await fon.evaluate( ( e ) => e.scrollIntoView( { block: 'center' } ) );
 	await p.waitForTimeout( 400 );
 	const r = await fon.boundingBox();
 	await p.mouse.move( r.x + r.width * 0.9, r.y + r.height * 0.5, { steps: 5 } );
@@ -996,7 +1016,8 @@ console.log( '\ntelefon jako jeden moduł' );
 	await p.setContent( '<!doctype html><html><head><meta charset="utf-8"></head><body>'
 		+ czytaj( 'TELEFON-sam.html' ) + stare + '</body></html>', { waitUntil: 'load' } );
 	const fon = await p.$( '#lst-mz-fon .lst-mz-telefon-rama' );
-	await fon.scrollIntoViewIfNeeded();
+	// Bez czekania, aż „przestanie się ruszać”: aparat w spoczynku unosi się.
+	await fon.evaluate( ( e ) => e.scrollIntoView( { block: 'center' } ) );
 	await p.waitForTimeout( 400 );
 	const r = await fon.boundingBox();
 	await p.mouse.move( r.x + r.width * 0.9, r.y + r.height * 0.5, { steps: 5 } );
@@ -1037,12 +1058,14 @@ console.log( '\nruch aparatu bez artefaktów' );
 	} );
 
 	await p.mouse.move( 800, 450 );
+	// Aparat stoi w pozie, nie na wprost: liczy się odchylenie od niej.
+	const poza = ( await kat() ).y;
 	let przewijanie = false;
 	for ( let k = 0; k < 14; k++ ) {
 		await p.mouse.wheel( 0, 90 );
 		await p.waitForTimeout( 50 );
 		const s = await kat();
-		if ( s.nad || Math.abs( s.y ) > 0.2 ) { przewijanie = true; }
+		if ( s.nad || Math.abs( s.y - poza ) > 0.2 ) { przewijanie = true; }
 	}
 
 	const r = await ( await p.$( '.lst-mz-telefon-stojak' ) ).boundingBox();

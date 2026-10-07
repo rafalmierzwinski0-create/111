@@ -976,9 +976,51 @@ STYL = r"""
 .lst-mz .lst-mz-wasko { display: none; }
 
 .lst-mz .lst-mz-telefon-stojak {
+	position: relative;
 	display: block;
 	width: fit-content;
 	max-width: 100%;
+	/* Room underneath for the shadow it casts on the floor. */
+	padding-bottom: 34px;
+}
+
+/*
+ * Pod aparatem: cień na podłodze i poświata za nim. Zdjęcie produktu stoi na
+ * czymś; aparat zawieszony w pustce, bez cienia pod sobą, wygląda na
+ * wycięty z kartki. Cień jest na stojaku, który się nie rusza, a oddycha
+ * w takt unoszenia: gdy aparat idzie w górę, cień rozmywa się i blednie.
+ */
+.lst-mz .lst-mz-telefon-stojak::before,
+.lst-mz .lst-mz-telefon-stojak::after {
+	content: "";
+	position: absolute;
+	pointer-events: none;
+	z-index: -1;
+}
+
+.lst-mz .lst-mz-telefon-stojak::before {
+	inset: 6% -18% 14% -18%;
+	background: radial-gradient( 50% 46% at 50% 52%, rgba( var( --mz-mieta ), .2 ), rgba( var( --mz-mieta ), .07 ) 45%, rgba( var( --mz-mieta ), 0 ) 72% );
+	filter: blur( 8px );
+}
+
+.lst-mz .lst-mz-telefon-stojak::after {
+	left: 9%;
+	right: 13%;
+	bottom: 0;
+	height: 46px;
+	background: radial-gradient( 50% 50% at 50% 50%, rgba( 0, 0, 0, .72 ), rgba( 0, 0, 0, .32 ) 45%, rgba( 0, 0, 0, 0 ) 72% );
+	animation: lst-mz-cien 7s ease-in-out infinite alternate;
+}
+
+@keyframes lst-mz-cien {
+	from { scale: 1; opacity: 1; }
+	to { scale: .86; opacity: .72; }
+}
+
+@keyframes lst-mz-unos {
+	from { translate: 0 0; }
+	to { translate: 0 -10px; }
 }
 
 /*
@@ -1005,6 +1047,44 @@ STYL = r"""
 		rgba( 255, 255, 255, 0 ) 34%,
 		rgba( 255, 255, 255, 0 ) 100% );
 
+	/*
+	 * Poza, w jakiej aparat stoi, gdy nikt go nie dotyka: obrócony lewym bokiem
+	 * do patrzącego i odrobinę od dołu, jak na zdjęciu produktu. Prosto
+	 * z przodu telefon jest prostokątem z zaokrąglonymi rogami; dopiero pod
+	 * kątem widać, że ma bok, metal i grubość.
+	 */
+	--mz-poza-x: 4deg;
+	--mz-poza-y: 16deg;
+
+	/*
+	 * Bok w spoczynku: dwanaście cieni jeden za drugim, każdy piksel dalej
+	 * i ciemniejszy, w kolorach warstw korpusu. Jeden element i jedna warstwa
+	 * zamiast sceny 3D, więc przewijanie nie ma czego rozsypać. Przy
+	 * najechaniu ten bok gaśnie, a jego miejsce zajmują prawdziwe warstwy.
+	 */
+	/*
+	 * Profil boku, warstwa po warstwie od szyby w głąb: ciemny szew przy
+	 * szkle, potem metal coraz jaśniejszy aż do refleksu na środku zaokrąglenia
+	 * i znowu ciemniej ku tyłowi, z jasnym szlifem na samej krawędzi pleców.
+	 * Tak światło układa się na zaokrąglonej ramie z polerowanego tytanu.
+	 */
+	--mz-bok-gleb: 14px;
+	--mz-fon-bok-cien:
+		-1px .25px 0 #0d1514, -2px .5px 0 #22302d, -3px .75px 0 #3a4c48,
+		-4px 1px 0 #566b66, -5px 1.25px 0 #748b86, -6px 1.5px 0 #94aaa5,
+		-7px 1.75px 0 #b3c6c2, -8px 2px 0 #c4d4d1, -9px 2.25px 0 #a9bcb8,
+		-10px 2.5px 0 #87a09b, -11px 2.75px 0 #62807a, -12px 3px 0 #465b56,
+		-13px 3.25px 0 #33443f, -14px 3.5px 0 #5d736e,
+		-15px 3.75px 0 #1a2422;
+	--mz-fon-krawedz:
+		/* krawędź metalu: jasna u góry, ciemna u dołu */
+		inset 0 1.5px 0 rgba( 255, 255, 255, .3 ),
+		inset 0 -1.5px 0 rgba( 0, 0, 0, .5 ),
+		inset 1.5px 0 0 rgba( 255, 255, 255, .16 ),
+		inset -1.5px 0 0 rgba( 255, 255, 255, .08 ),
+		/* wąski połysk na szlifie tuż przy szybie */
+		inset 0 0 0 4px rgba( 255, 255, 255, .025 );
+
 	position: relative;
 	width: fit-content;
 	max-width: 100%;
@@ -1013,15 +1093,12 @@ STYL = r"""
 	background-color: #1a2422;
 	background-image: var( --mz-fon-bok );
 	box-shadow:
-		/* krawędź metalu: jasna u góry, ciemna u dołu */
-		inset 0 1.5px 0 rgba( 255, 255, 255, .28 ),
-		inset 0 -1.5px 0 rgba( 0, 0, 0, .5 ),
-		inset 1.5px 0 0 rgba( 255, 255, 255, .1 ),
-		inset -1.5px 0 0 rgba( 255, 255, 255, .1 ),
+		var( --mz-fon-krawedz ),
+		var( --mz-fon-bok-cien ),
 		/* aparat leży na stronie, a nie jest w nią wpuszczony */
-		0 2px 2px -1px rgba( 0, 0, 0, .5 ),
-		0 36px 70px -38px rgba( 0, 0, 0, .95 ),
-		0 0 60px -30px rgba( var( --mz-mieta ), .35 );
+		-14px 30px 60px -26px rgba( 0, 0, 0, .9 ),
+		0 0 70px -30px rgba( var( --mz-mieta ), .4 );
+	animation: lst-mz-unos 7s ease-in-out infinite alternate;
 
 	/*
 	 * Najechanie jak w bibliotece Steama: aparat odchyla się w stronę kursora
@@ -1043,7 +1120,10 @@ STYL = r"""
 	 * klasą „jest-3d” na czas najechania i zdejmuje, gdy aparat się odłoży.
 	 */
 	transform-style: flat;
-	transform: none;
+	transform: perspective( 1400px )
+		rotateX( var( --mz-nachyl-x, var( --mz-poza-x ) ) )
+		rotateY( var( --mz-nachyl-y, var( --mz-poza-y ) ) )
+		translateY( var( --mz-uniesienie, 0px ) );
 	/*
 	 * Bez przejścia na transform: ruch prowadzi skrypt, klatka po klatce,
 	 * z wygładzeniem. Przejście CSS przy każdym ruchu myszy zaczynało od
@@ -1052,20 +1132,19 @@ STYL = r"""
 	transition: box-shadow 420ms var( --mz-luk );
 }
 
+/* Ta sama poza i ta sama perspektywa, tylko już jako scena z warstwami:
+   przejście z jednego w drugie nie może być widać. */
 .lst-mz .lst-mz-telefon-rama.jest-3d {
 	transform-style: preserve-3d;
-	transform: perspective( 1000px )
-		rotateX( var( --mz-nachyl-x, 0deg ) )
-		rotateY( var( --mz-nachyl-y, 0deg ) )
-		translateY( var( --mz-uniesienie, 0px ) );
+	box-shadow:
+		var( --mz-fon-krawedz ),
+		-14px 30px 60px -26px rgba( 0, 0, 0, .9 ),
+		0 0 70px -30px rgba( var( --mz-mieta ), .4 );
 }
 
 .lst-mz .lst-mz-telefon-rama.jest-nad {
 	box-shadow:
-		inset 0 1.5px 0 rgba( 255, 255, 255, .32 ),
-		inset 0 -1.5px 0 rgba( 0, 0, 0, .5 ),
-		inset 1.5px 0 0 rgba( 255, 255, 255, .12 ),
-		inset -1.5px 0 0 rgba( 255, 255, 255, .12 ),
+		var( --mz-fon-krawedz ),
 		0 2px 2px -1px rgba( 0, 0, 0, .5 ),
 		0 50px 90px -40px rgba( 0, 0, 0, 1 ),
 		0 0 80px -28px rgba( var( --mz-mieta ), .5 );
@@ -1085,7 +1164,8 @@ STYL = r"""
 	border-radius: 52px;
 	pointer-events: none;
 	background-color: #2a3835;
-	background-color: color-mix( in srgb, #26332f calc( var( --i ) * 5.5% ), #7d958f );
+	/* Ten sam profil co bok w spoczynku: najjaśniej na środku zaokrąglenia. */
+	background-color: color-mix( in srgb, #c4d4d1 calc( 100% - max( calc( ( var( --i ) - 6 ) * 16% ), calc( ( 6 - var( --i ) ) * 16% ) ) ), #1a2422 );
 	box-shadow: inset 0 0 0 1px rgba( 255, 255, 255, .04 );
 	transform: translateZ( calc( var( --i ) * var( --mz-grubosc ) * -1 ) );
 }
@@ -1256,14 +1336,40 @@ STYL = r"""
 	border-radius: 0 3px 3px 0;
 	background-color: #33433f;
 	box-shadow:
-		inset 0 1px 0 rgba( 255, 255, 255, .3 ),
-		inset 0 -1px 0 rgba( 0, 0, 0, .55 ),
+		inset 0 1px 0 rgba( 255, 255, 255, .4 ),
+		inset 0 -1px 0 rgba( 0, 0, 0, .5 ),
+		inset 0 0 0 10px #8aa19c,
 		1px 0 1px rgba( 0, 0, 0, .4 );
 }
 
-/* Korpus i guziki stoją tylko w scenie 3D; na płasko i tak są za przodem. */
+/* Korpus stoi tylko w scenie 3D; w spoczynku bok rysuje cień wyżej. */
 .lst-mz .lst-mz-telefon-rama.jest-3d .lst-mz-telefon-warstwa,
 .lst-mz .lst-mz-telefon-rama.jest-3d .lst-mz-telefon-guzik { display: block; }
+
+/*
+ * Guziki w spoczynku: na boku, który widać, wystające z metalu. Aparat stoi
+ * lewym bokiem do patrzącego, więc przełącznik i głośność są na wierzchu,
+ * a przycisk boczny po drugiej stronie, której nie widać. Kolor kładzie cień
+ * wewnętrzny, bo utwardzenie odbiera elementom modułu tła; na nim jasna
+ * krawędź od światła i ciemna tam, gdzie guzik wchodzi w ramę.
+ */
+.lst-mz .lst-mz-telefon-rama:not( .jest-3d ) .lst-mz-telefon-guzik {
+	display: block;
+	left: calc( -1 * var( --mz-bok-gleb ) - 4px );
+	width: 6px;
+	margin-top: 2px;
+	transform: none;
+	border-radius: 3px 0 0 3px;
+	box-shadow:
+		inset 1.5px 0 0 rgba( 255, 255, 255, .55 ),
+		inset 0 1px 0 rgba( 255, 255, 255, .4 ),
+		inset 0 -1px 0 rgba( 0, 0, 0, .5 ),
+		inset -2px 0 0 rgba( 0, 0, 0, .4 ),
+		inset 0 0 0 10px #8aa19c,
+		-1px 1.5px 2px rgba( 0, 0, 0, .55 );
+}
+
+.lst-mz .lst-mz-telefon-rama:not( .jest-3d ) .lst-mz-telefon-guzik.jest-bok { display: none; }
 
 .lst-mz .lst-mz-telefon-guzik.jest-cisza { left: -4px; top: 104px; height: 28px; }
 .lst-mz .lst-mz-telefon-guzik.jest-glosniej { left: -4px; top: 150px; height: 56px; }
@@ -1582,9 +1688,10 @@ STYL = r"""
 	.lst-mz .lst-mz-cta,
 	.lst-mz .lst-mz-kolumna { transition: none; }
 
-	/* Skrypt przy „mniej ruchu” aparatu nie nachyla; to na wypadek, gdyby
-	   ustawienie zmieniło się już po wczytaniu strony. */
-	.lst-mz .lst-mz-telefon-rama { transform: none !important; }
+	/* Przy „mniej ruchu” aparat stoi w swojej pozie i się nie unosi; skrypt
+	   go wtedy nie nachyla. */
+	.lst-mz .lst-mz-telefon-rama,
+	.lst-mz .lst-mz-telefon-stojak::after { animation: none !important; }
 }
 
 /* --------------------------------------------- utwardzenie na wrogie motywy */
@@ -1631,7 +1738,7 @@ STYL = r"""
 .lst-mz .lst-mz-telefon-oko { background-color: #0b1a19 !important; border-radius: 50% !important; }
 .lst-mz .lst-mz-telefon-kreska { background-color: rgba( 234, 243, 241, .4 ) !important; border-radius: 999px !important; }
 .lst-mz .lst-mz-telefon-guzik { background-color: #33433f !important; }
-.lst-mz .lst-mz-telefon-warstwa { background-color: color-mix( in srgb, #26332f calc( var( --i ) * 5.5% ), #7d958f ) !important; border: 0 !important; border-radius: 52px !important; }
+.lst-mz .lst-mz-telefon-warstwa { background-color: color-mix( in srgb, #c4d4d1 calc( 100% - max( calc( ( var( --i ) - 6 ) * 16% ), calc( ( 6 - var( --i ) ) * 16% ) ) ), #1a2422 ) !important; border: 0 !important; border-radius: 52px !important; }
 .lst-mz .lst-mz-telefon-godzina { font-family: inherit !important; }
 .lst-mz .lst-mz-telefon { background-color: var( --mz-ekran ) !important; border-radius: 40px !important; }
 .lst-mz .lst-mz-okno { background-color: var( --mz-ekran ) !important; border: 1px solid var( --mz-ekran-linia ) !important; }
@@ -1958,8 +2065,12 @@ RUCH = r"""( function () {
 			// w całości niesie swój. Aparat podpinany jest raz.
 			if ( ! fon || fon.getAttribute( 'data-mz-nachyl' ) ) { continue; }
 			fon.setAttribute( 'data-mz-nachyl', '1' );
-			aparaty.push( { stojak: stojaki[ i ], fon: fon, nad: false,
-				x: 0, y: 0, unies: 0, cx: 0, cy: 0, cunies: 0, bx: 0.5, by: 0.5 } );
+			// Poza spoczynkowa jest w arkuszu; aparat zaczyna w niej i do niej wraca.
+			var styl = window.getComputedStyle( fon );
+			var pozaY = parseFloat( styl.getPropertyValue( '--mz-poza-y' ) ) || 0;
+			var pozaX = parseFloat( styl.getPropertyValue( '--mz-poza-x' ) ) || 0;
+			aparaty.push( { stojak: stojaki[ i ], fon: fon, nad: false, px: pozaX, py: pozaY,
+				x: pozaY, y: pozaX, unies: 0, cx: pozaY, cy: pozaX, cunies: 0, bx: 0.5, by: 0.5 } );
 		}
 		if ( ! aparaty.length ) { return; }
 
@@ -2009,7 +2120,7 @@ RUCH = r"""( function () {
 		var odloz = function ( a ) {
 			if ( ! a.nad ) { return; }
 			a.nad = false;
-			a.x = 0; a.y = 0; a.unies = 0;
+			a.x = a.py; a.y = a.px; a.unies = 0;
 			a.fon.classList.remove( 'jest-nad' );
 			ruszaj();
 		};
