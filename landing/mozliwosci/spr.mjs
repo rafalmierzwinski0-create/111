@@ -867,14 +867,16 @@ console.log( '\nnachylenie aparatu' );
 	const pozaKsztalt = await fon.evaluate( ( e ) => getComputedStyle( e ).transform );
 
 	await p.mouse.move( r.x + r.width * 0.9, r.y + r.height * 0.5, { steps: 6 } );
-	await p.waitForTimeout( 350 );
+	// Aparat dochodzi do kąta wygładzeniem; na obciążonej maszynie stała
+	// pauza bywała za krótka. Czeka na kąt, a gdy nie przyjdzie, mierzy i tak.
+	await p.waitForFunction( () => { const m = new DOMMatrixReadOnly( getComputedStyle( document.querySelector( '.lst-mz-telefon-rama' ) ).transform ); return m.m13 < -0.03; }, null, { timeout: 3000 } ).catch( () => {} );
 	const prawo = await obrotY();
 	// Blask wchodzi przejściem; na obciążonej maszynie 350 ms bywało za mało.
 	await p.waitForFunction( () => '1' === getComputedStyle( document.querySelector( '.lst-mz-telefon-blysk' ), '::after' ).opacity, null, { timeout: 3000 } ).catch( () => {} );
 	const blask = await fon.evaluate( ( e ) => getComputedStyle( e.querySelector( '.lst-mz-telefon-blysk' ), '::after' ).opacity );
 
 	await p.mouse.move( r.x + r.width * 0.1, r.y + r.height * 0.5, { steps: 6 } );
-	await p.waitForTimeout( 350 );
+	await p.waitForFunction( () => { const m = new DOMMatrixReadOnly( getComputedStyle( document.querySelector( '.lst-mz-telefon-rama' ) ).transform ); return m.m13 > 0.03; }, null, { timeout: 3000 } ).catch( () => {} );
 	const lewo = await obrotY();
 
 

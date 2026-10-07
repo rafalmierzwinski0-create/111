@@ -1161,9 +1161,7 @@ STYL = r"""
 }
 
 /*
- * Warstwy korpusu. Każda kolejna dalej w głąb i odrobinę ciemniejsza, więc
- * bok czyta się jak metal oświetlony od przodu. Jasny, nie czarny: ciemny bok
- * zlewał się z ciemną stroną i grubości nie było widać wcale. W spoczynku
+ * Warstwy korpusu, jedna za drugą w głąb; razem robią bok aparatu. W spoczynku
  * ich nie ma wcale (patrz „jest-3d” wyżej); stają za przodem dopiero, gdy
  * aparat zaczyna się odchylać.
  */
@@ -1175,9 +1173,17 @@ STYL = r"""
 	inset: 1px;
 	border-radius: 51px;
 	pointer-events: none;
-	background-color: #2a3835;
-	/* Ten sam profil co bok w spoczynku: najjaśniej na środku zaokrąglenia. */
-	background-color: color-mix( in srgb, #b3c5c1 calc( 100% - max( calc( ( var( --i ) - 12 ) * 7.5% ), calc( ( 12 - var( --i ) ) * 7.5% ) ) ), #1a2422 );
+	/*
+	 * Bok jak rama prawdziwego aparatu: grafitowy metal, a nie jasna blacha.
+	 * Jasny jest tylko wąski szlif tuż za szybą (warstwy 1–5, najjaśniej
+	 * druga), dalej równy grafit, który w ostatnich warstwach schodzi
+	 * w cień pod tyłem. Grafit, a nie czerń: czarny bok zlewał się z ciemną
+	 * stroną i grubości nie było widać wcale.
+	 */
+	--mz-warstwa-kolor: color-mix( in srgb,
+		#8d9f9b max( 0%, calc( 46% - max( calc( ( var( --i ) - 2 ) * 13% ), calc( ( 2 - var( --i ) ) * 13% ) ) ) ),
+		color-mix( in srgb, #3a4946 calc( 100% - max( 0%, calc( ( var( --i ) - 15 ) * 9% ) ) ), #111816 ) );
+	background-color: var( --mz-warstwa-kolor );
 	box-shadow: inset 0 0 0 1px rgba( 255, 255, 255, .04 );
 	/*
 	 * Perspektywa zmniejsza to, co dalej, w stronę środka ramy. Na wprost
@@ -1396,7 +1402,8 @@ STYL = r"""
 	left: -3px;
 	width: 5px;
 	border-radius: 2px 0 0 2px;
-	background-color: color-mix( in srgb, #9fb2ae calc( 100% - max( calc( ( var( --i ) - 12 ) * 7.5% ), calc( ( 12 - var( --i ) ) * 7.5% ) ) ), #1a2422 );
+	/* Ten sam grafit co bok, o ton jaśniejszy, żeby klawisz od niego odstawał. */
+	background-color: color-mix( in srgb, #4f625e calc( 100% - max( calc( ( var( --i ) - 12 ) * 5% ), calc( ( 12 - var( --i ) ) * 5% ) ) ), #1f2a28 );
 	box-shadow:
 		inset 0 1px 0 rgba( 255, 255, 255, .22 ),
 		inset 0 -1px 0 rgba( 0, 0, 0, .4 );
@@ -1838,7 +1845,7 @@ STYL = r"""
 .lst-mz .lst-mz-telefon-kreska { background-color: rgba( 234, 243, 241, .4 ) !important; border-radius: 999px !important; }
 .lst-mz .lst-mz-telefon-guzik,
 .lst-mz .lst-mz-telefon-plastry.jest-przod > b { background-color: #33433f !important; }
-.lst-mz .lst-mz-telefon-warstwa { background-color: color-mix( in srgb, #b3c5c1 calc( 100% - max( calc( ( var( --i ) - 12 ) * 7.5% ), calc( ( 12 - var( --i ) ) * 7.5% ) ) ), #1a2422 ) !important; border: 0 !important; border-radius: 51px !important; }
+.lst-mz .lst-mz-telefon-warstwa { background-color: var( --mz-warstwa-kolor ) !important; border: 0 !important; border-radius: 51px !important; }
 .lst-mz .lst-mz-telefon-godzina { font-family: inherit !important; }
 .lst-mz .lst-mz-telefon { background-color: var( --mz-ekran ) !important; border-radius: 40px !important; }
 .lst-mz .lst-mz-okno { background-color: var( --mz-ekran ) !important; border: 1px solid var( --mz-ekran-linia ) !important; }
