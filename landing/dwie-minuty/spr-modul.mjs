@@ -44,6 +44,9 @@ async function otworz(n, w = 1400, h = 1000) {
 const lin = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
 const swiatlo = (rgb) => { const m = rgb.match(/\d+/g).map(Number); return 0.2126 * lin(m[0]) + 0.7152 * lin(m[1]) + 0.0722 * lin(m[2]); };
 const kontrast = (a, b) => { const x = swiatlo(a), y = swiatlo(b); return +((Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05)).toFixed(2); };
+// Kolor akcentu po najechaniu; przejście może jeszcze trwać, więc krycie
+// od 0,9 w górę liczy się jako zapalone.
+const zapalone = (c) => { const m = c.match(/[\d.]+/g).map(Number); return m[0] === 95 && m[1] === 227 && m[2] === 207 && (m.length < 4 || m[3] >= .9); };
 const jasnosc = (rgb) => { const m = rgb.match(/\d+/g).map(Number); return Math.round(0.299 * m[0] + 0.587 * m[1] + 0.114 * m[2]); };
 
 console.log('\n1400 px, zwykła strona');
@@ -53,21 +56,23 @@ console.log('\n1400 px, zwykła strona');
     const t = (s) => document.querySelector(s);
     const wszystkie = (s) => [...document.querySelectorAll(s)];
     const rozm = (s) => Math.round(parseFloat(getComputedStyle(t(s)).fontSize));
-    const swiecace = wszystkie('.lst-2m-kafel, .lst-2m-liczba');
+    const swiecace = wszystkie('.lst-2m-kafel');
     const szer = (s) => Math.round(t(s).getBoundingClientRect().width);
     return {
       kafli: wszystkie('.lst-2m-kafel').length,
       powodow: wszystkie('.lst-2m-powod').length,
       krokow: wszystkie('.lst-2m-krok').length,
       zetonow: wszystkie('.lst-2m-zeton').length,
-      liczb: wszystkie('.lst-2m-liczba').length,
+      liczb: wszystkie('.lst-2m-liczba, .lst-2m-liczby').length,
+      przykladow: wszystkie('.lst-2m-przyklady .lst-2m-przyklad').length,
+      cech: wszystkie('.lst-2m-cechy .lst-2m-przyklad').length,
       przyciskow: wszystkie('.lst-2m-przycisk').length,
       adresy: wszystkie('.lst-2m-przycisk').map(e => e.getAttribute('href')).join(' '),
       szerRobi: szer('.lst-2m-kafel.jest-robi'), szerKomu: szer('.lst-2m-kafel.jest-komu'),
       szerJak: szer('.lst-2m-kafel.jest-jak'), szerUfac: szer('.lst-2m-kafel.jest-ufac'),
       szerDalej: szer('.lst-2m-kafel.jest-dalej'), szerRamy: szer('.lst-2m-rama'),
       rozmiary: ['.lst-2m-etykieta', '.lst-2m-kafel-tekst', '.lst-2m-krok-tytul', '.lst-2m-krok-tekst',
-        '.lst-2m-powod-tytul', '.lst-2m-powod-tekst', '.lst-2m-zeton', '.lst-2m-pod', '.lst-2m-tekst'].map(rozm).join('/'),
+        '.lst-2m-powod-tytul', '.lst-2m-powod-tekst', '.lst-2m-zeton', '.lst-2m-przyklad-kto', '.lst-2m-przyklad-co'].map(rozm).join('/'),
       naglowkow: document.querySelectorAll('.lst-2m-nad, .lst-2m-tyt, h1, h2, h3').length,
       tloStrony: getComputedStyle(document.body).backgroundColor,
       tloEkranu: getComputedStyle(t('.lst-2m-strona')).backgroundColor,
@@ -96,8 +101,7 @@ console.log('\n1400 px, zwykła strona');
       zaokraglone: swiecace.filter(e => parseFloat(getComputedStyle(e).borderTopLeftRadius) >= 14).length,
       zcieniem: swiecace.filter(e => 'none' !== getComputedStyle(e).boxShadow).length,
       odstep: parseFloat(getComputedStyle(t('.lst-2m-kafle')).columnGap) || 0,
-      przyrzadow: wszystkie('.lst-2m-przyrzad').length,
-      ikon: wszystkie('.lst-2m-powod .lst-2m-ikona svg').length,
+      ikon: wszystkie('.lst-2m-ikona svg').length,
       kolory: {
         tekst: getComputedStyle(t('.lst-2m-kafel-tekst')).color,
         etykieta: getComputedStyle(t('.lst-2m-etykieta')).color,
@@ -110,18 +114,19 @@ console.log('\n1400 px, zwykła strona');
   });
   ok('pięć kafli: co robi, komu, jak, dlaczego, co dalej', r.kafli === 5 && r.powodow === 4 && r.krokow === 3 && r.zetonow === 8,
     `${r.kafli} kafli, ${r.powodow} powody, ${r.krokow} kroki, ${r.zetonow} żetonów`);
-  ok('pod nimi trzy liczby, każda ze swoim przyrządem', r.liczb === 3 && r.przyrzadow === 3, `${r.liczb} liczby, ${r.przyrzadow} przyrządy`);
+  ok('pas z liczbami usunięty — powtarzał kafle', r.liczb === 0, `${r.liczb} elementów pasa`);
+  ok('trzy przykłady pod żetonami i trzy cechy pod arkuszem', r.przykladow === 3 && r.cech === 3, `${r.przykladow} przykłady, ${r.cech} cechy`);
   ok('siatka nierówna: 7 i 5, potem 5 i 7, pas na całą szerokość',
     r.szerRobi > r.szerKomu && r.szerUfac > r.szerJak && Math.abs(r.szerDalej - r.szerRamy) <= 1,
     `${r.szerRobi}/${r.szerKomu}, ${r.szerJak}/${r.szerUfac}, pas ${r.szerDalej} z ${r.szerRamy}`);
   ok('rozmiary tylko 14, 18 i 20', r.rozmiary.split('/').every(x => ['14', '18', '20'].includes(x)), r.rozmiary);
   ok('bez tytułu i etykiety sekcji', r.naglowkow === 0, `${r.naglowkow} nagłówków w module`);
-  ok('po krawędzi każdego kafla i bloku biegnie światło', r.swiatlo === 8 && r.obieg === 8,
+  ok('po krawędzi każdego kafla biegnie światło', r.swiatlo === 5 && r.obieg === 5,
     `kół koloru ${r.swiatlo}, obracanych ${r.obieg} z ${r.swiecacych}`);
-  ok('i ciągnie za sobą poświatę', r.poswiata === 8, `${r.poswiata} z ${r.swiecacych}`);
-  ok('kafle zaokrąglone i z cieniem, z odstępem między sobą', r.zaokraglone === 8 && r.zcieniem === 8 && r.odstep >= 12,
+  ok('i ciągnie za sobą poświatę', r.poswiata === 5, `${r.poswiata} z ${r.swiecacych}`);
+  ok('kafle zaokrąglone i z cieniem, z odstępem między sobą', r.zaokraglone === 5 && r.zcieniem === 5 && r.odstep >= 12,
     `zaokrąglonych ${r.zaokraglone}, z cieniem ${r.zcieniem}, odstęp ${Math.round(r.odstep)} px`);
-  ok('każdy powód ma swoją ikonkę', r.ikon === 4, `${r.ikon} z 4`);
+  ok('każdy powód, przykład i cecha ma swoją ikonkę', r.ikon === 10, `${r.ikon} z 10`);
   const jEkran = jasnosc(r.tloEkranu), jStrona = jasnosc(r.tloStrony), jKafel = jasnosc(r.tloKafla);
   ok('podgląd strony wyraźnie ciemniejszy od kafla', jKafel - jEkran >= 15, `ekran ${jEkran} vs kafel ${jKafel}`);
   ok('zmieniona komórka i ten sam wiersz na stronie', r.zmiana.includes('→') && r.nowy.includes('319'), `${r.zmiana} → ${r.nowy}`);
@@ -145,30 +150,12 @@ console.log('\n1400 px, zwykła strona');
   await p.hover('.lst-2m-krok:nth-child(2)');
   await p.waitForTimeout(400);
   const nr = await p.evaluate(() => getComputedStyle(document.querySelector('.lst-2m-krok:nth-child(2) .lst-2m-nr')).backgroundColor);
-  /*
-   * Każdy z trzech bloków z liczbą odpowiada na kursor, także tarcza
-   * z kwadransem: wskazówka robi obieg, a tarcza jaśnieje.
-   */
-  await p.hover('.lst-2m-liczba.jest-zegar');
-  await p.waitForTimeout(450);
-  const zegar = await p.evaluate(() => ({
-    obrot: getComputedStyle(document.querySelector('.lst-2m-wskazowka')).animationName,
-    tarcza: getComputedStyle(document.querySelector('.lst-2m-tarcza')).opacity,
-  }));
-  ok('tarcza zegara budzi się pod kursorem', 'lst-2m-obrot' === zegar.obrot && parseFloat(zegar.tarcza) > .5,
-    `obrót ${zegar.obrot}, tarcza ${zegar.tarcza}`);
+  await p.hover('.lst-2m-przyklady .lst-2m-przyklad:nth-child(2)');
+  await p.waitForTimeout(400);
+  const przyklad = await p.evaluate(() => getComputedStyle(document.querySelector('.lst-2m-przyklady .lst-2m-przyklad:nth-child(2) .lst-2m-ikona')).backgroundColor);
+  ok('ikonka przykładu też zapala się pod kursorem', zapalone(przyklad), przyklad);
 
-  // Kreska nad liczbami w połowie: tyle samo od kafli co do bloków.
-  const kreska = await p.evaluate(() => {
-    const kafle = [...document.querySelectorAll('.lst-2m-kafel')];
-    const dolKafli = Math.max(...kafle.map(e => e.getBoundingClientRect().bottom));
-    const pas = document.querySelector('.lst-2m-liczby').getBoundingClientRect();
-    const blok = document.querySelector('.lst-2m-liczba').getBoundingClientRect();
-    return { nad: Math.round(pas.top - dolKafli), pod: Math.round(blok.top - pas.top - 2) };
-  });
-  ok('kreska nad liczbami w równym odstępie', Math.abs(kreska.nad - kreska.pod) <= 2, `nad ${kreska.nad} px, pod ${kreska.pod} px`);
-
-  ok('ikonka i numer kroku zapalają się pod kursorem', /95,\s*227,\s*207(,\s*1)?\)/.test(ikona) && /95,\s*227,\s*207(,\s*1)?\)/.test(nr), `ikonka ${ikona}, numer ${nr}`);
+  ok('ikonka i numer kroku zapalają się pod kursorem', zapalone(ikona) && zapalone(nr), `ikonka ${ikona}, numer ${nr}`);
   ok('bez błędów w konsoli', bledy.length === 0, bledy.length ? bledy.join(' | ') : '0');
   console.log('     wysokość sekcji:', r.wys, 'px');
   await c.close();

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-„Z arkusza na stronę w dwie minuty" — siatka pięciu kafli nad paskiem liczb,
-jeden moduł Kod.
+„Z arkusza na stronę w dwie minuty" — siatka pięciu kafli, jeden moduł Kod.
 
 Kafle odpowiadają na to, o co pyta ktoś, kto widzi stronę pierwszy raz: co to
 robi, komu pomaga, jak się to ustawia, dlaczego można temu ufać i co zrobić
@@ -9,8 +8,9 @@ dalej. Wcześniej stały tu trzy pary „krok i okienko", które mówiły tylko 
 Każde zdanie w kaflach jest prawdą o wtyczce (readme.txt) — żadnych
 wymyślonych liczb klientów ani opinii.
 
-Po krawędzi każdego kafla biegnie to samo światło co po blokach z liczbami,
-a ikonki budzą się pod kursorem.
+Po krawędzi każdego kafla biegnie światło, a ikonki budzą się pod kursorem.
+Pas z trzema liczbami (0 kluczy API, bez limitu wierszy, 15 minut), który
+stał pod kaflami, został usunięty: powtarzał to, co kafle już mówią.
 
 Bez skryptu. Sam kod strony i style.
 
@@ -51,11 +51,24 @@ EN = {
 			( ( 'Oak table', '1 290' ), ( 'Ash chair', '319' ), ( 'Pine shelf', '215' ) ),
 			'updated 2 min ago', '3 rows' ),
 		'co_ile': 'every 15 min',
+		# Co dostaje odwiedzający — to, czego reszta kafli nie mówi.
+		'cechy': ( 'On your page', (
+			( 'lupa', 'Search and sorting', 'Built in, across the whole sheet.' ),
+			( 'telefon', 'Cards on a phone', 'Each row becomes a card, no sideways scroll.' ),
+			( 'paleta', 'Your colours', 'Set in a visual editor, no code.' ),
+		) ),
 		'komu': ( 'Who it helps', 'Anyone whose numbers live in a spreadsheet.',
 			'If people keep asking you for &ldquo;the latest version&rdquo;, it belongs on your page &mdash; '
 			'edited where you already edit it.' ),
 		'zetony': ( 'Price lists', 'Timetables', 'Stock levels', 'Menus', 'Event line-ups',
 			'Trail conditions', 'Rankings', 'Opening hours' ),
+		# Przykłady, a nie klienci: kto i co trzyma w arkuszu. Nikt tu nie
+		# udaje, że to prawdziwa firma z prawdziwą opinią.
+		'przyklady': ( 'For example', (
+			( 'cena', 'A furniture shop', 'Sales update prices in the sheet; the price list on the site follows.' ),
+			( 'puchar', 'A sports club', 'The league table is filled in after every match and is on the site right away.' ),
+			( 'gory', 'A ski area', 'Trail and snow conditions go into the sheet each morning, before the lifts open.' ),
+		) ),
 		'jak': ( 'How it works', 'Three steps, no API key.' ),
 		'kroki': (
 			( 'Share the sheet', 'Anyone with the link, as a Viewer.' ),
@@ -73,16 +86,6 @@ EN = {
 			'Free, no row limit, no watermark. You see the table in the preview before anything is published.' ),
 		'przyciski': ( ( 'Download free', '#pricing' ), ( 'See what Pro adds', '#compare' ) ),
 	},
-	'liczby': [
-		( 'pole', '0', 'API keys to paste, for a shared sheet',
-		  'You share it with a link and that is the setup. Pro can sign in to your own Google '
-		  'account instead, for sheets you would rather keep private.' ),
-		( 'wiersze', 'No limit', 'on rows, in the free version',
-		  'No watermark and no expiry date either. Free is the whole plugin, minus the extras.' ),
-		( 'zegar', '15 min', 'between checks, and nobody waits',
-		  'The plugin talks to Google in the background. Your visitor is served a table that is '
-		  'already sitting on your server.' ),
-	],
 }
 
 PL = {
@@ -95,11 +98,21 @@ PL = {
 			( ( 'Stół dębowy', '1 290' ), ( 'Krzesło', '319' ), ( 'Półka', '215' ) ),
 			'zaktualizowano 2 min temu', '3 wiersze' ),
 		'co_ile': 'co 15 min',
+		'cechy': ( 'Na Twojej stronie', (
+			( 'lupa', 'Szukanie i sortowanie', 'Wbudowane, po całym arkuszu.' ),
+			( 'telefon', 'Karty na telefonie', 'Każdy wiersz to karta, bez przewijania w bok.' ),
+			( 'paleta', 'Twoje kolory', 'W edytorze wizualnym, bez kodu.' ),
+		) ),
 		'komu': ( 'Komu pomaga', 'Każdemu, kto trzyma liczby w arkuszu.',
 			'Jeśli ktoś ciągle prosi Cię o &bdquo;najnowszą wersję&rdquo;, jej miejsce jest na stronie &mdash; '
 			'edytowanej tam, gdzie i tak edytujesz.' ),
 		'zetony': ( 'Cenniki', 'Rozkłady jazdy', 'Stany magazynowe', 'Menu', 'Programy wydarzeń',
 			'Warunki na szlakach', 'Rankingi', 'Godziny otwarcia' ),
+		'przyklady': ( 'Na przykład', (
+			( 'cena', 'Sklep meblowy', 'Dział sprzedaży zmienia ceny w arkuszu, a cennik na stronie idzie za nim.' ),
+			( 'puchar', 'Klub sportowy', 'Tabela ligowa uzupełniana po każdym meczu od razu jest na stronie.' ),
+			( 'gory', 'Ośrodek narciarski', 'Stan tras i śniegu trafia do arkusza każdego ranka, zanim ruszą wyciągi.' ),
+		) ),
 		'jak': ( 'Jak to działa', 'Trzy kroki, bez klucza API.' ),
 		'kroki': (
 			( 'Udostępnij arkusz', 'Każda osoba mająca link, jako Przeglądający.' ),
@@ -117,74 +130,7 @@ PL = {
 			'Za darmo, bez limitu wierszy, bez znaku wodnego. Tabelę widzisz w podglądzie, zanim cokolwiek zostanie opublikowane.' ),
 		'przyciski': ( ( 'Pobierz za darmo', '#cennik' ), ( 'Zobacz, co daje Pro', '#porownanie' ) ),
 	},
-	'liczby': [
-		( 'pole', '0', 'kluczy API do wklejenia, przy arkuszu z linkiem',
-		  'Udostępniasz arkusz linkiem i to cała konfiguracja. W Pro wtyczka może zamiast tego '
-		  'zalogować się na Twoje konto Google &mdash; wtedy arkusz zostaje prywatny.' ),
-		( 'wiersze', 'Bez limitu', 'wierszy, w wersji darmowej',
-		  'Bez znaku wodnego i bez daty ważności. Darmowa to cała wtyczka, tyle że bez dodatków.' ),
-		( 'zegar', '15 min', 'między sprawdzeniami, i nikt nie czeka',
-		  'Wtyczka rozmawia z Google w tle. Odwiedzający dostaje tabelę, która już leży na Twoim '
-		  'serwerze.' ),
-	],
 }
-
-
-"""
-Trzy przyrządy, po jednym na liczbę.
-
-Liczba mówi ILE, a rysunek obok mówi CZEGO — i to jest cała różnica między
-tabelką z trzema liczbami a czymś, na co się patrzy. Każdy jest narysowany
-z tego samego, z czego zbudowany jest produkt: puste pole, którego nie trzeba
-wypełnić; wiersze, które się nie kończą; tarcza z kwadransem.
-
-Rysowane, a nie pisane: znak nieskończoności albo zegar z kroju pisma wygląda
-w każdym kroju inaczej, a w połowie z nich stoi za nisko. Każdy stoi w pudełku
-120 na 72, więc wszystkie trzy wiszą na jednej linii, choć żaden nie jest
-podobny do pozostałych.
-"""
-PRZYRZADY = {
-
-	# Puste pole z migającym kursorem: nie ma czego wkleić.
-	'pole': ( '<svg class="lst-2m-przyrzad" viewBox="0 0 120 72" aria-hidden="true" focusable="false">'
-		'<rect class="lst-2m-ramka" x="1.5" y="6" width="117" height="60" rx="14" fill="none" '
-		'stroke="currentColor" stroke-width="1.5" stroke-dasharray="7 6"></rect>'
-		'<rect class="lst-2m-kursor" x="20" y="24" width="2.5" height="24" rx="1.25" '
-		'fill="currentColor"></rect></svg>' ),
-
-	# Wiersze, które gasną, zamiast się kończyć.
-	'wiersze': ( '<svg class="lst-2m-przyrzad" viewBox="0 0 120 72" aria-hidden="true" focusable="false">'
-		+ ''.join(
-			'<rect class="lst-2m-belka-w" x="0" y="' + str( y ) + '" width="' + str( w ) + '" '
-			'height="6" rx="3" fill="currentColor" opacity="' + o + '"></rect>'
-			for y, w, o in (
-				( 0, 118, '.95' ), ( 12, 104, '.8' ), ( 24, 112, '.62' ), ( 36, 88, '.44' ),
-				( 48, 98, '.28' ), ( 60, 72, '.14' ),
-			)
-		)
-		+ '</svg>' ),
-
-	# Tarcza z zaznaczonym kwadransem.
-	'zegar': ( '<svg class="lst-2m-przyrzad" viewBox="0 0 120 72" aria-hidden="true" focusable="false">'
-		'<g transform="translate( 24 0 )">'
-		'<circle class="lst-2m-tarcza" cx="36" cy="36" r="33" fill="none" stroke="currentColor" stroke-width="1.5" '
-		'opacity=".3"></circle>'
-		+ ''.join(
-			'<rect class="lst-2m-godzina" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="1" '
-			'fill="currentColor" opacity=".45"></rect>'
-			for x, y, w, h in (
-				( '35', '0', '2', '7' ), ( '65', '35', '7', '2' ),
-				( '35', '65', '2', '7' ), ( '0', '35', '7', '2' ),
-			)
-		)
-		# Kwadrans i jego koniec w jednej grupie: pod kursorem obraca się cała,
-		# jak wskazówka, która właśnie robi pełny obieg.
-		+ '<g class="lst-2m-wskazowka"><path class="lst-2m-kwadrans" d="M36 3 A33 33 0 0 1 69 36" fill="none" '
-		'stroke="currentColor" stroke-width="5" stroke-linecap="round"></path>'
-		'<circle class="lst-2m-wskaz" cx="69" cy="36" r="4.5" fill="currentColor"></circle></g>'
-		'</g></svg>' ),
-}
-
 
 
 """
@@ -210,6 +156,22 @@ IKONY = {
 		'<path class="lst-2m-palak" d="M9.5 12V9a4.5 4.5 0 0 1 9 0v3"></path>' ),
 }
 
+# Ikonki przykładów: metka z ceną, puchar, góra ze śniegiem na szczycie.
+# Budzą się pod kursorem tak samo jak ikonki powodów.
+IKONY.update( {
+	'cena': _ikona( '<path d="M4.5 13.6V5.5a1 1 0 0 1 1-1h8.1l9 9-9.1 9.1Z"></path>'
+		'<circle class="lst-2m-dioda" cx="9.5" cy="9.5" r="1.6"></circle>' ),
+	'puchar': _ikona( '<path d="M9 4.5h10v5a5 5 0 0 1-10 0Z"></path><path d="M9 6.5H6.2a3 3 0 0 0 3.1 4.5M19 6.5h2.8a3 3 0 0 1-3.1 4.5M14 14.5v4M10 23.5h8M11.5 18.5h5"></path>'
+		'<path class="lst-2m-dorys" pathLength="1" d="m12 8.5 1.5 1.5 2.5-3"></path>' ),
+	'lupa': _ikona( '<circle cx="12.5" cy="12.5" r="7"></circle><path class="lst-2m-dorys" pathLength="1" d="m17.6 17.6 5.4 5.4"></path>' ),
+	'telefon': _ikona( '<rect x="8" y="3.5" width="12" height="21" rx="2.5"></rect>'
+		'<path class="lst-2m-dioda" d="M11 9h6M11 12.5h6M11 16h4"></path>' ),
+	'paleta': _ikona( '<path d="M14 4a10 10 0 1 0 0 20c1.5 0 2-1 2-2s-1-1.5-1-2.5 1-1.5 2-1.5h2.5A4.5 4.5 0 0 0 24 13.5C24 8.3 19.5 4 14 4Z"></path>'
+		'<circle class="lst-2m-dioda" cx="9.5" cy="13" r="1.3"></circle><circle class="lst-2m-dioda" cx="12.5" cy="8.8" r="1.3"></circle><circle class="lst-2m-dioda" cx="17.5" cy="9" r="1.3"></circle>' ),
+	'gory': _ikona( '<path d="M3 23 10.5 9.5l4.6 7.6 3-4.6L25 23Z"></path>'
+		'<path class="lst-2m-dorys" pathLength="1" d="m8.2 13.6 2.3 1.4 2.2-1.4"></path>' ),
+} )
+
 STRZALKA = ( '<svg class="lst-2m-strzalka-rys" viewBox="0 0 64 14" fill="none" stroke="currentColor" '
 	'stroke-width="1.6" stroke-linecap="round" aria-hidden="true" focusable="false">'
 	'<path class="lst-2m-bieg" d="M2 7h54"></path><path d="m54 2 6 5-6 5"></path></svg>' )
@@ -221,9 +183,6 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 		<div class="lst-2m-kafle">
 {KAFLE}
 		</div>
-		<div class="lst-2m-liczby">
-{LICZBY}
-		</div>
 	</div>
 </div>
 
@@ -234,23 +193,6 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 	--lst-panel-dol: #161d1c;
 	--lst-linia: rgba( 138, 168, 163, .22 );
 
-	/*
-	 * Kreska między krokami.
-	 *
-	 * Szara przy .16 miała kontrast 1,32 : 1 do tła strony, czyli w praktyce
-	 * jej nie było; .38 dawało 2,02 : 1 i ledwo ją było widać. Szarość jest tu
-	 * ślepą uliczką: na ciemnozielonym tle szary o dowolnym kryciu albo ginie,
-	 * albo wygląda jak brud. Kreska jest więc miętowa — w kolorze, który ta
-	 * witryna i tak nosi — i zanikająca w prawo, tak samo jak kreska nad pasem
-	 * z liczbami. Jeden obraz na obie, żeby sekcja mówiła jednym językiem.
-	 */
-	--lst-kreska: rgba( var( --lst-mieta ), .9 );
-	--lst-kreska-obraz: linear-gradient( to right,
-		rgba( var( --lst-mieta ), .9 ),
-		rgba( var( --lst-mieta ), .62 ) 40%,
-		rgba( var( --lst-mieta ), .34 ) 75%,
-		rgba( var( --lst-mieta ), .1 ) 93%,
-		transparent );
 	--lst-tekst: #eaf3f1;
 	--lst-tekst-2: #9db3b0;
 	--lst-tekst-3: #8fa5a2;
@@ -330,10 +272,9 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 }
 
 /*
- * Kafel wygląda tak samo jak blok z liczbą pod spodem: to samo tło, ta sama
- * krawędź, to samo światło z góry i poświata w rogu, i to samo światło
- * biegnące po obwodzie (patrz „światło biegnące po krawędzi” niżej). Cała
- * sekcja jest przez to z jednego materiału.
+ * Głębia z trzech warstw: światło z góry (jasny pasek pod krawędzią),
+ * poświata akcentu w rogu i cień pod spodem. Do tego światło biegnące po
+ * obwodzie (patrz „światło biegnące po krawędzi” niżej).
  */
 .lst-2m .lst-2m-kafel {
 	position: relative;
@@ -388,7 +329,7 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 
 /*
  * Zdanie-tytuł kafla. Trzeci wyjątek od 14, 18 i 20 na tej stronie (po dużych
- * liczbach i tytułach sekcji): ten sam szeryf co liczby pod spodem, tylko
+ * liczbach i tytułach sekcji): ten sam szeryf co tytuły sekcji, tylko
  * mniejszy. Tytuł jest zdaniem i ma się czytać jak odpowiedź, a nie jak hasło.
  */
 .lst-2m .lst-2m-kafel-tytul {
@@ -590,6 +531,48 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 	opacity: .8;
 }
 
+/*
+ * Przykłady pod żetonami. Kafel „komu” stoi obok wyższego kafla z arkuszem,
+ * więc ma miejsce: przykłady siadają na jego dole, oddzielone cienką kreską,
+ * a żetony zostają przy tekście. Na węższym ekranie kafel jest na całą
+ * szerokość i przykłady idą zaraz pod żetonami.
+ */
+.lst-2m .lst-2m-kafel.jest-komu,
+.lst-2m .lst-2m-kafel.jest-robi { display: flex; flex-direction: column; }
+
+/* Pod arkuszem i stroną: co dostaje odwiedzający. Trzy obok siebie, na dole
+   kafla, tak jak przykłady w kaflu obok — oba górne kafle kończą się tą samą
+   kreską i tą samą etykietą. */
+.lst-2m .lst-2m-cechy {
+	display: grid;
+	grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
+	gap: .95rem 1.2rem;
+	margin-top: auto;
+	padding-top: 1.4rem;
+}
+
+.lst-2m .lst-2m-cechy > .lst-2m-etykieta {
+	grid-column: 1 / -1;
+	padding-top: 1.1rem !important;
+	border-top: 1px solid rgba( 138, 168, 163, .14 ) !important;
+}
+
+.lst-2m .lst-2m-przyklady {
+	display: grid;
+	gap: .95rem;
+	margin-top: auto;
+	padding-top: 1.4rem;
+}
+
+.lst-2m .lst-2m-przyklady > .lst-2m-etykieta {
+	padding-top: 1.1rem !important;
+	border-top: 1px solid rgba( 138, 168, 163, .14 ) !important;
+}
+
+.lst-2m .lst-2m-przyklad { display: grid; grid-template-columns: 2.6rem minmax( 0, 1fr ); gap: .85rem; align-items: start; }
+.lst-2m .lst-2m-przyklad-kto { font-size: 1.125rem; font-weight: 600; line-height: 1.35; }
+.lst-2m .lst-2m-przyklad-co { font-size: 1.125rem; line-height: 1.45; color: var( --lst-tekst-2 ); }
+
 /* ---------- jak: trzy kroki ---------- */
 
 .lst-2m .lst-2m-kroki { display: grid; gap: .8rem; margin-top: 1.2rem; }
@@ -681,85 +664,13 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 	color: var( --lst-tekst ) !important;
 }
 
-/* ---------- pasek liczb ---------- */
-
-.lst-2m .lst-2m-liczby {
-	/*
-	 * Trzy liczby jako pasek, a nie trzy kafelki.
-	 *
-	 * Przedtem stały w zamkniętej ramce, przedzielone kreskami na krzyż —
-	 * czyli w tabeli. Tabela z trzema liczbami wygląda jak zestawienie, przez
-	 * które się przelatuje wzrokiem, a to jest miejsce, w którym sekcja mówi
-	 * swoje trzy najmocniejsze zdania. Teraz jest to pas: jedna kreska nad nim,
-	 * dwie cienkie pionowe w środku i dużo powietrza. Nic nie jest pudełkiem,
-	 * więc liczby mają czym oddychać, a rysunki mają gdzie stanąć.
-	 */
-	display: grid;
-	grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
-	gap: clamp( .9rem, 1.8vw, 1.5rem );
-	position: relative;
-	/* Kreska nad pasem stoi dokładnie w połowie: tyle samo powietrza nad nią
-	   (od kafli) co pod nią (do bloków). Nierówne odstępy wyglądały, jakby
-	   kreska należała do kafli, a nie dzieliła sekcji na dwie części. */
-	--lst-pol-odstepu: clamp( 1.6rem, 3vw, 2.6rem );
-	margin-top: var( --lst-pol-odstepu );
-	/* plus grubość samej kreski, która stoi na górze dopełnienia */
-	padding-top: calc( var( --lst-pol-odstepu ) + 2px );
-}
-
-/* Kreska nad pasem: zaczyna się miętowo tam, gdzie zaczyna się pierwsza
-   liczba, i gaśnie w prawo. Jednolita szara na całą szerokość czytała się
-   jak górna krawędź tabeli. */
-.lst-2m .lst-2m-liczby::before {
-	content: "";
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 0;
-	height: 2px;
-	border-radius: 2px;
-	pointer-events: none;
-	background-image: var( --lst-kreska-obraz ) !important;
-}
-
-/*
- * Trzy osobne bloki, a nie trzy kolumny przedzielone kreską.
- *
- * Blok trzyma się kupy sam z siebie i nie potrzebuje niczego, co by go
- * domykało: ma swoje tło, swoją krawędź i swój cień, więc widać go z drugiego
- * końca pokoju. To, od czego ten pas uciekał, to nie były kafelki — to była
- * JEDNA ramka na trzy liczby, ze ściankami na krzyż, czyli tabela. Trzy
- * osobne bloki z odstępem między nimi to co innego.
- *
- * Głębia z trzech warstw, nie z jednej: światło z góry (jasny pasek pod
- * krawędzią), poświata akcentu w lewym górnym rogu i cień pod spodem. Żadna
- * z nich sama nie robi wrażenia, a razem blok odrywa się od strony.
- */
-.lst-2m .lst-2m-liczba {
-	position: relative;
-	display: grid;
-	align-content: start;
-	padding: clamp( 1.3rem, 2.2vw, 1.75rem ) clamp( 1.2rem, 2vw, 1.6rem ) clamp( 1.4rem, 2.4vw, 1.9rem );
-	border-radius: var( --lst-promien );
-	border: 1px solid rgba( var( --lst-mieta ), .18 ) !important;
-	background-color: var( --lst-panel ) !important;
-	background-image:
-		linear-gradient( 180deg, rgba( 255, 255, 255, .04 ), rgba( 255, 255, 255, 0 ) 42% ),
-		radial-gradient( 17rem 12rem at 14% -8%, rgba( var( --lst-mieta ), .16 ), transparent ),
-		linear-gradient( var( --lst-panel ), var( --lst-panel-dol ) ) !important;
-	box-shadow:
-		inset 0 1px 0 rgba( 255, 255, 255, .05 ),
-		0 20px 44px -26px rgba( 0, 0, 0, .95 ),
-		0 2px 10px -6px rgba( 0, 0, 0, .6 );
-}
-
 /* ---------- światło biegnące po krawędzi ---------- */
 
 /*
  * Kąt, o który obrócone jest światło. Własność musi być ZGŁOSZONA, bo inaczej
  * przeglądarka traktuje ją jak zwykły napis i nie ma czego animować: skok
  * z 0 na 360 stopni bez wartości pomiędzy. Zgłoszona jako kąt, animuje się
- * płynnie. Dziedziczona, bo obracamy ją na bloku, a czytają ją obie warstwy
+ * płynnie. Dziedziczona, bo obracamy ją na kaflu, a czytają ją obie warstwy
  * światła pod spodem.
  *
  * Przeglądarka, która „@property" nie zna, zostaje z kątem 0: światło stoi
@@ -779,12 +690,10 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
  * środek, i zostaje obwódka. Ostra jest krawędzią, rozmyta poświatą, przez
  * którą krawędź „rozświetla" to, obok czego właśnie przejeżdża.
  *
- * Każdy blok startuje w innym miejscu obiegu (ujemne opóźnienie), bo trzy
- * światła idące równo wyglądają jak jedna animacja rozciągnięta na trzy
- * pudełka, a nie jak trzy przedmioty.
+ * Każdy kafel startuje w innym miejscu obiegu (ujemne opóźnienie), bo
+ * światła idące równo wyglądają jak jedna animacja rozciągnięta na kilka
+ * pudełek, a nie jak osobne przedmioty.
  */
-.lst-2m .lst-2m-liczba::before,
-.lst-2m .lst-2m-liczba::after,
 .lst-2m .lst-2m-kafel::before,
 .lst-2m .lst-2m-kafel::after {
 	content: "";
@@ -807,149 +716,29 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 	mask-composite: exclude;
 }
 
-.lst-2m .lst-2m-liczba::after,
 .lst-2m .lst-2m-kafel::after {
 	padding: 3.5px;
 	filter: blur( 6px );
 	opacity: .75;
 }
 
-.lst-2m .lst-2m-liczba,
+/* Obieg trwa tyle, żeby światło szło spokojnie po długim obwodzie kafla,
+   a nie pędziło. Pas „co dalej” jest najdłuższy, więc jego obieg też. */
 .lst-2m .lst-2m-kafel {
-	animation: lst-2m-obieg 7s linear infinite;
+	animation: lst-2m-obieg 11s linear infinite;
 }
 
-/* Kafle są większe niż bloki z liczbami, więc obieg trwa dłużej — światło
-   ma iść tym samym tempem, a nie pędzić po dłuższym obwodzie. Każdy kafel
-   startuje gdzie indziej, tak jak bloki pod nimi. */
-.lst-2m .lst-2m-kafel { animation-duration: 11s; }
 .lst-2m .lst-2m-kafel.jest-komu { animation-delay: -3.1s; }
 .lst-2m .lst-2m-kafel.jest-jak { animation-delay: -6.4s; }
 .lst-2m .lst-2m-kafel.jest-ufac { animation-delay: -8.7s; }
 .lst-2m .lst-2m-kafel.jest-dalej { animation-delay: -1.6s; animation-duration: 14s; }
 
-.lst-2m .lst-2m-liczba:nth-child( 2 ) { animation-delay: -2.4s; }
-.lst-2m .lst-2m-liczba:nth-child( 3 ) { animation-delay: -4.8s; }
-
 @keyframes lst-2m-obieg { to { --lst-obrot: 1turn; } }
-
-/* ---------- przyrządy ---------- */
-
-/*
- * Rysunek nad liczbą, w jej kolorze, zawsze tej samej wysokości: trzy różne
- * rzeczy wiszą wtedy na jednej linii i pas czyta się jak jeden przyrząd,
- * a nie jak trzy naklejki.
- */
-.lst-2m .lst-2m-przyrzad {
-	display: block;
-	width: 7.5rem;
-	height: 4.5rem;
-	margin-bottom: .9rem;
-	color: rgb( var( --lst-mieta ) );
-	overflow: visible;
-}
-
-.lst-2m .lst-2m-liczba.jest-pole .lst-2m-przyrzad { color: rgba( var( --lst-mieta ), .85 ); }
-
-.lst-2m .lst-2m-duza {
-	font-family: var( --lst-serif );
-	font-weight: 400;
-	/* Duża liczba to jeden z dwóch wyjątków od 14, 18 i 20 na tej witrynie
-	   (drugim są tytuły sekcji) i tu ten wyjątek ma być widać. */
-	font-size: clamp( 2.4rem, 4.4vw, 3.8rem );
-	line-height: .95;
-	letter-spacing: -.02em;
-	color: rgb( var( --lst-mieta ) );
-	margin-bottom: .55rem;
-}
-
-.lst-2m .lst-2m-pod {
-	font-size: 1.125rem;   /* 18 px */
-	font-weight: 600;
-	line-height: 1.35;
-	margin-bottom: .4rem;
-}
-
-.lst-2m .lst-2m-tekst {
-	font-size: 1.125rem;   /* 18 px */
-	line-height: 1.55;
-	color: var( --lst-tekst-2 );
-	max-width: 26rem;
-}
-
-/* ---------- ruch przyrządów ---------- */
-
-/*
- * Każdy rusza się raz, kiedy pas wchodzi w kadr, i każdy mówi ruchem to samo,
- * co mówi liczbą: kursor mruga w pustym polu, wiersze wjeżdżają jeden po
- * drugim i nie kończą się, kwadrans rysuje się na tarczy.
- *
- * Nic nie startuje niewidoczne: bez osi widoku wszystko jest po prostu
- * narysowane, więc pas jest kompletny w pierwszej klatce, także na zrzucie
- * całej strony i na wydruku.
- */
-@supports ( animation-timeline: view() ) {
-	/*
-	 * Kreski ramki przebiegają raz dookoła pustego pola. Kursor NIE mruga na
-	 * osi widoku: mruganie to znikanie, a na osi widoku „zniknięte" zostaje
-	 * tak długo, jak długo strona stoi w tym miejscu — czyli dowolnie długo.
-	 * Pierwsza wersja gubiła przez to kursor na zrzucie i na wydruku.
-	 */
-	.lst-2m .lst-2m-ramka {
-		animation: lst-2m-marsz 900ms linear both;
-		animation-timeline: view();
-		animation-range: entry 8% cover 30%;
-	}
-
-	.lst-2m .lst-2m-belka-w {
-		animation: lst-2m-wjazd 500ms cubic-bezier( .23, 1, .32, 1 ) both;
-		animation-timeline: view();
-		animation-range: entry 8% cover 28%;
-	}
-
-	.lst-2m .lst-2m-belka-w:nth-child( 2 ) { animation-delay: 60ms; }
-	.lst-2m .lst-2m-belka-w:nth-child( 3 ) { animation-delay: 120ms; }
-	.lst-2m .lst-2m-belka-w:nth-child( 4 ) { animation-delay: 180ms; }
-	.lst-2m .lst-2m-belka-w:nth-child( 5 ) { animation-delay: 240ms; }
-	.lst-2m .lst-2m-belka-w:nth-child( 6 ) { animation-delay: 300ms; }
-
-	.lst-2m .lst-2m-kwadrans {
-		stroke-dasharray: 48;
-		animation: lst-2m-rysuj 800ms cubic-bezier( .23, 1, .32, 1 ) both;
-		animation-timeline: view();
-		animation-range: entry 8% cover 32%;
-	}
-
-	.lst-2m .lst-2m-wskaz {
-		animation: lst-2m-wskaz 800ms cubic-bezier( .23, 1, .32, 1 ) both;
-		animation-timeline: view();
-		animation-range: entry 8% cover 32%;
-	}
-}
-
-@keyframes lst-2m-marsz { from { stroke-dashoffset: 52; } }
-@keyframes lst-2m-wjazd { from { transform: translateX( -10px ); } }
-@keyframes lst-2m-rysuj { from { stroke-dashoffset: 48; } }
-@keyframes lst-2m-wskaz { from { transform: rotate( -90deg ); } }
-@keyframes lst-2m-obrot { to { transform: rotate( 1turn ); } }
-
-/* Wskazówka obraca się wokół środka tarczy, a nie wokół rogu rysunku. */
-.lst-2m .lst-2m-wskaz,
-.lst-2m .lst-2m-wskazowka { transform-origin: 36px 36px; }
 
 /* ---------- najechanie ---------- */
 
-/*
- * Tylko tam, gdzie jest czym najechać. Przyrząd budzi się pod kursorem: pole
- * przestaje być kreskowane, bo właśnie takie pole się zaznacza, a tarcza
- * jaśnieje. Nic się nie przesuwa, bo pas nie jest przyciskiem.
- */
+/* Tylko tam, gdzie jest czym najechać. */
 @media ( hover: hover ) and ( pointer: fine ) {
-	.lst-2m .lst-2m-ramka,
-	.lst-2m .lst-2m-kwadrans,
-	.lst-2m .lst-2m-belka-w { transition: opacity .25s ease, stroke-dasharray .25s ease; }
-
-	.lst-2m .lst-2m-liczba,
 	.lst-2m .lst-2m-kafel {
 		transition: transform .25s cubic-bezier( .23, 1, .32, 1 ),
 			box-shadow .25s cubic-bezier( .23, 1, .32, 1 ),
@@ -959,7 +748,6 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 	/* Blok unosi się o dwa piksele, a cień robi się głębszy: tyle, żeby było
 	   czuć, że to przedmiot, a nie plama na tle. Nic stąd nie prowadzi dalej,
 	   więc nic nie udaje przycisku. */
-	.lst-2m .lst-2m-liczba:hover,
 	.lst-2m .lst-2m-kafel:hover {
 		transform: translateY( -2px );
 		border-color: rgba( var( --lst-mieta ), .32 ) !important;
@@ -968,21 +756,6 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 			0 26px 52px -26px rgba( 0, 0, 0, .95 ),
 			0 3px 12px -6px rgba( 0, 0, 0, .65 );
 	}
-
-	.lst-2m .lst-2m-liczba:hover .lst-2m-ramka { stroke-dasharray: 130 0; }
-	.lst-2m .lst-2m-liczba:hover .lst-2m-belka-w { opacity: 1; }
-
-	/*
-	 * Tarcza pod kursorem: wskazówka robi jeden pełny obieg — kwadrans mija
-	 * i zaczyna się następny, czyli to, co liczba obok mówi słowami — a tarcza
-	 * i kreski godzin jaśnieją, tak jak pole z kursorem przestaje być
-	 * kreskowane, a wiersze się zapalają.
-	 */
-	.lst-2m .lst-2m-tarcza,
-	.lst-2m .lst-2m-godzina { transition: opacity .3s ease; }
-	.lst-2m .lst-2m-liczba:hover .lst-2m-tarcza { opacity: .7; }
-	.lst-2m .lst-2m-liczba:hover .lst-2m-godzina { opacity: 1; }
-	.lst-2m .lst-2m-liczba:hover .lst-2m-wskazowka { animation: lst-2m-obrot 1.3s cubic-bezier( .65, 0, .35, 1 ) both; }
 
 	/*
 	 * Ikonki budzą się pod kursorem, każda po swojemu, i każda mówi ruchem to
@@ -997,7 +770,8 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 			transform .3s cubic-bezier( .23, 1, .32, 1 ), box-shadow .3s ease;
 	}
 
-	.lst-2m .lst-2m-powod:hover .lst-2m-ikona {
+	.lst-2m .lst-2m-powod:hover .lst-2m-ikona,
+	.lst-2m .lst-2m-przyklad:hover .lst-2m-ikona {
 		background-color: rgb( var( --lst-mieta ) ) !important;
 		border-color: rgb( var( --lst-mieta ) ) !important;
 		color: #06100f;
@@ -1005,7 +779,9 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 		box-shadow: 0 10px 24px -10px rgba( var( --lst-mieta ), .8 );
 	}
 
+	.lst-2m .lst-2m-przyklad:hover .lst-2m-dorys,
 	.lst-2m .lst-2m-powod:hover .lst-2m-dorys { animation: lst-2m-dorys .5s cubic-bezier( .23, 1, .32, 1 ) both; }
+	.lst-2m .lst-2m-przyklad:hover .lst-2m-dioda,
 	.lst-2m .lst-2m-powod:hover .lst-2m-dioda { animation: lst-2m-mrug .9s steps( 2, jump-none ) 2; }
 	.lst-2m .lst-2m-powod:hover .lst-2m-palak { animation: lst-2m-zatrzask .45s cubic-bezier( .23, 1, .32, 1 ) both; }
 
@@ -1046,9 +822,8 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 .lst-2m .lst-2m-krok-tekst,
 .lst-2m .lst-2m-powod-tytul,
 .lst-2m .lst-2m-powod-tekst,
-.lst-2m .lst-2m-duza,
-.lst-2m .lst-2m-pod,
-.lst-2m .lst-2m-tekst {
+.lst-2m .lst-2m-przyklad-kto,
+.lst-2m .lst-2m-przyklad-co {
 	margin-inline: 0 !important;
 	margin-bottom: 0 !important;
 	padding: 0 !important;
@@ -1059,11 +834,7 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 	letter-spacing: normal !important;
 }
 
-.lst-2m .lst-2m-duza,
-.lst-2m .lst-2m-pod,
-.lst-2m .lst-2m-tekst { margin-top: 0 !important; }
-.lst-2m .lst-2m-duza { margin-bottom: .55rem !important; }
-.lst-2m .lst-2m-pod { margin-bottom: .4rem !important; }
+
 
 .lst-2m .lst-2m-etykieta { font-family: var( --lst-mono ) !important; text-transform: uppercase !important; letter-spacing: .1em !important; color: var( --lst-tekst-3 ) !important; margin-top: 0 !important; }
 .lst-2m .lst-2m-kafel-tytul { font-family: var( --lst-serif ) !important; color: var( --lst-tekst ) !important; }
@@ -1074,7 +845,8 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 .lst-2m .lst-2m-kafel.jest-dalej .lst-2m-kafel-tekst { margin-top: .35rem !important; }
 .lst-2m .lst-2m-krok-tytul,
 .lst-2m .lst-2m-powod-tytul { font-family: inherit !important; color: var( --lst-tekst ) !important; margin-top: 0 !important; }
-.lst-2m .lst-2m-duza { font-family: var( --lst-serif ) !important; color: rgb( var( --lst-mieta ) ) !important; }
+.lst-2m .lst-2m-przyklad-kto { font-family: inherit !important; color: var( --lst-tekst ) !important; margin-top: 0 !important; }
+.lst-2m .lst-2m-przyklad-co { font-family: inherit !important; color: var( --lst-tekst-2 ) !important; margin-top: 0 !important; }
 .lst-2m .lst-2m-arkusz,
 .lst-2m .lst-2m-stopka-strony,
 .lst-2m .lst-2m-kod,
@@ -1099,38 +871,25 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 	.lst-2m .lst-2m-przeplyw { grid-template-columns: minmax( 0, 1fr ); justify-items: stretch; }
 	.lst-2m .lst-2m-strzalka { transform: rotate( 90deg ); margin: .2rem auto; }
 	.lst-2m .lst-2m-strzalka span { display: none; }
-	.lst-2m .lst-2m-pewne { grid-template-columns: minmax( 0, 1fr ); }
+	.lst-2m .lst-2m-pewne,
+	.lst-2m .lst-2m-cechy { grid-template-columns: minmax( 0, 1fr ); }
 	.lst-2m .lst-2m-kafel.jest-dalej { flex-direction: column; align-items: flex-start; }
 	.lst-2m .lst-2m-przyciski { margin-left: 0; }
-	.lst-2m .lst-2m-liczby { grid-template-columns: 1fr; }
 }
 
 @media ( prefers-reduced-motion: reduce ) {
 	/* „Mniej ruchu" znaczy mniej ruchu, nie mniej treści: przyrządy zostają na
 	   ekranie w stanie końcowym. */
 	.lst-2m .lst-2m-kafel,
-	.lst-2m .lst-2m-liczba,
 	.lst-2m .lst-2m-ikona,
 	.lst-2m .lst-2m-nr { transition: none; }
-	.lst-2m .lst-2m-liczba,
 	.lst-2m .lst-2m-kafel,
 	.lst-2m .lst-2m-bieg { animation: none !important; }
-	.lst-2m .lst-2m-ramka,
-	.lst-2m .lst-2m-belka-w,
-	.lst-2m .lst-2m-kwadrans,
-	.lst-2m .lst-2m-wskaz { animation: none !important; }
-	.lst-2m .lst-2m-kwadrans { stroke-dasharray: none; }
 }
 
 @media print {
-	.lst-2m .lst-2m-liczba,
 	.lst-2m .lst-2m-kafel,
 	.lst-2m .lst-2m-bieg { animation: none !important; }
-	.lst-2m .lst-2m-ramka,
-	.lst-2m .lst-2m-belka-w,
-	.lst-2m .lst-2m-kwadrans,
-	.lst-2m .lst-2m-wskaz { animation: none !important; }
-	.lst-2m .lst-2m-kwadrans { stroke-dasharray: none; }
 }
 </style>
 
@@ -1178,11 +937,21 @@ def zbuduj( t, plik ):
 	kafle = []
 
 	etykieta, tytul, tekst = k[ 'robi' ]
-	kafle.append( kafel( 'robi', etykieta, tytul, '<p class="lst-2m-kafel-tekst">' + tekst + '</p>' + przeplyw( k ) ) )
+	naglowek_cech, cechy = k[ 'cechy' ]
+	kafle.append( kafel( 'robi', etykieta, tytul, '<p class="lst-2m-kafel-tekst">' + tekst + '</p>' + przeplyw( k ) +
+		'<div class="lst-2m-cechy"><p class="lst-2m-etykieta">' + naglowek_cech + '</p>' + ''.join(
+			'<div class="lst-2m-przyklad"><span class="lst-2m-ikona">' + IKONY[ ikona ] + '</span><div>'
+			'<p class="lst-2m-przyklad-kto">' + kto + '</p><p class="lst-2m-przyklad-co">' + co + '</p></div></div>'
+			for ikona, kto, co in cechy ) + '</div>' ) )
 
 	etykieta, tytul, tekst = k[ 'komu' ]
+	naglowek_przykladow, przyklady = k[ 'przyklady' ]
 	kafle.append( kafel( 'komu', etykieta, tytul, '<p class="lst-2m-kafel-tekst">' + tekst + '</p>'
-		'<div class="lst-2m-zetony">' + ''.join( '<span class="lst-2m-zeton">' + z + '</span>' for z in k[ 'zetony' ] ) + '</div>' ) )
+		'<div class="lst-2m-zetony">' + ''.join( '<span class="lst-2m-zeton">' + z + '</span>' for z in k[ 'zetony' ] ) + '</div>'
+		'<div class="lst-2m-przyklady"><p class="lst-2m-etykieta">' + naglowek_przykladow + '</p>' + ''.join(
+			'<div class="lst-2m-przyklad"><span class="lst-2m-ikona">' + IKONY[ ikona ] + '</span><div>'
+			'<p class="lst-2m-przyklad-kto">' + kto + '</p><p class="lst-2m-przyklad-co">' + co + '</p></div></div>'
+			for ikona, kto, co in przyklady ) + '</div>' ) )
 
 	etykieta, tytul = k[ 'jak' ]
 	kafle.append( kafel( 'jak', etykieta, tytul, '<div class="lst-2m-kroki">' + ''.join(
@@ -1204,19 +973,8 @@ def zbuduj( t, plik ):
 		'<a class="lst-2m-przycisk jest-glowny" href="' + glowny_adres + '">' + glowny + '</a>'
 		'<a class="lst-2m-przycisk jest-drugi" href="' + drugi_adres + '">' + drugi + '</a></div></div>' )
 
-	liczby = []
-
-	for przyrzad, duza, pod, tekst in t[ 'liczby' ]:
-		liczby.append(
-			'\t\t\t<div class="lst-2m-liczba jest-' + przyrzad + '">'
-			+ PRZYRZADY[ przyrzad ] +
-			'<p class="lst-2m-duza">' + duza + '</p>'
-			'<p class="lst-2m-pod">' + pod + '</p>'
-			'<p class="lst-2m-tekst">' + tekst + '</p></div>' )
-
 	html = ( SZABLON
-		.replace( '{KAFLE}', '\n'.join( kafle ) )
-		.replace( '{LICZBY}', '\n'.join( liczby ) ) )
+		.replace( '{KAFLE}', '\n'.join( kafle ) ) )
 
 	sprawdz( html, plik )
 
