@@ -893,7 +893,7 @@ console.log( '\nnachylenie aparatu' );
 		`${ plasko.przestrzen }, warstw ${ plasko.widacWarstw }, poza ${ poza }, ten sam kształt co przed najechaniem ${ plasko.ksztalt === pozaKsztalt }, cieni boku ${ plasko.bok } (${ plasko.cien }), guzików ${ plasko.guzikow }` );
 
 	ok( 'telefon ma grubość: korpus stoi za ekranem w przestrzeni',
-		'preserve-3d' === bryla.przestrzen && 12 === bryla.warstw && bryla.glebia <= -36,
+		'preserve-3d' === bryla.przestrzen && 24 === bryla.warstw && bryla.glebia <= -36,
 		`${ bryla.przestrzen }, warstw ${ bryla.warstw }, najgłębsza ${ bryla.glebia }px` );
 
 	ok( 'aparat odchyla się w stronę kursora, świeci blaskiem i wraca do swojej pozy',

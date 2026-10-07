@@ -289,11 +289,18 @@ def telefon( srodek ):
 	szczegółach: wyspa z obiektywem, pasek stanu, odbicie na szkle i kreska
 	gestu. Bez nich to zaokrąglony prostokąt wokół tabeli.
 	"""
-	# Korpus: dwanaście warstw obudowy jedna za drugą. Kiedy aparat się
+	# Korpus: dwadzieścia cztery cienkie warstwy obudowy jedna za drugą.
+	# Przy dwunastu grubszych refleks na boku rozpadał się na pasy, a na
+	# rogach na schodki. Kiedy aparat się
 	# odchyla, ich brzegi układają się w bok telefonu — z grubością,
 	# zaokrąglonymi rogami i światłem, które gaśnie w głąb.
 	korpus = ''.join( '<span class="lst-mz-telefon-warstwa" style="--i:' + str( i ) + '"></span>'
-		for i in range( 1, 13 ) )
+		for i in range( 1, 25 ) )
+
+	# Guzik w scenie 3D: te same plastry co korpus, od piątego do
+	# dziewiętnastego, wysunięte o krok za obrys. Z boku czyta się to jako
+	# bryłka wychodząca z ramy, a nie płaska blaszka.
+	plastry = ''.join( '<i style="--i:' + str( i ) + '"></i>' for i in range( 5, 20 ) )
 
 	# Stojak się nie rusza. Mierzony jest on, a nie aparat: aparat w ruchu
 	# zmienia kształt razem z nachyleniem, więc mierzony w ruchu goniłby sam
@@ -301,10 +308,10 @@ def telefon( srodek ):
 	return ( '<div class="lst-mz-telefon-stojak">'
 		'<div class="lst-mz-telefon-rama">'
 		+ korpus +
-		'<span class="lst-mz-telefon-guzik jest-cisza"></span>'
-		'<span class="lst-mz-telefon-guzik jest-glosniej"></span>'
-		'<span class="lst-mz-telefon-guzik jest-ciszej"></span>'
-		'<span class="lst-mz-telefon-guzik jest-bok"></span>'
+		'<span class="lst-mz-telefon-guzik jest-cisza">' + plastry + '</span>'
+		'<span class="lst-mz-telefon-guzik jest-glosniej">' + plastry + '</span>'
+		'<span class="lst-mz-telefon-guzik jest-ciszej">' + plastry + '</span>'
+		'<span class="lst-mz-telefon-guzik jest-bok">' + plastry + '</span>'
 		'<div class="lst-mz-telefon">' + PASEK_STANU + srodek + '</div>'
 		'<span class="lst-mz-telefon-wyspa"><span class="lst-mz-telefon-oko"></span></span>'
 		'<span class="lst-mz-telefon-blysk"></span>'
@@ -1088,11 +1095,12 @@ STYL = r"""
 	 * wolniejszy niż wejście, żeby aparat odkładał się, a nie odskakiwał.
 	 */
 	/*
-	 * Grubość. Telefon ma bok, a nie tylko przód: za ekranem stoi dwanaście
-	 * warstw obudowy, co trzy i pół piksela, razem czterdzieści dwa. To
+	 * Grubość. Telefon ma bok, a nie tylko przód: za ekranem stoją dwadzieścia
+	 * cztery warstwy obudowy, co półtora piksela z ćwiercią, razem
+	 * czterdzieści dwa. To
 	 * mniej więcej proporcja prawdziwego aparatu przy tej szerokości.
 	 */
-	--mz-grubosc: 3.5px;
+	--mz-grubosc: 1.75px;
 	/*
 	 * W spoczynku aparat jest płaski, bez sceny 3D. Scena z kilkunastoma
 	 * warstwami jest dla przeglądarki ciężka: przy przewijaniu Chrome
@@ -1142,7 +1150,7 @@ STYL = r"""
 	pointer-events: none;
 	background-color: #2a3835;
 	/* Ten sam profil co bok w spoczynku: najjaśniej na środku zaokrąglenia. */
-	background-color: color-mix( in srgb, #c4d4d1 calc( 100% - max( calc( ( var( --i ) - 6 ) * 16% ), calc( ( 6 - var( --i ) ) * 16% ) ) ), #1a2422 );
+	background-color: color-mix( in srgb, #b3c5c1 calc( 100% - max( calc( ( var( --i ) - 12 ) * 7.5% ), calc( ( 12 - var( --i ) ) * 7.5% ) ) ), #1a2422 );
 	box-shadow: inset 0 0 0 1px rgba( 255, 255, 255, .04 );
 	transform: translateZ( calc( var( --i ) * var( --mz-grubosc ) * -1 ) );
 }
@@ -1306,10 +1314,10 @@ STYL = r"""
  * Każdy jest bryłką na boku, a nie paskiem na obudowie. Z przodu widać z niej
  * tylko rąbek wystający zza krawędzi: wąski, ciemniejszy od ramy, bo bok
  * odwraca się od światła, z jasną linią po stronie, z której pada światło, i
- * z zaokrąglonymi końcami. W scenie 3D dochodzi ściana leżąca wzdłuż boku,
- * prostopadle do ekranu — to ją widać, gdy aparat się odchyli. Rąbek stoi
- * w obu stanach w tym samym miejscu, tuż za przodem, więc włączenie sceny
- * nie przesuwa go ani o piksel.
+ * z zaokrąglonymi końcami. W scenie 3D guzik składa się z tych samych
+ * cienkich plastrów co bok, wysuniętych za obrys — przy odchyleniu widać
+ * bryłkę wychodzącą z ramy. Pojedyncza ściana obrócona wzdłuż boku
+ * wyglądała pod ostrym kątem jak postrzępiona kreska.
  */
 .lst-mz .lst-mz-telefon-guzik {
 	--mz-guzik-gleb: 18px;
@@ -1328,40 +1336,38 @@ STYL = r"""
 		inset 0 0 0 6px #4f625e,
 		/* cień tam, gdzie guzik wychodzi z ramy */
 		-1px 0 1.5px rgba( 0, 0, 0, .45 );
-	/* Tuż za przodem: w perspektywie przesuwa się o ułamek piksela. */
-	transform: translateZ( -4px );
 	transform-style: preserve-3d;
 }
 
 /*
- * Ściana guzika na boku. Obrót wokół zewnętrznej krawędzi o ćwierć obrotu
- * kładzie ją wzdłuż boku, w głąb aparatu. Tylko w scenie 3D: płasko byłaby
- * kreską bez szerokości.
+ * Guzik w scenie 3D: plastry w kolorach korpusu, wysunięte za obrys. Każdy
+ * ma jaśniejszą górę i ciemniejszy dół, więc klawisz odcina się od boku, na
+ * którym stoi. Sam guzik robi się wtedy tylko pojemnikiem: rąbek z przodu
+ * byłby blaszką przed resztą bryłki.
  */
-.lst-mz .lst-mz-telefon-guzik::before {
-	content: "";
+.lst-mz .lst-mz-telefon-guzik > i {
 	display: none;
 	position: absolute;
-	top: 0;
-	left: 0;
-	width: var( --mz-guzik-gleb );
-	height: 100%;
-	border-radius: 2px;
-	transform-origin: 0 50%;
-	transform: rotateY( 90deg );
-	background-image: linear-gradient( 90deg, #6b817c 0%, #b4c6c2 35%, #8fa4a0 60%, #4c5f5b 100% );
+	inset: 0;
+	border-radius: inherit;
+	background-color: color-mix( in srgb, #9fb2ae calc( 100% - max( calc( ( var( --i ) - 12 ) * 7.5% ), calc( ( 12 - var( --i ) ) * 7.5% ) ) ), #1a2422 );
 	box-shadow:
-		inset 0 3px 2px -2px rgba( 255, 255, 255, .35 ),
-		inset 0 -3px 2px -2px rgba( 0, 0, 0, .5 );
+		inset 0 1px 0 rgba( 255, 255, 255, .28 ),
+		inset 0 -1px 0 rgba( 0, 0, 0, .45 );
+	transform: translateZ( calc( var( --i ) * var( --mz-grubosc ) * -1 ) );
 }
 
-.lst-mz .lst-mz-telefon-rama.jest-3d .lst-mz-telefon-guzik::before { display: block; }
+.lst-mz .lst-mz-telefon-rama.jest-3d .lst-mz-telefon-guzik > i { display: block; }
+
+.lst-mz .lst-mz-telefon-rama.jest-3d .lst-mz-telefon-guzik {
+	background-color: transparent !important;
+	box-shadow: none;
+	transform: none;
+}
 
 /* Korpus stoi tylko w scenie 3D; guziki stoją zawsze. */
 .lst-mz .lst-mz-telefon-rama.jest-3d .lst-mz-telefon-warstwa { display: block; }
 
-/* Płasko nie ma czego przesuwać w głąb. */
-.lst-mz .lst-mz-telefon-rama:not( .jest-3d ) .lst-mz-telefon-guzik { transform: none; }
 
 .lst-mz .lst-mz-telefon-guzik.jest-cisza { top: 104px; height: 28px; }
 .lst-mz .lst-mz-telefon-guzik.jest-glosniej { top: 150px; height: 56px; }
@@ -1382,13 +1388,6 @@ STYL = r"""
 		1px 0 1.5px rgba( 0, 0, 0, .45 );
 }
 
-.lst-mz .lst-mz-telefon-guzik.jest-bok::before {
-	left: auto;
-	right: 0;
-	transform-origin: 100% 50%;
-	transform: rotateY( -90deg );
-	background-image: linear-gradient( 270deg, #6b817c 0%, #b4c6c2 35%, #8fa4a0 60%, #4c5f5b 100% );
-}
 
 /* --------------------------------------------------------- co jest w czym */
 
@@ -1741,7 +1740,7 @@ STYL = r"""
 .lst-mz .lst-mz-telefon-oko { background-color: #0b1a19 !important; border-radius: 50% !important; }
 .lst-mz .lst-mz-telefon-kreska { background-color: rgba( 234, 243, 241, .4 ) !important; border-radius: 999px !important; }
 .lst-mz .lst-mz-telefon-guzik { background-color: #33433f !important; }
-.lst-mz .lst-mz-telefon-warstwa { background-color: color-mix( in srgb, #c4d4d1 calc( 100% - max( calc( ( var( --i ) - 6 ) * 16% ), calc( ( 6 - var( --i ) ) * 16% ) ) ), #1a2422 ) !important; border: 0 !important; border-radius: 52px !important; }
+.lst-mz .lst-mz-telefon-warstwa { background-color: color-mix( in srgb, #b3c5c1 calc( 100% - max( calc( ( var( --i ) - 12 ) * 7.5% ), calc( ( 12 - var( --i ) ) * 7.5% ) ) ), #1a2422 ) !important; border: 0 !important; border-radius: 52px !important; }
 .lst-mz .lst-mz-telefon-godzina { font-family: inherit !important; }
 .lst-mz .lst-mz-telefon { background-color: var( --mz-ekran ) !important; border-radius: 40px !important; }
 .lst-mz .lst-mz-okno { background-color: var( --mz-ekran ) !important; border: 1px solid var( --mz-ekran-linia ) !important; }
