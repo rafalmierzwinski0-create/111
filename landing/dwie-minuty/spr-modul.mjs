@@ -181,13 +181,21 @@ console.log('\n1400 px, zwykła strona');
  */
 console.log('\nprzykład po zapisie w Divi');
 {
-  let poDivi = en.replace(/&#91;|&#x5B;/gi, '[').replace(/&#93;|&#x5D;/gi, ']');
+  let poDivi = en.replace(/&#91;|&#x5B;/gi, '[').replace(/&#93;|&#x5D;/gi, ']')
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>');
   for (let przed = ''; przed !== poDivi;) {
     przed = poDivi;
     poDivi = poDivi.replace(/<(span|i|b|em|strong)\b[^>]*><\/\1>/g, '');
   }
   const zbitki = ['[sheet_table', '[live_sheets_table'].filter(z => poDivi.includes(z));
   ok('shortcode nie da się wykonać nawet po zapisie w Divi', zbitki.length === 0, `zbitek ${zbitki.length}`);
+  /*
+   * Po zapisie w Divi znaczników nie może przybyć. „&lt;table&gt;” w zdaniu
+   * stało się na żywej stronie prawdziwą tabelą i rozsypało całą sekcję.
+   */
+  const znaczniki = (h) => (h.split('<style>')[0].match(/<[a-z]+/g) || []).length;
+  const odkodowane = en.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+  ok('po zapisie w Divi nie przybywa znaczników', znaczniki(odkodowane) === znaczniki(en), `${znaczniki(en)} → ${znaczniki(odkodowane)}`);
 }
 
 console.log('\n1400 px, po wstawieniu <br /> przez Divi');

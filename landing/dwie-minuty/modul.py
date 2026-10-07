@@ -66,7 +66,7 @@ EN = {
 		'pewne': (
 			( 'tarcza', 'The last good copy stays', 'If Google is unreachable or the sheet goes private, visitors still see your table.' ),
 			( 'serwer', 'Served from your server', 'Fetched in the background, so nobody waits on Google.' ),
-			( 'tabela', 'A real &lt;table&gt; in the HTML', 'Search engines can read it, and it is drawn before any code runs.' ),
+			( 'tabela', 'A real HTML table', 'Search engines can read it, and it is drawn before any code runs.' ),
 			( 'klodka', 'Talks to Google only', 'No analytics, no account with us. The data stays in your database.' ),
 		),
 		'dalej': ( 'Try it on your own sheet.',
@@ -110,7 +110,7 @@ PL = {
 		'pewne': (
 			( 'tarcza', 'Zostaje ostatnia dobra kopia', 'Gdy Google nie odpowiada albo arkusz stanie się prywatny, odwiedzający nadal widzą tabelę.' ),
 			( 'serwer', 'Podawana z Twojego serwera', 'Pobierana w tle, więc nikt nie czeka na Google.' ),
-			( 'tabela', 'Prawdziwa &lt;table&gt; w HTML', 'Czytelna dla wyszukiwarek, nawet bez skryptów.' ),
+			( 'tabela', 'Prawdziwa tabela HTML', 'Czytelna dla wyszukiwarek, nawet bez skryptów.' ),
 			( 'klodka', 'Rozmawia tylko z Google', 'Bez analityki i bez konta u nas. Dane zostają w Twojej bazie.' ),
 		),
 		'dalej': ( 'Wypróbuj na swoim arkuszu.',
@@ -1238,6 +1238,12 @@ def sprawdz( html, plik ):
 	for zbitka in ( '[sheet_table', '&#91;sheet_table', '&#x5B;sheet_table' ):
 		if zbitka in html:
 			raise SystemExit( plik + ': „' + zbitka + '" — WordPress wykona to jako shortcode' )
+
+	# Znaczniki zapisane encjami Divi zamienia z powrotem na znaczniki, tak
+	# samo jak nawiasy: napis „A real &lt;table&gt;” stał się na żywej stronie
+	# prawdziwą tabelą, która wciągnęła w siebie resztę sekcji.
+	if '&lt;' in znacznikowanie or '&gt;' in znacznikowanie:
+		raise SystemExit( plik + ': w treści jest &lt; albo &gt; — Divi zrobi z tego prawdziwy znacznik' )
 
 	for co, opis in ( ( '<!--', 'komentarz HTML' ), ( '<section', 'znacznik <section>' ),
 	                  ( '[', 'nawias kwadratowy' ), ( ']', 'nawias kwadratowy' ) ):
