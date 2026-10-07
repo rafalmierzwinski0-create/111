@@ -1837,6 +1837,16 @@ STYL = r"""
 .lst-mz .lst-mz-kod { padding: var( --mz-kod-dopelnienie ) !important; }
 
 /*
+ * Odstęp kafli legendy i płyt „skąd”, mocniej niż jakakolwiek wcześniejsza
+ * wersja tego arkusza. Arkusz jest wspólny dla całej strony, a jedna wersja
+ * (z października 2026) zerowała ten odstęp regułą „!important” o wadze dwóch
+ * klas. Jeśli taka wersja gdzieś na stronie została — choćby w sekcji
+ * wklejonej niżej — podwójna klasa tutaj i tak wygrywa.
+ */
+.lst-mz .lst-mz-pozycja.lst-mz-pozycja { padding: 1.1rem 1.25rem 1.25rem !important; }
+.lst-mz .lst-mz-para-tresc.lst-mz-para-tresc { padding: 1.15rem 1.3rem 1.3rem !important; }
+
+/*
  * Aparat jest jedynym miejscem w module, gdzie gradient MUSI przejść przez
  * utwardzenie: bok telefonu bez niego jest płaską plamą, a metalu nie da się
  * udać samym cieniem. Wyjątek jest wąski i wypisany z nazwy.
