@@ -8,6 +8,16 @@
 			<span class="lst-say" id="lst-say">Paste a link to your sheet and you get&nbsp;<em>a real table</em>, not a picture.</span>
 		</div>
 
+	<!-- ===================================================================
+	     PODSTRONY — dwa przyciski z metalową obwódką obok „Download free”.
+	     Adresy wpisz takie, jakie mają Twoje podstrony w WordPressie:
+	       /how-it-works/   — podstrona „How it works”
+	       /contact/   — podstrona „Contact”
+	     Na podstronie, na której właśnie jesteś, przycisk świeci mocniej.
+	     Każdy przycisk MUSI zostać w jednej linijce (Divi i <br />).
+	     =================================================================== -->
+		<nav class="lst-strony" aria-label="Pages"><a class="lst-metal" href="/how-it-works/" aria-label="How it works"><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M3.5 4.5h4.5a2 2 0 0 1 2 2v9a1.6 1.6 0 0 0-1.6-1.6H3.5Z"/><path d="M16.5 4.5H12a2 2 0 0 0-2 2v9a1.6 1.6 0 0 1 1.6-1.6h4.9Z"/></svg><span class="lst-metal-napis">How it works</span></a><a class="lst-metal" href="/contact/" aria-label="Contact"><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><rect x="2.5" y="4.5" width="15" height="11" rx="2"/><path d="m3.5 5.5 6.5 5 6.5-5"/></svg><span class="lst-metal-napis">Contact</span></a></nav>
+
 		<div class="lst-cta"><a class="lst-btn" href="#pricing">Download free</a></div>
 	</div>
 
@@ -44,9 +54,9 @@
 	     w miejscu złamanego wiersza <br />, a to rozwala znacznik i zamiast
 	     przycisku widać goły tekst.
 	     =================================================================== -->
-	<nav class="lst-cols" id="lst-cols" aria-label="Sections">
+	<nav class="lst-cols" id="lst-cols" data-start="/" aria-label="Sections">
 		<a class="lst-col" href="#start" data-ref="A1" data-say="Paste a link to your sheet and you get&amp;nbsp;&lt;em&gt;a real table&lt;/em&gt;, not a picture."><b>A</b> Start</a>
-		<a class="lst-col" href="#how" data-ref="B9" data-say="Three steps, about two minutes. &lt;em&gt;No API key&lt;/em&gt; and no account with us."><b>B</b> How it works</a>
+		<a class="lst-col" href="#how" data-ref="B9" data-say="Three steps, about two minutes. &lt;em&gt;No API key&lt;/em&gt; and no account with us."><b>B</b> Three steps</a>
 		<a class="lst-col" href="#different" data-ref="C17" data-say="The page draws from a stored copy, so &lt;em&gt;a Google outage is not your outage&lt;/em&gt;."><b>C</b> Why it&rsquo;s different</a>
 		<a class="lst-col" href="#compare" data-ref="D26" data-say="The free version does everything &lt;em&gt;an ordinary price list&lt;/em&gt; needs."><b>D</b> Compare</a>
 		<a class="lst-col" href="#pricing" data-ref="E34" data-say="Start free. &lt;em&gt;Pay later&lt;/em&gt;, when you outgrow it."><b>E</b> Pricing</a>
@@ -142,6 +152,69 @@
 	.lst-mark, .lst-cta { padding-inline: calc( 12px * var( --lst-skala ) ); }
 	.lst-mark span { display: none; }
 }
+
+/* ---------------------------------------------------------------------------
+   Przyciski podstron: „płynny metal”. Obwódka to koło odblasków (chrom
+   z miętą) obracane w kółko, a przez ciemne wnętrze co chwilę przepływa
+   jasny refleks — jak światło po wypolerowanym metalu. Kolory witryny:
+   grafit, mięta i jasny, lekko zielonkawy chrom.
+   --------------------------------------------------------------------------- */
+@property --lst-metal-kat { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+
+.lst-strony { display: flex; align-items: center; gap: calc( .55rem * var( --lst-skala ) ); padding-left: calc( 14px * var( --lst-skala ) ); flex: none; }
+
+.lst-metal { position: relative; isolation: isolate; display: inline-flex; align-items: center; gap: calc( .45rem * var( --lst-skala ) );
+	height: calc( 34px * var( --lst-skala ) ); padding: 0 calc( .95rem * var( --lst-skala ) );
+	border-radius: 999px;
+	background: linear-gradient( 180deg, #1c2b29, #0a1211 ) !important;
+	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .14 ), inset 0 -1px 0 rgba( 0, 0, 0, .6 ), 0 6px 16px -8px rgba( 0, 0, 0, .9 );
+	color: #e6f4f1 !important; text-decoration: none !important; white-space: nowrap;
+	font-size: calc( .84rem * var( --lst-skala ) ); font-weight: 500; letter-spacing: .01em;
+	transition: transform .25s cubic-bezier( .23, 1, .32, 1 ), box-shadow .3s ease, filter .3s ease; }
+
+/* Obwódka: koło odblasków przycięte maską do pierścienia. */
+.lst-metal::before { content: ""; position: absolute; inset: 0; z-index: -1; padding: 1.5px; border-radius: inherit; pointer-events: none;
+	background: conic-gradient( from var( --lst-metal-kat ),
+		#0f2420 0deg, #d9fff8 28deg, #5fe3cf 52deg, #10302b 92deg, #8fb9b2 136deg, #f2fffc 166deg,
+		#2b4c47 208deg, #5fe3cf 246deg, #0f2420 292deg, #bdf6ec 330deg, #0f2420 360deg );
+	-webkit-mask: linear-gradient( #000 0 0 ) content-box, linear-gradient( #000 0 0 );
+	-webkit-mask-composite: xor; mask-composite: exclude;
+	animation: lst-metal-obrot 6s linear infinite; }
+
+/* Refleks przepływający przez wnętrze. */
+.lst-metal::after { content: ""; position: absolute; inset: 1.5px; z-index: -1; border-radius: inherit; pointer-events: none;
+	background: linear-gradient( 110deg, transparent 35%, rgba( 207, 255, 246, .16 ) 47%, rgba( 95, 227, 207, .1 ) 53%, transparent 65% ) no-repeat;
+	background-size: 250% 100%;
+	animation: lst-metal-refleks 4.5s ease-in-out infinite; }
+
+.lst-metal svg { width: calc( 15px * var( --lst-skala ) ); height: calc( 15px * var( --lst-skala ) ); flex: none; display: block;
+	fill: none; stroke: #5fe3cf; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+.lst-metal:hover { transform: translateY( -1px ); filter: brightness( 1.12 );
+	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .18 ), inset 0 -1px 0 rgba( 0, 0, 0, .6 ), 0 0 22px -6px rgba( 95, 227, 207, .55 ), 0 8px 18px -8px rgba( 0, 0, 0, .9 ); }
+.lst-metal:hover::before { animation-duration: 2.4s; }
+.lst-metal:focus-visible { outline: 2px solid #5fe3cf; outline-offset: 3px; }
+
+/* Podstrona, na której jesteś: obwódka stoi jaśniej i lekko świeci. */
+.lst-metal.is-here { box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .16 ), 0 0 18px -6px rgba( 95, 227, 207, .6 ); }
+.lst-metal.is-here::before { filter: brightness( 1.25 ); }
+
+@keyframes lst-metal-obrot { to { --lst-metal-kat: 1turn; } }
+@keyframes lst-metal-refleks { 0%, 15% { background-position: 120% 0; } 70%, 100% { background-position: -20% 0; } }
+
+/* Wąsko zostają same ikonki w okrągłych przyciskach — napis ma swój opis
+   dla czytników ekranu w aria-label. */
+@media ( max-width: 640px ) {
+	.lst-strony { padding-left: 0; gap: calc( .4rem * var( --lst-skala ) ); }
+	.lst-metal { width: calc( 34px * var( --lst-skala ) ); padding: 0; justify-content: center; }
+	.lst-metal-napis { display: none; }
+	.lst-cta { padding-left: calc( 8px * var( --lst-skala ) ); }
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+	.lst-metal::before, .lst-metal::after { animation: none; }
+	.lst-metal::after { display: none; }
+}
 </style>
 
 <script>
@@ -176,6 +249,18 @@
 	odsun();
 	window.addEventListener( 'resize', odsun, { passive: true } );
 
+	var kolumnyNav = document.getElementById( 'lst-cols' );
+
+	/* Przycisk podstrony, na której właśnie jesteś, świeci mocniej. */
+	var tutaj = window.location.pathname.replace( /\/+$/, '' );
+	Array.prototype.forEach.call( pasek.querySelectorAll( '.lst-metal' ), function ( guzik ) {
+		var adres = ( guzik.getAttribute( 'href' ) || '' ).replace( /\/+$/, '' );
+		if ( adres && adres === tutaj ) {
+			guzik.classList.add( 'is-here' );
+			guzik.setAttribute( 'aria-current', 'page' );
+		}
+	} );
+
 	/*
 	 * Motywy — Divi wśród nich — podpinają „płynne przewijanie" pod każdy
 	 * odnośnik z kratką i potrafią anulować kliknięcie. Tu przewijanie jest
@@ -190,7 +275,17 @@
 
 		var cel = document.getElementById( ( odnosnik.getAttribute( 'href' ) || '' ).slice( 1 ) );
 
+		/*
+		 * Na podstronie (kontakt, „jak to działa”) sekcji strony głównej nie
+		 * ma. Kliknięta kolumna prowadzi wtedy na stronę główną, prosto do
+		 * swojej sekcji, zamiast nie robić nic.
+		 */
 		if ( ! cel ) {
+			var glowna = kolumnyNav ? kolumnyNav.getAttribute( 'data-start' ) : '';
+			if ( glowna && window.location.pathname !== glowna ) {
+				event.preventDefault();
+				window.location.href = glowna + odnosnik.getAttribute( 'href' );
+			}
 			return;
 		}
 
