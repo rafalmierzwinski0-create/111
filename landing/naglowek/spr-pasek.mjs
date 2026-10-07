@@ -81,25 +81,42 @@ console.log( '\nstrona główna, 1440 px' );
 	/*
 	 * Najechanie na „Download free”: przycisk się zapada — schodzi w dół,
 	 * maleje, cień pod spodem znika, a w środku pojawia się ciemny cień od
-	 * góry. Przyciski podstron zostają na miejscu.
+	 * góry. Zapada się płyta (::after) razem z obwódką (::before); napis
+	 * stoi, bo ruszany napis przy końcu ruchu przeskakiwał o ułamek piksela.
+	 * Przyciski podstron zostają na miejscu.
 	 */
-	const stan = ( sel ) => p.evaluate( ( s ) => {
-		const a = document.querySelector( s ), st = getComputedStyle( a );
-		const m = new DOMMatrix( st.transform );
+	const stan = ( sel, pseudo = null ) => p.evaluate( ( [ s, ps ] ) => {
+		const a = document.querySelector( s ), st = getComputedStyle( a, ps );
+		const m = new DOMMatrix( 'none' === st.transform ? undefined : st.transform );
 		return { y: m.m42, skala: m.a, cien: st.boxShadow };
-	}, sel );
+	}, [ sel, pseudo ] );
+	const napis = () => p.evaluate( () => {
+		const z = document.createRange();
+		z.selectNodeContents( document.querySelector( '.lst-btn' ) );
+		const r = z.getBoundingClientRect();
+		return [ r.left, r.top, r.width, r.height ].join( ',' );
+	} );
 	const GUZIK = '.lst-btn';
-	const spoczynek = await stan( GUZIK );
+	const spoczynek = await stan( GUZIK, '::after' );
+	const napisPrzed = await napis();
 	await p.hover( GUZIK );
-	await p.waitForTimeout( 450 );
-	const zapadniety = await stan( GUZIK );
+	const napisyWRuchu = [];
+	for ( let i = 0; i < 5; i++ ) { await p.waitForTimeout( 60 ); napisyWRuchu.push( await napis() ); }
+	await p.waitForTimeout( 200 );
+	const zapadniety = await stan( GUZIK, '::after' );
+	const obwodkaZ = await stan( GUZIK, '::before' );
+	const calyGuzik = await stan( GUZIK );
+	ok( 'napis na „Download free” nie drgnie przy najechaniu', napisyWRuchu.every( ( n ) => n === napisPrzed ) && calyGuzik.y === 0 && calyGuzik.skala === 1,
+		`napis ${ napisPrzed } → ${ [ ...new Set( napisyWRuchu ) ].join( ' | ' ) }` );
+	ok( 'obwódka zapada się razem z płytą', Math.abs( obwodkaZ.y - zapadniety.y ) < .01 && Math.abs( obwodkaZ.skala - zapadniety.skala ) < .001,
+		`płyta ${ zapadniety.y.toFixed( 2 ) } × ${ zapadniety.skala.toFixed( 3 ) }, obwódka ${ obwodkaZ.y.toFixed( 2 ) } × ${ obwodkaZ.skala.toFixed( 3 ) }` );
 	const wewnatrz = ( c ) => /rgba\(0, 40, 34, 0\.5\) 0px 3px 7px 0px inset/.test( c );
 	ok( 'po najechaniu „Download free” się zapada', spoczynek.y === 0 && spoczynek.skala === 1 && ! wewnatrz( spoczynek.cien )
 		&& zapadniety.y > 1 && zapadniety.skala < .97 && wewnatrz( zapadniety.cien ),
 		`spoczynek y ${ spoczynek.y } × ${ spoczynek.skala } → najechany y ${ zapadniety.y.toFixed( 1 ) } × ${ zapadniety.skala.toFixed( 3 ) }, cień w środku ${ wewnatrz( zapadniety.cien ) }` );
 	await p.mouse.move( 5, 600 );
 	await p.waitForTimeout( 450 );
-	const wrocil = await stan( GUZIK );
+	const wrocil = await stan( GUZIK, '::after' );
 	ok( 'po zjechaniu kursorem wraca na miejsce', wrocil.y === 0 && wrocil.skala === 1, `y ${ wrocil.y } × ${ wrocil.skala }` );
 	await p.hover( '.lst-metal[href="/contact/"]' );
 	await p.waitForTimeout( 450 );
