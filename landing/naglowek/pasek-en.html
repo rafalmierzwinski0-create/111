@@ -135,7 +135,6 @@
    przycisku: obraca się razem z nimi, więc trzy przyciski mienią się jak
    jeden komplet. Pierścień leży NA krawędzi przycisku, nie obok niej. */
 .lst-btn::before { content: ""; position: absolute; inset: 0; z-index: 1; padding: 1.5px; border-radius: inherit; pointer-events: none;
-	background: var( --lst-metal-obwodka );
 	-webkit-mask: linear-gradient( #000 0 0 ) content-box, linear-gradient( #000 0 0 );
 	-webkit-mask-composite: xor; mask-composite: exclude;
 	animation: lst-metal-obrot 6s linear infinite; }
@@ -172,12 +171,19 @@
    --------------------------------------------------------------------------- */
 @property --lst-metal-kat { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
 
-/* Kolory obwódki, wspólne dla przycisków podstron i „Download free”. Stonowane:
-   chrom jest przygaszony, a mięta ciemniejsza niż w przycisku obok, żeby
-   obwódka mieniła się, ale nie świeciła jak neon. */
-.lst-bar { --lst-metal-obwodka: conic-gradient( from var( --lst-metal-kat ),
-	#0e1f1c 0deg, #9fc7c0 28deg, #3fae9e 52deg, #0f2824 92deg, #6f9690 136deg, #b9d6d1 166deg,
-	#22403b 208deg, #3fae9e 246deg, #0e1f1c 292deg, #8fbcb4 330deg, #0e1f1c 360deg ); }
+/* Kolory obwódki, wspólne dla przycisków podstron i „Download free”.
+   Stonowane: chrom przygaszony, mięta ciemniejsza niż w przycisku obok,
+   żeby obwódka mieniła się, ale nie świeciła jak neon.
+
+   Gradient stoi WPROST na pierścieniach, a nie w zmiennej na całym pasku:
+   zmienna z kątem w środku wylicza się tam, gdzie jest zdefiniowana —
+   na pasku, z kątem zero — i obracany na pierścieniu kąt nie miał już na
+   co działać. Obwódka stała w miejscu. */
+.lst-metal::before,
+.lst-btn::before {
+	background: conic-gradient( from var( --lst-metal-kat ),
+		#0e1f1c 0deg, #9fc7c0 28deg, #3fae9e 52deg, #0f2824 92deg, #6f9690 136deg, #b9d6d1 166deg,
+		#22403b 208deg, #3fae9e 246deg, #0e1f1c 292deg, #8fbcb4 330deg, #0e1f1c 360deg ); }
 
 .lst-strony { display: flex; align-items: center; gap: calc( .55rem * var( --lst-skala ) ); padding-left: calc( 14px * var( --lst-skala ) ); flex: none; }
 
@@ -192,7 +198,6 @@
 
 /* Obwódka: koło odblasków przycięte maską do pierścienia. */
 .lst-metal::before { content: ""; position: absolute; inset: 0; z-index: -1; padding: 1.5px; border-radius: inherit; pointer-events: none;
-	background: var( --lst-metal-obwodka );
 	-webkit-mask: linear-gradient( #000 0 0 ) content-box, linear-gradient( #000 0 0 );
 	-webkit-mask-composite: xor; mask-composite: exclude;
 	animation: lst-metal-obrot 6s linear infinite; }
