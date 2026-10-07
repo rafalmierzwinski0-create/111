@@ -1548,11 +1548,14 @@ STYL = r"""
  */
 .lst-mz .lst-mz-kod {
 	--mz-kod-wcisk: .5rem;
+	/* Dopełnienie stoi też w utwardzeniu, patrz niżej: Divi zeruje dół
+	   ostatniemu akapitowi w bloku, a pasek nim jest. */
+	--mz-kod-dopelnienie: var( --mz-kod-wcisk ) var( --mz-kod-wcisk ) var( --mz-kod-wcisk ) 1.5rem;
 	display: grid;
 	grid-template-columns: auto minmax( 0, 1fr ) auto;
 	align-items: center;
 	column-gap: 1.5rem;
-	padding: var( --mz-kod-wcisk ) var( --mz-kod-wcisk ) var( --mz-kod-wcisk ) 1.5rem;
+	padding: var( --mz-kod-dopelnienie );
 	background-color: var( --mz-plyta );
 	border: 1px solid var( --mz-plyta-linia );
 	border-radius: 999px;
@@ -1563,10 +1566,9 @@ STYL = r"""
    przycisk na całą szerokość, pasek z promieniem płyty. */
 @media ( max-width: 760px ) {
 	.lst-mz .lst-mz-kod {
-		--mz-kod-wcisk: .75rem;
+		--mz-kod-dopelnienie: 1rem 1.1rem 1.1rem;
 		grid-template-columns: minmax( 0, 1fr );
 		row-gap: .6rem;
-		padding: 1rem 1.1rem 1.1rem;
 		border-radius: var( --mz-luk-plyty );
 	}
 	.lst-mz .lst-mz-kod .lst-mz-cta { margin-top: .4rem; text-align: center !important; }
@@ -1812,12 +1814,16 @@ STYL = r"""
  */
 .lst-mz .lst-mz-rama { margin-inline: auto !important; }
 
-.lst-mz .lst-mz-kolumna-tytul { background-color: var( --mz-ekran-gora ) !important; }
+/* Ten sam akapit Divi zjadał dół paska z tytułem listy. */
+.lst-mz .lst-mz-kolumna-tytul { background-color: var( --mz-ekran-gora ) !important; padding: .55rem 1.35rem !important; }
 
 .lst-mz .lst-mz-para-tresc,
 .lst-mz .lst-mz-pozycja,
 .lst-mz .lst-mz-kolumna,
-.lst-mz .lst-mz-kod { background-color: var( --mz-plyta ) !important; border: 1px solid var( --mz-plyta-linia ) !important; }
+/* Divi ma „p:not(.has-background):last-of-type { padding-bottom: 0 }”,
+   mocniejsze niż dwie klasy: zjadało dół paska i przycisk siadał na jego
+   dolnej krawędzi. */
+.lst-mz .lst-mz-kod { background-color: var( --mz-plyta ) !important; border: 1px solid var( --mz-plyta-linia ) !important; padding: var( --mz-kod-dopelnienie ) !important; }
 
 /*
  * Aparat jest jedynym miejscem w module, gdzie gradient MUSI przejść przez
@@ -2315,6 +2321,11 @@ def z_odciskiem( arkusz_css, znacznik_html ):
 	return css, html
 
 
+# Akapity tak, jak je ustawia arkusz Divi. Bez nich podgląd był równiejszy
+# niż strona: pasek z przykładem wyglądał dobrze tu, a na stronie przycisk
+# siedział na jego dolnej krawędzi.
+DIVI_AKAPITY = 'p { padding-bottom: 1em; } p:not( .has-background ):last-of-type { padding-bottom: 0; }\n'
+
 CZCIONKI = ( '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?'
 	'family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600'
 	'&family=Inria+Serif:ital,wght@0,300;0,400&display=swap">' )
@@ -2398,7 +2409,7 @@ PODGLAD = (
 	'body { background-image: linear-gradient( to right, rgba( 255, 255, 255, .04 ) 1px, transparent 1px ),\n'
 	'\tlinear-gradient( to bottom, rgba( 255, 255, 255, .04 ) 1px, transparent 1px );\n'
 	'\tbackground-size: 88px 44px; }\n'
-	'.podrobka-divi { padding: 40px 0; }\n'
+	'.podrobka-divi { padding: 40px 0; }\n' + DIVI_AKAPITY +
 	'.podrobka-divi-rzad { width: 90%; max-width: 1800px; margin: 0 auto; }\n'
 	'</style>\n'
 	'<div class="podrobka-divi"><div class="podrobka-divi-rzad">\n'
@@ -2439,7 +2450,7 @@ STOL = (
 	'body { background-image: linear-gradient( to right, rgba( 255, 255, 255, .04 ) 1px, transparent 1px ),\n'
 	'\tlinear-gradient( to bottom, rgba( 255, 255, 255, .04 ) 1px, transparent 1px );\n'
 	'\tbackground-size: 88px 44px; }\n'
-	'.podrobka-divi { padding: 40px 0; }\n'
+	'.podrobka-divi { padding: 40px 0; }\n' + DIVI_AKAPITY +
 	'.podrobka-divi-rzad { width: 90%; max-width: 1800px; margin: 0 auto; }\n'
 	'</style>\n'
 	'<div class="podrobka-divi"><div class="podrobka-divi-rzad">\n'
@@ -2589,7 +2600,7 @@ def osobno( nazwa, blok, opis, uwaga = '' ):
 		'body { background-image: linear-gradient( to right, rgba( 255, 255, 255, .04 ) 1px, transparent 1px ),\n'
 		'\tlinear-gradient( to bottom, rgba( 255, 255, 255, .04 ) 1px, transparent 1px );\n'
 		'\tbackground-size: 88px 44px; }\n'
-		'.podrobka-divi { padding: 40px 0; }\n'
+		'.podrobka-divi { padding: 40px 0; }\n' + DIVI_AKAPITY +
 		'.podrobka-divi-rzad { width: 90%; max-width: 1800px; margin: 0 auto; }\n'
 		'.pusto { height: 90vh; margin: 0; display: grid; place-items: center;\n'
 		'\tfont: 14px "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .12em;\n'
@@ -2638,7 +2649,7 @@ def osobno_z_tabela( nazwa, blok, opis ):
 		'body { background-image: linear-gradient( to right, rgba( 255, 255, 255, .04 ) 1px, transparent 1px ),\n'
 		'\tlinear-gradient( to bottom, rgba( 255, 255, 255, .04 ) 1px, transparent 1px );\n'
 		'\tbackground-size: 88px 44px; }\n'
-		'.podrobka-divi { padding: 40px 0; }\n'
+		'.podrobka-divi { padding: 40px 0; }\n' + DIVI_AKAPITY +
 		'.podrobka-divi-rzad { width: 90%; max-width: 1800px; margin: 0 auto; }\n'
 		'.pusto { height: 90vh; margin: 0; display: grid; place-items: center;\n'
 		'\tfont: 14px "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .12em;\n'

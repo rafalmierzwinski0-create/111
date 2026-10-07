@@ -45,10 +45,13 @@ const WROGI = 'div,span,p,button,td,th,table,thead,tbody,tr{border:2px solid #f0
 	+ 'button{color:#00f!important;font-family:"Comic Sans MS"!important}'
 	+ 'ul{list-style:disc;padding-left:3em}';
 
+// Akapity jak w arkuszu Divi: dół każdego akapitu, a ostatniemu w bloku
+// zero. Bez tego sprawdzenia mierzyły stronę równiejszą niż ta w Divi.
 const strona = ( tresc, { wrogi = false, bezJs = false } = {} ) => `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>What it does</title>
 <style>html,body{margin:0;background:#141b1a;color:#eaf3f1;font-family:system-ui}
 .et_pb_section{padding:40px 0}.et_pb_row{width:90%;max-width:1800px;margin:0 auto}
+p{padding-bottom:1em}p:not(.has-background):last-of-type{padding-bottom:0}
 ${ wrogi ? WROGI : '' }</style>
 </head><body><div class="et_pb_section"><div class="et_pb_row">
 ${ bezJs ? tresc.replace( /<script>[\s\S]*?<\/script>/g, '' ) : tresc }
@@ -772,6 +775,22 @@ console.log( '\nprzykład shortcode\'u' );
 		poDivi = poDivi.replace( /<(span|i|b|em|strong)\b[^>]*><\/\1>/g, '' );
 	}
 	const zbitki = [ '[sheet_table', '[live_sheets_table' ].filter( ( z ) => poDivi.includes( z ) );
+	/*
+	 * Przycisk siedzi w pasku z jednakowym odstępem z góry, z dołu i z prawej.
+	 * Divi zerował pasekowi dół (to ostatni akapit w bloku) i przycisk
+	 * siadał na dolnej krawędzi; wcześniej utwardzenie zjadło „margin-left:
+	 * auto” i przycisk stał za opisem z pustą połową paska za sobą.
+	 */
+	const wPasku = await p.evaluate( () => {
+		const e = document.querySelector( '.lst-mz-kod' );
+		const r = e.getBoundingClientRect();
+		const a = e.querySelector( '.lst-mz-cta' ).getBoundingClientRect();
+		return [ a.top - r.top, r.bottom - a.bottom, r.right - a.right ].map( ( x ) => Math.round( x * 10 ) / 10 );
+	} );
+	ok( 'przycisk w pasku z przykładem ma równe odstępy z góry, z dołu i z prawej',
+		Math.max( ...wPasku ) - Math.min( ...wPasku ) <= 1 && Math.max( ...wPasku ) < 20,
+		`góra ${ wPasku[ 0 ] }, dół ${ wPasku[ 1 ] }, prawo ${ wPasku[ 2 ] }` );
+
 	ok( 'przykład czyta się jak shortcode, a nie da się go wykonać, także po zapisie w Divi',
 		'[sheet_table id="X"]' === widac && 0 === zbitki.length,
 		`na ekranie ${ widac }, zbitek po zapisie w Divi ${ zbitki.length }` );
