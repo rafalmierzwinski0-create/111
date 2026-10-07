@@ -50,20 +50,20 @@ ZRZUTY = { z[ 'nazwa' ]: z for z in json.loads( ( TU / 'zrzuty' / 'rozmiary.json
 
 L, P = '&#91;', '&#93;'
 
-# I jeszcze pusty znacznik zaraz za nawiasem otwierającym.
+# I nawias otwierający we własnym znaczniku.
 #
 # Same encje nie wystarczają. Divi zapisuje treść modułu po swojemu i potrafi
 # zamienić „&#91;" z powrotem na „[" — a wtedy WordPress widzi prawdziwy
 # shortcode i WYKONUJE go. Na żywej stronie zamiast przykładu do przeczytania
-# stanął komunikat wtyczki „Nie wybrano jeszcze arkusza.", w dodatku po polsku
-# na angielskiej stronie. Zmiana jedynki na iks by tego nie zdjęła: wykonywała
-# się nazwa, a nie numer.
+# stanął komunikat wtyczki, w dodatku po polsku na angielskiej stronie.
+# Zmiana jedynki na iks by tego nie zdjęła: wykonuje się nazwa, a nie numer.
 #
-# Shortcode rozpoznaje się po nazwie STYKAJĄCEJ SIĘ z nawiasem, więc pusty
-# znacznik między jednym a drugim wyklucza dopasowanie raz na zawsze. Dla
-# czytającego i dla kopiującego nic się nie zmienia: nie wnosi do tekstu ani
-# jednego znaku.
-PRZERWA = '<span class="lst-mz-nic"></span>' 
+# Shortcode rozpoznaje się po nazwie STYKAJĄCEJ SIĘ z nawiasem, więc znacznik
+# między jednym a drugim wyklucza dopasowanie. Był tu pusty <span>, ale edytor
+# Divi pusty znacznik po cichu wyrzuca i shortcode znów się wykonał. Nawias
+# w środku znacznika sprawia, że nie jest pusty i zostaje. Dla czytającego
+# i dla kopiującego nic się nie zmienia.
+NAWIAS = '<span class="lst-mz-nawias">' + L + '</span>'
 
 
 def dla_divi( html ):
@@ -449,7 +449,7 @@ BLOK_LISTY = (
 	+ lista( 'In the free plugin', WOLNE )
 	+ lista( 'Everything above, plus Pro', PRO, ' jest-pro' ) +
 	'</div>'
-	'<p class="lst-mz-kod"><span class="lst-mz-mono">' + L + PRZERWA + 'sheet_table id=&quot;1&quot;' + P + '</span>'
+	'<p class="lst-mz-kod"><span class="lst-mz-mono">' + NAWIAS + 'sheet_table id=&quot;X&quot;' + P + '</span>'
 	'<span class="lst-mz-kod-opis">A block, an Elementor widget or this. The same table either way.</span>'
 	'<a class="lst-mz-cta" href="ADRES-POBIERANIA">Download free</a></p>'
 	'</div>' )

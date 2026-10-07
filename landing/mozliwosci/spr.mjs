@@ -750,8 +750,8 @@ console.log( '\nnajechanie' );
  * Na żywej stronie wykonał się i zamiast przykładu stanął komunikat wtyczki
  * „Nie wybrano jeszcze arkusza.", po polsku na angielskiej stronie. Same
  * encje nie wystarczają, bo Divi zamienia je z powrotem na nawiasy; nazwa nie
- * może się z nawiasem stykać w ogóle. Zmiana numeru nic by tu nie dała, bo
- * wykonywała się nazwa.
+ * może się z nawiasem stykać w ogóle, także po tym, jak Divi wyrzuci puste
+ * znaczniki. Zmiana numeru nic by tu nie dała, bo wykonuje się nazwa.
  */
 console.log( '\nprzykład shortcode\'u' );
 {
@@ -761,10 +761,20 @@ console.log( '\nprzykład shortcode\'u' );
 
 		return e ? e.textContent.trim() : '';
 	} );
-	const zbitki = [ '[sheet_table', '&#91;sheet_table', '&#x5B;sheet_table' ].filter( ( z ) => modul.includes( z ) );
-	ok( 'przykład czyta się jak shortcode, a nie da się go wykonać',
-		'[sheet_table id="1"]' === widac && 0 === zbitki.length,
-		`na ekranie ${ widac }, zbitek w pliku ${ zbitki.length }` );
+	/*
+	 * Plik tak, jak może go zapisać Divi: encje zamienione na znaki i puste
+	 * znaczniki wyrzucone. Pusty <span> między nawiasem a nazwą znikał
+	 * właśnie tak i shortcode wykonał się na żywej stronie.
+	 */
+	let poDivi = modul.replace( /&#91;|&#x5B;/gi, '[' ).replace( /&#93;|&#x5D;/gi, ']' );
+	for ( let przed = ''; przed !== poDivi; ) {
+		przed = poDivi;
+		poDivi = poDivi.replace( /<(span|i|b|em|strong)\b[^>]*><\/\1>/g, '' );
+	}
+	const zbitki = [ '[sheet_table', '[live_sheets_table' ].filter( ( z ) => poDivi.includes( z ) );
+	ok( 'przykład czyta się jak shortcode, a nie da się go wykonać, także po zapisie w Divi',
+		'[sheet_table id="X"]' === widac && 0 === zbitki.length,
+		`na ekranie ${ widac }, zbitek po zapisie w Divi ${ zbitki.length }` );
 
 	/*
 	 * Obudowa ma wyglądać jak telefon. Poznaje się go po sylwetce, nie po
