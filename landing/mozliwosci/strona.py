@@ -1539,16 +1539,37 @@ STYL = r"""
 
 /* ------------------------------------------------------------ shortcode */
 
+/*
+ * Pasek z przykładem: kod, opis, a przycisk na samym końcu. Układ to siatka,
+ * a nie „margin-left: auto” — utwardzenie zeruje marginesy na boki i przycisk
+ * stawał zaraz za opisem, z pustą połową paska za sobą. Przycisk siedzi
+ * w pasku z tym samym odstępem z góry, z dołu i z prawej, a pasek jest
+ * zaokrąglony tak, żeby jego łuk biegł równo z łukiem przycisku.
+ */
 .lst-mz .lst-mz-kod {
-	display: flex;
-	flex-wrap: wrap;
+	--mz-kod-wcisk: .5rem;
+	display: grid;
+	grid-template-columns: auto minmax( 0, 1fr ) auto;
 	align-items: center;
-	gap: .6rem 1rem;
-	padding: .9rem 1.1rem;
+	column-gap: 1.5rem;
+	padding: var( --mz-kod-wcisk ) var( --mz-kod-wcisk ) var( --mz-kod-wcisk ) 1.5rem;
 	background-color: var( --mz-plyta );
 	border: 1px solid var( --mz-plyta-linia );
-	border-radius: var( --mz-luk-plyty );
+	border-radius: 999px;
 	font-size: .875rem;
+}
+
+/* Wąsko trzy rzeczy w jednym wierszu się nie mieszczą: jedna pod drugą,
+   przycisk na całą szerokość, pasek z promieniem płyty. */
+@media ( max-width: 760px ) {
+	.lst-mz .lst-mz-kod {
+		--mz-kod-wcisk: .75rem;
+		grid-template-columns: minmax( 0, 1fr );
+		row-gap: .6rem;
+		padding: 1rem 1.1rem 1.1rem;
+		border-radius: var( --mz-luk-plyty );
+	}
+	.lst-mz .lst-mz-kod .lst-mz-cta { margin-top: .4rem; text-align: center !important; }
 }
 
 .lst-mz .lst-mz-kod .lst-mz-mono { font-family: var( --mz-mono ); color: rgb( var( --mz-mieta ) ); }
@@ -1562,8 +1583,7 @@ STYL = r"""
  * w nagłówku witryny.
  */
 .lst-mz .lst-mz-cta {
-	margin-left: auto;
-	padding: .5rem 1.15rem;
+	padding: .55rem 1.35rem;
 	border-radius: 999px;
 	background-color: rgb( var( --mz-mieta ) );
 	color: #06100f;
@@ -1838,6 +1858,9 @@ STYL = r"""
 
 .lst-mz .lst-mz-naglowek { font-family: var( --mz-szeryf ) !important; }
 .lst-mz .lst-mz-cta { background-color: rgb( var( --mz-mieta ) ) !important; color: #06100f !important; }
+/* Przycisk stoi w pasku pisanym krojem maszynowym, ale sam jest zwykłym
+   napisem, jak przycisk w nagłówku witryny. */
+.lst-mz .lst-mz-kod .lst-mz-cta { font-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif !important; }
 
 .lst-mz .lst-mz-adres,
 .lst-mz .lst-mz-etykieta,
