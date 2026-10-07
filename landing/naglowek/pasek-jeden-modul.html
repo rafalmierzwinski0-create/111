@@ -125,14 +125,6 @@
 	text-decoration: none !important; transition: box-shadow .2s ease; }
 .lst-btn:hover { box-shadow: 0 0 26px -4px rgba( 95, 227, 207, .3 ); }
 
-/* Ta sama metalowa obwódka co przy przyciskach podstron, tylko na miętowym
-   przycisku: obraca się razem z nimi, więc trzy przyciski mienią się jak
-   jeden komplet. Pierścień leży NA krawędzi przycisku, nie obok niej. */
-.lst-btn::before { content: ""; position: absolute; inset: 0; z-index: 1; padding: 1.5px; border-radius: inherit; pointer-events: none;
-	-webkit-mask: linear-gradient( #000 0 0 ) content-box, linear-gradient( #000 0 0 );
-	-webkit-mask-composite: xor; mask-composite: exclude;
-	animation: lst-metal-obrot 6s linear infinite; }
-.lst-btn:hover::before { animation-duration: 2.4s; }
 
 .lst-cols { display: flex; height: var( --lst-h-dol ); max-width: var( --lst-szer ); margin-inline: auto;
 	border-top: 1px solid rgba( 120, 200, 190, .075 ); overflow-x: auto; scrollbar-width: none; }
@@ -158,64 +150,49 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Przyciski podstron: „płynny metal”. Obwódka to koło odblasków (chrom
-   z miętą) obracane w kółko, a przez ciemne wnętrze co chwilę przepływa
-   jasny refleks — jak światło po wypolerowanym metalu. Kolory witryny:
-   grafit, mięta i jasny, lekko zielonkawy chrom.
+   Przyciski podstron: ten sam materiał co kafle na stronach — ciemna płyta,
+   cienka miętowa krawędź, jaśniejszy pasek światła u góry i cień pod spodem.
+   Stoją spokojnie, bez animacji; pod kursorem krawędź jaśnieje.
    --------------------------------------------------------------------------- */
-@property --lst-metal-kat { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
-
-/* Kolory obwódki, wspólne dla przycisków podstron i „Download free”.
-   Stonowane: chrom przygaszony, mięta ciemniejsza niż w przycisku obok,
-   żeby obwódka mieniła się, ale nie świeciła jak neon.
-
-   Gradient stoi WPROST na pierścieniach, a nie w zmiennej na całym pasku:
-   zmienna z kątem w środku wylicza się tam, gdzie jest zdefiniowana —
-   na pasku, z kątem zero — i obracany na pierścieniu kąt nie miał już na
-   co działać. Obwódka stała w miejscu. */
-.lst-metal::before,
-.lst-btn::before {
-	background: conic-gradient( from var( --lst-metal-kat ),
-		#0e1f1c 0deg, #9fc7c0 28deg, #3fae9e 52deg, #0f2824 92deg, #6f9690 136deg, #b9d6d1 166deg,
-		#22403b 208deg, #3fae9e 246deg, #0e1f1c 292deg, #8fbcb4 330deg, #0e1f1c 360deg ); }
-
 .lst-strony { display: flex; align-items: center; gap: calc( .55rem * var( --lst-skala ) ); padding-left: calc( 14px * var( --lst-skala ) ); flex: none; }
 
-.lst-metal { position: relative; isolation: isolate; display: inline-flex; align-items: center; gap: calc( .45rem * var( --lst-skala ) );
+.lst-metal { display: inline-flex; align-items: center; gap: calc( .45rem * var( --lst-skala ) );
 	height: calc( 34px * var( --lst-skala ) ); padding: 0 calc( .95rem * var( --lst-skala ) );
 	border-radius: 999px;
-	background: linear-gradient( 180deg, #1c2b29, #0a1211 ) !important;
-	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .14 ), inset 0 -1px 0 rgba( 0, 0, 0, .6 ), 0 6px 16px -8px rgba( 0, 0, 0, .9 );
+	border: 1px solid rgba( 95, 227, 207, .26 ) !important;
+	background: linear-gradient( 180deg, rgba( 255, 255, 255, .05 ), rgba( 255, 255, 255, 0 ) 55% ), #121c1b !important;
+	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .07 ), 0 6px 16px -10px rgba( 0, 0, 0, .9 );
 	color: #e6f4f1 !important; text-decoration: none !important; white-space: nowrap;
 	font-size: calc( .84rem * var( --lst-skala ) ); font-weight: 500; letter-spacing: .01em;
-	transition: transform .25s cubic-bezier( .23, 1, .32, 1 ), box-shadow .3s ease, filter .3s ease; }
-
-/* Obwódka: koło odblasków przycięte maską do pierścienia. */
-.lst-metal::before { content: ""; position: absolute; inset: 0; z-index: -1; padding: 1.5px; border-radius: inherit; pointer-events: none;
-	-webkit-mask: linear-gradient( #000 0 0 ) content-box, linear-gradient( #000 0 0 );
-	-webkit-mask-composite: xor; mask-composite: exclude;
-	animation: lst-metal-obrot 6s linear infinite; }
-
-/* Refleks przepływający przez wnętrze. */
-.lst-metal::after { content: ""; position: absolute; inset: 1.5px; z-index: -1; border-radius: inherit; pointer-events: none;
-	background: linear-gradient( 110deg, transparent 35%, rgba( 207, 255, 246, .1 ) 47%, rgba( 95, 227, 207, .06 ) 53%, transparent 65% ) no-repeat;
-	background-size: 250% 100%;
-	animation: lst-metal-refleks 4.5s ease-in-out infinite; }
+	transition: border-color .2s ease, box-shadow .25s ease; }
 
 .lst-metal svg { width: calc( 15px * var( --lst-skala ) ); height: calc( 15px * var( --lst-skala ) ); flex: none; display: block;
 	fill: none; stroke: #5fe3cf; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 
-.lst-metal:hover { transform: translateY( -1px ); filter: brightness( 1.08 );
-	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .16 ), inset 0 -1px 0 rgba( 0, 0, 0, .6 ), 0 0 18px -7px rgba( 95, 227, 207, .4 ), 0 8px 18px -8px rgba( 0, 0, 0, .9 ); }
-.lst-metal:hover::before { animation-duration: 2.4s; }
+.lst-metal:hover { border-color: rgba( 95, 227, 207, .55 ) !important;
+	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .09 ), 0 0 16px -8px rgba( 95, 227, 207, .55 ); }
 .lst-metal:focus-visible { outline: 2px solid #5fe3cf; outline-offset: 3px; }
 
-/* Podstrona, na której jesteś: obwódka stoi jaśniej i lekko świeci. */
-.lst-metal.is-here { box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .14 ), 0 0 14px -6px rgba( 95, 227, 207, .45 ); }
-.lst-metal.is-here::before { filter: brightness( 1.18 ); }
+/* Podstrona, na której jesteś: krawędź w pełnej mięcie i lekka poświata. */
+.lst-metal.is-here { border-color: rgba( 95, 227, 207, .7 ) !important; box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .09 ), 0 0 14px -7px rgba( 95, 227, 207, .6 ); }
+
+/* ---------------------------------------------------------------------------
+   „Download free”: obracająca się obwódka z odblasków, jak polerowany metal.
+   Kolory dobrane do miętowego przycisku — jasny chrom i głębsza mięta,
+   bez ciemnego grafitu, który na mięcie wyglądał jak brudne pasy.
+   --------------------------------------------------------------------------- */
+@property --lst-metal-kat { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+
+.lst-btn::before { content: ""; position: absolute; inset: 0; z-index: 1; padding: 2px; border-radius: inherit; pointer-events: none;
+	background: conic-gradient( from var( --lst-metal-kat ),
+		#33c2ad 0deg, #eafffb 30deg, #7deedd 62deg, #25a896 110deg, #9ff4e6 150deg, #f6fffd 182deg,
+		#4fd6c2 220deg, #22a190 268deg, #c9faf2 312deg, #33c2ad 360deg );
+	-webkit-mask: linear-gradient( #000 0 0 ) content-box, linear-gradient( #000 0 0 );
+	-webkit-mask-composite: xor; mask-composite: exclude;
+	animation: lst-metal-obrot 6s linear infinite; }
+.lst-btn:hover::before { animation-duration: 2.4s; }
 
 @keyframes lst-metal-obrot { to { --lst-metal-kat: 1turn; } }
-@keyframes lst-metal-refleks { 0%, 15% { background-position: 120% 0; } 70%, 100% { background-position: -20% 0; } }
 
 /* Wąsko zostają same ikonki w okrągłych przyciskach — napis ma swój opis
    dla czytników ekranu w aria-label. */
@@ -227,8 +204,7 @@
 }
 
 @media ( prefers-reduced-motion: reduce ) {
-	.lst-metal::before, .lst-metal::after, .lst-btn::before { animation: none; }
-	.lst-metal::after { display: none; }
+	.lst-btn::before { animation: none; }
 }
 </style>
 

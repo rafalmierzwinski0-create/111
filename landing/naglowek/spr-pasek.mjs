@@ -55,25 +55,28 @@ console.log( '\nstrona główna, 1440 px' );
 			adresy: metal.map( ( a ) => a.getAttribute( 'href' ) ).join( ' ' ),
 			napisy: metal.map( ( a ) => a.textContent.trim() ).join( ' / ' ),
 			wGorze: metal.every( ( a ) => { const r = a.getBoundingClientRect(); return r.top >= gora.top && r.bottom <= gora.bottom; } ),
-			obwodka: metal.every( ( a ) => /conic-gradient/.test( getComputedStyle( a, '::before' ).backgroundImage ) && 'none' !== getComputedStyle( a, '::before' ).animationName ),
+			// podstrony: spokojna krawędź jak na kaflach, bez animacji
+			spokojne: metal.every( ( a ) => 'none' === getComputedStyle( a ).animationName && 'none' === getComputedStyle( a, '::before' ).content.replace( 'normal', 'none' ) && /95, 227, 207/.test( getComputedStyle( a ).borderTopColor ) ),
+			obwodka: /conic-gradient/.test( getComputedStyle( document.querySelector( '.lst-btn' ), '::before' ).backgroundImage ),
 			kolumnaB: document.querySelector( '.lst-col[href="#how"]' ).textContent.trim(),
 			poziom: document.documentElement.scrollWidth - document.documentElement.clientWidth,
 			tutaj: document.querySelectorAll( '.lst-metal.is-here' ).length,
 		};
 	} );
 	ok( 'dwa przyciski podstron w górnym rzędzie', r.adresy === '/how-it-works/ /contact/' && r.wGorze, `${ r.adresy } (${ r.napisy })` );
-	ok( 'metalowa obwódka ma animację', r.obwodka, String( r.obwodka ) );
+	ok( 'przyciski podstron: miętowa krawędź, bez animacji', r.spokojne, String( r.spokojne ) );
+	ok( '„Download free” ma metalową obwódkę', r.obwodka, String( r.obwodka ) );
 
 	/*
 	 * I naprawdę się obraca: gradient obwódki po pół sekundzie jest inny niż
 	 * przed. Samo „jest animacja” nie wystarczało — kiedy gradient siedział
 	 * w zmiennej na całym pasku, animacja szła, a obwódka stała w miejscu.
 	 */
-	const katy = async () => p.evaluate( () => [ ...document.querySelectorAll( '.lst-metal, .lst-btn' ) ].map( ( a ) => getComputedStyle( a, '::before' ).backgroundImage.match( /from ([\d.]+)deg/ ) ).map( ( m ) => m ? parseFloat( m[ 1 ] ) : null ) );
+	const katy = async () => p.evaluate( () => [ ...document.querySelectorAll( '.lst-btn' ) ].map( ( a ) => getComputedStyle( a, '::before' ).backgroundImage.match( /from ([\d.]+)deg/ ) ).map( ( m ) => m ? parseFloat( m[ 1 ] ) : null ) );
 	const przed = await katy();
 	await p.waitForTimeout( 500 );
 	const po = await katy();
-	ok( 'obwódki (także „Download free”) faktycznie się obracają', przed.length === 3 && przed.every( ( k, i ) => null !== k && k !== po[ i ] ),
+	ok( 'obwódka „Download free” faktycznie się obraca', przed.length === 1 && przed.every( ( k, i ) => null !== k && k !== po[ i ] ),
 		`kąty ${ przed.map( ( k ) => Math.round( k ) ).join( '/' ) } → ${ po.map( ( k ) => Math.round( k ) ).join( '/' ) }` );
 	ok( 'kolumna B nie dubluje nazwy podstrony', 'B Three steps' === r.kolumnaB, r.kolumnaB );
 	ok( 'na stronie głównej żaden przycisk podstrony nie jest „tutaj”', r.tutaj === 0, String( r.tutaj ) );
