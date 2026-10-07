@@ -1301,64 +1301,93 @@ STYL = r"""
 
 /*
  * Cztery, tak jak na aparacie: przełącznik ciszy i dwa klawisze głośności po
- * lewej, przycisk boczny po prawej. Każdy ma jasną górę i ciemny spód, więc
- * wygląda na wycięty w metalu, a nie namalowany na nim.
+ * lewej, przycisk boczny po prawej.
+ *
+ * Każdy jest bryłką na boku, a nie paskiem na obudowie. Z przodu widać z niej
+ * tylko rąbek wystający zza krawędzi: wąski, ciemniejszy od ramy, bo bok
+ * odwraca się od światła, z jasną linią po stronie, z której pada światło, i
+ * z zaokrąglonymi końcami. W scenie 3D dochodzi ściana leżąca wzdłuż boku,
+ * prostopadle do ekranu — to ją widać, gdy aparat się odchyli. Rąbek stoi
+ * w obu stanach w tym samym miejscu, tuż za przodem, więc włączenie sceny
+ * nie przesuwa go ani o piksel.
  */
 .lst-mz .lst-mz-telefon-guzik {
-	display: none;
+	--mz-guzik-gleb: 18px;
 	position: absolute;
-	width: 4px;
-	/*
-	 * Na boku, w jednej trzeciej grubości. Głębiej wyglądałyby
-	 * prawdziwiej w przechyle, ale na wprost perspektywa wsuwałaby je za
-	 * obudowę, a w spoczynku mają być widoczne: przy najechaniu by znikały.
-	 */
-	transform: translateZ( calc( var( --mz-grubosc ) * -4 ) );
-	border-radius: 0 3px 3px 0;
+	left: -3px;
+	width: 3px;
+	border-radius: 2px 0 0 2px;
 	background-color: #33433f;
 	box-shadow:
-		inset 0 1px 0 rgba( 255, 255, 255, .4 ),
-		inset 0 -1px 0 rgba( 0, 0, 0, .5 ),
-		inset 0 0 0 10px #8aa19c,
-		1px 0 1px rgba( 0, 0, 0, .4 );
+		/* jasna linia na zewnętrznej krawędzi, od światła */
+		inset 1px 0 0 rgba( 255, 255, 255, .42 ),
+		/* końce schodzą w cień, bo są zaokrąglone */
+		inset 0 4px 3px -3px rgba( 0, 0, 0, .55 ),
+		inset 0 -4px 3px -3px rgba( 0, 0, 0, .55 ),
+		/* metal boku, ciemniejszy niż front ramy */
+		inset 0 0 0 6px #4f625e,
+		/* cień tam, gdzie guzik wychodzi z ramy */
+		-1px 0 1.5px rgba( 0, 0, 0, .45 );
+	/* Tuż za przodem: w perspektywie przesuwa się o ułamek piksela. */
+	transform: translateZ( -4px );
+	transform-style: preserve-3d;
 }
-
-/* Korpus stoi tylko w scenie 3D; w spoczynku bok rysuje cień wyżej. */
-.lst-mz .lst-mz-telefon-rama.jest-3d .lst-mz-telefon-warstwa,
-.lst-mz .lst-mz-telefon-rama.jest-3d .lst-mz-telefon-guzik { display: block; }
 
 /*
- * Guziki w spoczynku: widać je od razu, wystające spod krawędzi, tak jak
- * na prawdziwym aparacie oglądanym z przodu. Bez sceny 3D stoją w płaszczyźnie
- * przodu, więc są przesunięte o tyle, o ile w scenie przesuwa je perspektywa:
- * przy włączeniu sceny nie drgną.
+ * Ściana guzika na boku. Obrót wokół zewnętrznej krawędzi o ćwierć obrotu
+ * kładzie ją wzdłuż boku, w głąb aparatu. Tylko w scenie 3D: płasko byłaby
+ * kreską bez szerokości.
  */
-.lst-mz .lst-mz-telefon-rama:not( .jest-3d ) .lst-mz-telefon-guzik {
-	display: block;
-	transform: none;
-	margin-top: 2px;
+.lst-mz .lst-mz-telefon-guzik::before {
+	content: "";
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: var( --mz-guzik-gleb );
+	height: 100%;
+	border-radius: 2px;
+	transform-origin: 0 50%;
+	transform: rotateY( 90deg );
+	background-image: linear-gradient( 90deg, #6b817c 0%, #b4c6c2 35%, #8fa4a0 60%, #4c5f5b 100% );
+	box-shadow:
+		inset 0 3px 2px -2px rgba( 255, 255, 255, .35 ),
+		inset 0 -3px 2px -2px rgba( 0, 0, 0, .5 );
 }
 
-.lst-mz .lst-mz-telefon-rama:not( .jest-3d ) .lst-mz-telefon-guzik.jest-cisza,
-.lst-mz .lst-mz-telefon-rama:not( .jest-3d ) .lst-mz-telefon-guzik.jest-glosniej,
-.lst-mz .lst-mz-telefon-rama:not( .jest-3d ) .lst-mz-telefon-guzik.jest-ciszej { left: -3.5px; }
+.lst-mz .lst-mz-telefon-rama.jest-3d .lst-mz-telefon-guzik::before { display: block; }
 
-.lst-mz .lst-mz-telefon-rama:not( .jest-3d ) .lst-mz-telefon-guzik.jest-bok { right: -3.5px; }
+/* Korpus stoi tylko w scenie 3D; guziki stoją zawsze. */
+.lst-mz .lst-mz-telefon-rama.jest-3d .lst-mz-telefon-warstwa { display: block; }
 
-.lst-mz .lst-mz-telefon-guzik.jest-cisza { left: -5px; top: 104px; height: 28px; }
-.lst-mz .lst-mz-telefon-guzik.jest-glosniej { left: -5px; top: 150px; height: 56px; }
-.lst-mz .lst-mz-telefon-guzik.jest-ciszej { left: -5px; top: 218px; height: 56px; }
+/* Płasko nie ma czego przesuwać w głąb. */
+.lst-mz .lst-mz-telefon-rama:not( .jest-3d ) .lst-mz-telefon-guzik { transform: none; }
 
+.lst-mz .lst-mz-telefon-guzik.jest-cisza { top: 104px; height: 28px; }
+.lst-mz .lst-mz-telefon-guzik.jest-glosniej { top: 150px; height: 56px; }
+.lst-mz .lst-mz-telefon-guzik.jest-ciszej { top: 218px; height: 56px; }
+
+/* Po prawej wszystko w lustrze: rąbek na prawo, ściana obraca się w drugą stronę. */
 .lst-mz .lst-mz-telefon-guzik.jest-bok {
 	left: auto;
-	right: -5px;
+	right: -3px;
 	top: 176px;
 	height: 92px;
-	border-radius: 3px 0 0 3px;
+	border-radius: 0 2px 2px 0;
 	box-shadow:
-		inset 0 1px 0 rgba( 255, 255, 255, .3 ),
-		inset 0 -1px 0 rgba( 0, 0, 0, .55 ),
-		-1px 0 1px rgba( 0, 0, 0, .4 );
+		inset -1px 0 0 rgba( 255, 255, 255, .3 ),
+		inset 0 4px 3px -3px rgba( 0, 0, 0, .55 ),
+		inset 0 -4px 3px -3px rgba( 0, 0, 0, .55 ),
+		inset 0 0 0 6px #4a5c58,
+		1px 0 1.5px rgba( 0, 0, 0, .45 );
+}
+
+.lst-mz .lst-mz-telefon-guzik.jest-bok::before {
+	left: auto;
+	right: 0;
+	transform-origin: 100% 50%;
+	transform: rotateY( -90deg );
+	background-image: linear-gradient( 270deg, #6b817c 0%, #b4c6c2 35%, #8fa4a0 60%, #4c5f5b 100% );
 }
 
 /* --------------------------------------------------------- co jest w czym */
