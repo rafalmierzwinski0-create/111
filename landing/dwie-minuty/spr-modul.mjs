@@ -145,6 +145,29 @@ console.log('\n1400 px, zwykła strona');
   await p.hover('.lst-2m-krok:nth-child(2)');
   await p.waitForTimeout(400);
   const nr = await p.evaluate(() => getComputedStyle(document.querySelector('.lst-2m-krok:nth-child(2) .lst-2m-nr')).backgroundColor);
+  /*
+   * Każdy z trzech bloków z liczbą odpowiada na kursor, także tarcza
+   * z kwadransem: wskazówka robi obieg, a tarcza jaśnieje.
+   */
+  await p.hover('.lst-2m-liczba.jest-zegar');
+  await p.waitForTimeout(450);
+  const zegar = await p.evaluate(() => ({
+    obrot: getComputedStyle(document.querySelector('.lst-2m-wskazowka')).animationName,
+    tarcza: getComputedStyle(document.querySelector('.lst-2m-tarcza')).opacity,
+  }));
+  ok('tarcza zegara budzi się pod kursorem', 'lst-2m-obrot' === zegar.obrot && parseFloat(zegar.tarcza) > .5,
+    `obrót ${zegar.obrot}, tarcza ${zegar.tarcza}`);
+
+  // Kreska nad liczbami w połowie: tyle samo od kafli co do bloków.
+  const kreska = await p.evaluate(() => {
+    const kafle = [...document.querySelectorAll('.lst-2m-kafel')];
+    const dolKafli = Math.max(...kafle.map(e => e.getBoundingClientRect().bottom));
+    const pas = document.querySelector('.lst-2m-liczby').getBoundingClientRect();
+    const blok = document.querySelector('.lst-2m-liczba').getBoundingClientRect();
+    return { nad: Math.round(pas.top - dolKafli), pod: Math.round(blok.top - pas.top - 2) };
+  });
+  ok('kreska nad liczbami w równym odstępie', Math.abs(kreska.nad - kreska.pod) <= 2, `nad ${kreska.nad} px, pod ${kreska.pod} px`);
+
   ok('ikonka i numer kroku zapalają się pod kursorem', /95,\s*227,\s*207(,\s*1)?\)/.test(ikona) && /95,\s*227,\s*207(,\s*1)?\)/.test(nr), `ikonka ${ikona}, numer ${nr}`);
   ok('bez błędów w konsoli', bledy.length === 0, bledy.length ? bledy.join(' | ') : '0');
   console.log('     wysokość sekcji:', r.wys, 'px');

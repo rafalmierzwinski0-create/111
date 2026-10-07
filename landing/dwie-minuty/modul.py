@@ -167,19 +167,21 @@ PRZYRZADY = {
 	# Tarcza z zaznaczonym kwadransem.
 	'zegar': ( '<svg class="lst-2m-przyrzad" viewBox="0 0 120 72" aria-hidden="true" focusable="false">'
 		'<g transform="translate( 24 0 )">'
-		'<circle cx="36" cy="36" r="33" fill="none" stroke="currentColor" stroke-width="1.5" '
+		'<circle class="lst-2m-tarcza" cx="36" cy="36" r="33" fill="none" stroke="currentColor" stroke-width="1.5" '
 		'opacity=".3"></circle>'
 		+ ''.join(
-			'<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="1" '
+			'<rect class="lst-2m-godzina" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="1" '
 			'fill="currentColor" opacity=".45"></rect>'
 			for x, y, w, h in (
 				( '35', '0', '2', '7' ), ( '65', '35', '7', '2' ),
 				( '35', '65', '2', '7' ), ( '0', '35', '7', '2' ),
 			)
 		)
-		+ '<path class="lst-2m-kwadrans" d="M36 3 A33 33 0 0 1 69 36" fill="none" '
+		# Kwadrans i jego koniec w jednej grupie: pod kursorem obraca się cała,
+		# jak wskazówka, która właśnie robi pełny obieg.
+		+ '<g class="lst-2m-wskazowka"><path class="lst-2m-kwadrans" d="M36 3 A33 33 0 0 1 69 36" fill="none" '
 		'stroke="currentColor" stroke-width="5" stroke-linecap="round"></path>'
-		'<circle class="lst-2m-wskaz" cx="69" cy="36" r="4.5" fill="currentColor"></circle>'
+		'<circle class="lst-2m-wskaz" cx="69" cy="36" r="4.5" fill="currentColor"></circle></g>'
 		'</g></svg>' ),
 }
 
@@ -696,8 +698,13 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 	grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
 	gap: clamp( .9rem, 1.8vw, 1.5rem );
 	position: relative;
-	margin-top: clamp( 2.2rem, 4vw, 3.6rem );
-	padding-top: clamp( 1.6rem, 3vw, 2.6rem );
+	/* Kreska nad pasem stoi dokładnie w połowie: tyle samo powietrza nad nią
+	   (od kafli) co pod nią (do bloków). Nierówne odstępy wyglądały, jakby
+	   kreska należała do kafli, a nie dzieliła sekcji na dwie części. */
+	--lst-pol-odstepu: clamp( 1.6rem, 3vw, 2.6rem );
+	margin-top: var( --lst-pol-odstepu );
+	/* plus grubość samej kreski, która stoi na górze dopełnienia */
+	padding-top: calc( var( --lst-pol-odstepu ) + 2px );
 }
 
 /* Kreska nad pasem: zaczyna się miętowo tam, gdzie zaczyna się pierwsza
@@ -924,9 +931,11 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 @keyframes lst-2m-wjazd { from { transform: translateX( -10px ); } }
 @keyframes lst-2m-rysuj { from { stroke-dashoffset: 48; } }
 @keyframes lst-2m-wskaz { from { transform: rotate( -90deg ); } }
+@keyframes lst-2m-obrot { to { transform: rotate( 1turn ); } }
 
 /* Wskazówka obraca się wokół środka tarczy, a nie wokół rogu rysunku. */
-.lst-2m .lst-2m-wskaz { transform-origin: 36px 36px; }
+.lst-2m .lst-2m-wskaz,
+.lst-2m .lst-2m-wskazowka { transform-origin: 36px 36px; }
 
 /* ---------- najechanie ---------- */
 
@@ -962,6 +971,18 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 
 	.lst-2m .lst-2m-liczba:hover .lst-2m-ramka { stroke-dasharray: 130 0; }
 	.lst-2m .lst-2m-liczba:hover .lst-2m-belka-w { opacity: 1; }
+
+	/*
+	 * Tarcza pod kursorem: wskazówka robi jeden pełny obieg — kwadrans mija
+	 * i zaczyna się następny, czyli to, co liczba obok mówi słowami — a tarcza
+	 * i kreski godzin jaśnieją, tak jak pole z kursorem przestaje być
+	 * kreskowane, a wiersze się zapalają.
+	 */
+	.lst-2m .lst-2m-tarcza,
+	.lst-2m .lst-2m-godzina { transition: opacity .3s ease; }
+	.lst-2m .lst-2m-liczba:hover .lst-2m-tarcza { opacity: .7; }
+	.lst-2m .lst-2m-liczba:hover .lst-2m-godzina { opacity: 1; }
+	.lst-2m .lst-2m-liczba:hover .lst-2m-wskazowka { animation: lst-2m-obrot 1.3s cubic-bezier( .65, 0, .35, 1 ) both; }
 
 	/*
 	 * Ikonki budzą się pod kursorem, każda po swojemu, i każda mówi ruchem to

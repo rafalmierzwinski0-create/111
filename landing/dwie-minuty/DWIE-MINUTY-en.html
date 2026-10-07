@@ -12,7 +12,7 @@
 		<div class="lst-2m-liczby">
 			<div class="lst-2m-liczba jest-pole"><svg class="lst-2m-przyrzad" viewBox="0 0 120 72" aria-hidden="true" focusable="false"><rect class="lst-2m-ramka" x="1.5" y="6" width="117" height="60" rx="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="7 6"></rect><rect class="lst-2m-kursor" x="20" y="24" width="2.5" height="24" rx="1.25" fill="currentColor"></rect></svg><p class="lst-2m-duza">0</p><p class="lst-2m-pod">API keys to paste, for a shared sheet</p><p class="lst-2m-tekst">You share it with a link and that is the setup. Pro can sign in to your own Google account instead, for sheets you would rather keep private.</p></div>
 			<div class="lst-2m-liczba jest-wiersze"><svg class="lst-2m-przyrzad" viewBox="0 0 120 72" aria-hidden="true" focusable="false"><rect class="lst-2m-belka-w" x="0" y="0" width="118" height="6" rx="3" fill="currentColor" opacity=".95"></rect><rect class="lst-2m-belka-w" x="0" y="12" width="104" height="6" rx="3" fill="currentColor" opacity=".8"></rect><rect class="lst-2m-belka-w" x="0" y="24" width="112" height="6" rx="3" fill="currentColor" opacity=".62"></rect><rect class="lst-2m-belka-w" x="0" y="36" width="88" height="6" rx="3" fill="currentColor" opacity=".44"></rect><rect class="lst-2m-belka-w" x="0" y="48" width="98" height="6" rx="3" fill="currentColor" opacity=".28"></rect><rect class="lst-2m-belka-w" x="0" y="60" width="72" height="6" rx="3" fill="currentColor" opacity=".14"></rect></svg><p class="lst-2m-duza">No limit</p><p class="lst-2m-pod">on rows, in the free version</p><p class="lst-2m-tekst">No watermark and no expiry date either. Free is the whole plugin, minus the extras.</p></div>
-			<div class="lst-2m-liczba jest-zegar"><svg class="lst-2m-przyrzad" viewBox="0 0 120 72" aria-hidden="true" focusable="false"><g transform="translate( 24 0 )"><circle cx="36" cy="36" r="33" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".3"></circle><rect x="35" y="0" width="2" height="7" rx="1" fill="currentColor" opacity=".45"></rect><rect x="65" y="35" width="7" height="2" rx="1" fill="currentColor" opacity=".45"></rect><rect x="35" y="65" width="2" height="7" rx="1" fill="currentColor" opacity=".45"></rect><rect x="0" y="35" width="7" height="2" rx="1" fill="currentColor" opacity=".45"></rect><path class="lst-2m-kwadrans" d="M36 3 A33 33 0 0 1 69 36" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"></path><circle class="lst-2m-wskaz" cx="69" cy="36" r="4.5" fill="currentColor"></circle></g></svg><p class="lst-2m-duza">15 min</p><p class="lst-2m-pod">between checks, and nobody waits</p><p class="lst-2m-tekst">The plugin talks to Google in the background. Your visitor is served a table that is already sitting on your server.</p></div>
+			<div class="lst-2m-liczba jest-zegar"><svg class="lst-2m-przyrzad" viewBox="0 0 120 72" aria-hidden="true" focusable="false"><g transform="translate( 24 0 )"><circle class="lst-2m-tarcza" cx="36" cy="36" r="33" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".3"></circle><rect class="lst-2m-godzina" x="35" y="0" width="2" height="7" rx="1" fill="currentColor" opacity=".45"></rect><rect class="lst-2m-godzina" x="65" y="35" width="7" height="2" rx="1" fill="currentColor" opacity=".45"></rect><rect class="lst-2m-godzina" x="35" y="65" width="2" height="7" rx="1" fill="currentColor" opacity=".45"></rect><rect class="lst-2m-godzina" x="0" y="35" width="7" height="2" rx="1" fill="currentColor" opacity=".45"></rect><g class="lst-2m-wskazowka"><path class="lst-2m-kwadrans" d="M36 3 A33 33 0 0 1 69 36" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"></path><circle class="lst-2m-wskaz" cx="69" cy="36" r="4.5" fill="currentColor"></circle></g></g></svg><p class="lst-2m-duza">15 min</p><p class="lst-2m-pod">between checks, and nobody waits</p><p class="lst-2m-tekst">The plugin talks to Google in the background. Your visitor is served a table that is already sitting on your server.</p></div>
 		</div>
 	</div>
 </div>
@@ -488,8 +488,13 @@
 	grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
 	gap: clamp( .9rem, 1.8vw, 1.5rem );
 	position: relative;
-	margin-top: clamp( 2.2rem, 4vw, 3.6rem );
-	padding-top: clamp( 1.6rem, 3vw, 2.6rem );
+	/* Kreska nad pasem stoi dokładnie w połowie: tyle samo powietrza nad nią
+	   (od kafli) co pod nią (do bloków). Nierówne odstępy wyglądały, jakby
+	   kreska należała do kafli, a nie dzieliła sekcji na dwie części. */
+	--lst-pol-odstepu: clamp( 1.6rem, 3vw, 2.6rem );
+	margin-top: var( --lst-pol-odstepu );
+	/* plus grubość samej kreski, która stoi na górze dopełnienia */
+	padding-top: calc( var( --lst-pol-odstepu ) + 2px );
 }
 
 /* Kreska nad pasem: zaczyna się miętowo tam, gdzie zaczyna się pierwsza
@@ -716,9 +721,11 @@
 @keyframes lst-2m-wjazd { from { transform: translateX( -10px ); } }
 @keyframes lst-2m-rysuj { from { stroke-dashoffset: 48; } }
 @keyframes lst-2m-wskaz { from { transform: rotate( -90deg ); } }
+@keyframes lst-2m-obrot { to { transform: rotate( 1turn ); } }
 
 /* Wskazówka obraca się wokół środka tarczy, a nie wokół rogu rysunku. */
-.lst-2m .lst-2m-wskaz { transform-origin: 36px 36px; }
+.lst-2m .lst-2m-wskaz,
+.lst-2m .lst-2m-wskazowka { transform-origin: 36px 36px; }
 
 /* ---------- najechanie ---------- */
 
@@ -754,6 +761,18 @@
 
 	.lst-2m .lst-2m-liczba:hover .lst-2m-ramka { stroke-dasharray: 130 0; }
 	.lst-2m .lst-2m-liczba:hover .lst-2m-belka-w { opacity: 1; }
+
+	/*
+	 * Tarcza pod kursorem: wskazówka robi jeden pełny obieg — kwadrans mija
+	 * i zaczyna się następny, czyli to, co liczba obok mówi słowami — a tarcza
+	 * i kreski godzin jaśnieją, tak jak pole z kursorem przestaje być
+	 * kreskowane, a wiersze się zapalają.
+	 */
+	.lst-2m .lst-2m-tarcza,
+	.lst-2m .lst-2m-godzina { transition: opacity .3s ease; }
+	.lst-2m .lst-2m-liczba:hover .lst-2m-tarcza { opacity: .7; }
+	.lst-2m .lst-2m-liczba:hover .lst-2m-godzina { opacity: 1; }
+	.lst-2m .lst-2m-liczba:hover .lst-2m-wskazowka { animation: lst-2m-obrot 1.3s cubic-bezier( .65, 0, .35, 1 ) both; }
 
 	/*
 	 * Ikonki budzą się pod kursorem, każda po swojemu, i każda mówi ruchem to
