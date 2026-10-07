@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-„Z arkusza na stronę w dwie minuty" — układ 4 (krok i podgląd), jeden moduł Kod.
+„Z arkusza na stronę w dwie minuty" — siatka pięciu kafli nad paskiem liczb,
+jeden moduł Kod.
 
-Kroki idą naprzemiennie: raz tekst z lewej i okienko z prawej, raz odwrotnie.
-Okienka mają WŁASNE, ciemniejsze tło — mają wyglądać jak ekran, a nie jak
-kolejny kafelek strony.
+Kafle odpowiadają na to, o co pyta ktoś, kto widzi stronę pierwszy raz: co to
+robi, komu pomaga, jak się to ustawia, dlaczego można temu ufać i co zrobić
+dalej. Wcześniej stały tu trzy pary „krok i okienko", które mówiły tylko „jak".
+Każde zdanie w kaflach jest prawdą o wtyczce (readme.txt) — żadnych
+wymyślonych liczb klientów ani opinii.
+
+Po krawędzi każdego kafla biegnie to samo światło co po blokach z liczbami,
+a ikonki budzą się pod kursorem.
 
 Bez skryptu. Sam kod strony i style.
 
@@ -18,39 +24,55 @@ import re
 # za shortcode i wykonał, zamiast pokazać.
 L, P = '&#91;', '&#93;'
 
-# I jeszcze pusty znacznik zaraz za nawiasem otwierającym.
+# I nawias otwierający we własnym znaczniku.
 #
 # Same encje nie wystarczyły. Divi zapisuje treść modułu po swojemu i potrafi
 # zamienić „&#91;" z powrotem na „[" — a wtedy WordPress widzi prawdziwy
-# shortcode, wykonuje go i w okienku, zamiast przykładu do przeczytania,
-# pojawia się komunikat wtyczki („To źródło arkusza już nie istnieje"), w
-# dodatku w języku witryny, na angielskiej stronie. Widać to było na żywo.
+# shortcode, wykonuje go i zamiast przykładu do przeczytania pojawia się
+# komunikat wtyczki („To źródło arkusza już nie istnieje"), w dodatku w języku
+# witryny, na angielskiej stronie. Widać to było na żywo.
 #
-# Shortcode rozpoznaje się po nazwie STYKAJĄCEJ SIĘ z nawiasem, więc pusty
-# znacznik między jednym a drugim wyklucza dopasowanie raz na zawsze, cokolwiek
-# zrobi się z encjami. Dla czytającego i dla kopiującego nic się nie zmienia:
-# znacznik nie wnosi do tekstu ani jednego znaku.
-PRZERWA = '<span class="lst-2m-nic"></span>'
+# Shortcode rozpoznaje się po nazwie STYKAJĄCEJ SIĘ z nawiasem, więc znacznik
+# między jednym a drugim wyklucza dopasowanie. Był tu pusty <span>, ale edytor
+# Divi pusty znacznik po cichu wyrzuca. Nawias w środku znacznika sprawia, że
+# nie jest pusty i zostaje. Dla czytającego i kopiującego nic się nie zmienia.
+NAWIAS = '<span class="lst-2m-nawias">' + L + '</span>'
+PRZYKLAD = NAWIAS + 'sheet_table id=&quot;X&quot;' + P
 
 EN = {
-	'kroki': [
-		( 'B10', 'Share the sheet',
-		  'In Google Sheets: <em>Share &rarr; General access &rarr; Anyone with the link</em>, as a '
-		  '<em>Viewer</em>. No API key and no Google Cloud project. Pro can read a private sheet '
-		  'instead, by signing in to your own Google account.',
-		  'Google Sheets', 'Share &rarr; Anyone with the link',
-		  'sharing: Anyone with the link &middot; Viewer' ),
-		( 'B11', 'Paste the link and check the preview',
-		  'The plugin shows exactly what it read &mdash; headings, rows, what merged cells did &mdash; '
-		  'before you save anything. A sheet with several tabs gets a picker.',
-		  'Live Sheets Table', 'docs.google.com/spreadsheets/d/1aZ&hellip;',
-		  '3 tabs found &mdash; Prices, Stock, Notes' ),
-		( 'B12', 'Put it on the page',
-		  'A block, an Elementor widget or a shortcode. The same code draws all three, so they cannot '
-		  'drift apart.',
-		  'Your page', L + PRZERWA + 'sheet_table id=&quot;1&quot;' + P,
-		  'table #1 &middot; 128 rows &middot; checked 4 min ago' ),
-	],
+	# Kafle. Każdy ma etykietę (pytanie, na które odpowiada), zdanie-tytuł
+	# i treść. Tytuły są zdaniami, a nie hasłami: czyta się je jak odpowiedź.
+	'kafle': {
+		'robi': ( 'What it does', 'Change a cell in the sheet. The page follows.',
+			'Your Google Sheet becomes a real table on your WordPress page &mdash; and keeps itself up to date.' ),
+		'arkusz': ( 'Prices', 'Google Sheets', ( 'Product', 'Price' ),
+			( ( 'Oak table', '1 290' ), ( 'Ash chair', '349 &rarr; 319' ), ( 'Pine shelf', '215' ) ) ),
+		'strona': ( 'yourshop.com/prices', ( 'Product', 'Price' ),
+			( ( 'Oak table', '1 290' ), ( 'Ash chair', '319' ), ( 'Pine shelf', '215' ) ),
+			'updated 2 min ago', '3 rows' ),
+		'co_ile': 'every 15 min',
+		'komu': ( 'Who it helps', 'Anyone whose numbers live in a spreadsheet.',
+			'If people keep asking you for &ldquo;the latest version&rdquo;, it belongs on your page &mdash; '
+			'edited where you already edit it.' ),
+		'zetony': ( 'Price lists', 'Timetables', 'Stock levels', 'Menus', 'Event line-ups',
+			'Trail conditions', 'Rankings', 'Opening hours' ),
+		'jak': ( 'How it works', 'Three steps, no API key.' ),
+		'kroki': (
+			( 'Share the sheet', 'Anyone with the link, as a Viewer.' ),
+			( 'Paste the link, check the preview', 'Nothing goes live until you save.' ),
+			( 'Put it on the page', 'A block, an Elementor widget or <code class="lst-2m-kod">' + PRZYKLAD + '</code>' ),
+		),
+		'ufac': ( 'Why it holds up', 'Your page never shows a broken table.' ),
+		'pewne': (
+			( 'tarcza', 'The last good copy stays', 'If Google is unreachable or the sheet goes private, visitors still see your table.' ),
+			( 'serwer', 'Served from your server', 'Fetched in the background, so nobody waits on Google.' ),
+			( 'tabela', 'A real &lt;table&gt; in the HTML', 'Search engines can read it, and it is drawn before any code runs.' ),
+			( 'klodka', 'Talks to Google only', 'No analytics, no account with us. The data stays in your database.' ),
+		),
+		'dalej': ( 'Try it on your own sheet.',
+			'Free, no row limit, no watermark. You see the table in the preview before anything is published.' ),
+		'przyciski': ( ( 'Download free', '#pricing' ), ( 'See what Pro adds', '#compare' ) ),
+	},
 	'liczby': [
 		( 'pole', '0', 'API keys to paste, for a shared sheet',
 		  'You share it with a link and that is the setup. Pro can sign in to your own Google '
@@ -64,26 +86,37 @@ EN = {
 }
 
 PL = {
-	'kroki': [
-		( 'B10', 'Udostępnij arkusz',
-		  'W Arkuszach Google: <em>Udostępnij &rarr; Dostęp ogólny &rarr; Każda osoba mająca '
-		  'link</em>, jako <em>Przeglądający</em>. Bez klucza API i bez projektu w Google Cloud. '
-		  'W Pro można zamiast tego czytać arkusz prywatny &mdash; wtyczka loguje się na Twoje '
-		  'konto Google.',
-		  'Arkusze Google', 'Udostępnij &rarr; Każda osoba mająca link',
-		  'udostępnianie: Każda osoba mająca link &middot; Przeglądający' ),
-		( 'B11', 'Wklej link i sprawdź podgląd',
-		  'Wtyczka pokazuje dokładnie to, co odczytała &mdash; nagłówki, wiersze, co zrobiła ze '
-		  'scalonymi komórkami &mdash; zanim cokolwiek zapiszesz. Arkusz z kilkoma kartami dostaje '
-		  'przełącznik.',
-		  'Live Sheets Table', 'docs.google.com/spreadsheets/d/1aZ&hellip;',
-		  '3 tabs found &mdash; Prices, Stock, Notes' ),
-		( 'B12', 'Wstaw na stronę',
-		  'Blok, widżet Elementora albo shortcode. Ten sam kod rysuje wszystkie trzy, więc nie mogą '
-		  'się rozjechać.',
-		  'Twoja strona', L + PRZERWA + 'sheet_table id=&quot;1&quot;' + P,
-		  'tabela #1 &middot; 128 wierszy &middot; sprawdzona 4 min temu' ),
-	],
+	'kafle': {
+		'robi': ( 'Co robi', 'Zmieniasz komórkę w arkuszu. Strona idzie za nim.',
+			'Arkusz Google staje się prawdziwą tabelą na stronie WordPress &mdash; i sam pilnuje, żeby była aktualna.' ),
+		'arkusz': ( 'Ceny', 'Arkusze Google', ( 'Produkt', 'Cena' ),
+			( ( 'Stół dębowy', '1 290' ), ( 'Krzesło', '349 &rarr; 319' ), ( 'Półka', '215' ) ) ),
+		'strona': ( 'twojsklep.pl/cennik', ( 'Produkt', 'Cena' ),
+			( ( 'Stół dębowy', '1 290' ), ( 'Krzesło', '319' ), ( 'Półka', '215' ) ),
+			'zaktualizowano 2 min temu', '3 wiersze' ),
+		'co_ile': 'co 15 min',
+		'komu': ( 'Komu pomaga', 'Każdemu, kto trzyma liczby w arkuszu.',
+			'Jeśli ktoś ciągle prosi Cię o &bdquo;najnowszą wersję&rdquo;, jej miejsce jest na stronie &mdash; '
+			'edytowanej tam, gdzie i tak edytujesz.' ),
+		'zetony': ( 'Cenniki', 'Rozkłady jazdy', 'Stany magazynowe', 'Menu', 'Programy wydarzeń',
+			'Warunki na szlakach', 'Rankingi', 'Godziny otwarcia' ),
+		'jak': ( 'Jak to działa', 'Trzy kroki, bez klucza API.' ),
+		'kroki': (
+			( 'Udostępnij arkusz', 'Każda osoba mająca link, jako Przeglądający.' ),
+			( 'Wklej link i sprawdź podgląd', 'Nic nie trafia na stronę, zanim zapiszesz.' ),
+			( 'Wstaw na stronę', 'Blok, widżet Elementora albo <code class="lst-2m-kod">' + PRZYKLAD + '</code>' ),
+		),
+		'ufac': ( 'Dlaczego to wytrzyma', 'Strona nigdy nie pokaże zepsutej tabeli.' ),
+		'pewne': (
+			( 'tarcza', 'Zostaje ostatnia dobra kopia', 'Gdy Google nie odpowiada albo arkusz stanie się prywatny, odwiedzający nadal widzą tabelę.' ),
+			( 'serwer', 'Podawana z Twojego serwera', 'Pobierana w tle, więc nikt nie czeka na Google.' ),
+			( 'tabela', 'Prawdziwa &lt;table&gt; w HTML', 'Czytelna dla wyszukiwarek, nawet bez skryptów.' ),
+			( 'klodka', 'Rozmawia tylko z Google', 'Bez analityki i bez konta u nas. Dane zostają w Twojej bazie.' ),
+		),
+		'dalej': ( 'Wypróbuj na swoim arkuszu.',
+			'Za darmo, bez limitu wierszy, bez znaku wodnego. Tabelę widzisz w podglądzie, zanim cokolwiek zostanie opublikowane.' ),
+		'przyciski': ( ( 'Pobierz za darmo', '#cennik' ), ( 'Zobacz, co daje Pro', '#porownanie' ) ),
+	},
 	'liczby': [
 		( 'pole', '0', 'kluczy API do wklejenia, przy arkuszu z linkiem',
 		  'Udostępniasz arkusz linkiem i to cała konfiguracja. W Pro wtyczka może zamiast tego '
@@ -151,12 +184,40 @@ PRZYRZADY = {
 }
 
 
+
+"""
+Ikonki przy powodach, dla których można zaufać. Rysowane kreską w kolorze
+tekstu, w kwadraciku z miętową krawędzią. Pod kursorem kwadracik zapala się
+na mięto, a w ikonce coś się dorysowuje: ptaszek w tarczy, diody w serwerze,
+kolumna w tabeli, kłódka się zamyka. Ruch mówi to samo, co zdanie obok.
+"""
+def _ikona( srodek ):
+	return ( '<svg class="lst-2m-ikona-rys" viewBox="0 0 28 28" fill="none" stroke="currentColor" '
+		'stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" '
+		'focusable="false">' + srodek + '</svg>' )
+
+IKONY = {
+	'tarcza': _ikona( '<path d="M14 3.5 5.5 7v6.5c0 5 3.6 9.3 8.5 11 4.9-1.7 8.5-6 8.5-11V7Z"></path>'
+		'<path class="lst-2m-dorys" pathLength="1" d="m10 14 3 3 5.5-6"></path>' ),
+	'serwer': _ikona( '<rect x="4.5" y="5" width="19" height="7.5" rx="2"></rect>'
+		'<rect x="4.5" y="15.5" width="19" height="7.5" rx="2"></rect>'
+		'<path class="lst-2m-dioda" d="M8.5 8.75h.01M8.5 19.25h.01M12 8.75h.01M12 19.25h.01"></path>' ),
+	'tabela': _ikona( '<rect x="4" y="5" width="20" height="18" rx="2.5"></rect><path d="M4 10.5h20M11 10.5V23"></path>'
+		'<path class="lst-2m-dorys" pathLength="1" d="M17.5 10.5V23"></path>' ),
+	'klodka': _ikona( '<rect x="6" y="12" width="16" height="11" rx="2.5"></rect>'
+		'<path class="lst-2m-palak" d="M9.5 12V9a4.5 4.5 0 0 1 9 0v3"></path>' ),
+}
+
+STRZALKA = ( '<svg class="lst-2m-strzalka-rys" viewBox="0 0 64 14" fill="none" stroke="currentColor" '
+	'stroke-width="1.6" stroke-linecap="round" aria-hidden="true" focusable="false">'
+	'<path class="lst-2m-bieg" d="M2 7h54"></path><path d="m54 2 6 5-6 5"></path></svg>' )
+
 SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Inria+Serif:wght@400&display=swap">
 
 <div class="lst-2m">
 	<div class="lst-2m-rama">
-		<div class="lst-2m-pary">
-{PARY}
+		<div class="lst-2m-kafle">
+{KAFLE}
 		</div>
 		<div class="lst-2m-liczby">
 {LICZBY}
@@ -252,94 +313,171 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 	margin-inline: auto;
 }
 
-/* ---------- para: krok i jego podgląd ---------- */
+/* ---------- kafle ---------- */
 
-.lst-2m .lst-2m-para {
+/*
+ * Pięć kafli w siatce dwunastu kolumn: dwa na górze (co robi, komu), dwa
+ * w środku (jak, dlaczego), a pod nimi pas z tym, co zrobić dalej. Szerokości
+ * są nierówne — 7 i 5, potem 5 i 7 — żeby siatka nie wyglądała jak tabela
+ * czterech równych pudełek; większy kafel stoi raz z lewej, raz z prawej.
+ */
+.lst-2m .lst-2m-kafle {
 	display: grid;
-	grid-template-columns: minmax( 0, 1fr ) minmax( 0, 1fr );
-	gap: clamp( 1.2rem, 3vw, 3rem );
-	align-items: center;
-	padding-block: clamp( 1.4rem, 2.6vw, 2.2rem );
+	grid-template-columns: repeat( 12, minmax( 0, 1fr ) );
+	gap: clamp( .9rem, 1.4vw, 1.25rem );
+}
+
+/*
+ * Kafel wygląda tak samo jak blok z liczbą pod spodem: to samo tło, ta sama
+ * krawędź, to samo światło z góry i poświata w rogu, i to samo światło
+ * biegnące po obwodzie (patrz „światło biegnące po krawędzi” niżej). Cała
+ * sekcja jest przez to z jednego materiału.
+ */
+.lst-2m .lst-2m-kafel {
 	position: relative;
+	grid-column: span 6;
+	padding: clamp( 1.3rem, 2.2vw, 1.75rem ) clamp( 1.2rem, 2vw, 1.7rem ) clamp( 1.4rem, 2.4vw, 1.8rem );
+	border-radius: var( --lst-promien );
+	border: 1px solid rgba( var( --lst-mieta ), .18 ) !important;
+	background-color: var( --lst-panel ) !important;
+	background-image:
+		linear-gradient( 180deg, rgba( 255, 255, 255, .04 ), rgba( 255, 255, 255, 0 ) 42% ),
+		radial-gradient( 22rem 14rem at var( --lst-x, 14% ) var( --lst-y, -8% ), rgba( var( --lst-mieta ), .15 ), transparent ),
+		linear-gradient( var( --lst-panel ), var( --lst-panel-dol ) ) !important;
+	box-shadow:
+		inset 0 1px 0 rgba( 255, 255, 255, .05 ),
+		0 20px 44px -26px rgba( 0, 0, 0, .95 ),
+		0 2px 10px -6px rgba( 0, 0, 0, .6 );
 }
 
-/* Kreska jako warstwa, a nie obramowanie: obramowania nie da się zrobić
-   przejściem koloru, a bez przejścia kreska albo ginie, albo zamyka krok
-   w ramkę. */
-.lst-2m .lst-2m-para::before {
-	content: "";
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 0;
-	height: 2px;
-	border-radius: 2px;
-	pointer-events: none;
-	background-image: var( --lst-kreska-obraz ) !important;
+.lst-2m .lst-2m-kafel.jest-robi { grid-column: span 7; }
+.lst-2m .lst-2m-kafel.jest-komu { grid-column: span 5; --lst-x: 86%; }
+.lst-2m .lst-2m-kafel.jest-jak { grid-column: span 5; --lst-y: 108%; }
+.lst-2m .lst-2m-kafel.jest-ufac { grid-column: span 7; --lst-x: 86%; --lst-y: 108%; }
+
+/* Na laptopie arkusz, strzałka i strona obok siebie nie mieszczą się
+   w siedmiu kolumnach: górne kafle idą na całą szerokość, jeden pod drugim. */
+@media ( max-width: 1280px ) {
+	.lst-2m .lst-2m-kafel.jest-robi,
+	.lst-2m .lst-2m-kafel.jest-komu { grid-column: 1 / -1; }
 }
 
-.lst-2m .lst-2m-para:first-child { padding-top: 0; }
-.lst-2m .lst-2m-para:first-child::before { display: none; }
-
-/* Co drugi krok odwrócony: okienko po lewej, tekst po prawej. */
-.lst-2m .lst-2m-para:nth-child( even ) .lst-2m-okno { order: -1; }
-
-/* Płyta ma tę samą szerokość co okienko obok, więc rząd czyta się jak dwa
-   panele. Sam wiersz tekstu jest w środku ograniczony, żeby dało się czytać. */
-.lst-2m .lst-2m-tresc {
-	padding: 1.15rem 1.3rem 1.25rem;
-	background-color: var( --lst-plyta );
-	border: 1px solid var( --lst-plyta-linia );
-	border-radius: 14px;
+/* Pas „co dalej” na całą szerokość, z mocniejszą poświatą od lewej: to jedyne
+   miejsce w sekcji, które prowadzi gdzieś dalej. */
+.lst-2m .lst-2m-kafel.jest-dalej {
+	grid-column: 1 / -1;
+	display: flex;
+	align-items: center;
+	gap: 1.5rem 2rem;
+	padding-block: clamp( 1.2rem, 2vw, 1.5rem );
+	border-color: rgba( var( --lst-mieta ), .3 ) !important;
+	background-image:
+		linear-gradient( 100deg, rgba( var( --lst-mieta ), .16 ), rgba( var( --lst-mieta ), .04 ) 45%, rgba( 0, 0, 0, 0 ) 80% ),
+		linear-gradient( var( --lst-panel ), var( --lst-panel-dol ) ) !important;
 }
 
-.lst-2m .lst-2m-krok,
-.lst-2m .lst-2m-opis { max-width: 42rem; }
-
-.lst-2m .lst-2m-adres {
+.lst-2m .lst-2m-etykieta {
 	font-family: var( --lst-mono );
 	font-size: .875rem;   /* 14 px */
-	letter-spacing: .06em;
+	letter-spacing: .1em;
+	text-transform: uppercase;
 	color: var( --lst-tekst-3 );
-	margin-bottom: .3rem;
 }
 
-.lst-2m .lst-2m-krok {
-	font-size: 1.25rem;   /* 20 px */
-	font-weight: 600;
-	line-height: 1.25;
-	margin-bottom: .45rem;
+/*
+ * Zdanie-tytuł kafla. Trzeci wyjątek od 14, 18 i 20 na tej stronie (po dużych
+ * liczbach i tytułach sekcji): ten sam szeryf co liczby pod spodem, tylko
+ * mniejszy. Tytuł jest zdaniem i ma się czytać jak odpowiedź, a nie jak hasło.
+ */
+.lst-2m .lst-2m-kafel-tytul {
+	font-family: var( --lst-serif );
+	font-weight: 400;
+	font-size: clamp( 1.5rem, 2.1vw, 1.85rem );
+	line-height: 1.15;
+	letter-spacing: -.005em;
+	margin-top: .5rem;
 }
 
-.lst-2m .lst-2m-opis {
+.lst-2m .lst-2m-kafel-tekst {
 	font-size: 1.125rem;   /* 18 px */
 	line-height: 1.55;
 	color: var( --lst-tekst-2 );
+	margin-top: .55rem;
+	max-width: 38rem;
 }
 
-.lst-2m .lst-2m-opis em { font-style: normal; color: rgb( var( --lst-mieta ) ); }
+/* ---------- co robi: arkusz → strona ---------- */
 
-/* ---------- okienko podglądu ---------- */
+.lst-2m .lst-2m-przeplyw {
+	display: grid;
+	grid-template-columns: minmax( 0, 1fr ) auto minmax( 0, 1.1fr );
+	align-items: center;
+	gap: 1rem;
+	margin-top: 1.4rem;
+}
 
-.lst-2m .lst-2m-okno {
-	border: 1px solid var( --lst-ekran-linia ) !important;
-	border-radius: 12px;
+.lst-2m .lst-2m-arkusz,
+.lst-2m .lst-2m-strona {
+	font-size: .875rem;   /* 14 px */
+	border-radius: 10px;
 	overflow: hidden;
-	background-color: var( --lst-ekran ) !important;
-	background-image: linear-gradient( var( --lst-ekran ), var( --lst-ekran-dol ) ) !important;
-	box-shadow: 0 22px 46px -30px rgba( 0, 0, 0, .95 ), 0 0 34px -18px rgba( var( --lst-mieta ), .35 );
 }
 
-.lst-2m .lst-2m-belka {
+.lst-2m .lst-2m-arkusz {
+	font-family: var( --lst-mono );
+	border: 1px solid rgba( 138, 168, 163, .22 ) !important;
+	background-color: #0d1413 !important;
+}
+
+.lst-2m .lst-2m-arkusz-gora,
+.lst-2m .lst-2m-strona-gora {
 	display: flex;
 	align-items: center;
 	gap: .45rem;
-	padding: .6rem .85rem;
-	background: var( --lst-ekran-gora ) !important;
+	padding: .5rem .75rem;
+	background-color: var( --lst-ekran-gora ) !important;
 	border-bottom: 1px solid rgba( 95, 227, 207, .14 ) !important;
+	color: var( --lst-tekst-3 );
+	white-space: nowrap;
+	overflow: hidden;
 }
 
-.lst-2m .lst-2m-oczko {
+.lst-2m .lst-2m-arkusz-gora b { font-weight: 500; color: var( --lst-tekst-2 ); }
+
+/* Arkusz i strona to siatki, a nie <table>: motyw, który rysuje ramki
+   tabelom, nie ma tu czego złapać, a Divi nie ma czego połamać. */
+.lst-2m .lst-2m-komorki {
+	display: grid;
+	grid-template-columns: 2rem minmax( 0, 1.4fr ) minmax( 0, 1fr );
+}
+
+.lst-2m .lst-2m-komorki > span {
+	padding: .4rem .6rem;
+	border-right: 1px solid rgba( 138, 168, 163, .12 ) !important;
+	border-bottom: 1px solid rgba( 138, 168, 163, .12 ) !important;
+	color: var( --lst-tekst-2 );
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.lst-2m .lst-2m-komorki > span.jest-glowka { color: var( --lst-tekst-3 ); background-color: rgba( 255, 255, 255, .02 ) !important; }
+
+/* Komórka, którą ktoś właśnie zmienia: zaznaczona tak, jak zaznacza ją arkusz. */
+.lst-2m .lst-2m-komorki > span.jest-zmiana {
+	outline: 2px solid rgb( var( --lst-mieta ) );
+	outline-offset: -2px;
+	color: var( --lst-tekst );
+	background-color: rgba( var( --lst-mieta ), .08 ) !important;
+}
+
+.lst-2m .lst-2m-strona {
+	border: 1px solid var( --lst-ekran-linia ) !important;
+	background-color: var( --lst-ekran ) !important;
+	box-shadow: 0 22px 46px -30px rgba( 0, 0, 0, .95 ), 0 0 34px -18px rgba( var( --lst-mieta ), .35 );
+}
+
+.lst-2m .lst-2m-strona-gora .lst-2m-oczko {
 	display: block;
 	width: 9px;
 	height: 9px;
@@ -349,40 +487,197 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 	flex: none;
 }
 
-.lst-2m .lst-2m-nazwa-okna {
-	margin-left: .5rem;
+.lst-2m .lst-2m-adres-strony {
+	margin-left: .35rem;
+	padding: .1rem .55rem;
+	border-radius: 6px;
+	background-color: rgba( 255, 255, 255, .04 ) !important;
 	font-family: var( --lst-mono );
-	font-size: .875rem;   /* 14 px */
-	color: var( --lst-tekst-3 );
-	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
 
-.lst-2m .lst-2m-ekran {
-	padding: 1.15rem 1rem 1.25rem;
-	font-family: var( --lst-mono );
-	font-size: .875rem;   /* 14 px */
-	line-height: 1.5;
-	color: var( --lst-tekst-2 );
+.lst-2m .lst-2m-wiersze { display: grid; grid-template-columns: minmax( 0, 1fr ) auto; }
 
-	/* Siatka komórek w środku — subtelna, ale od razu widać, że to ekran
-	   arkusza, a nie zwykłe pole tekstowe. */
-	background-image: linear-gradient( to right, rgba( 255, 255, 255, .035 ) 1px, transparent 1px ),
-		linear-gradient( to bottom, rgba( 255, 255, 255, .035 ) 1px, transparent 1px );
-	background-size: 68px 34px;
+.lst-2m .lst-2m-wiersze > span {
+	padding: .6rem .85rem;
+	border-bottom: 1px solid rgba( 138, 168, 163, .08 ) !important;
+	color: var( --lst-tekst );
+	white-space: nowrap;
 }
 
-.lst-2m .lst-2m-znak { color: rgb( var( --lst-mieta ) ); flex: none; }
+.lst-2m .lst-2m-wiersze > span:nth-child( even ) { text-align: right !important; font-variant-numeric: tabular-nums; }
 
-/* Wiersz polecenia: strzałka obok treści, a długi adres łamie się pod sobą,
-   nie pod strzałką. */
-.lst-2m .lst-2m-wiersz { display: flex; align-items: baseline; gap: .45rem; }
-.lst-2m .lst-2m-linia { min-width: 0; word-break: break-word; }
+.lst-2m .lst-2m-wiersze > span.jest-glowka {
+	font-family: var( --lst-mono );
+	letter-spacing: .08em;
+	text-transform: uppercase;
+	color: var( --lst-tekst-3 );
+	border-bottom-color: rgba( 95, 227, 207, .18 ) !important;
+}
 
-/* Druga linijka — to, co z polecenia wyszło. Ściemniona, żeby nie
-   konkurowała z pierwszą, i wcięta pod treść, a nie pod strzałkę. */
-.lst-2m .lst-2m-wynik { margin-top: .5rem; padding-left: 1.05rem; color: var( --lst-tekst-3 ); }
+.lst-2m .lst-2m-wiersze > span.jest-nowy { background-color: rgba( var( --lst-mieta ), .08 ) !important; }
+.lst-2m .lst-2m-wiersze > span.jest-nowy.jest-liczba { color: rgb( var( --lst-mieta ) ); font-weight: 600; }
+
+.lst-2m .lst-2m-stopka-strony {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: .2rem .8rem;
+	padding: .55rem .85rem;
+	font-family: var( --lst-mono );
+	color: var( --lst-tekst-3 );
+	white-space: nowrap;
+}
+
+.lst-2m .lst-2m-kropka {
+	display: inline-block;
+	width: 7px;
+	height: 7px;
+	margin-right: .45rem;
+	border-radius: 99px;
+	background-color: rgb( var( --lst-mieta ) ) !important;
+	box-shadow: 0 0 0 4px rgba( var( --lst-mieta ), .15 );
+	vertical-align: 1px;
+}
+
+.lst-2m .lst-2m-strzalka {
+	display: grid;
+	justify-items: center;
+	gap: .35rem;
+	font-family: var( --lst-mono );
+	font-size: .875rem;   /* 14 px */
+	color: var( --lst-tekst-3 );
+	white-space: nowrap;
+}
+
+.lst-2m .lst-2m-strzalka-rys { width: 64px; height: 14px; color: rgb( var( --lst-mieta ) ); overflow: visible; }
+
+/* Kreska strzałki płynie w stronę strony, cały czas, ale spokojnie: dane
+   idą z arkusza na stronę, a nie stoją. */
+.lst-2m .lst-2m-bieg { stroke-dasharray: 3 4; animation: lst-2m-plyn 1.6s linear infinite; }
+
+@keyframes lst-2m-plyn { to { stroke-dashoffset: -14; } }
+@keyframes lst-2m-dorys { from { stroke-dashoffset: 1; } }
+@keyframes lst-2m-mrug { 50% { opacity: .15; } }
+@keyframes lst-2m-zatrzask { 0% { transform: translateY( -3px ); } 70% { transform: translateY( .6px ); } }
+@keyframes lst-2m-puls { 50% { background-color: rgba( 95, 227, 207, .22 ); } }
+
+/* ---------- komu: żetony ---------- */
+
+.lst-2m .lst-2m-zetony { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.3rem; }
+
+.lst-2m .lst-2m-zeton {
+	display: inline-flex;
+	align-items: center;
+	gap: .45rem;
+	padding: .38rem .75rem;
+	border-radius: 999px;
+	border: 1px solid rgba( 138, 168, 163, .16 ) !important;
+	background-color: rgba( 255, 255, 255, .035 ) !important;
+	font-size: .875rem;   /* 14 px */
+	color: var( --lst-tekst );
+}
+
+.lst-2m .lst-2m-zeton::before {
+	content: "";
+	width: 6px;
+	height: 6px;
+	border-radius: 99px;
+	background-color: rgb( var( --lst-mieta ) );
+	opacity: .8;
+}
+
+/* ---------- jak: trzy kroki ---------- */
+
+.lst-2m .lst-2m-kroki { display: grid; gap: .8rem; margin-top: 1.2rem; }
+
+.lst-2m .lst-2m-krok {
+	display: grid;
+	grid-template-columns: 2.25rem minmax( 0, 1fr );
+	gap: .85rem;
+	align-items: start;
+}
+
+.lst-2m .lst-2m-nr {
+	display: grid;
+	place-items: center;
+	width: 2.25rem;
+	height: 2.25rem;
+	border-radius: 10px;
+	border: 1px solid rgba( var( --lst-mieta ), .28 ) !important;
+	background-color: rgba( var( --lst-mieta ), .1 ) !important;
+	font-family: var( --lst-mono );
+	font-size: .875rem;   /* 14 px */
+	color: rgb( var( --lst-mieta ) );
+}
+
+.lst-2m .lst-2m-krok-tytul { font-size: 1.125rem; font-weight: 600; line-height: 1.35; }
+.lst-2m .lst-2m-krok-tekst { font-size: 1.125rem; line-height: 1.45; color: var( --lst-tekst-2 ); }
+.lst-2m .lst-2m-kod { font-family: var( --lst-mono ); font-size: 1rem; color: rgb( var( --lst-mieta ) ); white-space: nowrap; }
+
+/* ---------- dlaczego: cztery powody ---------- */
+
+.lst-2m .lst-2m-pewne {
+	display: grid;
+	grid-template-columns: repeat( 2, minmax( 0, 1fr ) );
+	gap: 1.1rem 1.6rem;
+	margin-top: 1.3rem;
+}
+
+.lst-2m .lst-2m-powod { display: grid; grid-template-columns: 2.6rem minmax( 0, 1fr ); gap: .85rem; align-items: start; }
+
+.lst-2m .lst-2m-ikona {
+	display: grid;
+	place-items: center;
+	width: 2.6rem;
+	height: 2.6rem;
+	border-radius: 12px;
+	border: 1px solid rgba( var( --lst-mieta ), .26 ) !important;
+	background-color: rgba( var( --lst-mieta ), .08 ) !important;
+	color: rgb( var( --lst-mieta ) );
+}
+
+.lst-2m .lst-2m-ikona-rys { width: 1.6rem; height: 1.6rem; overflow: visible; }
+
+/* Część ikonki, która dorysowuje się pod kursorem. W spoczynku jest już
+   narysowana, żeby nic nie było niedokończone na telefonie i na wydruku. */
+.lst-2m .lst-2m-dorys { stroke-dasharray: 1; stroke-dashoffset: 0; }
+.lst-2m .lst-2m-palak { transform-box: fill-box; transform-origin: 100% 100%; }
+
+.lst-2m .lst-2m-powod-tytul { font-size: 1.125rem; font-weight: 600; line-height: 1.35; }
+.lst-2m .lst-2m-powod-tekst { font-size: 1.125rem; line-height: 1.45; color: var( --lst-tekst-2 ); }
+
+/* ---------- co dalej ---------- */
+
+.lst-2m .lst-2m-kafel.jest-dalej .lst-2m-kafel-tytul { margin-top: 0; }
+.lst-2m .lst-2m-kafel.jest-dalej .lst-2m-kafel-tekst { margin-top: .35rem; }
+
+.lst-2m .lst-2m-przyciski { display: flex; flex-wrap: wrap; gap: .7rem; margin-left: auto; }
+
+.lst-2m .lst-2m-przycisk {
+	display: inline-flex;
+	align-items: center;
+	padding: .7rem 1.35rem;
+	border-radius: 999px;
+	font-size: 1.125rem;   /* 18 px */
+	font-weight: 600;
+	line-height: 1.2;
+	white-space: nowrap;
+	text-decoration: none !important;
+	transition: transform .2s cubic-bezier( .23, 1, .32, 1 ), box-shadow .2s ease, background-color .2s ease;
+}
+
+.lst-2m .lst-2m-przycisk.jest-glowny {
+	background-color: rgb( var( --lst-mieta ) ) !important;
+	color: #06100f !important;
+	box-shadow: 0 10px 30px -12px rgba( var( --lst-mieta ), .7 );
+}
+
+.lst-2m .lst-2m-przycisk.jest-drugi {
+	border: 1px solid rgba( var( --lst-mieta ), .35 ) !important;
+	color: var( --lst-tekst ) !important;
+}
 
 /* ---------- pasek liczb ---------- */
 
@@ -482,7 +777,9 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
  * pudełka, a nie jak trzy przedmioty.
  */
 .lst-2m .lst-2m-liczba::before,
-.lst-2m .lst-2m-liczba::after {
+.lst-2m .lst-2m-liczba::after,
+.lst-2m .lst-2m-kafel::before,
+.lst-2m .lst-2m-kafel::after {
 	content: "";
 	position: absolute;
 	inset: -1px;
@@ -503,15 +800,26 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 	mask-composite: exclude;
 }
 
-.lst-2m .lst-2m-liczba::after {
+.lst-2m .lst-2m-liczba::after,
+.lst-2m .lst-2m-kafel::after {
 	padding: 3.5px;
 	filter: blur( 6px );
 	opacity: .75;
 }
 
-.lst-2m .lst-2m-liczba {
+.lst-2m .lst-2m-liczba,
+.lst-2m .lst-2m-kafel {
 	animation: lst-2m-obieg 7s linear infinite;
 }
+
+/* Kafle są większe niż bloki z liczbami, więc obieg trwa dłużej — światło
+   ma iść tym samym tempem, a nie pędzić po dłuższym obwodzie. Każdy kafel
+   startuje gdzie indziej, tak jak bloki pod nimi. */
+.lst-2m .lst-2m-kafel { animation-duration: 11s; }
+.lst-2m .lst-2m-kafel.jest-komu { animation-delay: -3.1s; }
+.lst-2m .lst-2m-kafel.jest-jak { animation-delay: -6.4s; }
+.lst-2m .lst-2m-kafel.jest-ufac { animation-delay: -8.7s; }
+.lst-2m .lst-2m-kafel.jest-dalej { animation-delay: -1.6s; animation-duration: 14s; }
 
 .lst-2m .lst-2m-liczba:nth-child( 2 ) { animation-delay: -2.4s; }
 .lst-2m .lst-2m-liczba:nth-child( 3 ) { animation-delay: -4.8s; }
@@ -632,7 +940,8 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 	.lst-2m .lst-2m-kwadrans,
 	.lst-2m .lst-2m-belka-w { transition: opacity .25s ease, stroke-dasharray .25s ease; }
 
-	.lst-2m .lst-2m-liczba {
+	.lst-2m .lst-2m-liczba,
+	.lst-2m .lst-2m-kafel {
 		transition: transform .25s cubic-bezier( .23, 1, .32, 1 ),
 			box-shadow .25s cubic-bezier( .23, 1, .32, 1 ),
 			border-color .25s ease;
@@ -641,7 +950,8 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 	/* Blok unosi się o dwa piksele, a cień robi się głębszy: tyle, żeby było
 	   czuć, że to przedmiot, a nie plama na tle. Nic stąd nie prowadzi dalej,
 	   więc nic nie udaje przycisku. */
-	.lst-2m .lst-2m-liczba:hover {
+	.lst-2m .lst-2m-liczba:hover,
+	.lst-2m .lst-2m-kafel:hover {
 		transform: translateY( -2px );
 		border-color: rgba( var( --lst-mieta ), .32 ) !important;
 		box-shadow:
@@ -652,22 +962,75 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 
 	.lst-2m .lst-2m-liczba:hover .lst-2m-ramka { stroke-dasharray: 130 0; }
 	.lst-2m .lst-2m-liczba:hover .lst-2m-belka-w { opacity: 1; }
+
+	/*
+	 * Ikonki budzą się pod kursorem, każda po swojemu, i każda mówi ruchem to
+	 * samo co zdanie obok: w tarczy dorysowuje się ptaszek, w serwerze mrugają
+	 * diody, w tabeli dorysowuje się kolumna, kłódka się zatrzaskuje. Kwadracik
+	 * zapala się na mięto, a rysunek ciemnieje, żeby było go widać na mięcie.
+	 */
+	.lst-2m .lst-2m-ikona,
+	.lst-2m .lst-2m-nr,
+	.lst-2m .lst-2m-zeton {
+		transition: background-color .25s ease, color .25s ease, border-color .25s ease,
+			transform .3s cubic-bezier( .23, 1, .32, 1 ), box-shadow .3s ease;
+	}
+
+	.lst-2m .lst-2m-powod:hover .lst-2m-ikona {
+		background-color: rgb( var( --lst-mieta ) ) !important;
+		border-color: rgb( var( --lst-mieta ) ) !important;
+		color: #06100f;
+		transform: translateY( -2px ) rotate( -4deg );
+		box-shadow: 0 10px 24px -10px rgba( var( --lst-mieta ), .8 );
+	}
+
+	.lst-2m .lst-2m-powod:hover .lst-2m-dorys { animation: lst-2m-dorys .5s cubic-bezier( .23, 1, .32, 1 ) both; }
+	.lst-2m .lst-2m-powod:hover .lst-2m-dioda { animation: lst-2m-mrug .9s steps( 2, jump-none ) 2; }
+	.lst-2m .lst-2m-powod:hover .lst-2m-palak { animation: lst-2m-zatrzask .45s cubic-bezier( .23, 1, .32, 1 ) both; }
+
+	/* Krok pod kursorem: numer zapala się tak samo jak ikonka. */
+	.lst-2m .lst-2m-krok:hover .lst-2m-nr {
+		background-color: rgb( var( --lst-mieta ) ) !important;
+		border-color: rgb( var( --lst-mieta ) ) !important;
+		color: #06100f;
+		transform: scale( 1.08 );
+		box-shadow: 0 8px 20px -8px rgba( var( --lst-mieta ), .8 );
+	}
+
+	/* Żeton pod kursorem: krawędź w kolorze akcentu i kropka, która świeci. */
+	.lst-2m .lst-2m-zeton:hover {
+		border-color: rgba( var( --lst-mieta ), .55 ) !important;
+		transform: translateY( -1px );
+	}
+
+	.lst-2m .lst-2m-zeton:hover::before { box-shadow: 0 0 0 4px rgba( var( --lst-mieta ), .2 ); opacity: 1; }
+
+	/* Kafel „co robi” pod kursorem: zmieniana komórka pulsuje, a kreska
+	   strzałki przyspiesza — dane właśnie idą na stronę. */
+	.lst-2m .lst-2m-kafel.jest-robi:hover .lst-2m-komorki > span.jest-zmiana { animation: lst-2m-puls 1.2s ease-in-out infinite; }
+	.lst-2m .lst-2m-kafel.jest-robi:hover .lst-2m-bieg { animation-duration: .6s; }
+
+	.lst-2m .lst-2m-przycisk.jest-glowny:hover { transform: translateY( -2px ); box-shadow: 0 16px 34px -12px rgba( var( --lst-mieta ), .85 ); }
+	.lst-2m .lst-2m-przycisk.jest-drugi:hover { transform: translateY( -2px ); background-color: rgba( var( --lst-mieta ), .1 ) !important; }
 }
 
 /* ---------- utwardzenie na wrogie motywy ---------- */
 
 /* Reset :where() ma wagę zero i przegrywa z motywem, który pisze
    "p { margin: 40px !important }". Tu przebijamy to wprost. */
-.lst-2m .lst-2m-adres,
-.lst-2m .lst-2m-krok,
-.lst-2m .lst-2m-opis,
+.lst-2m .lst-2m-etykieta,
+.lst-2m .lst-2m-kafel-tytul,
+.lst-2m .lst-2m-kafel-tekst,
+.lst-2m .lst-2m-krok-tytul,
+.lst-2m .lst-2m-krok-tekst,
+.lst-2m .lst-2m-powod-tytul,
+.lst-2m .lst-2m-powod-tekst,
 .lst-2m .lst-2m-duza,
 .lst-2m .lst-2m-pod,
-.lst-2m .lst-2m-tekst,
-.lst-2m .lst-2m-nazwa-okna,
-.lst-2m .lst-2m-wynik {
+.lst-2m .lst-2m-tekst {
 	margin-inline: 0 !important;
-	margin-top: 0 !important;
+	margin-bottom: 0 !important;
+	padding: 0 !important;
 	background: none !important;
 	border: 0 !important;
 	text-align: left !important;
@@ -675,14 +1038,32 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 	letter-spacing: normal !important;
 }
 
-.lst-2m .lst-2m-adres, .lst-2m .lst-2m-nazwa-okna { font-family: var( --lst-mono ) !important; text-transform: none !important; }
-.lst-2m .lst-2m-krok { font-family: inherit !important; text-transform: none !important; letter-spacing: normal !important; margin-bottom: .45rem !important; }
-.lst-2m .lst-2m-opis { font-family: inherit !important; color: var( --lst-tekst-2 ) !important; }
+.lst-2m .lst-2m-duza,
+.lst-2m .lst-2m-pod,
+.lst-2m .lst-2m-tekst { margin-top: 0 !important; }
+.lst-2m .lst-2m-duza { margin-bottom: .55rem !important; }
+.lst-2m .lst-2m-pod { margin-bottom: .4rem !important; }
+
+.lst-2m .lst-2m-etykieta { font-family: var( --lst-mono ) !important; text-transform: uppercase !important; letter-spacing: .1em !important; color: var( --lst-tekst-3 ) !important; margin-top: 0 !important; }
+.lst-2m .lst-2m-kafel-tytul { font-family: var( --lst-serif ) !important; color: var( --lst-tekst ) !important; }
+.lst-2m .lst-2m-kafel-tekst,
+.lst-2m .lst-2m-krok-tekst,
+.lst-2m .lst-2m-powod-tekst { font-family: inherit !important; color: var( --lst-tekst-2 ) !important; margin-top: 0 !important; }
+.lst-2m .lst-2m-kafel-tekst { margin-top: .55rem !important; }
+.lst-2m .lst-2m-kafel.jest-dalej .lst-2m-kafel-tekst { margin-top: .35rem !important; }
+.lst-2m .lst-2m-krok-tytul,
+.lst-2m .lst-2m-powod-tytul { font-family: inherit !important; color: var( --lst-tekst ) !important; margin-top: 0 !important; }
 .lst-2m .lst-2m-duza { font-family: var( --lst-serif ) !important; color: rgb( var( --lst-mieta ) ) !important; }
-.lst-2m .lst-2m-ekran { font-family: var( --lst-mono ) !important; color: var( --lst-tekst-2 ) !important; }
-.lst-2m .lst-2m-wynik { font-family: var( --lst-mono ) !important; color: var( --lst-tekst-3 ) !important; margin-top: .5rem !important; }
+.lst-2m .lst-2m-arkusz,
+.lst-2m .lst-2m-stopka-strony,
+.lst-2m .lst-2m-kod,
+.lst-2m .lst-2m-nr,
+.lst-2m .lst-2m-strzalka { font-family: var( --lst-mono ) !important; }
+.lst-2m .lst-2m-zeton,
+.lst-2m .lst-2m-przycisk { font-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif !important; text-transform: none !important; }
+.lst-2m .lst-2m-wiersze > span.jest-glowka { text-transform: uppercase !important; }
 .lst-2m .lst-2m-oczko { border: 0 !important; }
-.lst-2m .lst-2m-tresc { background-color: var( --lst-plyta ) !important; border: 1px solid var( --lst-plyta-linia ) !important; }
+.lst-2m .lst-2m-kod { background: none !important; padding: 0 !important; border: 0 !important; }
 
 /* Obramowanie i dopełnienie, które Divi albo motyw nadaje opakowaniu
    modułu, obrysowałoby sekcję. Zdejmujemy je przez ":has", bez skryptu. */
@@ -691,17 +1072,28 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 .et_pb_row:has( .lst-2m ) { border: 0 !important; outline: 0 !important; }
 
 @media ( max-width: 900px ) {
-	.lst-2m .lst-2m-para { grid-template-columns: 1fr; gap: 1.1rem; }
-	.lst-2m .lst-2m-para:nth-child( even ) .lst-2m-okno { order: 0; }
+	/* Podwójna klasa: reguły szerokości kafli niżej i wyżej mają po dwie
+	   klasy, a ta musi z nimi wygrać. */
+	.lst-2m .lst-2m-kafel.lst-2m-kafel { grid-column: 1 / -1; }
+	.lst-2m .lst-2m-przeplyw { grid-template-columns: minmax( 0, 1fr ); justify-items: stretch; }
+	.lst-2m .lst-2m-strzalka { transform: rotate( 90deg ); margin: .2rem auto; }
+	.lst-2m .lst-2m-strzalka span { display: none; }
+	.lst-2m .lst-2m-pewne { grid-template-columns: minmax( 0, 1fr ); }
+	.lst-2m .lst-2m-kafel.jest-dalej { flex-direction: column; align-items: flex-start; }
+	.lst-2m .lst-2m-przyciski { margin-left: 0; }
 	.lst-2m .lst-2m-liczby { grid-template-columns: 1fr; }
 }
 
 @media ( prefers-reduced-motion: reduce ) {
 	/* „Mniej ruchu" znaczy mniej ruchu, nie mniej treści: przyrządy zostają na
 	   ekranie w stanie końcowym. */
-	.lst-2m .lst-2m-okno,
-	.lst-2m .lst-2m-liczba { transition: none; }
-	.lst-2m .lst-2m-liczba { animation: none !important; }
+	.lst-2m .lst-2m-kafel,
+	.lst-2m .lst-2m-liczba,
+	.lst-2m .lst-2m-ikona,
+	.lst-2m .lst-2m-nr { transition: none; }
+	.lst-2m .lst-2m-liczba,
+	.lst-2m .lst-2m-kafel,
+	.lst-2m .lst-2m-bieg { animation: none !important; }
 	.lst-2m .lst-2m-ramka,
 	.lst-2m .lst-2m-belka-w,
 	.lst-2m .lst-2m-kwadrans,
@@ -710,7 +1102,9 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 }
 
 @media print {
-	.lst-2m .lst-2m-liczba { animation: none !important; }
+	.lst-2m .lst-2m-liczba,
+	.lst-2m .lst-2m-kafel,
+	.lst-2m .lst-2m-bieg { animation: none !important; }
 	.lst-2m .lst-2m-ramka,
 	.lst-2m .lst-2m-belka-w,
 	.lst-2m .lst-2m-kwadrans,
@@ -722,25 +1116,72 @@ SZABLON = r'''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
 '''
 
 
-def zbuduj( t, plik ):
-	pary = []
+def kafel( klasa, etykieta, tytul, srodek ):
+	return ( '\t\t\t<div class="lst-2m-kafel jest-' + klasa + '">'
+		'<p class="lst-2m-etykieta">' + etykieta + '</p>'
+		'<p class="lst-2m-kafel-tytul">' + tytul + '</p>' + srodek + '</div>' )
 
-	for adres, krok, opis, nazwa_okna, ekran, wynik in t[ 'kroki' ]:
-		pary.append(
-			'\t\t\t<div class="lst-2m-para">'
-			'<div class="lst-2m-tresc">'
-			'<p class="lst-2m-adres">' + adres + '</p>'
-			'<p class="lst-2m-krok">' + krok + '</p>'
-			'<p class="lst-2m-opis">' + opis + '</p></div>'
-			'<div class="lst-2m-okno">'
-			'<div class="lst-2m-belka">'
-			'<span class="lst-2m-oczko"></span><span class="lst-2m-oczko"></span>'
-			'<span class="lst-2m-oczko"></span>'
-			'<span class="lst-2m-nazwa-okna">' + nazwa_okna + '</span></div>'
-			'<div class="lst-2m-ekran">'
-			'<div class="lst-2m-wiersz"><span class="lst-2m-znak">&rsaquo;</span> '
-			'<span class="lst-2m-linia">' + ekran + '</span></div>'
-			'<div class="lst-2m-wynik">' + wynik + '</div></div></div></div>' )
+
+def przeplyw( k ):
+	"""Arkusz z jedną zmienianą komórką, strzałka i ta sama tabela na stronie."""
+	nazwa, skad, glowki, wiersze = k[ 'arkusz' ]
+	komorki = [ '<span class="jest-glowka"></span><span class="jest-glowka">A</span><span class="jest-glowka">B</span>',
+		'<span class="jest-glowka">1</span><span>' + glowki[ 0 ] + '</span><span>' + glowki[ 1 ] + '</span>' ]
+	for nr, ( a, b ) in enumerate( wiersze, 2 ):
+		zmiana = ' class="jest-zmiana"' if '&rarr;' in b else ''
+		komorki.append( '<span class="jest-glowka">' + str( nr ) + '</span><span>' + a + '</span>'
+			'<span' + zmiana + '>' + b + '</span>' )
+	arkusz = ( '<div class="lst-2m-arkusz"><div class="lst-2m-arkusz-gora"><b>' + nazwa + '</b> &middot; ' + skad + '</div>'
+		'<div class="lst-2m-komorki">' + ''.join( komorki ) + '</div></div>' )
+
+	adres, glowki, wiersze, kiedy, ile = k[ 'strona' ]
+	pola = [ '<span class="jest-glowka">' + glowki[ 0 ] + '</span><span class="jest-glowka">' + glowki[ 1 ] + '</span>' ]
+	for nr, ( a, b ) in enumerate( wiersze ):
+		# Na stronie podświetlony jest ten wiersz, którego komórkę zmieniono w arkuszu.
+		nowy = '&rarr;' in k[ 'arkusz' ][ 3 ][ nr ][ 1 ]
+		pola.append( ( '<span class="jest-nowy">' if nowy else '<span>' ) + a + '</span>'
+			'<span class="jest-liczba' + ( ' jest-nowy' if nowy else '' ) + '">' + b + '</span>' )
+	strona = ( '<div class="lst-2m-strona"><div class="lst-2m-strona-gora">'
+		'<span class="lst-2m-oczko"></span><span class="lst-2m-oczko"></span><span class="lst-2m-oczko"></span>'
+		'<span class="lst-2m-adres-strony">' + adres + '</span></div>'
+		'<div class="lst-2m-wiersze">' + ''.join( pola ) + '</div>'
+		'<div class="lst-2m-stopka-strony"><span><span class="lst-2m-kropka"></span>' + kiedy + '</span>'
+		'<span>' + ile + '</span></div></div>' )
+
+	return ( '<div class="lst-2m-przeplyw">' + arkusz +
+		'<div class="lst-2m-strzalka">' + STRZALKA + '<span>' + k[ 'co_ile' ] + '</span></div>' + strona + '</div>' )
+
+
+def zbuduj( t, plik ):
+	k = t[ 'kafle' ]
+	kafle = []
+
+	etykieta, tytul, tekst = k[ 'robi' ]
+	kafle.append( kafel( 'robi', etykieta, tytul, '<p class="lst-2m-kafel-tekst">' + tekst + '</p>' + przeplyw( k ) ) )
+
+	etykieta, tytul, tekst = k[ 'komu' ]
+	kafle.append( kafel( 'komu', etykieta, tytul, '<p class="lst-2m-kafel-tekst">' + tekst + '</p>'
+		'<div class="lst-2m-zetony">' + ''.join( '<span class="lst-2m-zeton">' + z + '</span>' for z in k[ 'zetony' ] ) + '</div>' ) )
+
+	etykieta, tytul = k[ 'jak' ]
+	kafle.append( kafel( 'jak', etykieta, tytul, '<div class="lst-2m-kroki">' + ''.join(
+		'<div class="lst-2m-krok"><span class="lst-2m-nr">' + str( nr ) + '</span><div>'
+		'<p class="lst-2m-krok-tytul">' + kt + '</p><p class="lst-2m-krok-tekst">' + ko + '</p></div></div>'
+		for nr, ( kt, ko ) in enumerate( k[ 'kroki' ], 1 ) ) + '</div>' ) )
+
+	etykieta, tytul = k[ 'ufac' ]
+	kafle.append( kafel( 'ufac', etykieta, tytul, '<div class="lst-2m-pewne">' + ''.join(
+		'<div class="lst-2m-powod jest-' + ikona + '"><span class="lst-2m-ikona">' + IKONY[ ikona ] + '</span><div>'
+		'<p class="lst-2m-powod-tytul">' + pt + '</p><p class="lst-2m-powod-tekst">' + po + '</p></div></div>'
+		for ikona, pt, po in k[ 'pewne' ] ) + '</div>' ) )
+
+	tytul, tekst = k[ 'dalej' ]
+	( glowny, glowny_adres ), ( drugi, drugi_adres ) = k[ 'przyciski' ]
+	kafle.append( '\t\t\t<div class="lst-2m-kafel jest-dalej"><div>'
+		'<p class="lst-2m-kafel-tytul">' + tytul + '</p><p class="lst-2m-kafel-tekst">' + tekst + '</p></div>'
+		'<div class="lst-2m-przyciski">'
+		'<a class="lst-2m-przycisk jest-glowny" href="' + glowny_adres + '">' + glowny + '</a>'
+		'<a class="lst-2m-przycisk jest-drugi" href="' + drugi_adres + '">' + drugi + '</a></div></div>' )
 
 	liczby = []
 
@@ -753,7 +1194,7 @@ def zbuduj( t, plik ):
 			'<p class="lst-2m-tekst">' + tekst + '</p></div>' )
 
 	html = ( SZABLON
-		.replace( '{PARY}', '\n'.join( pary ) )
+		.replace( '{KAFLE}', '\n'.join( kafle ) )
 		.replace( '{LICZBY}', '\n'.join( liczby ) ) )
 
 	sprawdz( html, plik )
@@ -761,7 +1202,7 @@ def zbuduj( t, plik ):
 	with open( plik, 'w', encoding='utf-8' ) as f:
 		f.write( html )
 
-	print( plik + ' — kroków: ' + str( len( pary ) ) + ', linii: ' + str( len( html.split( chr( 10 ) ) ) ) )
+	print( plik + ' — kafli: ' + str( len( kafle ) ) + ', linii: ' + str( len( html.split( chr( 10 ) ) ) ) )
 	return html
 
 

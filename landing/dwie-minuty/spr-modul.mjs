@@ -51,145 +51,131 @@ console.log('\n1400 px, zwykła strona');
   const { p, c, bledy } = await otworz('m-zwykla');
   const r = await p.evaluate(() => {
     const t = (s) => document.querySelector(s);
+    const wszystkie = (s) => [...document.querySelectorAll(s)];
     const rozm = (s) => Math.round(parseFloat(getComputedStyle(t(s)).fontSize));
-    const pary = [...document.querySelectorAll('.lst-2m-para')];
+    const swiecace = wszystkie('.lst-2m-kafel, .lst-2m-liczba');
+    const szer = (s) => Math.round(t(s).getBoundingClientRect().width);
     return {
-      par: pary.length,
-      okien: document.querySelectorAll('.lst-2m-okno').length,
-      liczb: document.querySelectorAll('.lst-2m-liczba').length,
-      // strona kroku: czy okno jest z lewej czy z prawej
-      strony: pary.map(x => {
-        const tr = x.querySelector('.lst-2m-tresc').getBoundingClientRect();
-        const ok = x.querySelector('.lst-2m-okno').getBoundingClientRect();
-        return ok.left > tr.left ? 'P' : 'L';
-      }).join(''),
-      rozmiary: ['.lst-2m-adres', '.lst-2m-krok', '.lst-2m-opis',
-        '.lst-2m-pod', '.lst-2m-tekst', '.lst-2m-nazwa-okna', '.lst-2m-ekran'].map(rozm).join('/'),
+      kafli: wszystkie('.lst-2m-kafel').length,
+      powodow: wszystkie('.lst-2m-powod').length,
+      krokow: wszystkie('.lst-2m-krok').length,
+      zetonow: wszystkie('.lst-2m-zeton').length,
+      liczb: wszystkie('.lst-2m-liczba').length,
+      przyciskow: wszystkie('.lst-2m-przycisk').length,
+      adresy: wszystkie('.lst-2m-przycisk').map(e => e.getAttribute('href')).join(' '),
+      szerRobi: szer('.lst-2m-kafel.jest-robi'), szerKomu: szer('.lst-2m-kafel.jest-komu'),
+      szerJak: szer('.lst-2m-kafel.jest-jak'), szerUfac: szer('.lst-2m-kafel.jest-ufac'),
+      szerDalej: szer('.lst-2m-kafel.jest-dalej'), szerRamy: szer('.lst-2m-rama'),
+      rozmiary: ['.lst-2m-etykieta', '.lst-2m-kafel-tekst', '.lst-2m-krok-tytul', '.lst-2m-krok-tekst',
+        '.lst-2m-powod-tytul', '.lst-2m-powod-tekst', '.lst-2m-zeton', '.lst-2m-pod', '.lst-2m-tekst'].map(rozm).join('/'),
       naglowkow: document.querySelectorAll('.lst-2m-nad, .lst-2m-tyt, h1, h2, h3').length,
-      tloOkna: getComputedStyle(t('.lst-2m-okno')).backgroundColor,
-      tloBelki: getComputedStyle(t('.lst-2m-belka')).backgroundColor,
       tloStrony: getComputedStyle(document.body).backgroundColor,
-      tloLiczby: getComputedStyle(t('.lst-2m-liczba')).backgroundColor,
+      tloEkranu: getComputedStyle(t('.lst-2m-strona')).backgroundColor,
+      tloKafla: getComputedStyle(t('.lst-2m-kafel')).backgroundColor,
       lewa: Math.round(t('.lst-2m-rama').getBoundingClientRect().left),
       odn: Math.round(t('#odnosnik').getBoundingClientRect().left),
       wys: Math.round(t('.lst-2m').getBoundingClientRect().height),
       poziom: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      nawiasy: t('.lst-2m-para:nth-child(3) .lst-2m-ekran').textContent.trim(),
-      wynikow: document.querySelectorAll('.lst-2m-wynik').length,
+      przyklad: t('.lst-2m-kod').textContent.trim(),
+      zmiana: t('.lst-2m-komorki .jest-zmiana').textContent.trim(),
+      nowy: wszystkie('.lst-2m-wiersze .jest-nowy').map(e => e.textContent.trim()).join(' '),
       /*
-       * Kreska między krokami jest warstwą z przejściem koloru, a nie
-       * obramowaniem: obramowania nie da się zrobić przejściem, a bez
-       * przejścia kreska albo ginie, albo zamyka krok w ramkę. Mierzony jest
-       * jej NAJMOCNIEJSZY koniec, czyli pierwszy kolor przejścia — to on
-       * decyduje, czy kreskę w ogóle widać. Szukany „rgba(...)", a nie
-       * „borderTopColor", bo obramowania tam już nie ma i pytanie o nie
-       * zwracało kolor tekstu, czyli mierzyło coś, czego nie widać.
+       * Światło biegnące po krawędzi: koło koloru („conic-gradient")
+       * przycięte maską do samej ramki, obracane w kółko — na każdym kaflu
+       * i każdym bloku z liczbą. Sprawdzane po trzech rzeczach naraz, bo
+       * każda z nich osobno potrafi zniknąć po cichu: że to jest koło koloru,
+       * że jest w kolorze akcentu i że coś je obraca.
        */
-      kreska: ( getComputedStyle(document.querySelector('.lst-2m-para:nth-child(2)'), '::before')
-        .backgroundImage.match(/rgba?\([^)]+\)/) || [ '' ] )[ 0 ],
-      przyrzadow: document.querySelectorAll('.lst-2m-przyrzad').length,
-      /*
-       * Trzy osobne bloki, każdy z zaokrągleniem, krawędzią i cieniem. To nie
-       * jest powrót do tego, co było: tamto było JEDNĄ ramką na trzy liczby,
-       * ze ściankami na krzyż, czyli tabelą. Tu każdy blok stoi sam, z
-       * odstępem, i sam się domyka — dlatego sprawdzane jest jedno i drugie:
-       * że blok ma cień i zaokrąglenie, i że nie ma między nimi ścianek.
-       */
-      bloki: {
-        zaokraglone: [...document.querySelectorAll('.lst-2m-liczba')]
-          .filter(e => parseFloat(getComputedStyle(e).borderTopLeftRadius) >= 14).length,
-        zcieniem: [...document.querySelectorAll('.lst-2m-liczba')]
-          .filter(e => 'none' !== getComputedStyle(e).boxShadow).length,
-        /*
-         * Światło biegnące po krawędzi: koło koloru („conic-gradient")
-         * przycięte maską do samej ramki, obracane w kółko. Sprawdzane po
-         * trzech rzeczach naraz, bo każda z nich osobno potrafi zniknąć po
-         * cichu: że to jest koło koloru, że jest w kolorze akcentu i że coś
-         * je obraca.
-         */
-        swiatlo: [...document.querySelectorAll('.lst-2m-liczba')]
-          .filter(e => {
-            const tlo = getComputedStyle(e, '::before').backgroundImage;
-            return /conic-gradient/.test(tlo) && /95,\s*227,\s*207/.test(tlo);
-          }).length,
-        obieg: [...document.querySelectorAll('.lst-2m-liczba')]
-          .filter(e => 'none' !== getComputedStyle(e).animationName).length,
-        poswiata: [...document.querySelectorAll('.lst-2m-liczba')]
-          .filter(e => /blur/.test(getComputedStyle(e, '::after').filter)).length,
-        odstep: parseFloat(getComputedStyle(t('.lst-2m-liczby')).columnGap) || 0,
-      },
+      swiatlo: swiecace.filter(e => {
+        const tlo = getComputedStyle(e, '::before').backgroundImage;
+        return /conic-gradient/.test(tlo) && /95,\s*227,\s*207/.test(tlo);
+      }).length,
+      obieg: swiecace.filter(e => 'none' !== getComputedStyle(e).animationName).length,
+      poswiata: swiecace.filter(e => /blur/.test(getComputedStyle(e, '::after').filter)).length,
+      swiecacych: swiecace.length,
+      zaokraglone: swiecace.filter(e => parseFloat(getComputedStyle(e).borderTopLeftRadius) >= 14).length,
+      zcieniem: swiecace.filter(e => 'none' !== getComputedStyle(e).boxShadow).length,
+      odstep: parseFloat(getComputedStyle(t('.lst-2m-kafle')).columnGap) || 0,
+      przyrzadow: wszystkie('.lst-2m-przyrzad').length,
+      ikon: wszystkie('.lst-2m-powod .lst-2m-ikona svg').length,
       kolory: {
-        opis: getComputedStyle(t('.lst-2m-opis')).color,
-        adres: getComputedStyle(t('.lst-2m-adres')).color,
-        nazwaOkna: getComputedStyle(t('.lst-2m-nazwa-okna')).color,
-        wynik: getComputedStyle(t('.lst-2m-wynik')).color,
-        strona: getComputedStyle(document.body).backgroundColor,
-        belka: getComputedStyle(t('.lst-2m-belka')).backgroundColor,
-        ekranTlo: getComputedStyle(t('.lst-2m-okno')).backgroundColor,
-        plyta: getComputedStyle(t('.lst-2m-tresc')).backgroundColor,
+        tekst: getComputedStyle(t('.lst-2m-kafel-tekst')).color,
+        etykieta: getComputedStyle(t('.lst-2m-etykieta')).color,
+        powod: getComputedStyle(t('.lst-2m-powod-tekst')).color,
+        stopka: getComputedStyle(t('.lst-2m-stopka-strony')).color,
+        kafel: getComputedStyle(t('.lst-2m-kafel')).backgroundColor,
+        ekran: getComputedStyle(t('.lst-2m-strona')).backgroundColor,
       },
     };
   });
-  ok('trzy kroki, trzy okna, trzy liczby', r.par === 3 && r.okien === 3 && r.liczb === 3, `${r.par}/${r.okien}/${r.liczb}`);
-  ok('kroki naprzemiennie', r.strony === 'PLP', r.strony);
+  ok('pięć kafli: co robi, komu, jak, dlaczego, co dalej', r.kafli === 5 && r.powodow === 4 && r.krokow === 3 && r.zetonow === 8,
+    `${r.kafli} kafli, ${r.powodow} powody, ${r.krokow} kroki, ${r.zetonow} żetonów`);
+  ok('pod nimi trzy liczby, każda ze swoim przyrządem', r.liczb === 3 && r.przyrzadow === 3, `${r.liczb} liczby, ${r.przyrzadow} przyrządy`);
+  ok('siatka nierówna: 7 i 5, potem 5 i 7, pas na całą szerokość',
+    r.szerRobi > r.szerKomu && r.szerUfac > r.szerJak && Math.abs(r.szerDalej - r.szerRamy) <= 1,
+    `${r.szerRobi}/${r.szerKomu}, ${r.szerJak}/${r.szerUfac}, pas ${r.szerDalej} z ${r.szerRamy}`);
   ok('rozmiary tylko 14, 18 i 20', r.rozmiary.split('/').every(x => ['14', '18', '20'].includes(x)), r.rozmiary);
   ok('bez tytułu i etykiety sekcji', r.naglowkow === 0, `${r.naglowkow} nagłówków w module`);
-
-  const jEkran = jasnosc(r.tloOkna), jStrona = jasnosc(r.tloStrony), jLiczba = jasnosc(r.tloLiczby);
-  ok('podgląd wyraźnie ciemniejszy od strony', jStrona - jEkran >= 15, `ekran ${jEkran} vs strona ${jStrona} (różnica ${jStrona - jEkran})`);
-  ok('podgląd wyraźnie ciemniejszy od bloków z liczbami', jLiczba - jEkran >= 15,
-    `ekran ${jEkran} vs blok ${jLiczba} (różnica ${jLiczba - jEkran})`);
-  ok('trzy osobne bloki: zaokrąglone i z cieniem',
-    r.bloki.zaokraglone === 3 && r.bloki.zcieniem === 3,
-    `zaokrąglonych ${r.bloki.zaokraglone}, z cieniem ${r.bloki.zcieniem}`);
-  ok('stoją osobno, a nie w jednej ramce ze ściankami', r.bloki.odstep >= 12,
-    `odstęp ${Math.round(r.bloki.odstep)} px`);
-  ok('po krawędzi każdego biegnie światło', r.bloki.swiatlo === 3 && r.bloki.obieg === 3,
-    `kół koloru ${r.bloki.swiatlo}, obracanych ${r.bloki.obieg}`);
-  ok('i ciągnie za sobą poświatę', r.bloki.poswiata === 3, `${r.bloki.poswiata} z 3`);
-  ok('każda liczba ma swój przyrząd', r.przyrzadow === 3, `${r.przyrzadow} z 3`);
-  ok('belka okna jaśniejsza niż jego ekran', jasnosc(r.tloBelki) > jEkran, `belka ${jasnosc(r.tloBelki)} vs ekran ${jEkran}`);
+  ok('po krawędzi każdego kafla i bloku biegnie światło', r.swiatlo === 8 && r.obieg === 8,
+    `kół koloru ${r.swiatlo}, obracanych ${r.obieg} z ${r.swiecacych}`);
+  ok('i ciągnie za sobą poświatę', r.poswiata === 8, `${r.poswiata} z ${r.swiecacych}`);
+  ok('kafle zaokrąglone i z cieniem, z odstępem między sobą', r.zaokraglone === 8 && r.zcieniem === 8 && r.odstep >= 12,
+    `zaokrąglonych ${r.zaokraglone}, z cieniem ${r.zcieniem}, odstęp ${Math.round(r.odstep)} px`);
+  ok('każdy powód ma swoją ikonkę', r.ikon === 4, `${r.ikon} z 4`);
+  const jEkran = jasnosc(r.tloEkranu), jStrona = jasnosc(r.tloStrony), jKafel = jasnosc(r.tloKafla);
+  ok('podgląd strony wyraźnie ciemniejszy od kafla', jKafel - jEkran >= 15, `ekran ${jEkran} vs kafel ${jKafel}`);
+  ok('zmieniona komórka i ten sam wiersz na stronie', r.zmiana.includes('→') && r.nowy.includes('319'), `${r.zmiana} → ${r.nowy}`);
+  ok('przyciski prowadzą do cennika i porównania', r.przyciskow === 2 && r.adresy === '#pricing #compare', r.adresy);
   ok('równo z resztą strony, bez suwaka', Math.abs(r.lewa - r.odn) <= 1 && r.poziom === 0, `${r.lewa} vs ${r.odn}, suwak ${r.poziom}`);
-  ok('shortcode w nawiasach, nie wykonany', r.nawiasy.includes('[sheet_table id="1"]'), r.nawiasy);
-  ok('każde okienko ma drugą linijkę', r.wynikow === 3, `${r.wynikow} z 3`);
-  const kOpis = kontrast(r.kolory.opis, r.kolory.strona);
-  const kAdres = kontrast(r.kolory.adres, r.kolory.strona);
-  const kNazwa = kontrast(r.kolory.nazwaOkna, r.kolory.belka);
-  const kWynik = kontrast(r.kolory.wynik, r.kolory.ekranTlo);
-  ok('drobny tekst czytelny na tle strony (>= 4,5:1)', kAdres >= 4.5, `adres kroku ${kAdres}:1`);
-  ok('opis czytelny na tle strony (>= 4,5:1)', kOpis >= 4.5, `opis ${kOpis}:1`);
-  ok('napisy w okienku czytelne (>= 4,5:1)', kNazwa >= 4.5 && kWynik >= 4.5, `nazwa okna ${kNazwa}:1, druga linijka ${kWynik}:1`);
-  // kreska jest półprzezroczysta — mieszamy ją z tłem, żeby zmierzyć to, co widać
-  const mieszaj = (przod, tyl) => {
-    const a = przod.match(/[\d.]+/g).map(Number), b = tyl.match(/\d+/g).map(Number);
-    const al = a.length > 3 ? a[3] : 1;
-    return `rgb(${Math.round(al * a[0] + (1 - al) * b[0])}, ${Math.round(al * a[1] + (1 - al) * b[1])}, ${Math.round(al * a[2] + (1 - al) * b[2])})`;
-  };
-  const kKreska = kontrast(mieszaj(r.kreska, r.kolory.strona), r.kolory.strona);
-  // najgorszy przypadek: tekst dokładnie na jasnym środku poświaty tła
-  const POSWIATA = 'rgb(61, 90, 86)';
-  const podPlyta = mieszaj(r.kolory.plyta, POSWIATA);
-  const kOpisBlask = kontrast(r.kolory.opis, podPlyta);
-  const kAdresBlask = kontrast(r.kolory.adres, podPlyta);
-  ok('tekst ma własną płytę', r.kolory.plyta !== 'rgba(0, 0, 0, 0)', r.kolory.plyta);
-  ok('czytelny nawet na środku poświaty (>= 4,5:1)', kOpisBlask >= 4.5 && kAdresBlask >= 4.5,
-     `opis ${kOpisBlask}:1, adres ${kAdresBlask}:1 (bez płyty było 3.4 i 2.89)`);
-  ok('kreska między krokami widoczna', kKreska >= 1.9, `kreska ${kKreska}:1 do tła (${r.kreska})`);
-  ok('i jest w kolorze akcentu, nie szara', /95,\s*227,\s*207/.test(r.kreska), r.kreska);
+  ok('shortcode w nawiasach, nie wykonany', r.przyklad === '[sheet_table id="X"]', r.przyklad);
+  const kTekst = kontrast(r.kolory.tekst, r.kolory.kafel);
+  const kEtykieta = kontrast(r.kolory.etykieta, r.kolory.kafel);
+  const kPowod = kontrast(r.kolory.powod, r.kolory.kafel);
+  const kStopka = kontrast(r.kolory.stopka, r.kolory.ekran);
+  ok('tekst kafli czytelny (>= 4,5:1)', kTekst >= 4.5 && kPowod >= 4.5, `tekst ${kTekst}:1, powód ${kPowod}:1`);
+  ok('drobny tekst czytelny (>= 4,5:1)', kEtykieta >= 4.5 && kStopka >= 4.5, `etykieta ${kEtykieta}:1, stopka podglądu ${kStopka}:1`);
+
+  /*
+   * Ikonki budzą się pod kursorem: kwadracik zapala się na mięto, a numer
+   * kroku tak samo. Mierzone po kolorze tła po najechaniu.
+   */
+  await p.hover('.lst-2m-powod.jest-tarcza');
+  await p.waitForTimeout(400);
+  const ikona = await p.evaluate(() => getComputedStyle(document.querySelector('.lst-2m-powod.jest-tarcza .lst-2m-ikona')).backgroundColor);
+  await p.hover('.lst-2m-krok:nth-child(2)');
+  await p.waitForTimeout(400);
+  const nr = await p.evaluate(() => getComputedStyle(document.querySelector('.lst-2m-krok:nth-child(2) .lst-2m-nr')).backgroundColor);
+  ok('ikonka i numer kroku zapalają się pod kursorem', /95,\s*227,\s*207(,\s*1)?\)/.test(ikona) && /95,\s*227,\s*207(,\s*1)?\)/.test(nr), `ikonka ${ikona}, numer ${nr}`);
   ok('bez błędów w konsoli', bledy.length === 0, bledy.length ? bledy.join(' | ') : '0');
   console.log('     wysokość sekcji:', r.wys, 'px');
   await c.close();
+}
+
+/*
+ * Przykład shortcode'u po zapisie w Divi: encje zamienione na znaki, puste
+ * znaczniki wyrzucone. Pusty <span> między nawiasem a nazwą znikał właśnie
+ * tak i na żywej stronie shortcode się wykonał.
+ */
+console.log('\nprzykład po zapisie w Divi');
+{
+  let poDivi = en.replace(/&#91;|&#x5B;/gi, '[').replace(/&#93;|&#x5D;/gi, ']');
+  for (let przed = ''; przed !== poDivi;) {
+    przed = poDivi;
+    poDivi = poDivi.replace(/<(span|i|b|em|strong)\b[^>]*><\/\1>/g, '');
+  }
+  const zbitki = ['[sheet_table', '[live_sheets_table'].filter(z => poDivi.includes(z));
+  ok('shortcode nie da się wykonać nawet po zapisie w Divi', zbitki.length === 0, `zbitek ${zbitki.length}`);
 }
 
 console.log('\n1400 px, po wstawieniu <br /> przez Divi');
 {
   const { p, c } = await otworz('m-br');
   const r = await p.evaluate(() => ({
-    par: document.querySelectorAll('.lst-2m-para').length,
+    kafli: document.querySelectorAll('.lst-2m-kafel').length,
     brWidoczne: [...document.querySelectorAll('.lst-2m br')].some(x => getComputedStyle(x).display !== 'none'),
     wys: Math.round(document.querySelector('.lst-2m').getBoundingClientRect().height),
   }));
-  ok('układ przeżywa <br />', r.par === 3 && !r.brWidoczne, `${r.par} kroki, br widoczne: ${r.brWidoczne}`);
+  ok('układ przeżywa <br />', r.kafli === 5 && !r.brWidoczne, `${r.kafli} kafli, br widoczne: ${r.brWidoczne}`);
   console.log('     wysokość sekcji:', r.wys, 'px');
   await c.close();
 }
@@ -201,17 +187,19 @@ console.log('\n1400 px, wrogi motyw');
     const t = (s) => document.querySelector(s);
     const st = (s) => getComputedStyle(t(s));
     return {
-      krojOpisu: st('.lst-2m-opis').fontFamily.split(',')[0].replace(/"/g, ''),
-      wersaliki: st('.lst-2m-opis').textTransform,
-      tloOpisu: st('.lst-2m-opis').backgroundColor,
-      marginesOpisu: st('.lst-2m-opis').marginLeft,
-      krojKroku: st('.lst-2m-krok').fontFamily.split(',')[0].replace(/"/g, ''),
-      kolorKroku: st('.lst-2m-krok').color,
+      krojOpisu: st('.lst-2m-kafel-tekst').fontFamily.split(',')[0].replace(/"/g, ''),
+      wersaliki: st('.lst-2m-kafel-tekst').textTransform,
+      tloOpisu: st('.lst-2m-kafel-tekst').backgroundColor,
+      marginesOpisu: st('.lst-2m-kafel-tekst').marginLeft,
+      krojKroku: st('.lst-2m-krok-tytul').fontFamily.split(',')[0].replace(/"/g, ''),
+      kolorKroku: st('.lst-2m-krok-tytul').color,
+      krojTytulu: st('.lst-2m-kafel-tytul').fontFamily.split(',')[0].replace(/"/g, ''),
     };
   });
   ok('motyw nie przejmuje kroju ani wersalików', r.krojOpisu === 'IBM Plex Sans' && r.wersaliki === 'none', `${r.krojOpisu} / ${r.wersaliki}`);
   ok('motyw nie maluje tła ani marginesów', r.tloOpisu === 'rgba(0, 0, 0, 0)' && r.marginesOpisu === '0px', `${r.tloOpisu}, margines ${r.marginesOpisu}`);
   ok('tytuł kroku trzyma krój i kolor', r.krojKroku === 'IBM Plex Sans' && r.kolorKroku === 'rgb(234, 243, 241)', `${r.krojKroku} / ${r.kolorKroku}`);
+  ok('zdanie-tytuł kafla zostaje szeryfowe', r.krojTytulu === 'Inria Serif', r.krojTytulu);
   await c.close();
 }
 
@@ -219,43 +207,28 @@ console.log('\n390 px, telefon');
 {
   const { p, c } = await otworz('m-zwykla', 390, 900);
   const r = await p.evaluate(() => {
-    const pary = [...document.querySelectorAll('.lst-2m-para')];
+    const rama = Math.round(document.querySelector('.lst-2m-rama').getBoundingClientRect().width);
     return {
-      kolumny: getComputedStyle(document.querySelector('.lst-2m-para')).gridTemplateColumns.split(' ').length,
-      // na telefonie tekst ZAWSZE nad oknem
-      kolejnosc: pary.map(x => {
-        const tr = x.querySelector('.lst-2m-tresc').getBoundingClientRect();
-        const ok = x.querySelector('.lst-2m-okno').getBoundingClientRect();
-        return ok.top > tr.top ? 'ok' : 'źle';
-      }).join(','),
+      rama,
+      szerokosci: [...document.querySelectorAll('.lst-2m-kafel')].map(e => Math.round(e.getBoundingClientRect().width)),
       poziom: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      szerOkna: Math.round(document.querySelector('.lst-2m-okno').getBoundingClientRect().width),
-      szerRamy: Math.round(document.querySelector('.lst-2m-rama').getBoundingClientRect().width),
+      // na telefonie arkusz nad stroną, a nie obok
+      arkuszNad: document.querySelector('.lst-2m-arkusz').getBoundingClientRect().bottom <= document.querySelector('.lst-2m-strona').getBoundingClientRect().top,
     };
   });
-  ok('jedna kolumna, tekst nad oknem', r.kolumny === 1 && !r.kolejnosc.includes('źle'), `${r.kolumny} kolumna, ${r.kolejnosc}`);
-  ok('okno na pełną szerokość, bez suwaka', Math.abs(r.szerOkna - r.szerRamy) <= 1 && r.poziom === 0, `okno ${r.szerOkna} / rama ${r.szerRamy}, suwak ${r.poziom}`);
+  ok('kafle jeden pod drugim, na pełną szerokość', r.szerokosci.every(x => Math.abs(x - r.rama) <= 1), `${r.szerokosci.join(', ')} z ${r.rama}`);
+  ok('arkusz nad stroną, bez suwaka', r.arkuszNad && r.poziom === 0, `nad: ${r.arkuszNad}, suwak ${r.poziom}`);
   await c.close();
 }
 
 console.log('\n1800 px, szeroki ekran');
 {
   const { p, c } = await otworz('m-zwykla', 1900, 1000);
-  const r = await p.evaluate(() => {
-    const rama = document.querySelector('.lst-2m-rama').getBoundingClientRect();
-    const pary = [...document.querySelectorAll('.lst-2m-para')];
-    return {
-      // ile brakuje okienkom do krawędzi ramy po ich stronie
-      luka: pary.map(x => {
-        const w = x.querySelector('.lst-2m-okno').getBoundingClientRect();
-        return Math.round(w.left > rama.left + rama.width / 2 ? rama.right - w.right : w.left - rama.left);
-      }),
-      opis: Math.round(document.querySelector('.lst-2m-opis').getBoundingClientRect().width),
-      poziom: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-    };
-  });
-  ok('okienka sięgają krawędzi sekcji', r.luka.every(x => x <= 1), `luki: ${r.luka.join(', ')} px`);
-  ok('wiersz tekstu nie rozciąga się w nieskończoność', r.opis <= 720, `opis ${r.opis} px`);
+  const r = await p.evaluate(() => ({
+    tekst: Math.max(...[...document.querySelectorAll('.lst-2m-kafel-tekst')].map(e => Math.round(e.getBoundingClientRect().width))),
+    poziom: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  }));
+  ok('wiersz tekstu nie rozciąga się w nieskończoność', r.tekst <= 720, `najszerszy ${r.tekst} px`);
   ok('bez suwaka poziomego', r.poziom === 0, String(r.poziom));
   await c.close();
 }
@@ -264,16 +237,14 @@ console.log('\nwersja polska');
 {
   const { p, c } = await otworz('m-pl');
   const r = await p.evaluate(() => ({
-    tytul: document.querySelector('.lst-2m-krok').textContent.trim(),
-    kroki: [...document.querySelectorAll('.lst-2m-krok')].map(x => x.textContent.trim()).join(' | '),
-    okna: [...document.querySelectorAll('.lst-2m-nazwa-okna')].map(x => x.textContent.trim()).join(' | '),
-    spacje: [...document.querySelectorAll('.lst-2m-wiersz')].map(x => x.textContent.trim()).join(' | '),
+    tytul: document.querySelector('.lst-2m-kafel-tytul').textContent.trim(),
+    krok: document.querySelector('.lst-2m-krok-tytul').textContent.trim(),
+    adresy: [...document.querySelectorAll('.lst-2m-przycisk')].map(e => e.getAttribute('href')).join(' '),
+    etykiety: [...document.querySelectorAll('.lst-2m-etykieta')].map(x => x.textContent.trim()).join(' | '),
   }));
-  ok('polskie teksty na miejscu', r.tytul === 'Udostępnij arkusz' && r.kroki.split('|').length === 3, r.tytul);
-  // wzorzec na sklejone słowa stosujemy tylko do nazw okien — w adresie arkusza
-  // "1aZ…" jest celowo i nie jest błędem
-  ok('nazwy okien bez sklejonych słów', !/[a-ząćęłńóśźż][A-ZĄĆĘŁŃÓŚŹŻ]/.test(r.okna), r.okna);
-  ok('spacja po strzałce zachowana przy kopiowaniu', r.spacje.startsWith('› Udostępnij'), JSON.stringify(r.spacje.slice(0, 30)));
+  ok('polskie teksty na miejscu', r.tytul.startsWith('Zmieniasz komórkę') && r.krok === 'Udostępnij arkusz', `${r.tytul} / ${r.krok}`);
+  ok('przyciski prowadzą do polskich kotwic', r.adresy === '#cennik #porownanie', r.adresy);
+  ok('etykiety bez sklejonych słów', !/[a-ząćęłńóśźż][A-ZĄĆĘŁŃÓŚŹŻ]/.test(r.etykiety), r.etykiety);
   await c.close();
 }
 
@@ -282,8 +253,8 @@ console.log('\njasne tło — pomiar, nie test');
   fs.writeFileSync('/tmp/m-biala.html', strona(en).replace('background:#232a29', 'background:#ffffff'));
   const { p, c } = await otworz('m-biala');
   const r = await p.evaluate(() => ({
-    krok: getComputedStyle(document.querySelector('.lst-2m-krok')).color,
-    opis: getComputedStyle(document.querySelector('.lst-2m-opis')).color,
+    krok: getComputedStyle(document.querySelector('.lst-2m-krok-tytul')).color,
+    opis: getComputedStyle(document.querySelector('.lst-2m-kafel-tekst')).color,
     tlo: getComputedStyle(document.body).backgroundColor,
   }));
   console.log('     tytuł kroku na białym:', kontrast(r.krok, r.tlo) + ':1  (na ciemnej stronie 13,9:1)');
