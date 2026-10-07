@@ -81,8 +81,9 @@ console.log( '\nstrona główna, 1440 px' );
 	/*
 	 * Najechanie na „Download free”: przycisk się zapada — schodzi w dół,
 	 * maleje, cień pod spodem znika, a w środku pojawia się ciemny cień od
-	 * góry. Zapada się płyta (::after) razem z obwódką (::before); napis
-	 * stoi, bo ruszany napis przy końcu ruchu przeskakiwał o ułamek piksela.
+	 * góry. Zapada się płyta (::after) razem z obwódką (::before), a napis
+	 * idzie za nimi delikatnie i płynnie: tylko w dół, bez odbicia, na
+	 * własnej warstwie (inaczej pod koniec przeskakiwał o ułamek piksela).
 	 * Przyciski podstron zostają na miejscu.
 	 */
 	const stan = ( sel, pseudo = null ) => p.evaluate( ( [ s, ps ] ) => {
@@ -92,9 +93,9 @@ console.log( '\nstrona główna, 1440 px' );
 	}, [ sel, pseudo ] );
 	const napis = () => p.evaluate( () => {
 		const z = document.createRange();
-		z.selectNodeContents( document.querySelector( '.lst-btn' ) );
+		z.selectNodeContents( document.querySelector( '.lst-btn-napis' ) );
 		const r = z.getBoundingClientRect();
-		return [ r.left, r.top, r.width, r.height ].join( ',' );
+		return { gora: r.top, szer: r.width };
 	} );
 	const GUZIK = '.lst-btn';
 	const spoczynek = await stan( GUZIK, '::after' );
@@ -106,8 +107,15 @@ console.log( '\nstrona główna, 1440 px' );
 	const zapadniety = await stan( GUZIK, '::after' );
 	const obwodkaZ = await stan( GUZIK, '::before' );
 	const calyGuzik = await stan( GUZIK );
-	ok( 'napis na „Download free” nie drgnie przy najechaniu', napisyWRuchu.every( ( n ) => n === napisPrzed ) && calyGuzik.y === 0 && calyGuzik.skala === 1,
-		`napis ${ napisPrzed } → ${ [ ...new Set( napisyWRuchu ) ].join( ' | ' ) }` );
+	const napisKoniec = await stan( '.lst-btn-napis' );
+	const warstwa = await p.evaluate( () => getComputedStyle( document.querySelector( '.lst-btn-napis' ) ).willChange );
+	const gory = [ napisPrzed, ...napisyWRuchu ].map( ( n ) => n.gora );
+	const bezOdbicia = gory.every( ( g, i ) => 0 === i || g >= gory[ i - 1 ] - .001 ) && napisyWRuchu.every( ( n ) => n.szer <= napisPrzed.szer + .001 );
+	ok( 'napis zapada się delikatnie razem z przyciskiem', napisKoniec.y > .5 && napisKoniec.y < 1 && napisKoniec.skala > .98 && napisKoniec.skala < 1
+		&& napisKoniec.y < zapadniety.y && 1 - napisKoniec.skala < 1 - zapadniety.skala && calyGuzik.y === 0,
+		`napis y ${ napisKoniec.y } × ${ napisKoniec.skala }, płyta y ${ zapadniety.y } × ${ zapadniety.skala }` );
+	ok( 'napis płynnie: bez odbicia, na własnej warstwie', bezOdbicia && 'transform' === warstwa,
+		`góra ${ gory.map( ( g ) => g.toFixed( 2 ) ).join( ' → ' ) }, will-change ${ warstwa }` );
 	ok( 'obwódka zapada się razem z płytą', Math.abs( obwodkaZ.y - zapadniety.y ) < .01 && Math.abs( obwodkaZ.skala - zapadniety.skala ) < .001,
 		`płyta ${ zapadniety.y.toFixed( 2 ) } × ${ zapadniety.skala.toFixed( 3 ) }, obwódka ${ obwodkaZ.y.toFixed( 2 ) } × ${ obwodkaZ.skala.toFixed( 3 ) }` );
 	const wewnatrz = ( c ) => /rgba\(0, 40, 34, 0\.5\) 0px 3px 7px 0px inset/.test( c );

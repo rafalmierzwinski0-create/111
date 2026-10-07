@@ -18,7 +18,7 @@
 	     =================================================================== -->
 		<nav class="lst-strony" aria-label="Pages"><a class="lst-metal" href="/how-it-works/" aria-label="How it works"><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M3.5 4.5h4.5a2 2 0 0 1 2 2v9a1.6 1.6 0 0 0-1.6-1.6H3.5Z"/><path d="M16.5 4.5H12a2 2 0 0 0-2 2v9a1.6 1.6 0 0 1 1.6-1.6h4.9Z"/></svg><span class="lst-metal-napis">How it works</span></a><a class="lst-metal" href="/contact/" aria-label="Contact"><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><rect x="2.5" y="4.5" width="15" height="11" rx="2"/><path d="m3.5 5.5 6.5 5 6.5-5"/></svg><span class="lst-metal-napis">Contact</span></a></nav>
 
-		<div class="lst-cta"><a class="lst-btn" href="#pricing">Download free</a></div>
+		<div class="lst-cta"><a class="lst-btn" href="#pricing"><span class="lst-btn-napis">Download free</span></a></div>
 	</div>
 
 	<!-- ===================================================================
@@ -135,12 +135,17 @@
  * i lekko maleje, cień pod spodem znika, a w środku pojawia się cień od
  * górnej krawędzi — jakby weszła w pasek. Kliknięcie wciska ją głębiej.
  *
- * Zapada się sama płyta (::after) i obwódka (::before), a napis stoi
- * w miejscu. Gdyby ruszał się cały przycisk, przeglądarka w trakcie ruchu
- * rysowałaby napis jako obrazek, a na końcu na nowo, ostro — i litery
- * przeskakiwały o ułamek piksela. Każdy stan ma tyle samo cieni w tej
- * samej kolejności, więc przejście jest płynne.
+ * Zapada się płyta (::after) z obwódką (::before), a napis idzie za nimi
+ * tylko odrobinę — mniej w dół i mniej maleje, jak etykieta na wciśniętym
+ * klawiszu. Napis ma stałą własną warstwę (will-change), więc przeglądarka
+ * nie rysuje go na nowo pod koniec ruchu i litery nie przeskakują o ułamek
+ * piksela. Ruch hamuje miękko, bez odbicia. Każdy stan ma tyle samo cieni
+ * w tej samej kolejności, więc przejście jest płynne.
  */
+.lst-btn-napis { display: block; transform: translateY( 0 ) scale( 1 ); will-change: transform;
+	transition: transform .36s cubic-bezier( .25, .8, .3, 1 ); }
+.lst-btn:hover .lst-btn-napis { transform: translateY( .75px ) scale( .985 ); }
+.lst-btn:active .lst-btn-napis { transform: translateY( 1.25px ) scale( .97 ); transition-duration: .08s; }
 .lst-btn::after { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
 	background-color: #5fe3cf;
 	box-shadow:
@@ -149,7 +154,7 @@
 		0 6px 14px -8px rgba( 0, 0, 0, .95 ),
 		0 0 0 0 rgba( 95, 227, 207, 0 );
 	transform: translateY( 0 ) scale( 1 ); will-change: transform;
-	transition: transform .28s cubic-bezier( .3, 1.4, .5, 1 ), box-shadow .28s ease, background-color .28s ease; }
+	transition: transform .36s cubic-bezier( .25, .8, .3, 1 ), box-shadow .36s ease, background-color .36s ease; }
 .lst-btn:hover::after {
 	transform: translateY( 1.5px ) scale( .96 );
 	background-color: #4fd2be;
@@ -235,7 +240,7 @@
 	-webkit-mask-composite: xor; mask-composite: exclude;
 	animation: lst-metal-obrot 6s linear infinite;
 	transform: translateY( 0 ) scale( 1 ); will-change: transform;
-	transition: transform .28s cubic-bezier( .3, 1.4, .5, 1 ); }
+	transition: transform .36s cubic-bezier( .25, .8, .3, 1 ); }
 .lst-btn:hover::before { animation-duration: 2.4s; }
 
 @keyframes lst-metal-obrot { to { --lst-metal-kat: 1turn; } }
@@ -251,7 +256,7 @@
 
 @media ( prefers-reduced-motion: reduce ) {
 	.lst-btn::before { animation: none; }
-	.lst-btn::before, .lst-btn::after { transition: none; }
+	.lst-btn::before, .lst-btn::after, .lst-btn-napis { transition: none; }
 }
 </style>
 
