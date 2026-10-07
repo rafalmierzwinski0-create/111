@@ -78,6 +78,34 @@ console.log( '\nstrona główna, 1440 px' );
 	const po = await katy();
 	ok( 'obwódka „Download free” faktycznie się obraca', przed.length === 1 && przed.every( ( k, i ) => null !== k && k !== po[ i ] ),
 		`kąty ${ przed.map( ( k ) => Math.round( k ) ).join( '/' ) } → ${ po.map( ( k ) => Math.round( k ) ).join( '/' ) }` );
+	/*
+	 * Najechanie na „Download free”: przycisk się zapada — schodzi w dół,
+	 * maleje, cień pod spodem znika, a w środku pojawia się ciemny cień od
+	 * góry. Przyciski podstron zostają na miejscu.
+	 */
+	const stan = ( sel ) => p.evaluate( ( s ) => {
+		const a = document.querySelector( s ), st = getComputedStyle( a );
+		const m = new DOMMatrix( st.transform );
+		return { y: m.m42, skala: m.a, cien: st.boxShadow };
+	}, sel );
+	const GUZIK = '.lst-btn';
+	const spoczynek = await stan( GUZIK );
+	await p.hover( GUZIK );
+	await p.waitForTimeout( 450 );
+	const zapadniety = await stan( GUZIK );
+	const wewnatrz = ( c ) => /rgba\(0, 40, 34, 0\.5\) 0px 3px 7px 0px inset/.test( c );
+	ok( 'po najechaniu „Download free” się zapada', spoczynek.y === 0 && spoczynek.skala === 1 && ! wewnatrz( spoczynek.cien )
+		&& zapadniety.y > 1 && zapadniety.skala < .97 && wewnatrz( zapadniety.cien ),
+		`spoczynek y ${ spoczynek.y } × ${ spoczynek.skala } → najechany y ${ zapadniety.y.toFixed( 1 ) } × ${ zapadniety.skala.toFixed( 3 ) }, cień w środku ${ wewnatrz( zapadniety.cien ) }` );
+	await p.mouse.move( 5, 600 );
+	await p.waitForTimeout( 450 );
+	const wrocil = await stan( GUZIK );
+	ok( 'po zjechaniu kursorem wraca na miejsce', wrocil.y === 0 && wrocil.skala === 1, `y ${ wrocil.y } × ${ wrocil.skala }` );
+	await p.hover( '.lst-metal[href="/contact/"]' );
+	await p.waitForTimeout( 450 );
+	const podstrona = await stan( '.lst-metal[href="/contact/"]' );
+	ok( 'przyciski podstron się nie zapadają', podstrona.y === 0 && podstrona.skala === 1, `y ${ podstrona.y } × ${ podstrona.skala }` );
+	await p.mouse.move( 5, 600 );
 	ok( 'kolumna B nie dubluje nazwy podstrony', 'B Three steps' === r.kolumnaB, r.kolumnaB );
 	ok( 'na stronie głównej żaden przycisk podstrony nie jest „tutaj”', r.tutaj === 0, String( r.tutaj ) );
 	ok( 'bez suwaka poziomego', r.poziom === 0, String( r.poziom ) );
