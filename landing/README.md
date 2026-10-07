@@ -33,6 +33,7 @@ motyw i układ na telefonie.
 | `pokaz-na-zywo/` | podstrona z działającą tabelą do klikania |
 | `faq/` | pytania i odpowiedzi |
 | `stopka/` | stopka |
+| `wjazd/` | wjazd bloków i tekstu przy przewijaniu, dla całej witryny — jeden kod do Divi → Opcje motywu → Integracja → kod w `<body>` |
 | `KOTWICE-css.css` | do Divi → Opcje motywu → Własny CSS, żeby kotwice nie chowały się pod paskiem |
 
 ## Zrzuty na podstronie „jak działa"
