@@ -32,6 +32,7 @@ motyw i układ na telefonie.
 | `jak-dziala/` | podstrona z wyjaśnieniem i zrzutami z wtyczki |
 | `pokaz-na-zywo/` | podstrona z działającą tabelą do klikania |
 | `kontakt/` | podstrona „Kontakt” — formularz (wysyła go wbudowany formularz Divi, na adres administratora z Ustawień → Ogólne), kafel Pro i co dopisać do wiadomości |
+| `prywatnosc/` | podstrona „Privacy and terms” — polityka prywatności (z ciasteczkami) i regulamin (licencja, płatności, zwroty, reklamacje); przed wklejeniem podmienić dane firmy, listę w `zrob.py` |
 | `faq/` | pytania i odpowiedzi |
 | `stopka/` | stopka |
 | `wjazd/` | wjazd bloków i tekstu przy przewijaniu, dla całej witryny — jeden kod do Divi → Opcje motywu → Integracja → kod w `<body>` |
