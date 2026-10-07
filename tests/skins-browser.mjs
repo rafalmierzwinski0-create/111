@@ -722,6 +722,36 @@ check( /rgb/.test( hovered.image ), 'and the tint is painted on the cell, corner
 
 // ------------------------------------------------------- the other three
 
+/*
+ * The search box above the cards: as far from the column names as on any
+ * other style, and with room inside it for the magnifying glass — a theme's
+ * input[type="search"] rule used to take that room away, and the glass sat on
+ * the first letter.
+ */
+const aboveTable = await page.evaluate( ( ids ) => ids.map( ( id ) => {
+	const wrap = document.querySelector( `.lstab[data-lstab-id="${ id }"]` );
+	const controls = wrap.querySelector( '.lstab-controls' );
+	const head = wrap.querySelector( 'thead th' );
+	const input = wrap.querySelector( '.lstab-search-input' );
+
+	// At the top of the window, so a heading row that follows the screen
+	// down is measured where it stands rather than where it has been pinned.
+	wrap.scrollIntoView( { block: 'start' } );
+	window.scrollBy( 0, -40 );
+
+	return {
+		gap: controls && head ? head.getBoundingClientRect().top - controls.getBoundingClientRect().bottom : null,
+		room: input ? parseFloat( getComputedStyle( input ).paddingLeft ) / parseFloat( getComputedStyle( input ).fontSize ) : null,
+	};
+} ), [ 'cards', 'clean' ].map( ( skin ) => said.pages[ 0 ].tables.find( ( t ) => skin === t.skin ).id ) );
+
+check(
+	null !== aboveTable[ 0 ].gap && aboveTable[ 0 ].gap >= aboveTable[ 1 ].gap + 6 && aboveTable[ 0 ].gap <= aboveTable[ 1 ].gap + 16,
+	'Cards: the column names, on no bar of their own, get a card\'s gap more room under the search box than on Clean',
+	`${ aboveTable[ 0 ].gap }px against ${ aboveTable[ 1 ].gap }px`
+);
+check( aboveTable[ 0 ].room >= 2, 'and the search box keeps room for its magnifying glass', `${ aboveTable[ 0 ].room }em` );
+
 console.log( '\nTerminal, Aurora and Contrast' );
 
 const terminal = desktop.terminal[ asIs ];
@@ -780,6 +810,77 @@ const pinnedSweep = await page.evaluate( ( id ) => {
 }, auroraId );
 
 check( /linear-gradient/.test( pinnedSweep ), 'and the pinned heading\'s backdrop draws the same sweep', pinnedSweep );
+
+/*
+ * A heading colour picked by hand turns the whole bar, not just its first
+ * stop: every colour in the sweep is worked out from the one chosen, deep
+ * enough for white lettering even when a pale colour was picked.
+ */
+const turned = await page.evaluate( ( id ) => {
+	const wrap = document.querySelector( `.lstab[data-lstab-id="${ id }"]` );
+	const canvas = document.createElement( 'canvas' );
+	const ctx = canvas.getContext( '2d', { willReadFrequently: true } );
+
+	canvas.width = canvas.height = 1;
+
+	const rgb = ( colour ) => {
+		ctx.clearRect( 0, 0, 1, 1 );
+		ctx.fillStyle = '#000';
+		ctx.fillStyle = colour;
+		ctx.fillRect( 0, 0, 1, 1 );
+
+		return [ ...ctx.getImageData( 0, 0, 1, 1 ).data ].slice( 0, 3 );
+	};
+	const stopsOf = () => [ ...wrap.querySelectorAll( 'thead th' ) ]
+		.flatMap( ( th ) => getComputedStyle( th ).backgroundImage.match( /(?:rgba?|oklch|oklab|color|lab|lch)\([^()]*\)/g ) || [] )
+		.map( rgb );
+	const lum = ( [ r, g, b ] ) => [ r, g, b ].map( ( v ) => {
+		v /= 255;
+
+		return v <= 0.03928 ? v / 12.92 : Math.pow( ( v + 0.055 ) / 1.055, 2.4 );
+	} ).reduce( ( sum, v, i ) => sum + v * [ 0.2126, 0.7152, 0.0722 ][ i ], 0 );
+	const hueOf = ( [ r, g, b ] ) => {
+		const max = Math.max( r, g, b );
+		const min = Math.min( r, g, b );
+
+		if ( max === min ) {
+			return 0;
+		}
+
+		const d = max - min;
+		let h = max === r ? ( g - b ) / d : max === g ? 2 + ( b - r ) / d : 4 + ( r - g ) / d;
+
+		return ( h * 60 + 360 ) % 360;
+	};
+
+	const stock = stopsOf();
+
+	wrap.style.setProperty( '--lstab-head-bg', '#0f766e' );
+	const teal = stopsOf();
+
+	wrap.style.setProperty( '--lstab-head-bg', '#fde68a' );
+	const pale = stopsOf();
+
+	wrap.style.removeProperty( '--lstab-head-bg' );
+
+	return {
+		stockHues: stock.map( hueOf ).map( Math.round ),
+		tealHues: teal.map( hueOf ).map( Math.round ),
+		paleWorst: Math.min( ...pale.map( ( c ) => 1.05 / ( lum( c ) + 0.05 ) ) ),
+		tealWorst: Math.min( ...teal.map( ( c ) => 1.05 / ( lum( c ) + 0.05 ) ) ),
+	};
+}, auroraId );
+
+check(
+	turned.tealHues.length >= 4 && turned.tealHues.every( ( h ) => h >= 140 && h <= 210 ),
+	'a teal picked for the heading turns every colour in the sweep teal',
+	`stock ${ turned.stockHues.join( ' ' ) } → teal ${ turned.tealHues.join( ' ' ) }`
+);
+check(
+	turned.tealWorst >= 4.5 && turned.paleWorst >= 4.5,
+	`and white names stay readable on it, even when a pale colour is picked (${ turned.paleWorst.toFixed( 2 ) }:1)`,
+	`teal ${ turned.tealWorst.toFixed( 2 ) }, pale yellow ${ turned.paleWorst.toFixed( 2 ) }`
+);
 check( aurora.inkRatio >= 7, `and the values under it read as calmly as Clean (${ aurora.inkRatio }:1)`, `${ aurora.inkRatio }` );
 
 /*

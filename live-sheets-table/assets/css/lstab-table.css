@@ -202,6 +202,28 @@
 	appearance: none;
 }
 
+/*
+ * The box's shape, said firmly. The WordPress dashboard, and a great many
+ * themes, style every search box on the page through input[type="search"] —
+ * a selector one step stronger than a lone class — and the first thing they
+ * set is the padding. The room on the left for the magnifying glass went with
+ * it, and the glass sat on top of the first letter of "Search". Only the
+ * geometry is held here; the colours stay at the plain class, where the
+ * appearance panel and the styles can still reach them.
+ */
+.lstab .lstab-search input.lstab-search-input {
+	box-sizing: border-box;
+	width: 100%;
+	height: auto;
+	min-height: 0;
+	margin: 0;
+	padding: 0.6em 0.9em 0.6em 2.3em;
+	line-height: 1.4;
+	background-repeat: no-repeat;
+	background-position: 0.7em center;
+	background-size: 1.05em;
+}
+
 .lstab-search-input::placeholder {
 	color: var(--lstab-fg-faint);
 }
@@ -1116,7 +1138,29 @@
 	color: var(--lstab-fg);
 }
 
-.lstab-style-midnight .lstab-search-input::placeholder {
+.lstab-style-midnight /*
+ * The box's shape, said firmly. The WordPress dashboard, and a great many
+ * themes, style every search box on the page through input[type="search"] —
+ * a selector one step stronger than a lone class — and the first thing they
+ * set is the padding. The room on the left for the magnifying glass went with
+ * it, and the glass sat on top of the first letter of "Search". Only the
+ * geometry is held here; the colours stay at the plain class, where the
+ * appearance panel and the styles can still reach them.
+ */
+.lstab .lstab-search input.lstab-search-input {
+	box-sizing: border-box;
+	width: 100%;
+	height: auto;
+	min-height: 0;
+	margin: 0;
+	padding: 0.6em 0.9em 0.6em 2.3em;
+	line-height: 1.4;
+	background-repeat: no-repeat;
+	background-position: 0.7em center;
+	background-size: 1.05em;
+}
+
+.lstab-search-input::placeholder {
 	color: var(--lstab-fg-faint);
 }
 
@@ -1274,6 +1318,17 @@
 	padding-inline: calc(var(--lstab-card-bleed) * var(--lstab-table-mode));
 	margin-inline: calc(-1 * var(--lstab-card-bleed) * var(--lstab-table-mode));
 	margin-block: calc(-1 * var(--lstab-card-gap) * var(--lstab-table-mode));
+}
+
+/*
+ * More room under the search box than other styles give. The column names
+ * here stand on no bar of their own, between a search box above and a stack
+ * of cards set a gap apart below; at the ordinary spacing they looked pressed
+ * against the box. A card's gap more, in the table only — on a phone the
+ * names are gone and the first card follows the box as anywhere else.
+ */
+.lstab-style-cards .lstab-controls {
+	margin-bottom: calc(0.85em + var(--lstab-card-gap) * var(--lstab-table-mode));
 }
 
 .lstab-style-cards .lstab-table {
@@ -1505,10 +1560,10 @@
  * it. Four colours repeat every four columns, so a table of any width sweeps
  * the whole way across.
  *
- * Each of the four carries white lettering at 4.5 to 1 or better; amber was
+ * Each of the four carries white lettering at 5 to 1 or better; amber was
  * taken a shade deeper than a sunset would have it for exactly that reason.
- * "Header background" in the panel replaces the first colour, so a table can
- * still be made to start the sweep in a brand's own colour.
+ * "Header background" in the panel turns the whole sweep: every colour in it
+ * follows the one chosen, so a brand's own colour gets a sweep of its own.
  *
  * Paper, not a mood: it stays light on a dark page, like Ledger and Editorial.
  */
@@ -1519,6 +1574,7 @@
 	--lstab-bg: #ffffff;
 	--lstab-head-bg: #6d28d9;
 	--lstab-head-fg: #ffffff;
+	--lstab-aurora-1: var(--lstab-head-bg);
 	--lstab-aurora-2: #a21caf;
 	--lstab-aurora-3: #be123c;
 	--lstab-aurora-4: #c2410c;
@@ -1538,6 +1594,27 @@
 	color-scheme: light;
 }
 
+/*
+ * A heading colour chosen by hand turns the whole bar, not just its first
+ * stop. The stock sweep is a palette of its own and stays as it is; once an
+ * author picks a colour — which the appearance panel writes on the table
+ * itself, hence the attribute — the four stops are all worked out from it:
+ * the same colour shimmering a little either side of its own hue and a little
+ * lighter and deeper, so a brand's teal comes out as a teal sweep. Kept within
+ * a few degrees on purpose: a wide turn took an amber heading through olive
+ * green. Lightness is capped, so a pale colour still carries white lettering.
+ * A browser that cannot work colours out from another starts the stock sweep
+ * from the chosen colour instead.
+ */
+@supports (color: oklch(from red l c h)) {
+	.lstab-style-aurora[style*="--lstab-head-bg"] {
+		--lstab-aurora-1: oklch(from var(--lstab-head-bg) min(l, 0.5) c h);
+		--lstab-aurora-2: oklch(from var(--lstab-head-bg) calc(min(l, 0.5) + 0.05) calc(c * 1.05) calc(h + 16));
+		--lstab-aurora-3: oklch(from var(--lstab-head-bg) calc(min(l, 0.5) - 0.06) c calc(h - 14));
+		--lstab-aurora-4: oklch(from var(--lstab-head-bg) calc(min(l, 0.5) + 0.02) calc(c * 0.95) calc(h + 8));
+	}
+}
+
 .lstab-style-aurora .lstab-table thead th {
 	--lstab-head-rule: 0px;
 	box-shadow: none;
@@ -1549,10 +1626,10 @@
 	background-image: linear-gradient(in oklch 90deg, var(--lstab-aurora-from), var(--lstab-aurora-to));
 }
 
-.lstab-style-aurora .lstab-table thead th:nth-child(4n+1) { --lstab-aurora-from: var(--lstab-head-bg); --lstab-aurora-to: var(--lstab-aurora-2); }
+.lstab-style-aurora .lstab-table thead th:nth-child(4n+1) { --lstab-aurora-from: var(--lstab-aurora-1); --lstab-aurora-to: var(--lstab-aurora-2); }
 .lstab-style-aurora .lstab-table thead th:nth-child(4n+2) { --lstab-aurora-from: var(--lstab-aurora-2); --lstab-aurora-to: var(--lstab-aurora-3); }
 .lstab-style-aurora .lstab-table thead th:nth-child(4n+3) { --lstab-aurora-from: var(--lstab-aurora-3); --lstab-aurora-to: var(--lstab-aurora-4); }
-.lstab-style-aurora .lstab-table thead th:nth-child(4n+4) { --lstab-aurora-from: var(--lstab-aurora-4); --lstab-aurora-to: var(--lstab-head-bg); }
+.lstab-style-aurora .lstab-table thead th:nth-child(4n+4) { --lstab-aurora-from: var(--lstab-aurora-4); --lstab-aurora-to: var(--lstab-aurora-1); }
 
 /* The sort arrows and the pinned heading's backdrop wear the sweep too. */
 .lstab-style-aurora .lstab-table thead th .lstab-sort {

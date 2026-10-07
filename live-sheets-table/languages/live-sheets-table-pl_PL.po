@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
-"POT-Creation-Date: 2026-10-06 23:42+0000\n"
-"PO-Revision-Date: 2026-10-06 23:42+0000\n"
+"POT-Creation-Date: 2026-10-07 10:18+0000\n"
+"PO-Revision-Date: 2026-10-07 10:18+0000\n"
 "Last-Translator: Live Sheets Table\n"
 "Language-Team: pl_PL\n"
 "MIME-Version: 1.0\n"
@@ -178,8 +178,8 @@ msgid "A full grid with a shaded heading row. Suits dense columns of numbers."
 msgstr "Pełna siatka z przyciemnionym wierszem nagłówka. Pasuje do gęstych kolumn liczb."
 
 #: includes/class-lstab-styles.php:59
-msgid "A heading bar that sweeps through violet, pink and amber over a crisp white table. Colourful without getting in the way of the figures."
-msgstr "Pasek nagłówków przechodzący przez fiolet, róż i bursztyn nad czystą, białą tabelą. Kolorowo, ale bez przeszkadzania liczbom."
+msgid "A heading bar that sweeps through violet, pink and amber over a crisp white table — or through shades of any heading colour you pick. Colourful without getting in the way of the figures."
+msgstr "Pasek nagłówków przechodzący przez fiolet, róż i bursztyn nad czystą, białą tabelą — albo przez odcienie dowolnego koloru nagłówka, który wybierzesz. Kolorowo, ale bez przeszkadzania liczbom."
 
 #: includes/class-lstab-styles.php:69
 msgid "A solid heading bar over a plain table, and a first column with some weight to it."

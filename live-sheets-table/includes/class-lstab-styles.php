@@ -56,7 +56,7 @@ class LSTAB_Styles {
 			),
 			'aurora'    => array(
 				'label'       => __( 'Aurora', 'live-sheets-table' ),
-				'description' => __( 'A heading bar that sweeps through violet, pink and amber over a crisp white table. Colourful without getting in the way of the figures.', 'live-sheets-table' ),
+				'description' => __( 'A heading bar that sweeps through violet, pink and amber over a crisp white table — or through shades of any heading colour you pick. Colourful without getting in the way of the figures.', 'live-sheets-table' ),
 				'pro'         => true,
 			),
 			'ledger'    => array(

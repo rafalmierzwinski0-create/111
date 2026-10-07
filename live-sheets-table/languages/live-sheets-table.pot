@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Live Sheets Table 1.0.0\n"
-"POT-Creation-Date: 2026-10-06 23:42+0000\n"
+"POT-Creation-Date: 2026-10-07 10:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -167,7 +167,7 @@ msgid "A full grid with a shaded heading row. Suits dense columns of numbers."
 msgstr ""
 
 #: includes/class-lstab-styles.php:59
-msgid "A heading bar that sweeps through violet, pink and amber over a crisp white table. Colourful without getting in the way of the figures."
+msgid "A heading bar that sweeps through violet, pink and amber over a crisp white table — or through shades of any heading colour you pick. Colourful without getting in the way of the figures."
 msgstr ""
 
 #: includes/class-lstab-styles.php:69

@@ -200,8 +200,8 @@ return array(
 	'Typewriter lettering and thin mint lines on near-black. Figures line up of their own accord.'
 		=> 'Pismo maszynowe i cienkie miętowe linie na prawie czarnym tle. Cyfry same ustawiają się w kolumnę.',
 	'Aurora'                                     => 'Zorza',
-	'A heading bar that sweeps through violet, pink and amber over a crisp white table. Colourful without getting in the way of the figures.'
-		=> 'Pasek nagłówków przechodzący przez fiolet, róż i bursztyn nad czystą, białą tabelą. Kolorowo, ale bez przeszkadzania liczbom.',
+	'A heading bar that sweeps through violet, pink and amber over a crisp white table — or through shades of any heading colour you pick. Colourful without getting in the way of the figures.'
+		=> 'Pasek nagłówków przechodzący przez fiolet, róż i bursztyn nad czystą, białą tabelą — albo przez odcienie dowolnego koloru nagłówka, który wybierzesz. Kolorowo, ale bez przeszkadzania liczbom.',
 	'Contrast'                                   => 'Kontrast',
 	'Ledger'                                     => 'Księga',
 	'Warm paper, a double rule under the headings and a band down every other column. For a sheet of figures: the bands hold the eye in one column, and the numbers line up of their own accord.'

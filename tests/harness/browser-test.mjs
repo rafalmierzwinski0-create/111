@@ -486,6 +486,19 @@ const sizesOf = () => page.evaluate( () => {
 	};
 } );
 
+/*
+ * The dashboard styles every search box through input[type="search"], which
+ * outranks a lone class, and took the room for the magnifying glass away: in
+ * the preview the glass sat on the first letter of "Search".
+ */
+const previewSearchRoom = await page.evaluate( () => {
+	const input = document.querySelector( '.lstab-preview .lstab-search-input' );
+
+	return input ? parseFloat( getComputedStyle( input ).paddingLeft ) / parseFloat( getComputedStyle( input ).fontSize ) : null;
+} );
+
+check( null === previewSearchRoom || previewSearchRoom >= 2, 'The preview\'s search box keeps room for its magnifying glass', `${ previewSearchRoom }em` );
+
 const sizesBefore = await sizesOf();
 
 await page.fill( '#lstab-size-fontSize', '60' );

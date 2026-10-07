@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.38.0
+Stable tag: 3.39.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -180,6 +180,11 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.39.0 =
+* Changed (Pro): in Aurora, a heading colour picked by hand now turns the whole bar rather than only its first stop. Every colour in the sweep is worked out from the one chosen — the same colour shimmering a little either side of its hue, a little lighter and deeper — so a teal heading is a teal sweep. A pale colour is deepened just enough to keep white lettering readable. The stock violet, pink and amber sweep is unchanged.
+* Fixed: the magnifying glass in the search box sat on top of the first letter of "Search" in the dashboard's preview, and on any theme that styles search boxes through input[type="search"]. Such a rule outranks a lone class and took away the room left for the glass; the box now holds its shape.
+* Changed (Pro): Cards leaves more room between the search box and the column names, which stand on no bar of their own there and looked pressed against the box.
 
 = 3.38.0 =
 * Added (Pro): Aurora, a colourful style in place of Glass. The heading bar sweeps through violet, fuchsia, rose and amber, cell by cell so it travels with headings that follow the screen down, over a crisp white table with a violet first column. Every colour in the sweep carries white lettering at 5 to 1 or better. "Header background" changes where the sweep starts. A table saved with Glass is now drawn in Aurora rather than falling back to Clean.
