@@ -787,6 +787,17 @@ console.log( '\nprzykład shortcode\'u' );
 		const a = e.querySelector( '.lst-mz-cta' ).getBoundingClientRect();
 		return [ a.top - r.top, r.bottom - a.bottom, r.right - a.right ].map( ( x ) => Math.round( x * 10 ) / 10 );
 	} );
+	/*
+	 * Kafle legendy i płyty „skąd” mają swój wewnętrzny odstęp. Dopełnienie
+	 * paska dopisane kiedyś do wspólnej reguły utwardzenia zerowało je i tekst
+	 * przyklejał się do krawędzi kafla.
+	 */
+	const odstepy = await p.evaluate( () => [ '.lst-mz-pozycja', '.lst-mz-para-tresc' ].map( ( s ) => {
+		const e = document.querySelector( s );
+		return e ? Math.round( parseFloat( getComputedStyle( e ).paddingLeft ) ) : -1;
+	} ) );
+	ok( 'kafle legendy i płyty „skąd” mają wewnętrzny odstęp', odstepy.every( ( x ) => x >= 12 ), `legenda ${ odstepy[ 0 ] } px, skąd ${ odstepy[ 1 ] } px` );
+
 	ok( 'przycisk w pasku z przykładem ma równe odstępy z góry, z dołu i z prawej',
 		Math.max( ...wPasku ) - Math.min( ...wPasku ) <= 1 && Math.max( ...wPasku ) < 20,
 		`góra ${ wPasku[ 0 ] }, dół ${ wPasku[ 1 ] }, prawo ${ wPasku[ 2 ] }` );

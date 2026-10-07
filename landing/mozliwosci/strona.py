@@ -1827,10 +1827,14 @@ STYL = r"""
 .lst-mz .lst-mz-para-tresc,
 .lst-mz .lst-mz-pozycja,
 .lst-mz .lst-mz-kolumna,
+.lst-mz .lst-mz-kod { background-color: var( --mz-plyta ) !important; border: 1px solid var( --mz-plyta-linia ) !important; }
+
 /* Divi ma „p:not(.has-background):last-of-type { padding-bottom: 0 }”,
    mocniejsze niż dwie klasy: zjadało dół paska i przycisk siadał na jego
-   dolnej krawędzi. */
-.lst-mz .lst-mz-kod { background-color: var( --mz-plyta ) !important; border: 1px solid var( --mz-plyta-linia ) !important; padding: var( --mz-kod-dopelnienie ) !important; }
+   dolnej krawędzi. Osobna reguła TYLKO dla paska: dopisane do wspólnej wyżej
+   dawało kaflom legendy i płytom „skąd” odstęp paska, którego tam nie ma,
+   czyli zero — tekst przyklejał się do krawędzi. */
+.lst-mz .lst-mz-kod { padding: var( --mz-kod-dopelnienie ) !important; }
 
 /*
  * Aparat jest jedynym miejscem w module, gdzie gradient MUSI przejść przez
