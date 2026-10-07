@@ -882,9 +882,14 @@ console.log( '\nnachylenie aparatu' );
 		cien: getComputedStyle( e ).boxShadow.slice( 0, 60 ),
 		guzikow: [ ...e.querySelectorAll( '.lst-mz-telefon-guzik' ) ].filter( ( w ) => 'none' !== getComputedStyle( w ).display ).length,
 	} ) );
-	ok( 'odłożony telefon nie jest sceną 3D, ale stoi w pozie z bokiem i guzikami',
-		'flat' === plasko.przestrzen && 0 === plasko.widacWarstw && Math.abs( poza ) > 0.15
-			&& plasko.ksztalt === pozaKsztalt && plasko.bok >= 14 && 3 === plasko.guzikow,
+	/*
+	 * Na wprost, z guzikami widocznymi od razu. Poza bokiem do patrzącego,
+	 * z bokiem rysowanym cieniem, przeskakiwała przy każdym najechaniu
+	 * i zjechaniu, bo narysowany bok ustępował prawdziwemu.
+	 */
+	ok( 'odłożony telefon nie jest sceną 3D, stoi na wprost i ma guziki na wierzchu',
+		'flat' === plasko.przestrzen && 0 === plasko.widacWarstw && Math.abs( poza ) < 0.002
+			&& plasko.ksztalt === pozaKsztalt && 4 === plasko.guzikow,
 		`${ plasko.przestrzen }, warstw ${ plasko.widacWarstw }, poza ${ poza }, ten sam kształt co przed najechaniem ${ plasko.ksztalt === pozaKsztalt }, cieni boku ${ plasko.bok } (${ plasko.cien }), guzików ${ plasko.guzikow }` );
 
 	ok( 'telefon ma grubość: korpus stoi za ekranem w przestrzeni',

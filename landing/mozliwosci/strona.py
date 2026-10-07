@@ -1048,34 +1048,15 @@ STYL = r"""
 		rgba( 255, 255, 255, 0 ) 100% );
 
 	/*
-	 * Poza, w jakiej aparat stoi, gdy nikt go nie dotyka: obrócony lewym bokiem
-	 * do patrzącego i odrobinę od dołu, jak na zdjęciu produktu. Prosto
-	 * z przodu telefon jest prostokątem z zaokrąglonymi rogami; dopiero pod
-	 * kątem widać, że ma bok, metal i grubość.
+	 * Poza w spoczynku: na wprost. Próbowana była poza bokiem do patrzącego,
+	 * z bokiem rysowanym cieniem — i przy każdym najechaniu i zjechaniu było
+	 * widać, jak narysowany bok ustępuje prawdziwemu i z powrotem. Na wprost
+	 * bok i tak chowa się za przodem, więc scena 3D włącza się i gaśnie
+	 * niewidocznie, a grubość wychodzi dopiero z ruchem, płynnie.
 	 */
-	--mz-poza-x: 4deg;
-	--mz-poza-y: 16deg;
+	--mz-poza-x: 0deg;
+	--mz-poza-y: 0deg;
 
-	/*
-	 * Bok w spoczynku: dwanaście cieni jeden za drugim, każdy piksel dalej
-	 * i ciemniejszy, w kolorach warstw korpusu. Jeden element i jedna warstwa
-	 * zamiast sceny 3D, więc przewijanie nie ma czego rozsypać. Przy
-	 * najechaniu ten bok gaśnie, a jego miejsce zajmują prawdziwe warstwy.
-	 */
-	/*
-	 * Profil boku, warstwa po warstwie od szyby w głąb: ciemny szew przy
-	 * szkle, potem metal coraz jaśniejszy aż do refleksu na środku zaokrąglenia
-	 * i znowu ciemniej ku tyłowi, z jasnym szlifem na samej krawędzi pleców.
-	 * Tak światło układa się na zaokrąglonej ramie z polerowanego tytanu.
-	 */
-	--mz-bok-gleb: 14px;
-	--mz-fon-bok-cien:
-		-1px .25px 0 #0d1514, -2px .5px 0 #22302d, -3px .75px 0 #3a4c48,
-		-4px 1px 0 #566b66, -5px 1.25px 0 #748b86, -6px 1.5px 0 #94aaa5,
-		-7px 1.75px 0 #b3c6c2, -8px 2px 0 #c4d4d1, -9px 2.25px 0 #a9bcb8,
-		-10px 2.5px 0 #87a09b, -11px 2.75px 0 #62807a, -12px 3px 0 #465b56,
-		-13px 3.25px 0 #33443f, -14px 3.5px 0 #5d736e,
-		-15px 3.75px 0 #1a2422;
 	--mz-fon-krawedz:
 		/* krawędź metalu: jasna u góry, ciemna u dołu */
 		inset 0 1.5px 0 rgba( 255, 255, 255, .3 ),
@@ -1094,9 +1075,9 @@ STYL = r"""
 	background-image: var( --mz-fon-bok );
 	box-shadow:
 		var( --mz-fon-krawedz ),
-		var( --mz-fon-bok-cien ),
 		/* aparat leży na stronie, a nie jest w nią wpuszczony */
-		-14px 30px 60px -26px rgba( 0, 0, 0, .9 ),
+		0 2px 2px -1px rgba( 0, 0, 0, .5 ),
+		0 36px 70px -36px rgba( 0, 0, 0, .95 ),
 		0 0 70px -30px rgba( var( --mz-mieta ), .4 );
 	animation: lst-mz-unos 7s ease-in-out infinite alternate;
 
@@ -1136,10 +1117,6 @@ STYL = r"""
    przejście z jednego w drugie nie może być widać. */
 .lst-mz .lst-mz-telefon-rama.jest-3d {
 	transform-style: preserve-3d;
-	box-shadow:
-		var( --mz-fon-krawedz ),
-		-14px 30px 60px -26px rgba( 0, 0, 0, .9 ),
-		0 0 70px -30px rgba( var( --mz-mieta ), .4 );
 }
 
 .lst-mz .lst-mz-telefon-rama.jest-nad {
@@ -1331,8 +1308,12 @@ STYL = r"""
 	display: none;
 	position: absolute;
 	width: 4px;
-	/* W połowie grubości: siedzą na boku, a nie przyklejone do szyby. */
-	transform: translateZ( calc( var( --mz-grubosc ) * -6 ) );
+	/*
+	 * Na boku, w jednej trzeciej grubości. Głębiej wyglądałyby
+	 * prawdziwiej w przechyle, ale na wprost perspektywa wsuwałaby je za
+	 * obudowę, a w spoczynku mają być widoczne: przy najechaniu by znikały.
+	 */
+	transform: translateZ( calc( var( --mz-grubosc ) * -4 ) );
 	border-radius: 0 3px 3px 0;
 	background-color: #33433f;
 	box-shadow:
@@ -1347,37 +1328,30 @@ STYL = r"""
 .lst-mz .lst-mz-telefon-rama.jest-3d .lst-mz-telefon-guzik { display: block; }
 
 /*
- * Guziki w spoczynku: na boku, który widać, wystające z metalu. Aparat stoi
- * lewym bokiem do patrzącego, więc przełącznik i głośność są na wierzchu,
- * a przycisk boczny po drugiej stronie, której nie widać. Kolor kładzie cień
- * wewnętrzny, bo utwardzenie odbiera elementom modułu tła; na nim jasna
- * krawędź od światła i ciemna tam, gdzie guzik wchodzi w ramę.
+ * Guziki w spoczynku: widać je od razu, wystające spod krawędzi, tak jak
+ * na prawdziwym aparacie oglądanym z przodu. Bez sceny 3D stoją w płaszczyźnie
+ * przodu, więc są przesunięte o tyle, o ile w scenie przesuwa je perspektywa:
+ * przy włączeniu sceny nie drgną.
  */
 .lst-mz .lst-mz-telefon-rama:not( .jest-3d ) .lst-mz-telefon-guzik {
 	display: block;
-	left: calc( -1 * var( --mz-bok-gleb ) - 4px );
-	width: 6px;
-	margin-top: 2px;
 	transform: none;
-	border-radius: 3px 0 0 3px;
-	box-shadow:
-		inset 1.5px 0 0 rgba( 255, 255, 255, .55 ),
-		inset 0 1px 0 rgba( 255, 255, 255, .4 ),
-		inset 0 -1px 0 rgba( 0, 0, 0, .5 ),
-		inset -2px 0 0 rgba( 0, 0, 0, .4 ),
-		inset 0 0 0 10px #8aa19c,
-		-1px 1.5px 2px rgba( 0, 0, 0, .55 );
+	margin-top: 2px;
 }
 
-.lst-mz .lst-mz-telefon-rama:not( .jest-3d ) .lst-mz-telefon-guzik.jest-bok { display: none; }
+.lst-mz .lst-mz-telefon-rama:not( .jest-3d ) .lst-mz-telefon-guzik.jest-cisza,
+.lst-mz .lst-mz-telefon-rama:not( .jest-3d ) .lst-mz-telefon-guzik.jest-glosniej,
+.lst-mz .lst-mz-telefon-rama:not( .jest-3d ) .lst-mz-telefon-guzik.jest-ciszej { left: -3.5px; }
 
-.lst-mz .lst-mz-telefon-guzik.jest-cisza { left: -4px; top: 104px; height: 28px; }
-.lst-mz .lst-mz-telefon-guzik.jest-glosniej { left: -4px; top: 150px; height: 56px; }
-.lst-mz .lst-mz-telefon-guzik.jest-ciszej { left: -4px; top: 218px; height: 56px; }
+.lst-mz .lst-mz-telefon-rama:not( .jest-3d ) .lst-mz-telefon-guzik.jest-bok { right: -3.5px; }
+
+.lst-mz .lst-mz-telefon-guzik.jest-cisza { left: -5px; top: 104px; height: 28px; }
+.lst-mz .lst-mz-telefon-guzik.jest-glosniej { left: -5px; top: 150px; height: 56px; }
+.lst-mz .lst-mz-telefon-guzik.jest-ciszej { left: -5px; top: 218px; height: 56px; }
 
 .lst-mz .lst-mz-telefon-guzik.jest-bok {
 	left: auto;
-	right: -4px;
+	right: -5px;
 	top: 176px;
 	height: 92px;
 	border-radius: 3px 0 0 3px;
@@ -2485,10 +2459,110 @@ def zakotwicz( css, kotwica ):
 	return css
 
 
+def przytnij( css, znacznik, zywe ):
+	"""Arkusz bez reguł, które nie mają w tym znaczniku czego dotknąć.
+
+	Moduł z telefonem niesie w sobie cały arkusz podstrony i cały arkusz
+	wtyczki, choć z obu potrzebuje ułamka: reszta to tabela na stole, legenda,
+	listy, a z wtyczki dziewięć szablonów, których telefon nie nosi. Razem to
+	ponad sto kilobajtów w jednym module Kod, a przy takim rozmiarze Divi
+	potrafi zawiesić edytor i całą stronę.
+
+	Reguła zostaje, jeśli każda klasa, której wymaga, jest w znaczniku albo na
+	liście klas dokładanych w ruchu (wjazd, najechanie, scena 3D). Klasy
+	w :not(), :is(), :where() i :has() niczego nie wymagają, więc się nie
+	liczą. To ocena ostrożna: reguła z wątpliwościami zostaje, odpada tylko
+	ta, która na pewno niczego tu nie złapie. @keyframes i inne bloki bez
+	selektorów zostają w całości; blok @media czy @supports, któremu nic nie
+	zostało w środku, odpada.
+	"""
+	obecne = set()
+	for klasy in re.findall( r'class="([^"]*)"', znacznik ):
+		obecne.update( klasy.split() )
+	obecne.update( zywe )
+
+	def wymaga( selektor ):
+		bez = selektor
+		# Zawartość nawiasów :not() itp. niczego nie wymaga; zagnieżdżenia
+		# zdejmowane od środka.
+		while True:
+			nowy = re.sub( r':(?:not|is|where|has|nth-child|nth-of-type|nth-last-child)\([^()]*\)', '', bez )
+			if nowy == bez:
+				break
+			bez = nowy
+		bez = re.sub( r'\[[^\]]*\]', '', bez )
+		return set( re.findall( r'\.(-?[_a-zA-Z][\w-]*)', bez ) )
+
+	def podziel( lista ):
+		czesci, glebia, start = [], 0, 0
+		for i, z in enumerate( lista ):
+			if z in '([':
+				glebia += 1
+			elif z in ')]':
+				glebia -= 1
+			elif ',' == z and 0 == glebia:
+				czesci.append( lista[ start:i ] )
+				start = i + 1
+		czesci.append( lista[ start: ] )
+		return [ c.strip() for c in czesci if c.strip() ]
+
+	def blok( tekst, i ):
+		"""Indeks zamykającej klamry dla klamry otwartej tuż przed i."""
+		glebia, cudzyslow = 1, ''
+		while i < len( tekst ):
+			z = tekst[ i ]
+			if cudzyslow:
+				if '\\' == z:
+					i += 1
+				elif z == cudzyslow:
+					cudzyslow = ''
+			elif z in '"\'':
+				cudzyslow = z
+			elif '{' == z:
+				glebia += 1
+			elif '}' == z:
+				glebia -= 1
+				if 0 == glebia:
+					return i
+			i += 1
+		return len( tekst )
+
+	def tnij( tekst ):
+		wynik, i = [], 0
+		while i < len( tekst ):
+			otw = tekst.find( '{', i )
+			if -1 == otw:
+				wynik.append( tekst[ i: ] )
+				break
+			glowa = tekst[ i:otw ]
+			zam = blok( tekst, otw + 1 )
+			srodek = tekst[ otw + 1:zam ]
+			naglowek = glowa.strip()
+			if naglowek.startswith( '@' ):
+				if re.match( r'@(media|supports|container|layer)\b', naglowek ):
+					wnetrze = tnij( srodek )
+					if wnetrze.strip():
+						wynik.append( glowa + '{' + wnetrze + '}' )
+				else:
+					wynik.append( glowa + '{' + srodek + '}' )
+			else:
+				zostaja = [ sel for sel in podziel( naglowek ) if wymaga( sel ) <= obecne ]
+				if zostaja:
+					wynik.append( ','.join( zostaja ) + '{' + srodek + '}' )
+			i = zam + 1
+		return ''.join( wynik )
+
+	return tnij( css )
+
+
+# Klasy, których w znaczniku nie ma, a pojawiają się w ruchu: wjazd, najechanie
+# i scena 3D telefonu.
+FON_ZYWE = { 'lst-mz-ruch', 'jest-tu', 'jest-nad', 'jest-3d' }
+
 _fon_arkusz, _fon_znacznik = z_odciskiem( skrot( STYL ),
 	'<div class="lst-mz"><div class="lst-mz-rama">' + BLOK_TELEFON + '</div></div>' )
 _fon_znacznik = _fon_znacznik.replace( '<div class="lst-mz" ', '<div class="lst-mz" id="' + KOTWICA + '" ', 1 )
-_fon_arkusz = zakotwicz( _fon_arkusz, KOTWICA ) + '\n' + skrot( CSS )
+_fon_arkusz = przytnij( zakotwicz( _fon_arkusz, KOTWICA ) + '\n' + skrot( CSS ), _fon_znacznik, FON_ZYWE )
 
 TELEFON_SAM = (
 	'<!-- Sekcja "On a phone" w calosci: wklej do JEDNEGO modulu Kod, w miejsce poprzedniej. -->\n'
