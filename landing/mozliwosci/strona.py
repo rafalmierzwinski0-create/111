@@ -297,21 +297,28 @@ def telefon( srodek ):
 	korpus = ''.join( '<span class="lst-mz-telefon-warstwa" style="--i:' + str( i ) + '"></span>'
 		for i in range( 1, 25 ) )
 
-	# Guzik w scenie 3D: te same plastry co korpus, od piątego do
-	# dziewiętnastego, wysunięte o krok za obrys. Z boku czyta się to jako
-	# bryłka wychodząca z ramy, a nie płaska blaszka.
-	plastry = ''.join( '<i style="--i:' + str( i ) + '"></i>' for i in range( 5, 20 ) )
+	# Guziki w scenie 3D: piętnaście płaskich warstw na całą ramę, każda
+	# z czterema plasterkami guzików, wsuniętych w połowę kroku między
+	# warstwy korpusu (we wspólnej płaszczyźnie przeglądarka nie wie, co jest
+	# z przodu, i guzik migał). Najbliższy plaster wygląda dokładnie jak
+	# guzik w spoczynku, więc na wprost nic się nie zmienia.
+	guziki = ''.join( '<span class="lst-mz-telefon-plastry' + ( ' jest-przod' if 5 == i else '' )
+		+ '" style="--i:' + str( i ) + '">'
+		'<b class="jest-cisza"></b><b class="jest-glosniej"></b>'
+		'<b class="jest-ciszej"></b><b class="jest-bok"></b></span>'
+		for i in range( 5, 20 ) )
 
 	# Stojak się nie rusza. Mierzony jest on, a nie aparat: aparat w ruchu
 	# zmienia kształt razem z nachyleniem, więc mierzony w ruchu goniłby sam
 	# siebie i drgał na brzegach.
 	return ( '<div class="lst-mz-telefon-stojak">'
 		'<div class="lst-mz-telefon-rama">'
-		+ korpus +
-		'<span class="lst-mz-telefon-guzik jest-cisza">' + plastry + '</span>'
-		'<span class="lst-mz-telefon-guzik jest-glosniej">' + plastry + '</span>'
-		'<span class="lst-mz-telefon-guzik jest-ciszej">' + plastry + '</span>'
-		'<span class="lst-mz-telefon-guzik jest-bok">' + plastry + '</span>'
+		'<span class="lst-mz-telefon-cien"></span>'
+		+ korpus + guziki +
+		'<span class="lst-mz-telefon-guzik jest-cisza"></span>'
+		'<span class="lst-mz-telefon-guzik jest-glosniej"></span>'
+		'<span class="lst-mz-telefon-guzik jest-ciszej"></span>'
+		'<span class="lst-mz-telefon-guzik jest-bok"></span>'
 		'<div class="lst-mz-telefon">' + PASEK_STANU + srodek + '</div>'
 		'<span class="lst-mz-telefon-wyspa"><span class="lst-mz-telefon-oko"></span></span>'
 		'<span class="lst-mz-telefon-blysk"></span>'
@@ -1080,12 +1087,8 @@ STYL = r"""
 	border-radius: 52px;
 	background-color: #1a2422;
 	background-image: var( --mz-fon-bok );
-	box-shadow:
-		var( --mz-fon-krawedz ),
-		/* aparat leży na stronie, a nie jest w nią wpuszczony */
-		0 2px 2px -1px rgba( 0, 0, 0, .5 ),
-		0 36px 70px -36px rgba( 0, 0, 0, .95 ),
-		0 0 70px -30px rgba( var( --mz-mieta ), .4 );
+	/* Cień pod aparatem rzuca osobna warstwa, patrz „lst-mz-telefon-cien”. */
+	box-shadow: var( --mz-fon-krawedz );
 	animation: lst-mz-unos 7s ease-in-out infinite alternate;
 
 	/*
@@ -1100,7 +1103,8 @@ STYL = r"""
 	 * czterdzieści dwa. To
 	 * mniej więcej proporcja prawdziwego aparatu przy tej szerokości.
 	 */
-	--mz-grubosc: 1.75px;
+	--mz-krok: 1.75;
+	--mz-grubosc: calc( var( --mz-krok ) * 1px );
 	/*
 	 * W spoczynku aparat jest płaski, bez sceny 3D. Scena z kilkunastoma
 	 * warstwami jest dla przeglądarki ciężka: przy przewijaniu Chrome
@@ -1118,7 +1122,6 @@ STYL = r"""
 	 * z wygładzeniem. Przejście CSS przy każdym ruchu myszy zaczynało od
 	 * nowa i przy szybkim ruchu aparat szarpał.
 	 */
-	transition: box-shadow 420ms var( --mz-luk );
 }
 
 /* Ta sama poza i ta sama perspektywa, tylko już jako scena z warstwami:
@@ -1127,9 +1130,31 @@ STYL = r"""
 	transform-style: preserve-3d;
 }
 
-.lst-mz .lst-mz-telefon-rama.jest-nad {
+.lst-mz .lst-mz-telefon-cien {
+	position: absolute;
+	inset: 0;
+	border-radius: 52px;
+	pointer-events: none;
 	box-shadow:
-		var( --mz-fon-krawedz ),
+		/* aparat leży na stronie, a nie jest w nią wpuszczony */
+		0 2px 2px -1px rgba( 0, 0, 0, .5 ),
+		0 36px 70px -36px rgba( 0, 0, 0, .95 ),
+		0 0 70px -30px rgba( var( --mz-mieta ), .4 );
+	transition: box-shadow 420ms var( --mz-luk );
+}
+
+/*
+ * W scenie 3D cień stoi za całą bryłą, za najdalszą warstwą. Rzucany
+ * przez samą ramę leżałby w płaszczyźnie przodu, przed guzikami, które są
+ * w głębi, i przyciemniał je w chwili najechania.
+ */
+.lst-mz .lst-mz-telefon-rama.jest-3d .lst-mz-telefon-cien {
+	transform: translateZ( calc( 24.5 * var( --mz-grubosc ) * -1 ) )
+		scale( calc( 1 + 24.5 * var( --mz-krok ) / 1400 ) );
+}
+
+.lst-mz .lst-mz-telefon-rama.jest-nad .lst-mz-telefon-cien {
+	box-shadow:
 		0 2px 2px -1px rgba( 0, 0, 0, .5 ),
 		0 50px 90px -40px rgba( 0, 0, 0, 1 ),
 		0 0 80px -28px rgba( var( --mz-mieta ), .5 );
@@ -1145,14 +1170,25 @@ STYL = r"""
 .lst-mz .lst-mz-telefon-warstwa {
 	display: none;
 	position: absolute;
-	inset: 0;
-	border-radius: 52px;
+	/* O piksel w głąb obrysu: na wprost żaden brzeg warstwy nie wyjrzy zza
+	   przodu nawet półprzezroczystym pikselem wygładzania. */
+	inset: 1px;
+	border-radius: 51px;
 	pointer-events: none;
 	background-color: #2a3835;
 	/* Ten sam profil co bok w spoczynku: najjaśniej na środku zaokrąglenia. */
 	background-color: color-mix( in srgb, #b3c5c1 calc( 100% - max( calc( ( var( --i ) - 12 ) * 7.5% ), calc( ( 12 - var( --i ) ) * 7.5% ) ) ), #1a2422 );
 	box-shadow: inset 0 0 0 1px rgba( 255, 255, 255, .04 );
-	transform: translateZ( calc( var( --i ) * var( --mz-grubosc ) * -1 ) );
+	/*
+	 * Perspektywa zmniejsza to, co dalej, w stronę środka ramy. Na wprost
+	 * guzik w głębi chował się przez to za ramą i w chwili najechania
+	 * zamiast rąbka zostawała blada kreska. Każda warstwa jest więc
+	 * powiększona dokładnie o tyle, o ile perspektywa (1400 px) ją zmniejsza:
+	 * na wprost cała bryła rzutuje się jak płaski aparat w spoczynku, co do
+	 * piksela, i przejście w scenę 3D jest niewidoczne.
+	 */
+	transform: translateZ( calc( var( --i ) * var( --mz-grubosc ) * -1 ) )
+		scale( calc( 1 + var( --i ) * var( --mz-krok ) / 1400 ) );
 }
 
 /* Czarna szczelina między metalem a ekranem: na prawdziwym aparacie to ona
@@ -1314,13 +1350,10 @@ STYL = r"""
  * Każdy jest bryłką na boku, a nie paskiem na obudowie. Z przodu widać z niej
  * tylko rąbek wystający zza krawędzi: wąski, ciemniejszy od ramy, bo bok
  * odwraca się od światła, z jasną linią po stronie, z której pada światło, i
- * z zaokrąglonymi końcami. W scenie 3D guzik składa się z tych samych
- * cienkich plastrów co bok, wysuniętych za obrys — przy odchyleniu widać
- * bryłkę wychodzącą z ramy. Pojedyncza ściana obrócona wzdłuż boku
- * wyglądała pod ostrym kątem jak postrzępiona kreska.
+ * z zaokrąglonymi końcami. To jest guzik w spoczynku; w scenie 3D zastępują
+ * go plasterki niżej, a najbliższy z nich wygląda dokładnie tak samo.
  */
 .lst-mz .lst-mz-telefon-guzik {
-	--mz-guzik-gleb: 18px;
 	position: absolute;
 	left: -3px;
 	width: 3px;
@@ -1336,42 +1369,79 @@ STYL = r"""
 		inset 0 0 0 6px #4f625e,
 		/* cień tam, gdzie guzik wychodzi z ramy */
 		-1px 0 1.5px rgba( 0, 0, 0, .45 );
-	transform-style: preserve-3d;
 }
 
 /*
- * Guzik w scenie 3D: plastry w kolorach korpusu, wysunięte za obrys. Każdy
- * ma jaśniejszą górę i ciemniejszy dół, więc klawisz odcina się od boku, na
- * którym stoi. Sam guzik robi się wtedy tylko pojemnikiem: rąbek z przodu
- * byłby blaszką przed resztą bryłki.
+ * Guziki w scenie 3D: piętnaście warstw na całą ramę, w każdej cztery
+ * plasterki. Plasterki stoją w połowie kroku między warstwami korpusu —
+ * w tej samej płaszczyźnie co korpus przeglądarka nie umiała rozstrzygnąć,
+ * co jest z przodu, i na guzikach skakały ząbki. Plasterek wchodzi dwa
+ * piksele w korpus, żeby między guzikiem a bokiem nie było szczeliny.
+ * Warstwa wyrównuje perspektywę tak samo jak korpus (patrz wyżej), więc
+ * guzik na wprost leży dokładnie tam, gdzie płaski rąbek w spoczynku,
+ * a najbliższy plasterek wygląda jak on.
  */
-.lst-mz .lst-mz-telefon-guzik > i {
+.lst-mz .lst-mz-telefon-plastry {
 	display: none;
 	position: absolute;
 	inset: 0;
-	border-radius: inherit;
+	pointer-events: none;
+	transform-style: preserve-3d;
+	transform: translateZ( calc( ( var( --i ) + .5 ) * var( --mz-grubosc ) * -1 ) )
+		scale( calc( 1 + ( var( --i ) + .5 ) * var( --mz-krok ) / 1400 ) );
+}
+
+.lst-mz .lst-mz-telefon-plastry > b {
+	position: absolute;
+	left: -3px;
+	width: 5px;
+	border-radius: 2px 0 0 2px;
 	background-color: color-mix( in srgb, #9fb2ae calc( 100% - max( calc( ( var( --i ) - 12 ) * 7.5% ), calc( ( 12 - var( --i ) ) * 7.5% ) ) ), #1a2422 );
 	box-shadow:
-		inset 0 1px 0 rgba( 255, 255, 255, .28 ),
-		inset 0 -1px 0 rgba( 0, 0, 0, .45 );
-	transform: translateZ( calc( var( --i ) * var( --mz-grubosc ) * -1 ) );
+		inset 0 1px 0 rgba( 255, 255, 255, .22 ),
+		inset 0 -1px 0 rgba( 0, 0, 0, .4 );
 }
 
-.lst-mz .lst-mz-telefon-rama.jest-3d .lst-mz-telefon-guzik > i { display: block; }
-
-.lst-mz .lst-mz-telefon-rama.jest-3d .lst-mz-telefon-guzik {
-	background-color: transparent !important;
-	box-shadow: none;
-	transform: none;
+.lst-mz .lst-mz-telefon-plastry > b.jest-bok {
+	left: auto;
+	right: -3px;
+	top: 176px;
+	height: 92px;
+	border-radius: 0 2px 2px 0;
 }
 
-/* Korpus stoi tylko w scenie 3D; guziki stoją zawsze. */
-.lst-mz .lst-mz-telefon-rama.jest-3d .lst-mz-telefon-warstwa { display: block; }
+/* Najbliższy plasterek to przód guzika: ten sam co rąbek w spoczynku. */
+.lst-mz .lst-mz-telefon-plastry.jest-przod > b {
+	background-color: #33433f;
+	box-shadow:
+		inset 1px 0 0 rgba( 255, 255, 255, .42 ),
+		inset 0 4px 3px -3px rgba( 0, 0, 0, .55 ),
+		inset 0 -4px 3px -3px rgba( 0, 0, 0, .55 ),
+		inset 0 0 0 6px #4f625e,
+		-1px 0 1.5px rgba( 0, 0, 0, .45 );
+}
+
+.lst-mz .lst-mz-telefon-plastry.jest-przod > b.jest-bok {
+	box-shadow:
+		inset -1px 0 0 rgba( 255, 255, 255, .3 ),
+		inset 0 4px 3px -3px rgba( 0, 0, 0, .55 ),
+		inset 0 -4px 3px -3px rgba( 0, 0, 0, .55 ),
+		inset 0 0 0 6px #4a5c58,
+		1px 0 1.5px rgba( 0, 0, 0, .45 );
+}
+
+/* W scenie 3D bryłę robią warstwy; płaski rąbek ustępuje plasterkom. */
+.lst-mz .lst-mz-telefon-rama.jest-3d .lst-mz-telefon-warstwa,
+.lst-mz .lst-mz-telefon-rama.jest-3d .lst-mz-telefon-plastry { display: block; }
+.lst-mz .lst-mz-telefon-rama.jest-3d .lst-mz-telefon-guzik { visibility: hidden; }
 
 
-.lst-mz .lst-mz-telefon-guzik.jest-cisza { top: 104px; height: 28px; }
-.lst-mz .lst-mz-telefon-guzik.jest-glosniej { top: 150px; height: 56px; }
-.lst-mz .lst-mz-telefon-guzik.jest-ciszej { top: 218px; height: 56px; }
+.lst-mz .lst-mz-telefon-guzik.jest-cisza,
+.lst-mz .lst-mz-telefon-plastry > b.jest-cisza { top: 104px; height: 28px; }
+.lst-mz .lst-mz-telefon-guzik.jest-glosniej,
+.lst-mz .lst-mz-telefon-plastry > b.jest-glosniej { top: 150px; height: 56px; }
+.lst-mz .lst-mz-telefon-guzik.jest-ciszej,
+.lst-mz .lst-mz-telefon-plastry > b.jest-ciszej { top: 218px; height: 56px; }
 
 /* Po prawej wszystko w lustrze: rąbek na prawo, ściana obraca się w drugą stronę. */
 .lst-mz .lst-mz-telefon-guzik.jest-bok {
@@ -1735,12 +1805,14 @@ STYL = r"""
  * udać samym cieniem. Wyjątek jest wąski i wypisany z nazwy.
  */
 .lst-mz .lst-mz-telefon-rama { background-color: #1a2422 !important; background-image: var( --mz-fon-bok ) !important; border: 0 !important; border-radius: 52px !important; }
+.lst-mz .lst-mz-telefon-cien { background: none !important; border: 0 !important; border-radius: 52px !important; }
 .lst-mz .lst-mz-telefon-blysk { background-image: var( --mz-fon-szklo ) !important; border-radius: 40px !important; }
 .lst-mz .lst-mz-telefon-wyspa { background-color: #000 !important; border-radius: 999px !important; }
 .lst-mz .lst-mz-telefon-oko { background-color: #0b1a19 !important; border-radius: 50% !important; }
 .lst-mz .lst-mz-telefon-kreska { background-color: rgba( 234, 243, 241, .4 ) !important; border-radius: 999px !important; }
-.lst-mz .lst-mz-telefon-guzik { background-color: #33433f !important; }
-.lst-mz .lst-mz-telefon-warstwa { background-color: color-mix( in srgb, #b3c5c1 calc( 100% - max( calc( ( var( --i ) - 12 ) * 7.5% ), calc( ( 12 - var( --i ) ) * 7.5% ) ) ), #1a2422 ) !important; border: 0 !important; border-radius: 52px !important; }
+.lst-mz .lst-mz-telefon-guzik,
+.lst-mz .lst-mz-telefon-plastry.jest-przod > b { background-color: #33433f !important; }
+.lst-mz .lst-mz-telefon-warstwa { background-color: color-mix( in srgb, #b3c5c1 calc( 100% - max( calc( ( var( --i ) - 12 ) * 7.5% ), calc( ( 12 - var( --i ) ) * 7.5% ) ) ), #1a2422 ) !important; border: 0 !important; border-radius: 51px !important; }
 .lst-mz .lst-mz-telefon-godzina { font-family: inherit !important; }
 .lst-mz .lst-mz-telefon { background-color: var( --mz-ekran ) !important; border-radius: 40px !important; }
 .lst-mz .lst-mz-okno { background-color: var( --mz-ekran ) !important; border: 1px solid var( --mz-ekran-linia ) !important; }
@@ -2353,6 +2425,106 @@ STOL = (
 )
 
 
+def przytnij( css, znacznik, zywe, tylko = '' ):
+	"""Arkusz bez reguł, które nie mają w tym znaczniku czego dotknąć.
+
+	Moduł z telefonem niesie w sobie cały arkusz podstrony i cały arkusz
+	wtyczki, choć z obu potrzebuje ułamka: reszta to tabela na stole, legenda,
+	listy, a z wtyczki dziewięć szablonów, których telefon nie nosi. Razem to
+	ponad sto kilobajtów w jednym module Kod, a przy takim rozmiarze Divi
+	potrafi zawiesić edytor i całą stronę.
+
+	Reguła zostaje, jeśli każda klasa, której wymaga, jest w znaczniku albo na
+	liście klas dokładanych w ruchu (wjazd, najechanie, scena 3D). Klasy
+	w :not(), :is(), :where() i :has() niczego nie wymagają, więc się nie
+	liczą. To ocena ostrożna: reguła z wątpliwościami zostaje, odpada tylko
+	ta, która na pewno niczego tu nie złapie. @keyframes i inne bloki bez
+	selektorów zostają w całości; blok @media czy @supports, któremu nic nie
+	zostało w środku, odpada.
+
+	Z `tylko` odpadają wyłącznie reguły, którym brakuje klasy o tym
+	początku — reszta zostaje, nawet jeśli w znaczniku nie ma jej klas.
+	"""
+	obecne = set()
+	for klasy in re.findall( r'class="([^"]*)"', znacznik ):
+		obecne.update( klasy.split() )
+	obecne.update( zywe )
+
+	def wymaga( selektor ):
+		bez = selektor
+		# Zawartość nawiasów :not() itp. niczego nie wymaga; zagnieżdżenia
+		# zdejmowane od środka.
+		while True:
+			nowy = re.sub( r':(?:not|is|where|has|nth-child|nth-of-type|nth-last-child)\([^()]*\)', '', bez )
+			if nowy == bez:
+				break
+			bez = nowy
+		bez = re.sub( r'\[[^\]]*\]', '', bez )
+		return set( re.findall( r'\.(-?[_a-zA-Z][\w-]*)', bez ) )
+
+	def podziel( lista ):
+		czesci, glebia, start = [], 0, 0
+		for i, z in enumerate( lista ):
+			if z in '([':
+				glebia += 1
+			elif z in ')]':
+				glebia -= 1
+			elif ',' == z and 0 == glebia:
+				czesci.append( lista[ start:i ] )
+				start = i + 1
+		czesci.append( lista[ start: ] )
+		return [ c.strip() for c in czesci if c.strip() ]
+
+	def blok( tekst, i ):
+		"""Indeks zamykającej klamry dla klamry otwartej tuż przed i."""
+		glebia, cudzyslow = 1, ''
+		while i < len( tekst ):
+			z = tekst[ i ]
+			if cudzyslow:
+				if '\\' == z:
+					i += 1
+				elif z == cudzyslow:
+					cudzyslow = ''
+			elif z in '"\'':
+				cudzyslow = z
+			elif '{' == z:
+				glebia += 1
+			elif '}' == z:
+				glebia -= 1
+				if 0 == glebia:
+					return i
+			i += 1
+		return len( tekst )
+
+	def tnij( tekst ):
+		wynik, i = [], 0
+		while i < len( tekst ):
+			otw = tekst.find( '{', i )
+			if -1 == otw:
+				wynik.append( tekst[ i: ] )
+				break
+			glowa = tekst[ i:otw ]
+			zam = blok( tekst, otw + 1 )
+			srodek = tekst[ otw + 1:zam ]
+			naglowek = glowa.strip()
+			if naglowek.startswith( '@' ):
+				if re.match( r'@(media|supports|container|layer)\b', naglowek ):
+					wnetrze = tnij( srodek )
+					if wnetrze.strip():
+						wynik.append( glowa + '{' + wnetrze + '}' )
+				else:
+					wynik.append( glowa + '{' + srodek + '}' )
+			else:
+				zostaja = [ sel for sel in podziel( naglowek )
+					if not any( k.startswith( tylko ) for k in wymaga( sel ) - obecne ) ]
+				if zostaja:
+					wynik.append( ','.join( zostaja ) + '{' + srodek + '}' )
+			i = zam + 1
+		return ''.join( wynik )
+
+	return tnij( css )
+
+
 # --- dwie sekcje bez tabeli, do wklejenia osobno -----------------------------
 #
 # Tu nie ma tabeli, więc nie ma po co nieść arkusza ani skryptu wtyczki: same
@@ -2371,6 +2543,8 @@ def osobno( nazwa, blok, opis, uwaga = '' ):
 	czapka = ( '<!-- ' + uwaga + ' -->\n\n' ) if uwaga else ''
 	znacznik = '<div class="lst-mz"><div class="lst-mz-rama">' + blok + '</div></div>'
 	arkusz_tu, znacznik = z_odciskiem( MALY_ARKUSZ, znacznik )
+	# Telefon to jedna trzecia arkusza, a w tych sekcjach go nie ma.
+	arkusz_tu = przytnij( arkusz_tu, znacznik, set(), 'lst-mz-telefon' )
 	calosc = ( czapka +
 		CZCIONKI + '\n'
 		'\n' + znacznik + '\n'
@@ -2485,102 +2659,6 @@ def zakotwicz( css, kotwica ):
 	css = re.sub( r'(?<![\w-])\.lst-mz(?![\w-])', '#' + kotwica + '.lst-mz', css )
 
 	return css
-
-
-def przytnij( css, znacznik, zywe ):
-	"""Arkusz bez reguł, które nie mają w tym znaczniku czego dotknąć.
-
-	Moduł z telefonem niesie w sobie cały arkusz podstrony i cały arkusz
-	wtyczki, choć z obu potrzebuje ułamka: reszta to tabela na stole, legenda,
-	listy, a z wtyczki dziewięć szablonów, których telefon nie nosi. Razem to
-	ponad sto kilobajtów w jednym module Kod, a przy takim rozmiarze Divi
-	potrafi zawiesić edytor i całą stronę.
-
-	Reguła zostaje, jeśli każda klasa, której wymaga, jest w znaczniku albo na
-	liście klas dokładanych w ruchu (wjazd, najechanie, scena 3D). Klasy
-	w :not(), :is(), :where() i :has() niczego nie wymagają, więc się nie
-	liczą. To ocena ostrożna: reguła z wątpliwościami zostaje, odpada tylko
-	ta, która na pewno niczego tu nie złapie. @keyframes i inne bloki bez
-	selektorów zostają w całości; blok @media czy @supports, któremu nic nie
-	zostało w środku, odpada.
-	"""
-	obecne = set()
-	for klasy in re.findall( r'class="([^"]*)"', znacznik ):
-		obecne.update( klasy.split() )
-	obecne.update( zywe )
-
-	def wymaga( selektor ):
-		bez = selektor
-		# Zawartość nawiasów :not() itp. niczego nie wymaga; zagnieżdżenia
-		# zdejmowane od środka.
-		while True:
-			nowy = re.sub( r':(?:not|is|where|has|nth-child|nth-of-type|nth-last-child)\([^()]*\)', '', bez )
-			if nowy == bez:
-				break
-			bez = nowy
-		bez = re.sub( r'\[[^\]]*\]', '', bez )
-		return set( re.findall( r'\.(-?[_a-zA-Z][\w-]*)', bez ) )
-
-	def podziel( lista ):
-		czesci, glebia, start = [], 0, 0
-		for i, z in enumerate( lista ):
-			if z in '([':
-				glebia += 1
-			elif z in ')]':
-				glebia -= 1
-			elif ',' == z and 0 == glebia:
-				czesci.append( lista[ start:i ] )
-				start = i + 1
-		czesci.append( lista[ start: ] )
-		return [ c.strip() for c in czesci if c.strip() ]
-
-	def blok( tekst, i ):
-		"""Indeks zamykającej klamry dla klamry otwartej tuż przed i."""
-		glebia, cudzyslow = 1, ''
-		while i < len( tekst ):
-			z = tekst[ i ]
-			if cudzyslow:
-				if '\\' == z:
-					i += 1
-				elif z == cudzyslow:
-					cudzyslow = ''
-			elif z in '"\'':
-				cudzyslow = z
-			elif '{' == z:
-				glebia += 1
-			elif '}' == z:
-				glebia -= 1
-				if 0 == glebia:
-					return i
-			i += 1
-		return len( tekst )
-
-	def tnij( tekst ):
-		wynik, i = [], 0
-		while i < len( tekst ):
-			otw = tekst.find( '{', i )
-			if -1 == otw:
-				wynik.append( tekst[ i: ] )
-				break
-			glowa = tekst[ i:otw ]
-			zam = blok( tekst, otw + 1 )
-			srodek = tekst[ otw + 1:zam ]
-			naglowek = glowa.strip()
-			if naglowek.startswith( '@' ):
-				if re.match( r'@(media|supports|container|layer)\b', naglowek ):
-					wnetrze = tnij( srodek )
-					if wnetrze.strip():
-						wynik.append( glowa + '{' + wnetrze + '}' )
-				else:
-					wynik.append( glowa + '{' + srodek + '}' )
-			else:
-				zostaja = [ sel for sel in podziel( naglowek ) if wymaga( sel ) <= obecne ]
-				if zostaja:
-					wynik.append( ','.join( zostaja ) + '{' + srodek + '}' )
-			i = zam + 1
-		return ''.join( wynik )
-
-	return tnij( css )
 
 
 # Klasy, których w znaczniku nie ma, a pojawiają się w ruchu: wjazd, najechanie

@@ -840,6 +840,8 @@ console.log( '\nnachylenie aparatu' );
 	await p.mouse.move( r.x + r.width * 0.9, r.y + r.height * 0.5, { steps: 6 } );
 	await p.waitForTimeout( 350 );
 	const prawo = await obrotY();
+	// Blask wchodzi przejściem; na obciążonej maszynie 350 ms bywało za mało.
+	await p.waitForFunction( () => '1' === getComputedStyle( document.querySelector( '.lst-mz-telefon-blysk' ), '::after' ).opacity, null, { timeout: 3000 } ).catch( () => {} );
 	const blask = await fon.evaluate( ( e ) => getComputedStyle( e.querySelector( '.lst-mz-telefon-blysk' ), '::after' ).opacity );
 
 	await p.mouse.move( r.x + r.width * 0.1, r.y + r.height * 0.5, { steps: 6 } );
@@ -891,6 +893,44 @@ console.log( '\nnachylenie aparatu' );
 		'flat' === plasko.przestrzen && 0 === plasko.widacWarstw && Math.abs( poza ) < 0.002
 			&& plasko.ksztalt === pozaKsztalt && 4 === plasko.guzikow,
 		`${ plasko.przestrzen }, warstw ${ plasko.widacWarstw }, poza ${ poza }, ten sam kształt co przed najechaniem ${ plasko.ksztalt === pozaKsztalt }, cieni boku ${ plasko.bok } (${ plasko.cien }), guzików ${ plasko.guzikow }` );
+
+	/*
+	 * Wejście w scenę 3D i wyjście z niej nie może być widać. Na wprost bryła
+	 * z warstw ma się rzutować co do piksela jak płaski aparat w spoczynku:
+	 * gdy guziki w głębi chowały się za ramę albo cień ramy kładł się na
+	 * nich, przy każdym najechaniu aparat „przeskakiwał”. Unoszenie się
+	 * w spoczynku jest na ten czas wstrzymane, żeby porównać to samo miejsce.
+	 */
+	const stop = await p.addStyleTag( { content: '.lst-mz-telefon-rama, .lst-mz-telefon-stojak::after { animation: none !important; }' } );
+	await p.waitForTimeout( 200 );
+	const kadr = await fon.boundingBox();
+	const okno = { x: kadr.x - 16, y: kadr.y - 16, width: kadr.width + 32, height: kadr.height + 32 };
+	const przed = ( await p.screenshot( { clip: okno } ) ).toString( 'base64' );
+	await fon.evaluate( ( e ) => e.classList.add( 'jest-3d' ) );
+	await p.waitForTimeout( 200 );
+	const wScenie = ( await p.screenshot( { clip: okno } ) ).toString( 'base64' );
+	await fon.evaluate( ( e ) => e.classList.remove( 'jest-3d' ) );
+	await stop.evaluate( ( e ) => e.remove() );
+	const roznica = await p.evaluate( async ( [ a, b ] ) => {
+		const piksele = async ( dane ) => {
+			const obraz = await createImageBitmap( await ( await fetch( 'data:image/png;base64,' + dane ) ).blob() );
+			const c = new OffscreenCanvas( obraz.width, obraz.height ).getContext( '2d' );
+			c.drawImage( obraz, 0, 0 );
+			return c.getImageData( 0, 0, obraz.width, obraz.height ).data;
+		};
+		const pa = await piksele( a );
+		const pb = await piksele( b );
+		let mocno = 0, najwiecej = 0;
+		for ( let i = 0; i < pa.length; i += 4 ) {
+			const d = Math.max( Math.abs( pa[ i ] - pb[ i ] ), Math.abs( pa[ i + 1 ] - pb[ i + 1 ] ), Math.abs( pa[ i + 2 ] - pb[ i + 2 ] ) );
+			najwiecej = Math.max( najwiecej, d );
+			if ( d > 12 ) { mocno++; }
+		}
+		return { mocno, najwiecej, wszystkich: pa.length / 4 };
+	}, [ przed, wScenie ] );
+	ok( 'na wprost scena 3D wygląda jak aparat w spoczynku: najechanie nie przeskakuje',
+		roznica.mocno < 200 && roznica.najwiecej < 48,
+		`pikseli różnych o ponad 12: ${ roznica.mocno } z ${ roznica.wszystkich }, największa różnica ${ roznica.najwiecej }` );
 
 	ok( 'telefon ma grubość: korpus stoi za ekranem w przestrzeni',
 		'preserve-3d' === bryla.przestrzen && 24 === bryla.warstw && bryla.glebia <= -36,
