@@ -49,7 +49,10 @@ class LSTAB_Hidden_Rows {
 		 * a place on a page, and cannot be found by searching. After the row
 		 * filter at 10, so an add-on still decides which rows exist at all.
 		 */
-		add_filter( 'lstab_source_rows', array( __CLASS__, 'filter_rows' ), 12, 4 );
+		// First of all, while every row is still at its own line of the sheet:
+		// a hidden row is known by its line, and a filter run before this
+		// would move the lines and let it through.
+		add_filter( 'lstab_source_rows', array( __CLASS__, 'filter_rows' ), 5, 4 );
 	}
 
 	/**

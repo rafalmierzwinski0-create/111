@@ -929,6 +929,14 @@ $export_rows = LSTAB_Renderer::prepare( LSTAB_Storage::get( $source_id ), array(
 $exported    = wp_json_encode( $export_rows['rows'] );
 lstabp_assert( false === strpos( (string) $exported, $hidden_key ), 'A hidden row is not in the file either', (string) $exported );
 lstabp_assert( count( $export_rows['rows'] ) === count( $export_all['rows'] ) - 1, 'And the file is exactly one row shorter' );
+
+// A row hidden further down the sheet stays hidden on a filtered page, where
+// the rows in front of it are filtered out and every line moves up.
+$lstabp_all_rows   = LSTAB_Storage::get( $source_id )['data']['rows'];
+$lstabp_hidden_six = $lstabp_all_rows[5];
+LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array( LSTAB_Hidden_Rows::entry_for( $lstabp_hidden_six, 5 ) ) ) );
+$lstabp_filtered = LSTAB_Renderer::prepare( LSTAB_Storage::get( $source_id ), array( 'filter' => 'Dostępność is W magazynie' ) );
+lstabp_assert( false === strpos( (string) wp_json_encode( $lstabp_filtered['rows'] ), (string) wp_json_encode( $lstabp_hidden_six[0] ) ), 'A hidden row stays hidden on a page that filters the table', wp_json_encode( wp_list_pluck( $lstabp_filtered['rows'], 0 ) ) );
 LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array() ) );
 
 // The link is signed, or the filter could be edited out in the address bar.
