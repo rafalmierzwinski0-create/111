@@ -37,6 +37,7 @@ class LSTABP_Private_Sheets {
 		add_action( 'lstab_before_sync', array( __CLASS__, 'remember_source' ) );
 
 		add_action( 'lstab_source_deleted', array( __CLASS__, 'forget' ) );
+		add_action( 'lstabp_forget_source', array( __CLASS__, 'forget' ) );
 
 		add_filter( 'lstab_fetch_refused', array( $this, 'try_connected_account' ), 10, 4 );
 	}
@@ -71,6 +72,17 @@ class LSTABP_Private_Sheets {
 	public function try_connected_account( $result, $sheet_id, $gid, $sheet_kind ) {
 		if ( self::$trying || ! is_wp_error( $result ) || ! self::is_refusal( $result ) ) {
 			return $result;
+		}
+
+		/*
+		 * A private sheet refused because the account is gone says so, rather
+		 * than telling somebody to share by link a sheet they made private on
+		 * purpose.
+		 */
+		if ( null !== self::$current_source && self::is_private( self::$current_source ) ) {
+			$token = LSTABP_Google_Auth::access_token();
+
+			return is_wp_error( $token ) ? $token : $result;
 		}
 
 		// Already read through the account, and refused anyway.

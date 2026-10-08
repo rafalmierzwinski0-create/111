@@ -36,6 +36,7 @@ defined( 'ABSPATH' ) || exit;
 			<li><?php esc_html_e( 'Open Google Cloud Console and create a project.', 'live-sheets-table-pro' ); ?></li>
 			<li><?php esc_html_e( 'Enable the Google Sheets API for it.', 'live-sheets-table-pro' ); ?></li>
 			<li><?php esc_html_e( 'Create an OAuth client of type “Web application”.', 'live-sheets-table-pro' ); ?></li>
+			<li><?php esc_html_e( 'On the OAuth consent screen, set the publishing status to “In production”. In “Testing”, Google ends the connection after seven days.', 'live-sheets-table-pro' ); ?></li>
 			<li>
 				<span>
 					<?php esc_html_e( 'Add this exact address as an authorised redirect URI:', 'live-sheets-table-pro' ); ?>
@@ -90,6 +91,11 @@ defined( 'ABSPATH' ) || exit;
 				<span class="lstab-state lstab-state--idle">
 					<?php echo LSTAB_Icons::icon( 'clock' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
 					<?php esc_html_e( 'No client saved yet', 'live-sheets-table-pro' ); ?>
+				</span>
+			<?php elseif ( ! $connected && LSTABP_Google_Auth::has_expired() ) : ?>
+				<span class="lstab-state lstab-state--warn">
+					<?php echo LSTAB_Icons::icon( 'alert' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+					<?php esc_html_e( 'Google ended the connection. Sign in again below.', 'live-sheets-table-pro' ); ?>
 				</span>
 			<?php elseif ( $connected ) : ?>
 				<span class="lstab-state lstab-state--calm">

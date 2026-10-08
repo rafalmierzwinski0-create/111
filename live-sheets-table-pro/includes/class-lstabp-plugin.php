@@ -38,6 +38,46 @@ class LSTABP_Plugin {
 		( new LSTABP_Column_Looks() )->register();
 		( new LSTABP_Picker() )->register();
 		( new LSTABP_Settings() )->register();
+
+		add_action( 'admin_init', array( $this, 'forget_vanished_sources' ) );
+	}
+
+	/**
+	 * Drop settings left behind by tables deleted while Pro was switched off.
+	 *
+	 * Pro keeps its settings by table number. A table deleted while Pro was
+	 * off never told it so, and once every table is gone the numbers start
+	 * again from 1 — so a new table would inherit an old one's colour rules,
+	 * filters or downloads. Each table is remembered with the moment it was
+	 * created; a number that now belongs to a different table, or to none, has
+	 * its settings dropped.
+	 *
+	 * @return void
+	 */
+	public function forget_vanished_sources() {
+		$known = get_option( 'lstabp_known_sources', null );
+		$now   = array();
+
+		foreach ( LSTAB_Storage::get_all() as $source ) {
+			$now[ (int) $source['id'] ] = (string) $source['created_gmt'];
+		}
+
+		if ( is_array( $known ) ) {
+			foreach ( $known as $id => $created ) {
+				if ( ! isset( $now[ (int) $id ] ) || $now[ (int) $id ] !== (string) $created ) {
+					/**
+					 * Fires when a table Pro had settings for is gone.
+					 *
+					 * @param int $source_id Source ID.
+					 */
+					do_action( 'lstabp_forget_source', (int) $id );
+				}
+			}
+		}
+
+		if ( $known !== $now ) {
+			update_option( 'lstabp_known_sources', $now, false );
+		}
 	}
 
 	/**

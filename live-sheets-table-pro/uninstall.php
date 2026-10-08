@@ -50,11 +50,14 @@ function lstabp_uninstall_site( $everything ) {
 		$wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s", $like, $wpdb->esc_like( '_transient_timeout_lstabp_oauth_state_' ) . '%' )
 	);
 
+	delete_option( 'lstabp_known_sources' );
+
 	if ( ! $everything ) {
 		return;
 	}
 
 	delete_option( 'lstabp_google_client' );
+	delete_option( 'lstabp_column_looks' );
 	delete_option( 'lstabp_rules' );
 	delete_option( 'lstabp_facets' );
 	delete_option( 'lstabp_export_sources' );

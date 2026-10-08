@@ -93,6 +93,27 @@ class LSTABP_Google_Auth {
 	}
 
 	/**
+	 * Whether Google withdrew the connection: revoked, or expired because the
+	 * Google Cloud app is still in testing.
+	 *
+	 * @return bool
+	 */
+	public static function has_expired() {
+		$token = get_option( self::OPTION_TOKEN, array() );
+
+		return empty( $token['refresh_token'] ) && ! empty( $token['expired'] );
+	}
+
+	/**
+	 * The message for a connection Google withdrew.
+	 *
+	 * @return string
+	 */
+	public static function expired_message() {
+		return __( 'Google ended the connection to your Google account, so private sheets cannot be read. Sign in to Google again on the Pro screen. If this happens every week, set the publishing status of your Google Cloud app to “In production”.', 'live-sheets-table-pro' );
+	}
+
+	/**
 	 * The address Google must be told to send people back to.
 	 *
 	 * @return string
@@ -246,6 +267,10 @@ class LSTABP_Google_Auth {
 		$token = get_option( self::OPTION_TOKEN, array() );
 
 		if ( empty( $token['refresh_token'] ) ) {
+			if ( ! empty( $token['expired'] ) ) {
+				return new WP_Error( 'lstabp_expired', self::expired_message() );
+			}
+
 			return new WP_Error(
 				'lstabp_not_connected',
 				__( 'No Google account is connected, so private sheets cannot be read.', 'live-sheets-table-pro' )
@@ -313,6 +338,15 @@ class LSTABP_Google_Auth {
 
 		$body = json_decode( (string) wp_remote_retrieve_body( $response ), true );
 		$code = (int) wp_remote_retrieve_response_code( $response );
+
+		// The refresh token is dead: revoked, or the Google Cloud app is in
+		// testing and Google ended it after seven days. Keeping it would make
+		// every sync ask again and the settings screen say "Connected".
+		if ( '' !== $keep_refresh && is_array( $body ) && isset( $body['error'] ) && 'invalid_grant' === $body['error'] ) {
+			update_option( self::OPTION_TOKEN, array( 'expired' => time() ), false );
+
+			return new WP_Error( 'lstabp_expired', self::expired_message() );
+		}
 
 		if ( 200 !== $code || ! is_array( $body ) || empty( $body['access_token'] ) ) {
 			$detail = is_array( $body ) && ! empty( $body['error_description'] )

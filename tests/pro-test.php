@@ -171,6 +171,12 @@ lstabp_assert(
 	$rejected->get_error_message()
 );
 
+// A dead refresh token ends the connection instead of being tried on every
+// sync, and the screen stops saying "Connected".
+lstabp_assert( ! LSTABP_Google_Auth::is_connected() && LSTABP_Google_Auth::has_expired(), 'A refresh Google refuses for good ends the connection, and says so' );
+$lstabp_after_expiry = LSTABP_Google_Auth::access_token();
+lstabp_assert( is_wp_error( $lstabp_after_expiry ) && 'lstabp_expired' === $lstabp_after_expiry->get_error_code() && false !== strpos( $lstabp_after_expiry->get_error_message(), 'Sign in to Google again' ), 'And asking for a token says what to do about it', is_wp_error( $lstabp_after_expiry ) ? $lstabp_after_expiry->get_error_message() : '' );
+
 lstabp_set_mock( 'ok', 'main', 'down' );
 $unreachable = LSTABP_Google_Auth::refresh( 'any' );
 lstabp_assert( is_wp_error( $unreachable ), 'An unreachable Google returns an error rather than a fatal' );
@@ -314,6 +320,19 @@ LSTABP_Private_Sheets::set_private( $lstabp_marked, true );
 LSTAB_Storage::delete( $lstabp_marked );
 $lstabp_left = (array) get_option( LSTABP_Private_Sheets::META_OPTION, array() );
 lstabp_assert( ! isset( $lstabp_left[ $lstabp_marked ] ), 'Deleting a table removes its private mark' );
+
+/*
+ * Settings kept for a table deleted while Pro was off are dropped as soon as
+ * the dashboard is opened, so a new table on the same number starts clean.
+ */
+$lstabp_old = (int) LSTAB_Storage::insert( array( 'title' => 'Had rules', 'sheet_url' => 'https://docs.google.com/spreadsheets/d/HADRULES0000000000000000000000000000/edit', 'sheet_id' => 'HADRULES0000000000000000000000000000' ) );
+( new LSTABP_Plugin() )->forget_vanished_sources();
+update_option( LSTABP_Export::OPTION, array( $lstabp_old => true ) + (array) get_option( LSTABP_Export::OPTION, array() ) );
+// Deleted behind Pro's back: no lstab_source_deleted reaches it.
+$wpdb->delete( LSTAB_Storage::table(), array( 'id' => $lstabp_old ) );
+LSTAB_Storage::flush_cache( $lstabp_old );
+( new LSTABP_Plugin() )->forget_vanished_sources();
+lstabp_assert( ! LSTABP_Export::is_enabled( $lstabp_old ), 'Settings of a table deleted while Pro was off are dropped' );
 
 update_option( LSTABP_Private_Sheets::META_OPTION, array( 9999 => '2020-01-01 00:00:00' ) );
 lstabp_assert( array() === LSTABP_Private_Sheets::private_sources(), 'A mark for a table that no longer exists counts for nothing' );
@@ -1405,6 +1424,7 @@ $lstabp_seed_options = static function () {
 	update_option( 'lstabp_facets', array( 1 => array( 'Cena' ) ) );
 	update_option( 'lstabp_export_sources', array( 1 => array( 'csv' ) ) );
 	update_option( 'lstabp_private_sources', array( 1 => true ) );
+	update_option( 'lstabp_column_looks', array( 1 => array( 'Cena' => array( 'look' => 'bar' ) ) ) );
 	set_transient( 'lstabp_oauth_state_1', 'half-finished-handshake', HOUR_IN_SECONDS );
 };
 
@@ -1434,6 +1454,7 @@ lstabp_assert( false !== get_option( 'lstabp_rules' ), 'Colour rules survive a p
 lstabp_assert( false !== get_option( 'lstabp_facets' ), 'So do the filters visitors use' );
 lstabp_assert( false !== get_option( 'lstabp_export_sources' ), 'So does which sheets may be exported' );
 lstabp_assert( false !== get_option( 'lstabp_private_sources' ), 'So does which sheets are private' );
+lstabp_assert( false !== get_option( 'lstabp_column_looks' ), 'And how columns look' );
 
 // Then: the site said it wants everything gone.
 $lstabp_settings['delete_on_uninstall'] = true;
@@ -1448,6 +1469,7 @@ lstabp_assert( false === get_option( 'lstabp_rules' ), 'And the colour rules' );
 lstabp_assert( false === get_option( 'lstabp_facets' ), 'And the filters' );
 lstabp_assert( false === get_option( 'lstabp_export_sources' ), 'And the export settings' );
 lstabp_assert( false === get_option( 'lstabp_private_sources' ), 'And which sheets were private' );
+lstabp_assert( false === get_option( 'lstabp_column_looks' ), 'And how columns looked' );
 
 // Nothing of the free plugin's is this file's to touch, either way.
 lstabp_assert( false !== get_option( LSTAB_Settings::OPTION ), 'The free plugin\'s own settings are left alone' );

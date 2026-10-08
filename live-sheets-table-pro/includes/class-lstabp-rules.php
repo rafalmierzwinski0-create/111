@@ -109,6 +109,7 @@ class LSTABP_Rules {
 		add_action( 'lstab_edit_pane_cards', array( $this, 'render_pane_card' ), 10, 3 );
 		add_action( 'lstab_source_saved', array( $this, 'save' ) );
 		add_action( 'lstab_source_deleted', array( $this, 'forget' ) );
+		add_action( 'lstabp_forget_source', array( $this, 'forget' ) );
 	}
 
 	/**
