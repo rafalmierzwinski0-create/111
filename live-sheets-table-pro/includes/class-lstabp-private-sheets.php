@@ -35,22 +35,6 @@ class LSTABP_Private_Sheets {
 		// The fetch filters see a URL, not a source, so note which source the
 		// sync is working on before it starts.
 		add_action( 'lstab_before_sync', array( __CLASS__, 'remember_source' ) );
-
-		// A deleted table's number is handed to the next table added, which
-		// must not arrive already marked private.
-		add_action( 'lstab_source_deleted', array( __CLASS__, 'forget' ) );
-	}
-
-	/**
-	 * Drop a deleted source from the private list.
-	 *
-	 * @param int $source_id Source ID.
-	 * @return void
-	 */
-	public static function forget( $source_id ) {
-		if ( self::is_private( $source_id ) ) {
-			self::set_private( $source_id, false );
-		}
 	}
 
 	/**
