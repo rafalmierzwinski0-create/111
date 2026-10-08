@@ -206,6 +206,12 @@ class LSTAB_Cron {
 				continue;
 			}
 
+			// A sheet Google refuses is reported as failing where it is listed;
+			// it says nothing about whether the schedule runs.
+			if ( 'error' === $source['last_status'] ) {
+				continue;
+			}
+
 			$interval = max( 60, (int) $source['sync_interval'] );
 			$age      = time() - (int) strtotime( $source['last_success_gmt'] . ' UTC' );
 

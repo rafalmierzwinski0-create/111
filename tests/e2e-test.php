@@ -140,6 +140,9 @@ $cases = array(
 		=> array( '2PACX-1vQxYzAbCdEf', 'pub', '42' ),
 	'1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789'
 		=> array( '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789', 'doc', '0' ),
+	// Somebody signed in to several Google accounts.
+	'https://docs.google.com/spreadsheets/u/1/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=5'
+		=> array( '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789', 'doc', '5' ),
 );
 
 foreach ( $cases as $input => $expected ) {

@@ -412,7 +412,19 @@ class LSTAB_Sync {
 		$changed = md5( (string) wp_json_encode( $table ) ) !== (string) $source['snapshot_hash'];
 
 		LSTAB_Storage::update( $id, array( 'columns_config' => $columns ) );
-		LSTAB_Storage::record_success( $id, $table );
+
+		// A sheet too large for the database to take in one write fails here,
+		// and must be reported rather than leave yesterday's copy marked fresh.
+		if ( ! LSTAB_Storage::record_success( $id, $table ) ) {
+			$stored = new WP_Error(
+				'lstab_db_write_failed',
+				__( 'The sheet arrived but could not be saved in the database. It may be too large for this server.', 'live-sheets-table' )
+			);
+			LSTAB_Storage::record_failure( $id, $stored->get_error_message() );
+			do_action( 'lstab_sync_failed', $source, $stored );
+
+			return $stored;
+		}
 
 		// Whoever managed it — a visitor, the scheduler, someone pressing
 		// "Refresh now" — the sheet answers, so there is nothing to hold off.
@@ -460,10 +472,34 @@ class LSTAB_Sync {
 	 */
 	public static function run_due( $force = false ) {
 		$results = array();
+		$due     = array();
 
 		foreach ( LSTAB_Storage::get_all() as $source ) {
-			if ( ! $force && ! self::is_due( $source ) ) {
-				continue;
+			if ( $force || self::is_due( $source ) ) {
+				$due[] = $source;
+			}
+		}
+
+		// Longest waiting first, so a slow sheet cannot keep the others from
+		// ever getting a turn.
+		usort(
+			$due,
+			static function ( $a, $b ) {
+				return strcmp( (string) $a['last_attempt_gmt'], (string) $b['last_attempt_gmt'] );
+			}
+		);
+
+		/*
+		 * Each fetch may take up to twenty seconds and many hosts stop a
+		 * request at thirty. No new fetch starts once this much time has gone;
+		 * whatever is left is still due at the next tick.
+		 */
+		$budget = (int) apply_filters( 'lstab_tick_budget', 10 );
+		$start  = microtime( true );
+
+		foreach ( $due as $source ) {
+			if ( ! $force && $results && microtime( true ) - $start > $budget ) {
+				break;
 			}
 
 			$result                    = self::run( $source['id'] );

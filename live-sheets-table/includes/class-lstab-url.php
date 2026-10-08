@@ -78,10 +78,12 @@ class LSTAB_Url {
 		$sheet_kind = 'doc';
 
 		// Published-to-web documents use /spreadsheets/d/e/<long id>/pubhtml.
-		if ( preg_match( '#/spreadsheets/d/e/([a-zA-Z0-9-_]+)#', $path, $m ) ) {
+		// Signed in to several Google accounts, the address carries which one:
+		// /spreadsheets/u/1/d/<id>/edit.
+		if ( preg_match( '#/spreadsheets/(?:u/\d+/)?d/e/([a-zA-Z0-9-_]+)#', $path, $m ) ) {
 			$sheet_id   = $m[1];
 			$sheet_kind = 'pub';
-		} elseif ( preg_match( '#/spreadsheets/d/([a-zA-Z0-9-_]+)#', $path, $m ) ) {
+		} elseif ( preg_match( '#/spreadsheets/(?:u/\d+/)?d/([a-zA-Z0-9-_]+)#', $path, $m ) ) {
 			$sheet_id = $m[1];
 		}
 
