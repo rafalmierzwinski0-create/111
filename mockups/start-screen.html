@@ -6,8 +6,10 @@
 <title>Start screen — two variants</title>
 <!--
 	Projekt, nie kod wtyczki. Pierwszy ekran po kliknięciu „Sheets Tables”
-	w menu: zamiast listy tabel. Dwa warianty w jednym pliku, wybierane
-	parametrem: ?v=first (pierwszy raz) i ?v=back (ktoś, kto już ma tabele).
+	w menu: zamiast listy tabel. Ten sam ekran w dwóch stanach, wybieranych
+	parametrem: ?v=first (pierwszy raz) i ?v=back (jest już co najmniej jedna
+	tabela). Różni się tylko lewy blok u góry: zamiast „Your first table”
+	stan tabel i pole do dodania kolejnej.
 -->
 <style>
 :root {
@@ -124,6 +126,20 @@ code.sc { font: 12px ui-monospace, Menlo, Consolas, monospace; background: #f6f7
 .tip { margin-top: 14px; padding: 16px 18px; display: flex; gap: 14px; align-items: center; }
 .tip p { margin: 0; color: var(--ink-2); font-size: 13px; }
 .tip b { color: var(--ink); }
+
+/* dwa warianty jednego ekranu: różni się tylko lewy blok */
+.v-first .tylko-back, .v-back .tylko-first { display: none !important; }
+.mini-stats { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 4px 0 16px; color: var(--ink-2); font-size: 14px; }
+.mini-stats b { color: var(--ink); font-size: 18px; margin-right: 3px; }
+.status { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 9px; margin-top: 8px; text-decoration: none; color: var(--ink); font-size: 13px; }
+.status .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.status em { margin-left: auto; font-style: normal; font-weight: 600; white-space: nowrap; }
+.status.bad { background: var(--amber-soft); border: 1px solid #fcd9a4; }
+.status.bad .dot { background: #f59e0b; box-shadow: 0 0 0 4px rgba( 245, 158, 11, .18 ); }
+.status.bad em { color: var(--amber); }
+.status.ok { background: var(--teal-soft); border: 1px solid var(--teal-line); }
+.status.ok .dot { background: var(--teal); }
+.status.ok em { color: var(--teal-dark); }
 </style>
 </head>
 <body>
@@ -138,16 +154,16 @@ code.sc { font: 12px ui-monospace, Menlo, Consolas, monospace; background: #f6f7
 	<main id="ekran"></main>
 </div>
 
-<template id="first">
+<template id="ekran-tpl">
 	<div class="mast">
 		<span class="logo"><i></i></span>
-		<div><h1>Live Sheets Table</h1><small>Google Sheets on your pages, kept up to date by themselves</small></div>
+		<div><h1>Live Sheets Table</h1><small class="tylko-first">Google Sheets on your pages, kept up to date by themselves</small><small class="tylko-back">3 tables · 1,284 rows</small></div>
 	</div>
 	<div class="tabs"><a class="on">Start</a><a>Sheet sources</a><a>Settings</a></div>
 
 	<div class="panel hero rel">
-		<span class="note" style="right:auto;left:330px">1 — paste a link, see the table</span>
-		<div class="hero-left grid-bg">
+		<span class="note tylko-first" style="right:auto;left:330px">1 — paste a link, see the table</span><span class="note tylko-back" style="right:auto;left:330px">1 — this block changes once a table exists</span>
+		<div class="hero-left grid-bg tylko-first">
 			<span class="label">Welcome</span>
 			<h2>Your first table in under a minute</h2>
 			<p class="lede">Copy the address of a Google Sheet from your browser and paste it below. You will see the table straight away — nothing is saved until you say so.</p>
@@ -158,6 +174,19 @@ code.sc { font: 12px ui-monospace, Menlo, Consolas, monospace; background: #f6f7
 			<ul class="ticks">
 				<li>No API key</li><li>No row limit</li><li>Read-only — nothing is written to Google</li>
 			</ul>
+		</div>
+		<div class="hero-left grid-bg tylko-back">
+			<span class="label">Your tables</span>
+			<h2>3 tables on your site, 1 needs a look</h2>
+			<div class="mini-stats">
+				<span><b>3</b> tables</span><span><b>1,284</b> rows</span><span><b>4</b> pages using them</span><span>last update <b>2 min</b> ago</span>
+			</div>
+			<a class="status bad"><span class="dot"></span><span><b>“Opening hours” has not updated for 3 hours.</b> Visitors still see the last copy. The sheet was probably made private.</span><em>Fix it →</em></a>
+			<a class="status ok"><span class="dot"></span><span><b>Price list 2026</b> and <b>Team rota</b> are up to date.</span><em>All tables →</em></a>
+			<div class="paste" style="margin-top:18px">
+				<span class="field">🔗 <input value="Paste another Google Sheets link" readonly></span>
+				<a class="btn solid big">Add a table →</a>
+			</div>
 		</div>
 		<div class="hero-right rel">
 			<span class="note" style="top:-12px;right:12px">2 — what happens next</span>
@@ -194,65 +223,13 @@ code.sc { font: 12px ui-monospace, Menlo, Consolas, monospace; background: #f6f7
 	</div>
 </template>
 
-<template id="back">
-	<div class="mast">
-		<span class="logo"><i></i></span>
-		<div><h1>Live Sheets Table</h1><small>3 tables · 1,284 rows</small></div>
-		<div class="right"><a class="btn solid">+ Add a sheet</a></div>
-	</div>
-	<div class="tabs"><a class="on">Start</a><a>Sheet sources</a><a>Settings</a></div>
 
-	<div class="hello">
-		<div><h2>Welcome back</h2><p>Here is how your tables are doing.</p></div>
-	</div>
-
-	<div class="stats rel">
-		<span class="note">1 — the state at a glance</span>
-		<div class="panel stat"><span class="label">Tables</span><div class="v">3</div><div class="s">on 4 pages</div></div>
-		<div class="panel stat"><span class="label">Rows published</span><div class="v">1,284</div><div class="s">no row limit</div></div>
-		<div class="panel stat ok"><span class="label">Last update</span><div class="v">2 min</div><div class="s">ago, from Google</div></div>
-		<div class="panel stat"><span class="label">Last 10 checks</span><div class="dots"><i></i><i></i><i></i><i></i><i class="x"></i><i></i><i></i><i></i><i></i><i></i></div><div class="s" style="margin-top:6px">9 fine, 1 failed</div></div>
-	</div>
-
-	<div class="alert rel">
-		<span class="note">2 — only when something needs you</span>
-		<span class="ico a">!</span>
-		<div><b>“Opening hours” could not be read from Google</b><span>Visitors still see the copy from 3 hours ago. The sheet was probably made private.</span></div>
-		<a class="btn">Fix it</a>
-	</div>
-
-	<div class="two">
-		<div class="panel rel">
-			<span class="note">3 — recent tables, shortcode ready</span>
-			<div class="sec-head"><h3>Your tables</h3><a>All tables →</a></div>
-			<div class="row"><div><div class="t">Price list 2026</div><div class="m">Used on Pricing, Home · every 15 minutes</div></div><span class="pill ok">Up to date</span><code class="sc">[sheet_table id="1"]</code></div>
-			<div class="row"><div><div class="t">Opening hours</div><div class="m">Used on Contact · every hour</div></div><span class="pill bad">Not updating</span><code class="sc">[sheet_table id="2"]</code></div>
-			<div class="row"><div><div class="t">Team rota</div><div class="m">Not on any page yet</div></div><span class="pill ok">Up to date</span><code class="sc">[sheet_table id="3"]</code></div>
-		</div>
-		<div>
-			<div class="panel quick rel">
-				<span class="note">4 — next table straight from here</span>
-				<span class="label">Add another sheet</span>
-				<div class="paste" style="margin-top:10px">
-					<span class="field">🔗 <input value="Paste a Google Sheets link" readonly></span>
-					<a class="btn solid">Preview</a>
-				</div>
-				<div class="links">
-					<a>⚙ <b>Settings</b> <span>who can manage, how often</span></a>
-					<a>▤ <b>Put a table on a page</b> <span>block, widget, shortcode</span></a>
-				</div>
-			</div>
-			<div class="panel tip">
-				<span class="ico v">★</span>
-				<p><b>Pro:</b> sync every minute, colour rules, filters for visitors and private sheets. <a style="color:var(--violet);font-weight:600">See Pro</a></p>
-			</div>
-		</div>
-	</div>
-</template>
 
 <script>
 	const v = new URLSearchParams( location.search ).get( 'v' ) === 'back' ? 'back' : 'first';
-	document.getElementById( 'ekran' ).append( document.getElementById( v ).content.cloneNode( true ) );
+	const ekran = document.getElementById( 'ekran' );
+	ekran.classList.add( 'v-' + v );
+	ekran.append( document.getElementById( 'ekran-tpl' ).content.cloneNode( true ) );
 	document.title = v === 'back' ? 'Start — returning' : 'Start — first time';
 </script>
 </body>
