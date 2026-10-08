@@ -142,27 +142,19 @@ defined( 'ABSPATH' ) || exit;
 			<?php echo LSTAB_Icons::badge( 'shield', 'violet' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
 			<span>
 				<h2><?php esc_html_e( 'Which sheets are private', 'live-sheets-table-pro' ); ?></h2>
-				<span class="lstab-panel-sub"><?php esc_html_e( 'Tick one and you can remove link sharing in Google entirely', 'live-sheets-table-pro' ); ?></span>
+				<span class="lstab-panel-sub"><?php esc_html_e( 'Sheets read through your Google account instead of a public link', 'live-sheets-table-pro' ); ?></span>
 			</span>
 		</div>
 
 		<div class="lstab-panel-body">
 		<p class="lstab-help">
-			<?php esc_html_e( 'Tick a sheet to read it through the connected account instead of its public link. You can then turn off link sharing in Google.', 'live-sheets-table-pro' ); ?>
+			<?php esc_html_e( 'A sheet that is no longer shared by link is read through the connected account by itself, and ticked here. To make a sheet private:', 'live-sheets-table-pro' ); ?>
 		</p>
-		<?php
-		/*
-		 * The order matters, and getting it wrong looks like a broken table:
-		 * a sheet unshared before it is ticked here can no longer be read at
-		 * all, and one unshared before it was ever added cannot be previewed.
-		 */
-		?>
 		<ol class="lstab-steps">
-			<li><?php esc_html_e( 'Add the sheet as usual, while it is still shared by link — the preview reads it that way.', 'live-sheets-table-pro' ); ?></li>
+			<li><?php esc_html_e( 'Add the sheet by its link, as usual.', 'live-sheets-table-pro' ); ?></li>
 			<li><?php esc_html_e( 'Connect a Google account above, one that can open the sheet.', 'live-sheets-table-pro' ); ?></li>
-			<li><?php esc_html_e( 'Tick the sheet below and save.', 'live-sheets-table-pro' ); ?></li>
-			<li><?php esc_html_e( 'On the list of tables, choose “Refresh” and check it still updates.', 'live-sheets-table-pro' ); ?></li>
-			<li><?php esc_html_e( 'In Google Sheets choose Share → General access → “Restricted”. Keep the link in the table’s settings: it only tells the plugin which sheet to read.', 'live-sheets-table-pro' ); ?></li>
+			<li><?php esc_html_e( 'In Google Sheets choose Share → General access → “Restricted”.', 'live-sheets-table-pro' ); ?></li>
+			<li><?php esc_html_e( 'On the list of tables choose “Refresh”. The table keeps updating, and it is ticked below. Keep the link in the table’s settings: it only tells the plugin which sheet to read.', 'live-sheets-table-pro' ); ?></li>
 		</ol>
 		<?php if ( ! $sources ) : ?>
 			<p class="lstab-help"><?php esc_html_e( 'No sheet sources yet.', 'live-sheets-table-pro' ); ?></p>

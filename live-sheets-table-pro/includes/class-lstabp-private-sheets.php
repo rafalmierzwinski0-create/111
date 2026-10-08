@@ -37,6 +37,82 @@ class LSTABP_Private_Sheets {
 		add_action( 'lstab_before_sync', array( __CLASS__, 'remember_source' ) );
 
 		add_action( 'lstab_source_deleted', array( __CLASS__, 'forget' ) );
+
+		add_filter( 'lstab_fetch_refused', array( $this, 'try_connected_account' ), 10, 4 );
+	}
+
+	/**
+	 * Whether the connected account is being tried for a refused sheet.
+	 *
+	 * @var bool
+	 */
+	protected static $trying = false;
+
+	/**
+	 * Read a sheet through the connected account once its public link stops
+	 * working, and remember to do so from then on.
+	 *
+	 * This is what lets a sheet go private without anyone ticking anything:
+	 * add it by link, connect the account, switch link sharing off in Google,
+	 * and the next check finds the public door shut, walks through the
+	 * account's instead, and marks the table so it goes that way every time.
+	 * It also lets a sheet that was never shared at all be previewed and
+	 * added. Only a refusal is retried — a sheet that is missing, empty or
+	 * slow is not a sharing question — and if the account cannot open it
+	 * either, the original refusal is what gets reported, because that is
+	 * the one that says what to change.
+	 *
+	 * @param WP_Error $result     The public refusal.
+	 * @param string   $sheet_id   Spreadsheet ID.
+	 * @param string   $gid        Tab ID.
+	 * @param string   $sheet_kind Document kind.
+	 * @return string|WP_Error CSV body, or the refusal unchanged.
+	 */
+	public function try_connected_account( $result, $sheet_id, $gid, $sheet_kind ) {
+		if ( self::$trying || ! is_wp_error( $result ) || ! self::is_refusal( $result ) ) {
+			return $result;
+		}
+
+		// Already read through the account, and refused anyway.
+		if ( $this->current_source_is_private() || ! LSTABP_Google_Auth::is_connected() ) {
+			return $result;
+		}
+
+		self::$trying = true;
+		$second       = LSTAB_Fetcher::fetch_csv( $sheet_id, $gid, $sheet_kind );
+		self::$trying = false;
+
+		if ( is_wp_error( $second ) ) {
+			return $result;
+		}
+
+		if ( null !== self::$current_source ) {
+			self::set_private( self::$current_source, true );
+		}
+
+		return $second;
+	}
+
+	/**
+	 * Whether a failure means "you may not see this" rather than anything else.
+	 *
+	 * Google answers a sheet that is not shared with its sign-in page, or with
+	 * 401 or 403; a file it will not show somebody can also come back as 404.
+	 *
+	 * @param WP_Error $error Failure.
+	 * @return bool
+	 */
+	protected static function is_refusal( $error ) {
+		if ( 'lstab_not_public' === $error->get_error_code() ) {
+			return true;
+		}
+
+		$data = $error->get_error_data();
+
+		return 'lstab_http_status' === $error->get_error_code()
+			&& is_array( $data )
+			&& isset( $data['status'] )
+			&& in_array( (int) $data['status'], array( 401, 403, 404 ), true );
 	}
 
 	/**
@@ -167,7 +243,7 @@ class LSTABP_Private_Sheets {
 	 * @return array<string,mixed>
 	 */
 	public function maybe_authorise( $args, $url ) {
-		if ( false === strpos( $url, '/export' ) || ! $this->current_source_is_private() ) {
+		if ( false === strpos( $url, '/export' ) || ! ( self::$trying || $this->current_source_is_private() ) ) {
 			return $args;
 		}
 
@@ -225,6 +301,6 @@ class LSTABP_Private_Sheets {
 	protected function applies( $sheet_id, $url ) {
 		unset( $sheet_id, $url );
 
-		return $this->current_source_is_private() && LSTABP_Google_Auth::is_connected();
+		return ( self::$trying || $this->current_source_is_private() ) && LSTABP_Google_Auth::is_connected();
 	}
 }

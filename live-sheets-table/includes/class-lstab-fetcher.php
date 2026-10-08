@@ -37,15 +37,31 @@ class LSTAB_Fetcher {
 		 */
 		$fallback = LSTAB_Url::csv_fallback_endpoint( $sheet_id, $gid, $sheet_kind );
 
-		if ( '' === $fallback ) {
-			return $result;
+		if ( '' !== $fallback ) {
+			$second = self::fetch_from( $fallback );
+
+			if ( ! is_wp_error( $second ) ) {
+				return $second;
+			}
 		}
 
-		$second = self::fetch_from( $fallback );
-
-		// The first refusal is the one worth reporting: it explains what to
-		// change in the sheet's sharing settings.
-		return is_wp_error( $second ) ? $result : $second;
+		/**
+		 * Filters a download every endpoint refused.
+		 *
+		 * The last word before a failure is reported, for an add-on that has
+		 * another way in — such as a connected Google account for a sheet
+		 * that is no longer shared by link. Return the CSV body to recover,
+		 * or the error unchanged.
+		 *
+		 * The first refusal is the one passed on and reported: it explains
+		 * what to change in the sheet's sharing settings.
+		 *
+		 * @param WP_Error $result     The first endpoint's refusal.
+		 * @param string   $sheet_id   Spreadsheet ID.
+		 * @param string   $gid        Tab ID.
+		 * @param string   $sheet_kind Document kind.
+		 */
+		return apply_filters( 'lstab_fetch_refused', $result, $sheet_id, $gid, $sheet_kind );
 	}
 
 	/**

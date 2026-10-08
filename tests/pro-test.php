@@ -243,6 +243,33 @@ LSTABP_Google_Auth::exchange_code( 'fake-auth-code' );
 LSTABP_Private_Sheets::set_private( $source_id, false );
 LSTAB_Sync::run( $source_id );
 
+/*
+ * Nobody has to tick anything: a sheet whose link sharing is switched off in
+ * Google is read through the connected account at the next check, and marked
+ * so it goes that way from then on.
+ */
+lstabp_set_mock( 'private_only', 'main', 'ok' );
+lstabp_assert( ! LSTABP_Private_Sheets::is_private( $source_id ), 'Starts unmarked, read by its public link' );
+$lstabp_switched = LSTAB_Sync::run( $source_id );
+lstabp_assert( true === $lstabp_switched, 'A sheet made private in Google keeps syncing through the account', is_wp_error( $lstabp_switched ) ? $lstabp_switched->get_error_message() : '' );
+lstabp_assert( LSTABP_Private_Sheets::is_private( $source_id ), 'And is marked private by itself' );
+
+// A sheet never shared at all can be previewed before it is saved.
+LSTABP_Private_Sheets::remember_source( array( 'id' => null ) );
+$lstabp_preview = LSTAB_Fetcher::fetch_csv( '1NEVERSHAREDATALL0000000000000000000000', '0' );
+lstabp_assert( ! is_wp_error( $lstabp_preview ) && '' !== trim( (string) $lstabp_preview ), 'A sheet never shared by link can still be previewed through the account', is_wp_error( $lstabp_preview ) ? $lstabp_preview->get_error_message() : '' );
+
+// With no account connected nothing changes: the refusal is reported as it was.
+LSTABP_Private_Sheets::set_private( $source_id, false );
+delete_option( LSTABP_Google_Auth::OPTION_TOKEN );
+$lstabp_refused = LSTAB_Sync::run( $source_id );
+lstabp_assert( is_wp_error( $lstabp_refused ) && false !== strpos( $lstabp_refused->get_error_message(), 'Anyone with the link' ), 'Without an account the sharing problem is reported, not hidden', is_wp_error( $lstabp_refused ) ? $lstabp_refused->get_error_message() : 'no error' );
+lstabp_assert( ! LSTABP_Private_Sheets::is_private( $source_id ), 'And the table is not marked' );
+
+lstabp_set_mock( 'ok', 'main', 'ok' );
+LSTABP_Google_Auth::exchange_code( 'fake-auth-code' );
+LSTAB_Sync::run( $source_id );
+
 // A private mark belongs to one table, not to its number: numbers start again
 // from 1 once every table is gone, and a table can be deleted while Pro is off.
 $lstabp_marked = (int) LSTAB_Storage::insert(
