@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Start screen — two variants</title>
+<!--
+	Projekt, nie kod wtyczki. Pierwszy ekran po kliknięciu „Sheets Tables”
+	w menu: zamiast listy tabel. Dwa warianty w jednym pliku, wybierane
+	parametrem: ?v=first (pierwszy raz) i ?v=back (ktoś, kto już ma tabele).
+-->
+<style>
+:root {
+	--teal: #0f766e; --teal-dark: #115e59; --teal-soft: #e6f4f1; --teal-line: #b7e0d8;
+	--ink: #1d2327; --ink-2: #50575e; --ink-3: #8c8f94;
+	--line: #dcdcde; --panel: #fff; --page: #f0f0f1;
+	--amber: #b45309; --amber-soft: #fff7e6; --red: #b42318; --red-soft: #fdecea;
+	--violet: #6d28d9;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, sans-serif; }
+.wp { display: grid; grid-template-columns: 160px 1fr; min-height: 100vh; }
+.bar { position: fixed; inset: 0 0 auto 0; height: 32px; background: #1d2327; color: #f0f0f1; display: flex; align-items: center; gap: 18px; padding: 0 12px; font-size: 13px; z-index: 5; }
+.bar b { font-weight: 400; }
+.side { background: #1d2327; padding-top: 44px; color: #f0f0f1; font-size: 14px; }
+.side a { display: block; padding: 7px 12px; color: #f0f0f1; text-decoration: none; }
+.side .on { background: #2271b1; }
+.side .sub { background: #2c3338; padding: 4px 0; }
+.side .sub a { padding: 5px 12px; font-size: 13px; color: #c3c4c7; }
+.side .sub a.here { color: #fff; font-weight: 600; }
+main { padding: 52px 20px 40px; }
+
+/* nagłówek wtyczki — jak dziś */
+.mast { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+.mast .logo { width: 36px; height: 36px; border-radius: 9px; background: linear-gradient( 160deg, #14b8a6, var(--teal-dark) ); display: grid; place-items: center; }
+.mast .logo i { width: 18px; height: 14px; border: 2px solid #fff; border-radius: 3px; background: linear-gradient( #fff 0 0 ) 0 4px / 100% 2px no-repeat, linear-gradient( #fff 0 0 ) 5px 0 / 2px 100% no-repeat; }
+.mast h1 { margin: 0; font-size: 21px; font-weight: 600; }
+.mast small { display: block; color: var(--ink-2); font-size: 13px; }
+.mast .right { margin-left: auto; display: flex; gap: 8px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 7px; font-weight: 600; font-size: 13px; text-decoration: none; border: 1px solid var(--teal); color: var(--teal); background: #fff; white-space: nowrap; }
+.btn.solid { background: var(--teal); color: #fff; box-shadow: 0 1px 0 var(--teal-dark); }
+.btn.big { padding: 12px 20px; font-size: 14px; }
+.btn.ghost { border-color: var(--line); color: var(--ink-2); font-weight: 500; }
+
+.tabs { display: flex; gap: 26px; border-bottom: 1px solid var(--line); margin-bottom: 22px; }
+.tabs a { padding: 0 2px 10px; color: var(--ink-2); text-decoration: none; font-size: 14px; }
+.tabs a.on { color: var(--teal-dark); font-weight: 600; box-shadow: inset 0 -2px 0 var(--teal); }
+
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+.grid-bg { background-color: #fff; background-image: linear-gradient( to right, rgba( 15, 118, 110, .05 ) 1px, transparent 1px ), linear-gradient( to bottom, rgba( 15, 118, 110, .05 ) 1px, transparent 1px ); background-size: 24px 24px; }
+.label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+.note { position: absolute; right: -6px; top: -12px; background: #fde047; color: #422006; font: 600 11px/1.3 -apple-system, sans-serif; padding: 3px 7px; border-radius: 6px; transform: rotate( 2deg ); box-shadow: 0 2px 6px rgba(0,0,0,.15); z-index: 2; }
+.rel { position: relative; }
+
+/* ---------- wariant 1: pierwszy raz ---------- */
+.hero { display: grid; grid-template-columns: 1.25fr 1fr; gap: 0; }
+.hero-left { padding: 34px 36px 30px; border-radius: 12px 0 0 12px; }
+.hero h2 { margin: 6px 0 8px; font-size: 26px; line-height: 1.2; letter-spacing: -.01em; }
+.hero p.lede { margin: 0 0 20px; color: var(--ink-2); font-size: 15px; max-width: 34em; }
+.paste { display: flex; gap: 8px; }
+.paste .field { flex: 1; display: flex; align-items: center; gap: 8px; border: 1.5px solid var(--teal-line); border-radius: 9px; padding: 0 12px; background: #fff; box-shadow: 0 0 0 4px var(--teal-soft); }
+.paste .field input { border: 0; outline: 0; font: inherit; width: 100%; padding: 12px 0; color: var(--ink-3); }
+.ticks { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 16px 0 0; padding: 0; list-style: none; color: var(--ink-2); font-size: 13px; }
+.ticks li::before { content: "✓"; color: var(--teal); font-weight: 700; margin-right: 6px; }
+.hero-right { background: linear-gradient( 160deg, #f2fbf9, #e3f3ef ); border-left: 1px solid var(--line); padding: 26px 28px; border-radius: 0 12px 12px 0; }
+.steps { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 14px; }
+.steps li { display: grid; grid-template-columns: 30px 1fr; gap: 12px; align-items: start; }
+.steps .n { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; background: #fff; border: 1.5px solid var(--teal-line); color: var(--teal-dark); }
+.steps li.now .n { background: var(--teal); border-color: var(--teal); color: #fff; box-shadow: 0 0 0 4px rgba( 15, 118, 110, .15 ); }
+.steps b { display: block; font-size: 14px; }
+.steps span { color: var(--ink-2); font-size: 13px; }
+.share { margin-top: 8px; display: inline-flex; align-items: center; gap: 8px; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font-size: 12px; color: var(--ink-2); }
+.share em { font-style: normal; background: #c2e7ff; color: #001d35; border-radius: 999px; padding: 2px 10px; font-weight: 600; }
+
+.three { display: grid; grid-template-columns: repeat( 3, 1fr ); gap: 14px; margin-top: 16px; }
+.card { padding: 18px 20px; }
+.card h3 { margin: 8px 0 4px; font-size: 15px; }
+.card p { margin: 0 0 12px; color: var(--ink-2); font-size: 13px; }
+.ico { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; background: var(--teal-soft); color: var(--teal-dark); font-size: 17px; }
+.ico.v { background: #f1ebfe; color: var(--violet); }
+.ico.a { background: var(--amber-soft); color: var(--amber); }
+.pro { font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--violet); background: #f1ebfe; border-radius: 999px; padding: 2px 7px; margin-left: 6px; vertical-align: 2px; }
+.mini-table { margin: 4px 0 12px; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; font-size: 11px; }
+.mini-table div { display: grid; grid-template-columns: 1.4fr .8fr .8fr; padding: 4px 8px; border-top: 1px solid #f0f0f1; }
+.mini-table div:first-child { border-top: 0; background: #f6f7f7; font-weight: 600; color: var(--ink-2); }
+.mini-table i { font-style: normal; color: var(--teal-dark); }
+
+/* ---------- wariant 2: wraca ---------- */
+.hello { display: flex; align-items: flex-end; gap: 16px; margin-bottom: 14px; }
+.hello h2 { margin: 0; font-size: 22px; }
+.hello p { margin: 2px 0 0; color: var(--ink-2); }
+.hello .right { margin-left: auto; }
+.stats { display: grid; grid-template-columns: repeat( 4, 1fr ); gap: 14px; }
+.stat { padding: 16px 18px; }
+.stat .v { font-size: 26px; font-weight: 700; letter-spacing: -.02em; margin-top: 2px; }
+.stat .s { color: var(--ink-2); font-size: 12px; }
+.stat.ok .v { color: var(--teal-dark); }
+.dots { display: flex; gap: 3px; margin-top: 8px; }
+.dots i { width: 8px; height: 16px; border-radius: 2px; background: #5fbfaf; }
+.dots i.x { background: #f04438; }
+.alert { display: flex; align-items: center; gap: 14px; margin-top: 14px; padding: 12px 16px; background: var(--amber-soft); border: 1px solid #fcd9a4; border-radius: 10px; }
+.alert b { display: block; }
+.alert span { color: var(--ink-2); font-size: 13px; }
+.alert .btn { margin-left: auto; border-color: var(--amber); color: var(--amber); }
+.two { display: grid; grid-template-columns: 1.6fr 1fr; gap: 14px; margin-top: 14px; }
+.sec-head { display: flex; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.sec-head h3 { margin: 0; font-size: 15px; }
+.sec-head a { margin-left: auto; color: var(--teal); font-weight: 600; text-decoration: none; font-size: 13px; }
+.row { display: grid; grid-template-columns: 1fr auto auto; gap: 14px; align-items: center; padding: 12px 18px; border-top: 1px solid #f0f0f1; }
+.row:first-of-type { border-top: 0; }
+.row .t { font-weight: 600; }
+.row .m { color: var(--ink-3); font-size: 12px; }
+.pill { font-size: 12px; font-weight: 600; border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
+.pill.ok { background: var(--teal-soft); color: var(--teal-dark); }
+.pill.bad { background: var(--red-soft); color: var(--red); }
+code.sc { font: 12px ui-monospace, Menlo, Consolas, monospace; background: #f6f7f7; border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; white-space: nowrap; }
+.quick { padding: 16px 18px; }
+.quick .paste .field { box-shadow: none; }
+.quick .paste .field input { padding: 9px 0; }
+.links { display: grid; gap: 2px; margin-top: 12px; }
+.links a { display: flex; align-items: center; gap: 10px; padding: 8px 6px; border-radius: 7px; color: var(--ink); text-decoration: none; }
+.links a:hover { background: #f6f7f7; }
+.links a span { color: var(--ink-3); margin-left: auto; font-size: 12px; }
+.tip { margin-top: 14px; padding: 16px 18px; display: flex; gap: 14px; align-items: center; }
+.tip p { margin: 0; color: var(--ink-2); font-size: 13px; }
+.tip b { color: var(--ink); }
+</style>
+</head>
+<body>
+<div class="bar"><b>⊕ My Site</b><b>+ New</b><span style="margin-left:auto">Howdy, admin</span></div>
+<div class="wp">
+	<nav class="side">
+		<a>Dashboard</a><a>Posts</a><a>Media</a><a>Pages</a>
+		<a class="on">Sheets Tables</a>
+		<div class="sub"><a class="here">Start</a><a>All tables</a><a>Add new</a><a>Settings</a></div>
+		<a>Appearance</a><a>Plugins</a><a>Users</a><a>Settings</a>
+	</nav>
+	<main id="ekran"></main>
+</div>
+
+<template id="first">
+	<div class="mast">
+		<span class="logo"><i></i></span>
+		<div><h1>Live Sheets Table</h1><small>Google Sheets on your pages, kept up to date by themselves</small></div>
+	</div>
+	<div class="tabs"><a class="on">Start</a><a>Sheet sources</a><a>Settings</a></div>
+
+	<div class="panel hero rel">
+		<span class="note" style="right:auto;left:330px">1 — paste a link, see the table</span>
+		<div class="hero-left grid-bg">
+			<span class="label">Welcome</span>
+			<h2>Your first table in under a minute</h2>
+			<p class="lede">Copy the address of a Google Sheet from your browser and paste it below. You will see the table straight away — nothing is saved until you say so.</p>
+			<div class="paste">
+				<span class="field">🔗 <input value="https://docs.google.com/spreadsheets/d/…" readonly></span>
+				<a class="btn solid big">Show me the table →</a>
+			</div>
+			<ul class="ticks">
+				<li>No API key</li><li>No row limit</li><li>Read-only — nothing is written to Google</li>
+			</ul>
+		</div>
+		<div class="hero-right rel">
+			<span class="note" style="top:-12px;right:12px">2 — what happens next</span>
+			<span class="label">Three steps</span>
+			<ol class="steps">
+				<li class="now"><span class="n">1</span><div><b>Share the sheet by link</b><span>In Google Sheets: Share → General access →</span><br><span class="share">Anyone with the link <em>Viewer</em></span></div></li>
+				<li><span class="n">2</span><div><b>Paste the link here</b><span>Pick the tab, give it a name. The preview shows exactly what we read.</span></div></li>
+				<li><span class="n">3</span><div><b>Put it on a page</b><span>The “Google Sheets Table” block, the Elementor widget or a shortcode.</span></div></li>
+			</ol>
+		</div>
+	</div>
+
+	<div class="three">
+		<div class="panel card rel">
+			<span class="note">3 — no sheet? try ours</span>
+			<span class="ico">▦</span>
+			<h3>No spreadsheet yet?</h3>
+			<p>Add a ready example price list and try every setting on it. It never contacts Google and one click removes it.</p>
+			<div class="mini-table"><div><span>Service</span><span>Time</span><span>Price</span></div><div><span>Basic service</span><span>45 min</span><i>120.00</i></div><div><span>Wheel truing</span><span>30 min</span><i>89.00</i></div></div>
+			<a class="btn">Add the example</a>
+		</div>
+		<div class="panel card">
+			<span class="ico a">?</span>
+			<h3>Not sure how to share?</h3>
+			<p>A 30-second guide with pictures: where the Share button is, which option to pick, and how to check the link works.</p>
+			<a class="btn ghost">Show me how</a>
+		</div>
+		<div class="panel card">
+			<span class="ico v">🔒</span>
+			<h3>Sheet must stay private? <span class="pro">PRO</span></h3>
+			<p>Connect your own Google account and the table is read without a public link. Sharing by link is all the free version needs.</p>
+			<a class="btn ghost">See what Pro adds</a>
+		</div>
+	</div>
+</template>
+
+<template id="back">
+	<div class="mast">
+		<span class="logo"><i></i></span>
+		<div><h1>Live Sheets Table</h1><small>3 tables · 1,284 rows</small></div>
+		<div class="right"><a class="btn solid">+ Add a sheet</a></div>
+	</div>
+	<div class="tabs"><a class="on">Start</a><a>Sheet sources</a><a>Settings</a></div>
+
+	<div class="hello">
+		<div><h2>Welcome back</h2><p>Here is how your tables are doing.</p></div>
+	</div>
+
+	<div class="stats rel">
+		<span class="note">1 — the state at a glance</span>
+		<div class="panel stat"><span class="label">Tables</span><div class="v">3</div><div class="s">on 4 pages</div></div>
+		<div class="panel stat"><span class="label">Rows published</span><div class="v">1,284</div><div class="s">no row limit</div></div>
+		<div class="panel stat ok"><span class="label">Last update</span><div class="v">2 min</div><div class="s">ago, from Google</div></div>
+		<div class="panel stat"><span class="label">Last 10 checks</span><div class="dots"><i></i><i></i><i></i><i></i><i class="x"></i><i></i><i></i><i></i><i></i><i></i></div><div class="s" style="margin-top:6px">9 fine, 1 failed</div></div>
+	</div>
+
+	<div class="alert rel">
+		<span class="note">2 — only when something needs you</span>
+		<span class="ico a">!</span>
+		<div><b>“Opening hours” could not be read from Google</b><span>Visitors still see the copy from 3 hours ago. The sheet was probably made private.</span></div>
+		<a class="btn">Fix it</a>
+	</div>
+
+	<div class="two">
+		<div class="panel rel">
+			<span class="note">3 — recent tables, shortcode ready</span>
+			<div class="sec-head"><h3>Your tables</h3><a>All tables →</a></div>
+			<div class="row"><div><div class="t">Price list 2026</div><div class="m">Used on Pricing, Home · every 15 minutes</div></div><span class="pill ok">Up to date</span><code class="sc">[sheet_table id="1"]</code></div>
+			<div class="row"><div><div class="t">Opening hours</div><div class="m">Used on Contact · every hour</div></div><span class="pill bad">Not updating</span><code class="sc">[sheet_table id="2"]</code></div>
+			<div class="row"><div><div class="t">Team rota</div><div class="m">Not on any page yet</div></div><span class="pill ok">Up to date</span><code class="sc">[sheet_table id="3"]</code></div>
+		</div>
+		<div>
+			<div class="panel quick rel">
+				<span class="note">4 — next table straight from here</span>
+				<span class="label">Add another sheet</span>
+				<div class="paste" style="margin-top:10px">
+					<span class="field">🔗 <input value="Paste a Google Sheets link" readonly></span>
+					<a class="btn solid">Preview</a>
+				</div>
+				<div class="links">
+					<a>⚙ <b>Settings</b> <span>who can manage, how often</span></a>
+					<a>▤ <b>Put a table on a page</b> <span>block, widget, shortcode</span></a>
+				</div>
+			</div>
+			<div class="panel tip">
+				<span class="ico v">★</span>
+				<p><b>Pro:</b> sync every minute, colour rules, filters for visitors and private sheets. <a style="color:var(--violet);font-weight:600">See Pro</a></p>
+			</div>
+		</div>
+	</div>
+</template>
+
+<script>
+	const v = new URLSearchParams( location.search ).get( 'v' ) === 'back' ? 'back' : 'first';
+	document.getElementById( 'ekran' ).append( document.getElementById( v ).content.cloneNode( true ) );
+	document.title = v === 'back' ? 'Start — returning' : 'Start — first time';
+</script>
+</body>
+</html>
