@@ -187,13 +187,6 @@ if ( ! $lstab_is_edit ) {
 						</button>
 					</p>
 					<?php
-					$lstab_style_choices = array( '' => __( 'This table\'s own', 'live-sheets-table' ) );
-					foreach ( LSTAB_Styles::all() as $lstab_slug => $lstab_preset ) {
-						if ( empty( $lstab_preset['pro'] ) || LSTAB_Limits::is_pro() ) {
-							$lstab_style_choices[ $lstab_slug ] = $lstab_preset['label'];
-						}
-					}
-
 					$lstab_options = array(
 						array(
 							'att'   => 'search',
@@ -209,12 +202,6 @@ if ( ! $lstab_is_edit ) {
 							'att'   => 'meta',
 							'type'  => 'toggle',
 							'label' => __( 'The “updated … ago” line', 'live-sheets-table' ),
-						),
-						array(
-							'att'     => 'style',
-							'type'    => 'select',
-							'label'   => __( 'Style', 'live-sheets-table' ),
-							'choices' => $lstab_style_choices,
 						),
 						array(
 							'att'         => 'caption',
@@ -242,7 +229,7 @@ if ( ! $lstab_is_edit ) {
 						</div>
 						<?php foreach ( $lstab_options as $lstab_option ) : ?>
 							<?php
-							if ( 'toggle' === $lstab_option['type'] ) {
+							if ( in_array( $lstab_option['type'], array( 'toggle', 'written' ), true ) ) {
 								continue;
 							}
 							$lstab_field_id = 'lstab-sc-' . sanitize_key( $lstab_option['att'] );
@@ -264,6 +251,40 @@ if ( ! $lstab_is_edit ) {
 								<?php endif; ?>
 							</p>
 						<?php endforeach; ?>
+						<?php
+						$lstab_written = array_filter(
+							$lstab_options,
+							function ( $lstab_option ) {
+								return 'written' === $lstab_option['type'];
+							}
+						);
+						?>
+						<?php if ( $lstab_written ) : ?>
+							<p class="lstab-help lstab-shortcode-written">
+								<?php esc_html_e( 'You can add this inside the brackets:', 'live-sheets-table' ); ?>
+							</p>
+							<table class="lstab-attribute-list">
+								<thead>
+									<tr>
+										<th scope="col"><?php esc_html_e( 'Write', 'live-sheets-table' ); ?></th>
+										<th scope="col"><?php esc_html_e( 'What it does', 'live-sheets-table' ); ?></th>
+									</tr>
+								</thead>
+								<tbody>
+									<?php foreach ( $lstab_written as $lstab_row ) : ?>
+										<tr>
+											<td><code><?php echo esc_html( $lstab_row['write'] ); ?></code></td>
+											<td>
+												<?php echo esc_html( $lstab_row['means'] ); ?>
+												<?php if ( ! empty( $lstab_row['note'] ) ) : ?>
+													<span class="lstab-attribute-values"><?php echo esc_html( $lstab_row['note'] ); ?></span>
+												<?php endif; ?>
+											</td>
+										</tr>
+									<?php endforeach; ?>
+								</tbody>
+							</table>
+						<?php endif; ?>
 					</div>
 				</div>
 			<?php endif; ?>

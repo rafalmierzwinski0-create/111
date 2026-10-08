@@ -1193,9 +1193,10 @@ remove_all_filters( 'lstab_edit_page_settings' );
 
 lstab_assert( false !== strpos( $lstab_edit_html, 'data-lstab-shortcode-builder="' . $source_id . '"' ), 'The shortcode card offers switches for this table' );
 lstab_assert( false === strpos( $lstab_edit_html, 'inside the brackets' ), 'And no longer lists attributes to type by hand' );
-foreach ( array( 'search', 'sort', 'meta', 'style', 'caption' ) as $lstab_att ) {
+foreach ( array( 'search', 'sort', 'meta', 'caption' ) as $lstab_att ) {
 	lstab_assert( false !== strpos( $lstab_edit_html, 'data-lstab-att="' . $lstab_att . '"' ), "There is a control for {$lstab_att}" );
 }
+lstab_assert( false === strpos( $lstab_edit_html, 'data-lstab-att="style"' ), 'The card offers no choice of style' );
 lstab_assert(
 	! preg_match( '/<[^>]*data-lstab-att="[^"]*"[^>]*\sname=/', $lstab_edit_html ) && ! preg_match( '/<[^>]*\sname="[^"]*"[^>]*data-lstab-att=/', $lstab_edit_html ),
 	'The switches are not sent with the form, so saving the table is unaffected'

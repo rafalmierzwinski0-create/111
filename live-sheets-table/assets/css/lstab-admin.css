@@ -413,6 +413,10 @@
 	margin-block-end: 0.4rem;
 }
 
+.lstab-admin .lstab-shortcode-options .lstab-shortcode-written {
+	margin: 1.2rem 0 0;
+}
+
 .lstab-admin .lstab-shortcode-field {
 	display: grid;
 	grid-template-columns: 11rem minmax( 0, 1fr );

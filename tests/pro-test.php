@@ -348,9 +348,9 @@ lstabp_assert( 2 === count( $parsed ), 'Two conditions are parsed', wp_json_enco
 lstabp_assert( 'Kategoria' === $parsed[0]['column'] && '=' === $parsed[0]['operator'], 'The first condition is read correctly', wp_json_encode( $parsed[0] ) );
 lstabp_assert( '>=' === $parsed[1]['operator'], 'A two-character operator is not read as one character', wp_json_encode( $parsed[1] ) );
 
-$lstabp_offered = wp_list_pluck( apply_filters( 'lstab_shortcode_options', array(), array( 'columns' => array( array( 'heading' => 'Kategoria' ) ) ) ), 'placeholder', 'att' );
-lstabp_assert( isset( $lstabp_offered['filter'] ), 'The shortcode card offers a field for the row filter', wp_json_encode( $lstabp_offered ) );
-lstabp_assert( 0 === strpos( (string) ( $lstabp_offered['filter'] ?? '' ), 'Kategoria is' ), 'Its example names a real column of the sheet', (string) ( $lstabp_offered['filter'] ?? '' ) );
+$lstabp_offered = wp_list_pluck( apply_filters( 'lstab_shortcode_options', array(), array( 'columns' => array( array( 'heading' => 'Kategoria' ) ) ) ), 'write', 'att' );
+lstabp_assert( isset( $lstabp_offered['filter'] ), 'The shortcode card explains the row filter', wp_json_encode( $lstabp_offered ) );
+lstabp_assert( 0 === strpos( (string) ( $lstabp_offered['filter'] ?? '' ), 'filter="Kategoria is' ), 'Its example names a real column of the sheet', (string) ( $lstabp_offered['filter'] ?? '' ) );
 
 // WordPress blanks a shortcode attribute containing an unclosed "<" as an XSS
 // precaution, so a "<" only survives entity-encoded. Word operators are the

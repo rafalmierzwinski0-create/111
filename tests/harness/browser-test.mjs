@@ -734,12 +734,11 @@ check( built.shown === `[sheet_table id="${ sourceId }"]`, 'The shortcode starts
 
 await page.locator( '.lstab-usage [data-lstab-att="search"]' ).uncheck();
 await page.locator( '.lstab-usage [data-lstab-att="meta"]' ).uncheck();
-await page.locator( '.lstab-usage [data-lstab-att="style"]' ).selectOption( 'bordered' );
 await page.locator( '.lstab-usage [data-lstab-att="caption"]' ).fill( 'Spring "sale" [list]' );
 await page.locator( '.lstab-usage [data-lstab-att="caption"]' ).press( 'Enter' );
 
 built = await builtCode();
-const expected = `[sheet_table id="${ sourceId }" search="no" meta="no" style="bordered" caption="Spring sale list"]`;
+const expected = `[sheet_table id="${ sourceId }" search="no" meta="no" caption="Spring sale list"]`;
 check( built.shown === expected, 'Each switch changes the shortcode as it is set', built.shown );
 check( built.copied === expected, 'And Copy copies exactly what is shown', built.copied );
 check( page.url().includes( 'live-sheets-table-edit' ), 'Enter in a field does not save the table' );

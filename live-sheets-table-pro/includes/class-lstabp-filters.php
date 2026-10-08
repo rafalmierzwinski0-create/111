@@ -10,7 +10,7 @@ class LSTABP_Filters {
 	}
 
 	public function offer_filter( $options, $source ) {
-		$example = __( 'Column is value', 'live-sheets-table-pro' );
+		$example = __( 'filter="Column is value"', 'live-sheets-table-pro' );
 
 		if ( ! empty( $source['columns'] ) && is_array( $source['columns'] ) ) {
 			foreach ( $source['columns'] as $column ) {
@@ -21,19 +21,18 @@ class LSTABP_Filters {
 				}
 
 				if ( '' !== trim( (string) $heading ) ) {
-					/* translators: %s: a column heading from the sheet. */
-					$example = sprintf( __( '%s is …', 'live-sheets-table-pro' ), $heading );
+					$example = sprintf( 'filter="%s is …"', $heading );
 					break;
 				}
 			}
 		}
 
 		$options[] = array(
-			'att'         => 'filter',
-			'type'        => 'text',
-			'label'       => __( 'Show only the rows where', 'live-sheets-table-pro' ),
-			'placeholder' => $example,
-			'help'        => __( 'So one sheet can feed several pages. Join conditions with a comma; the words to compare with are listed under Pro settings.', 'live-sheets-table-pro' ),
+			'att'   => 'filter',
+			'type'  => 'written',
+			'write' => $example,
+			'means' => __( 'Show only the rows that match, so one sheet can feed several pages', 'live-sheets-table-pro' ),
+			'note'  => __( 'Join conditions with a comma; the words to compare with are listed under Pro settings.', 'live-sheets-table-pro' ),
 		);
 
 		return $options;
