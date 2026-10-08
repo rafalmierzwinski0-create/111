@@ -35,7 +35,7 @@ await page.fill( '#user_login', 'admin' );
 await page.fill( '#user_pass', 'admin123' );
 await Promise.all( [ page.waitForURL( /wp-admin/ ), page.click( '#wp-submit' ) ] );
 
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
 const editHref = await page.locator( '.lstab-src a:has-text("Edit")' ).first().getAttribute( 'href' );
 await page.goto( editHref, { waitUntil: 'networkidle' } );
 
