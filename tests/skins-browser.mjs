@@ -564,11 +564,12 @@ for ( const skin of skins ) {
 	const alpha = sticky ? Number( sticky[ 1 ].split( /[\s,\/]+/ ).filter( ( s ) => '' !== s )[ 3 ] ?? 1 ) : 0;
 
 	check( alpha > 0.5, `${ skin }: the pinned column has something solid behind it`, d.stickyBackdrop );
-	// And that backdrop stops short of the line between rows, which is painted
-	// underneath it; see the pixel count further down.
+	// In the table layout the backdrop reaches over the line between rows and
+	// draws that line itself, in place of the one underneath it; a card's line
+	// is the card's own border, so there it stops at the cell.
 	check(
-		parseFloat( d.stickyBackdropBottom ) === parseFloat( d.lineToken || '0' ),
-		`${ skin }: and that backdrop stops short of the line`,
+		parseFloat( d.stickyBackdropBottom ) === ( 'cards' === skin ? 0 : -parseFloat( d.lineToken || '0' ) ),
+		`${ skin }: and that backdrop takes the place of the line rather than adding to it`,
 		`${ d.stickyBackdropBottom } against a ${ d.lineToken } line`
 	);
 }
@@ -1230,6 +1231,69 @@ for ( const table of said.pages[ 0 ].tables ) {
 	check(
 		pinnedTall === looseTall,
 		`${ table.skin }: the line under the headings is the same height under the pinned column as after it`,
+		`${ pinnedTall }px there against ${ looseTall }px elsewhere`
+	);
+}
+
+/*
+ * The same for the line between two rows. The pinned cell drew its own line
+ * just above the one the table draws, and the two together made the line under
+ * the first column twice as tall as under every other column, on every skin.
+ */
+console.log( '\nThe line between rows, under the pinned column and away from it' );
+
+for ( const table of said.pages[ 0 ].tables ) {
+	const where = await sharpHead.evaluate( ( id ) => {
+		const wrap = document.querySelector( `.lstab[data-lstab-id="${ id }"]` );
+
+		if ( ! wrap.classList.contains( 'lstab-sticky-first' ) || wrap.classList.contains( 'lstab-style-cards' ) ) {
+			return null;
+		}
+
+		const scroll = wrap.querySelector( '.lstab-scroll' );
+		const row = wrap.querySelector( 'tbody tr.lstab-row' );
+		const box = scroll.getBoundingClientRect();
+		const first = row.children[ 0 ].getBoundingClientRect();
+		const second = row.children[ 1 ].getBoundingClientRect();
+
+		return {
+			y: row.getBoundingClientRect().bottom - box.top,
+			pinned: first.left + 5 - box.left,
+			loose: second.left + 5 - box.left,
+		};
+	}, table.id );
+
+	if ( ! where ) {
+		continue;
+	}
+
+	const shot = decodePng( await ( await sharpHead.$( `.lstab[data-lstab-id="${ table.id }"] .lstab-scroll` ) ).screenshot() );
+	const tall = ( x ) => {
+		const at = Math.round( x );
+		const top = Math.round( where.y ) - 4;
+		const bottom = Math.round( where.y ) + 4;
+		const above = shot.at( at, top );
+		const below = shot.at( at, bottom );
+		const apart = ( p, q ) => Math.abs( p[ 0 ] - q[ 0 ] ) + Math.abs( p[ 1 ] - q[ 1 ] ) + Math.abs( p[ 2 ] - q[ 2 ] ) > 8;
+		let count = 0;
+
+		for ( let y = top + 1; y < bottom; y += 1 ) {
+			const p = shot.at( at, y );
+
+			if ( apart( p, above ) && apart( p, below ) ) {
+				count += 1;
+			}
+		}
+
+		return count;
+	};
+
+	const pinnedTall = tall( where.pinned );
+	const looseTall = tall( where.loose );
+
+	check(
+		pinnedTall === looseTall,
+		`${ table.skin }: the line between rows is the same height under the pinned column as after it`,
 		`${ pinnedTall }px there against ${ looseTall }px elsewhere`
 	);
 }

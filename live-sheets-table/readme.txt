@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.41.0
+Stable tag: 3.41.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -192,6 +192,11 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.41.1 =
+* Fixed: the line between rows was twice as thick under a pinned first column as under every other column, in every style.
+* Changed: "Put it on a page" sets the shortcode with switches — search box, sorting, the "updated … ago" line, style and caption — instead of a list of words to type into it. The shortcode and the Copy button follow as you go.
+* Changed (Pro): "Show only the rows where" is a field on that card too.
 
 = 3.41.0 =
 * Changed: clearing the page cache is limited to the pages a table is actually shown on. The plugin remembers where each table is drawn and clears only those pages, never the whole site.

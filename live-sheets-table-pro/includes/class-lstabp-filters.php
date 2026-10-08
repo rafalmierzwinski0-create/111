@@ -6,11 +6,11 @@ class LSTABP_Filters {
 	public function register() {
 		add_filter( 'lstab_source_rows', array( $this, 'filter_rows' ), 10, 4 );
 		add_filter( 'lstab_filter_supported', '__return_true' );
-		add_filter( 'lstab_shortcode_attributes', array( $this, 'document_filter' ), 10, 2 );
+		add_filter( 'lstab_shortcode_options', array( $this, 'offer_filter' ), 10, 2 );
 	}
 
-	public function document_filter( $attributes, $source ) {
-		$example = __( 'filter="Column is value"', 'live-sheets-table-pro' );
+	public function offer_filter( $options, $source ) {
+		$example = __( 'Column is value', 'live-sheets-table-pro' );
 
 		if ( ! empty( $source['columns'] ) && is_array( $source['columns'] ) ) {
 			foreach ( $source['columns'] as $column ) {
@@ -21,19 +21,22 @@ class LSTABP_Filters {
 				}
 
 				if ( '' !== trim( (string) $heading ) ) {
-					$example = sprintf( 'filter="%s is …"', $heading );
+					/* translators: %s: a column heading from the sheet. */
+					$example = sprintf( __( '%s is …', 'live-sheets-table-pro' ), $heading );
 					break;
 				}
 			}
 		}
 
-		$attributes[] = array(
-			'write' => $example,
-			'means' => __( 'Show only the rows that match, so one sheet can feed several pages', 'live-sheets-table-pro' ),
-			'note'  => __( 'Join conditions with a comma; the words to compare with are listed under Pro settings.', 'live-sheets-table-pro' ),
+		$options[] = array(
+			'att'         => 'filter',
+			'type'        => 'text',
+			'label'       => __( 'Show only the rows where', 'live-sheets-table-pro' ),
+			'placeholder' => $example,
+			'help'        => __( 'So one sheet can feed several pages. Join conditions with a comma; the words to compare with are listed under Pro settings.', 'live-sheets-table-pro' ),
 		);
 
-		return $attributes;
+		return $options;
 	}
 
 	protected static function operators() {

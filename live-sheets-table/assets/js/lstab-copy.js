@@ -37,6 +37,60 @@
 		} );
 	}
 
+	function clean( value ) {
+		return String( value ).replace( /["\[\]]/g, '' ).replace( /\s+/g, ' ' ).trim();
+	}
+
+	function build( builder ) {
+		var card = builder.closest( '.lstab-usage' );
+		var code = card ? card.querySelector( '.lstab-shortcode' ) : null;
+		var button = card ? card.querySelector( '.lstab-copy' ) : null;
+		var text = '[sheet_table id="' + builder.getAttribute( 'data-lstab-shortcode-builder' ) + '"';
+
+		builder.querySelectorAll( '[data-lstab-att]' ).forEach( function ( field ) {
+			var att = field.getAttribute( 'data-lstab-att' );
+
+			if ( 'checkbox' === field.type ) {
+				if ( ! field.checked ) {
+					text += ' ' + att + '="no"';
+				}
+				return;
+			}
+
+			var value = clean( field.value );
+
+			if ( value ) {
+				text += ' ' + att + '="' + value + '"';
+			}
+		} );
+
+		text += ']';
+
+		if ( code ) {
+			code.textContent = text;
+		}
+		if ( button ) {
+			button.setAttribute( 'data-lstab-copy', text );
+		}
+	}
+
+	function onChange( event ) {
+		var builder = event.target.closest ? event.target.closest( '[data-lstab-shortcode-builder]' ) : null;
+
+		if ( builder ) {
+			build( builder );
+		}
+	}
+
+	document.addEventListener( 'input', onChange );
+	document.addEventListener( 'change', onChange );
+
+	document.addEventListener( 'keydown', function ( event ) {
+		if ( 'Enter' === event.key && event.target.closest && event.target.closest( '[data-lstab-shortcode-builder]' ) ) {
+			event.preventDefault();
+		}
+	} );
+
 	document.addEventListener( 'click', function ( event ) {
 		var button = event.target.closest ? event.target.closest( '.lstab-copy' ) : null;
 

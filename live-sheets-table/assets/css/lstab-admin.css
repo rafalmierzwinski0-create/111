@@ -394,6 +394,54 @@
 .lstab-attribute-list tr:last-child th,
 .lstab-attribute-list tr:last-child td { border-block-end: 0; }
 
+.lstab-shortcode-options {
+	margin-block-start: 0.9rem;
+	padding-block-start: 0.9rem;
+	border-block-start: 1px solid var( --lstab-line-soft );
+}
+
+.lstab-admin .lstab-shortcode-options > .lstab-help {
+	display: block;
+	margin: 0 0 0.6rem;
+	max-width: none;
+}
+
+.lstab-shortcode-toggles {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-block-end: 0.4rem;
+}
+
+.lstab-admin .lstab-shortcode-field {
+	display: grid;
+	grid-template-columns: 11rem minmax( 0, 1fr );
+	align-items: center;
+	gap: 0.3rem 0.7rem;
+	margin: 0.7rem 0 0;
+}
+
+.lstab-admin .lstab-shortcode-field select,
+.lstab-admin .lstab-shortcode-field input {
+	justify-self: start;
+	max-inline-size: 100%;
+}
+
+.lstab-admin .lstab-shortcode-field .lstab-help {
+	grid-column: 2;
+	margin-top: 0;
+}
+
+@media ( max-width: 600px ) {
+	.lstab-admin .lstab-shortcode-field {
+		grid-template-columns: minmax( 0, 1fr );
+	}
+
+	.lstab-admin .lstab-shortcode-field .lstab-help {
+		grid-column: 1;
+	}
+}
+
 .lstab-switch {
 	display: inline-flex;
 	align-items: center;

@@ -187,72 +187,84 @@ if ( ! $lstab_is_edit ) {
 						</button>
 					</p>
 					<?php
-					$lstab_style_words = array();
+					$lstab_style_choices = array( '' => __( 'This table\'s own', 'live-sheets-table' ) );
 					foreach ( LSTAB_Styles::all() as $lstab_slug => $lstab_preset ) {
 						if ( empty( $lstab_preset['pro'] ) || LSTAB_Limits::is_pro() ) {
-							$lstab_style_words[] = $lstab_slug;
+							$lstab_style_choices[ $lstab_slug ] = $lstab_preset['label'];
 						}
 					}
 
-					$lstab_attributes = array(
+					$lstab_options = array(
 						array(
-							'write' => 'search="no"',
-							'means' => __( 'Hide the search box', 'live-sheets-table' ),
+							'att'   => 'search',
+							'type'  => 'toggle',
+							'label' => __( 'Search box', 'live-sheets-table' ),
 						),
 						array(
-							'write' => 'sort="no"',
-							'means' => __( 'Turn off sorting by column', 'live-sheets-table' ),
+							'att'   => 'sort',
+							'type'  => 'toggle',
+							'label' => __( 'Sorting by column', 'live-sheets-table' ),
 						),
 						array(
-							'write' => 'meta="no"',
-							'means' => __( 'Hide the “updated … ago” line', 'live-sheets-table' ),
+							'att'   => 'meta',
+							'type'  => 'toggle',
+							'label' => __( 'The “updated … ago” line', 'live-sheets-table' ),
 						),
 						array(
-							'write'  => 'style="striped"',
-							'means'  => __( 'Use a table style other than this table\'s own', 'live-sheets-table' ),
-							'values' => $lstab_style_words,
+							'att'     => 'style',
+							'type'    => 'select',
+							'label'   => __( 'Style', 'live-sheets-table' ),
+							'choices' => $lstab_style_choices,
 						),
 						array(
-							/* translators: the words inside the quotes are an example a reader replaces; keep the caption=" " around them. */
-							'write' => __( 'caption="My table"', 'live-sheets-table' ),
-							'means' => __( 'Put a caption above the table', 'live-sheets-table' ),
+							'att'         => 'caption',
+							'type'        => 'text',
+							'label'       => __( 'Caption above the table', 'live-sheets-table' ),
+							'placeholder' => __( 'None', 'live-sheets-table' ),
 						),
 					);
 
-					$lstab_attributes = apply_filters( 'lstab_shortcode_attributes', $lstab_attributes, $source );
+					$lstab_options = apply_filters( 'lstab_shortcode_options', $lstab_options, $source );
 					?>
-					<p class="lstab-help">
-						<?php esc_html_e( 'You can add any of these inside the brackets:', 'live-sheets-table' ); ?>
-					</p>
-					<table class="lstab-attribute-list">
-						<thead>
-							<tr>
-								<th scope="col"><?php esc_html_e( 'Write', 'live-sheets-table' ); ?></th>
-								<th scope="col"><?php esc_html_e( 'What it does', 'live-sheets-table' ); ?></th>
-							</tr>
-						</thead>
-						<tbody>
-							<?php foreach ( $lstab_attributes as $lstab_row ) : ?>
-								<tr>
-									<td><code><?php echo esc_html( $lstab_row['write'] ); ?></code></td>
-									<td>
-										<?php echo esc_html( $lstab_row['means'] ); ?>
-										<?php if ( ! empty( $lstab_row['values'] ) ) : ?>
-											<span class="lstab-attribute-values">
-												<?php esc_html_e( 'Choose from:', 'live-sheets-table' ); ?>
-												<?php foreach ( $lstab_row['values'] as $lstab_word ) : ?>
-													<code><?php echo esc_html( $lstab_word ); ?></code>
-												<?php endforeach; ?>
-											</span>
-										<?php endif; ?>
-										<?php if ( ! empty( $lstab_row['note'] ) ) : ?>
-											<span class="lstab-attribute-values"><?php echo esc_html( $lstab_row['note'] ); ?></span>
-										<?php endif; ?>
-									</td>
-								</tr>
+					<div class="lstab-shortcode-options" data-lstab-shortcode-builder="<?php echo esc_attr( (string) (int) $source['id'] ); ?>">
+						<p class="lstab-help">
+							<?php esc_html_e( 'Change what this table shows on the page. The shortcode above changes with it.', 'live-sheets-table' ); ?>
+						</p>
+						<div class="lstab-shortcode-toggles">
+							<?php foreach ( $lstab_options as $lstab_option ) : ?>
+								<?php if ( 'toggle' === $lstab_option['type'] ) : ?>
+									<label class="lstab-switch">
+										<input type="checkbox" checked data-lstab-att="<?php echo esc_attr( $lstab_option['att'] ); ?>">
+										<?php echo esc_html( $lstab_option['label'] ); ?>
+									</label>
+								<?php endif; ?>
 							<?php endforeach; ?>
-						</tbody>
-					</table>
+						</div>
+						<?php foreach ( $lstab_options as $lstab_option ) : ?>
+							<?php
+							if ( 'toggle' === $lstab_option['type'] ) {
+								continue;
+							}
+							$lstab_field_id = 'lstab-sc-' . sanitize_key( $lstab_option['att'] );
+							?>
+							<p class="lstab-shortcode-field">
+								<label for="<?php echo esc_attr( $lstab_field_id ); ?>"><strong><?php echo esc_html( $lstab_option['label'] ); ?></strong></label>
+								<?php if ( 'select' === $lstab_option['type'] ) : ?>
+									<select id="<?php echo esc_attr( $lstab_field_id ); ?>" data-lstab-att="<?php echo esc_attr( $lstab_option['att'] ); ?>">
+										<?php foreach ( $lstab_option['choices'] as $lstab_value => $lstab_label ) : ?>
+											<option value="<?php echo esc_attr( (string) $lstab_value ); ?>"><?php echo esc_html( $lstab_label ); ?></option>
+										<?php endforeach; ?>
+									</select>
+								<?php else : ?>
+									<input type="text" class="regular-text" id="<?php echo esc_attr( $lstab_field_id ); ?>" data-lstab-att="<?php echo esc_attr( $lstab_option['att'] ); ?>"
+										placeholder="<?php echo esc_attr( isset( $lstab_option['placeholder'] ) ? $lstab_option['placeholder'] : '' ); ?>">
+								<?php endif; ?>
+								<?php if ( ! empty( $lstab_option['help'] ) ) : ?>
+									<span class="lstab-help"><?php echo esc_html( $lstab_option['help'] ); ?></span>
+								<?php endif; ?>
+							</p>
+						<?php endforeach; ?>
+					</div>
 				</div>
 			<?php endif; ?>
 

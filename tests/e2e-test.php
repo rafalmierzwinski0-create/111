@@ -1186,10 +1186,20 @@ wp_set_current_user( 1 );
 $_GET['source'] = $source_id;
 ob_start();
 ( new LSTAB_Admin() )->render_edit_page();
-ob_get_clean();
+$lstab_edit_html = ob_get_clean();
 unset( $_GET['source'] );
 wp_set_current_user( 0 );
 remove_all_filters( 'lstab_edit_page_settings' );
+
+lstab_assert( false !== strpos( $lstab_edit_html, 'data-lstab-shortcode-builder="' . $source_id . '"' ), 'The shortcode card offers switches for this table' );
+lstab_assert( false === strpos( $lstab_edit_html, 'inside the brackets' ), 'And no longer lists attributes to type by hand' );
+foreach ( array( 'search', 'sort', 'meta', 'style', 'caption' ) as $lstab_att ) {
+	lstab_assert( false !== strpos( $lstab_edit_html, 'data-lstab-att="' . $lstab_att . '"' ), "There is a control for {$lstab_att}" );
+}
+lstab_assert(
+	! preg_match( '/<[^>]*data-lstab-att="[^"]*"[^>]*\sname=/', $lstab_edit_html ) && ! preg_match( '/<[^>]*\sname="[^"]*"[^>]*data-lstab-att=/', $lstab_edit_html ),
+	'The switches are not sent with the form, so saving the table is unaffected'
+);
 lstab_assert( is_array( $lstab_settings_hook ), 'The hook fires while the source screen renders' );
 lstab_assert( ! empty( $lstab_settings_hook['edit'] ) && ! empty( $lstab_settings_hook['source'] ), 'It is handed the source it is being shown for', wp_json_encode( $lstab_settings_hook ) );
 

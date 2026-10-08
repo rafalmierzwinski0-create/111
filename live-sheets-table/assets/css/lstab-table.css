@@ -397,10 +397,6 @@
 	background-color: inherit;
 }
 
-.lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child {
-	box-shadow: inset 0 calc(-1 * var(--lstab-pin-under, var(--lstab-row-line)) * var(--lstab-table-mode, 1)) 0 var(--lstab-row-line-colour, var(--lstab-border));
-}
-
 .lstab-table tbody tr:last-child {
 	--lstab-pin-under: var(--lstab-row-last-bottom);
 }
@@ -418,7 +414,11 @@
 }
 
 .lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child::before {
-	bottom: var(--lstab-row-line);
+	--lstab-pin-line-h: calc( var(--lstab-pin-under, var(--lstab-row-line)) * var(--lstab-table-mode, 1) );
+	bottom: calc( -1 * var(--lstab-pin-line-h) );
+	background-image:
+		linear-gradient( to top, var(--lstab-row-line-colour, var(--lstab-border)) var(--lstab-pin-line-h), transparent var(--lstab-pin-line-h) ),
+		linear-gradient( var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent) );
 }
 
 .lstab-sticky-first .lstab-table thead th:first-child::before {
@@ -845,6 +845,11 @@
 
 .lstab-style-cards.lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child {
 	background-color: var(--lstab-bg);
+}
+
+.lstab-style-cards.lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child::before {
+	bottom: 0;
+	background-image: linear-gradient( var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent) );
 }
 
 .lstab-style-cards.lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child,

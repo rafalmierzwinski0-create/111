@@ -720,6 +720,39 @@ await Promise.all( [
 await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
 await awaitPreview( 15000 );
 
+// ------------------------------------------------ the shortcode, by switches
+section( '3c1. Building the shortcode with switches' );
+
+await pane( 'general' );
+const builtCode = () => page.evaluate( () => ( {
+	shown: document.querySelector( '.lstab-usage .lstab-shortcode' ).textContent,
+	copied: document.querySelector( '.lstab-usage .lstab-copy' ).getAttribute( 'data-lstab-copy' ),
+} ) );
+
+let built = await builtCode();
+check( built.shown === `[sheet_table id="${ sourceId }"]`, 'The shortcode starts out plain', built.shown );
+
+await page.locator( '.lstab-usage [data-lstab-att="search"]' ).uncheck();
+await page.locator( '.lstab-usage [data-lstab-att="meta"]' ).uncheck();
+await page.locator( '.lstab-usage [data-lstab-att="style"]' ).selectOption( 'bordered' );
+await page.locator( '.lstab-usage [data-lstab-att="caption"]' ).fill( 'Spring "sale" [list]' );
+await page.locator( '.lstab-usage [data-lstab-att="caption"]' ).press( 'Enter' );
+
+built = await builtCode();
+const expected = `[sheet_table id="${ sourceId }" search="no" meta="no" style="bordered" caption="Spring sale list"]`;
+check( built.shown === expected, 'Each switch changes the shortcode as it is set', built.shown );
+check( built.copied === expected, 'And Copy copies exactly what is shown', built.copied );
+check( page.url().includes( 'live-sheets-table-edit' ), 'Enter in a field does not save the table' );
+
+await page.locator( '.lstab-usage [data-lstab-att="search"]' ).check();
+built = await builtCode();
+check( ! built.shown.includes( 'search=' ), 'Turning a switch back on takes its words out again', built.shown );
+
+check( /^\[sheet_table id="\d+"( [a-z]+="[^"\[\]]*")*\]$/.test( built.shown ), 'What it builds is a well-formed shortcode', built.shown );
+
+await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
+await awaitPreview( 15000 );
+
 // ---------------------------------------------------------------- own CSS
 
 section( '3d. A table with its own CSS' );
