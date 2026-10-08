@@ -35,7 +35,7 @@ motyw i układ na telefonie.
 | `prywatnosc/` | podstrona „Privacy and terms” — polityka prywatności (z ciasteczkami) i regulamin (licencja, płatności, zwroty, reklamacje); przed wklejeniem podmienić dane firmy, listę w `zrob.py` |
 | `faq/` | pytania i odpowiedzi |
 | `stopka/` | stopka |
-| `wjazd/` | wjazd bloków i tekstu przy przewijaniu, dla całej witryny — jeden kod do Divi → Opcje motywu → Integracja → kod w `<body>` |
+| `wjazd/` | wjazd bloków i tekstu przy przewijaniu, dla całej witryny. Do Divi idzie w `mozliwosci/INTEGRACJA-body.html` razem ze skryptem tabeli — ten plik zastępuje **całą** zawartość pola „kod w `<body>`” |
 | `KOTWICE-css.css` | do Divi → Opcje motywu → Własny CSS, żeby kotwice nie chowały się pod paskiem |
 
 ## Zrzuty na podstronie „jak działa"

@@ -1073,7 +1073,8 @@ console.log( '\npodstrona z samych kodów sekcji' );
 
 		return {
 			kodow: [ ...document.querySelectorAll( '.lst-mz' ) ].length,
-			stylow: document.querySelectorAll( 'body style' ).length,
+			// <style> wjazdu z pola <body> jest swój; liczą się kopie arkusza z sekcji
+			stylow: [ ...document.querySelectorAll( 'body style' ) ].filter( ( s ) => ! /data-wjazd/.test( s.textContent ) ).length,
 			wysokosc: Math.round( k.height ),
 			wyspa: getComputedStyle( document.querySelector( '.lst-mz-telefon-wyspa' ) ).width,
 		};
@@ -1081,6 +1082,23 @@ console.log( '\npodstrona z samych kodów sekcji' );
 	ok( 'pięć sekcji z samych kodów: żadnego <style> w treści, telefon pełny, konsola cicha',
 		5 === s.kodow && 0 === s.stylow && s.wysokosc > 700 && '92px' === s.wyspa && 0 === ostrz.length,
 		`sekcji ${ s.kodow }, <style> w treści ${ s.stylow }, telefon ${ s.wysokosc }px, wyspa ${ s.wyspa }, ostrzeżeń ${ ostrz.length }` );
+
+	/*
+	 * Pole „kod do <body>” niesie i skrypt tabeli, i wjazd całej witryny.
+	 * Kiedy wjazd był osobnym plikiem, wklejony zamiast tego, co stało w polu,
+	 * zabrał tabeli skrypt i na żywej stronie szukanie i sortowanie stanęły.
+	 */
+	const cialo = czytaj( 'INTEGRACJA-body.html' );
+	await p.locator( '.lst-mz-stol .lstab-search-input' ).scrollIntoViewIfNeeded();
+	await p.fill( '.lst-mz-stol .lstab-search-input', 'blue' );
+	await p.waitForTimeout( 300 );
+	const szukane = await p.evaluate( () => [ ...document.querySelectorAll( '.lst-mz-stol .lstab-table tbody tr' ) ].filter( ( r ) => ! r.hidden && 'none' !== getComputedStyle( r ).display ).length );
+	await p.fill( '.lst-mz-stol .lstab-search-input', '' );
+	await p.click( '.lst-mz-stol thead th:nth-child(3) .lstab-sort' );
+	const sort = await p.evaluate( () => document.querySelector( '.lst-mz-stol thead th:nth-child(3)' ).getAttribute( 'aria-sort' ) );
+	ok( 'pole <body> niesie skrypt tabeli i wjazd witryny; szukanie i sortowanie działają',
+		/front-end enhancement/.test( cialo ) && /data-wjazd/.test( cialo ) && 1 === ( cialo.match( /<!--/g ) || [] ).length && 1 === szukane && /ascending|descending/.test( sort ),
+		`po „blue” ${ szukane } wiersz, sortowanie ${ sort }, wjazd w pliku ${ /data-wjazd/.test( cialo ) }` );
 	await c.close();
 }
 

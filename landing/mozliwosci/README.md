@@ -225,7 +225,7 @@ wgranymi do Multimediów) i `ADRES-POBIERANIA` (przycisk na dole).
 |---|---|
 | `…-kod.html` danej sekcji (dla zrzutów `SKAD-kod-gotowe.html`) | moduł Kod tej sekcji |
 | `INTEGRACJA-head.html` | Divi → Opcje motywu → Integracja → „Dodaj kod do &lt;head&gt;” |
-| `INTEGRACJA-body.html` | Divi → Opcje motywu → Integracja → „Dodaj kod do &lt;body&gt;” |
+| `INTEGRACJA-body.html` | Divi → Opcje motywu → Integracja → „Dodaj kod do &lt;body&gt;” — **zamiast całej zawartości pola**. Niesie skrypt tabeli, ruch tej podstrony i wjazd całej witryny (`landing/wjazd`). Bez skryptu tabeli wyszukiwarka i sortowanie na żywej stronie nic nie robią. |
 
 Oba pliki integracji są już w znacznikach `<style>` i `<script>`, wkleja się je
 w całości. Jeden arkusz i jeden skrypt obsługują wszystkie sekcje podstrony.

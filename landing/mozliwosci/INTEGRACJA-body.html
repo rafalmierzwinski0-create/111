@@ -1,4 +1,4 @@
-<!-- DO: Divi > Opcje motywu > Integracja > Dodaj kod do <body>. NIE do modulu Kod. -->
+<!-- DO: Divi > Opcje motywu > Integracja > Dodaj kod do <body>. ZASTAP cala zawartosc pola tym plikiem. NIE do modulu Kod. -->
 <script>
 /**
  * Live Sheets Table — front-end enhancement.
@@ -1433,6 +1433,217 @@
 		}, { passive: true } );
 		document.documentElement.addEventListener( 'pointerleave', wszystkieOdloz );
 		window.addEventListener( 'blur', wszystkieOdloz );
+	} );
+} )();
+</script>
+
+<style>
+/*
+ * Wjazd bloków i tekstu przy przewijaniu — dla całej witryny naraz.
+ *
+ * Ten sam ruch co na podstronie „How it works”: rzecz podjeżdża o 30 px,
+ * dorasta z 98,5% i rozjaśnia się z 0.4. Stan startowy uzbraja SKRYPT
+ * (atrybut data-wjazd), nie arkusz — bez JavaScriptu nic nie jest
+ * przygaszone ani przesunięte i strona stoi gotowa.
+ *
+ * Ruszane są `translate`, `scale` i `opacity`, nigdy `transform`: transform
+ * należy do najechania (kafle unoszą się o 2 px) i nie wolno go zabrać.
+ */
+[data-wjazd="czeka"] {
+	translate: 0 30px;
+	scale: .985;
+	opacity: .4;
+}
+
+@media print {
+	[data-wjazd] { translate: none !important; scale: none !important; opacity: 1 !important; }
+}
+</style>
+<script>
+( function () {
+	/*
+	 * Co wjeżdża. Skrypt nie zna sekcji z nazwy — sam rozpoznaje na każdej
+	 * stronie dwa rodzaje rzeczy:
+	 *
+	 *   blok  — coś z własnym tłem, ramką albo cieniem i zaokrąglonymi rogami,
+	 *           co najmniej 120 × 48 px: kafel, karta, okienko, tabela. Wjeżdża
+	 *           w całości, razem ze wszystkim, co ma w środku.
+	 *   tekst — nagłówek, akapit, lista, obrazek albo przycisk, który nie leży
+	 *           w żadnym bloku.
+	 *
+	 * Dzięki temu nowa sekcja wklejona za miesiąc też wjedzie, bez dopisywania
+	 * czegokolwiek tutaj.
+	 */
+	var TEKST = /^(H1|H2|H3|H4|H5|H6|P|UL|OL|BLOCKQUOTE|FIGURE|IMG|PICTURE|VIDEO|BUTTON|TABLE)$/;
+
+	/*
+	 * Czego nie ruszać:
+	 *  - podstrona „How it works” (.lst-mz) i „przepływ” (.lst-pl) mają własny
+	 *    wjazd, a dwa ruchy naraz na jednej rzeczy to szarpanie;
+	 *  - pasek u góry (.lst-bar) i tło witryny stoją zawsze;
+	 *  - moduły z animacją ustawioną w samym Divi (.et_animated, .et-waypoint);
+	 *  - wszystko, co oznaczysz atrybutem data-bez-wjazdu.
+	 */
+	var POMIN = '.lst-mz, .lst-pl, .lst-bar, .et_animated, .et-waypoint, [data-bez-wjazdu],'
+		+ ' #main-header, #top-header, .et-l--header, #main-footer, .et-l--footer, script, style, link, noscript, svg';
+
+	var START = { translate: '0 30px', scale: '.985', opacity: .4 };
+	var KONIEC = { translate: '0 0', scale: '1', opacity: 1 };
+
+	var poGotowej = function ( zrob ) {
+		if ( 'loading' === document.readyState ) {
+			document.addEventListener( 'DOMContentLoaded', zrob );
+		} else {
+			zrob();
+		}
+	};
+
+	poGotowej( function () {
+		if ( ! window.IntersectionObserver || ! Element.prototype.animate ) { return; }
+		if ( window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches ) { return; }
+
+		// W edytorze Divi nic się nie rusza: tam się układa stronę, a nie ogląda.
+		var korzen = document.documentElement;
+		if ( document.body.classList.contains( 'et-fb' ) || korzen.classList.contains( 'et-fb-preview--wireframe' )
+			|| /[?&]et_fb=1/.test( location.search ) || window.self !== window.top && /et_fb|et_pb_preview/.test( location.search ) ) {
+			return;
+		}
+
+		var obszar = document.querySelector( '#et-main-area' ) || document.querySelector( '#main-content' ) || document.body;
+
+		var ma = function ( wartosc ) { return wartosc && 'none' !== wartosc && 'rgba(0, 0, 0, 0)' !== wartosc && 'transparent' !== wartosc; };
+
+		var jestBlokiem = function ( el, st, r ) {
+			if ( r.width < 120 || r.height < 48 ) { return false; }
+			if ( 'TABLE' === el.tagName || el.classList.contains( 'lstab-container' ) ) { return true; }
+			// Opakowania Divi (sekcja, rząd, kolumna) nigdy nie są blokiem — to rusztowanie.
+			if ( /\bet_pb_(section|row|column)\b/.test( el.className ) ) { return false; }
+			var rog = parseFloat( st.borderTopLeftRadius ) || 0;
+			var ramka = parseFloat( st.borderTopWidth ) > 0 && ma( st.borderTopColor );
+			var tlo = ma( st.backgroundColor ) || ( st.backgroundImage && 'none' !== st.backgroundImage );
+			return rog >= 6 && ( tlo || ramka || ma( st.boxShadow ) );
+		};
+
+		/*
+		 * Grupka napisów: element, w którym są same napisy i linki (etykieta
+		 * z kolumną odnośników w stopce, wiersz z ceną). Wjeżdża jako jedna
+		 * rzecz — każdy link osobno to migotanie, a nie wjazd.
+		 */
+		var WLINII = /^(SPAN|A|B|STRONG|EM|I|SMALL|CODE|BR|SUP|SUB|MARK|ABBR|TIME|S)$/;
+		var jestGrupkaNapisow = function ( el ) {
+			if ( ! el.firstElementChild || ! el.textContent.trim() ) { return false; }
+			for ( var c = el.firstElementChild; c; c = c.nextElementSibling ) {
+				if ( ! WLINII.test( c.tagName ) ) { return false; }
+			}
+			return true;
+		};
+
+		var cele = [];
+		var wysokosc = window.innerHeight;
+
+		var zbierz = function ( rodzic ) {
+			for ( var d = rodzic.firstElementChild; d; d = d.nextElementSibling ) {
+				if ( d.matches( POMIN ) ) { continue; }
+				var st = getComputedStyle( d );
+				if ( 'none' === st.display || 'hidden' === st.visibility ) { continue; }
+				if ( 'fixed' === st.position || 'sticky' === st.position ) { continue; }
+				var r = d.getBoundingClientRect();
+				if ( ! r.width || ! r.height ) { continue; }
+
+				if ( jestBlokiem( d, st, r ) || TEKST.test( d.tagName ) || d.classList.contains( 'et_pb_button' ) || jestGrupkaNapisow( d ) ) {
+					// To, co już widać przy wejściu na stronę, stoi: nic nie
+					// mruga przed oczami, zanim ktokolwiek zacznie przewijać.
+					if ( r.top + window.scrollY > window.scrollY + wysokosc * .92 ) { cele.push( d ); }
+					continue;
+				}
+				zbierz( d );
+			}
+		};
+		zbierz( obszar );
+
+		/*
+		 * Karty obracane: dwie strony ułożone jedna na drugiej, każda z tłem,
+		 * więc każda wygląda na blok. Wjeżdża cała karta, a nie jej strony
+		 * osobno — inaczej przy obrocie jedna strona byłaby w pół drogi.
+		 */
+		var tenSamProstokat = function ( a, b ) {
+			var x = a.getBoundingClientRect(), y = b.getBoundingClientRect();
+			return Math.abs( x.left - y.left ) < 2 && Math.abs( x.top - y.top ) < 2
+				&& Math.abs( x.width - y.width ) < 2 && Math.abs( x.height - y.height ) < 2;
+		};
+		var scalone = [];
+		for ( var c = 0; c < cele.length; c++ ) {
+			var poprzedni = scalone[ scalone.length - 1 ];
+			if ( poprzedni && poprzedni.parentElement === cele[ c ].parentElement && tenSamProstokat( poprzedni, cele[ c ] ) ) {
+				scalone[ scalone.length - 1 ] = cele[ c ].parentElement;
+				continue;
+			}
+			if ( poprzedni && poprzedni === cele[ c ].parentElement ) { continue; }
+			scalone.push( cele[ c ] );
+		}
+		cele = scalone;
+		if ( ! cele.length ) { return; }
+
+		/*
+		 * Sąsiedzi wchodzą po kolei: numer w rodzicu, po 60 ms, ucięty po
+		 * szóstym. Liczy się kolejność wjazdu, a nie w kodzie — rzeczy, które
+		 * wjeżdżają w tej samej chwili, dostają kolejne numery.
+		 */
+		var oko = new IntersectionObserver( function ( wpisy ) {
+			var kolej = new Map();
+			for ( var i = 0; i < wpisy.length; i++ ) {
+				var w = wpisy[ i ];
+				if ( ! w.isIntersecting ) { continue; }
+				oko.unobserve( w.target );
+				var rodzic = w.target.parentElement;
+				var nr = kolej.get( rodzic ) || 0;
+				kolej.set( rodzic, nr + 1 );
+				pusc( w.target, Math.min( nr, 6 ) * 60 );
+			}
+		}, { rootMargin: '0px 0px -6% 0px', threshold: 0.06 } );
+
+		/*
+		 * Ruch idzie przez Web Animations, a nie przez klasę z „animation”:
+		 * kafle mają własną animację (światło biegnące po krawędzi) i własne
+		 * przejścia na najechanie. Klasa z „animation” albo „transition”
+		 * nadpisałaby je i światło by stanęło. Animacja ze skryptu leży nad
+		 * arkuszem i niczego mu nie zabiera.
+		 */
+		var pusc = function ( el, opoznienie ) {
+			el.removeAttribute( 'data-wjazd' );
+			el.setAttribute( 'data-wjazd', 'jest' );
+			el.animate( [ START, KONIEC ], {
+				duration: 560,
+				delay: opoznienie,
+				easing: 'cubic-bezier(.23, 1, .32, 1)',
+				fill: 'backwards',
+			} );
+		};
+
+		for ( var i = 0; i < cele.length; i++ ) {
+			cele[ i ].setAttribute( 'data-wjazd', 'czeka' );
+			oko.observe( cele[ i ] );
+		}
+
+		/*
+		 * Koniec strony. Ostatnia rzecz na dole (pasek pod stopką) nigdy nie
+		 * wjedzie w strefę, w której startuje wjazd — strona kończy się
+		 * wcześniej. Kiedy przewinięto do samego końca, wjeżdża wszystko, co
+		 * jeszcze czeka i jest w oknie.
+		 */
+		var naKoncu = function () {
+			if ( window.innerHeight + window.scrollY < document.documentElement.scrollHeight - 40 ) { return; }
+			var czeka = document.querySelectorAll( '[data-wjazd="czeka"]' );
+			var nr = 0;
+			for ( var j = 0; j < czeka.length; j++ ) {
+				if ( czeka[ j ].getBoundingClientRect().top < window.innerHeight ) {
+					oko.unobserve( czeka[ j ] );
+					pusc( czeka[ j ], Math.min( nr++, 6 ) * 60 );
+				}
+			}
+			if ( ! document.querySelector( '[data-wjazd="czeka"]' ) ) { window.removeEventListener( 'scroll', naKoncu ); }
+		};
+		window.addEventListener( 'scroll', naKoncu, { passive: true } );
 	} );
 } )();
 </script>

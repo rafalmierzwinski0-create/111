@@ -2406,9 +2406,20 @@ kawałek waży tyle, ile ma ważyć:
 ( TU / 'INTEGRACJA-head.html' ).write_text(
 	'<!-- DO: Divi > Opcje motywu > Integracja > Dodaj kod do <head>. NIE do modulu Kod. -->\n'
 	'<style>\n' + ARKUSZ + '\n</style>\n' )
+#
+# Pole „kod do <body>” jest jedno na całą witrynę, a siedzą w nim dwie rzeczy:
+# skrypt tabeli z ruchem tej podstrony i wjazd bloków dla wszystkich stron
+# (landing/wjazd). Wjazd był podawany osobno, „na koniec pola” — i wklejony
+# w miejsce tego, co tam stało, zabrał tabeli skrypt: na żywej stronie
+# wyszukiwarka i sortowanie przestały robić cokolwiek, bez śladu w konsoli.
+# Dlatego plik niesie oba i wkleja się go zamiast całej zawartości pola.
+WJAZD = ( TU.parent / 'wjazd' / 'WJAZD-integracja.html' ).read_text()
+WJAZD = re.sub( r'\A<!--.*?-->\n', '', WJAZD, flags = re.S )
+assert WJAZD.startswith( '<style>' ) and 'data-wjazd' in WJAZD, 'wjazd nie ma oczekiwanego kształtu'
 ( TU / 'INTEGRACJA-body.html' ).write_text(
-	'<!-- DO: Divi > Opcje motywu > Integracja > Dodaj kod do <body>. NIE do modulu Kod. -->\n'
-	'<script>\n' + JS + '\n\n' + RUCH + '\n</script>\n' )
+	'<!-- DO: Divi > Opcje motywu > Integracja > Dodaj kod do <body>. ZASTAP cala zawartosc pola tym plikiem. NIE do modulu Kod. -->\n'
+	'<script>\n' + JS + '\n\n' + RUCH + '\n</script>\n'
+	'\n' + WJAZD )
 
 # Podgląd do otwarcia w przeglądarce: podrabia tło i dopełnienia Divi, i
 # podstawia lokalne adresy zrzutów. Do Divi idzie wyłącznie MOZLIWOSCI-en.html.
