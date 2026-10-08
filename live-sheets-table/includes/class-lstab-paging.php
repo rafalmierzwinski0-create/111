@@ -233,18 +233,9 @@ class LSTAB_Paging {
 			? (array) $args['columns']
 			: ( isset( $source['columns_config'] ) ? (array) $source['columns_config'] : array() );
 
-		$visible = array();
-
-		foreach ( array_values( (array) $headers ) as $index => $heading ) {
-			if ( $config && ! empty( $config[ $index ]['hidden'] ) ) {
-				continue;
-			}
-
-			$visible[] = $index;
-		}
-
-		return $visible;
+		return LSTAB_Columns::kept( $headers, $config );
 	}
+
 
 	/**
 	 * What one table worked out for this request.
@@ -312,12 +303,22 @@ class LSTAB_Paging {
 			$rows = self::search( $rows, $request['q'], $columns );
 		}
 
-		if ( $request['sort'] >= 0 ) {
+		/*
+		 * The sort link names a column of the table as drawn; the rows here
+		 * still have every column of the sheet, hidden ones included.
+		 */
+		$sort = $request['sort'];
+
+		if ( $sort >= 0 && is_array( $columns ) ) {
+			$sort = isset( $columns[ $sort ] ) ? (int) $columns[ $sort ] : -1;
+		}
+
+		if ( $sort >= 0 ) {
 			$rows = self::sort(
 				$rows,
-				$request['sort'],
+				$sort,
 				$request['dir'],
-				isset( $ranks[ $request['sort'] ] ) ? (array) $ranks[ $request['sort'] ] : array()
+				isset( $ranks[ $sort ] ) ? (array) $ranks[ $sort ] : array()
 			);
 		}
 

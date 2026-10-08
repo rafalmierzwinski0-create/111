@@ -933,20 +933,10 @@ class LSTABP_Rules {
 			? $args['columns']
 			: ( isset( $source['columns_config'] ) ? $source['columns_config'] : array() );
 
-		$config = (array) $config;
-		$map    = array();
-		$shown  = 0;
-
-		foreach ( $headers as $index => $heading ) {
-			if ( $config && ! empty( $config[ $index ]['hidden'] ) ) {
-				continue;
-			}
-
-			$map[ $index ] = $shown;
-			$shown++;
-		}
-
-		return $map;
+		// The free plugin's own choice of what is shown, so a column hidden by
+		// a setting that no longer matches its heading — and therefore shown —
+		// is counted here as well.
+		return array_flip( LSTAB_Columns::kept( $headers, (array) $config ) );
 	}
 
 	/**

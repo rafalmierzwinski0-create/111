@@ -2769,6 +2769,22 @@ lstab_assert(
 
 // ---------------------------------------------------------------------------
 
+lstab_section( '14a. Sorting a paged table with a column hidden' );
+
+// The sort link names a column of the table as drawn. With the sheet's first
+// column hidden, drawn column 0 is the sheet's column 1.
+$_GET[ LSTAB_Paging::arg( 4242, 'sort' ) ] = '0';
+$_GET[ LSTAB_Paging::arg( 4242, 'dir' ) ]  = 'asc';
+$lstab_ps = LSTAB_Paging::apply(
+	array( array( 'hidden-c', '3' ), array( 'hidden-a', '1' ), array( 'hidden-b', '2' ) ),
+	4242,
+	10,
+	array( 1 )
+);
+unset( $_GET[ LSTAB_Paging::arg( 4242, 'sort' ) ], $_GET[ LSTAB_Paging::arg( 4242, 'dir' ) ] );
+lstab_assert( array( '1', '2', '3' ) === wp_list_pluck( $lstab_ps['rows'], 1 ), 'Sorting by a drawn column sorts that column, not the hidden one before it', wp_json_encode( $lstab_ps['rows'] ) );
+lstab_assert( 0 === $lstab_ps['request']['sort'], 'And the heading clicked is still the one marked as sorted' );
+
 lstab_section( '14b. The start screen' );
 
 $lstab_start_render = static function () {

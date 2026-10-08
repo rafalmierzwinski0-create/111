@@ -197,6 +197,41 @@ class LSTAB_Columns {
 	}
 
 	/**
+	 * Positions in the sheet of the columns a table shows, in order.
+	 *
+	 * The same choice apply() makes, without building the table: the
+	 * rendered table's column N is the sheet's column kept()[N].
+	 *
+	 * @param array<int,string>              $headers Sheet headings.
+	 * @param array<int,array<string,mixed>> $config  Stored configuration.
+	 * @return array<int,int>
+	 */
+	public static function kept( $headers, $config ) {
+		$headers = array_values( (array) $headers );
+		$all     = array_keys( $headers );
+		$config  = self::sanitize( $config );
+
+		if ( ! $config || ! LSTAB_Limits::pro_effective() ) {
+			return $all;
+		}
+
+		$keep = array();
+
+		foreach ( $headers as $index => $heading ) {
+			$column  = isset( $config[ $index ] ) ? $config[ $index ] : null;
+			$matches = $column && ( '' === $column['source'] || (string) $heading === $column['source'] );
+
+			if ( $matches && $column['hidden'] ) {
+				continue;
+			}
+
+			$keep[] = $index;
+		}
+
+		return $keep ? $keep : $all;
+	}
+
+	/**
 	 * Apply the configuration to a parsed table.
 	 *
 	 * @param array{headers:array,rows:array} $data   Parsed table.
