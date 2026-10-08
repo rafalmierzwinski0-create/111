@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.40.0
+Stable tag: 3.41.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -27,7 +27,7 @@ Most sheet plugins fetch from Google while your visitor waits, which is why tabl
 * A scheduled job fetches the sheet in the background and stores it in your database.
 * Pages render that local copy in PHP, as a real `<table>` element.
 * A table older than its interval is checked before the page is drawn, with a hard four-second cap and the stored copy as the fallback — so a site nobody visits, or a host that blocks WordPress schedules, does not quietly publish last week's prices.
-* It works behind a page cache too. LiteSpeed Cache, WP Rocket and the like serve stored pages without starting WordPress, so nothing would ever notice a table falling behind. Instead, the page itself checks a small file that says when each table is next due and, only if one is overdue, asks the site in the background to update it. The visitor waits for nothing, the page cache is cleared, and the new table replaces the old one on screen. No cron job to set up.
+* It works behind a page cache too. LiteSpeed Cache, WP Rocket and the like serve stored pages without starting WordPress, so nothing would ever notice a table falling behind. Instead, the page itself checks a small file that says when each table is next due and, only if one is overdue, asks the site in the background to update it. The visitor waits for nothing, the stored copies of the pages showing that table are cleared, and the new table replaces the old one on screen. No cron job to set up.
 * Nothing depends on JavaScript to draw the table, so it is readable to search engines and to browsers where a script has failed.
 
 = It keeps working when the sheet does not =
@@ -192,6 +192,23 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.41.0 =
+* Changed: clearing the page cache is limited to the pages a table is actually shown on. The plugin remembers where each table is drawn and clears only those pages, never the whole site.
+* Fixed: sorting a paged table by a column that comes after a hidden column sorted by the wrong one.
+* Fixed: a row hidden from visitors could still show up on a filtered page.
+* Fixed: links to a sheet opened from a second Google account (with /u/1/ in the address) were refused.
+* Fixed: the example table counted towards the limit of tables.
+* Fixed: the schedule warning blamed the schedule for sheets that were failing for their own reasons.
+* Fixed: a database that refused to save new data was reported as a successful update.
+* Fixed: one slow sheet could hold up every other table on the schedule. Each run now has a time budget and starts with the table that waited longest.
+* Fixed: a site that cannot write to its uploads folder no longer retries on every page view.
+* Fixed (Pro): only an administrator can make the plugin read a sheet through the connected Google account; editors see the usual sharing message.
+* Fixed (Pro): a private mark is dropped when the table is pointed at a different sheet.
+* Fixed (Pro): a Google connection that has expired or been revoked says so, rather than showing "Connected".
+* Fixed (Pro): settings of tables deleted while Pro was switched off no longer pass on to new tables.
+* Fixed (Pro): the download of a paged table held only the first page; it now holds every row the visitor's filters allow.
+* Fixed (Pro): uninstalling removes the column looks as well.
 
 = 3.40.0 =
 * Added: a start screen. The plugin now opens on it rather than on the list. On a first visit it is the way to add a sheet; after that it says how the tables are doing — the ones not updating by name, with the most common cause, and the rest as a number. The list of tables is under "All tables".
