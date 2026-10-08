@@ -185,7 +185,7 @@ class LSTAB_Example {
 			)
 		);
 
-		if ( ! $id ) {
+		if ( ! $id || is_wp_error( $id ) ) {
 			return 0;
 		}
 

@@ -1091,6 +1091,11 @@ for ( $i = 2; $i <= $free_cap; $i++ ) {
 lstab_assert( $free_cap === LSTAB_Storage::count_sources(), 'The tier fills up', (string) LSTAB_Storage::count_sources() );
 lstab_assert( ! LSTAB_Limits::can_add_source(), 'One past the cap is blocked' );
 
+// The built-in example is nobody's sheet, so it takes none of the places.
+$lstab_example_id = LSTAB_Example::install();
+lstab_assert( $free_cap === LSTAB_Storage::count_sources(), 'The example does not count against the free tier', (string) LSTAB_Storage::count_sources() );
+LSTAB_Storage::delete( $lstab_example_id );
+
 // Rows are never capped: that is the whole difference from the plugins this
 // one is meant to replace.
 lstab_assert( 7 === count( LSTAB_Storage::get( $source_id )['data']['rows'] ), 'And rows are still not capped at all', (string) count( LSTAB_Storage::get( $source_id )['data']['rows'] ) );

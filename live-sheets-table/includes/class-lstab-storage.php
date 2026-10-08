@@ -618,8 +618,11 @@ class LSTAB_Storage {
 		global $wpdb;
 
 		$table = self::table();
+
+		// The built-in example is not a sheet of anybody's, so it never takes
+		// one of the places the free version allows.
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name cannot be a placeholder.
-		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE sheet_kind <> %s", LSTAB_Example::KIND ) );
 		// phpcs:enable
 	}
 
