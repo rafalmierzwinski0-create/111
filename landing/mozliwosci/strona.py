@@ -45,6 +45,10 @@ sys.path.insert( 0, str( TU.parent / 'arkusz' ) )
 import arkusz
 CSS = pathlib.Path( '/home/user/111/live-sheets-table/assets/css/lstab-table.css' ).read_text()
 JS  = pathlib.Path( '/home/user/111/live-sheets-table/assets/js/lstab-table.js' ).read_text()
+# Filtry „Show only” działają we wtyczce na serwerze; w pokazie serwera nie
+# ma, więc dochodzi skrypt, który robi to samo na miejscu. Idzie wszędzie
+# tam, gdzie skrypt wtyczki.
+JS += '\n\n' + ( TU / 'pokaz-filtry.js' ).read_text()
 M   = json.loads( ( TU / 'markup.json' ).read_text() )
 ZRZUTY = { z[ 'nazwa' ]: z for z in json.loads( ( TU / 'zrzuty' / 'rozmiary.json' ).read_text() ) }
 

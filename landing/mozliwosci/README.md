@@ -47,7 +47,9 @@ tabela byłaby obrazkiem.
 
 Odsyłacze w tabeli (filtry, pobieranie, kamery) prowadzą do `#`: na stronie
 sprzedażowej nie ma serwera, który by je obsłużył. U klienta prowadzą tam,
-gdzie trzeba.
+gdzie trzeba. Filtry „Show only” mimo to działają: `pokaz-filtry.js` (doklejany
+do skryptu wtyczki we wszystkich plikach) zaznacza wartość i chowa wiersze
+na miejscu, tak jak serwer zrobiłby to we wtyczce.
 
 ## Sama sekcja z tabelą, osobno
 

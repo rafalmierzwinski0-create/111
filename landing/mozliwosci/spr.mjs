@@ -1128,6 +1128,44 @@ console.log( '\nsekcja z tabelą i jej skryptem, bez Integracji' );
 	const sort = await p.evaluate( () => document.querySelector( 'thead th:nth-child(3)' ).getAttribute( 'aria-sort' ) );
 	ok( 'tabela szuka i sortuje sama, bez skryptu w Integracji', 1 === szukane && /ascending|descending/.test( sort ) && 0 === bledy.length,
 		`po „blue” ${ szukane } wiersz, sortowanie ${ sort }, błędów ${ bledy.length }` );
+
+	/*
+	 * Filtry „Show only”: we wtyczce robi to serwer, tu skrypt pokazu.
+	 * Kliknięta wartość ma się zaznaczyć, wpisać w pigułkę zamiast „any”
+	 * i schować wiersze, które nie pasują — razem z szukajką, nie zamiast.
+	 */
+	const stanFiltrow = () => p.evaluate( () => ( {
+		widac: [ ...document.querySelectorAll( '.lstab-table tbody tr.lstab-row' ) ].filter( ( r ) => 'none' !== getComputedStyle( r ).display ).length,
+		pigulki: [ ...document.querySelectorAll( '.lstabp-facet-now' ) ].map( ( s ) => s.textContent.trim() ).join( ' / ' ),
+		zaznaczone: document.querySelectorAll( '.lstabp-facet-value.is-picked' ).length,
+		licznik: ( document.querySelector( '.lstab-count' ) || {} ).textContent || '',
+		czysc: !! document.querySelector( '.lstabp-facets-clear:not([hidden])' ),
+	} ) );
+	const wybierz = async ( filtr, wartosc ) => {
+		await p.click( `.lstabp-facet:has(summary b:text-is("${ filtr }:")) > summary` );
+		await p.click( `.lstabp-facet-value:has(.lstabp-facet-text:text-is("${ wartosc }"))` );
+		await p.waitForTimeout( 100 );
+	};
+	const adres = p.url();
+	await wybierz( 'Difficulty', 'Hard' );
+	const f1 = await stanFiltrow();
+	await wybierz( 'Status', 'Closed' );
+	const f2 = await stanFiltrow();
+	await p.fill( '.lstab-search-input', 'wind' );
+	await p.waitForTimeout( 300 );
+	const f3 = await stanFiltrow();
+	await p.fill( '.lstab-search-input', '' );
+	await p.waitForTimeout( 300 );
+	const f4 = await stanFiltrow();
+	await p.click( '.lstabp-facets-clear' );
+	await p.waitForTimeout( 100 );
+	const f5 = await stanFiltrow();
+	ok( 'filtr zaznacza wartość, wpisuje ją zamiast „any” i chowa resztę', 4 === f1.widac && 'Hard / any' === f1.pigulki && 1 === f1.zaznaczone && f1.czysc,
+		`Hard: ${ f1.widac } wierszy, pigułki „${ f1.pigulki }”, zaznaczonych ${ f1.zaznaczone }` );
+	ok( 'dwa filtry naraz i szukajka razem z nimi', 3 === f2.widac && 'Hard / Closed' === f2.pigulki && 1 === f3.widac && 3 === f4.widac && /^3 of 10/.test( f4.licznik ),
+		`Hard+Closed ${ f2.widac }, + „wind” ${ f3.widac }, bez szukania ${ f4.widac } (${ f4.licznik })` );
+	ok( '„Clear filters” przywraca wszystko, strona się nie przeładowała', 10 === f5.widac && 'any / any' === f5.pigulki && ! f5.czysc && p.url() === adres && 0 === bledy.length,
+		`${ f5.widac } wierszy, „${ f5.pigulki }”, błędów ${ bledy.length }` );
 	await c.close();
 }
 
