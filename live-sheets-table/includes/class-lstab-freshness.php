@@ -194,8 +194,9 @@ class LSTAB_Freshness {
 	}
 
 	/**
-	 * Write the file: for every table, a short form of its stored copy and when
-	 * it is next due. Nothing from the sheet itself is in it.
+	 * Write the file: for every table, a short form of its stored copy, when it
+	 * was last updated and when it is next due. Nothing from the sheet itself
+	 * is in it.
 	 *
 	 * @return bool Whether it was written.
 	 */
@@ -219,6 +220,9 @@ class LSTAB_Freshness {
 			$due[ (string) $source['id'] ] = array(
 				'c' => substr( (string) $source['snapshot_hash'], 0, 12 ),
 				'n' => self::next_due( $source ),
+				// When the copy was last confirmed, so an old page can still say
+				// truthfully how long ago its table was updated.
+				'f' => empty( $source['last_success_gmt'] ) ? 0 : (int) strtotime( $source['last_success_gmt'] . ' UTC' ),
 			);
 		}
 

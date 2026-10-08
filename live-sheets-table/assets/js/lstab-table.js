@@ -1362,6 +1362,53 @@
 	}
 
 	/**
+	 * A length of time in the plugin's own words, measured as the server
+	 * measures it (LSTAB_Locale::span), so the line reads the same whether the
+	 * server or this script wrote it.
+	 *
+	 * @param {number} diff  Seconds.
+	 * @param {Array}  words Singular and plural for seconds … years.
+	 * @return {string} The length of time.
+	 */
+	function span( diff, words ) {
+		var steps = [ [ 60, 1 ], [ 3600, 60 ], [ 86400, 3600 ], [ 604800, 86400 ], [ 2592000, 604800 ], [ 31536000, 2592000 ], [ Infinity, 31536000 ] ];
+		var unit = 0;
+
+		while ( diff >= steps[ unit ][ 0 ] ) {
+			unit++;
+		}
+
+		var count = Math.max( 1, 0 === unit ? Math.floor( diff ) : Math.round( diff / steps[ unit ][ 1 ] ) );
+		var form = words[ unit ] ? words[ unit ][ 1 === count ? 0 : 1 ] : '%s';
+
+		return form.replace( '%s', String( count ) );
+	}
+
+	/**
+	 * Say again how long ago a table was updated, from the site's own record.
+	 *
+	 * Only for a table showing the copy the site holds: an older copy about
+	 * to be swapped would otherwise claim an update it is not showing.
+	 *
+	 * @param {Element} root  Table.
+	 * @param {number}  now   Seconds, by the web server's clock.
+	 * @param {number}  since When the site last updated it.
+	 * @return {void}
+	 */
+	function sayWhen( root, now, since ) {
+		var line = root.querySelector( '.lstab-meta[data-lstab-said]' );
+
+		if ( ! line || ! since || now < since ) {
+			return;
+		}
+
+		try {
+			var said = JSON.parse( line.getAttribute( 'data-lstab-said' ) );
+			line.textContent = said.t.replace( '%s', span( now - since, said.u ) );
+		} catch ( e ) {}
+	}
+
+	/**
 	 * Ask for the overdue tables on this page to be checked.
 	 *
 	 * @param {number}      now  Seconds, by the web server's clock where known.
@@ -1383,6 +1430,10 @@
 			if ( known && known.c && known.c !== root.getAttribute( 'data-lstab-copy' ) ) {
 				newer[ id ] = known.c;
 				return;
+			}
+
+			if ( known ) {
+				sayWhen( root, now, Number( known.f ) );
 			}
 
 			if ( next && now >= next && overdue.indexOf( id ) < 0 ) {

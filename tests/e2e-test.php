@@ -1233,7 +1233,8 @@ LSTAB_Freshness::remove();
 lstab_assert( LSTAB_Freshness::write() && file_exists( $lstab_kc_file['path'] ), 'The due file is written to the uploads folder', $lstab_kc_file['path'] );
 $lstab_kc_due = json_decode( (string) file_get_contents( $lstab_kc_file['path'] ), true );
 $lstab_kc_row = isset( $lstab_kc_due['t'][ (string) $source_id ] ) ? $lstab_kc_due['t'][ (string) $source_id ] : array();
-lstab_assert( isset( $lstab_kc_row['n'], $lstab_kc_row['c'] ) && 2 === count( $lstab_kc_row ), 'It says only when each table is due and which copy it holds', wp_json_encode( $lstab_kc_row ) );
+lstab_assert( isset( $lstab_kc_row['n'], $lstab_kc_row['c'], $lstab_kc_row['f'] ) && 3 === count( $lstab_kc_row ), 'It says only which copy each table holds, when it was updated and when it is next due', wp_json_encode( $lstab_kc_row ) );
+lstab_assert( 1 === preg_match( '/class="lstab-meta" data-lstab-said="[^"]*Updated %s ago/', $lstab_kc_html ), 'The "updated … ago" line carries its own words, to be said again later' );
 
 lstab_assert( 'not-due' === LSTAB_Sync::refresh_when_asked( $source_id ), 'A table that is not due is not checked' );
 lstab_assert( 'unknown' === LSTAB_Sync::refresh_when_asked( 99999 ), 'A table that does not exist is not checked' );

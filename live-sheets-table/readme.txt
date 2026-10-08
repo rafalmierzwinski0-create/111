@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.39.0
+Stable tag: 3.40.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -181,6 +181,15 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.40.0 =
+* Added: a start screen. The plugin now opens on it rather than on the list. On a first visit it is the way to add a sheet; after that it says how the tables are doing — the ones not updating by name, with the most common cause, and the rest as a number. The list of tables is under "All tables".
+* Added: tables stay on time behind a page cache, with no cron job to set up. LiteSpeed Cache, WP Rocket and the like serve stored pages without starting WordPress, so nothing used to notice a table falling behind. The page now reads a small file saying when each table is next due and, only if one is overdue, asks the site in the background to update it. The page cache is cleared, the new table replaces the old one on screen, and later visitors to the same stored page get it without asking again.
+* Fixed: "Updated … ago" on a page served from a page cache said how old the page was, not the table. It is now said again from the site's own record.
+* Changed: the plugin is in English only. The language setting and the bundled Polish translation are gone; durations stay in English on a site set to another language.
+* Changed: the example price list uses English number format.
+* Changed (Pro): a sheet whose link sharing is switched off in Google is read through the connected Google account by itself, and marked private — nothing to tick. A sheet never shared by link can be previewed and added once an account is connected. The steps on the Pro screen are now: add the sheet, connect the account, restrict it in Google, refresh.
+* Fixed (Pro): a private mark belongs to its table. A new table that is given the number of a deleted one starts out public.
 
 = 3.39.0 =
 * Changed (Pro): in Aurora, a heading colour picked by hand now turns the whole bar rather than only its first stop. Every colour in the sweep is worked out from the one chosen — the same colour shimmering a little either side of its hue, a little lighter and deeper — so a teal heading is a teal sweep. A pale colour is deepened just enough to keep white lettering readable. The stock violet, pink and amber sweep is unchanged.

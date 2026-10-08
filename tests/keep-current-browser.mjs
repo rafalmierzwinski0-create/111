@@ -62,7 +62,8 @@ const visit = async ( served, todo ) => {
 	await p.waitForTimeout( 2500 );
 	const state = await p.evaluate( () => {
 		const root = document.querySelector( '.lstab[data-lstab-id]' );
-		return { copy: root.getAttribute( 'data-lstab-copy' ), text: root.textContent.replace( /\s+/g, ' ' ) };
+		const line = root.querySelector( '.lstab-meta' );
+		return { copy: root.getAttribute( 'data-lstab-copy' ), text: root.textContent.replace( /\s+/g, ' ' ), said: line ? line.textContent.trim() : '' };
 	} );
 	await c.close();
 	return { ...seen, ...state };
@@ -80,6 +81,13 @@ await first.close();
 
 const fresh = await visit( null );
 ok( 'A fresh page asks WordPress for nothing', 0 === fresh.asked && 0 === fresh.swapped, JSON.stringify( fresh ) );
+
+// Two minutes on, nothing has changed and nothing is due — but the stored
+// page still says when it was stored. The line is said again from the site's
+// own record, with no request to WordPress.
+php( `global $wpdb; $wpdb->update( LSTAB_Storage::table(), array( 'last_success_gmt' => gmdate( 'Y-m-d H:i:s', time() - 120 ) ), array( 'id' => ${ made.id } ) ); LSTAB_Storage::flush_cache( ${ made.id } ); LSTAB_Freshness::write();` );
+const later = await visit( cachedHtml );
+ok( 'An old page says truthfully how long ago its table was updated', 'Updated 2 minutes ago' === later.said && 0 === later.asked, JSON.stringify( { said: later.said, asked: later.asked } ) );
 
 // The sheet changes in Google, and the table falls overdue.
 mock( 'second' );

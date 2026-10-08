@@ -777,7 +777,21 @@ class LSTAB_Renderer {
 					<?php endif; ?>
 
 					<?php if ( $lstab_fresh ) : ?>
-						<p class="lstab-meta">
+						<?php
+						/*
+						 * A page cache keeps this line as it was when the page was
+						 * stored, so hours later it still says "5 minutes ago".
+						 * The page's script says it again from the time the site
+						 * last updated the table, in these same words.
+						 */
+						$lstab_said = empty( $args['keep_current'] ) ? '' : wp_json_encode(
+							array(
+								't' => __( 'Updated %s ago', 'live-sheets-table' ),
+								'u' => LSTAB_Locale::span_words(),
+							)
+						);
+						?>
+						<p class="lstab-meta"<?php echo '' === $lstab_said ? '' : ' data-lstab-said="' . esc_attr( $lstab_said ) . '"'; ?>>
 							<?php
 							echo esc_html(
 								sprintf(
