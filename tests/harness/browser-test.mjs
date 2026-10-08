@@ -119,7 +119,7 @@ check( page.url().includes( 'wp-admin' ), 'Logged into the dashboard' );
 
 // ----------------------------------------------------- source list screen
 section( '2. Source list screen' );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
 
 // Sync once so the run does not inherit a previous run's outage state.
 /*
@@ -1276,7 +1276,7 @@ await mpage.screenshot( { path: `${ SHOTS }/05-frontend-mobile-slider.png`, full
 section( '9. Sync failure — visitor still sees the last good copy' );
 setMock( 'http_403' );
 
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
 await Promise.all( [
 	page.waitForURL( /page=live-sheets-table/ ),
 	page.locator( '.lstab-src button:has-text("Refresh")' ).first().click(),
@@ -1439,7 +1439,7 @@ check(
  * one question the picture invited had no answer at all.
  */
 setSyncLog( 'ooxoxo' );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
 
 const checksFact = page.locator( '.lstab-fact--checks' ).first();
 check(
@@ -1470,7 +1470,7 @@ check(
 );
 
 setSyncLog( 'oooooo' );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
 check(
 	0 === ( await page.locator( '.lstab-fact--checks .lstab-spark-failed' ).count() ),
 	'A clean run says nothing about failures'
@@ -2016,7 +2016,7 @@ section( '9c. A sheet that arrives malformed' );
 // The fetch succeeds, so nothing else in the plugin notices. Only someone who
 // can fix it is told, and the public page carries on as normal.
 setMock( 'ragged' );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
 await page.locator( '.lstab-src button:has-text("Refresh")' ).first().click();
 await page.waitForLoadState( 'networkidle' );
 
@@ -2034,7 +2034,7 @@ check( ! /quotation mark|cudzysłów/i.test( publicBody ), 'The visitor is told 
 
 // Back to a clean sheet; the warning must clear itself rather than linger.
 setMock( 'ok' );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
 await page.locator( '.lstab-src button:has-text("Refresh")' ).first().click();
 await page.waitForLoadState( 'networkidle' );
 check( await page.locator( '.lstab-src-note--warn' ).count() === 0, 'A clean sync clears the warning' );
@@ -2055,7 +2055,7 @@ check( await elsewhere.count() === 1, 'The warning follows you around the dashbo
 check( /\brow 3\b/i.test( await elsewhere.first().innerText() ), 'And still names the row', ( await elsewhere.first().innerText() ).replace( /\s+/g, ' ' ).slice( 0, 90 ) );
 await elsewhere.first().screenshot( { path: `${ SHOTS }/23-global-notice.png` } );
 
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
 check(
 	await page.locator( '.notice-warning:has-text("Live Sheets Table:")' ).count() === 0,
 	'It is not repeated on the screen that already shows it beside the source'
@@ -2068,7 +2068,7 @@ await page.waitForLoadState( 'networkidle' );
 check( await page.locator( '.notice-warning:has-text("Live Sheets Table")' ).count() === 0, 'Dismissing it works' );
 
 setMock( 'ok' );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
 await page.locator( '.lstab-src button:has-text("Refresh")' ).first().click();
 await page.waitForLoadState( 'networkidle' );
 setMock( 'ragged' );
@@ -2081,7 +2081,7 @@ check(
 );
 
 setMock( 'ok' );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
 await page.locator( '.lstab-src button:has-text("Refresh")' ).first().click();
 await page.waitForLoadState( 'networkidle' );
 
@@ -2439,7 +2439,7 @@ check( 'look' === ( await paneNow() ), 'Clicking a tab moves to it' );
  * wherever the last person had been working. A new sheet starts at the
  * beginning, the same as opening an existing one.
  */
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
 await page.locator( 'a.lstab-btn:has-text("Add a sheet")' ).first().click();
 await page.waitForLoadState( 'networkidle' );
 await page.waitForTimeout( 600 );
@@ -2558,7 +2558,7 @@ await pane( 'look' );
 check( ! ( await page.locator( '#lstab-paging' ).isChecked() ), 'Switching pages off on the way in is respected' );
 
 // And the sheet that was already there is asked rather than changed.
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
 const offer = cardOfSheet( 'Długi cennik bez stron' ).locator( '.lstab-src-offer' ).first();
 check( await offer.count() > 0, 'A long sheet already saved is offered pages on its card' );
 const offerSaid = await offer.innerText();
@@ -2575,7 +2575,7 @@ await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&sourc
 await pane( 'look' );
 check( await page.locator( '#lstab-paging' ).isChecked(), 'Saying yes on the card turns them on' );
 
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
 check(
 	0 === await cardOfSheet( 'Długi cennik bez stron' ).locator( '.lstab-src-offer' ).count(),
 	'And the card stops asking'

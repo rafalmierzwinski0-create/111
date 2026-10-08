@@ -84,6 +84,8 @@ class LSTAB_Icons {
 	}
 }
 
+require_once __DIR__ . '/../live-sheets-table/includes/class-lstab-limits.php';
+require_once __DIR__ . '/../live-sheets-table/includes/class-lstab-columns.php';
 require_once __DIR__ . '/../live-sheets-table/includes/class-lstab-renderer.php';
 require_once __DIR__ . '/../live-sheets-table-pro/includes/class-lstabp-filters.php';
 require_once __DIR__ . '/../live-sheets-table-pro/includes/class-lstabp-rules.php';

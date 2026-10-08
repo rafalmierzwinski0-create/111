@@ -41,6 +41,8 @@ function add_filter( $hook, $callback, $priority = 10, $args = 1 ) {
 	$GLOBALS['lstab_filters'][ $hook ][ $priority ][] = $callback;
 }
 function add_action() {}
+// Pro is running in this file's world, so what Pro hides stays hidden.
+function apply_filters( $hook, $value ) { return 'lstab_is_pro' === $hook ? true : $value; }
 function esc_attr_e( $text, $domain = null ) { echo esc_attr( $text ); }
 function esc_html_e( $text, $domain = null ) { echo esc_html( $text ); }
 function esc_attr__( $text, $domain = null ) { return esc_attr( $text ); }
@@ -89,6 +91,8 @@ class LSTAB_Icons {
 
 define( 'LSTABP_PATH', __DIR__ . '/../live-sheets-table-pro/' );
 
+require_once __DIR__ . '/../live-sheets-table/includes/class-lstab-limits.php';
+require_once __DIR__ . '/../live-sheets-table/includes/class-lstab-columns.php';
 require_once __DIR__ . '/../live-sheets-table/includes/class-lstab-renderer.php';
 require_once __DIR__ . '/../live-sheets-table-pro/includes/class-lstabp-filters.php';
 require_once __DIR__ . '/../live-sheets-table-pro/includes/class-lstabp-rules.php';

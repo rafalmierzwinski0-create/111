@@ -30,6 +30,8 @@ LSTAB_Cron::unschedule();
 
 // Says only when each table is next due, and means nothing without the plugin.
 LSTAB_Freshness::remove();
+delete_option( 'lstab_seen_on' );
+delete_transient( 'lstab_due_unwritable' );
 
 if ( ! LSTAB_Settings::get( 'delete_on_uninstall' ) ) {
 	return;

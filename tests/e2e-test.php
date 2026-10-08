@@ -1229,7 +1229,7 @@ lstab_section( '11b. A cached page asks for its own overdue tables' );
 
 LSTAB_Sync::reset_view_budget();
 $lstab_kc_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
-lstab_assert( false !== strpos( $lstab_kc_html, 'data-lstab-ask="' . esc_attr( admin_url( 'admin-ajax.php' ) ) . '"' ), 'A table on a page carries where to ask' );
+lstab_assert( false !== strpos( $lstab_kc_html, 'data-lstab-ask="' . esc_attr( admin_url( 'admin-ajax.php', 'relative' ) ) . '"' ), 'A table on a page carries where to ask' );
 lstab_assert( 1 === preg_match( '/data-lstab-copy="[0-9a-f]{12}"/', $lstab_kc_html ), 'And a short form of the copy it shows' );
 lstab_assert( 1 === preg_match( '/data-lstab-next="(\d+)"/', $lstab_kc_html, $lstab_kc_next ) && (int) $lstab_kc_next[1] > time(), 'And when it is next due, in the future for a fresh table', isset( $lstab_kc_next[1] ) ? $lstab_kc_next[1] : '' );
 

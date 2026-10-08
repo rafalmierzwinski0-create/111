@@ -114,15 +114,23 @@ class LSTAB_Freshness {
 	public static function attributes( $source ) {
 		$file = self::file();
 
+		$have = '' !== $file['url'] && file_exists( $file['path'] );
+
 		// The first page drawn on a site without the file yet writes it as the
-		// request ends; until then the browser decides from the page alone.
-		if ( '' === $file['url'] || ! file_exists( $file['path'] ) ) {
+		// request ends; until then the browser decides from the page alone. A
+		// folder that refused once is not asked again for a day.
+		if ( ! $have && ! get_transient( 'lstab_due_unwritable' ) ) {
 			self::mark_dirty();
 		}
 
+		/*
+		 * Addresses without the host, so a site whose dashboard is on https
+		 * and whose pages are on http, or the other way round, still asks its
+		 * own server rather than one the browser will refuse to talk to.
+		 */
 		return array(
-			'data-lstab-ask'   => admin_url( 'admin-ajax.php' ),
-			'data-lstab-due'   => ( '' !== $file['url'] && file_exists( $file['path'] ) ) ? $file['url'] : '',
+			'data-lstab-ask'   => admin_url( 'admin-ajax.php', 'relative' ),
+			'data-lstab-due'   => $have ? wp_make_link_relative( $file['url'] ) : '',
 			'data-lstab-copy'  => substr( (string) $source['snapshot_hash'], 0, 12 ),
 			'data-lstab-next'  => (string) self::next_due( $source ),
 		);
@@ -207,6 +215,8 @@ class LSTAB_Freshness {
 		$file = self::file();
 
 		if ( '' === $file['path'] || ! wp_is_writable( dirname( $file['path'] ) ) ) {
+			set_transient( 'lstab_due_unwritable', 1, DAY_IN_SECONDS );
+
 			return false;
 		}
 
