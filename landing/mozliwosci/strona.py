@@ -2421,6 +2421,12 @@ assert WJAZD.startswith( '<style>' ) and 'data-wjazd' in WJAZD, 'wjazd nie ma oc
 	'<script>\n' + JS + '\n\n' + RUCH + '\n</script>\n'
 	'\n' + WJAZD )
 
+# Sam skrypt tabeli, bez ruchu podstrony i bez wjazdu — do dopisania w tym
+# samym polu obok tego, co już tam stoi, a nie zamiast.
+( TU / 'INTEGRACJA-tabela.html' ).write_text(
+	'<!-- DO: Divi > Opcje motywu > Integracja > Dodaj kod do <body>. DOPISZ na koncu pola, nic nie usuwaj. Tylko skrypt tabeli (szukanie, sortowanie, filtry). -->\n'
+	'<script>\n' + JS + '\n</script>\n' )
+
 # Podgląd do otwarcia w przeglądarce: podrabia tło i dopełnienia Divi, i
 # podstawia lokalne adresy zrzutów. Do Divi idzie wyłącznie MOZLIWOSCI-en.html.
 #
