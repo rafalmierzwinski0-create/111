@@ -86,6 +86,8 @@ class LSTAB_Renderer {
 		 */
 		$source = LSTAB_Sync::refresh_for_view( $source );
 
+		LSTAB_Usage::saw( $source_id );
+
 		if ( empty( $source['data']['headers'] ) && empty( $source['data']['rows'] ) ) {
 			// Nothing has ever synced. Admins get a hint; visitors get nothing.
 			return self::notice(

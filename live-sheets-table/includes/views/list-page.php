@@ -353,31 +353,23 @@ $lstab_add_button = $lstab_can_add
 						 */
 						$lstab_purge = LSTAB_Cache::last( (int) $lstab_source['id'] );
 						?>
-						<?php if ( $lstab_purge && ! empty( $lstab_purge['time'] ) ) : ?>
+						<?php if ( $lstab_purge && ! empty( $lstab_purge['time'] ) && 'pages' === $lstab_purge['scope'] ) : ?>
 							<p class="lstab-used lstab-purged">
 								<?php echo LSTAB_Icons::icon( 'bolt' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
 								<?php
-								if ( 'site' === $lstab_purge['scope'] ) {
-									printf(
-										/* translators: %s: human readable duration, e.g. "5 minutes". */
-										esc_html__( 'Whole page cache cleared %s ago', 'live-sheets-table' ),
-										esc_html( LSTAB_Locale::span( (int) $lstab_purge['time'] ) )
-									);
-								} else {
-									printf(
-										/* translators: 1: number of pages, 2: human readable duration, e.g. "5 minutes". */
-										esc_html(
-											_n(
-												'Page cache cleared on %1$s page, %2$s ago',
-												'Page cache cleared on %1$s pages, %2$s ago',
-												(int) $lstab_purge['posts'],
-												'live-sheets-table'
-											)
-										),
-										esc_html( number_format_i18n( (int) $lstab_purge['posts'] ) ),
-										esc_html( LSTAB_Locale::span( (int) $lstab_purge['time'] ) )
-									);
-								}
+								printf(
+									/* translators: 1: number of pages, 2: human readable duration, e.g. "5 minutes". */
+									esc_html(
+										_n(
+											'Page cache cleared on %1$s page, %2$s ago',
+											'Page cache cleared on %1$s pages, %2$s ago',
+											(int) $lstab_purge['posts'],
+											'live-sheets-table'
+										)
+									),
+									esc_html( number_format_i18n( (int) $lstab_purge['posts'] ) ),
+									esc_html( LSTAB_Locale::span( (int) $lstab_purge['time'] ) )
+								);
 								?>
 							</p>
 						<?php endif; ?>

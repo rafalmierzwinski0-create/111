@@ -56,14 +56,21 @@ class LSTAB_Cache {
 	}
 
 	/**
-	 * Clear whatever holds an old copy of one table.
+	 * Most pages cleared for one change.
+	 */
+	const MAX_PAGES = 50;
+
+	/**
+	 * Clear the pages that hold an old copy of one table.
 	 *
-	 * @param int  $source_id Source ID.
-	 * @param bool $may_flush Whether finding no page at all may fall back to
-	 *                        clearing the whole cache.
+	 * Only the pages the table is known to be on. A table nobody has found yet,
+	 * or one on more pages than MAX_PAGES (a footer, a sidebar), clears
+	 * nothing: the page script replaces an outdated table on screen anyway.
+	 *
+	 * @param int $source_id Source ID.
 	 * @return array{scope:string,posts:int} What was done.
 	 */
-	public static function purge( $source_id, $may_flush = true ) {
+	public static function purge( $source_id ) {
 		$source_id = (int) $source_id;
 
 		if ( ! self::enabled( $source_id ) ) {
@@ -73,34 +80,10 @@ class LSTAB_Cache {
 			);
 		}
 
-		// places() answers with a list of pages, each carrying its own ID — the
-		// list's own keys are just positions.
 		$posts = wp_list_pluck( LSTAB_Usage::places( $source_id ), 'id' );
 		$posts = array_values( array_unique( array_map( 'intval', $posts ) ) );
 
-		/*
-		 * A table can be somewhere no page names it: a widget, a theme
-		 * template, a page builder's own library. Finding nothing is therefore
-		 * not proof that nothing needs clearing, and this is exactly the site
-		 * where a stale table would go unnoticed longest — so the whole cache
-		 * goes instead.
-		 *
-		 * Only when new data arrived, though. Pressing Save on a table that is
-		 * not on any page yet — which is every table, the first time — cannot
-		 * have made any page stale, and rebuilding a whole site's cache for it
-		 * would be a punishment for adding a table.
-		 */
-		if ( ! $posts && $may_flush ) {
-			self::purge_site();
-			self::record( $source_id, 'site', 0 );
-
-			return array(
-				'scope' => 'site',
-				'posts' => 0,
-			);
-		}
-
-		if ( ! $posts ) {
+		if ( ! $posts || count( $posts ) > self::MAX_PAGES ) {
 			return array(
 				'scope' => 'none',
 				'posts' => 0,
@@ -142,7 +125,7 @@ class LSTAB_Cache {
 		add_action(
 			'lstab_source_saved',
 			static function ( $source_id ) {
-				LSTAB_Cache::purge( (int) $source_id, false );
+				LSTAB_Cache::purge( (int) $source_id );
 			}
 		);
 
@@ -150,7 +133,7 @@ class LSTAB_Cache {
 			'lstab_source_deleted',
 			static function ( $source_id ) {
 				// The pages that held it are now pages without it.
-				LSTAB_Cache::purge( (int) $source_id, false );
+				LSTAB_Cache::purge( (int) $source_id );
 				LSTAB_Cache::forget( (int) $source_id );
 			}
 		);
@@ -213,48 +196,6 @@ class LSTAB_Cache {
 	}
 
 	/**
-	 * Clear everything, for a site that has said it wants that.
-	 *
-	 * @return void
-	 */
-	protected static function purge_site() {
-		if ( function_exists( 'rocket_clean_domain' ) ) {
-			rocket_clean_domain();
-		}
-
-		if ( function_exists( 'w3tc_flush_all' ) ) {
-			w3tc_flush_all();
-		}
-
-		if ( function_exists( 'wp_cache_clear_cache' ) ) {
-			wp_cache_clear_cache();
-		}
-
-		if ( isset( $GLOBALS['wp_fastest_cache'] ) && method_exists( $GLOBALS['wp_fastest_cache'], 'deleteCache' ) ) {
-			$GLOBALS['wp_fastest_cache']->deleteCache( true );
-		}
-
-		if ( class_exists( 'WpeCommon' ) && method_exists( 'WpeCommon', 'purge_varnish_cache' ) ) {
-			WpeCommon::purge_varnish_cache();
-		}
-
-		do_action( 'litespeed_purge_all' );
-		do_action( 'cache_enabler_clear_complete_cache' );
-		do_action( 'wphb_clear_page_cache' );
-		do_action( 'rt_nginx_helper_purge_all' );
-		do_action( 'breeze_clear_all_cache' );
-
-		if ( function_exists( 'sg_cachepress_purge_everything' ) ) {
-			sg_cachepress_purge_everything();
-		}
-
-		/**
-		 * Fires after the whole page cache has been cleared.
-		 */
-		do_action( 'lstab_purge_all_cache' );
-	}
-
-	/**
 	 * Remember what was cleared, so the dashboard can say so.
 	 *
 	 * The first question on a support thread about a stale table is whether the
@@ -262,7 +203,7 @@ class LSTAB_Cache {
 	 * without anybody having to reproduce anything.
 	 *
 	 * @param int    $source_id Source ID.
-	 * @param string $scope     'pages' or 'site'.
+	 * @param string $scope     What was cleared.
 	 * @param int    $posts     How many pages were cleared.
 	 * @return void
 	 */

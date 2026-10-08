@@ -2557,9 +2557,9 @@ lstab_assert( empty( $purge_seen ), 'And nothing listening is told either' );
 remove_filter( 'lstab_clear_page_cache', '__return_false' );
 
 /*
- * A table nothing names — a widget, a template, a page builder's library — is
- * exactly where a stale copy would go unnoticed longest, so finding no page
- * clears everything rather than nothing.
+ * A table no page is known to hold clears nothing — not the whole site. The
+ * page script replaces an outdated table on screen, so a guess at "everything"
+ * would only cost every other page its cache.
  */
 $flushed_all = false;
 add_action(
@@ -2569,21 +2569,6 @@ add_action(
 	}
 );
 
-/*
- * A source nothing points at, rather than the one under test: the demo page is
- * seeded on this site for the browser run and would keep naming that one.
- *
- * Asked for until one really is free, because on a site that has been tested
- * before, most numbers are taken. This suite empties the sources table when it
- * starts, so the next row is id 1 again — while the pages published by the
- * other suites are still there, still naming ids 1, 2, 3 and upwards. The
- * fresh "orphan" then inherits somebody else's page and the check fails on the
- * second run of tests/run-all.sh and every run after it, saying the plugin is
- * broken when what is broken is the arithmetic in this test.
- *
- * Cheap, because it is a scan already in memory, and it ends: there are a few
- * dozen pages and the ids only go up.
- */
 $taken  = LSTAB_Usage::map();
 $spares = array();
 $orphan = 0;
@@ -2591,15 +2576,13 @@ $orphan = 0;
 while ( ! $orphan ) {
 	$try = LSTAB_Storage::insert(
 		array(
-			'title'     => 'Nigdzie nieużywana',
+			'title'     => 'Nowhere yet',
 			'sheet_url' => 'https://docs.google.com/spreadsheets/d/VVV/edit#gid=0',
 			'sheet_id'  => 'VVV',
 		)
 	);
 
 	if ( isset( $taken[ (int) $try ] ) ) {
-		// Kept until the end, because deleting it here would hand the same id
-		// straight back on the next go round.
 		$spares[] = $try;
 		continue;
 	}
@@ -2611,12 +2594,37 @@ LSTAB_Usage::forget();
 
 lstab_assert( ! LSTAB_Usage::places( $orphan ), 'The orphan table really is on no page' );
 
-LSTAB_Cache::purge( $orphan );
-lstab_assert( $flushed_all, 'A table on no page anybody can name clears the whole cache instead' );
-$after_site = LSTAB_Cache::last( $orphan );
-lstab_assert( is_array( $after_site ) && 'site' === $after_site['scope'], 'And says so', wp_json_encode( $after_site ) );
+$purge_seen   = array();
+$after_orphan = LSTAB_Cache::purge( $orphan );
+lstab_assert( ! $flushed_all && empty( $purge_seen ) && 'none' === $after_orphan['scope'], 'A table on no known page clears nothing, and never the whole site', wp_json_encode( $after_orphan ) );
+
+// Drawn on a page the content scan cannot see — a widget, a template, a page
+// builder — the page is remembered, and from then on it is the one cleared.
+$hidden_home = wp_insert_post(
+	array(
+		'post_type'    => 'page',
+		'post_status'  => 'publish',
+		'post_title'   => 'Built with a page builder',
+		'post_content' => 'No shortcode in here.',
+	)
+);
+$GLOBALS['wp_query'] = new WP_Query( array( 'page_id' => $hidden_home ) );
+$GLOBALS['wp_the_query'] = $GLOBALS['wp_query'];
+LSTAB_Usage::saw( $orphan );
+LSTAB_Usage::save_seen();
+wp_reset_query();
+
+$seen_places = wp_list_pluck( LSTAB_Usage::places( $orphan ), 'id' );
+lstab_assert( array( $hidden_home ) === array_map( 'intval', $seen_places ), 'A page the table was drawn on is known to hold it', wp_json_encode( $seen_places ) );
+
+$purge_seen   = array();
+$after_seen   = LSTAB_Cache::purge( $orphan );
+lstab_assert( 'pages' === $after_seen['scope'] && 1 === $after_seen['posts'] && ! empty( $purge_seen ) && in_array( $hidden_home, $purge_seen[0]['posts'], true ), 'And that page is the one cleared', wp_json_encode( $after_seen ) );
 
 LSTAB_Storage::delete( $orphan );
+$after_delete = (array) get_option( LSTAB_Usage::SEEN, array() );
+lstab_assert( ! isset( $after_delete[ $orphan ] ), 'Deleting a table forgets where it was drawn' );
+wp_delete_post( $hidden_home, true );
 
 foreach ( $spares as $spare ) {
 	LSTAB_Storage::delete( $spare );
@@ -2633,8 +2641,11 @@ $cache_throwaway = LSTAB_Storage::insert(
 		'sheet_id'  => 'WWW',
 	)
 );
+$throwaway_page = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'Throwaway', 'post_content' => '[sheet_table id="' . $cache_throwaway . '"]' ) );
+LSTAB_Usage::forget();
 LSTAB_Cache::purge( $cache_throwaway );
 lstab_assert( is_array( LSTAB_Cache::last( $cache_throwaway ) ), 'A throwaway source has a record to lose' );
+wp_delete_post( $throwaway_page, true );
 LSTAB_Storage::delete( $cache_throwaway );
 lstab_assert( null === LSTAB_Cache::last( $cache_throwaway ), 'Deleting a source forgets it' );
 
