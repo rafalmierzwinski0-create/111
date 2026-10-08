@@ -35,6 +35,23 @@ class LSTABP_Private_Sheets {
 		// The fetch filters see a URL, not a source, so note which source the
 		// sync is working on before it starts.
 		add_action( 'lstab_before_sync', array( __CLASS__, 'remember_source' ) );
+
+		add_action( 'lstab_source_deleted', array( __CLASS__, 'forget' ) );
+	}
+
+	/**
+	 * Drop a deleted table from the private list.
+	 *
+	 * @param int $source_id Source ID.
+	 * @return void
+	 */
+	public static function forget( $source_id ) {
+		$stored = (array) get_option( self::META_OPTION, array() );
+
+		if ( isset( $stored[ (int) $source_id ] ) ) {
+			unset( $stored[ (int) $source_id ] );
+			update_option( self::META_OPTION, $stored, false );
+		}
 	}
 
 	/**
@@ -43,10 +60,38 @@ class LSTABP_Private_Sheets {
 	 * Kept in Pro's own option rather than the free plugin's table: the free
 	 * schema should not carry columns that only mean something here.
 	 *
+	 * A mark belongs to one table, not to its number. Numbers start again from
+	 * 1 once every table has been deleted, and a table can be deleted while Pro
+	 * is switched off and cannot hear about it. So each mark holds the moment
+	 * its table was created, and only counts for a table that still exists and
+	 * was created at that moment: a new table that happens to get an old
+	 * number starts out public, as every new table does. Marks saved before
+	 * this was done hold `true` and count for whichever table has the number.
+	 *
 	 * @return array<int,bool>
 	 */
 	public static function private_sources() {
-		return array_map( 'boolval', (array) get_option( self::META_OPTION, array() ) );
+		$stored = (array) get_option( self::META_OPTION, array() );
+
+		if ( ! $stored ) {
+			return array();
+		}
+
+		$private = array();
+
+		foreach ( LSTAB_Storage::get_all() as $source ) {
+			$id = (int) $source['id'];
+
+			if ( ! isset( $stored[ $id ] ) ) {
+				continue;
+			}
+
+			if ( true === $stored[ $id ] || (string) $stored[ $id ] === (string) $source['created_gmt'] ) {
+				$private[ $id ] = true;
+			}
+		}
+
+		return $private;
 	}
 
 	/**
@@ -57,15 +102,24 @@ class LSTABP_Private_Sheets {
 	 * @return void
 	 */
 	public static function set_private( $source_id, $private ) {
-		$sources = self::private_sources();
+		$stored  = array();
+		$current = self::private_sources();
 
-		if ( $private ) {
-			$sources[ (int) $source_id ] = true;
-		} else {
-			unset( $sources[ (int) $source_id ] );
+		// Rewritten from scratch each time, so a mark left by a deleted table
+		// is dropped the next time anything is saved.
+		foreach ( LSTAB_Storage::get_all() as $source ) {
+			$id = (int) $source['id'];
+
+			if ( $id === (int) $source_id ) {
+				if ( $private ) {
+					$stored[ $id ] = (string) $source['created_gmt'];
+				}
+			} elseif ( isset( $current[ $id ] ) ) {
+				$stored[ $id ] = (string) $source['created_gmt'];
+			}
 		}
 
-		update_option( self::META_OPTION, $sources, false );
+		update_option( self::META_OPTION, $stored, false );
 	}
 
 	/**

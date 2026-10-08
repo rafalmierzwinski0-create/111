@@ -243,6 +243,35 @@ LSTABP_Google_Auth::exchange_code( 'fake-auth-code' );
 LSTABP_Private_Sheets::set_private( $source_id, false );
 LSTAB_Sync::run( $source_id );
 
+// A private mark belongs to one table, not to its number: numbers start again
+// from 1 once every table is gone, and a table can be deleted while Pro is off.
+$lstabp_marked = (int) LSTAB_Storage::insert(
+	array(
+		'title'     => 'Private, then replaced',
+		'sheet_url' => 'https://docs.google.com/spreadsheets/d/PRIVATETHENREPLACED00000000000000000/edit',
+		'sheet_id'  => 'PRIVATETHENREPLACED00000000000000000',
+	)
+);
+LSTABP_Private_Sheets::set_private( $lstabp_marked, true );
+lstabp_assert( LSTABP_Private_Sheets::is_private( $lstabp_marked ), 'A table marked private is private' );
+
+// Stand-in for "a different table now holds this number": same id, another
+// moment of creation.
+global $wpdb;
+$wpdb->update( LSTAB_Storage::table(), array( 'created_gmt' => '2001-01-01 00:00:00' ), array( 'id' => $lstabp_marked ) );
+LSTAB_Storage::flush_cache( $lstabp_marked );
+lstabp_assert( ! LSTABP_Private_Sheets::is_private( $lstabp_marked ), 'A new table on an old number does not inherit the private mark' );
+
+LSTABP_Private_Sheets::set_private( $lstabp_marked, true );
+LSTAB_Storage::delete( $lstabp_marked );
+$lstabp_left = (array) get_option( LSTABP_Private_Sheets::META_OPTION, array() );
+lstabp_assert( ! isset( $lstabp_left[ $lstabp_marked ] ), 'Deleting a table removes its private mark' );
+
+update_option( LSTABP_Private_Sheets::META_OPTION, array( 9999 => '2020-01-01 00:00:00' ) );
+lstabp_assert( array() === LSTABP_Private_Sheets::private_sources(), 'A mark for a table that no longer exists counts for nothing' );
+LSTABP_Private_Sheets::set_private( $source_id, false );
+lstabp_assert( array() === (array) get_option( LSTABP_Private_Sheets::META_OPTION, array() ), 'And is dropped the next time the list is saved' );
+
 // ---------------------------------------------------------------------------
 
 lstabp_section( '5. Filtered views' );

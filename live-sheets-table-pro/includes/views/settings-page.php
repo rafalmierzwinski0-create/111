@@ -32,7 +32,6 @@ defined( 'ABSPATH' ) || exit;
 		<p class="lstab-row-help">
 			<?php esc_html_e( 'To read sheets that are not shared publicly, this site signs in to Google as you. That requires an OAuth client from your own Google Cloud project.', 'live-sheets-table-pro' ); ?>
 		</p>
-		</p>
 		<ol class="lstab-steps">
 			<li><?php esc_html_e( 'Open Google Cloud Console and create a project.', 'live-sheets-table-pro' ); ?></li>
 			<li><?php esc_html_e( 'Enable the Google Sheets API for it.', 'live-sheets-table-pro' ); ?></li>
@@ -148,12 +147,26 @@ defined( 'ABSPATH' ) || exit;
 		</div>
 
 		<div class="lstab-panel-body">
+		<p class="lstab-help">
+			<?php esc_html_e( 'Tick a sheet to read it through the connected account instead of its public link. You can then turn off link sharing in Google.', 'live-sheets-table-pro' ); ?>
+		</p>
+		<?php
+		/*
+		 * The order matters, and getting it wrong looks like a broken table:
+		 * a sheet unshared before it is ticked here can no longer be read at
+		 * all, and one unshared before it was ever added cannot be previewed.
+		 */
+		?>
+		<ol class="lstab-steps">
+			<li><?php esc_html_e( 'Add the sheet as usual, while it is still shared by link — the preview reads it that way.', 'live-sheets-table-pro' ); ?></li>
+			<li><?php esc_html_e( 'Connect a Google account above, one that can open the sheet.', 'live-sheets-table-pro' ); ?></li>
+			<li><?php esc_html_e( 'Tick the sheet below and save.', 'live-sheets-table-pro' ); ?></li>
+			<li><?php esc_html_e( 'On the list of tables, choose “Refresh” and check it still updates.', 'live-sheets-table-pro' ); ?></li>
+			<li><?php esc_html_e( 'In Google Sheets choose Share → General access → “Restricted”. Keep the link in the table’s settings: it only tells the plugin which sheet to read.', 'live-sheets-table-pro' ); ?></li>
+		</ol>
 		<?php if ( ! $sources ) : ?>
 			<p class="lstab-help"><?php esc_html_e( 'No sheet sources yet.', 'live-sheets-table-pro' ); ?></p>
 		<?php else : ?>
-			<p class="lstab-help">
-				<?php esc_html_e( 'Tick a sheet to read it through the connected account instead of its public link. You can then turn off link sharing in Google.', 'live-sheets-table-pro' ); ?>
-			</p>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 				<?php wp_nonce_field( 'lstabp_save_sources' ); ?>
 				<input type="hidden" name="action" value="lstabp_save_sources">
