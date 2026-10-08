@@ -59,6 +59,11 @@ z żywą tabelą — można wkleić gdziekolwiek indziej bez reszty podstrony:
   `STOL-kod.html` → moduł Kod, `STOL-css.css` → Divi > Opcje motywu > Własny
   CSS, `STOL-js.js` → Integracja > przed `</body>`, w `<script>`.
 
+Jest też `STOL-kod-ze-skryptem.html` (~65 kB): znacznik sekcji i skrypt
+tabeli w jednym module Kod, bez arkusza (ten bierze się z `<head>`). Tabela
+szuka i sortuje wtedy sama, bez względu na to, co stoi w polu „kod do
+`<body>`” w Integracji.
+
 `STOL-podglad.html` otwiera to w przeglądarce na tle witryny. Znacznik jest ta
 sama zmienna, którą niesie podstrona, więc poprawka w jednym miejscu wychodzi
 w obu.

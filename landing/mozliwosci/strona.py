@@ -2479,6 +2479,14 @@ STOL = (
 ( TU / 'STOL-css.css' ).write_text( STOL_ARKUSZ + '\n' )
 ( TU / 'STOL-js.js' ).write_text( JS + '\n\n' + RUCH + '\n' )
 
+# Sekcja z tabelą i jej skryptem w jednym module Kod, bez arkusza: wygląd
+# daje arkusz w <head>, który i tak stoi na stronie. Wtedy tabela szuka
+# i sortuje bez względu na to, co jest w polu „kod do <body>” — kiedy wjazd
+# wklejony w to pole zabrał tabeli skrypt, ten moduł dalej by działał.
+# Gdyby skrypt był i tu, i w Integracji, nic złego: każda tabela jest
+# uruchamiana raz (data-lstab-ready).
+( TU / 'STOL-kod-ze-skryptem.html' ).write_text( CZCIONKI + '\n\n' + STOL_ZNACZNIK + '\n\n<script>\n' + JS + '\n</script>\n' )
+
 ( TU / 'STOL-podglad.html' ).write_text(
 	'<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n'
 	'<title>This is the plugin, running here</title>\n'

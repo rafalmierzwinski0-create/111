@@ -1103,6 +1103,35 @@ console.log( '\npodstrona z samych kodów sekcji' );
 }
 
 /*
+ * Sekcja z tabelą w jednym module razem ze swoim skryptem: pole „kod do
+ * <body>” stoi puste albo ma w sobie coś zupełnie innego (tu: sam wjazd
+ * witryny), a tabela i tak szuka i sortuje. Moduł przechodzi przez Divi,
+ * czyli dostaje <br /> w każdym złamaniu wiersza poza skryptem.
+ */
+console.log( '\nsekcja z tabelą i jej skryptem, bez Integracji' );
+{
+	const c = await b.newContext( { viewport: { width: 1600, height: 1000 } } );
+	const p = await c.newPage();
+	const bledy = [];
+	p.on( 'pageerror', ( e ) => bledy.push( e.message ) );
+	await p.route( /fonts\./, ( r ) => r.abort() );
+	await p.goto( 'file://' + TU + '/' );
+	const wjazd = fs.readFileSync( path.join( TU, '..', 'wjazd', 'WJAZD-integracja.html' ), 'utf8' );
+	await p.setContent( '<!doctype html><html><head><meta charset="utf-8">' + czytaj( 'INTEGRACJA-head.html' ) + '</head><body>'
+		+ divi( czytaj( 'STOL-kod-ze-skryptem.html' ) ) + wjazd + '</body></html>', { waitUntil: 'load' } );
+	await p.locator( '.lstab-search-input' ).scrollIntoViewIfNeeded();
+	await p.fill( '.lstab-search-input', 'blue' );
+	await p.waitForTimeout( 300 );
+	const szukane = await p.evaluate( () => [ ...document.querySelectorAll( '.lstab-table tbody tr' ) ].filter( ( r ) => ! r.hidden && 'none' !== getComputedStyle( r ).display ).length );
+	await p.fill( '.lstab-search-input', '' );
+	await p.click( 'thead th:nth-child(3) .lstab-sort' );
+	const sort = await p.evaluate( () => document.querySelector( 'thead th:nth-child(3)' ).getAttribute( 'aria-sort' ) );
+	ok( 'tabela szuka i sortuje sama, bez skryptu w Integracji', 1 === szukane && /ascending|descending/.test( sort ) && 0 === bledy.length,
+		`po „blue” ${ szukane } wiersz, sortowanie ${ sort }, błędów ${ bledy.length }` );
+	await c.close();
+}
+
+/*
  * Telefon jako JEDEN moduł, bez Integracji i bez „Własnego CSS”, wśród sekcji
  * wklejonych kiedyś w całości. Ich stare kopie arkusza wczytują się później
  * i mają te same selektory; tu są udawane regułami, które robiły na żywej
