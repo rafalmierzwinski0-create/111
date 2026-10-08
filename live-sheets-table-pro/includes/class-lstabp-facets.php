@@ -3,7 +3,7 @@
  * Letting a visitor narrow the table by what is in a column.
  *
  * A search box asks somebody to guess the words in the sheet. A filter shows
- * them: "Dostępność: W magazynie (4), Brak (1), Na zamówienie (2)". That is the
+ * them: "Availability: In stock (4), Unavailable (1), To order (2)". That is the
  * difference between a table you can read and one you can use, and it is the
  * thing every table plugin has that a sheet published as a table did not.
  *
@@ -504,7 +504,7 @@ class LSTABP_Facets {
 								<?php
 								printf(
 									/* translators: 1: how many values are listed, 2: how many the column holds. */
-									esc_html__( 'The %1$s commonest of %2$s values.', 'live-sheets-table-pro' ),
+									esc_html__( 'The %1$s most common of %2$s values.', 'live-sheets-table-pro' ),
 									esc_html( number_format_i18n( count( $lstabp_facet['values'] ) ) ),
 									esc_html( number_format_i18n( $lstabp_facet['kinds'] ) )
 								);

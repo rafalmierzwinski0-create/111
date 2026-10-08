@@ -71,11 +71,11 @@ class LSTAB_Example {
 	/**
 	 * The table itself.
 	 *
-	 * Every column is here to demonstrate something. "Cena netto" is numbers,
-	 * so it shows right alignment and figures that line up. "Dostępność" has
+	 * Every column is here to demonstrate something. "Price" is numbers,
+	 * so it shows right alignment and figures that line up. "Availability" has
 	 * three repeating values, which is exactly what conditional colouring and
-	 * filtering need. "Uwagi" runs long, so it shows wrapping and the card
-	 * layout on a phone. "Czas" is the column somebody would naturally want
+	 * filtering need. "Notes" runs long, so it shows wrapping and the card
+	 * layout on a phone. "Time" is the column somebody would naturally want
 	 * gone, so hiding has something to be tried on straight away.
 	 *
 	 * @return array{headers:array<int,string>,rows:array<int,array<int,string>>,offset:int}
@@ -97,56 +97,56 @@ class LSTAB_Example {
 			array(
 				__( 'Basic service', 'live-sheets-table' ),
 				__( '45 min', 'live-sheets-table' ),
-				'120,00',
+				'120.00',
 				$in_stock,
 				__( 'No parts replaced', 'live-sheets-table' ),
 			),
 			array(
 				__( 'Suspension overhaul', 'live-sheets-table' ),
 				__( '2 h', 'live-sheets-table' ),
-				'340,00',
+				'340.00',
 				$to_order,
 				__( 'Up to five working days', 'live-sheets-table' ),
 			),
 			array(
 				__( 'Wheel truing', 'live-sheets-table' ),
 				__( '30 min', 'live-sheets-table' ),
-				'89,00',
+				'89.00',
 				$in_stock,
 				'—',
 			),
 			array(
 				__( 'Chain replacement', 'live-sheets-table' ),
 				__( '20 min', 'live-sheets-table' ),
-				'1 215,50',
+				'1,215.50',
 				$none,
 				__( 'Part on back order', 'live-sheets-table' ),
 			),
 			array(
 				__( 'Rack fitting', 'live-sheets-table' ),
 				__( '1 h', 'live-sheets-table' ),
-				'87,00',
+				'87.00',
 				$in_stock,
 				__( 'Seatpost or frame mount', 'live-sheets-table' ),
 			),
 			array(
 				__( 'Gear adjustment', 'live-sheets-table' ),
 				__( '25 min', 'live-sheets-table' ),
-				'69,00',
+				'69.00',
 				$in_stock,
 				__( 'Cables included, housing extra', 'live-sheets-table' ),
 			),
 			array(
 				__( 'Brake pads', 'live-sheets-table' ),
 				__( '40 min', 'live-sheets-table' ),
-				'149,00',
+				'149.00',
 				$to_order,
 				__( 'Organic or metallic compound', 'live-sheets-table' ),
 			),
 			array(
 				__( 'Season preparation', 'live-sheets-table' ),
 				__( '3 h', 'live-sheets-table' ),
-				'459,00',
+				'459.00',
 				$in_stock,
 				__( 'Full check, wash and lubrication', 'live-sheets-table' ),
 			),

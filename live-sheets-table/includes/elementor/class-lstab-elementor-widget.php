@@ -193,7 +193,7 @@ class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
 				array(
 					'label'       => __( 'Filter', 'live-sheets-table' ),
 					'type'        => \Elementor\Controls_Manager::TEXT,
-					'description' => __( 'Show only matching rows, for example: Kategoria is Rowery. Join conditions with “and”. Operators: is, is not, has, gt, gte, lt, lte.', 'live-sheets-table' ),
+					'description' => __( 'Show only matching rows, for example: Category is Bikes. Join conditions with “and”. Operators: is, is not, has, gt, gte, lt, lte.', 'live-sheets-table' ),
 				)
 			);
 

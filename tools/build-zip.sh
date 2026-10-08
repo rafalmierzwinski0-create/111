@@ -30,16 +30,11 @@ fail=0
 if [ "$SLUG" = "live-sheets-table" ] && [ ! -f "$STAGE/readme.txt" ]; then
 	echo "ERROR: readme.txt missing"; fail=1
 fi
-# Both plugins ship a catalogue: without one in the archive the strings cannot
-# be translated at all, however carefully they were wrapped in the source.
-if [ ! -f "$STAGE/languages/$SLUG.pot" ]; then
-	echo "ERROR: POT catalogue missing"; fail=1
-fi
-
-# Both plugins are shown on the same screens, so a Polish catalogue for one
-# and not the other is how half a dashboard ends up in English.
-if [ ! -f "$STAGE/languages/$SLUG-pl_PL.mo" ]; then
-	echo "ERROR: compiled Polish catalogue missing"; fail=1
+# Both plugins are English only: no language setting and no bundled
+# translations. A catalogue left in the archive would quietly put a site set
+# to that language back into it.
+if [ -d "$STAGE/languages" ] || [ -n "$( find "$STAGE" -name '*.mo' -o -name '*.po' -o -name 'readme-*.txt' )" ]; then
+	echo "ERROR: a translation is in the archive; the plugin ships in English only"; fail=1
 fi
 
 if [ "$SLUG" = "live-sheets-table" ]; then

@@ -246,7 +246,7 @@ class LSTAB_CSV_Parser {
 						/*
 						 * Normally the field carries on after an escaped
 						 * quote. But a value that ends in a quote of its own —
-						 * Rower górski „Trek" — written by something that
+						 * Mountain bike „Trek" — written by something that
 						 * forgot to double it leaves these same two characters
 						 * exactly where the field ends. Reading them as an
 						 * escape then swallows every remaining row into this

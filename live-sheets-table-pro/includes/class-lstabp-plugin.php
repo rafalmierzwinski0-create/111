@@ -38,21 +38,6 @@ class LSTABP_Plugin {
 		( new LSTABP_Column_Looks() )->register();
 		( new LSTABP_Picker() )->register();
 		( new LSTABP_Settings() )->register();
-
-		add_action( 'init', array( $this, 'load_textdomain' ) );
-	}
-
-	/**
-	 * Load translations.
-	 *
-	 * @return void
-	 */
-	public function load_textdomain() {
-		load_plugin_textdomain(
-			'live-sheets-table-pro',
-			false,
-			dirname( plugin_basename( LSTABP_FILE ) ) . '/languages'
-		);
 	}
 
 	/**

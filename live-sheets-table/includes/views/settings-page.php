@@ -32,34 +32,6 @@ defined( 'ABSPATH' ) || exit;
 
 		<div class="lstab-panel">
 			<div class="lstab-panel-head">
-				<?php echo LSTAB_Icons::badge( 'globe', 'sky' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-				<span>
-					<h2><?php esc_html_e( 'Language', 'live-sheets-table' ); ?></h2>
-					<span class="lstab-panel-sub"><?php esc_html_e( 'Which language this plugin uses, here and on your pages', 'live-sheets-table' ); ?></span>
-				</span>
-			</div>
-
-			<div class="lstab-row">
-				<div class="lstab-row-say">
-					<p class="lstab-row-title"><?php esc_html_e( 'Language of this plugin', 'live-sheets-table' ); ?></p>
-					<p class="lstab-row-help">
-						<?php esc_html_e( 'Covers these screens, the block in the editor, and the words visitors see in the table. The rest of the dashboard keeps the language set in WordPress.', 'live-sheets-table' ); ?>
-					</p>
-				</div>
-				<div class="lstab-row-do">
-					<select name="lstab_settings[locale]">
-						<?php foreach ( LSTAB_Locale::choices() as $lstab_code => $lstab_language ) : ?>
-							<option value="<?php echo esc_attr( $lstab_code ); ?>" <?php selected( $settings['locale'], $lstab_code ); ?>>
-								<?php echo esc_html( $lstab_language ); ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
-				</div>
-			</div>
-		</div>
-
-		<div class="lstab-panel">
-			<div class="lstab-panel-head">
 				<?php echo LSTAB_Icons::badge( 'shield', 'indigo' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
 				<span>
 					<h2><?php esc_html_e( 'Access', 'live-sheets-table' ); ?></h2>

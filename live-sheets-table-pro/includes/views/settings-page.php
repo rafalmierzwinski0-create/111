@@ -202,8 +202,8 @@ defined( 'ABSPATH' ) || exit;
 		<p class="lstab-help">
 			<?php esc_html_e( 'The filter attribute is listed with every other one beside the shortcode, on the sheet\'s own screen. This is what may go inside it.', 'live-sheets-table-pro' ); ?>
 		</p>
-		<p><code class="lstab-shortcode">[sheet_table id="1" filter="Kategoria is Rowery"]</code></p>
-		<p><code class="lstab-shortcode">[sheet_table id="1" filter="Cena netto lt 500, Dostępność is W magazynie"]</code></p>
+		<p><code class="lstab-shortcode">[sheet_table id="1" filter="Category is Bikes"]</code></p>
+		<p><code class="lstab-shortcode">[sheet_table id="1" filter="Net price lt 500, Availability is In stock"]</code></p>
 		<p class="lstab-help">
 			<?php esc_html_e( 'Conditions are separated by commas and all must match. Column names match either the heading in your sheet or the name you gave it.', 'live-sheets-table-pro' ); ?>
 		</p>

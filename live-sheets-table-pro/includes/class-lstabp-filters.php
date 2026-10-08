@@ -5,13 +5,13 @@
  * A shop with twenty categories should not need twenty spreadsheets. The same
  * saved source can be shown filtered down to the rows a page is about:
  *
- *   [sheet_table id="1" filter="Kategoria is Rowery"]
- *   [sheet_table id="1" filter="Stan gt 10"]
- *   [sheet_table id="1" filter="Kategoria is Rowery and Dostępność is W magazynie"]
+ *   [sheet_table id="1" filter="Category is Bikes"]
+ *   [sheet_table id="1" filter="Stock gt 10"]
+ *   [sheet_table id="1" filter="Category is Bikes and Availability is In stock"]
  *
  * Word operators are the documented form for a reason: WordPress blanks any
  * shortcode attribute containing an unclosed "<" as an XSS precaution, so
- * "Cena<100" would silently arrive empty and filter nothing. Symbols are still
+ * "Price<100" would silently arrive empty and filter nothing. Symbols are still
  * accepted, since "=" and ">" survive and an entity-encoded "&lt;" does too,
  * but only the words work everywhere.
  *

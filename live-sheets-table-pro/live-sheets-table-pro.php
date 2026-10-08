@@ -10,7 +10,6 @@
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       live-sheets-table-pro
- * Domain Path:       /languages
  *
  * A separate plugin on purpose. WordPress.org does not allow paid code inside a
  * free plugin, nor a free plugin that downloads its paid half at runtime, so

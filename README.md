@@ -80,9 +80,7 @@ live-sheets-table/          The plugin — this is what ships
     views/                    Admin templates
   blocks/sheet-table/       block.json + plain-ES5 editor script (no build step)
   assets/                   Front-end and admin CSS/JS
-  languages/                POT, and a complete Polish PO/MO
   readme.txt                WordPress.org readme (English)
-  readme-pl.txt             Polish translation of the readme
 
 tests/                      Verification
   e2e-test.php              Free plugin suite against a real WordPress
@@ -102,8 +100,6 @@ live-sheets-table-pro/      The paid add-on — a separate plugin
     class-lstabp-settings.php       Connection and per-sheet settings
 
 tools/
-  make-pot.php              String extractor and PO/MO compiler
-  translations/pl_PL.php    The Polish translation table
   build-zip.sh              Packages build/live-sheets-table.zip
 
 build/live-sheets-table.zip Installable archive
@@ -170,18 +166,13 @@ The fixture CSV is deliberately awkward: a UTF-8 BOM, Polish diacritics, quoted
 commas, doubled quotes, a newline inside a quoted field, an empty cell, and a
 cell containing `<script>alert('xss')</script>` to prove escaping.
 
-## Regenerating translations
+## Language
 
-```bash
-php tools/make-pot.php /path/to/wordpress
-```
-
-This extracts every string from the PHP and JS sources, writes
-`languages/live-sheets-table.pot`, and compiles a `.po`/`.mo` pair for each
-table in `tools/translations/`. It prints any string that lacks a translation,
-so a missing entry is visible rather than silently falling back to English.
-There are no gettext binaries in this environment, so it uses WordPress's own
-POMO classes.
+Both plugins are English only: there is no language setting and no bundled
+translation. Strings still go through gettext with the `live-sheets-table` and
+`live-sheets-table-pro` text domains, so translations made on
+translate.wordpress.org are picked up the ordinary way. `tools/build-zip.sh`
+refuses to package a `.po`, `.mo` or `languages/` directory.
 
 ## Building the zip
 

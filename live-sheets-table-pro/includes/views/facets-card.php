@@ -3,8 +3,8 @@
  * Choosing which columns a visitor may filter the table by.
  *
  * The card says what each column would actually offer, because that is the
- * whole decision: a filter on "Dostępność" gives three useful answers, and one
- * on "Cena netto" gives seven values that each narrow the table to a single
+ * whole decision: a filter on "Availability" gives three useful answers, and one
+ * on "Net price" gives seven values that each narrow the table to a single
  * row. Nothing here guesses for you — it counts, and says what it counted.
  *
  * @package LiveSheetsTablePro
@@ -204,7 +204,7 @@ $lstabp_total   = count( $rows );
 					 */
 					$lstabp_says = sprintf(
 						/* translators: 1: how many different values, 2: rows behind each one on average, 3: the commonest few, already counted. */
-						__( '%1$s different values, about %2$s rows each. A useful filter, but a long list; visitors can type to narrow it. Commonest: %3$s', 'live-sheets-table-pro' ),
+						__( '%1$s different values, about %2$s rows each. A useful filter, but a long list; visitors can type to narrow it. Most common: %3$s', 'live-sheets-table-pro' ),
 						number_format_i18n( $lstabp_kinds ),
 						number_format_i18n( (int) round( $lstabp_each ) ),
 						$lstabp_top

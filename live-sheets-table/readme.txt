@@ -140,7 +140,7 @@ By default the table keeps its shape and gains a slider you can drag, so the tex
 
 = Can I hide a column, or give it a different name? =
 
-Renaming is free and lives on the source screen. It is display only: the plugin never writes to your spreadsheet, so a column can be called `cena_netto_bez_rabatu` in Google and simply "Price" on your page, and your formulas carry on working.
+Renaming is free and lives on the source screen. It is display only: the plugin never writes to your spreadsheet, so a column can be called `net_price_before_discount` in Google and simply "Price" on your page, and your formulas carry on working.
 
 Hiding a column is part of Pro, where you choose it by clicking a picture of your own sheet. Hiding removes the column from the headings and from every row, so a working column is not just visually gone — its values never reach the page at all.
 

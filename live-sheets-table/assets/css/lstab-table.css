@@ -273,20 +273,20 @@
 }
 
 /*
- * Rogi, którymi nagłówek wychodzi poza ramkę.
+ * Corners where the header pokes out past the frame.
  *
- * Ramka ma zaokrąglone rogi, ale nie zawsze obcina to, co w niej stoi: tabela,
- * która mieści się na szerokość, dostaje „overflow: visible”, żeby jej
- * nagłówek mógł przykleić się do góry ekranu przy przewijaniu strony. Wtedy
- * prostokątne tło paska nagłówka maluje się po samo pudełko i w obu górnych
- * rogach wystaje zza zaokrąglenia ostrym narożnikiem. Widać to na każdym
- * szablonie z paskiem nagłówka w innym kolorze niż tabela i na każdym, który
- * maluje ostatni wiersz.
+ * The frame has rounded corners, but it does not always clip what stands in
+ * it: a table that fits its width gets "overflow: visible", so that its header
+ * can stick to the top of the screen as the page scrolls. The header bar's
+ * square background then paints right to the edge of the box, and in both top
+ * corners a sharp point sticks out past the rounding. It shows on every style
+ * whose header bar is a different colour from the table, and on every one
+ * that paints the last row.
  *
- * Skrajne komórki dostają więc to samo zaokrąglenie co ramka, o piksel mniejsze
- * — tyle, ile zabiera jej obramowanie. Mnożone przez „--lstab-table-mode”, bo
- * w układzie kart wiersz jest osobną kartą z własnym zaokrągleniem i narożniki
- * nagłówka nie mają się do czego stosować.
+ * So the outermost cells get the same rounding as the frame, one pixel less —
+ * as much as its border takes up. Multiplied by "--lstab-table-mode", because
+ * in the card layout every row is a card with a rounding of its own, and the
+ * header corners have nothing to apply to.
  */
 .lstab-table thead tr:first-child > th:first-child {
 	border-start-start-radius: calc( var(--lstab-table-mode, 1) * max( 0px, var(--lstab-radius) - 1px ) );
@@ -305,8 +305,9 @@
 }
 
 /*
- * Tło przypiętej pierwszej kolumny to osobna warstwa pod komórką, więc jej
- * własny narożnik wystaje spod zaokrąglonego narożnika komórki tak samo.
+ * The background of a pinned first column is a separate layer under the cell,
+ * so its own corner sticks out from under the cell's rounded corner the same
+ * way.
  */
 .lstab-sticky-first .lstab-table thead tr:first-child > th:first-child::before {
 	border-start-start-radius: calc( var(--lstab-table-mode, 1) * max( 0px, var(--lstab-radius) - 1px ) );
@@ -317,13 +318,13 @@
 }
 
 /*
- * I to samo w układzie kart, tylko w poprzek. Na telefonie każdy wiersz jest
- * kartą z zaokrągloną ramką, a komórki stoją w niej jedna pod drugą. Komórka
- * z własnym tłem — w szablonie Karty każda, gdzie indziej ta pomalowana
- * regułą — malowała prostokąt po samą ramkę i u góry pierwszej, a u dołu
- * ostatniej wystawał zza zaokrąglenia ostry narożnik. Mnożone przez
- * „1 - --lstab-table-mode”, czyli tylko w kartach; w tabeli te rogi należą
- * do reguł wyżej.
+ * And the same in the card layout, only crosswise. On a phone every row is a
+ * card with a rounded frame, and the cells stand in it one under another. A
+ * cell with a background of its own — every cell in the Cards style, elsewhere
+ * one painted by a rule — painted a rectangle right up to the frame, and a
+ * sharp corner stuck out past the rounding at the top of the first cell and the
+ * bottom of the last. Multiplied by "1 - --lstab-table-mode", so cards only;
+ * in a table these corners belong to the rules above.
  */
 .lstab-table tbody tr > td:first-child {
 	border-start-start-radius: calc( ( 1 - var(--lstab-table-mode, 1) ) * max( 0px, var(--lstab-row-radius) - 1px ) );
@@ -1244,8 +1245,8 @@
 	--lstab-head-fg: light-dark(#61696f, #a3b0bd);
 	--lstab-border: light-dark(#e3e8ec, #242d39);
 	--lstab-border-strong: light-dark(#cdd5db, #36414f);
-	/* Widoczny, a nie domyślany: #f7f9fa różniło się od bieli o jeden procent,
-	   więc tabela w stylu Paski wyglądała dokładnie jak Czysta. */
+	/* Visible rather than implied: #f7f9fa differed from white by one per cent,
+	   so a table in the Striped style looked exactly like Clean. */
 	--lstab-stripe: light-dark(#eaf0f4, #1c2530);
 	--lstab-hover: light-dark(#eef4f9, #1c2634);
 	--lstab-accent: light-dark(#2563eb, #6aa8ff);
@@ -1308,8 +1309,8 @@
 	 * zeros paints nothing, which is how a shadow gets to be conditional.
 	 */
 	--lstab-card-lift: calc(1px * var(--lstab-table-mode));
-	/* Nad kartami nie ma paska, tylko nazwy kolumn — ale jako tokeny, żeby
-	   próbnik koloru miał co nadpisać. */
+	/* Above the cards there is no bar, only the column names — but set as
+	   tokens, so the colour picker has something to override. */
 	--lstab-head-bg: transparent;
 	--lstab-head-fg: var(--lstab-fg-faint);
 }
@@ -1336,19 +1337,20 @@
 	border-spacing: 0 var(--lstab-card-gap);
 }
 
-/* Cień karty, wypisany raz: biorą go wszystkie komórki, a te, które muszą
-   jeszcze zakryć włos między sobą a sąsiadką, dokładają go do swojego. */
+/* The card's shadow, written once: every cell takes it, and the cells that
+   also have to cover the hairline between themselves and their neighbour add
+   it to their own. */
 .lstab-style-cards {
-	--lstab-card-cien:
+	--lstab-card-shadow:
 		0 var(--lstab-card-lift) calc(2 * var(--lstab-card-lift)) calc(-1 * var(--lstab-card-lift)) var(--lstab-shadow-near),
 		0 calc(6 * var(--lstab-card-lift)) calc(16 * var(--lstab-card-lift)) calc(-10 * var(--lstab-card-lift)) var(--lstab-shadow-far);
 }
 
 /*
- * Nagłówek kart jest przezroczysty i cichy — ale przez tokeny, nie wprost.
- * Wpisane tu „background-color: transparent” i „color” wygrywały z próbnikami
- * Tło nagłówka i Tekst nagłówka, bo te ustawiają zmienne, a nie właściwości:
- * wybrany kolor nie miał czym trafić na stronę.
+ * The card header is transparent and quiet — but through the tokens, not
+ * directly. A "background-color: transparent" and "color" written here beat
+ * the Header background and Header text pickers, because those set variables,
+ * not properties: the chosen colour had no way onto the page.
  */
 .lstab-style-cards .lstab-table thead th {
 	--lstab-head-rule: 0px;
@@ -1384,7 +1386,7 @@
 	 */
 	border-top: calc(var(--lstab-row-line) * var(--lstab-table-mode)) solid var(--lstab-border);
 	border-bottom: var(--lstab-row-line) solid var(--lstab-border);
-	box-shadow: var(--lstab-card-cien);
+	box-shadow: var(--lstab-card-shadow);
 }
 
 /*
@@ -1405,7 +1407,7 @@
  * painted card bridges in its paint rather than in the table's paper.
  */
 .lstab-style-cards .lstab-table tbody td:not(:last-child) {
-	box-shadow: 0.5px 0 0 var(--lstab-row-tint, var(--lstab-bg)), var(--lstab-card-cien);
+	box-shadow: 0.5px 0 0 var(--lstab-row-tint, var(--lstab-bg)), var(--lstab-card-shadow);
 }
 
 /*
