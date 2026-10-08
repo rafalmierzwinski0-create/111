@@ -243,6 +243,27 @@ LSTABP_Google_Auth::exchange_code( 'fake-auth-code' );
 LSTABP_Private_Sheets::set_private( $source_id, false );
 LSTAB_Sync::run( $source_id );
 
+// Numbers are reused: a table deleted while private must not hand that flag to
+// the next table that takes its number.
+$lstabp_doomed = (int) LSTAB_Storage::insert(
+	array(
+		'title'     => 'Private, then deleted',
+		'sheet_url' => 'https://docs.google.com/spreadsheets/d/PRIVATETHENDELETED000000000000000000/edit',
+		'sheet_id'  => 'PRIVATETHENDELETED000000000000000000',
+	)
+);
+LSTABP_Private_Sheets::set_private( $lstabp_doomed, true );
+LSTAB_Storage::delete( $lstabp_doomed );
+$lstabp_heir = (int) LSTAB_Storage::insert(
+	array(
+		'title'     => 'Takes the freed number',
+		'sheet_url' => 'https://docs.google.com/spreadsheets/d/TAKESTHEFREEDNUMBER00000000000000000/edit',
+		'sheet_id'  => 'TAKESTHEFREEDNUMBER00000000000000000',
+	)
+);
+lstabp_assert( $lstabp_heir === $lstabp_doomed && ! LSTABP_Private_Sheets::is_private( $lstabp_heir ), 'A new table on a freed number is not private', $lstabp_doomed . ' → ' . $lstabp_heir );
+LSTAB_Storage::delete( $lstabp_heir );
+
 // ---------------------------------------------------------------------------
 
 lstabp_section( '5. Filtered views' );
