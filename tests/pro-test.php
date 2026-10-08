@@ -250,9 +250,27 @@ LSTAB_Sync::run( $source_id );
  */
 lstabp_set_mock( 'private_only', 'main', 'ok' );
 lstabp_assert( ! LSTABP_Private_Sheets::is_private( $source_id ), 'Starts unmarked, read by its public link' );
+
+// Somebody who may manage tables but not the Pro settings cannot make the
+// connected account read a sheet for them.
+$lstabp_editor = wp_insert_user( array( 'user_login' => 'lstabp_editor_' . wp_generate_password( 6, false ), 'user_pass' => wp_generate_password(), 'role' => 'editor' ) );
+wp_set_current_user( $lstabp_editor );
+$lstabp_as_editor = LSTAB_Sync::run( $source_id );
+lstabp_assert( is_wp_error( $lstabp_as_editor ) && ! LSTABP_Private_Sheets::is_private( $source_id ), 'An editor refreshing it does not switch it to the account' );
+$lstabp_editor_preview = LSTAB_Fetcher::fetch_csv( '1SOMEBODYSPRIVATESHEET00000000000000000', '0' );
+lstabp_assert( is_wp_error( $lstabp_editor_preview ), 'Nor can an editor preview a private sheet through it' );
+wp_set_current_user( 1 );
+
 $lstabp_switched = LSTAB_Sync::run( $source_id );
 lstabp_assert( true === $lstabp_switched, 'A sheet made private in Google keeps syncing through the account', is_wp_error( $lstabp_switched ) ? $lstabp_switched->get_error_message() : '' );
 lstabp_assert( LSTABP_Private_Sheets::is_private( $source_id ), 'And is marked private by itself' );
+
+// Pointed at another spreadsheet, the table loses its mark.
+$lstabp_was = LSTAB_Storage::get( $source_id );
+LSTAB_Storage::update( $source_id, array( 'sheet_id' => '1ANOTHERSHEETALTOGETHER0000000000000000' ) );
+lstabp_assert( ! LSTABP_Private_Sheets::is_private( $source_id ), 'A table pointed at another sheet is no longer private' );
+LSTAB_Storage::update( $source_id, array( 'sheet_id' => $lstabp_was['sheet_id'] ) );
+lstabp_assert( LSTABP_Private_Sheets::is_private( $source_id ), 'And is again once it points back' );
 
 // A sheet never shared at all can be previewed before it is saved.
 LSTABP_Private_Sheets::remember_source( array( 'id' => null ) );
@@ -269,6 +287,9 @@ lstabp_assert( ! LSTABP_Private_Sheets::is_private( $source_id ), 'And the table
 lstabp_set_mock( 'ok', 'main', 'ok' );
 LSTABP_Google_Auth::exchange_code( 'fake-auth-code' );
 LSTAB_Sync::run( $source_id );
+wp_set_current_user( 0 );
+require_once ABSPATH . 'wp-admin/includes/user.php';
+wp_delete_user( $lstabp_editor );
 
 // A private mark belongs to one table, not to its number: numbers start again
 // from 1 once every table is gone, and a table can be deleted while Pro is off.

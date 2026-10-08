@@ -148,7 +148,7 @@ defined( 'ABSPATH' ) || exit;
 
 		<div class="lstab-panel-body">
 		<p class="lstab-help">
-			<?php esc_html_e( 'A sheet that is no longer shared by link is read through the connected account by itself, and ticked here. To make a sheet private:', 'live-sheets-table-pro' ); ?>
+			<?php esc_html_e( 'When an administrator refreshes a sheet that is no longer shared by link, it is read through the connected account and ticked here by itself. To make a sheet private:', 'live-sheets-table-pro' ); ?>
 		</p>
 		<ol class="lstab-steps">
 			<li><?php esc_html_e( 'Add the sheet by its link, as usual.', 'live-sheets-table-pro' ); ?></li>

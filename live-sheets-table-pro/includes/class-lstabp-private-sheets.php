@@ -78,6 +78,15 @@ class LSTABP_Private_Sheets {
 			return $result;
 		}
 
+		/*
+		 * Only for somebody who could tick the box on the Pro screen. Anyone
+		 * else allowed to manage tables could otherwise paste the address of
+		 * any spreadsheet the connected account can open and read it.
+		 */
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $result;
+		}
+
 		self::$trying = true;
 		$second       = LSTAB_Fetcher::fetch_csv( $sheet_id, $gid, $sheet_kind );
 		self::$trying = false;
@@ -162,12 +171,26 @@ class LSTABP_Private_Sheets {
 				continue;
 			}
 
-			if ( true === $stored[ $id ] || (string) $stored[ $id ] === (string) $source['created_gmt'] ) {
+			if ( true === $stored[ $id ] || (string) $stored[ $id ] === self::stamp( $source ) ) {
 				$private[ $id ] = true;
 			}
 		}
 
 		return $private;
+	}
+
+	/**
+	 * What a private mark is tied to: the table, and the spreadsheet it reads.
+	 *
+	 * A table pointed at a different spreadsheet loses its mark, so the
+	 * connected account is never used for a sheet nobody with access to the
+	 * Pro settings has seen.
+	 *
+	 * @param array<string,mixed> $source Source row.
+	 * @return string
+	 */
+	protected static function stamp( $source ) {
+		return (string) $source['created_gmt'] . '|' . (string) $source['sheet_id'];
 	}
 
 	/**
@@ -188,10 +211,10 @@ class LSTABP_Private_Sheets {
 
 			if ( $id === (int) $source_id ) {
 				if ( $private ) {
-					$stored[ $id ] = (string) $source['created_gmt'];
+					$stored[ $id ] = self::stamp( $source );
 				}
 			} elseif ( isset( $current[ $id ] ) ) {
-				$stored[ $id ] = (string) $source['created_gmt'];
+				$stored[ $id ] = self::stamp( $source );
 			}
 		}
 
