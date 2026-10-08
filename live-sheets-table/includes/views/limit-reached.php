@@ -34,7 +34,7 @@ defined( 'ABSPATH' ) || exit;
 			<a class="button button-primary" href="<?php echo esc_url( LSTAB_Limits::upgrade_url() ); ?>" target="_blank" rel="noopener noreferrer">
 				<?php esc_html_e( 'See what Pro adds', 'live-sheets-table' ); ?>
 			</a>
-			<a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=' . LSTAB_Admin::MENU_SLUG ) ); ?>">
+			<a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=' . LSTAB_Admin::SOURCES_SLUG ) ); ?>">
 				<?php esc_html_e( 'Back to sources', 'live-sheets-table' ); ?>
 			</a>
 		</p>

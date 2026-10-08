@@ -2556,3 +2556,320 @@
 		transition: none;
 	}
 }
+
+/* ─────────────────────────────────────────────────── the start screen */
+
+/*
+ * One screen for the first visit and every one after it. The large block on
+ * the left is the only part that changes; the three steps beside it and the
+ * two cards below stay put, so the screen is recognisable either way.
+ */
+.lstab-start {
+	display: grid;
+	grid-template-columns: minmax( 0, 1.25fr ) minmax( 0, 1fr );
+	margin-top: 1rem;
+	background: var( --lstab-card );
+	border: 1px solid var( --lstab-line );
+	border-radius: 12px;
+	box-shadow: var( --lstab-shadow );
+}
+
+.lstab-start-main {
+	padding: 2rem 2.2rem 1.8rem;
+	border-radius: 12px 0 0 12px;
+	background-image:
+		linear-gradient( rgba( 14, 124, 116, 0.05 ) 1px, transparent 1px ),
+		linear-gradient( 90deg, rgba( 14, 124, 116, 0.05 ) 1px, transparent 1px );
+	background-size: 26px 26px;
+}
+
+.lstab-start-label {
+	display: block;
+	font-size: 0.7rem;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var( --lstab-ink-3 );
+}
+
+.lstab-admin .lstab-start-main h2 {
+	margin: 0.4rem 0 0.5rem;
+	padding: 0;
+	font-size: 1.6rem;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	line-height: 1.2;
+	color: var( --lstab-ink );
+}
+
+.lstab-admin .lstab-start-lede {
+	margin: 0 0 1.1rem;
+	max-inline-size: 36em;
+	font-size: 0.95rem;
+	color: var( --lstab-ink-2 );
+}
+
+.lstab-admin .lstab-start-figures {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.3rem 1.2rem;
+	margin: 0 0 1rem;
+	font-size: 0.9rem;
+	color: var( --lstab-ink-2 );
+}
+
+.lstab-start-figures b {
+	font-size: 1.15rem;
+	color: var( --lstab-ink );
+	margin-inline-end: 0.15rem;
+}
+
+.lstab-start-dot {
+	inline-size: 9px;
+	block-size: 9px;
+	border-radius: 50%;
+	flex: none;
+	background: var( --lstab-warn );
+	box-shadow: 0 0 0 4px rgba( 180, 97, 10, 0.16 );
+}
+
+.lstab-start-dot--ok {
+	background: var( --lstab-a );
+	box-shadow: none;
+}
+
+.lstab-start-health {
+	border: 1px solid #f1d4a9;
+	background: var( --lstab-warn-wash );
+	border-radius: 10px;
+	overflow: hidden;
+	margin-bottom: 0.55rem;
+}
+
+.lstab-start-health-head {
+	display: flex;
+	align-items: center;
+	gap: 0.65rem;
+	padding: 0.65rem 0.9rem;
+	font-size: 0.85rem;
+	color: var( --lstab-ink-2 );
+}
+
+.lstab-start-health-head b {
+	color: var( --lstab-ink );
+	margin-inline-end: 0.3rem;
+}
+
+.lstab-admin a.lstab-start-health-row {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 0.5rem 0.9rem 0.5rem 2.1rem;
+	border-top: 1px solid #f6e0bf;
+	background: rgba( 255, 255, 255, 0.55 );
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: var( --lstab-ink );
+	text-decoration: none;
+}
+
+.lstab-admin a.lstab-start-health-row:hover,
+.lstab-admin a.lstab-start-health-row:focus { background: #fff; }
+
+.lstab-start-health-row em,
+.lstab-start-fine em {
+	margin-inline-start: auto;
+	font-style: normal;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.lstab-start-health-row em { color: var( --lstab-warn ); }
+
+.lstab-admin .lstab-start-health-more { font-weight: 400; }
+
+.lstab-admin .lstab-start-health-cause {
+	margin: 0;
+	padding: 0.55rem 0.9rem 0.65rem 2.1rem;
+	border-top: 1px dashed #efcf9f;
+	font-size: 0.8rem;
+	color: var( --lstab-ink-2 );
+}
+
+.lstab-admin a.lstab-start-fine {
+	display: flex;
+	align-items: center;
+	gap: 0.65rem;
+	padding: 0.65rem 0.9rem;
+	border: 1px solid #bfe0db;
+	background: var( --lstab-a-wash );
+	border-radius: 10px;
+	font-size: 0.85rem;
+	color: var( --lstab-ink );
+	text-decoration: none;
+}
+
+.lstab-start-fine em { color: var( --lstab-a-deep ); }
+
+.lstab-start-form {
+	display: flex;
+	gap: 0.5rem;
+	margin-top: 1rem;
+}
+
+.lstab-start-form .lstab-field {
+	background: #fff;
+	box-shadow: 0 0 0 4px var( --lstab-a-wash );
+}
+
+.lstab-admin .lstab-start-form .lstab-field input { padding-block: 0.6rem; font-size: 0.9rem; }
+
+.lstab-start-ticks {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.3rem 1.2rem;
+	margin: 1rem 0 0;
+	padding: 0;
+	list-style: none;
+	font-size: 0.82rem;
+	color: var( --lstab-ink-2 );
+}
+
+.lstab-start-ticks li {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	margin: 0;
+}
+
+.lstab-start-ticks .lstab-icon { color: var( --lstab-a ); }
+
+.lstab-start-steps {
+	padding: 1.7rem 1.8rem;
+	border-inline-start: 1px solid var( --lstab-line );
+	border-radius: 0 12px 12px 0;
+	background: linear-gradient( 160deg, #f2fbf9, #e3f3ef );
+}
+
+.lstab-start-steps ol {
+	counter-reset: lstab-step;
+	list-style: none;
+	margin: 0.8rem 0 0;
+	padding: 0;
+	display: grid;
+	gap: 0.95rem;
+}
+
+.lstab-start-steps li {
+	counter-increment: lstab-step;
+	position: relative;
+	margin: 0;
+	padding-inline-start: 2.6rem;
+	font-size: 0.82rem;
+	color: var( --lstab-ink-2 );
+}
+
+.lstab-start-steps li::before {
+	content: counter( lstab-step );
+	position: absolute;
+	inset-inline-start: 0;
+	inset-block-start: -0.1rem;
+	inline-size: 1.85rem;
+	block-size: 1.85rem;
+	display: grid;
+	place-items: center;
+	border-radius: 50%;
+	background: #fff;
+	border: 1.5px solid #b9ddd7;
+	font-weight: 700;
+	color: var( --lstab-a-deep );
+}
+
+.lstab-start-steps li.is-now::before {
+	background: var( --lstab-a );
+	border-color: var( --lstab-a );
+	color: #fff;
+	box-shadow: 0 0 0 4px var( --lstab-a-glow );
+}
+
+.lstab-start-steps b {
+	display: block;
+	font-size: 0.88rem;
+	color: var( --lstab-ink );
+}
+
+.lstab-start-share {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: 0.4rem;
+	padding: 0.3rem 0.6rem;
+	background: #fff;
+	border: 1px solid var( --lstab-line );
+	border-radius: 7px;
+}
+
+.lstab-start-share em {
+	font-style: normal;
+	font-weight: 600;
+	background: #c2e7ff;
+	color: #001d35;
+	border-radius: 999px;
+	padding: 0.1rem 0.6rem;
+}
+
+.lstab-start-cards {
+	display: grid;
+	grid-template-columns: repeat( auto-fit, minmax( 18rem, 1fr ) );
+	gap: 0.9rem;
+	margin-top: 0.9rem;
+}
+
+.lstab-start-card {
+	background: var( --lstab-card );
+	border: 1px solid var( --lstab-line );
+	border-radius: 12px;
+	padding: 1.2rem 1.3rem;
+	box-shadow: var( --lstab-shadow );
+}
+
+.lstab-start-ico {
+	display: inline-grid;
+	place-items: center;
+	inline-size: 2.1rem;
+	block-size: 2.1rem;
+	border-radius: 9px;
+	background: var( --lstab-a-wash );
+	color: var( --lstab-a-deep );
+	font-size: 1.05rem;
+}
+
+.lstab-start-card--pro .lstab-start-ico {
+	background: #f1ebfe;
+	color: #6d28d9;
+}
+
+.lstab-admin .lstab-start-card h3 {
+	margin: 0.6rem 0 0.3rem;
+	font-size: 0.95rem;
+	color: var( --lstab-ink );
+}
+
+.lstab-admin .lstab-start-card p {
+	margin: 0 0 0.85rem;
+	font-size: 0.82rem;
+	color: var( --lstab-ink-2 );
+}
+
+.lstab-start-card form { margin: 0; }
+
+@media ( max-width: 960px ) {
+	.lstab-start { grid-template-columns: 1fr; }
+	.lstab-start-main { border-radius: 12px 12px 0 0; }
+	.lstab-start-steps { border-inline-start: 0; border-top: 1px solid var( --lstab-line ); border-radius: 0 0 12px 12px; }
+}
+
+@media ( max-width: 600px ) {
+	.lstab-start-main { padding: 1.4rem 1.2rem; }
+	.lstab-start-form { flex-direction: column; }
+}

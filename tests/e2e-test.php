@@ -2754,6 +2754,52 @@ lstab_assert(
 
 // ---------------------------------------------------------------------------
 
+lstab_section( '14b. The start screen' );
+
+$lstab_start_render = static function () {
+	ob_start();
+	$sources = LSTAB_Storage::get_all();
+	include LSTAB_PATH . 'includes/views/start-page.php';
+	return (string) ob_get_clean();
+};
+
+wp_set_current_user( 1 );
+// The block on the left is the only thing that changes with the tables.
+$lstab_start_ids = array();
+$lstab_start_html = $lstab_start_render();
+lstab_assert( false !== strpos( $lstab_start_html, 'Welcome back' ) || false !== strpos( $lstab_start_html, 'Your first table' ), 'The start screen renders' );
+lstab_assert( false !== strpos( $lstab_start_html, 'Three steps' ), 'With the three steps beside it' );
+lstab_assert( false !== strpos( $lstab_start_html, 'Buy Pro' ) && false !== strpos( $lstab_start_html, esc_url( LSTAB_Limits::upgrade_url() ) ), 'And a way to buy Pro, not just read about it' );
+
+for ( $lstab_i = 0; $lstab_i < 5; $lstab_i++ ) {
+	$lstab_start_ids[] = (int) LSTAB_Storage::insert(
+		array(
+			'title'     => 'Start ' . $lstab_i,
+			'sheet_url' => 'https://docs.google.com/spreadsheets/d/STARTSCREEN' . $lstab_i . '0000000000000000000000000/edit',
+			'sheet_id'  => 'STARTSCREEN' . $lstab_i . '0000000000000000000000000',
+		)
+	);
+}
+foreach ( $lstab_start_ids as $lstab_n => $lstab_id ) {
+	if ( $lstab_n < 4 ) {
+		LSTAB_Storage::record_failure( $lstab_id, 'Refused' );
+	} else {
+		LSTAB_Storage::record_success( $lstab_id, array( 'headers' => array( 'A' ), 'rows' => array( array( '1' ) ) ) );
+	}
+}
+
+$lstab_start_html = $lstab_start_render();
+lstab_assert( false !== strpos( $lstab_start_html, 'Welcome back' ), 'With tables of one\'s own it greets a returning reader' );
+lstab_assert( 3 === substr_count( $lstab_start_html, 'lstab-start-health-row" href' ), 'Only three failing tables are named', (string) substr_count( $lstab_start_html, 'lstab-start-health-row" href' ) );
+lstab_assert( false !== strpos( $lstab_start_html, 'and 1 more' ), 'The rest are counted, with a way to the list' );
+lstab_assert( 1 === substr_count( $lstab_start_html, 'Most often the sheet is no longer shared by link' ), 'One line gives the most common cause' );
+lstab_assert( 1 === preg_match( '#<b>\d+</b> tables? (is|are) up to date\.#', $lstab_start_html ), 'Healthy tables are a number, not a list' );
+
+foreach ( $lstab_start_ids as $lstab_id ) {
+	LSTAB_Storage::delete( $lstab_id );
+}
+wp_set_current_user( 0 );
+
 lstab_section( '15. English only' );
 
 // The plugin ships in English and only English: no language setting, and no

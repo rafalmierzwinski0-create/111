@@ -44,7 +44,7 @@ class LSTAB_Block {
 			$block->editor_script_handles[0],
 			'lstabBlock',
 			array(
-				'manageUrl' => admin_url( 'admin.php?page=' . LSTAB_Admin::MENU_SLUG ),
+				'manageUrl' => admin_url( 'admin.php?page=' . LSTAB_Admin::SOURCES_SLUG ),
 				'addUrl'    => admin_url( 'admin.php?page=' . LSTAB_Admin::EDIT_SLUG ),
 				// The filter field is only worth showing where something is
 				// listening for it; without the add-on it would do nothing.

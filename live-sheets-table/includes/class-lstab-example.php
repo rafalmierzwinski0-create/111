@@ -229,7 +229,7 @@ class LSTAB_Example {
 					),
 					admin_url( 'admin.php' )
 				)
-				: admin_url( 'admin.php?page=' . LSTAB_Admin::MENU_SLUG )
+				: admin_url( 'admin.php?page=' . LSTAB_Admin::SOURCES_SLUG )
 		);
 		exit;
 	}

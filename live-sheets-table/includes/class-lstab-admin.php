@@ -13,6 +13,7 @@ defined( 'ABSPATH' ) || exit;
 class LSTAB_Admin {
 
 	const MENU_SLUG     = 'live-sheets-table';
+	const SOURCES_SLUG  = 'live-sheets-table-sources';
 	const EDIT_SLUG     = 'live-sheets-table-edit';
 	const SETTINGS_SLUG = 'live-sheets-table-settings';
 
@@ -54,22 +55,38 @@ class LSTAB_Admin {
 	public function add_menu() {
 		$capability = LSTAB_Limits::capability();
 
+		/*
+		 * The plugin opens on its start screen, not on the list: the list is
+		 * the answer to "which tables do I have", and the first thing anybody
+		 * needs is either how to make one or whether the ones they have are
+		 * all right. The menu keeps its old address for the start screen, so
+		 * the add-on's own pages stay where they were in the sidebar.
+		 */
 		add_menu_page(
 			__( 'Live Sheets Table', 'live-sheets-table' ),
 			__( 'Sheets Tables', 'live-sheets-table' ),
 			$capability,
 			self::MENU_SLUG,
-			array( $this, 'render_list_page' ),
+			array( $this, 'render_start_page' ),
 			LSTAB_Icons::menu_mark(),
 			58
 		);
 
 		add_submenu_page(
 			self::MENU_SLUG,
-			__( 'All sheet sources', 'live-sheets-table' ),
-			__( 'All sources', 'live-sheets-table' ),
+			__( 'Live Sheets Table', 'live-sheets-table' ),
+			__( 'Start', 'live-sheets-table' ),
 			$capability,
 			self::MENU_SLUG,
+			array( $this, 'render_start_page' )
+		);
+
+		add_submenu_page(
+			self::MENU_SLUG,
+			__( 'All sheet sources', 'live-sheets-table' ),
+			__( 'All tables', 'live-sheets-table' ),
+			$capability,
+			self::SOURCES_SLUG,
 			array( $this, 'render_list_page' )
 		);
 
@@ -106,7 +123,8 @@ class LSTAB_Admin {
 	 */
 	public static function tabs() {
 		$tabs = array(
-			self::MENU_SLUG => __( 'Sheet sources', 'live-sheets-table' ),
+			self::MENU_SLUG    => __( 'Start', 'live-sheets-table' ),
+			self::SOURCES_SLUG => __( 'Sheet sources', 'live-sheets-table' ),
 		);
 
 		if ( current_user_can( 'manage_options' ) ) {
@@ -172,7 +190,8 @@ class LSTAB_Admin {
 		return apply_filters(
 			'lstab_admin_tab_icons',
 			array(
-				self::MENU_SLUG     => 'grid',
+				self::MENU_SLUG     => 'start',
+				self::SOURCES_SLUG  => 'grid',
 				self::SETTINGS_SLUG => 'sliders',
 			)
 		);
@@ -202,7 +221,7 @@ class LSTAB_Admin {
 	public function action_links( $links ) {
 		array_unshift(
 			$links,
-			'<a href="' . esc_url( admin_url( 'admin.php?page=' . self::MENU_SLUG ) ) . '">' . esc_html__( 'Sheet sources', 'live-sheets-table' ) . '</a>'
+			'<a href="' . esc_url( admin_url( 'admin.php?page=' . self::SOURCES_SLUG ) ) . '">' . esc_html__( 'Sheet sources', 'live-sheets-table' ) . '</a>'
 		);
 
 		return $links;
@@ -312,7 +331,21 @@ class LSTAB_Admin {
 	}
 
 	/**
-	 * The list screen.
+	 * The start screen, where the plugin opens.
+	 *
+	 * @return void
+	 */
+	public function render_start_page() {
+		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
+			wp_die( esc_html__( 'You are not allowed to manage sheet sources.', 'live-sheets-table' ) );
+		}
+
+		$sources = LSTAB_Storage::get_all();
+		require LSTAB_PATH . 'includes/views/start-page.php';
+	}
+
+	/**
+	 * The list of every sheet source.
 	 *
 	 * @return void
 	 */
@@ -710,7 +743,7 @@ class LSTAB_Admin {
 		);
 
 		$url = $to_list
-			? admin_url( 'admin.php?page=' . self::MENU_SLUG )
+			? admin_url( 'admin.php?page=' . self::SOURCES_SLUG )
 			: add_query_arg(
 				array(
 					'page'   => self::EDIT_SLUG,

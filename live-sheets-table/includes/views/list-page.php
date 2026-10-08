@@ -41,7 +41,7 @@ $lstab_add_button = $lstab_can_add
 <div class="wrap lstab-admin">
 	<?php LSTAB_Admin::render_masthead( LSTAB_Admin::masthead_summary( $sources ), $lstab_add_button ); ?>
 
-	<?php LSTAB_Admin::render_tabs( LSTAB_Admin::MENU_SLUG ); ?>
+	<?php LSTAB_Admin::render_tabs( LSTAB_Admin::SOURCES_SLUG ); ?>
 
 	<?php LSTAB_Admin::print_cron_notice(); ?>
 	<?php LSTAB_Admin::print_notice(); ?>

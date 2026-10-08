@@ -918,7 +918,7 @@ if ( ! $lstab_is_edit ) {
 			}
 			?>
 		</button>
-		<a class="lstab-quiet" href="<?php echo esc_url( admin_url( 'admin.php?page=' . LSTAB_Admin::MENU_SLUG ) ); ?>">
+		<a class="lstab-quiet" href="<?php echo esc_url( admin_url( 'admin.php?page=' . LSTAB_Admin::SOURCES_SLUG ) ); ?>">
 			<?php esc_html_e( 'Cancel', 'live-sheets-table' ); ?>
 		</a>
 	</p>

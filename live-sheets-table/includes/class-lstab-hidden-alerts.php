@@ -338,7 +338,7 @@ class LSTAB_Hidden_Alerts {
 
 		update_option( self::DISMISSED_OPT, array_values( array_unique( $dismissed ) ), true );
 
-		wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url( 'admin.php?page=' . LSTAB_Admin::MENU_SLUG ) );
+		wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url( 'admin.php?page=' . LSTAB_Admin::SOURCES_SLUG ) );
 		exit;
 	}
 }

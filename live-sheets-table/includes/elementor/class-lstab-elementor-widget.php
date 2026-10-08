@@ -105,7 +105,7 @@ class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
 				'raw'             => sprintf(
 					/* translators: %s: link to the plugin's own screen. */
 					__( 'Sheets are added and refreshed in %s.', 'live-sheets-table' ),
-					'<a href="' . esc_url( admin_url( 'admin.php?page=' . LSTAB_Admin::MENU_SLUG ) ) . '" target="_blank">' . esc_html__( 'Sheets Tables', 'live-sheets-table' ) . '</a>'
+					'<a href="' . esc_url( admin_url( 'admin.php?page=' . LSTAB_Admin::SOURCES_SLUG ) ) . '" target="_blank">' . esc_html__( 'Sheets Tables', 'live-sheets-table' ) . '</a>'
 				),
 				'content_classes' => 'elementor-descriptor',
 			)
