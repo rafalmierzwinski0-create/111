@@ -174,6 +174,13 @@ class LSTABP_Facets {
 	}
 
 	/**
+	 * Whether a download is being built, which applies the picks as a page does.
+	 *
+	 * @var bool
+	 */
+	public static $exporting = false;
+
+	/**
 	 * Whether this rendering is one a visitor is looking at.
 	 *
 	 * The editor's preview has no address to carry a filter in, and a filter
@@ -182,6 +189,10 @@ class LSTABP_Facets {
 	 * @return bool
 	 */
 	protected static function on_a_page() {
+		if ( self::$exporting ) {
+			return true;
+		}
+
 		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
 			return false;
 		}

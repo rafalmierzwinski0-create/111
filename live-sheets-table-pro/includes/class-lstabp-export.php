@@ -103,14 +103,26 @@ class LSTABP_Export {
 
 		$filter = isset( $args['filter'] ) ? (string) $args['filter'] : '';
 
-		$link = function ( $format ) use ( $source_id, $filter ) {
+		// What the visitor picked under "Show only" goes with the link: those
+		// only ever narrow the rows, so they need no signature.
+		$picked = array();
+		foreach ( (array) $_GET as $name => $value ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only, public navigation.
+			if ( is_scalar( $value ) && preg_match( '/^lstab-f\d+-' . $source_id . '$/', (string) $name ) ) {
+				$picked[ (string) $name ] = rawurlencode( sanitize_text_field( wp_unslash( (string) $value ) ) );
+			}
+		}
+
+		$link = function ( $format ) use ( $source_id, $filter, $picked ) {
 			return add_query_arg(
-				array(
-					'action' => self::ACTION,
-					'source' => $source_id,
-					'filter' => rawurlencode( $filter ),
-					'format' => $format,
-					'sig'    => self::signature( $source_id, $filter ),
+				array_merge(
+					$picked,
+					array(
+						'action' => self::ACTION,
+						'source' => $source_id,
+						'filter' => rawurlencode( $filter ),
+						'format' => $format,
+						'sig'    => self::signature( $source_id, $filter ),
+					)
 				),
 				admin_url( 'admin-post.php' )
 			);
@@ -196,7 +208,20 @@ class LSTABP_Export {
 
 		// Through the renderer's own preparation, so the file holds exactly the
 		// rows and columns the page held — no more.
-		$prepared = LSTAB_Renderer::prepare( $source, array( 'filter' => $filter ) );
+		/*
+		 * Every page of a paged table, not the first one: the file is the
+		 * table, not what fitted on screen. The visitor's picks under "Show
+		 * only" arrive with the link and apply as they do on the page.
+		 */
+		LSTABP_Facets::$exporting = true;
+		$prepared                 = LSTAB_Renderer::prepare(
+			$source,
+			array(
+				'filter'   => $filter,
+				'per_page' => 0,
+			)
+		);
+		LSTABP_Facets::$exporting = false;
 
 		$name = sanitize_file_name( $source['title'] ? $source['title'] : 'table' );
 
@@ -322,7 +347,7 @@ class LSTABP_Export {
 					<?php esc_html_e( 'Let visitors download or print this table', 'live-sheets-table-pro' ); ?>
 				</label>
 				<span class="lstab-help">
-					<?php esc_html_e( 'Excel, CSV and Print buttons under the table. A download contains exactly what the visitor sees: the rows left after filtering, and the columns you kept.', 'live-sheets-table-pro' ); ?>
+					<?php esc_html_e( 'Excel, CSV and Print buttons under the table. A download holds every row of the table, on every page, after its filter and the visitor’s choices under “Show only” — and only the columns you kept.', 'live-sheets-table-pro' ); ?>
 				</span>
 			</p>
 		</div>

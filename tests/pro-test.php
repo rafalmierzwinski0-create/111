@@ -1153,6 +1153,44 @@ lstabp_assert( ! LSTABP_Export::is_enabled( $attack_source ), 'A table with down
 LSTAB_Storage::delete( $attack_source );
 delete_option( LSTABP_Export::OPTION );
 
+lstabp_section( '5e2. A download is the whole table, not the page on screen' );
+
+lstabp_set_mock( 'ok', 'main', 'ok' );
+$lstabp_paged = (int) LSTAB_Storage::insert(
+	array(
+		'title'     => 'Paged download',
+		'sheet_url' => 'https://docs.google.com/spreadsheets/d/PAGEDDOWNLOAD0000000000000000000000/edit',
+		'sheet_id'  => 'PAGEDDOWNLOAD0000000000000000000000',
+		'per_page'  => 2,
+	)
+);
+LSTAB_Sync::run( $lstabp_paged );
+update_option( LSTABP_Export::OPTION, array( $lstabp_paged => true ), true );
+update_option( LSTABP_Facets::OPTION, array( $lstabp_paged => array( 'Dostępność' ) ), true );
+
+$lstabp_csv_rows = static function ( $html ) {
+	if ( ! preg_match( '#href="([^"]*format=csv[^"]*)"#', $html, $m ) ) {
+		return -1;
+	}
+	$response = wp_remote_get( html_entity_decode( $m[1] ), array( 'timeout' => 20 ) );
+	$body     = (string) wp_remote_retrieve_body( $response );
+	$lines    = array_filter( preg_split( '/\r\n|\n/', trim( $body ) ) );
+	// One heading row; the description with a line break is quoted on two lines.
+	return 200 === (int) wp_remote_retrieve_response_code( $response ) ? substr_count( $body, ',2026-08-' ) : -2;
+};
+
+$lstabp_rendered = ( new LSTABP_Export() )->add_buttons( '<div><div>table</div></div>', LSTAB_Storage::get( $lstabp_paged ), array( 'filter' => '' ) );
+lstabp_assert( 7 === $lstabp_csv_rows( $lstabp_rendered ), 'A paged table downloads every row, not the first page', (string) $lstabp_csv_rows( $lstabp_rendered ) );
+
+$_GET[ LSTAB_Paging::arg( $lstabp_paged, 'f2' ) ] = 'Brak';
+$lstabp_rendered = ( new LSTABP_Export() )->add_buttons( '<div><div>table</div></div>', LSTAB_Storage::get( $lstabp_paged ), array( 'filter' => '' ) );
+unset( $_GET[ LSTAB_Paging::arg( $lstabp_paged, 'f2' ) ] );
+lstabp_assert( 1 === $lstabp_csv_rows( $lstabp_rendered ), 'With a value picked under "Show only", the download holds those rows', (string) $lstabp_csv_rows( $lstabp_rendered ) );
+
+LSTAB_Storage::delete( $lstabp_paged );
+delete_option( LSTABP_Export::OPTION );
+delete_option( LSTABP_Facets::OPTION );
+
 lstabp_section( '5f. Pointing at what you want gone' );
 
 // With the add-on running, hiding is honoured outright rather than on borrowed

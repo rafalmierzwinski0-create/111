@@ -532,7 +532,7 @@ class LSTAB_Paging {
 	 */
 	public static function carried_fields( $source_id ) {
 		$carried = array();
-		$own     = array( self::arg( $source_id, 'q' ), self::arg( $source_id, 'page' ) );
+		$own     = array( self::arg( $source_id, 'q' ), self::arg( $source_id, 'page' ), 'lstab-copy' );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only navigation of public data.
 		foreach ( (array) $_GET as $name => $value ) {

@@ -88,11 +88,22 @@ Paste your link and the dashboard shows you exactly what it read — headings, r
 
 = What Pro adds =
 
-Live Sheets Table Pro adds unlimited sheet sources, syncing as often as every minute, hiding columns and rows by clicking them in a picture of your own sheet, moving columns into an expandable panel under each row, conditional cell colouring, fixed filtered views, filters your visitors can use themselves, Excel, CSV and print export for visitors, six premium presets, private sheets through an authenticated Google connection, a multi-site licence and priority support.
+Live Sheets Table Pro adds unlimited sheet sources, syncing as often as every minute, hiding columns and rows by clicking them in a picture of your own sheet, moving columns into an expandable panel under each row, conditional cell colouring, fixed filtered views, filters your visitors can use themselves, Excel, CSV and print export for visitors, seven more table styles, private sheets through an authenticated Google connection, a multi-site licence and priority support.
 
 = Privacy =
 
 The plugin talks to `docs.google.com` and nowhere else, only to download the sheets you configure. It sends no analytics and registers no external services. Sheet data is stored in your own database. A small file in your uploads folder, `live-sheets-table-due.json`, records when each table is next due; it holds no sheet content and is removed when the plugin is deleted. Visitors' browsers only ever talk to your own site, and nothing is stored on their device.
+
+== External services ==
+
+This plugin connects to Google Sheets (`docs.google.com`), a service run by Google, to read the spreadsheets you add to it. Without that connection there is nothing to show.
+
+* **What is sent:** the ID of the spreadsheet and the tab you chose, in an ordinary request from your web server to Google's public export address. Nothing about your visitors, your site's users or your content is sent.
+* **When:** when you preview or save a sheet in the dashboard, on the schedule you set for each table, and when a table is past its schedule as a page holding it is viewed.
+* **Only your server talks to Google.** Visitors' browsers never contact Google on the plugin's behalf.
+
+Google's terms of service: https://policies.google.com/terms
+Google's privacy policy: https://policies.google.com/privacy
 
 == Installation ==
 
