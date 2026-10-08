@@ -1,33 +1,14 @@
 <?php
-/**
- * REST endpoints used by the admin preview screen and the block editor.
- *
- * @package LiveSheetsTable
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * REST controller.
- */
 class LSTAB_Rest {
-
 	const NAMESPACE_V1 = 'live-sheets-table/v1';
 
-	/**
-	 * Register hooks.
-	 *
-	 * @return void
-	 */
 	public function register() {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
-	/**
-	 * Register routes.
-	 *
-	 * @return void
-	 */
 	public function register_routes() {
 		register_rest_route(
 			self::NAMESPACE_V1,
@@ -57,8 +38,6 @@ class LSTAB_Rest {
 						'type'    => 'string',
 						'default' => 'table',
 					),
-					// The two pinning settings, so ticking one shows in the
-					// preview rather than only after a save.
 					'sticky'         => array(
 						'type'    => 'boolean',
 						'default' => true,
@@ -67,14 +46,10 @@ class LSTAB_Rest {
 						'type'    => 'boolean',
 						'default' => true,
 					),
-					// Renames and hidden columns, so the preview shows what a
-					// visitor would see rather than the raw sheet.
 					'columns'        => array(
 						'type'    => 'array',
 						'default' => array(),
 					),
-					// Which source is being edited, so anything configured per
-					// source — an add-on's colour rules, say — shows here too.
 					'sourceId'       => array(
 						'type'    => 'integer',
 						'default' => 0,
@@ -93,12 +68,6 @@ class LSTAB_Rest {
 			)
 		);
 
-		/*
-		 * Redrawing a saved table from the copy already stored: no request to
-		 * Google, so renaming a column or hiding one shows immediately rather
-		 * than after a save. It is also the only way the bundled example can
-		 * have a live preview at all, having nothing to fetch.
-		 */
 		register_rest_route(
 			self::NAMESPACE_V1,
 			'/redraw',
@@ -119,7 +88,6 @@ class LSTAB_Rest {
 						'type'    => 'string',
 						'default' => 'table',
 					),
-					/** This documented on /preview above. */
 					'sticky'   => array(
 						'type'    => 'boolean',
 						'default' => true,
@@ -136,12 +104,6 @@ class LSTAB_Rest {
 			)
 		);
 
-		/*
-		 * The editor shows custom CSS working as it is typed. Confining a rule
-		 * to one table is done by rewriting its selectors, and that is written
-		 * once, here in PHP — a second copy in JavaScript would eventually
-		 * disagree with the first, and the preview would stop being a preview.
-		 */
 		register_rest_route(
 			self::NAMESPACE_V1,
 			'/scoped-css',
@@ -179,11 +141,6 @@ class LSTAB_Rest {
 		);
 	}
 
-	/**
-	 * Permission check for management routes.
-	 *
-	 * @return bool|WP_Error
-	 */
 	public function can_manage() {
 		if ( current_user_can( LSTAB_Limits::capability() ) ) {
 			return true;
@@ -196,11 +153,6 @@ class LSTAB_Rest {
 		);
 	}
 
-	/**
-	 * Permission check for read-only routes used by the editor.
-	 *
-	 * @return bool|WP_Error
-	 */
 	public function can_edit_posts() {
 		if ( current_user_can( 'edit_posts' ) ) {
 			return true;
@@ -213,12 +165,6 @@ class LSTAB_Rest {
 		);
 	}
 
-	/**
-	 * Redraw a saved source from its stored copy.
-	 *
-	 * @param WP_REST_Request $request Request.
-	 * @return WP_REST_Response|WP_Error
-	 */
 	public function redraw( $request ) {
 		$source_id = absint( $request->get_param( 'sourceId' ) );
 		$source    = $source_id ? LSTAB_Storage::get( $source_id ) : null;
@@ -242,7 +188,6 @@ class LSTAB_Rest {
 		$rows    = (array) $source['data']['rows'];
 		$preview = array_slice( $rows, 0, 25 );
 
-		/** This action is documented in the preview endpoint above. */
 		do_action( 'lstab_preview_request', $request, $source_id );
 
 		return rest_ensure_response(
@@ -262,8 +207,6 @@ class LSTAB_Rest {
 						'sticky_head' => (bool) $request->get_param( 'stickyHead' ),
 						'source_id'   => $source_id,
 						'columns'    => LSTAB_Columns::sanitize( (array) $request->get_param( 'columns' ) ),
-						// The stored appearance, so a redraw does not undo what
-						// the swatches have already applied to the preview.
 						'style_vars' => isset( $source['style_vars'] ) ? $source['style_vars'] : array(),
 						'custom_css' => isset( $source['custom_css'] ) ? $source['custom_css'] : '',
 					)
@@ -272,11 +215,6 @@ class LSTAB_Rest {
 		);
 	}
 
-	/**
-	 * Permission check for the CSS preview.
-	 *
-	 * @return bool|WP_Error
-	 */
 	public function can_write_css() {
 		if ( current_user_can( LSTAB_Limits::capability() ) && LSTAB_Custom_Css::user_can_edit() ) {
 			return true;
@@ -289,36 +227,13 @@ class LSTAB_Rest {
 		);
 	}
 
-	/**
-	 * Confine a stylesheet to one selector, so the editor can show it working.
-	 *
-	 * @param WP_REST_Request $request Request.
-	 * @return WP_REST_Response
-	 */
 	public function scoped_css( $request ) {
 		$selector = trim( (string) $request->get_param( 'selector' ) );
 
-		/*
-		 * The caller says which element to confine the rules to, but only in
-		 * the shape this plugin uses. Anything else and a preview could be
-		 * asked to style the dashboard around it.
-		 */
 		if ( ! preg_match( '#^\[data-lstab-preview="[a-z0-9-]{1,40}"\]$#', $selector ) ) {
 			$selector = '[data-lstab-preview="none"]';
 		}
 
-		/*
-		 * Confined to the table inside the preview, not to the frame around it.
-		 * The frame looked like the safer answer and quietly threw half the
-		 * field away: colours here are custom properties, the table sets those
-		 * properties on itself, and a value set on an element beats one
-		 * inherited from its parent. Sizes and spacings — which name elements
-		 * inside the table — worked, so the field looked alive while every
-		 * colour typed into it did nothing.
-		 *
-		 * Naming the table makes the preview agree with the published page,
-		 * where these rules are confined to that same element.
-		 */
 		return rest_ensure_response(
 			array(
 				'css' => LSTAB_Custom_Css::scope(
@@ -329,12 +244,6 @@ class LSTAB_Rest {
 		);
 	}
 
-	/**
-	 * Fetch and parse a sheet without saving anything.
-	 *
-	 * @param WP_REST_Request $request Request.
-	 * @return WP_REST_Response|WP_Error
-	 */
 	public function preview( $request ) {
 		$reference = LSTAB_Url::parse( (string) $request->get_param( 'url' ) );
 
@@ -353,12 +262,6 @@ class LSTAB_Rest {
 
 		$first_row_header = (bool) $request->get_param( 'firstRowHeader' );
 
-		/*
-		 * Fetched and parsed in two steps rather than through fetch_table(), so
-		 * the raw payload can be handed back as well. When a table comes out
-		 * wrong the first question is always whether the sheet or the plugin is
-		 * at fault, and only the bytes Google actually sent answer it.
-		 */
 		$csv = LSTAB_Fetcher::fetch_csv(
 			$reference['sheet_id'],
 			$reference['gid'],
@@ -385,24 +288,12 @@ class LSTAB_Rest {
 
 		$tabs = LSTAB_Fetcher::fetch_tabs( $reference['sheet_id'], $reference['sheet_kind'] );
 		if ( is_wp_error( $tabs ) ) {
-			// Tab discovery is best effort — a single-tab fallback is fine.
 			$tabs = array();
 		}
 
 		$rows    = $table['rows'];
 		$preview = array_slice( $rows, 0, 25 );
 
-		/**
-		 * Fires before a preview is rendered.
-		 *
-		 * An add-on reads its own unsaved settings out of the request here —
-		 * a colour rule being typed exists only in the form until it is saved,
-		 * and a preview that could only show what was saved would be asking
-		 * for the round trip it exists to avoid.
-		 *
-		 * @param WP_REST_Request $request   The request.
-		 * @param int             $source_id Source being previewed, or 0.
-		 */
 		do_action( 'lstab_preview_request', $request, absint( $request->get_param( 'sourceId' ) ) );
 
 		return rest_ensure_response(
@@ -416,19 +307,9 @@ class LSTAB_Rest {
 				'rowCount'  => count( $rows ),
 				'colCount'  => count( $table['headers'] ),
 				'truncated' => count( $rows ) > count( $preview ),
-				// Enough to see the header row and the first few data rows,
-				// which is where a malformed export shows itself.
 				'raw'       => self::sample( $csv ),
 				'rawBytes'  => strlen( $csv ),
 				'ragged'    => isset( $table['ragged'] ) ? $table['ragged'] : null,
-				/*
-				 * The settings are handed over rather than applied here, so the
-				 * preview goes through the same preparation a published page
-				 * does. Applying them first threw away everything that step
-				 * works out along the way — which is why a column moved into
-				 * the details drawer still showed as a column of the table
-				 * until the source was saved and the page reloaded.
-				 */
 				'html'      => LSTAB_Renderer::render_preview(
 					array(
 						'headers' => $table['headers'],
@@ -447,12 +328,6 @@ class LSTAB_Rest {
 		);
 	}
 
-	/**
-	 * The opening of a payload, cut on a line boundary.
-	 *
-	 * @param string $csv Raw payload.
-	 * @return string
-	 */
 	protected static function sample( $csv ) {
 		$limit = 4000;
 
@@ -466,11 +341,6 @@ class LSTAB_Rest {
 		return ( false === $last ? $cut : substr( $cut, 0, $last ) ) . "\n…";
 	}
 
-	/**
-	 * List saved sources for the block picker.
-	 *
-	 * @return WP_REST_Response
-	 */
 	public function list_sources() {
 		$sources = array();
 
@@ -488,12 +358,6 @@ class LSTAB_Rest {
 		return rest_ensure_response( $sources );
 	}
 
-	/**
-	 * Run a manual sync.
-	 *
-	 * @param WP_REST_Request $request Request.
-	 * @return WP_REST_Response|WP_Error
-	 */
 	public function refresh( $request ) {
 		$id     = absint( $request->get_param( 'id' ) );
 		$result = LSTAB_Sync::run( $id );

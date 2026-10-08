@@ -1,20 +1,4 @@
 <?php
-/**
- * Choosing which columns a visitor may filter the table by.
- *
- * The card says what each column would actually offer, because that is the
- * whole decision: a filter on "Availability" gives three useful answers, and one
- * on "Net price" gives seven values that each narrow the table to a single
- * row. Nothing here guesses for you — it counts, and says what it counted.
- *
- * @package LiveSheetsTablePro
- *
- * @var int                            $source_id Source being edited, 0 while adding.
- * @var array<int,string>              $headers   Sheet headings.
- * @var array<int,array<int,string>>   $rows      Stored rows.
- * @var array<int,string>              $chosen    Headings already chosen.
- * @var bool                           $is_edit   Whether an existing source is being edited.
- */
 
 defined( 'ABSPATH' ) || exit;
 
@@ -28,12 +12,6 @@ $lstabp_total   = count( $rows );
 	</p>
 
 	<?php
-	/*
-	 * Told in words, this is the feature people asked what it was for. Shown,
-	 * it explains itself in a second: this is the bar, these are the menus,
-	 * this is the count changing. Built from the sheet's own headings where
-	 * there are any, so it is their table rather than an imaginary one.
-	 */
 	$lstabp_demo = array();
 
 	foreach ( $headers as $lstabp_demo_index => $lstabp_demo_head ) {
@@ -45,8 +23,6 @@ $lstabp_total   = count( $rows );
 		$lstabp_demo_kinds = count( $lstabp_demo_tally );
 		$lstabp_demo_each  = $lstabp_demo_kinds > 0 ? array_sum( $lstabp_demo_tally ) / $lstabp_demo_kinds : 0;
 
-		// The same test the badge below uses, so the illustration cannot be
-		// drawn with the very columns the list then advises against.
 		if ( $lstabp_demo_kinds < 2 || $lstabp_demo_each < 2 || $lstabp_demo_kinds > LSTABP_Facets::LONG_MENU ) {
 			continue;
 		}
@@ -136,21 +112,8 @@ $lstabp_total   = count( $rows );
 			?>
 		</p>
 	<?php else : ?>
-		<?php // Without this a save from a screen that never showed the card would read as "every filter removed". ?>
 		<input type="hidden" name="_lstabp_facets_present" value="1">
 
-		<?php
-		/*
-		 * Folded to ten by the script, with a button under it for the next ten.
-		 * A sheet with fifty columns drew fifty of these, and the card below
-		 * them — the one that says what a filter costs — was off the bottom of
-		 * the screen before anybody had read a word of it.
-		 *
-		 * The folding is done by the script rather than by the stylesheet on
-		 * purpose: with JavaScript off the whole list is here, which is the
-		 * only state in which every column can still be ticked.
-		 */
-		?>
 		<ul class="lstabp-facet-picks" data-lstabp-fold="10">
 			<?php foreach ( $headers as $lstabp_index => $lstabp_heading ) : ?>
 				<?php
@@ -159,14 +122,6 @@ $lstabp_total   = count( $rows );
 				$lstabp_filled = array_sum( $lstabp_tally );
 				$lstabp_on     = in_array( (string) $lstabp_heading, $chosen, true );
 
-				/*
-				 * Worth offering when the values repeat — which is a ratio, not
-				 * a count. Forty towns across five hundred rows is twelve rows
-				 * behind every choice and a fine filter; four values across
-				 * seven rows is not. A column where every row differs offers as
-				 * many choices as it has rows and narrows the table to one of
-				 * them, which is a worse search box.
-				 */
 				$lstabp_each  = $lstabp_kinds > 0 ? $lstabp_filled / $lstabp_kinds : 0;
 				$lstabp_suits = $lstabp_kinds >= 2 && $lstabp_each >= 2;
 				$lstabp_long  = $lstabp_kinds > LSTABP_Facets::LONG_MENU;
@@ -196,12 +151,6 @@ $lstabp_total   = count( $rows );
 						number_format_i18n( $lstabp_filled )
 					);
 				} elseif ( $lstabp_long ) {
-					/*
-					 * The case this card used to have nothing to say about: a
-					 * column that filters well and has too many values to read
-					 * at a glance. It is a good filter and a long menu, and
-					 * both halves of that are worth knowing before you tick it.
-					 */
 					$lstabp_says = sprintf(
 						/* translators: 1: how many different values, 2: rows behind each one on average, 3: the commonest few, already counted. */
 						__( '%1$s different values, about %2$s rows each. A useful filter, but a long list; visitors can type to narrow it. Most common: %3$s', 'live-sheets-table-pro' ),

@@ -1,22 +1,8 @@
 <?php
-/**
- * Table style presets.
- *
- * @package LiveSheetsTable
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Preset registry.
- */
 class LSTAB_Styles {
-
-	/**
-	 * All presets, including the ones reserved for Pro.
-	 *
-	 * @return array<string,array{label:string,description:string,pro:bool}>
-	 */
 	public static function all() {
 		$presets = array(
 			'clean'     => array(
@@ -71,29 +57,9 @@ class LSTAB_Styles {
 			),
 		);
 
-		/**
-		 * Filters the available style presets.
-		 *
-		 * The Pro add-on registers its own presets here and flips 'pro' to
-		 * false on the ones it unlocks.
-		 *
-		 * @param array $presets Preset definitions keyed by slug.
-		 */
 		return (array) apply_filters( 'lstab_style_presets', $presets );
 	}
 
-	/**
-	 * A small picture of a style, for the screen where one is chosen.
-	 *
-	 * Drawn, not photographed: a table in miniature built from a handful of
-	 * spans and painted by the admin stylesheet in each style's own colours
-	 * and shapes — rows or cards, a heading bar or none, stripes, bands, a
-	 * grid. It stays sharp at any size, weighs nothing, and cannot drift from
-	 * the style the way a screenshot taken once would.
-	 *
-	 * @param string $slug Preset slug.
-	 * @return string HTML.
-	 */
 	public static function thumbnail( $slug ) {
 		$cells = '<i></i><i></i><i></i>';
 		$rows  = str_repeat( '<span class="lstab-thumb-row">' . $cells . '</span>', 4 );
@@ -106,11 +72,6 @@ class LSTAB_Styles {
 			. '</span>';
 	}
 
-	/**
-	 * Presets the current tier may actually use.
-	 *
-	 * @return array<string,array<string,mixed>>
-	 */
 	public static function available() {
 		if ( LSTAB_Limits::is_pro() ) {
 			return self::all();
@@ -124,21 +85,10 @@ class LSTAB_Styles {
 		);
 	}
 
-	/**
-	 * Coerce a preset slug to one the current tier can render.
-	 *
-	 * @param string $slug Requested preset.
-	 * @return string
-	 */
 	public static function sanitize( $slug ) {
 		$slug      = sanitize_key( (string) $slug );
 		$available = self::available();
 
-		/*
-		 * Glass was retired in favour of Aurora. A table saved with it keeps a
-		 * premium, colourful style rather than dropping to Clean, which would
-		 * read as the setting having been lost.
-		 */
 		if ( 'glass' === $slug ) {
 			$slug = 'aurora';
 		}

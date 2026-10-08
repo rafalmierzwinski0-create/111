@@ -1,87 +1,36 @@
 <?php
-/**
- * The Elementor widget itself.
- *
- * Loaded only once Elementor has, because it extends a class Elementor owns.
- *
- * @package LiveSheetsTable
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Google Sheets table widget.
- */
 class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
-
-	/**
-	 * Widget slug.
-	 *
-	 * @return string
-	 */
 	public function get_name() {
 		return 'lstab-sheet-table';
 	}
 
-	/**
-	 * Name shown in the panel.
-	 *
-	 * @return string
-	 */
 	public function get_title() {
 		return __( 'Google Sheets Table', 'live-sheets-table' );
 	}
 
-	/**
-	 * Panel icon.
-	 *
-	 * @return string
-	 */
 	public function get_icon() {
 		return 'eicon-table';
 	}
 
-	/**
-	 * Where it sits in the panel.
-	 *
-	 * @return array<int,string>
-	 */
 	public function get_categories() {
 		return array( 'live-sheets-table' );
 	}
 
-	/**
-	 * Words that find it in the panel's search.
-	 *
-	 * @return array<int,string>
-	 */
 	public function get_keywords() {
 		return array( 'google', 'sheets', 'table', 'spreadsheet', 'csv' );
 	}
 
-	/**
-	 * The stylesheet the rendered table needs.
-	 *
-	 * @return array<int,string>
-	 */
 	public function get_style_depends() {
 		return array( 'lstab-table' );
 	}
 
-	/**
-	 * The script the slider and search need.
-	 *
-	 * @return array<int,string>
-	 */
 	public function get_script_depends() {
 		return array( 'lstab-table' );
 	}
 
-	/**
-	 * The panel.
-	 *
-	 * @return void
-	 */
 	protected function register_controls() {
 		$this->start_controls_section(
 			'lstab_source_section',
@@ -180,8 +129,6 @@ class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
 
 		$this->end_controls_section();
 
-		// Only where an add-on is listening for it; a field that accepts text
-		// and changes nothing is worse than no field.
 		if ( LSTAB_Limits::is_pro() ) {
 			$this->start_controls_section(
 				'lstab_rows_section',
@@ -201,11 +148,6 @@ class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
 		}
 	}
 
-	/**
-	 * Style presets, with the locked ones left out.
-	 *
-	 * @return array<string,string>
-	 */
 	protected static function preset_options() {
 		$options = array( '' => __( 'Use the source default', 'live-sheets-table' ) );
 
@@ -216,11 +158,6 @@ class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
 		return $options;
 	}
 
-	/**
-	 * Draw the table, in the editor and on the page alike.
-	 *
-	 * @return void
-	 */
 	protected function render() {
 		$settings = $this->get_settings_for_display();
 

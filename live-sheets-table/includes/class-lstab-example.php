@@ -1,63 +1,18 @@
 <?php
-/**
- * The sample table somebody can try before they have a sheet of their own.
- *
- * @package LiveSheetsTable
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * A price list that ships inside the plugin.
- *
- * The people most likely to give up in the first minute are the ones who
- * installed the plugin to see what it does and have no spreadsheet yet. Sending
- * them off to Google to make one is where they stop. This gives them a working
- * table in one click instead, and the decision about their own sheet can wait
- * until they have seen the thing work.
- *
- * It is built here in PHP rather than read from a bundled CSV so that it is
- * translated like everything else — an English shop should not be shown a
- * Polish price list to explain the plugin.
- *
- * Nothing about it touches the network. It is not a file on our server and not
- * a document in Google: it cannot go missing, cannot be slow, and sends nothing
- * anywhere.
- */
 class LSTAB_Example {
-
-	/**
-	 * The sheet_kind that marks a source as this sample.
-	 *
-	 * Syncing skips it — there is nothing to fetch — and the dashboard uses it
-	 * to label the row as an example rather than as somebody's real data.
-	 */
 	const KIND = 'example';
 
-	/**
-	 * Register hooks.
-	 *
-	 * @return void
-	 */
 	public function register() {
 		add_action( 'admin_post_lstab_add_example', array( $this, 'handle_add' ) );
 	}
 
-	/**
-	 * Whether a source row is the sample.
-	 *
-	 * @param array<string,mixed> $source Source row.
-	 * @return bool
-	 */
 	public static function is_example( $source ) {
 		return isset( $source['sheet_kind'] ) && self::KIND === $source['sheet_kind'];
 	}
 
-	/**
-	 * Whether the site already has one.
-	 *
-	 * @return bool
-	 */
 	public static function exists() {
 		foreach ( LSTAB_Storage::get_all() as $source ) {
 			if ( self::is_example( $source ) ) {
@@ -68,18 +23,6 @@ class LSTAB_Example {
 		return false;
 	}
 
-	/**
-	 * The table itself.
-	 *
-	 * Every column is here to demonstrate something. "Price" is numbers,
-	 * so it shows right alignment and figures that line up. "Availability" has
-	 * three repeating values, which is exactly what conditional colouring and
-	 * filtering need. "Notes" runs long, so it shows wrapping and the card
-	 * layout on a phone. "Time" is the column somebody would naturally want
-	 * gone, so hiding has something to be tried on straight away.
-	 *
-	 * @return array{headers:array<int,string>,rows:array<int,array<int,string>>,offset:int}
-	 */
 	public static function table() {
 		$headers = array(
 			__( 'Service', 'live-sheets-table' ),
@@ -155,18 +98,10 @@ class LSTAB_Example {
 		return array(
 			'headers' => $headers,
 			'rows'    => $rows,
-			// The heading occupies line 1 in Google, so the first stored row is
-			// line 2 — the same arithmetic a real sheet goes through, so the
-			// line numbers on the hiding screen are right here too.
 			'offset'  => 1,
 		);
 	}
 
-	/**
-	 * Create the sample source, or return the one already there.
-	 *
-	 * @return int Source ID, or 0 when it could not be created.
-	 */
 	public static function install() {
 		foreach ( LSTAB_Storage::get_all() as $source ) {
 			if ( self::is_example( $source ) ) {
@@ -193,11 +128,6 @@ class LSTAB_Example {
 
 		LSTAB_Storage::record_success( $id, $table );
 
-		/*
-		 * Recording the headings the way a real sync would, so the example
-		 * behaves like a real source everywhere: the dashboard can name its
-		 * columns, and hiding one has a heading to check itself against.
-		 */
 		LSTAB_Storage::update(
 			$id,
 			array( 'columns_config' => LSTAB_Columns::reconcile( array(), $table['headers'] ) )
@@ -206,11 +136,6 @@ class LSTAB_Example {
 		return (int) $id;
 	}
 
-	/**
-	 * Handle the "show me an example" button.
-	 *
-	 * @return void
-	 */
 	public function handle_add() {
 		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
 			wp_die( esc_html__( 'You do not have permission to do that.', 'live-sheets-table' ) );

@@ -1,17 +1,4 @@
 <?php
-/**
- * Runs when the plugin is deleted from the Plugins screen.
- *
- * Deleting a plugin to reinstall it is a normal thing to do; losing every table
- * you had configured because of it is not. So nothing is removed unless the
- * site has said, on the settings screen, that it wants that. The schedule is
- * cleared either way, because leaving an event behind that nothing can answer
- * is untidy and costs the site a wasted wake-up.
- *
- * Spreadsheets in Google are never touched, whatever is chosen here.
- *
- * @package LiveSheetsTable
- */
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
@@ -28,7 +15,6 @@ require_once __DIR__ . '/includes/class-lstab-freshness.php';
 
 LSTAB_Cron::unschedule();
 
-// Says only when each table is next due, and means nothing without the plugin.
 LSTAB_Freshness::remove();
 delete_option( 'lstab_seen_on' );
 delete_transient( 'lstab_due_unwritable' );

@@ -1,11 +1,3 @@
-/**
- * Live Sheets Table — remember that the countdown was put away.
- *
- * WordPress's own dismiss button only hides the notice for the page you are
- * looking at, which for a countdown means it reappears on the next click and
- * becomes something to scroll past rather than read. This tells the site to
- * remember, so it stays away until the last two days.
- */
 ( function () {
 	'use strict';
 

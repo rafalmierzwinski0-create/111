@@ -1,19 +1,4 @@
 <?php
-/**
- * Conditional formatting rules, printed inside the free plugin's source form.
- *
- * Each rule is laid out as one sentence rather than as five cells of a table.
- * A table made you read across five headings and assemble the sentence in your
- * head — and the headings could not say it either: "Show it" meant the colour,
- * "Applies to" meant whether the colour lands on one cell or the whole row.
- * Both were only guessable from having tried it.
- *
- * @package LiveSheetsTablePro
- *
- * @var array<int,array<string,mixed>> $rules   Stored rules.
- * @var array<int,string>              $headers Sheet headings, empty before the first sync.
- * @var bool                           $is_edit Whether an existing source is being edited.
- */
 
 defined( 'ABSPATH' ) || exit;
 
@@ -21,22 +6,9 @@ $lstabp_palette   = LSTABP_Rules::palette();
 $lstabp_effects   = LSTABP_Rules::effects();
 $lstabp_operators = LSTABP_Rules::operators();
 
-/*
- * Two spare lines, so adding a rule needs no button and no JavaScript, and two
- * can be added in one go. They are drawn as outlines rather than as filled-in
- * rules, so an empty card does not look like a form somebody half-completed.
- */
 $lstabp_waiting = ! $headers;
 $lstabp_saved   = count( $rules );
 
-/*
- * Rules whose column is no longer in the sheet. Renaming a heading in Google
- * is enough: the rule stays stored, stops colouring anything, and — because
- * its column had no matching option — the select fell back to the empty one,
- * so the next save deleted it without a word. Now the missing column is kept
- * as an option of its own, so a save preserves the rule, and the card says
- * what happened.
- */
 $lstabp_orphans = array();
 foreach ( $rules as $lstabp_i => $lstabp_stored ) {
 	if ( '' !== $lstabp_stored['column'] && ! in_array( $lstabp_stored['column'], $headers, true ) ) {
@@ -45,13 +17,6 @@ foreach ( $rules as $lstabp_i => $lstabp_stored ) {
 }
 $lstabp_blank   = array( 'column' => '', 'operator' => '=', 'value' => '', 'style' => LSTABP_Rules::DEFAULT_STYLE, 'scope' => 'cell' );
 
-/*
- * One blank line waiting rather than two. Two was a guess at how many more
- * rules somebody wanted, and being wrong was the whole problem: a fourth rule
- * meant filling both, saving, and coming back for two more. The button under
- * the list adds them now, and the blank line is only there so a table with no
- * rules yet has an obvious first one.
- */
 $lstabp_rows    = array_merge( $rules, array( $lstabp_blank ) );
 ?>
 <div class="lstab-card lstabp-rules-card<?php echo $lstabp_waiting ? ' is-waiting' : ''; ?>">
@@ -60,13 +25,6 @@ $lstabp_rows    = array_merge( $rules, array( $lstabp_blank ) );
 		<?php esc_html_e( 'Colour a cell, its whole row or just its words according to the cell\'s value — or turn the value into a pill, which is what a status column usually wants. Colours are worked out on the server, so they are already in the page a visitor receives.', 'live-sheets-table-pro' ); ?>
 	</p>
 
-	<?php
-	/*
-	 * The two questions this card used to answer only by experiment: what
-	 * happens when two rules match the same cell, and what "the whole row"
-	 * does to a cell that has a colour of its own.
-	 */
-	?>
 	<ul class="lstabp-rules-how">
 		<li>
 			<?php echo LSTAB_Icons::icon( 'layers' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
@@ -120,12 +78,6 @@ $lstabp_rows    = array_merge( $rules, array( $lstabp_blank ) );
 	<?php endif; ?>
 
 	<?php
-	/*
-	 * Only when the card can actually be filled in. Its controls are disabled
-	 * while there are no columns to choose from, so they submit nothing — and
-	 * a marker without them would read as "the user cleared every rule" and
-	 * wipe a rule set the screen never showed.
-	 */
 	if ( ! $lstabp_waiting ) :
 		?>
 		<input type="hidden" name="_lstabp_rules_present" value="1">
@@ -149,12 +101,6 @@ $lstabp_rows    = array_merge( $rules, array( $lstabp_blank ) );
 		</p>
 
 		<?php
-		/*
-		 * The line the button adds, kept out of the form until it is asked for.
-		 * Cloned from here rather than from the last line on screen, so a new
-		 * rule cannot arrive carrying somebody else's colour and value. The
-		 * placeholder in its field names is replaced with the next number.
-		 */
 		$lstabp_index  = LSTABP_Rules::INDEX_PLACEHOLDER;
 		$lstabp_rule   = $lstabp_blank;
 		$lstabp_is_new = true;

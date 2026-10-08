@@ -1,26 +1,8 @@
 <?php
-/**
- * Server-side table rendering, shared by the block and the shortcode.
- *
- * Everything the sheet contains is treated as untrusted text: sheet content can
- * be edited by anyone the document is shared with, so no cell value is ever
- * emitted without escaping.
- *
- * @package LiveSheetsTable
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Renderer.
- */
 class LSTAB_Renderer {
-
-	/**
-	 * Default rendering options.
-	 *
-	 * @return array<string,mixed>
-	 */
 	public static function defaults() {
 		return array(
 			'source_id'   => 0,
@@ -38,17 +20,10 @@ class LSTAB_Renderer {
 			'sticky_head' => null,
 			'filter'      => '',
 			'per_page'    => null,
-			// Filled in by render() for a page a visitor sees; never by a caller.
 			'keep_current' => array(),
 		);
 	}
 
-	/**
-	 * Render a saved source.
-	 *
-	 * @param array<string,mixed> $args Rendering options.
-	 * @return string HTML.
-	 */
 	public static function render( $args ) {
 		$args      = wp_parse_args( $args, self::defaults() );
 		$source_id = (int) $args['source_id'];
@@ -63,33 +38,17 @@ class LSTAB_Renderer {
 			return self::notice( __( 'This sheet source no longer exists.', 'live-sheets-table' ) );
 		}
 
-		/*
-		 * A page that asks for some rows must never be answered with all of
-		 * them. Filtering lives in an add-on, and an add-on can be deactivated
-		 * by an expired licence, a conflict or a tidy-up — at which point a
-		 * page built to show one category would quietly publish the whole
-		 * sheet, working rows included. Showing nothing is a visible gap
-		 * someone will fix; showing everything is a disclosure nobody notices.
-		 */
 		if ( '' !== trim( (string) $args['filter'] ) && ! apply_filters( 'lstab_filter_supported', false ) ) {
 			return self::notice(
 				__( 'This table shows only some of its rows, but the add-on that filters them is not active. No rows are shown rather than all of them. Activate the add-on, or remove the filter from the block or shortcode.', 'live-sheets-table' )
 			);
 		}
 
-		/*
-		 * Sources set to refresh on view get their chance here, before a single
-		 * row is drawn, so the person who waited for the fetch is the person who
-		 * sees the result. It returns the stored copy unchanged when the sheet
-		 * is fresh enough, when another request is already fetching, or when
-		 * Google does not answer in time.
-		 */
 		$source = LSTAB_Sync::refresh_for_view( $source );
 
 		LSTAB_Usage::saw( $source_id );
 
 		if ( empty( $source['data']['headers'] ) && empty( $source['data']['rows'] ) ) {
-			// Nothing has ever synced. Admins get a hint; visitors get nothing.
 			return self::notice(
 				sprintf(
 					/* translators: %s: source title. */
@@ -99,29 +58,17 @@ class LSTAB_Renderer {
 			);
 		}
 
-		// What the page's script needs to ask for this table to be checked
-		// when the page itself is an old copy (see LSTAB_Freshness).
 		$args['keep_current'] = LSTAB_Freshness::applies( $source ) ? LSTAB_Freshness::attributes( $source ) : array();
 
 		return self::render_table( $source, $args );
 	}
 
-	/**
-	 * Render an arbitrary table payload, used for admin previews.
-	 *
-	 * @param array<string,mixed> $data Parsed table {headers, rows}.
-	 * @param array<string,mixed> $args Rendering options.
-	 * @return string HTML.
-	 */
 	public static function render_preview( $data, $args = array() ) {
 		$args = wp_parse_args(
 			$args,
 			array_merge(
 				self::defaults(),
 				array(
-					// Search and sorting stay on so the preview matches the
-					// published table — the accent colour, for one, is only
-					// visible on those controls.
 					'show_meta' => false,
 					'search'    => true,
 					'sort'      => true,
@@ -130,8 +77,6 @@ class LSTAB_Renderer {
 		);
 
 		$source = array(
-			// Named when the preview is of a saved source, so per-source
-			// settings an add-on holds elsewhere apply here too.
 			'id'               => isset( $args['source_id'] ) ? absint( $args['source_id'] ) : 0,
 			'title'            => isset( $args['caption'] ) ? (string) $args['caption'] : '',
 			'style_preset'     => LSTAB_Styles::sanitize( $args['style'] ),
@@ -143,50 +88,18 @@ class LSTAB_Renderer {
 			'custom_css'       => isset( $args['custom_css'] ) ? (string) $args['custom_css'] : '',
 		);
 
-		/*
-		 * A preview is a second rendering of a table the page may already be
-		 * showing, and the once-per-request guard would swallow its rules.
-		 */
 		LSTAB_Custom_Css::reset_printed();
 
 		return self::render_table( $source, $args );
 	}
 
-	/**
-	 * The headings and rows a visitor would be shown, after every setting.
-	 *
-	 * Rendering and exporting have to agree exactly: an export that ignored a
-	 * filter or a hidden column would be a way to read what the page was built
-	 * not to show. Both go through here.
-	 *
-	 * @param array<string,mixed> $source Source row.
-	 * @param array<string,mixed> $args   Rendering options.
-	 * @return array{headers:array<int,string>,rows:array<int,array<int,string>>}
-	 */
 	public static function prepare( $source, $args ) {
 		$args    = wp_parse_args( $args, self::defaults() );
 		$headers = isset( $source['data']['headers'] ) ? (array) $source['data']['headers'] : array();
 		$rows    = isset( $source['data']['rows'] ) ? (array) $source['data']['rows'] : array();
 
-		/**
-		 * Filters the rows before any column setting is applied.
-		 *
-		 * Row filtering belongs here rather than after: a condition can then
-		 * name a column the table hides, which is the ordinary case — a page
-		 * showing one category has no reason to repeat that category in every
-		 * row. Positions in $rows still match $headers exactly as the sheet
-		 * returned them.
-		 *
-		 * @param array $rows    Body rows.
-		 * @param array $headers Sheet headings, before renaming or hiding.
-		 * @param array $source  Source row.
-		 * @param array $args    Rendering options.
-		 */
 		$rows = (array) apply_filters( 'lstab_source_rows', $rows, $headers, $source, $args );
 
-		// Renaming and hiding happen here rather than at sync time, so the
-		// stored snapshot always holds exactly what the sheet said and a
-		// settings change needs no refetch.
 		$columns = null !== $args['columns'] ? $args['columns'] : ( isset( $source['columns_config'] ) ? $source['columns_config'] : array() );
 
 		if ( $columns ) {
@@ -202,46 +115,20 @@ class LSTAB_Renderer {
 			$details = isset( $configured['details'] ) ? (array) $configured['details'] : array();
 		}
 
-		/**
-		 * Filters the rows about to be rendered, after column settings.
-		 *
-		 * Positions here are those of the rendered table, so a hidden column
-		 * is already gone. Anything that has to see every column belongs on
-		 * 'lstab_source_rows' instead.
-		 *
-		 * @param array $rows   Body rows.
-		 * @param array $source Source row.
-		 * @param array $args   Rendering options.
-		 */
 		$rows = (array) apply_filters( 'lstab_render_rows', $rows, $source, $args );
 
 		return array(
 			'headers' => $headers,
 			'rows'    => $rows,
-			// Positions, in the rendered table, of the columns that belong
-			// under the row rather than in it. The export ignores this: a file
-			// has no rows to open, so it carries every column it was given.
 			'details' => isset( $details ) ? (array) $details : array(),
 		);
 	}
 
-	/**
-	 * Build the table markup.
-	 *
-	 * @param array<string,mixed> $source Source row (or preview stand-in).
-	 * @param array<string,mixed> $args   Rendering options.
-	 * @return string HTML.
-	 */
 	protected static function render_table( $source, $args ) {
 		$prepared = self::prepare( $source, $args );
 		$headers  = $prepared['headers'];
 		$rows     = $prepared['rows'];
 
-		/*
-		 * Columns that live in the drawer under each row rather than in the
-		 * table itself. Kept as a lookup by position, because every loop below
-		 * walks positions.
-		 */
 		$details = array_flip( array_map( 'intval', isset( $prepared['details'] ) ? (array) $prepared['details'] : array() ) );
 
 		$style     = $args['style'] ? LSTAB_Styles::sanitize( $args['style'] ) : LSTAB_Styles::sanitize( $source['style_preset'] );
@@ -253,16 +140,9 @@ class LSTAB_Renderer {
 		$searchable = ! empty( $args['search'] ) && $rows;
 		$sortable   = ! empty( $args['sort'] ) && $rows;
 
-		// The width at which a table must stack depends on how many columns it
-		// has: five columns need far more room than two. The bucket is emitted
-		// as a class so the stylesheet can pick a matching breakpoint.
-		// Columns in the table itself. The ones moved into the drawer are not
-		// competing for width, so counting them would put a four-column table
-		// into the breakpoint meant for six.
 		$column_count = count( $headers ) - count( $details );
 		$bucket       = max( 1, min( 6, $column_count ) );
 
-		// Columns that hold numbers read better right-aligned with tabular figures.
 		$alignments = self::detect_alignments( $headers, $rows );
 
 		$classes = array( 'lstab', 'lstab-style-' . $style, 'lstab-cols-' . $bucket );
@@ -275,12 +155,6 @@ class LSTAB_Renderer {
 			$classes[] = 'lstab-sticky-first';
 		}
 
-		/*
-		 * The headings follow the screen down a long table. This is a class
-		 * rather than a stylesheet rule for everybody because a theme with a
-		 * navigation bar of its own already pinned to the top of the screen
-		 * would have two pinned things fighting over the same strip.
-		 */
 		$sticky_head = null !== $args['sticky_head']
 			? (bool) $args['sticky_head']
 			: ( ! isset( $source['sticky_head'] ) || (bool) $source['sticky_head'] );
@@ -289,8 +163,6 @@ class LSTAB_Renderer {
 			$classes[] = 'lstab-sticky-head';
 		}
 
-		// 'auto' lets the breakpoints decide; the other two pin the layout for
-		// authors who know their table and their theme's column width.
 		$layout = $args['layout'];
 		if ( '' === $layout || 'inherit' === $layout ) {
 			$layout = isset( $source['layout'] ) ? (string) $source['layout'] : 'table';
@@ -304,18 +176,8 @@ class LSTAB_Renderer {
 			$classes[] = $args['class'];
 		}
 
-		/**
-		 * Filters the wrapper CSS classes.
-		 *
-		 * @param array $classes Class names.
-		 * @param array $source  Source row.
-		 * @param array $args    Rendering options.
-		 */
 		$classes = (array) apply_filters( 'lstab_wrapper_classes', $classes, $source, $args );
 
-		// Per-source appearance overrides ride along as inline custom
-		// properties. An inline style beats any stylesheet rule, so an explicit
-		// choice also wins over the dark-scheme block.
 		$overrides = $args['style_vars'];
 		if ( ! $overrides && isset( $source['style_vars'] ) ) {
 			$overrides = $source['style_vars'];
@@ -324,7 +186,6 @@ class LSTAB_Renderer {
 			? LSTAB_Customizer::inline_style( $overrides )
 			: '';
 
-		// Set by the paging filter while the rows above were being prepared.
 		$paging = LSTAB_Paging::state( $source_id );
 		$paged  = is_array( $paging );
 
@@ -332,21 +193,12 @@ class LSTAB_Renderer {
 			$classes[] = 'lstab-paged';
 		}
 
-		/*
-		 * A paged table is searched on the server, so the marking of what was
-		 * matched has to be written into the page it sends back. A table short
-		 * enough to search in the browser marks its own hits there, and would
-		 * be marked twice if this ran for it as well.
-		 */
 		if ( $paged && '' !== $paging['request']['q'] ) {
 			LSTAB_Highlight::begin( $paging['request']['q'] );
 		}
 
 		self::enqueue_assets();
 
-		// Whatever the author wrote for this table, confined to it. Printed
-		// beside the table rather than in the head so it survives being
-		// rendered by a block, a shortcode or the editor's preview alike.
 		$custom_css = isset( $source['custom_css'] ) ? (string) $source['custom_css'] : '';
 
 		ob_start();
@@ -361,13 +213,6 @@ class LSTAB_Renderer {
 			<?php endif; ?>>
 
 			<?php if ( $searchable && $paged ) : ?>
-				<?php
-				/*
-				 * A paged table holds one page of rows, so searching in the
-				 * browser would search that page and call it the table. This
-				 * goes to the server and looks at the whole sheet.
-				 */
-				?>
 				<div class="lstab-controls">
 					<form class="lstab-search-form" method="get" action="">
 						<?php foreach ( LSTAB_Paging::carried_fields( $source_id ) as $lstab_field => $lstab_value ) : ?>
@@ -417,17 +262,6 @@ class LSTAB_Renderer {
 			<?php endif; ?>
 
 			<?php
-			/**
-			 * Fires inside the table's wrapper, above the table itself.
-			 *
-			 * Below the search box and above the caption, which is where
-			 * anything that narrows what the table shows belongs: a visitor
-			 * reads it before the rows rather than discovering it underneath
-			 * them. The Pro add-on prints its column filters here.
-			 *
-			 * @param array $source Source row.
-			 * @param array $args   Rendering options.
-			 */
 			do_action( 'lstab_before_table', $source, $args );
 			?>
 
@@ -450,23 +284,6 @@ class LSTAB_Renderer {
 									<?php continue; ?>
 								<?php endif; ?>
 								<?php
-								/**
-								 * Filters the attributes applied to a column heading.
-								 *
-								 * The companion to 'lstab_cell_attributes', and
-								 * needed for the same reason a cell has one: a
-								 * column given a colour of its own is a column
-								 * including the name at the top of it. Without
-								 * this the colour started at the first row and
-								 * the heading sat above it on the table's own
-								 * paper, which reads as a mistake rather than
-								 * as a choice.
-								 *
-								 * @param array  $attributes Attribute map.
-								 * @param string $heading    The heading's text.
-								 * @param int    $col_index  Column index.
-								 * @param array  $source     Source row.
-								 */
 								$lstab_head_attributes = (array) apply_filters(
 									'lstab_heading_attributes',
 									array(
@@ -481,13 +298,6 @@ class LSTAB_Renderer {
 								<th scope="col" role="columnheader"<?php echo self::attributes( $lstab_head_attributes ); // phpcs:ignore WordPress.Security.EscapeOutput -- Escaped in attributes(). ?>>
 									<?php if ( $sortable && $paged ) : ?>
 										<?php
-										/*
-										 * Sorting one page of a long table
-										 * would order the rows that happen to
-										 * be on screen and leave the rest
-										 * where they were, so this goes to the
-										 * server like the search does.
-										 */
 										$lstab_active = (int) $paging['request']['sort'] === (int) $index;
 										$lstab_next   = ( $lstab_active && 'asc' === $paging['request']['dir'] ) ? 'desc' : 'asc';
 										?>
@@ -532,38 +342,13 @@ class LSTAB_Renderer {
 									<?php
 									$label = isset( $headers[ $col_index ] ) ? (string) $headers[ $col_index ] : '';
 
-									/**
-									 * Filters a single rendered cell's inner HTML.
-									 *
-									 * Returning a string here replaces the escaped value, so any
-									 * filter callback is responsible for its own escaping. The Pro
-									 * add-on uses this for conditional formatting.
-									 *
-									 * @param string|null $html      Replacement HTML, or null for the default.
-									 * @param string      $value     Raw cell value.
-									 * @param int         $col_index Column index.
-									 * @param int         $row_index Row index.
-									 * @param array       $source    Source row.
-									 */
 									$custom = apply_filters( 'lstab_render_cell', null, (string) $cell, (int) $col_index, (int) $row_index, $source );
 
-									/**
-									 * Filters the attributes applied to a cell.
-									 *
-									 * @param array  $attributes Attribute map.
-									 * @param string $value      Raw cell value.
-									 * @param int    $col_index  Column index.
-									 * @param int    $row_index  Row index.
-									 * @param array  $source     Source row.
-									 */
 									$attributes = (array) apply_filters(
 										'lstab_cell_attributes',
 										array(
 											'data-label'       => $label,
 											'data-lstab-align' => isset( $alignments[ $col_index ] ) ? $alignments[ $col_index ] : 'start',
-											// Named so the stylesheet can lay
-											// this one cell out around the
-											// button it is about to hold.
 											'class'            => ( $details && $lstab_first_cell ) ? 'lstab-cell-opens' : false,
 										),
 										(string) $cell,
@@ -574,25 +359,6 @@ class LSTAB_Renderer {
 									?>
 									<td role="cell"<?php echo self::attributes( $attributes ); // phpcs:ignore WordPress.Security.EscapeOutput -- Escaped in attributes(). ?>>
 										<?php if ( $details && $lstab_first_cell ) : ?>
-											<?php
-											/*
-											 * Inside the first cell rather than
-											 * in a column of its own: a column
-											 * would take a share of the width,
-											 * would become the pinned one on a
-											 * table that scrolls sideways, and
-											 * would put a heading above a thing
-											 * that is not data.
-											 *
-											 * A real button, not a clickable
-											 * row. A row that opens on any
-											 * click cannot be reached from a
-											 * keyboard, swallows the selection
-											 * of a value somebody wanted to
-											 * copy, and gives a screen reader
-											 * nothing to announce.
-											 */
-											?>
 											<button type="button" class="lstab-open"
 												aria-expanded="false"
 												aria-controls="<?php echo esc_attr( $table_id . '-detail-' . $row_index ); ?>"
@@ -620,30 +386,6 @@ class LSTAB_Renderer {
 
 							<?php if ( $details ) : ?>
 								<?php
-								/*
-								 * Rendered here rather than fetched on the
-								 * click. It costs a little markup and buys
-								 * three things: the words are in the page, so
-								 * a search engine and the table's own search
-								 * box both find them; nothing has to happen
-								 * over the network when somebody opens a row;
-								 * and it still works with no JavaScript at all,
-								 * where the drawer simply sits open.
-								 */
-								?>
-								<?php
-								/**
-								 * Filters the attributes of the drawer row.
-								 *
-								 * A drawer belongs to the row above it, so
-								 * anything that coloured that row has to reach
-								 * here too — otherwise a row painted red opens
-								 * onto a white panel.
-								 *
-								 * @param array $attributes Attribute map.
-								 * @param int   $row_index  Row the drawer belongs to.
-								 * @param array $source     Source row.
-								 */
 								$lstab_detail_attributes = (array) apply_filters(
 									'lstab_detail_attributes',
 									array(),
@@ -661,9 +403,6 @@ class LSTAB_Renderer {
 												$lstab_detail_value = isset( $row[ $lstab_detail_index ] ) ? (string) $row[ $lstab_detail_index ] : '';
 
 												if ( '' === trim( $lstab_detail_value ) ) {
-													// An empty pair is a label
-													// with nothing under it,
-													// which reads as a fault.
 													continue;
 												}
 
@@ -713,14 +452,6 @@ class LSTAB_Renderer {
 						aria-valuenow="0"></div>
 				</div>
 			</div>
-			<?php
-			/*
-			 * Watched by the script to tell a floating slider from a settled
-			 * one: while this line is off the bottom of the window, the bar
-			 * above it is lying on top of rows and has to look like a control
-			 * rather than a rule drawn across the data.
-			 */
-			?>
 			<div class="lstab-scrollbar-end" aria-hidden="true"></div>
 
 			<?php if ( $paged && 0 === $paging['matched'] ) : ?>
@@ -730,13 +461,6 @@ class LSTAB_Renderer {
 			<?php endif; ?>
 
 			<?php
-			/*
-			 * The page buttons and the freshness line share one strip rather
-			 * than taking a line each. Three tracks, because that is the only
-			 * way to have the buttons exactly in the middle of the table while
-			 * something else sits against an edge; which track each one lands
-			 * in is an appearance setting, so they never collide.
-			 */
 			$lstab_has_pager = $paged && $paging['pages'] > 1;
 			$lstab_fresh     = ( ! empty( $args['show_meta'] ) && ! empty( $source['last_success_gmt'] ) )
 				? strtotime( $source['last_success_gmt'] . ' UTC' )
@@ -780,12 +504,6 @@ class LSTAB_Renderer {
 
 					<?php if ( $lstab_fresh ) : ?>
 						<?php
-						/*
-						 * A page cache keeps this line as it was when the page was
-						 * stored, so hours later it still says "5 minutes ago".
-						 * The page's script says it again from the time the site
-						 * last updated the table, in these same words.
-						 */
 						$lstab_said = empty( $args['keep_current'] ) ? '' : wp_json_encode(
 							array(
 								't' => __( 'Updated %s ago', 'live-sheets-table' ),
@@ -813,30 +531,11 @@ class LSTAB_Renderer {
 
 		$html = (string) ob_get_clean();
 
-		// One table's search term must not leak into the next table on the page.
 		LSTAB_Highlight::end();
 
-		/**
-		 * Filters the complete rendered table HTML.
-		 *
-		 * @param string $html   Rendered markup.
-		 * @param array  $source Source row.
-		 * @param array  $args   Rendering options.
-		 */
 		return (string) apply_filters( 'lstab_rendered_table', $html, $source, $args );
 	}
 
-	/**
-	 * Decide how each column should be aligned.
-	 *
-	 * A column whose values are overwhelmingly numeric reads far better right
-	 * aligned with tabular figures, so prices and quantities line up on the
-	 * decimal point instead of drifting.
-	 *
-	 * @param array<int,string>             $headers Column labels.
-	 * @param array<int,array<int,string>>  $rows    Body rows.
-	 * @return array<int,string> Column index to 'start' or 'end'.
-	 */
 	protected static function detect_alignments( $headers, $rows ) {
 		$alignments = array();
 		$sample     = array_slice( $rows, 0, 200 );
@@ -856,82 +555,16 @@ class LSTAB_Renderer {
 				}
 			}
 
-			// Require a clear majority so a stray number does not flip a text column.
 			$alignments[ $index ] = ( $filled > 0 && ( $numeric / $filled ) >= 0.8 ) ? 'end' : 'start';
 		}
 
-		/**
-		 * Filters the per-column alignment.
-		 *
-		 * @param array $alignments Column index to 'start' or 'end'.
-		 * @param array $headers    Column labels.
-		 * @param array $rows       Body rows.
-		 */
 		return (array) apply_filters( 'lstab_column_alignments', $alignments, $headers, $rows );
 	}
 
-	/**
-	 * Whether a cell holds a number, tolerating the ways spreadsheets format them.
-	 *
-	 * Accepts thousands separators (including the non-breaking and narrow spaces
-	 * Google emits), comma decimals, currency symbols, percentages and sign
-	 * suffixes, so "1 215,50 zł" and "-4.5%" both count.
-	 *
-	 * @param string $value Raw cell value.
-	 * @return bool
-	 */
-	/**
-	 * Whether a value reads as a number, for anything outside this class.
-	 *
-	 * Server-side sorting has to answer exactly the question the alignment
-	 * detection already answers, and two answers would eventually disagree.
-	 *
-	 * @param string $value Cell value.
-	 * @return bool
-	 */
 	public static function looks_numeric( $value ) {
 		return self::is_numeric_value( (string) $value );
 	}
 
-	/**
-	 * A date or a time of day as one comparable number.
-	 *
-	 * Sorting used to read both through to_number(), which keeps only what
-	 * looks like one number: "15.01.2026" came out as 15.01, so a column of
-	 * dates sorted by the day of the month and every date in the same month
-	 * tied. Times were luckier by accident — "09:30" became 930 and "20:20"
-	 * became 2020, and hour × 100 + minute happens to rise with the clock —
-	 * but "9:30 am" and "5:45 pm" both lost their half of the day.
-	 *
-	 * Two kinds are recognised, and only two:
-	 *
-	 *   15.01.2026        a date, day first
-	 *   09:30, 20:20:15   a time on the 24-hour clock
-	 *   9:30 am, 12 PM    the same on the 12-hour clock
-	 *
-	 * A date may be followed by a time, and then carries it.
-	 *
-	 * A two-digit year is read the way every spreadsheet reads one: 00 to 29
-	 * is this century, 30 to 99 the last. It is a guess, but it is the same
-	 * guess Excel and Google Sheets make, so a sheet that looks right in the
-	 * spreadsheet looks right on the page.
-	 *
-	 * Nothing else is guessed at. "03/12" is the third of December to one
-	 * reader and the twelfth of March to another, and a wrong order is worse
-	 * than an alphabetical one, because it looks right until somebody checks.
-	 *
-	 * The kind comes back with the number because the two scales have nothing
-	 * to do with each other: a date is yyyymmdd, a time is minutes since
-	 * midnight, and comparing one against the other would be nonsense. The
-	 * caller compares two values only when they are of the same kind.
-	 *
-	 * The browser does exactly this too, in lstab-table.js. A visitor cannot
-	 * tell which table is paged, so the two must not disagree about what
-	 * sorted means.
-	 *
-	 * @param string $value Cell value.
-	 * @return array{kind:string,value:float}|null
-	 */
 	public static function to_moment( $value ) {
 		$value = trim( (string) $value );
 
@@ -939,7 +572,6 @@ class LSTAB_Renderer {
 			return null;
 		}
 
-		// 15.01.2026, 15.01.26, and either with a time after it — day first.
 		if ( preg_match( '/^(\d{1,2})\.(\d{1,2})\.(\d{4}|\d{2})(?:[\s,]+(\d{1,2}):([0-5]\d)(?::([0-5]\d))?)?$/', $value, $found ) ) {
 			$day   = (int) $found[1];
 			$month = (int) $found[2];
@@ -963,19 +595,15 @@ class LSTAB_Renderer {
 			$year = (int) $found[3];
 
 			if ( 2 === strlen( $found[3] ) ) {
-				// The spreadsheets' own rule, so a sheet sorts here the way it
-				// sorts there: 00 to 29 is this century, 30 to 99 the last.
 				$year += $year < 30 ? 2000 : 1900;
 			}
 
-			// A day is one step, so the time of day is the fraction inside it.
 			return array(
 				'kind'  => 'date',
 				'value' => (float) ( $year * 10000 + $month * 100 + $day ) + $minutes / 1440,
 			);
 		}
 
-		// 09:30, 20:20, 8:05:30 — the 24-hour clock.
 		if ( preg_match( '/^(\d{1,2}):([0-5]\d)(?::([0-5]\d))?$/', $value, $found ) ) {
 			$hour = (int) $found[1];
 
@@ -989,7 +617,6 @@ class LSTAB_Renderer {
 			);
 		}
 
-		// 9:30 am, 12:15 PM, 5 pm, 11.45 a.m. — the 12-hour clock.
 		if ( preg_match( '/^(\d{1,2})(?:[:.]([0-5]\d))?(?::([0-5]\d))?\s*([ap])\.?\s?m\.?$/i', $value, $found ) ) {
 			$hour = (int) $found[1];
 
@@ -997,12 +624,6 @@ class LSTAB_Renderer {
 				return null;
 			}
 
-			/*
-			 * Midnight and noon are where every home-made clock parser goes
-			 * wrong: 12 am is the start of the day, not the middle of it, and
-			 * 12 pm is the middle, not the end. Twelve wraps to zero first,
-			 * and only then does the afternoon add its half a day.
-			 */
 			$hour = ( $hour % 12 ) + ( 'p' === strtolower( $found[4] ) ? 12 : 0 );
 
 			return array(
@@ -1015,19 +636,6 @@ class LSTAB_Renderer {
 		return null;
 	}
 
-	/**
-	 * Where a value stands before its own kind is even looked at.
-	 *
-	 * Dates first, then times, then everything the parser did not recognise.
-	 * Sorting needs this because a date and a time cannot be compared — one is
-	 * yyyymmdd, the other minutes since midnight — and a rule that has no
-	 * answer for some pairs produces a different arrangement depending on which
-	 * pairs the sort happens to ask about. The browser sorts small tables and
-	 * the server sorts paged ones; they must not disagree.
-	 *
-	 * @param array{kind:string,value:float}|null $moment What to_moment() read.
-	 * @return int
-	 */
 	public static function moment_rank( $moment ) {
 		if ( null === $moment ) {
 			return 2;
@@ -1036,16 +644,6 @@ class LSTAB_Renderer {
 		return 'date' === $moment['kind'] ? 0 : 1;
 	}
 
-	/**
-	 * A spreadsheet-formatted number as a float.
-	 *
-	 * Handles a space or a full stop as the thousands separator and a comma or
-	 * a full stop as the decimal one, which is the difference between 1 215,50
-	 * sorting above 349,00 and below it.
-	 *
-	 * @param string $value Cell value.
-	 * @return float
-	 */
 	public static function to_number( $value ) {
 		$cleaned = preg_replace( '/[\p{Sc}%\s\x{00A0}\x{202F}\x{2009}]/u', '', (string) $value );
 		$cleaned = preg_replace( '/(?<=[0-9])\p{L}{1,3}$/u', '', (string) $cleaned );
@@ -1058,7 +656,6 @@ class LSTAB_Renderer {
 		$last_dot   = strrpos( $cleaned, '.' );
 
 		if ( false !== $last_comma && false !== $last_dot ) {
-			// Whichever comes last is the decimal separator.
 			$cleaned = $last_comma > $last_dot
 				? str_replace( array( '.', ',' ), array( '', '.' ), $cleaned )
 				: str_replace( ',', '', $cleaned );
@@ -1072,17 +669,12 @@ class LSTAB_Renderer {
 	}
 
 	protected static function is_numeric_value( $value ) {
-		// Strip currency symbols, percent signs and every flavour of space.
 		$cleaned = preg_replace( '/[\p{Sc}%\s\x{00A0}\x{202F}\x{2009}]/u', '', $value );
 
 		if ( null === $cleaned || '' === $cleaned ) {
 			return false;
 		}
 
-		// Many currencies are written as letters rather than a symbol, and always
-		// after the amount: "12,00 zł", "100 kr", "9 PLN". Drop a short trailing
-		// alphabetic tail, but only when digits came first, so a product code
-		// like "A1" is not mistaken for a number.
 		$cleaned = preg_replace( '/(?<=[0-9])\p{L}{1,3}$/u', '', $cleaned );
 
 		if ( null === $cleaned || '' === $cleaned ) {
@@ -1093,14 +685,6 @@ class LSTAB_Renderer {
 			|| (bool) preg_match( '/^[-+]?[0-9]+(?:[.,][0-9]+)?$/', $cleaned );
 	}
 
-	/**
-	 * Load the front-end stylesheet, and the script only when it has work to do.
-	 *
-	 * Assets are registered up front but enqueued here, so a page without a
-	 * table ships neither file.
-	 *
-	 * @return void
-	 */
 	protected static function enqueue_assets() {
 		if ( ! wp_style_is( 'lstab-table', 'registered' ) ) {
 			return;
@@ -1110,12 +694,6 @@ class LSTAB_Renderer {
 		wp_enqueue_script( 'lstab-table' );
 	}
 
-	/**
-	 * Build an escaped attribute string.
-	 *
-	 * @param array<string,string> $attributes Attribute map.
-	 * @return string
-	 */
 	protected static function attributes( $attributes ) {
 		$out = '';
 
@@ -1130,24 +708,11 @@ class LSTAB_Renderer {
 		return $out;
 	}
 
-	/**
-	 * A message that is only ever shown to users who can fix the problem.
-	 *
-	 * Visitors see nothing at all: a broken sheet must never leak an error,
-	 * a stack trace or raw markup onto a public page.
-	 *
-	 * @param string $message Admin-facing message.
-	 * @return string
-	 */
 	protected static function notice( $message ) {
 		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
 			return '';
 		}
 
-		// Every path that ends in a notice ends here without having rendered a
-		// table, so the stylesheet has not been asked for yet. Without this the
-		// message arrives as a bare paragraph and reads like broken content
-		// rather than something addressed to whoever can fix it.
 		self::enqueue_assets();
 
 		return '<div class="lstab-notice"><p>' . esc_html( $message ) . '</p></div>';

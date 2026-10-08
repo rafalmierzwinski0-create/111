@@ -1,34 +1,10 @@
 <?php
-/**
- * The card where a column is given a look of its own.
- *
- * One line per column, closed. The line says the column's name and shows what
- * that column looks like now — the thing itself, small, not a word for it. The
- * choices open only on the line being worked on.
- *
- * The first attempt put all five choices on every line at once. On a sheet
- * with twenty columns that is a hundred little pictures, the same five
- * repeated twenty times, and the column names — the only thing that differs
- * down the card, and the only thing anybody is looking for — were the quietest
- * marks on the screen. A chooser has to be opened to be read; a list has to be
- * read without being opened.
- *
- * @package LiveSheetsTablePro
- *
- * @var array<string,array<string,string>> $lstabp_chosen  What is stored.
- * @var array<string,string>               $lstabp_looks   The looks on offer.
- * @var array<int,string>                  $lstabp_headers The sheet's headings.
- */
 
 defined( 'ABSPATH' ) || exit;
 
 $lstabp_waiting = ! $lstabp_headers;
 $lstabp_fields  = LSTABP_Column_Looks::fields();
 
-/*
- * Which look wants which field, as one attribute per field. A sheet with a
- * dozen columns draws this list a dozen times, so it is worked out once.
- */
 $lstabp_wants = array(
 	'tint'  => array(),
 	'ink'   => array(),
@@ -49,7 +25,6 @@ $lstabp_offer = array( '' => __( 'Ordinary', 'live-sheets-table-pro' ) ) + $lsta
 		<?php esc_html_e( 'A colour rule says one value is special. This says what a whole column is: a measurement to be seen at a glance, a set of labels, a column that belongs in a colour of its own, or a way through to somewhere else.', 'live-sheets-table-pro' ); ?>
 	</p>
 
-	<?php // Present even when nothing is ticked, so clearing the last one saves. ?>
 	<input type="hidden" name="_lstabp_looks_present" value="1">
 
 	<?php if ( $lstabp_waiting ) : ?>
@@ -75,43 +50,17 @@ $lstabp_offer = array( '' => __( 'Ordinary', 'live-sheets-table-pro' ) ) + $lsta
 				$lstabp_ink   = '' !== $lstabp_setting['ink'] ? $lstabp_setting['ink'] : '#06100f';
 				?>
 				<li class="lstabp-look<?php echo $lstabp_is ? ' is-on' : ''; ?>" data-lstabp-look="<?php echo esc_attr( $lstabp_is ); ?>">
-					<?php
-					/*
-					 * Named, so the browser closes the last one when the next
-					 * is opened. Twenty columns all open at once is the wall
-					 * this card was rewritten to stop being, and nobody sets
-					 * two columns at the same moment. A browser too old to
-					 * know the attribute simply lets them all stay open, which
-					 * is the behaviour this replaced and still works.
-					 */
-					?>
 					<details class="lstabp-look-box" name="lstabp-looks">
 						<summary class="lstabp-look-head">
 							<span class="lstabp-look-name"><?php echo esc_html( $lstabp_heading ); ?></span>
 
 							<?php
-							/*
-							 * What this column looks like now, drawn rather
-							 * than named — and named as well, because a bar
-							 * and a painted cell are easy to tell apart and a
-							 * pill and a button are not, at this size.
-							 */
 							$lstabp_face_look = $lstabp_is;
 							$lstabp_face_tint = $lstabp_tint;
 							$lstabp_face_ink  = $lstabp_ink;
 							$lstabp_face_says = $lstabp_setting['label'];
 							?>
 							<span class="lstabp-look-now">
-								<?php
-								/*
-								 * Nothing is drawn for a column that is
-								 * ordinary. Most of them are, and twenty
-								 * identical grey boxes saying the same number
-								 * is the very repetition this card was
-								 * rewritten to stop: a drawing earns its place
-								 * when there is something to show.
-								 */
-								?>
 								<?php if ( '' !== $lstabp_is ) : ?>
 									<?php require __DIR__ . '/look-faces.php'; ?>
 								<?php endif; ?>
@@ -122,14 +71,6 @@ $lstabp_offer = array( '' => __( 'Ordinary', 'live-sheets-table-pro' ) ) + $lsta
 						</summary>
 
 						<div class="lstabp-look-body">
-							<?php
-							/*
-							 * A radio group rather than a select. Both submit
-							 * the same one value under the same name, so the
-							 * save and the preview never knew the difference —
-							 * but only one of them can show what it offers.
-							 */
-							?>
 							<span class="lstabp-look-picks" role="radiogroup"
 								aria-label="
 								<?php
@@ -158,15 +99,6 @@ $lstabp_offer = array( '' => __( 'Ordinary', 'live-sheets-table-pro' ) ) + $lsta
 								<?php endforeach; ?>
 							</span>
 
-							<?php
-							/*
-							 * Every field is offered to every look and only the
-							 * ones that mean something are shown, by the
-							 * stylesheet reading the look off the row. A bar
-							 * has no words of its own, so it has no ink and
-							 * nothing to say.
-							 */
-							?>
 							<span class="lstabp-look-fields">
 								<span class="lstabp-look-colour" data-lstabp-for="<?php echo esc_attr( implode( ' ', $lstabp_wants['tint'] ) ); ?>">
 									<label>
@@ -201,18 +133,6 @@ $lstabp_offer = array( '' => __( 'Ordinary', 'live-sheets-table-pro' ) ) + $lsta
 		</ul>
 
 		<?php
-		/*
-		 * Every column back to ordinary, in one go. A sheet that was dressed
-		 * column by column has to be undressed column by column otherwise —
-		 * open each line, pick "Ordinary", close it — and the colours chosen
-		 * along the way stay behind in the fields, ready to come back the next
-		 * time a look is picked. This clears those too.
-		 *
-		 * A submit button, so it still does its job with JavaScript off: the
-		 * form is saved with every look dropped. With JavaScript on the click
-		 * is taken over and the card is reset in place, unsaved, like every
-		 * other change on this screen, and the preview follows.
-		 */
 		$lstabp_any = false;
 
 		foreach ( $lstabp_chosen as $lstabp_set ) {

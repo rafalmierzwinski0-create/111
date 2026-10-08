@@ -1,134 +1,40 @@
 <?php
-/**
- * Plugin bootstrap.
- *
- * @package LiveSheetsTable
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Wires the pieces together.
- */
 class LSTAB_Plugin {
-
-	/**
-	 * Cron controller.
-	 *
-	 * @var LSTAB_Cron
-	 */
 	public $cron;
 
-	/**
-	 * Admin controller.
-	 *
-	 * @var LSTAB_Admin
-	 */
 	public $admin;
 
-	/**
-	 * Block controller.
-	 *
-	 * @var LSTAB_Block
-	 */
 	public $block;
 
-	/**
-	 * REST controller.
-	 *
-	 * @var LSTAB_Rest
-	 */
 	public $rest;
 
-	/**
-	 * Shortcode controller.
-	 *
-	 * @var LSTAB_Shortcode
-	 */
 	public $shortcode;
 
-	/**
-	 * Cell auto-linking.
-	 *
-	 * @var LSTAB_Links
-	 */
 	public $links;
 
-	/**
-	 * Marking what a search matched.
-	 *
-	 * @var LSTAB_Highlight
-	 */
 	public $highlight;
 
-	/**
-	 * Server-side paging.
-	 *
-	 * @var LSTAB_Paging
-	 */
 	public $paging;
 
-	/**
-	 * Rows the author has taken out of the table.
-	 *
-	 * @var LSTAB_Hidden_Rows
-	 */
 	public $hidden_rows;
 
-	/**
-	 * Site-wide settings.
-	 *
-	 * @var LSTAB_Settings
-	 */
 	public $settings;
 
-	/**
-	 * Telling someone when a hidden thing has come back.
-	 *
-	 * @var LSTAB_Hidden_Alerts
-	 */
 	public $hidden_alerts;
 
-	/**
-	 * Which pages actually use a table.
-	 *
-	 * @var LSTAB_Usage
-	 */
 	public $usage;
 
-	/**
-	 * Telling the page cache when a table has changed.
-	 *
-	 * @var LSTAB_Cache
-	 */
 	public $cache;
 
-	/**
-	 * The sample table somebody can try before they have a sheet.
-	 *
-	 * @var LSTAB_Example
-	 */
 	public $example;
 
-	/**
-	 * Elementor widget registration.
-	 *
-	 * @var LSTAB_Elementor
-	 */
 	public $elementor;
 
-	/**
-	 * Pages asking for an overdue table to be checked.
-	 *
-	 * @var LSTAB_Freshness
-	 */
 	public $freshness;
 
-	/**
-	 * Register everything.
-	 *
-	 * @return void
-	 */
 	public function boot() {
 		$this->cron      = new LSTAB_Cron();
 		$this->admin     = new LSTAB_Admin();
@@ -171,18 +77,6 @@ class LSTAB_Plugin {
 		}
 	}
 
-	/**
-	 * Cache-busting version for a bundled asset.
-	 *
-	 * Using the plugin version alone means a stylesheet rewritten between two
-	 * releases that forgot to bump it keeps being served from the browser (and
-	 * any page-cache) under the old URL. Folding in the file's modification
-	 * time makes the URL change whenever the file actually does, so a stale
-	 * asset cannot survive an upgrade.
-	 *
-	 * @param string $relative_path Path within the plugin directory.
-	 * @return string
-	 */
 	public static function asset_version( $relative_path ) {
 		$file = LSTAB_PATH . ltrim( $relative_path, '/' );
 
@@ -195,11 +89,6 @@ class LSTAB_Plugin {
 		return $modified ? LSTAB_VERSION . '.' . $modified : LSTAB_VERSION;
 	}
 
-	/**
-	 * Register (but do not enqueue) front-end assets.
-	 *
-	 * @return void
-	 */
 	public function register_assets() {
 		wp_register_style(
 			'lstab-table',
@@ -219,21 +108,11 @@ class LSTAB_Plugin {
 		wp_script_add_data( 'lstab-table', 'strategy', 'defer' );
 	}
 
-	/**
-	 * Activation: create the schema and start the schedule.
-	 *
-	 * @return void
-	 */
 	public static function on_activate() {
 		LSTAB_Storage::install();
 		LSTAB_Cron::ensure_scheduled();
 	}
 
-	/**
-	 * Deactivation: stop the schedule, keep the data.
-	 *
-	 * @return void
-	 */
 	public static function on_deactivate() {
 		LSTAB_Cron::unschedule();
 	}

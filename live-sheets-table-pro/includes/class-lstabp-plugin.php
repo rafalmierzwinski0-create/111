@@ -1,30 +1,14 @@
 <?php
-/**
- * Pro bootstrap.
- *
- * @package LiveSheetsTablePro
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Wires the Pro features onto the free plugin's hooks.
- */
 class LSTABP_Plugin {
-
-	/**
-	 * Register everything, but only once the free plugin is actually there.
-	 *
-	 * @return void
-	 */
 	public function boot() {
 		if ( ! function_exists( 'lstab' ) || ! class_exists( 'LSTAB_Limits' ) ) {
 			add_action( 'admin_notices', array( $this, 'missing_core_notice' ) );
 			return;
 		}
 
-		// Tier and limits. Everything the free plugin gates is a filter, so
-		// lifting them needs no change to it at all.
 		add_filter( 'lstab_is_pro', '__return_true' );
 		add_filter( 'lstab_max_sources', array( $this, 'max_sources' ) );
 		add_filter( 'lstab_min_sync_interval', array( $this, 'min_interval' ) );
@@ -42,18 +26,6 @@ class LSTABP_Plugin {
 		add_action( 'admin_init', array( $this, 'forget_vanished_sources' ) );
 	}
 
-	/**
-	 * Drop settings left behind by tables deleted while Pro was switched off.
-	 *
-	 * Pro keeps its settings by table number. A table deleted while Pro was
-	 * off never told it so, and once every table is gone the numbers start
-	 * again from 1 — so a new table would inherit an old one's colour rules,
-	 * filters or downloads. Each table is remembered with the moment it was
-	 * created; a number that now belongs to a different table, or to none, has
-	 * its settings dropped.
-	 *
-	 * @return void
-	 */
 	public function forget_vanished_sources() {
 		$known = get_option( 'lstabp_known_sources', null );
 		$now   = array();
@@ -65,11 +37,6 @@ class LSTABP_Plugin {
 		if ( is_array( $known ) ) {
 			foreach ( $known as $id => $created ) {
 				if ( ! isset( $now[ (int) $id ] ) || $now[ (int) $id ] !== (string) $created ) {
-					/**
-					 * Fires when a table Pro had settings for is gone.
-					 *
-					 * @param int $source_id Source ID.
-					 */
 					do_action( 'lstabp_forget_source', (int) $id );
 				}
 			}
@@ -80,29 +47,14 @@ class LSTABP_Plugin {
 		}
 	}
 
-	/**
-	 * Source limit under Pro.
-	 *
-	 * @return int
-	 */
 	public function max_sources() {
 		return (int) apply_filters( 'lstabp_max_sources', 100 );
 	}
 
-	/**
-	 * Fastest sync under Pro.
-	 *
-	 * @return int
-	 */
 	public function min_interval() {
 		return 60;
 	}
 
-	/**
-	 * Explain why nothing happened when the free plugin is absent.
-	 *
-	 * @return void
-	 */
 	public function missing_core_notice() {
 		if ( ! current_user_can( 'activate_plugins' ) ) {
 			return;

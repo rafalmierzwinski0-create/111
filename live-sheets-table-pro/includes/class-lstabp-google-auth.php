@@ -1,25 +1,8 @@
 <?php
-/**
- * Google account connection.
- *
- * The site owner supplies their own OAuth client from their own Google Cloud
- * project. That is deliberate: routing every customer's sheets through one
- * shared client would make this plugin a data processor for all of them, and
- * would put every site behind one revocable set of credentials.
- *
- * Only the read-only spreadsheets scope is requested, so a token issued here
- * cannot change or delete anything in the account.
- *
- * @package LiveSheetsTablePro
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * OAuth client and token store.
- */
 class LSTABP_Google_Auth {
-
 	const OPTION_CLIENT = 'lstabp_google_client';
 	const OPTION_TOKEN  = 'lstabp_google_token';
 
@@ -27,22 +10,12 @@ class LSTABP_Google_Auth {
 	const TOKEN_ENDPOINT = 'https://oauth2.googleapis.com/token';
 	const SCOPE          = 'https://www.googleapis.com/auth/spreadsheets.readonly';
 
-	/**
-	 * Register hooks.
-	 *
-	 * @return void
-	 */
 	public function register() {
 		add_action( 'admin_post_lstabp_google_connect', array( $this, 'handle_connect' ) );
 		add_action( 'admin_post_lstabp_google_callback', array( $this, 'handle_callback' ) );
 		add_action( 'admin_post_lstabp_google_disconnect', array( $this, 'handle_disconnect' ) );
 	}
 
-	/**
-	 * Stored client credentials.
-	 *
-	 * @return array{client_id:string,client_secret:string}
-	 */
 	public static function client() {
 		$stored = get_option( self::OPTION_CLIENT, array() );
 
@@ -52,13 +25,6 @@ class LSTABP_Google_Auth {
 		);
 	}
 
-	/**
-	 * Save client credentials.
-	 *
-	 * @param string $client_id     OAuth client ID.
-	 * @param string $client_secret OAuth client secret.
-	 * @return void
-	 */
 	public static function save_client( $client_id, $client_secret ) {
 		update_option(
 			self::OPTION_CLIENT,
@@ -70,64 +36,32 @@ class LSTABP_Google_Auth {
 		);
 	}
 
-	/**
-	 * Whether a client has been configured.
-	 *
-	 * @return bool
-	 */
 	public static function has_client() {
 		$client = self::client();
 
 		return '' !== $client['client_id'] && '' !== $client['client_secret'];
 	}
 
-	/**
-	 * Whether an account is connected.
-	 *
-	 * @return bool
-	 */
 	public static function is_connected() {
 		$token = get_option( self::OPTION_TOKEN, array() );
 
 		return ! empty( $token['refresh_token'] );
 	}
 
-	/**
-	 * Whether Google withdrew the connection: revoked, or expired because the
-	 * Google Cloud app is still in testing.
-	 *
-	 * @return bool
-	 */
 	public static function has_expired() {
 		$token = get_option( self::OPTION_TOKEN, array() );
 
 		return empty( $token['refresh_token'] ) && ! empty( $token['expired'] );
 	}
 
-	/**
-	 * The message for a connection Google withdrew.
-	 *
-	 * @return string
-	 */
 	public static function expired_message() {
 		return __( 'Google ended the connection to your Google account, so private sheets cannot be read. Sign in to Google again on the Pro screen. If this happens every week, set the publishing status of your Google Cloud app to “In production”.', 'live-sheets-table-pro' );
 	}
 
-	/**
-	 * The address Google must be told to send people back to.
-	 *
-	 * @return string
-	 */
 	public static function redirect_uri() {
 		return admin_url( 'admin-post.php?action=lstabp_google_callback' );
 	}
 
-	/**
-	 * Build the consent screen URL.
-	 *
-	 * @param string $state Anti-forgery value echoed back by Google.
-	 * @return string
-	 */
 	public static function consent_url( $state ) {
 		$client = self::client();
 
@@ -137,8 +71,6 @@ class LSTABP_Google_Auth {
 				'redirect_uri'  => rawurlencode( self::redirect_uri() ),
 				'response_type' => 'code',
 				'scope'         => rawurlencode( self::SCOPE ),
-				// Offline plus consent is what actually yields a refresh token;
-				// without both, access lapses in an hour and never returns.
 				'access_type'   => 'offline',
 				'prompt'        => 'consent',
 				'include_granted_scopes' => 'true',
@@ -148,11 +80,6 @@ class LSTABP_Google_Auth {
 		);
 	}
 
-	/**
-	 * Start the connection.
-	 *
-	 * @return void
-	 */
 	public function handle_connect() {
 		$this->guard( 'lstabp_google_connect' );
 
@@ -167,19 +94,11 @@ class LSTABP_Google_Auth {
 		exit;
 	}
 
-	/**
-	 * Exchange the returned code for tokens.
-	 *
-	 * @return void
-	 */
 	public function handle_callback() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'You are not allowed to connect an account.', 'live-sheets-table-pro' ), '', array( 'response' => 403 ) );
 		}
 
-		// Google returns here by redirect, so there is no nonce to check. The
-		// state value generated at the start is what proves this callback
-		// belongs to a flow this user actually started.
 		$expected = get_transient( 'lstabp_oauth_state_' . get_current_user_id() );
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- state parameter serves this purpose.
 		$returned = isset( $_GET['state'] ) ? sanitize_text_field( wp_unslash( $_GET['state'] ) ) : '';
@@ -190,7 +109,7 @@ class LSTABP_Google_Auth {
 			$this->redirect_with( 'error', __( 'That sign-in did not match the request that started it, so it was discarded. Please try connecting again.', 'live-sheets-table-pro' ) );
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- see above.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Verified by the OAuth state value.
 		if ( isset( $_GET['error'] ) ) {
 			$this->redirect_with(
 				'error',
@@ -203,7 +122,7 @@ class LSTABP_Google_Auth {
 			);
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- see above.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Verified by the OAuth state value.
 		$code = isset( $_GET['code'] ) ? sanitize_text_field( wp_unslash( $_GET['code'] ) ) : '';
 
 		if ( '' === $code ) {
@@ -219,11 +138,6 @@ class LSTABP_Google_Auth {
 		$this->redirect_with( 'success', __( 'Google account connected. Private sheets can now be used as sources.', 'live-sheets-table-pro' ) );
 	}
 
-	/**
-	 * Forget the connection.
-	 *
-	 * @return void
-	 */
 	public function handle_disconnect() {
 		$this->guard( 'lstabp_google_disconnect' );
 
@@ -232,12 +146,6 @@ class LSTABP_Google_Auth {
 		$this->redirect_with( 'success', __( 'Google account disconnected. Private sheets will stop updating.', 'live-sheets-table-pro' ) );
 	}
 
-	/**
-	 * Swap an authorisation code for an access and refresh token.
-	 *
-	 * @param string $code Authorisation code.
-	 * @return array<string,mixed>|WP_Error
-	 */
 	public static function exchange_code( $code ) {
 		$client = self::client();
 
@@ -258,11 +166,6 @@ class LSTABP_Google_Auth {
 		return self::store_token_response( $response );
 	}
 
-	/**
-	 * A usable access token, refreshing it when it has expired.
-	 *
-	 * @return string|WP_Error
-	 */
 	public static function access_token() {
 		$token = get_option( self::OPTION_TOKEN, array() );
 
@@ -277,8 +180,6 @@ class LSTABP_Google_Auth {
 			);
 		}
 
-		// Refresh a minute early: a token that expires mid-request is a failed
-		// sync, and the free plugin would report it as an outage.
 		if ( ! empty( $token['access_token'] ) && isset( $token['expires_at'] ) && $token['expires_at'] > time() + MINUTE_IN_SECONDS ) {
 			return (string) $token['access_token'];
 		}
@@ -292,12 +193,6 @@ class LSTABP_Google_Auth {
 		return (string) $refreshed['access_token'];
 	}
 
-	/**
-	 * Trade the refresh token for a new access token.
-	 *
-	 * @param string $refresh_token Refresh token.
-	 * @return array<string,mixed>|WP_Error
-	 */
 	public static function refresh( $refresh_token ) {
 		$client = self::client();
 
@@ -317,13 +212,6 @@ class LSTABP_Google_Auth {
 		return self::store_token_response( $response, $refresh_token );
 	}
 
-	/**
-	 * Validate and persist a token endpoint response.
-	 *
-	 * @param array<string,mixed>|WP_Error $response       HTTP response.
-	 * @param string                       $keep_refresh   Refresh token to retain when Google omits one.
-	 * @return array<string,mixed>|WP_Error
-	 */
 	protected static function store_token_response( $response, $keep_refresh = '' ) {
 		if ( is_wp_error( $response ) ) {
 			return new WP_Error(
@@ -339,9 +227,6 @@ class LSTABP_Google_Auth {
 		$body = json_decode( (string) wp_remote_retrieve_body( $response ), true );
 		$code = (int) wp_remote_retrieve_response_code( $response );
 
-		// The refresh token is dead: revoked, or the Google Cloud app is in
-		// testing and Google ended it after seven days. Keeping it would make
-		// every sync ask again and the settings screen say "Connected".
 		if ( '' !== $keep_refresh && is_array( $body ) && isset( $body['error'] ) && 'invalid_grant' === $body['error'] ) {
 			update_option( self::OPTION_TOKEN, array( 'expired' => time() ), false );
 
@@ -367,8 +252,6 @@ class LSTABP_Google_Auth {
 			);
 		}
 
-		// Google only returns a refresh token the first time; keep the one we
-		// already hold, or a later refresh would find nothing to refresh with.
 		$refresh = ! empty( $body['refresh_token'] ) ? (string) $body['refresh_token'] : $keep_refresh;
 
 		if ( '' === $refresh ) {
@@ -383,18 +266,11 @@ class LSTABP_Google_Auth {
 			'scope'         => isset( $body['scope'] ) ? (string) $body['scope'] : self::SCOPE,
 		);
 
-		// autoload off: this is a credential, not something every page needs.
 		update_option( self::OPTION_TOKEN, $token, false );
 
 		return $token;
 	}
 
-	/**
-	 * Capability and nonce check.
-	 *
-	 * @param string $action Nonce action.
-	 * @return void
-	 */
 	protected function guard( $action ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'You are not allowed to do that.', 'live-sheets-table-pro' ), '', array( 'response' => 403 ) );
@@ -403,13 +279,6 @@ class LSTABP_Google_Auth {
 		check_admin_referer( $action );
 	}
 
-	/**
-	 * Return to the settings screen with a message.
-	 *
-	 * @param string $type    success or error.
-	 * @param string $message Message.
-	 * @return void
-	 */
 	protected function redirect_with( $type, $message ) {
 		set_transient(
 			'lstabp_notice_' . get_current_user_id(),

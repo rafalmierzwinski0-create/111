@@ -1,35 +1,16 @@
 <?php
-/**
- * Dashboard screens.
- *
- * @package LiveSheetsTable
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Admin UI.
- */
 class LSTAB_Admin {
-
 	const MENU_SLUG     = 'live-sheets-table';
 	const SOURCES_SLUG  = 'live-sheets-table-sources';
 	const EDIT_SLUG     = 'live-sheets-table-edit';
 	const SETTINGS_SLUG = 'live-sheets-table-settings';
 
-	/**
-	 * User meta: when this person last put the countdown away.
-	 */
 	const GRACE_DISMISSED = 'lstab_grace_dismissed';
 
-	/**
-	 * Register hooks.
-	 *
-	 * @return void
-	 */
 	public function register() {
-		// Records that the add-on is running, so that if it later stops, the
-		// choices it made can be honoured for a while rather than dropped.
 		add_action( 'admin_init', array( 'LSTAB_Limits', 'note_pro_seen' ) );
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
@@ -40,28 +21,14 @@ class LSTAB_Admin {
 		add_action( 'admin_post_lstab_page_source', array( $this, 'handle_page_source' ) );
 		add_action( 'admin_post_lstab_keep_one_page', array( $this, 'handle_keep_one_page' ) );
 		add_action( 'admin_notices', array( $this, 'print_global_notice' ) );
-		// At the very top of every screen, not only ours: a countdown to a
-		// public page changing is not something to find only if you go looking.
 		add_action( 'admin_notices', array( __CLASS__, 'print_grace_notice' ) );
 		add_action( 'wp_ajax_lstab_dismiss_grace', array( $this, 'handle_dismiss_grace' ) );
 		add_filter( 'plugin_action_links_' . LSTAB_BASENAME, array( $this, 'action_links' ) );
 	}
 
-	/**
-	 * Add the dashboard menu.
-	 *
-	 * @return void
-	 */
 	public function add_menu() {
 		$capability = LSTAB_Limits::capability();
 
-		/*
-		 * The plugin opens on its start screen, not on the list: the list is
-		 * the answer to "which tables do I have", and the first thing anybody
-		 * needs is either how to make one or whether the ones they have are
-		 * all right. The menu keeps its old address for the start screen, so
-		 * the add-on's own pages stay where they were in the sidebar.
-		 */
 		add_menu_page(
 			__( 'Live Sheets Table', 'live-sheets-table' ),
 			__( 'Sheets Tables', 'live-sheets-table' ),
@@ -99,13 +66,6 @@ class LSTAB_Admin {
 			array( $this, 'render_edit_page' )
 		);
 
-		/*
-		 * In the sidebar as well as in the row of tabs. The tabs say these are
-		 * views of one plugin, which they are — but somebody who has just
-		 * installed this and is looking for its settings looks down the list of
-		 * plugins on the left, and finding nothing there is a worse answer than
-		 * a line that repeats itself.
-		 */
 		add_submenu_page(
 			self::MENU_SLUG,
 			__( 'Live Sheets Table settings', 'live-sheets-table' ),
@@ -116,11 +76,6 @@ class LSTAB_Admin {
 		);
 	}
 
-	/**
-	 * The screens this plugin offers, as tabs.
-	 *
-	 * @return array<string,string> Page slug mapped to its label.
-	 */
 	public static function tabs() {
 		$tabs = array(
 			self::MENU_SLUG    => __( 'Start', 'live-sheets-table' ),
@@ -131,20 +86,9 @@ class LSTAB_Admin {
 			$tabs[ self::SETTINGS_SLUG ] = __( 'Settings', 'live-sheets-table' );
 		}
 
-		/**
-		 * Filters the tabs across the top of every screen this plugin owns.
-		 *
-		 * @param array<string,string> $tabs Page slug mapped to its label.
-		 */
 		return (array) apply_filters( 'lstab_admin_tabs', $tabs );
 	}
 
-	/**
-	 * Print the row of tabs.
-	 *
-	 * @param string $current Slug of the screen being shown.
-	 * @return void
-	 */
 	public static function render_tabs( $current ) {
 		$tabs = self::tabs();
 
@@ -152,9 +96,6 @@ class LSTAB_Admin {
 			return;
 		}
 
-		// The WordPress "nav-tab-wrapper" class is kept so anything hooking on
-		// it still works, but the boxed folder-tab look is dropped: an underline
-		// reads as navigation rather than as a stack of manila folders.
 		echo '<nav class="nav-tab-wrapper lstab-tabs">';
 
 		$icons = self::tab_icons();
@@ -172,21 +113,7 @@ class LSTAB_Admin {
 		echo '</nav>';
 	}
 
-	/**
-	 * Which drawing belongs to which tab.
-	 *
-	 * An add-on adds its own tab through the `lstab_admin_tabs` filter and can
-	 * name an icon here the same way; anything unnamed falls back to the grid,
-	 * so a new tab is never left with a blank space where a picture should be.
-	 *
-	 * @return array<string,string>
-	 */
 	public static function tab_icons() {
-		/**
-		 * Filters the icon used for each dashboard tab.
-		 *
-		 * @param array<string,string> $icons Tab slug mapped to an icon name.
-		 */
 		return apply_filters(
 			'lstab_admin_tab_icons',
 			array(
@@ -197,11 +124,6 @@ class LSTAB_Admin {
 		);
 	}
 
-	/**
-	 * Render the settings screen.
-	 *
-	 * @return void
-	 */
 	public function render_settings_page() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'You do not have permission to change these settings.', 'live-sheets-table' ) );
@@ -212,12 +134,6 @@ class LSTAB_Admin {
 		include LSTAB_PATH . 'includes/views/settings-page.php';
 	}
 
-	/**
-	 * Quick links on the Plugins screen.
-	 *
-	 * @param array<int,string> $links Existing links.
-	 * @return array<int,string>
-	 */
 	public function action_links( $links ) {
 		array_unshift(
 			$links,
@@ -227,18 +143,7 @@ class LSTAB_Admin {
 		return $links;
 	}
 
-	/**
-	 * Load admin assets on our screens only.
-	 *
-	 * @param string $hook Current admin page hook.
-	 * @return void
-	 */
 	public function enqueue( $hook ) {
-		/*
-		 * The countdown shows on every admin screen, so the script that makes
-		 * its dismissal stick has to load on every admin screen too — but only
-		 * while there is a countdown to dismiss.
-		 */
 		if ( ! LSTAB_Limits::is_pro() && LSTAB_Limits::grace_remaining() > 0 ) {
 			wp_enqueue_script(
 				'lstab-notice',
@@ -257,8 +162,6 @@ class LSTAB_Admin {
 
 		wp_enqueue_style( 'lstab-table' );
 
-		// The preview renders the real table markup, so it needs the real
-		// behaviour too: without this its search box and sort buttons are inert.
 		wp_enqueue_script( 'lstab-table' );
 
 		wp_enqueue_style(
@@ -268,8 +171,6 @@ class LSTAB_Admin {
 			LSTAB_Plugin::asset_version( 'assets/css/lstab-admin.css' )
 		);
 
-		// Its own file, because the shortcode button lives on the list screen
-		// where the add/edit script has nothing to do and returns immediately.
 		wp_enqueue_script(
 			'lstab-copy',
 			LSTAB_URL . 'assets/js/lstab-copy.js',
@@ -304,11 +205,7 @@ class LSTAB_Admin {
 			array(
 				'previewUrl' => rest_url( LSTAB_Rest::NAMESPACE_V1 . '/preview' ),
 				'nonce'      => wp_create_nonce( 'wp_rest' ),
-				// Needed so the script can clear whichever preset class is on
-				// the preview before applying the newly chosen one.
 				'presets'    => array_keys( LSTAB_Styles::all() ),
-				// The metric mapping lives in PHP; the script mirrors it rather
-				// than keeping a second copy that could drift.
 				'metrics'    => wp_list_pluck( LSTAB_Customizer::metrics(), 'vars' ),
 				'i18n'       => array(
 					'loading'     => __( 'Loading preview…', 'live-sheets-table' ),
@@ -318,8 +215,6 @@ class LSTAB_Admin {
 					'pickTab'     => __( 'Pick the tab you want to publish:', 'live-sheets-table' ),
 					'noTabs'      => __( 'Could not read the tab list; the tab from your link will be used.', 'live-sheets-table' ),
 					'emptyUrl'    => __( 'Paste a Google Sheets link first.', 'live-sheets-table' ),
-					// Used when the column list is built from a preview, for a
-					// sheet whose heading row has a blank in it.
 					/* translators: %1$s: column number. */
 					'columnNumber' => __( 'Column %1$s', 'live-sheets-table' ),
 					'shown'        => __( 'Shown', 'live-sheets-table' ),
@@ -330,11 +225,6 @@ class LSTAB_Admin {
 		);
 	}
 
-	/**
-	 * The start screen, where the plugin opens.
-	 *
-	 * @return void
-	 */
 	public function render_start_page() {
 		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
 			wp_die( esc_html__( 'You are not allowed to manage sheet sources.', 'live-sheets-table' ) );
@@ -344,11 +234,6 @@ class LSTAB_Admin {
 		require LSTAB_PATH . 'includes/views/start-page.php';
 	}
 
-	/**
-	 * The list of every sheet source.
-	 *
-	 * @return void
-	 */
 	public function render_list_page() {
 		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
 			wp_die( esc_html__( 'You are not allowed to manage sheet sources.', 'live-sheets-table' ) );
@@ -358,11 +243,6 @@ class LSTAB_Admin {
 		require LSTAB_PATH . 'includes/views/list-page.php';
 	}
 
-	/**
-	 * The add/edit screen.
-	 *
-	 * @return void
-	 */
 	public function render_edit_page() {
 		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
 			wp_die( esc_html__( 'You are not allowed to manage sheet sources.', 'live-sheets-table' ) );
@@ -380,11 +260,6 @@ class LSTAB_Admin {
 		require LSTAB_PATH . 'includes/views/edit-page.php';
 	}
 
-	/**
-	 * Create or update a source.
-	 *
-	 * @return void
-	 */
 	public function handle_save() {
 		$this->guard( 'lstab_save_source' );
 
@@ -393,12 +268,6 @@ class LSTAB_Admin {
 
 		$existing = $source_id ? LSTAB_Storage::get( $source_id ) : null;
 
-		/*
-		 * The bundled example has no link and never will, so the screen does not
-		 * ask for one. Demanding it here would make the example the one table on
-		 * the site that cannot be saved — which is the opposite of what it is
-		 * for, since trying the settings on it is the whole point.
-		 */
 		if ( $existing && LSTAB_Example::is_example( $existing ) ) {
 			$reference = array(
 				'sheet_id'   => '',
@@ -446,38 +315,20 @@ class LSTAB_Admin {
 			'layout'           => isset( $_POST['layout'] ) && in_array( sanitize_key( wp_unslash( $_POST['layout'] ) ), array( 'table', 'auto', 'cards' ), true )
 				? sanitize_key( wp_unslash( $_POST['layout'] ) )
 				: 'table',
-			// LSTAB_Customizer::sanitize() drops anything it does not recognise
-			// and hex-checks every colour, so the raw array is safe to hand over.
 			'style_vars'       => isset( $_POST['style_vars'] ) ? LSTAB_Customizer::sanitize( wp_unslash( $_POST['style_vars'] ) ) : LSTAB_Customizer::defaults(), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Sanitised field by field in LSTAB_Columns.
 			'columns_config'   => isset( $_POST['columns'] ) ? LSTAB_Columns::sanitize( wp_unslash( $_POST['columns'] ) ) : array(),
 			'sticky_first'     => empty( $_POST['sticky_first'] ) ? 0 : 1,
 			'sticky_head'      => empty( $_POST['sticky_head'] ) ? 0 : 1,
 			'link_cells'       => empty( $_POST['link_cells'] ) ? 0 : 1,
-			// The screen asks two questions — pages or no pages, and how many
-			// rows — and stores one number, where 0 means no pages. Without the
-			// switch, turning paging off meant typing a 0 into a box that never
-			// said what it was for.
 			'per_page'         => self::per_page_from_post(),
 		);
 
-		/*
-		 * Only from somebody allowed to write it, and only when the field was
-		 * on the screen. Anybody else saving the source leaves the stored rules
-		 * exactly as they are: an editor without the right to write CSS must
-		 * not be able to delete somebody else's by pressing Save.
-		 */
 		if ( isset( $_POST['_lstab_custom_css_present'] ) && LSTAB_Custom_Css::user_can_edit() ) {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Cleaned in LSTAB_Custom_Css::sanitize(); sanitize_text_field would eat the newlines and braces this is made of.
 			$data['custom_css'] = LSTAB_Custom_Css::sanitize( wp_unslash( $_POST['custom_css'] ?? '' ) );
 		}
 
-		/*
-		 * Only when the control that edits this was actually on the screen. An
-		 * empty list means "nothing hidden" when the picker submitted it, and
-		 * means nothing at all when the picker was not there — and treating the
-		 * second as the first would quietly publish rows someone hid.
-		 */
 		if ( isset( $_POST['_lstab_hidden_rows_present'] ) ) {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Sanitised key by key in LSTAB_Hidden_Rows.
 			$data['hidden_rows'] = isset( $_POST['hidden_rows'] ) ? LSTAB_Hidden_Rows::sanitize( wp_unslash( $_POST['hidden_rows'] ) ) : array();
@@ -487,12 +338,6 @@ class LSTAB_Admin {
 			$data['title'] = $data['tab_name'] ? $data['tab_name'] : __( 'Untitled sheet', 'live-sheets-table' );
 		}
 
-		/*
-		 * Both read before the row is written, because afterwards there is no
-		 * telling a sheet that was just created from one that already existed,
-		 * nor a paging box nobody looked at from one deliberately left off.
-		 * The screen sets the second when the switch or the number is touched.
-		 */
 		$is_new = ! $source_id;
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce and capability checked at the top of this handler.
 		$paging_chosen = ! empty( $_POST['paging_touched'] );
@@ -534,11 +379,6 @@ class LSTAB_Admin {
 		$this->redirect_with_notice( $source_id, $lstab_type, $lstab_message, true );
 	}
 
-	/**
-	 * Delete a source.
-	 *
-	 * @return void
-	 */
 	public function handle_delete() {
 		$this->guard( 'lstab_delete_source' );
 
@@ -551,11 +391,6 @@ class LSTAB_Admin {
 		$this->redirect_with_notice( 0, 'success', __( 'Sheet source deleted.', 'live-sheets-table' ), true );
 	}
 
-	/**
-	 * Run a manual sync from the list screen.
-	 *
-	 * @return void
-	 */
 	public function handle_refresh() {
 		$this->guard( 'lstab_refresh_source' );
 
@@ -579,17 +414,6 @@ class LSTAB_Admin {
 		$this->redirect_with_notice( 0, $lstab_type, $lstab_message, true );
 	}
 
-	/**
-	 * What to say after a sync that worked.
-	 *
-	 * The fetch succeeding and the sheet arriving intact are two different
-	 * things, and a plain "saved and synced" after a malformed sheet would say
-	 * the second when it only knows the first.
-	 *
-	 * @param int    $source_id Source that was synced.
-	 * @param string $success   Message for a clean result.
-	 * @return array{0:string,1:string} Notice type and message.
-	 */
 	protected function sync_outcome( $source_id, $success ) {
 		$source = $source_id ? LSTAB_Storage::get( $source_id ) : null;
 
@@ -603,28 +427,16 @@ class LSTAB_Admin {
 		);
 	}
 
-	/**
-	 * Warn anywhere in the dashboard when a sheet came back malformed.
-	 *
-	 * The plugin's own screens say it inline, so this is for everywhere else:
-	 * a table quietly showing shifted values is not something to find out about
-	 * only on the day you happen to open the plugin.
-	 *
-	 * @return void
-	 */
 	public function print_global_notice() {
 		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
 			return;
 		}
 
-		// The plugin's screens carry the warning beside the source it belongs
-		// to, which says more than a summary would.
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 		if ( $screen && false !== strpos( (string) $screen->id, self::MENU_SLUG ) ) {
 			return;
 		}
 
-		// An autoloaded option, so a clean site pays nothing for this.
 		$index = (array) get_option( LSTAB_Storage::RAGGED_OPT, array() );
 
 		if ( ! $index ) {
@@ -676,7 +488,6 @@ class LSTAB_Admin {
 		echo '</strong></p><ul style="margin:0.4em 0 0.8em 1.4em;list-style:disc;">';
 
 		foreach ( $links as $line ) {
-			// Built from escaped parts just above.
 			echo '<li>' . wp_kses_post( $line ) . '</li>';
 		}
 
@@ -689,11 +500,6 @@ class LSTAB_Admin {
 		echo '</p></div>';
 	}
 
-	/**
-	 * Silence the current findings, and only the current findings.
-	 *
-	 * @return void
-	 */
 	public function handle_dismiss_ragged() {
 		$this->guard( 'lstab_dismiss_ragged' );
 
@@ -705,12 +511,6 @@ class LSTAB_Admin {
 		exit;
 	}
 
-	/**
-	 * Capability and nonce check shared by every admin-post handler.
-	 *
-	 * @param string $action Nonce action.
-	 * @return void
-	 */
 	protected function guard( $action ) {
 		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
 			wp_die(
@@ -723,15 +523,6 @@ class LSTAB_Admin {
 		check_admin_referer( $action );
 	}
 
-	/**
-	 * Redirect back to an admin screen carrying a transient notice.
-	 *
-	 * @param int    $source_id Source being edited, 0 for the list screen.
-	 * @param string $type      One of success, warning, error.
-	 * @param string $message   Notice text.
-	 * @param bool   $to_list   Redirect to the list screen instead of the editor.
-	 * @return void
-	 */
 	protected function redirect_with_notice( $source_id, $type, $message, $to_list = false ) {
 		set_transient(
 			'lstab_notice_' . get_current_user_id(),
@@ -756,22 +547,6 @@ class LSTAB_Admin {
 		exit;
 	}
 
-	/**
-	 * Warn when the scheduler has stopped running.
-	 *
-	 * @return void
-	 */
-	/**
-	 * One line describing a sheet that came back with ragged rows.
-	 *
-	 * Google gives every row the same number of cells, so a row that disagrees
-	 * means the payload did not survive intact — nearly always an unmatched
-	 * quotation mark, which runs two rows together. The table still renders;
-	 * this only says where to look, and only to someone who can fix it.
-	 *
-	 * @param array<string,mixed> $ragged Stored finding.
-	 * @return string
-	 */
 	public static function ragged_summary( $ragged ) {
 		if ( empty( $ragged['total'] ) ) {
 			return '';
@@ -804,17 +579,6 @@ class LSTAB_Admin {
 		);
 	}
 
-	/**
-	 * Say that hidden columns and rows are on borrowed time.
-	 *
-	 * The choices someone paid to make keep working for ten days after the
-	 * add-on stops, so a licence ending on a Tuesday does not rearrange a
-	 * public page on the Tuesday. Ten quiet days followed by a page silently
-	 * changing would be worse than no grace at all, so the countdown is said
-	 * out loud while it runs.
-	 *
-	 * @return void
-	 */
 	public static function print_grace_notice() {
 		if ( LSTAB_Limits::is_pro() || ! current_user_can( LSTAB_Limits::capability() ) ) {
 			return;
@@ -826,12 +590,6 @@ class LSTAB_Admin {
 			return;
 		}
 
-		/*
-		 * Dismissable, because a countdown that cannot be put away is a nag —
-		 * and a nag is read once and then not at all. It comes back for the
-		 * last two days, which is when it stops being information and starts
-		 * being the last chance to act on it.
-		 */
 		$dismissed = (int) get_user_meta( get_current_user_id(), self::GRACE_DISMISSED, true );
 
 		if ( $dismissed > time() - WEEK_IN_SECONDS && $left > 2 * DAY_IN_SECONDS ) {
@@ -863,11 +621,6 @@ class LSTAB_Admin {
 		<?php
 	}
 
-	/**
-	 * Remember that this person put the countdown away.
-	 *
-	 * @return void
-	 */
 	public function handle_dismiss_grace() {
 		check_ajax_referer( self::GRACE_DISMISSED );
 
@@ -885,15 +638,6 @@ class LSTAB_Admin {
 
 		?>
 		<div class="notice notice-warning lstab-cron-notice">
-			<?php
-			/*
-			 * One line, and the rest folded away. This warning used to open
-			 * with three hundred pixels of hosting advice on a screen whose
-			 * job is to list sheets — and its own first sentence says nothing
-			 * is broken for visitors, so shouting that loudly, every time,
-			 * taught people to scroll past the one notice that matters.
-			 */
-			?>
 			<p class="lstab-cron-line-one">
 				<strong><?php echo esc_html( $health['message'] ); ?></strong>
 				<?php echo esc_html( $health['calm'] ); ?>
@@ -922,13 +666,6 @@ class LSTAB_Admin {
 					<?php esc_html_e( 'If your hosting has no cron screen, a free uptime monitor pointed at your home page does the same job: every visit it makes runs the schedule.', 'live-sheets-table' ); ?>
 				</p>
 				<p>
-					<?php
-					/*
-					 * On its own line with an icon. Underlined text trailing off
-					 * the end of a grey paragraph reads as something that
-					 * slipped in, not as somewhere to go next.
-					 */
-					?>
 					<a class="lstab-quiet" href="https://developer.wordpress.org/plugins/cron/hooking-wp-cron-into-the-system-task-scheduler/" target="_blank" rel="noopener noreferrer">
 						<?php echo LSTAB_Icons::icon( 'external' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
 						<?php esc_html_e( 'The WordPress guide to system cron', 'live-sheets-table' ); ?>
@@ -939,11 +676,6 @@ class LSTAB_Admin {
 		<?php
 	}
 
-	/**
-	 * Print and clear the queued notice.
-	 *
-	 * @return void
-	 */
 	public static function print_notice() {
 		$key    = 'lstab_notice_' . get_current_user_id();
 		$notice = get_transient( $key );
@@ -968,18 +700,6 @@ class LSTAB_Admin {
 		);
 	}
 
-	/**
-	 * The plugin's own heading, above whichever screen you are on.
-	 *
-	 * WordPress gives a plugin one grey `<h1>` and nothing else, which is why
-	 * every plugin screen looks like every other plugin screen. A mark, a name
-	 * and one line of status cost nothing and are the whole difference between
-	 * "a settings page" and "a product".
-	 *
-	 * @param string $sub     One line under the name, already translated.
-	 * @param string $actions Buttons for the right-hand side, already escaped.
-	 * @return void
-	 */
 	public static function render_masthead( $sub = '', $actions = '' ) {
 		?>
 		<div class="lstab-masthead">
@@ -999,25 +719,10 @@ class LSTAB_Admin {
 				<span class="lstab-masthead-actions"><?php echo $actions; // phpcs:ignore WordPress.Security.EscapeOutput -- Caller escapes. ?></span>
 			<?php endif; ?>
 		</div>
-		<?php
-		/*
-		 * WordPress moves every admin notice to just after the first heading in
-		 * a .wrap unless it is told where the heading ends. Without this the
-		 * notices land inside the masthead, between the logo and the summary
-		 * line, and the whole thing looks broken the first time anything is
-		 * saved.
-		 */
-		?>
 		<hr class="wp-header-end">
 		<?php
 	}
 
-	/**
-	 * The one line under the plugin name on the list screen.
-	 *
-	 * @param array<int,array<string,mixed>> $sources All sources.
-	 * @return string
-	 */
 	public static function masthead_summary( $sources ) {
 		if ( ! $sources ) {
 			return __( 'No sheets yet', 'live-sheets-table' );
@@ -1035,12 +740,6 @@ class LSTAB_Admin {
 			number_format_i18n( $rows )
 		);
 
-		/*
-		 * And the question people actually have when they open this screen:
-		 * when will it look at Google again. Left off when the schedule is not
-		 * running, because a countdown to something that will not happen is
-		 * worse than no countdown at all — the cron notice says why.
-		 */
 		$next = wp_next_scheduled( LSTAB_Cron::TICK_HOOK );
 
 		if ( $next && $next > time() ) {
@@ -1054,19 +753,6 @@ class LSTAB_Admin {
 		return $line;
 	}
 
-	/**
-	 * How one source reads on its card.
-	 *
-	 * Three tones rather than the five the status text has, because a card is
-	 * scanned rather than read: is this fine, does it want me, or is it broken.
-	 *
-	 * Working normally is deliberately colourless. Colour that appears on every
-	 * card all day stops being a signal, and the one thing this dashboard must
-	 * be able to do is make a real problem obvious from across the room.
-	 *
-	 * @param array<string,mixed> $source Source row.
-	 * @return array{tone:string,icon:string,text:string,note:string}
-	 */
 	public static function card_state( $source ) {
 		if ( LSTAB_Example::is_example( $source ) ) {
 			return array(
@@ -1093,12 +779,6 @@ class LSTAB_Admin {
 		}
 
 		if ( 'stale' === $status['state'] ) {
-			/*
-			 * Reassurance first, because the page is fine and that is the thing
-			 * somebody needs to know before anything else. The reason second,
-			 * and never dropped: "something went wrong" with no cause is how a
-			 * sheet stays broken for a week.
-			 */
 			$why = $source['last_error']
 				? ' ' . (string) $source['last_error']
 				: '';
@@ -1128,13 +808,6 @@ class LSTAB_Admin {
 		);
 	}
 
-	/**
-	 * The first few column headings of a source, for telling it apart.
-	 *
-	 * @param array<string,mixed> $source Source row.
-	 * @param int                 $shown  How many to name.
-	 * @return array{names:array<int,string>,extra:int}
-	 */
 	public static function column_names( $source, $shown = 3 ) {
 		$config = LSTAB_Columns::sanitize( isset( $source['columns_config'] ) ? $source['columns_config'] : array() );
 		$names  = array();
@@ -1159,15 +832,7 @@ class LSTAB_Admin {
 		);
 	}
 
-	/**
-	 * Human readable sync status for a source.
-	 *
-	 * @param array<string,mixed> $source Source row.
-	 * @return array{state:string,icon:string,text:string,detail:string} The icon is a Dashicons class.
-	 */
 	public static function status_for( $source ) {
-		// Read this from the metadata, not the payload: the list screen loads
-		// sources without their snapshots on purpose.
 		$has_data = '' !== (string) $source['snapshot_hash'];
 
 		if ( 'ok' === $source['last_status'] && $source['last_success_gmt'] ) {
@@ -1209,19 +874,6 @@ class LSTAB_Admin {
 			'detail' => '',
 		);
 	}
-	/**
-	 * How many rows a page holds, read from the two controls that ask it.
-	 *
-	 * The screen asks whether the table is paged and, if it is, how many rows
-	 * a page holds; the database keeps one number, where 0 means no pages.
-	 *
-	 * @return int Rows per page, or 0 for the whole sheet on one page.
-	 */
-	/**
-	 * Take up the offer of pages on a sheet that already exists.
-	 *
-	 * @return void
-	 */
 	public function handle_page_source() {
 		$this->guard( 'lstab_page_source' );
 
@@ -1250,11 +902,6 @@ class LSTAB_Admin {
 		);
 	}
 
-	/**
-	 * Turn the offer of pages down, and stop being asked.
-	 *
-	 * @return void
-	 */
 	public function handle_keep_one_page() {
 		$this->guard( 'lstab_keep_one_page' );
 
@@ -1267,23 +914,6 @@ class LSTAB_Admin {
 		$this->redirect_with_notice( 0, 'success', __( 'Kept as one long table. You will not be asked about this sheet again.', 'live-sheets-table' ), true );
 	}
 
-	/**
-	 * Turn pages on for a newly created sheet that turned out to be long.
-	 *
-	 * Only ever on creation, and only when nobody touched the paging control:
-	 * a sheet already on a page must not rearrange itself behind its author's
-	 * back, and somebody who deliberately left paging off has answered the
-	 * question already.
-	 *
-	 * The decision is not hidden. It is the sentence the screen greets you
-	 * with, it names the number that caused it, and it says where to undo it —
-	 * because a setting that changed itself and did not say so is worse than
-	 * no setting at all.
-	 *
-	 * @param int  $source_id     The sheet just created.
-	 * @param bool $paging_chosen Whether the author touched the paging control.
-	 * @return string Message to greet them with, or '' to leave the usual one.
-	 */
 	protected function page_a_long_new_sheet( $source_id, $paging_chosen ) {
 		if ( $paging_chosen ) {
 			return '';
@@ -1316,11 +946,6 @@ class LSTAB_Admin {
 		$per_page = isset( $_POST['per_page'] ) ? absint( wp_unslash( $_POST['per_page'] ) ) : 0;
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
-		/*
-		 * Paging on and no number is not "no paging" — it is somebody who
-		 * cleared the box. Silently turning the feature off there would be the
-		 * old trap under a new name, so the field's own default stands in.
-		 */
 		if ( $per_page < 1 ) {
 			$per_page = 25;
 		}

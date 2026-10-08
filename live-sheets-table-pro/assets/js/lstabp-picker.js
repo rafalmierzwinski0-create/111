@@ -1,12 +1,3 @@
-/**
- * Live Sheets Table Pro — click what you want gone.
- *
- * The picker is a plain HTML table of the stored sheet. Clicking a heading or a
- * line number marks it, and the marking is what gets submitted: columns through
- * the free plugin's own field, rows through hidden fields written here. The
- * fields keep working with no JavaScript at all, so a page where this never
- * runs is less convenient rather than broken.
- */
 ( function () {
 	'use strict';
 
@@ -18,13 +9,6 @@
 	var settings = window.lstabpPicker || {};
 	var i18n = settings.i18n || {};
 
-	/*
-	 * Paging. A forty-column sheet does not fit on any screen, and two hundred
-	 * rows of clickable line numbers is a wall rather than a control. Both are
-	 * paged here rather than in PHP so that every row and every column stays in
-	 * the form: what is hidden must be submitted whether or not you happened to
-	 * be looking at that page when you saved.
-	 */
 	( function paging() {
 		var ROWS = 25;
 		var COLS = 12;
@@ -66,8 +50,6 @@
 
 				head.hidden = off;
 
-				// Every cell in that column goes with its heading, or the rows
-				// below would silently shift one place to the left.
 				Array.prototype.forEach.call(
 					picker.querySelectorAll( 'td[data-lstabp-column="' + index + '"]' ),
 					function ( cell ) {
@@ -108,16 +90,6 @@
 	var chips = document.getElementById( 'lstabp-hidden-rows-chips' );
 	var empty = document.querySelector( '.lstabp-picker-empty' );
 
-	/**
-	 * Choices that were stored but no longer match what is on their line.
-	 *
-	 * The sheet has moved: a line was inserted above, or the row was replaced.
-	 * The choice is kept rather than dropped — the sheet may be put back, and
-	 * silently forgetting what someone decided is worse than carrying a choice
-	 * that does nothing today — but it is shown for what it is.
-	 *
-	 * @return {Array} Entries.
-	 */
 	function strandedEntries() {
 		var found = [];
 
@@ -140,37 +112,18 @@
 
 	var stranded = strandedEntries();
 
-	/**
-	 * The field in which the free plugin carries one column's state.
-	 *
-	 * @param {number} index Column position.
-	 * @return {HTMLInputElement|null} Field.
-	 */
 	function columnField( index ) {
 		return document.querySelector(
 			'input[type="hidden"][name="columns[' + index + '][hidden]"]'
 		);
 	}
 
-	/**
-	 * The field carrying whether a column belongs under the row.
-	 *
-	 * @param {number} index Column position.
-	 * @return {HTMLInputElement|null} Field.
-	 */
 	function detailField( index ) {
 		return document.querySelector(
 			'input[type="hidden"][name="columns[' + index + '][detail]"]'
 		);
 	}
 
-	/**
-	 * Keep the free plugin's own wording in step with the picker.
-	 *
-	 * @param {number}  index  Column position.
-	 * @param {boolean} hidden Whether it is taken out.
-	 * @return {void}
-	 */
 	function paintState( index, hidden ) {
 		var field = columnField( index );
 		if ( ! field ) {
@@ -202,13 +155,6 @@
 		}
 	}
 
-	/**
-	 * Show a column as moved under the row, everywhere it appears.
-	 *
-	 * @param {number}  index  Column position.
-	 * @param {boolean} detail Whether it belongs in the drawer.
-	 * @return {void}
-	 */
 	function paintDetail( index, detail ) {
 		Array.prototype.forEach.call(
 			picker.querySelectorAll( '[data-lstabp-column="' + index + '"]' ),
@@ -229,13 +175,6 @@
 		}
 	}
 
-	/**
-	 * Show a column as kept or taken out, everywhere it appears.
-	 *
-	 * @param {number}  index  Column position.
-	 * @param {boolean} hidden Whether it is taken out.
-	 * @return {void}
-	 */
 	function paintColumn( index, hidden ) {
 		Array.prototype.forEach.call(
 			picker.querySelectorAll( '[data-lstabp-column="' + index + '"]' ),
@@ -255,11 +194,6 @@
 		}
 	}
 
-	/**
-	 * Every choice about a row: the ones marked here, plus the stranded ones.
-	 *
-	 * @return {Array} Entries.
-	 */
 	function chosenRows() {
 		var entries = stranded.slice();
 
@@ -280,11 +214,6 @@
 		return entries;
 	}
 
-	/**
-	 * Rewrite the submitted fields and the list of what has been taken out.
-	 *
-	 * @return {void}
-	 */
 	function syncRows() {
 		var entries = chosenRows();
 
@@ -340,13 +269,6 @@
 		}
 	}
 
-	/**
-	 * Mark the row on one line as taken out or put back.
-	 *
-	 * @param {string}  index  Position among the stored rows.
-	 * @param {boolean} hidden Whether to take it out.
-	 * @return {void}
-	 */
 	function setRow( index, hidden ) {
 		var row = picker.querySelector( 'tr[data-lstabp-index="' + index + '"]' );
 
@@ -394,12 +316,6 @@
 				field.value = hidden ? '1' : '0';
 			}
 
-			/*
-			 * Taking a column out of the table takes it out of the drawer too.
-			 * "Hidden but also in the details" is not a state anybody means,
-			 * and leaving the arrow lit under a struck-through heading reads as
-			 * a bug.
-			 */
 			if ( hidden ) {
 				var detailToo = detailField( column );
 

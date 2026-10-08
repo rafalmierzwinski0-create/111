@@ -1,96 +1,30 @@
 <?php
-/**
- * Pages, searching and sorting for tables too long to send at once.
- *
- * All three happen on the server, over the whole stored sheet, before a single
- * row is written into the page. That is the only arrangement in which they can
- * be trusted: filtering the rows the browser happens to be holding would search
- * one page and call it the table.
- *
- * Every control is an ordinary link or form, so a page of a table has its own
- * address, can be linked to, opened in a new tab, indexed, and used with no
- * JavaScript at all.
- *
- * @package LiveSheetsTable
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Server-side paging.
- */
 class LSTAB_Paging {
-
-	/**
-	 * Largest page size an author may ask for.
-	 *
-	 * Past this the page is heavy enough that paging has stopped helping.
-	 */
 	const MAX_PER_PAGE = 500;
 
-	/**
-	 * How long a sheet has to be before pages are offered without being asked for.
-	 *
-	 * Not a limit — nothing refuses to render a longer table. It is the length
-	 * at which a table stops being something you read and becomes something you
-	 * scroll past: the argument here is the reader's patience rather than the
-	 * page's weight, which is why the number is this low.
-	 */
 	const AUTO_THRESHOLD = 200;
 
-	/**
-	 * How many rows a page gets when it was turned on rather than chosen.
-	 *
-	 * Comfortably more than a screenful, so the pager is not in the way, and
-	 * small enough that the page is quick on a phone.
-	 */
 	const AUTO_PER_PAGE = 50;
 
-	/**
-	 * Sources whose owner has said they do not want pages here.
-	 */
 	const DECLINED_OPT = 'lstab_paging_declined';
 
-	/**
-	 * The length at which pages start being suggested.
-	 *
-	 * @return int
-	 */
 	public static function auto_threshold() {
 		return max( 1, (int) apply_filters( 'lstab_auto_paging_threshold', self::AUTO_THRESHOLD ) );
 	}
 
-	/**
-	 * The page size used when nobody chose one.
-	 *
-	 * @return int
-	 */
 	public static function auto_per_page() {
 		$rows = (int) apply_filters( 'lstab_auto_paging_per_page', self::AUTO_PER_PAGE );
 
 		return min( self::MAX_PER_PAGE, max( 1, $rows ) );
 	}
 
-	/**
-	 * Whether a sheet is long enough to be worth paging.
-	 *
-	 * @param array<string,mixed> $source Source row.
-	 * @return bool
-	 */
 	public static function is_long( $source ) {
 		return isset( $source['row_count'] ) && (int) $source['row_count'] >= self::auto_threshold();
 	}
 
-	/**
-	 * Whether this sheet's card should offer to turn pages on.
-	 *
-	 * Only for a sheet already saved without them: a sheet being created gets
-	 * them turned on and is told so, and one somebody has said no to is not
-	 * asked again. A suggestion that cannot be got rid of is nagging.
-	 *
-	 * @param array<string,mixed> $source Source row.
-	 * @return bool
-	 */
 	public static function should_offer( $source ) {
 		if ( empty( $source['id'] ) || ! empty( $source['per_page'] ) || ! self::is_long( $source ) ) {
 			return false;
@@ -99,21 +33,10 @@ class LSTAB_Paging {
 		return ! in_array( (int) $source['id'], self::declined(), true );
 	}
 
-	/**
-	 * Sources whose owner has turned the suggestion down.
-	 *
-	 * @return array<int,int>
-	 */
 	public static function declined() {
 		return array_map( 'absint', (array) get_option( self::DECLINED_OPT, array() ) );
 	}
 
-	/**
-	 * Remember that this sheet was offered pages and did not want them.
-	 *
-	 * @param int $source_id Source ID.
-	 * @return void
-	 */
 	public static function decline( $source_id ) {
 		$declined = self::declined();
 
@@ -123,76 +46,29 @@ class LSTAB_Paging {
 		}
 	}
 
-	/**
-	 * Forget a sheet that has gone.
-	 *
-	 * @param int $source_id Source ID.
-	 * @return void
-	 */
 	public static function forget( $source_id ) {
 		$declined = array_values( array_diff( self::declined(), array( (int) $source_id ) ) );
 		update_option( self::DECLINED_OPT, $declined, true );
 	}
 
-	/**
-	 * What each table on this page worked out, keyed by source ID.
-	 *
-	 * @var array<int,array<string,mixed>>
-	 */
 	protected static $state = array();
 
-	/**
-	 * Register hooks.
-	 *
-	 * @return void
-	 */
 	public function register() {
-		/*
-		 * Between the row filter at 10 and the conditional formatting that
-		 * reads row positions at 20. Paging reorders and drops rows, so
-		 * anything keyed by position has to see the result, not the input.
-		 */
 		add_filter( 'lstab_source_rows', array( __CLASS__, 'filter_rows' ), 15, 4 );
 
-		// A deleted sheet takes its "no thanks" with it, so the next sheet to
-		// be given that ID does not inherit an answer nobody gave.
 		add_action( 'lstab_source_deleted', array( __CLASS__, 'forget' ) );
 	}
 
-	/**
-	 * Cut the sheet down to the page being asked for.
-	 *
-	 * @param array<int,array<int,string>> $rows    Body rows.
-	 * @param array<int,string>            $headers Sheet headings.
-	 * @param array<string,mixed>          $source  Source row.
-	 * @param array<string,mixed>          $args    Rendering options.
-	 * @return array<int,array<int,string>>
-	 */
 	public static function filter_rows( $rows, $headers, $source, $args ) {
 		$source_id = isset( $source['id'] ) ? (int) $source['id'] : 0;
 		$per_page  = self::per_page( $source, $args );
 
 		unset( self::$state[ $source_id ] );
 
-		// A preview has no address to carry a page number in.
 		if ( $source_id <= 0 || $per_page <= 0 ) {
 			return $rows;
 		}
 
-		/**
-		 * Filters the order some columns sort in, by position in the sheet.
-		 *
-		 * A column whose values are a scale rather than words — Easy,
-		 * Moderate, Hard — can be given that scale here, as a map of the
-		 * value, lowercased, to its place. The browser reads the same places
-		 * from data-lstab-rank on each cell, so whoever hands them out here
-		 * hands them out there too.
-		 *
-		 * @param array $ranks   Position => array( value => place ).
-		 * @param array $headers Sheet headings.
-		 * @param array $source  Source row.
-		 * @param array $args    Rendering options.
-		 */
 		$ranks = (array) apply_filters( 'lstab_sort_ranks', array(), $headers, $source, $args );
 
 		$result = self::apply( $rows, $source_id, $per_page, self::visible_columns( $headers, $source, $args ), $ranks );
@@ -202,13 +78,6 @@ class LSTAB_Paging {
 		return $result['rows'];
 	}
 
-	/**
-	 * Rows per page for one table, or zero when it is not paged.
-	 *
-	 * @param array<string,mixed> $source Source row.
-	 * @param array<string,mixed> $args   Rendering options.
-	 * @return int
-	 */
 	protected static function per_page( $source, $args ) {
 		if ( isset( $args['per_page'] ) && '' !== $args['per_page'] && null !== $args['per_page'] ) {
 			return max( 0, (int) $args['per_page'] );
@@ -217,17 +86,6 @@ class LSTAB_Paging {
 		return isset( $source['per_page'] ) ? max( 0, (int) $source['per_page'] ) : 0;
 	}
 
-	/**
-	 * Which column positions the visitor will actually be shown.
-	 *
-	 * Searching the rest would let someone find, by guessing, the contents of
-	 * a column the author deliberately left out of the table.
-	 *
-	 * @param array<int,string>   $headers Sheet headings.
-	 * @param array<string,mixed> $source  Source row.
-	 * @param array<string,mixed> $args    Rendering options.
-	 * @return array<int,int>
-	 */
 	protected static function visible_columns( $headers, $source, $args ) {
 		$config = ( isset( $args['columns'] ) && null !== $args['columns'] )
 			? (array) $args['columns']
@@ -236,39 +94,16 @@ class LSTAB_Paging {
 		return LSTAB_Columns::kept( $headers, $config );
 	}
 
-
-	/**
-	 * What one table worked out for this request.
-	 *
-	 * @param int $source_id Source ID.
-	 * @return array<string,mixed>|null
-	 */
 	public static function state( $source_id ) {
 		$source_id = (int) $source_id;
 
 		return isset( self::$state[ $source_id ] ) ? self::$state[ $source_id ] : null;
 	}
 
-	/**
-	 * Name of one query argument for one table.
-	 *
-	 * Several tables can share a page, so each one answers to its own
-	 * arguments rather than fighting over "page".
-	 *
-	 * @param int    $source_id Source ID.
-	 * @param string $name      Argument, one of q, page, sort, dir.
-	 * @return string
-	 */
 	public static function arg( $source_id, $name ) {
 		return 'lstab-' . $name . '-' . (int) $source_id;
 	}
 
-	/**
-	 * What the current request asks of one table.
-	 *
-	 * @param int $source_id Source ID.
-	 * @return array{q:string,page:int,sort:int,dir:string}
-	 */
 	public static function request( $source_id ) {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only navigation of public data.
 		$q    = isset( $_GET[ self::arg( $source_id, 'q' ) ] ) ? sanitize_text_field( wp_unslash( $_GET[ self::arg( $source_id, 'q' ) ] ) ) : '';
@@ -285,14 +120,6 @@ class LSTAB_Paging {
 		);
 	}
 
-	/**
-	 * Narrow, order and cut a sheet down to one page of it.
-	 *
-	 * @param array<int,array<int,string>> $rows      Every row of the sheet.
-	 * @param int                          $source_id Source ID.
-	 * @param int                          $per_page  Rows per page.
-	 * @return array{rows:array,total:int,matched:int,page:int,pages:int,request:array}
-	 */
 	public static function apply( $rows, $source_id, $per_page, $columns = null, $ranks = array() ) {
 		$rows     = array_values( (array) $rows );
 		$total    = count( $rows );
@@ -303,10 +130,6 @@ class LSTAB_Paging {
 			$rows = self::search( $rows, $request['q'], $columns );
 		}
 
-		/*
-		 * The sort link names a column of the table as drawn; the rows here
-		 * still have every column of the sheet, hidden ones included.
-		 */
 		$sort = $request['sort'];
 
 		if ( $sort >= 0 && is_array( $columns ) ) {
@@ -336,13 +159,6 @@ class LSTAB_Paging {
 		);
 	}
 
-	/**
-	 * Rows holding the search term anywhere in them.
-	 *
-	 * @param array<int,array<int,string>> $rows  Rows.
-	 * @param string                       $query Search term.
-	 * @return array<int,array<int,string>>
-	 */
 	protected static function search( $rows, $query, $columns = null ) {
 		$needle = self::fold( $query );
 
@@ -372,53 +188,22 @@ class LSTAB_Paging {
 		return $found;
 	}
 
-	/**
-	 * Case-insensitive form of a string, diacritics and all.
-	 *
-	 * @param string $text Text.
-	 * @return string
-	 */
 	protected static function fold( $text ) {
 		$text = (string) $text;
 
 		return function_exists( 'mb_strtolower' ) ? mb_strtolower( $text, 'UTF-8' ) : strtolower( $text );
 	}
 
-	/**
-	 * Rows ordered by one column.
-	 *
-	 * Numbers are compared as numbers, so 1 215,50 sorts above 349,00 rather
-	 * than below it — the same rule the in-page sorting follows.
-	 *
-	 * @param array<int,array<int,string>> $rows   Rows.
-	 * @param int                          $column Column index.
-	 * @param string                       $dir    asc or desc.
-	 * @param array<string,int>            $ranks  Places some values hold in an
-	 *                                             order the author chose, keyed
-	 *                                             by the lowercased value.
-	 * @return array<int,array<int,string>>
-	 */
 	protected static function sort( $rows, $column, $dir, $ranks = array() ) {
 		$direction = 'desc' === $dir ? -1 : 1;
 		$ranks     = (array) $ranks;
 
-		/*
-		 * Decided per pair, not per column, and deliberately the same rule the
-		 * browser applies to a table small enough to sort without reloading.
-		 * Dates and clock times first, then numbers, then text.
-		 * Judging the whole column first meant a single "brak" in a price list
-		 * turned every price into text, and 1 000 000 then sorted below 1 215
-		 * because "1" sorts below "2". A visitor cannot see which table is
-		 * paged, so the two must not disagree about what sorted means.
-		 */
 		usort(
 			$rows,
 			function ( $a, $b ) use ( $column, $direction, $ranks ) {
 				$left  = isset( $a[ $column ] ) ? trim( (string) $a[ $column ] ) : '';
 				$right = isset( $b[ $column ] ) ? trim( (string) $b[ $column ] ) : '';
 
-				// Blanks sink to the bottom whichever way the column is sorted:
-				// they are missing data, not the smallest value.
 				if ( '' === $left && '' === $right ) {
 					return 0;
 				}
@@ -431,12 +216,6 @@ class LSTAB_Paging {
 					return -1;
 				}
 
-				/*
-				 * An order the author chose comes before anything the values
-				 * say about themselves: Easy, Moderate, Hard rather than the
-				 * alphabet's Easy, Hard, Moderate. Values that have a place go
-				 * first, in that place; the rest follow and sort as usual.
-				 */
 				if ( $ranks ) {
 					$left_key    = self::fold( $left );
 					$right_key   = self::fold( $right );
@@ -454,38 +233,10 @@ class LSTAB_Paging {
 					}
 				}
 
-				/*
-				 * Dates and times before numbers, because a date read as a
-				 * number is a number: "15.01.2026" came out as 15.01, so a
-				 * column of dates sorted by the day of the month.
-				 *
-				 * Both sides have to be the same kind of thing. A date is
-				 * yyyymmdd and a time is minutes since midnight, so comparing
-				 * one against the other would be arithmetic about nothing;
-				 * when a column holds both, the pair falls through to the
-				 * text comparison below, which at least is predictable.
-				 */
 				$left_moment  = LSTAB_Renderer::to_moment( $left );
 				$right_moment = LSTAB_Renderer::to_moment( $right );
 
 				if ( null !== $left_moment || null !== $right_moment ) {
-					/*
-					 * A column that holds dates and something else has to come
-					 * out the same here as it does in the browser, and "the
-					 * same" is only possible if the rule never asks about a
-					 * pair in isolation. Deciding by pair alone was enough
-					 * while everything was a number: two numbers compare, and
-					 * anything else is text. With two scales in play — a date
-					 * is yyyymmdd, a time is minutes since midnight — a date
-					 * against a time has no answer, and each side's sort then
-					 * reached a different arrangement from the same rows.
-					 *
-					 * So values are ranked before they are compared: dates,
-					 * then times, then everything the parser did not
-					 * recognise. Inside a rank the values compare properly.
-					 * A column of dates with one "TBA" in it comes out sorted,
-					 * with the "TBA" at the end — where a reader looks for it.
-					 */
 					$left_rank  = LSTAB_Renderer::moment_rank( $left_moment );
 					$right_rank = LSTAB_Renderer::moment_rank( $right_moment );
 
@@ -520,16 +271,6 @@ class LSTAB_Paging {
 		return $rows;
 	}
 
-	/**
-	 * Query arguments a search form has to carry so it does not lose them.
-	 *
-	 * A form submits only its own fields, so everything else already in the
-	 * address — the page a visitor came from, another table's page number —
-	 * would be dropped without this.
-	 *
-	 * @param int $source_id Source ID being searched.
-	 * @return array<string,string>
-	 */
 	public static function carried_fields( $source_id ) {
 		$carried = array();
 		$own     = array( self::arg( $source_id, 'q' ), self::arg( $source_id, 'page' ), 'lstab-copy' );
@@ -548,20 +289,7 @@ class LSTAB_Paging {
 		return $carried;
 	}
 
-	/**
-	 * The current address with some of this table's arguments changed.
-	 *
-	 * Other tables' arguments are left alone, so paging one does not reset
-	 * its neighbour.
-	 *
-	 * @param int                  $source_id Source ID.
-	 * @param array<string,mixed>  $changes   Argument name to value, null to drop.
-	 * @return string
-	 */
 	public static function url( $source_id, $changes ) {
-		// The current address, less the marker a page uses to fetch a newer copy
-		// of itself (see LSTAB_Freshness) — that belongs to one fetch, not to the
-		// links on the page it brought back.
 		$base = remove_query_arg( 'lstab-copy' );
 
 		foreach ( $changes as $name => $value ) {
@@ -572,7 +300,6 @@ class LSTAB_Paging {
 				: add_query_arg( $arg, rawurlencode( (string) $value ), $base );
 		}
 
-		// A page of a table is a place on the page, not the top of it.
 		return $base . '#lstab-table-' . (int) $source_id;
 	}
 }

@@ -1,47 +1,16 @@
 <?php
-/**
- * Shortcode wrapper.
- *
- * Deliberately a thin adapter over LSTAB_Renderer: the block and the shortcode
- * must never drift apart.
- *
- * @package LiveSheetsTable
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Shortcode handler.
- */
 class LSTAB_Shortcode {
-
 	const TAG = 'sheet_table';
 
-	/**
-	 * Register hooks.
-	 *
-	 * @return void
-	 */
 	public function register() {
 		add_shortcode( self::TAG, array( $this, 'render' ) );
 		add_shortcode( 'live_sheets_table', array( $this, 'render' ) );
 	}
 
-	/**
-	 * Render the shortcode.
-	 *
-	 * @param array<string,string>|string $atts Shortcode attributes.
-	 * @return string
-	 */
 	public function render( $atts ) {
-		/**
-		 * Filters the attributes the shortcode understands.
-		 *
-		 * An add-on registering a name here also receives it in the render
-		 * arguments, so a feature can be added without editing this file.
-		 *
-		 * @param array $defaults Attribute names mapped to default values.
-		 */
 		$defaults = (array) apply_filters(
 			'lstab_shortcode_atts',
 			array(
@@ -59,8 +28,6 @@ class LSTAB_Shortcode {
 
 		$atts = shortcode_atts( $defaults, $atts, self::TAG );
 
-		// Anything an add-on registered rides along to the renderer untouched
-		// beyond a light sanitise, since only that add-on knows its shape.
 		$extra = array();
 		foreach ( $atts as $name => $value ) {
 			if ( ! array_key_exists( $name, self::core_atts() ) ) {
@@ -83,11 +50,6 @@ class LSTAB_Shortcode {
 		) );
 	}
 
-	/**
-	 * The attributes this plugin owns.
-	 *
-	 * @return array<string,mixed>
-	 */
 	protected static function core_atts() {
 		return array(
 			'id'      => 0,
@@ -98,20 +60,10 @@ class LSTAB_Shortcode {
 			'caption' => '',
 			'class'   => '',
 			'layout'  => 'inherit',
-			// Declared here, though nothing in the free plugin acts on it: the
-			// plugin has to be able to see that a page asked for only some
-			// rows, so it can refuse to show all of them when the add-on that
-			// does the filtering is gone.
 			'filter'  => '',
 		);
 	}
 
-	/**
-	 * Interpret the loose truthy values people actually type in shortcodes.
-	 *
-	 * @param mixed $value Attribute value.
-	 * @return bool
-	 */
 	protected static function boolish( $value ) {
 		if ( is_bool( $value ) ) {
 			return $value;

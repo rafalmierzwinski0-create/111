@@ -1,14 +1,4 @@
 <?php
-/**
- * What somebody sees the first time, before there is anything to list.
- *
- * Three ways in, one of them obvious. Whoever has a link pastes it; whoever has
- * no spreadsheet yet clicks the example; whoever has a private sheet is told
- * where that lives. Nothing here asks for a name, a schedule or a tab — those
- * are questions for after the thing has been seen working.
- *
- * @package LiveSheetsTable
- */
 
 defined( 'ABSPATH' ) || exit;
 ?>
@@ -79,12 +69,6 @@ defined( 'ABSPATH' ) || exit;
 		</div>
 	</div>
 
-	<?php
-	/*
-	 * Outside the paste form, because a form cannot be nested in another one.
-	 * The button above submits this by name.
-	 */
-	?>
 	<form id="lstab-example-form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="lstab-hidden-form">
 		<input type="hidden" name="action" value="lstab_add_example">
 		<?php wp_nonce_field( 'lstab_add_example' ); ?>

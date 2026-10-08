@@ -1,9 +1,4 @@
 <?php
-/**
- * Shown when the free source limit is already used up.
- *
- * @package LiveSheetsTable
- */
 
 defined( 'ABSPATH' ) || exit;
 ?>

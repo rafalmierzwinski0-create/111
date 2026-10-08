@@ -1,133 +1,38 @@
 <?php
-/**
- * Conditional formatting: colour a cell by what is in it.
- *
- * "In stock" green and "Sold out" red is the whole idea. A rule names a column,
- * a comparison and a value, and picks a colour off a small classic palette or
- * out of the browser's own colour picker.
- *
- * Contrast is still not left to chance: only the background is ever chosen, and
- * the text colour is worked out from it — dark on a pale colour, white on a
- * strong one — so a rule cannot produce yellow on white however hard it tries.
- *
- * Rules are evaluated on the server while the table is rendered. There is no
- * JavaScript involved and the colours are in the HTML that reaches the visitor,
- * which is the same promise the rest of the plugin makes.
- *
- * @package LiveSheetsTablePro
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Conditional formatting rules.
- */
 class LSTABP_Rules {
-
-	/**
-	 * Where the rules live, keyed by source ID.
-	 */
 	const OPTION = 'lstabp_rules';
 
-	/**
-	 * Rules handed over for one preview request, by source.
-	 *
-	 * @var array<int,array<int,array<string,mixed>>>
-	 */
 	protected static $previewing = array();
 
-	/**
-	 * How many rules one source may hold.
-	 *
-	 * Past a certain point a table is not formatted, it is decorated, and every
-	 * rule costs a comparison per cell.
-	 */
 	const MAX_RULES = 20;
 
-	/**
-	 * What each rendered table found, keyed by row and column position.
-	 *
-	 * @var array<int,array<int,string>>
-	 */
 	protected $cells = array();
 
-	/**
-	 * Which cells wear their value in a shape, and which shape.
-	 *
-	 * A pill around the value, or a dot before it. Either is a shape rather
-	 * than only a colour, so it cannot be said in the inline style a cell
-	 * carries: the shape belongs to the value inside the cell, and an inline
-	 * style cannot reach a child. The cell is given a class instead, and the
-	 * stylesheet draws the shape around or beside the value.
-	 *
-	 * @var array<int,array<int,string>>
-	 */
 	protected $shapes = array();
 
-	/**
-	 * What each rendered row should look like, keyed by row position.
-	 *
-	 * @var array<int,string>
-	 */
 	protected $rows = array();
 
-	/**
-	 * Where each cell stands in the order its column's rules give it.
-	 *
-	 * @var array<int,array<int,int>>
-	 */
 	protected $places = array();
 
-	/**
-	 * Register hooks.
-	 *
-	 * @return void
-	 */
 	public function register() {
-		// After the row filter at priority 10, so rules are only evaluated for
-		// rows that survive, and before column settings, so a rule can read a
-		// column the table hides. Anything that drops or reorders rows has to
-		// run before this.
 		add_filter( 'lstab_source_rows', array( $this, 'capture' ), 20, 4 );
 		add_filter( 'lstab_cell_attributes', array( $this, 'attributes' ), 10, 5 );
-		// The same order for a paged table, which sorts on the server.
 		add_filter( 'lstab_sort_ranks', array( $this, 'sort_ranks' ), 10, 3 );
-		// A drawer belongs to the row above it, so a rule that painted the row
-		// paints the panel it opens too.
 		add_filter( 'lstab_detail_attributes', array( $this, 'detail_attributes' ), 10, 2 );
 
-		// Rules being typed, so the preview shows them before anything is saved.
 		add_action( 'lstab_preview_request', array( $this, 'preview_request' ), 10, 2 );
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
-		/*
-		 * On the Appearance tab, where a colour belongs. It used to print under
-		 * "Columns and rows" — the only pane the free plugin offered an add-on —
-		 * so a card about colour lived under a heading about which columns to
-		 * keep, and read as if it were about hiding things.
-		 */
 		add_action( 'lstab_edit_pane_cards', array( $this, 'render_pane_card' ), 10, 3 );
 		add_action( 'lstab_source_saved', array( $this, 'save' ) );
 		add_action( 'lstab_source_deleted', array( $this, 'forget' ) );
 		add_action( 'lstabp_forget_source', array( $this, 'forget' ) );
 	}
 
-	/**
-	 * The classic colours offered as ready-made choices.
-	 *
-	 * Nine, pale, one per hue. A palette this size is a decision somebody can
-	 * make in a second; a full picker in its place is a decision nobody makes
-	 * well, which is why the picker is beside it rather than instead of it.
-	 *
-	 * @return array<string,string> Hex colour to its name.
-	 */
 	public static function palette() {
-		/*
-		 * A notch deeper than the first set, which was pale enough that a
-		 * coloured cell read as a printing artefact rather than a decision.
-		 * Still light: the ink is chosen against whichever of these is picked,
-		 * so the value stays readable, and a table is not a highlighter pen.
-		 */
 		return array(
 			'#fbd5d5' => __( 'Red', 'live-sheets-table-pro' ),
 			'#fbdcbc' => __( 'Orange', 'live-sheets-table-pro' ),
@@ -141,11 +46,6 @@ class LSTABP_Rules {
 		);
 	}
 
-	/**
-	 * The two looks that are not a colour at all.
-	 *
-	 * @return array<string,array<string,string>>
-	 */
 	public static function effects() {
 		return array(
 			'bold'   => array(
@@ -161,14 +61,6 @@ class LSTABP_Rules {
 		);
 	}
 
-	/**
-	 * What the five named colours of the first version meant.
-	 *
-	 * Rules saved then hold a word rather than a colour, and there is no upgrade
-	 * step to run: the word is translated to its colour every time it is read.
-	 *
-	 * @return array<string,string>
-	 */
 	protected static function legacy() {
 		return array(
 			'red'   => '#fbd5d5',
@@ -177,13 +69,6 @@ class LSTABP_Rules {
 			'blue'  => '#d0e1f8',
 			'grey'  => '#e1e5e9',
 
-			/*
-			 * The palette's own first set, which was pale enough that a
-			 * coloured cell read as a printing artefact. A rule saved then
-			 * still holds one of these; without this it would come back as a
-			 * colour of its own, off the palette, which is not what anybody
-			 * chose. The colour a page shows barely moves.
-			 */
 			'#fdecec' => '#fbd5d5',
 			'#ffe9d6' => '#fbdcbc',
 			'#fdf6cf' => '#f7ecac',
@@ -196,32 +81,10 @@ class LSTABP_Rules {
 		);
 	}
 
-	/**
-	 * What stands in for a rule's number in the template the add button clones.
-	 *
-	 * Not a number, so a template that somehow reached the form would be thrown
-	 * out by sanitize() rather than saved as rule zero.
-	 */
 	const INDEX_PLACEHOLDER = 'lstabp-new';
 
-	/**
-	 * The colour a rule falls back to.
-	 *
-	 * The palette's first entry: a rule with no colour yet is drawn on the
-	 * first swatch, so the row of chips shows one of its own selected rather
-	 * than the wheel at the end, which would say "a colour of your own" about
-	 * a choice nobody has made.
-	 */
 	const DEFAULT_STYLE = '#fbd5d5';
 
-	/**
-	 * Every look that can be chosen, named and drawn.
-	 *
-	 * Kept in the shape the first version used — a key, a label and a block of
-	 * CSS — so everything that reads it did not have to change.
-	 *
-	 * @return array<string,array<string,string>>
-	 */
 	public static function styles() {
 		$styles = array();
 
@@ -242,22 +105,6 @@ class LSTABP_Rules {
 		return $styles;
 	}
 
-	/**
-	 * The CSS one look is made of.
-	 *
-	 * A colour can be worn two ways. Filling the cell is loud, which is right
-	 * for "this one is a problem" and wrong for a column where most rows are
-	 * marked: a price list where half the values are flagged becomes a wall of
-	 * colour and nothing stands out. Colouring the words says the same thing
-	 * quietly, and keeps the row's own background.
-	 *
-	 * An effect — bold, struck through — is the same either way; there is no
-	 * background in it to leave out.
-	 *
-	 * @param string $style A hex colour, or the key of an effect.
-	 * @param string $scope Where the colour goes: 'cell', 'row' or 'text'.
-	 * @return string Declarations, ending in a semicolon.
-	 */
 	public static function css_for( $style, $scope = 'cell' ) {
 		$effects = self::effects();
 
@@ -276,39 +123,7 @@ class LSTABP_Rules {
 		}
 
 		if ( 'pill' === $scope || 'dot' === $scope ) {
-			/*
-			 * A badge rather than a painted cell: an outline in the rule's
-			 * colour around the value, with a wash of the same colour behind
-			 * it. It is what a status column wants — "Open", "Sold out" —
-			 * where a filled cell would be a wall of colour.
-			 *
-			 * The ink is mixed with the table's own text colour rather than
-			 * being the rule's colour outright. The palette is pale, so a word
-			 * in it would be unreadable on white paper; mixing keeps the hue
-			 * and anchors the contrast to whatever the table is wearing, dark
-			 * skin or light.
-			 *
-			 * A third of the rule's colour, not half. At 55 per cent it was
-			 * not enough: a bright mint came out at 3.44 to 1 on warm paper,
-			 * and white — the first colour in the picker — at 2.5 to 1 on
-			 * every light skin there is. Both are under the readability bar,
-			 * from colours the dashboard was perfectly happy to accept.
-			 *
-			 * The share is what decides how far the word may drift from the
-			 * table's own ink, and that ink is readable on that paper by
-			 * construction, so the smaller the share the safer the word. At 35
-			 * the worst case anybody can reach is 4.57 to 1 and the hue is
-			 * still plainly there. tests/skins-test.php publishes a badge in
-			 * the four nastiest colours on every skin, and
-			 * tests/skins-browser.mjs measures the word inside each one.
-			 */
 			if ( 'dot' === $scope ) {
-				/*
-				 * The quietest of the looks: a full-strength spot of colour
-				 * before the value, and the value left as it was. Nothing is
-				 * mixed here — the dot is not text, so it has no readability
-				 * to trade away, and a washed-out dot says nothing at all.
-				 */
 				return '--lstabp-dot:' . $hex . ';';
 			}
 
@@ -320,73 +135,19 @@ class LSTABP_Rules {
 		$ink   = self::ink( $hex );
 		$paint = 'background-color:' . $hex . ';color:' . $ink . ';';
 
-		/*
-		 * On a phone the table becomes one card per row, and every value is
-		 * introduced by the name of its column. That name is deliberately
-		 * quieter than the value — a fixed muted colour, picked to stay
-		 * readable on the table's own paper. On a row this rule has just
-		 * painted it is not on that paper any more, and the pair can fall
-		 * under the readability bar. Restating the token here hands the label
-		 * a quieter shade of this rule's own ink instead.
-		 */
 		$paint .= '--lstab-fg-faint:color-mix(in srgb,' . $ink . ' 78%,' . $hex . ');';
 
-		/*
-		 * And the same thought for a badge standing on this paint.
-		 *
-		 * A pill's word is its own colour mixed with the table's ink, and on a
-		 * painted row the table's ink is not what is behind the word any more.
-		 * Mixing into it drags the word towards the paint: a black badge on a
-		 * dark red row came out at 2.38 to 1. The ink worked out just above is
-		 * readable on this background by construction, so the badge is handed
-		 * it whole. The stylesheet reads this before the badge's own, and the
-		 * outline and the wash still carry the colour that was chosen.
-		 */
 		$paint .= '--lstabp-pill-ink-set:' . $ink . ';';
 
-		/*
-		 * And no wash under it. The wash is a fifth of the badge's colour laid
-		 * over whatever is behind the word, so on a painted row it moves the
-		 * very background that ink was worked out against — eighteen per cent
-		 * of black over a pale green row took the word from 4.55 to 1 down to
-		 * 3.01. Here the row is the colour already; the outline is enough to
-		 * say which badge this is.
-		 */
 		$paint .= '--lstabp-pill-fill-set:transparent;';
 
-		/*
-		 * A bar on this row is left its own colour. It used to be handed this
-		 * ink instead, because it was a translucent wash and mint washed over
-		 * dark red came out the colour of wet ash. It is solid now and stands
-		 * beside the number rather than under it, so the colour somebody
-		 * chose for the column is the colour on every row, painted or not.
-		 */
-
 		if ( 'row' === $scope ) {
-			/*
-			 * A pinned first column paints its own opaque backdrop, over the
-			 * columns sliding past underneath it. That backdrop knows nothing
-			 * about this rule, so a coloured row used to arrive at the reader
-			 * with its first cell still wearing the table's own background —
-			 * the colour started at the second column.
-			 *
-			 * The stylesheet already repeats whatever "--lstab-row-tint" the
-			 * row is wearing on top of that backdrop; that is how stripes and
-			 * hover survive the pinning. A rule simply has to say what its
-			 * tint is.
-			 */
 			$paint .= '--lstab-row-tint:' . $hex . ';';
 		}
 
 		return $paint;
 	}
 
-	/**
-	 * A colour, or nothing if it is not one.
-	 *
-	 * @param mixed $raw Candidate colour.
-	 * @return string '#rrggbb', or ''.
-	 */
 	public static function hex( $raw ) {
 		$raw = strtolower( trim( (string) $raw ) );
 
@@ -397,22 +158,6 @@ class LSTABP_Rules {
 		return preg_match( '~^#[0-9a-f]{6}$~', $raw ) ? $raw : '';
 	}
 
-	/**
-	 * Text that can be read on a given background.
-	 *
-	 * Two candidates are drawn up and the one with the better contrast wins.
-	 * The first is the colour's own hue darkened almost to ink, which is what
-	 * makes a red cell look designed rather than merely coloured; the second is
-	 * plain white, for a colour too strong to carry any shade of itself.
-	 *
-	 * Picking by measurement rather than by a brightness threshold matters for
-	 * exactly the colours somebody is most likely to reach for out of the
-	 * picker: a vivid green reads as dark to the usual weighting and as bright
-	 * to the eye, and got white text nobody could read.
-	 *
-	 * @param string $hex Background colour.
-	 * @return string Text colour.
-	 */
 	public static function ink( $hex ) {
 		$hex = self::hex( $hex );
 
@@ -420,15 +165,6 @@ class LSTABP_Rules {
 			return '#1d2327';
 		}
 
-		/*
-		 * In the order they would be chosen by hand: the colour's own hue, then
-		 * the same hue deeper, then the admin's own ink, then white for a
-		 * background dark enough that nothing else will do, and pure black for
-		 * the light ones where even the ink is a shade too soft. The first that
-		 * clears the readability bar wins; if a colour is awkward enough that
-		 * none of them does — a mid-tone olive is the classic — the best of the
-		 * five stands.
-		 */
 		$candidates = array( self::deepen( $hex, 0.26 ), self::deepen( $hex, 0.15 ), '#1d2327', '#ffffff', '#000000' );
 		$best       = '#1d2327';
 		$best_ratio = 0.0;
@@ -449,13 +185,6 @@ class LSTABP_Rules {
 		return $best;
 	}
 
-	/**
-	 * The same colour, taken down to nearly ink.
-	 *
-	 * @param string $hex   Background colour.
-	 * @param float  $light How dark to take it, 0 to 1.
-	 * @return string
-	 */
 	protected static function deepen( $hex, $light = 0.26 ) {
 		$red   = hexdec( substr( $hex, 1, 2 ) ) / 255;
 		$green = hexdec( substr( $hex, 3, 2 ) ) / 255;
@@ -472,11 +201,6 @@ class LSTABP_Rules {
 			$saturation = $own > 0.5 ? $span / ( 2 - $max - $min ) : $span / ( $max + $min );
 		}
 
-		/*
-		 * Grey has no hue worth keeping, and a grey with a trace of one is
-		 * worse than none: deepening #f1f2f4 by its hue turned the text navy,
-		 * because the little blue in it is all there is to amplify.
-		 */
 		if ( $saturation < 0.2 ) {
 			return $light > 0.2 ? '#3f4249' : '#1d2327';
 		}
@@ -491,18 +215,9 @@ class LSTABP_Rules {
 
 		$hue /= 6;
 
-		// Deep enough to read on the palest tint, and given back some of the
-		// colour a pale tint has almost none of.
 		return self::from_hsl( $hue, min( 0.75, max( 0.42, $saturation * 1.8 ) ), $light );
 	}
 
-	/**
-	 * How far apart two colours are, as the accessibility guidelines count it.
-	 *
-	 * @param string $one First colour.
-	 * @param string $two Second colour.
-	 * @return float Contrast ratio, 1 to 21.
-	 */
 	protected static function contrast( $one, $two ) {
 		$first  = self::luminance( $one );
 		$second = self::luminance( $two );
@@ -510,12 +225,6 @@ class LSTABP_Rules {
 		return ( max( $first, $second ) + 0.05 ) / ( min( $first, $second ) + 0.05 );
 	}
 
-	/**
-	 * How much light a colour puts out, by the sRGB definition.
-	 *
-	 * @param string $hex Colour.
-	 * @return float 0 to 1.
-	 */
 	protected static function luminance( $hex ) {
 		$weights = array( 0.2126, 0.7152, 0.0722 );
 		$total   = 0.0;
@@ -529,14 +238,6 @@ class LSTABP_Rules {
 		return $total;
 	}
 
-	/**
-	 * Hue, saturation and lightness back to a hex colour.
-	 *
-	 * @param float $hue        0-1.
-	 * @param float $saturation 0-1.
-	 * @param float $light      0-1.
-	 * @return string '#rrggbb'.
-	 */
 	protected static function from_hsl( $hue, $saturation, $light ) {
 		$high = $light < 0.5 ? $light * ( 1 + $saturation ) : $light + $saturation - $light * $saturation;
 		$low  = 2 * $light - $high;
@@ -560,14 +261,6 @@ class LSTABP_Rules {
 		return '#' . $channel( $hue + 1 / 3 ) . $channel( $hue ) . $channel( $hue - 1 / 3 );
 	}
 
-	/**
-	 * One rule's chosen look, whatever shape it arrived in.
-	 *
-	 * @param mixed $style  The chosen look: a hex colour, an effect, an old
-	 *                      colour name, or the word 'custom'.
-	 * @param mixed $custom The colour picker's value, read when 'custom'.
-	 * @return string A hex colour or an effect key.
-	 */
 	public static function sanitize_style( $style, $custom = '' ) {
 		$style  = is_scalar( $style ) ? strtolower( trim( (string) $style ) ) : '';
 		$legacy = self::legacy();
@@ -580,12 +273,6 @@ class LSTABP_Rules {
 			return $style;
 		}
 
-		/*
-		 * The palette is a set of radio buttons and the picker is a field of
-		 * its own, so that choosing a colour of your own still works with
-		 * JavaScript switched off: the radio says "custom", and the colour
-		 * itself arrives in the other field.
-		 */
 		if ( 'custom' === $style ) {
 			$style = self::hex( $custom );
 
@@ -597,11 +284,6 @@ class LSTABP_Rules {
 		return '' === $hex ? self::DEFAULT_STYLE : $hex;
 	}
 
-	/**
-	 * Comparisons a rule may make, in the words the filter syntax uses.
-	 *
-	 * @return array<string,string> Operator to its label.
-	 */
 	public static function operators() {
 		return array(
 			'='  => __( 'is', 'live-sheets-table-pro' ),
@@ -614,31 +296,15 @@ class LSTABP_Rules {
 		);
 	}
 
-	/**
-	 * Every stored rule set.
-	 *
-	 * @return array<int,array<int,array<string,mixed>>>
-	 */
 	public static function all() {
 		$stored = get_option( self::OPTION, array() );
 
 		return is_array( $stored ) ? $stored : array();
 	}
 
-	/**
-	 * Rules for one source.
-	 *
-	 * @param int $source_id Source ID.
-	 * @return array<int,array<string,mixed>>
-	 */
 	public static function for_source( $source_id ) {
 		$key = (int) $source_id;
 
-		/*
-		 * A preview being drawn while somebody types has rules that exist only
-		 * in the form. They are handed over for the length of that one request
-		 * and stand in for the stored set.
-		 */
 		if ( isset( self::$previewing[ $key ] ) ) {
 			return self::$previewing[ $key ];
 		}
@@ -648,13 +314,6 @@ class LSTABP_Rules {
 		return isset( $all[ $key ] ) ? self::sanitize( $all[ $key ] ) : array();
 	}
 
-	/**
-	 * Take the rules being typed out of a preview request.
-	 *
-	 * @param WP_REST_Request $request   The request.
-	 * @param int             $source_id Source being previewed.
-	 * @return void
-	 */
 	public function preview_request( $request, $source_id ) {
 		$rules = $request->get_param( 'rules' );
 
@@ -665,14 +324,6 @@ class LSTABP_Rules {
 		self::$previewing[ (int) $source_id ] = self::sanitize( $rules );
 	}
 
-	/**
-	 * Clean a submitted or stored rule set.
-	 *
-	 * A rule with no column named is an empty form row, not a rule.
-	 *
-	 * @param mixed $raw Raw rules.
-	 * @return array<int,array<string,mixed>>
-	 */
 	public static function sanitize( $raw ) {
 		$operators = self::operators();
 		$clean     = array();
@@ -711,18 +362,6 @@ class LSTABP_Rules {
 		return $clean;
 	}
 
-	/**
-	 * Work out what each row and cell should look like.
-	 *
-	 * Done once per table rather than per cell: a rule set is compared against
-	 * every row here, and the cell filter then only reads the answer.
-	 *
-	 * @param array<int,array<int,string>> $rows    Body rows.
-	 * @param array<int,string>            $headers Sheet headings.
-	 * @param array<string,mixed>          $source  Source row.
-	 * @param array<string,mixed>          $args    Rendering options.
-	 * @return array<int,array<int,string>>
-	 */
 	public function capture( $rows, $headers, $source, $args ) {
 		$this->cells  = array();
 		$this->shapes = array();
@@ -770,8 +409,6 @@ class LSTABP_Rules {
 					continue;
 				}
 
-				// A rule on a hidden column can still colour the row, but it
-				// has no cell of its own to colour.
 				if ( isset( $rendered[ $position ] ) ) {
 					$this->cells[ $row_index ][ $rendered[ $position ] ] = $css;
 
@@ -785,13 +422,6 @@ class LSTABP_Rules {
 		return $rows;
 	}
 
-	/**
-	 * Paint the drawer under a row the same colour as the row.
-	 *
-	 * @param array<string,string> $attributes Attribute map.
-	 * @param int                  $row_index  Row the drawer belongs to.
-	 * @return array<string,string>
-	 */
 	public function detail_attributes( $attributes, $row_index ) {
 		if ( ! isset( $this->rows[ $row_index ] ) ) {
 			return $attributes;
@@ -803,16 +433,6 @@ class LSTABP_Rules {
 		return $attributes;
 	}
 
-	/**
-	 * Add the style to a cell that a rule picked out.
-	 *
-	 * @param array<string,string> $attributes Attribute map.
-	 * @param string               $value      Cell value.
-	 * @param int                  $col_index  Column index in the rendered table.
-	 * @param int                  $row_index  Row index.
-	 * @param array<string,mixed>  $source     Source row.
-	 * @return array<string,string>
-	 */
 	public function attributes( $attributes, $value, $col_index, $row_index, $source ) {
 		if ( isset( $this->places[ $row_index ][ $col_index ] ) ) {
 			$attributes['data-lstab-rank'] = (string) $this->places[ $row_index ][ $col_index ];
@@ -846,29 +466,6 @@ class LSTABP_Rules {
 		return $attributes;
 	}
 
-	/**
-	 * The order a column sorts in when its rules name its values.
-	 *
-	 * Three rules on Difficulty — is Easy, is Moderate, is Hard — say more
-	 * than how to colour those words: they say the column is a scale, and in
-	 * which direction it runs. Sorted as words the same column comes out
-	 * Easy, Hard, Moderate, which reads as a table that cannot sort.
-	 *
-	 * So when two or more "is" rules name values in one column, the column
-	 * sorts in the order those rules are listed. One rule is not an order,
-	 * only a highlight, and a column with one keeps sorting as before. Values
-	 * no rule names come after the named ones, in their usual order.
-	 *
-	 * Only rules that dress the cell itself count. A rule that paints the
-	 * whole row is about the row: "paint closed trails grey" is usually
-	 * listed first because it matters most, not because Closed comes first,
-	 * and counting it put Closed ahead of Open and Caution.
-	 *
-	 * @param array<int,array<string,mixed>> $rules   Rules for the source.
-	 * @param array<int,string>              $headers Sheet headings.
-	 * @param array<string,mixed>            $source  Source row.
-	 * @return array<int,array<string,int>> Sheet position => value => place.
-	 */
 	public static function ranks( $rules, $headers, $source ) {
 		$columns = LSTABP_Filters::column_map( array_values( (array) $headers ), $source );
 		$named   = array();
@@ -903,60 +500,26 @@ class LSTABP_Rules {
 		return $ranks;
 	}
 
-	/**
-	 * Hand the rules' order to a paged table, which sorts on the server.
-	 *
-	 * @param array<int,array<string,int>> $ranks   Orders other code gave.
-	 * @param array<int,string>            $headers Sheet headings.
-	 * @param array<string,mixed>          $source  Source row.
-	 * @return array<int,array<string,int>>
-	 */
 	public function sort_ranks( $ranks, $headers, $source ) {
 		$rules = self::for_source( isset( $source['id'] ) ? $source['id'] : 0 );
 
 		return (array) $ranks + self::ranks( $rules, $headers, $source );
 	}
 
-	/**
-	 * Map a sheet column position to its position in the rendered table.
-	 *
-	 * Hidden columns are gone by the time cells are written, so the positions
-	 * a rule works with have to be translated to match.
-	 *
-	 * @param array<int,string>   $headers Sheet headings.
-	 * @param array<string,mixed> $source  Source row.
-	 * @param array<string,mixed> $args    Rendering options.
-	 * @return array<int,int>
-	 */
 	public static function rendered_positions( $headers, $source, $args ) {
 		$config = ( isset( $args['columns'] ) && null !== $args['columns'] )
 			? $args['columns']
 			: ( isset( $source['columns_config'] ) ? $source['columns_config'] : array() );
 
-		// The free plugin's own choice of what is shown, so a column hidden by
-		// a setting that no longer matches its heading — and therefore shown —
-		// is counted here as well.
 		return array_flip( LSTAB_Columns::kept( $headers, (array) $config ) );
 	}
 
-	/**
-	 * Normalise a column name for comparison.
-	 *
-	 * @param string $name Column name.
-	 * @return string
-	 */
 	public static function key( $name ) {
 		return function_exists( 'mb_strtolower' )
 			? mb_strtolower( trim( $name ), 'UTF-8' )
 			: strtolower( trim( $name ) );
 	}
 
-	/**
-	 * Style the card. Everything else on the screen is the free plugin's.
-	 *
-	 * @param string $hook Current admin page hook.
-	 * @return void
-	 */
 	public function enqueue( $hook ) {
 		if ( false === strpos( (string) $hook, LSTAB_Admin::EDIT_SLUG ) ) {
 			return;
@@ -986,27 +549,12 @@ class LSTABP_Rules {
 			'lstabp-admin',
 			'lstabpRules',
 			array(
-				// Only the ready-made looks. A colour of somebody's own is
-				// worked out in the browser, by the same reasoning as ink().
 				'styles'   => $swatches,
-				// So the "Add a rule" button stops offering what the store
-				// would silently drop on the way in.
 				'maxRules' => self::MAX_RULES,
 			) + self::fold_words()
 		);
 	}
 
-	/**
-	 * The wording on the button under a folded list.
-	 *
-	 * Two cards use it — the filter columns and the column looks — and both
-	 * draw a line per column, so a fifty-column sheet buries everything under
-	 * them. A method rather than two lines inside the localise call so the
-	 * browser suite can ask for the same strings the page gets: a button drawn
-	 * from wording the test invented would be a test of the test.
-	 *
-	 * @return array<string,string>
-	 */
 	public static function fold_words() {
 		return array(
 			/* translators: 1: how many more are about to be shown, 2: how many are still hidden. */
@@ -1015,13 +563,6 @@ class LSTABP_Rules {
 		);
 	}
 
-	/**
-	 * Print the rules card on the source screen.
-	 *
-	 * @param array<string,mixed>|null $source  Source row, or null while adding.
-	 * @param bool                     $is_edit Whether an existing source is being edited.
-	 * @return void
-	 */
 	public function render_pane_card( $pane, $source, $is_edit ) {
 		if ( 'look' !== $pane ) {
 			return;
@@ -1030,13 +571,6 @@ class LSTABP_Rules {
 		$this->render_card( $source, $is_edit );
 	}
 
-	/**
-	 * Print the rules card.
-	 *
-	 * @param array<string,mixed>|null $source  Source row.
-	 * @param bool                     $is_edit Editing an existing source.
-	 * @return void
-	 */
 	public function render_card( $source, $is_edit ) {
 		$rules   = ( $is_edit && $source ) ? self::for_source( $source['id'] ) : array();
 		$headers = ( $is_edit && $source && ! empty( $source['data']['headers'] ) )
@@ -1046,17 +580,7 @@ class LSTABP_Rules {
 		require LSTABP_PATH . 'includes/views/rules-card.php';
 	}
 
-	/**
-	 * Store the rules submitted with a source.
-	 *
-	 * Only reached from the free plugin's save handler, which has already
-	 * checked the nonce and the capability.
-	 *
-	 * @param int $source_id Source ID.
-	 * @return void
-	 */
 	public function save( $source_id ) {
-		// A screen without the card must not wipe rules it never showed.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! isset( $_POST['_lstabp_rules_present'] ) ) {
 			return;
@@ -1075,12 +599,6 @@ class LSTABP_Rules {
 		update_option( self::OPTION, $all, false );
 	}
 
-	/**
-	 * Drop a deleted source's rules.
-	 *
-	 * @param int $source_id Source ID.
-	 * @return void
-	 */
 	public function forget( $source_id ) {
 		$all = self::all();
 

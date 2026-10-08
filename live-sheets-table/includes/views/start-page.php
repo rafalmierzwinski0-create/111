@@ -1,25 +1,7 @@
 <?php
-/**
- * The screen the plugin opens on.
- *
- * One screen for everybody, so that somebody's tenth visit looks like their
- * first with the obvious next step filled in. Only the large block on the left
- * changes: before there is a sheet of one's own it is the way to add one, and
- * after that it says how the tables are doing — the ones that need somebody by
- * name, the rest only as a number, because a list of fifteen healthy tables is
- * not news. The three steps and the two cards below stay where they were.
- *
- * @package LiveSheetsTable
- *
- * @var array<int,array<string,mixed>> $sources All sources.
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/*
- * The example is ours, not the reader's: somebody who has only tried it has
- * still not connected anything, so they get the first-time block.
- */
 $lstab_own = array_values(
 	array_filter(
 		$sources,
@@ -51,7 +33,6 @@ foreach ( $lstab_own as $lstab_candidate ) {
 	$lstab_rows += (int) $lstab_candidate['row_count'];
 }
 
-// Named only up to three; the rest are a link to the list.
 $lstab_named = array_slice( $lstab_failing, 0, 3 );
 $lstab_more  = count( $lstab_failing ) - count( $lstab_named );
 

@@ -1,27 +1,9 @@
 <?php
-/**
- * Sheet source list screen.
- *
- * A card per sheet rather than a row per sheet. The old table gave every fact
- * the same weight, which meant none of them had any; a card can answer the
- * three questions somebody actually arrives with — is it working, which sheet
- * is it, and how do I put it on a page — in that order.
- *
- * @package LiveSheetsTable
- *
- * @var array<int,array<string,mixed>> $sources
- */
 
 defined( 'ABSPATH' ) || exit;
 
 $lstab_can_add = LSTAB_Limits::can_add_source();
 
-/*
- * The welcome screen stays until there is a sheet of the reader's own. The
- * built-in example is ours, not theirs: somebody who has only clicked "show me
- * an example" has still not connected anything, and hiding the one screen that
- * tells them how would leave them looking at a demo with no way forward.
- */
 $lstab_own = array_filter(
 	$sources,
 	static function ( $candidate ) {
@@ -71,13 +53,6 @@ $lstab_add_button = $lstab_can_add
 								<?php echo esc_html( $lstab_source['title'] ); ?>
 							</h2>
 
-							<?php
-							/*
-							 * The two things anybody came here to do, level with
-							 * the name. At the foot of the card they sat below
-							 * five lines of detail nobody had to read first.
-							 */
-							?>
 							<span class="lstab-src-actions">
 								<a class="lstab-mini lstab-mini--strong" href="
 									<?php
@@ -108,12 +83,6 @@ $lstab_add_button = $lstab_can_add
 						</div>
 
 						<div class="lstab-src-facts">
-							<?php
-							/*
-							 * The state reads as one of the facts rather than as
-							 * a banner in the corner, because that is what it is.
-							 */
-							?>
 							<span class="lstab-state lstab-state--<?php echo esc_attr( $lstab_state['tone'] ); ?>">
 								<?php echo LSTAB_Icons::icon( $lstab_state['icon'] ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
 								<?php echo esc_html( $lstab_state['text'] ); ?>
@@ -152,8 +121,6 @@ $lstab_add_button = $lstab_can_add
 								<span class="lstab-fact">
 									<?php echo LSTAB_Icons::icon( 'layers' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
 									<?php
-									// A name on its own beside a stack of layers could be
-									// anything; a sheet has tabs, and this is which one.
 									printf(
 										/* translators: %s: the name of the tab inside the spreadsheet. */
 										esc_html__( 'Tab: %s', 'live-sheets-table' ),
@@ -165,16 +132,6 @@ $lstab_add_button = $lstab_can_add
 
 							<?php if ( count( $lstab_history ) > 1 ) : ?>
 								<?php
-								/*
-								 * A row of marks, one per check, oldest first.
-								 * They used to be bars of varying height, which
-								 * is the shape of a measurement — and nothing
-								 * was being measured. The heights were an
-								 * arithmetic pattern on the loop counter, so
-								 * the one question the picture invited had no
-								 * answer. Same height now, and the label says
-								 * what they are.
-								 */
 								$lstab_failed = count( array_filter( $lstab_history, static function ( $lstab_mark ) {
 									return 'error' === $lstab_mark;
 								} ) );
@@ -231,17 +188,6 @@ $lstab_add_button = $lstab_can_add
 							</p>
 						<?php endif; ?>
 
-						<?php
-						/*
-						 * A sheet that grew past the point where one page is
-						 * comfortable. Nothing is changed for it — it is on a
-						 * published page and rearranging that unasked would be
-						 * the worst thing this screen could do — so it is an
-						 * offer, with the answer either way one click away and
-						 * "no" remembered. An offer that cannot be declined is
-						 * not an offer.
-						 */
-						?>
 						<?php if ( LSTAB_Paging::should_offer( $lstab_source ) ) : ?>
 							<div class="lstab-src-offer">
 								<p class="lstab-src-offer-say">
@@ -278,7 +224,6 @@ $lstab_add_button = $lstab_can_add
 										<?php wp_nonce_field( 'lstab_keep_one_page' ); ?>
 										<input type="hidden" name="action" value="lstab_keep_one_page">
 										<input type="hidden" name="source_id" value="<?php echo esc_attr( (string) $lstab_source['id'] ); ?>">
-										<?php // A real answer, so it looks like one. Grey text beside a button reads as disabled, and an offer with only one pressable answer is not an offer. ?>
 										<button type="submit" class="lstab-mini">
 											<?php esc_html_e( 'No, keep one long table', 'live-sheets-table' ); ?>
 										</button>
@@ -309,13 +254,6 @@ $lstab_add_button = $lstab_can_add
 							</div>
 						<?php endif; ?>
 
-						<?php
-						/*
-						 * The scariest question in this screen is "can I delete
-						 * this?". Nobody can answer it from a list of names, so
-						 * everybody keeps everything. This answers it.
-						 */
-						?>
 						<p class="lstab-used">
 							<?php echo LSTAB_Icons::icon( 'doc' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
 							<?php if ( $lstab_places ) : ?>
@@ -346,11 +284,6 @@ $lstab_add_button = $lstab_can_add
 						</p>
 
 						<?php
-						/*
-						 * The first question on any "my table is not updating"
-						 * thread is whether the cache was cleared at all. This
-						 * answers it before anybody has to ask.
-						 */
 						$lstab_purge = LSTAB_Cache::last( (int) $lstab_source['id'] );
 						?>
 						<?php if ( $lstab_purge && ! empty( $lstab_purge['time'] ) && 'pages' === $lstab_purge['scope'] ) : ?>
@@ -377,13 +310,6 @@ $lstab_add_button = $lstab_can_add
 						<div class="lstab-src-use">
 							<code class="lstab-shortcode"><?php echo esc_html( $lstab_shortcode ); ?></code>
 
-							<?php
-							/*
-							 * The single most repeated action in the plugin.
-							 * It used to be a piece of text you had to select
-							 * by hand without overshooting either bracket.
-							 */
-							?>
 							<button type="button"
 								class="lstab-copy"
 								data-lstab-copy="<?php echo esc_attr( $lstab_shortcode ); ?>">

@@ -1,9 +1,3 @@
-/**
- * Live Sheets Table — add/edit screen.
- *
- * Fetches a parsed preview of the pasted sheet before anything is saved, so a
- * wrong tab or a misread header row is visible here rather than on a live page.
- */
 ( function () {
 	'use strict';
 
@@ -12,29 +6,14 @@
 
 	var form = document.getElementById( 'lstab-source-form' );
 	if ( ! form ) {
-		/*
-		 * A plugin screen with no editor on it — the list, the settings — is
-		 * the end of whatever a save was carrying. A save that works lands on
-		 * the list, so without this the tab it was made from would sit in
-		 * storage waiting to open the next sheet somewhere nobody asked for.
-		 */
 		try {
 			window.sessionStorage.removeItem( 'lstabPane' );
 		} catch ( error ) {
-			// Private windows and blocked storage: not worth a word.
 		}
 
 		return;
 	}
 
-	/*
-	 * Panes. One form still, so the save button saves everything wherever you
-	 * were standing — these only decide what is on screen.
-	 *
-	 * The chosen pane goes in the address bar so that reloading, or coming
-	 * back from a save, lands you where you left off rather than throwing you
-	 * to the front of the form.
-	 */
 	( function panes() {
 		var PANE_KEY = 'lstabPane';
 		var nav = document.getElementById( 'lstab-panes' );
@@ -59,8 +38,6 @@
 				}
 			);
 
-			// Blocks that belong to more than one pane — the preview, which is
-			// worth seeing while editing both the sheet and its appearance.
 			Array.prototype.forEach.call(
 				document.querySelectorAll( '[data-lstab-panes]' ),
 				function ( block ) {
@@ -69,14 +46,6 @@
 				}
 			);
 
-			/*
-			 * The columns-and-rows tab gets the whole width. The small preview
-			 * is no use there — the picker under it shows the entire sheet with
-			 * what you have taken out struck through, which is a better preview
-			 * than the preview — and squeezing the picker into half the screen
-			 * to keep a box nobody is looking at left the two columns wildly
-			 * different lengths.
-			 */
 			var grid = document.querySelector( '.lstab-editor-grid' );
 
 			if ( grid ) {
@@ -96,17 +65,6 @@
 			} );
 		} );
 
-		/*
-		 * Saving reloads the page, and a hash never reaches the server, so
-		 * without this every save threw you back to the first pane — three
-		 * clicks to carry on where you were.
-		 *
-		 * Written when the form is submitted rather than when a tab is
-		 * clicked, and read exactly once. Remembering the click meant "Add a
-		 * sheet" opened wherever the last person had been working, which is
-		 * not where a new sheet starts: a new one starts at the beginning,
-		 * the same as opening an existing sheet does.
-		 */
 		var sourceNow = function () {
 			var match = /[?&]source=(\d+)/.exec( window.location.search );
 
@@ -120,18 +78,9 @@
 					JSON.stringify( { pane: name, source: sourceNow(), at: Date.now() } )
 				);
 			} catch ( error ) {
-				// Private windows and blocked storage: not worth a word.
 			}
 		};
 
-		/**
-		 * The pane a save was made from, if this load is that save coming back.
-		 *
-		 * Taken once and thrown away, so opening the editor again later starts
-		 * at the beginning rather than somewhere a previous visit ended up.
-		 *
-		 * @return {string} Pane name, or an empty string.
-		 */
 		var remembered = function () {
 			var raw;
 
@@ -158,15 +107,10 @@
 				return '';
 			}
 
-			// A save is a round trip of seconds. Anything older is a leftover
-			// from a flow that went somewhere else, and the tab it names has
-			// nothing to do with the screen now being opened.
 			if ( ! saved.at || Date.now() - saved.at > 120000 ) {
 				return '';
 			}
 
-			// Saving a new sheet arrives back with the id it was given, so
-			// that one change of address is the same sheet; any other is not.
 			var here = sourceNow();
 
 			if ( saved.source !== here && ! ( 'new' === saved.source && 'new' !== here ) ) {
@@ -186,8 +130,6 @@
 			} );
 		}
 
-		// Read first either way, so a load that already knows its pane from the
-		// address still clears what a save left behind.
 		var saved = remembered();
 		var opening = ( window.location.hash || '' ).replace( '#', '' ) || saved;
 
@@ -203,13 +145,6 @@
 	var preview = document.getElementById( 'lstab-preview' );
 	var stage = document.getElementById( 'lstab-preview-stage' ) || preview;
 
-	/*
-	 * Re-applies whatever is in the CSS field. Assigned by the module further
-	 * down; kept here because a redraw of the preview throws that module's
-	 * style block away with everything else, and a redraw happens for reasons
-	 * that have nothing to do with the field — a colour picked, a rule changed,
-	 * a tab switched.
-	 */
 	var refreshLiveCss = function () {};
 	var widthButtons = document.querySelectorAll( '.lstab-width-button' );
 	var tabsWrap = document.getElementById( 'lstab-tabs-wrap' );
@@ -220,12 +155,6 @@
 	var firstRowHeader = document.getElementById( 'lstab-first-row-header' );
 	var presetInputs = form.querySelectorAll( 'input[name="style_preset"]' );
 	var layoutInputs = form.querySelectorAll( 'input[data-lstab-layout]' );
-	/*
-	 * The two pinning settings, which the preview used to ignore completely:
-	 * the class is written into the table when the page is built, and nothing
-	 * changed it afterwards — so clearing "keep the first column in view" left
-	 * the column pinned and the screen said the setting did nothing.
-	 */
 	var pins = {
 		sticky_first: 'lstab-sticky-first',
 		sticky_head: 'lstab-sticky-head'
@@ -235,23 +164,12 @@
 
 	var inFlight = false;
 
-	/**
-	 * Whether one of the two pinning settings is ticked.
-	 *
-	 * @param {string} name The field's name.
-	 * @return {boolean} Whether it is on.
-	 */
 	function pinned( name ) {
 		var box = form.querySelector( 'input[name="' + name + '"]' );
 
 		return box ? box.checked : true;
 	}
 
-	/**
-	 * Which of the three narrow-screen layouts is chosen.
-	 *
-	 * @return {string} 'table', 'auto' or 'cards'.
-	 */
 	function selectedLayout() {
 		var picked = 'table';
 
@@ -271,11 +189,6 @@
 		} );
 	}
 
-	/**
-	 * The preset the author currently has selected.
-	 *
-	 * @return {string} Preset slug, or '' when nothing is checked.
-	 */
 	function selectedPreset() {
 		for ( var i = 0; i < presetInputs.length; i++ ) {
 			if ( presetInputs[ i ].checked ) {
@@ -285,25 +198,11 @@
 		return '';
 	}
 
-	/**
-	 * Restyle the preview that is already on screen.
-	 *
-	 * A preset is presentation only, so swapping the class beats refetching the
-	 * sheet from Google just to render the same rows in a different skin.
-	 *
-	 * @param {string} preset Preset slug.
-	 */
 	function applyPreset( preset ) {
 		if ( ! preset ) {
 			return;
 		}
 
-		/*
-		 * Two panels are told which style is chosen, and the stylesheet does
-		 * the rest: the appearance panel shows a colour well only while the
-		 * style that uses it is chosen, and the preview can dress itself for
-		 * a style that needs something particular around it.
-		 */
 		Array.prototype.forEach.call(
 			document.querySelectorAll( '.lstab-appearance, .lstab-preview-pane' ),
 			function ( panel ) {
@@ -336,24 +235,10 @@
 
 	var tabsNote = document.getElementById( 'lstab-tabs-note' );
 
-	/**
-	 * Fill the tab picker from a sheet's list of tabs.
-	 *
-	 * The field is drawn by the page already carrying the tab this source is
-	 * set to, so this only ever adds the others. When the list cannot be read
-	 * it says so beside the field rather than taking the field away: a sheet
-	 * still has the tab it was saved with, and hiding the one control that
-	 * could change it is not an answer to Google being slow.
-	 *
-	 * @param {Array}  tabs        Tabs as the sheet reports them.
-	 * @param {string} selectedGid The tab being previewed.
-	 * @return {void}
-	 */
 	function renderTabs( tabs, selectedGid ) {
 		var known = tabNameField && tabNameField.value;
 
 		if ( ! tabs || ! tabs.length ) {
-			// Nothing to choose from. Keep whatever the source already has.
 			tabsWrap.hidden = ! known;
 
 			if ( tabsNote ) {
@@ -396,31 +281,12 @@
 	var columnList = document.querySelector( '.lstab-column-list' );
 	var columnCard = document.querySelector( '.lstab-columns-card' );
 
-	/**
-	 * The column rows as they stand.
-	 *
-	 * Looked up each time rather than captured once: the list is rebuilt the
-	 * moment a preview arrives for a source that has never been saved, and a
-	 * list captured at page load would keep answering with the placeholders it
-	 * replaced.
-	 *
-	 * @return {Array} Row elements.
-	 */
 	function columnRows() {
 		return columnList
 			? Array.prototype.slice.call( columnList.querySelectorAll( 'tbody tr' ) )
 			: [];
 	}
 
-	/**
-	 * Read the column settings out of the form.
-	 *
-	 * Position is the key, so the array order is the column order. Before the
-	 * first sync the rows are placeholders with their controls disabled, and
-	 * an empty list leaves the preview showing every column.
-	 *
-	 * @return {Array} One entry per column.
-	 */
 	function columnSettings() {
 		var settings = [];
 
@@ -436,11 +302,6 @@
 			settings.push( {
 				source: label.placeholder || '',
 				label: label.value,
-				// The add-on writes into these fields as you click, so reading
-				// them here keeps the preview honest whether the add-on is
-				// there or not, without the free plugin knowing anything about
-				// it. Leaving 'detail' out is why the preview used to show a
-				// column in the table that the published page put in a drawer.
 				visible: ! ( state && '1' === state.value ),
 				detail: !! ( drawer && '1' === drawer.value )
 			} );
@@ -449,16 +310,6 @@
 		return settings;
 	}
 
-	/**
-	 * Build the column list from the headings a preview brought back.
-	 *
-	 * Only when the list is still the placeholder one: a saved source has its
-	 * own list, carrying choices an add-on wrote into it, and rebuilding that
-	 * from a preview would throw them away.
-	 *
-	 * @param {Array} headers Headings, in sheet order.
-	 * @return {void}
-	 */
 	function buildColumnList( headers ) {
 		if ( ! columnList || ! columnCard || ! headers.length ) {
 			return;
@@ -476,8 +327,6 @@
 			return;
 		}
 
-		// Anything already typed into a placeholder is kept: somebody who
-		// renamed a column and then pressed Preview should not lose it.
 		var typed = columnRows().map( function ( row ) {
 			var field = row.querySelector( 'input[type="text"]' );
 			return field ? field.value : '';
@@ -489,8 +338,6 @@
 			var row = document.createElement( 'tr' );
 			var name = String( heading || '' );
 
-			// The name from the sheet, and the two fields the form submits for
-			// every column, exactly as the server renders them for a saved one.
 			var sourceCell = document.createElement( 'td' );
 			var code = document.createElement( 'code' );
 			code.textContent = name || sprintf( i18n.columnNumber || 'Column %1$s', [ index + 1 ] );
@@ -529,13 +376,6 @@
 		}
 	}
 
-	/**
-	 * One hidden field, since the list needs six of them.
-	 *
-	 * @param {string} name  Field name.
-	 * @param {string} value Field value.
-	 * @return {HTMLInputElement} The field.
-	 */
 	function hiddenField( name, value ) {
 		var field = document.createElement( 'input' );
 
@@ -546,17 +386,6 @@
 		return field;
 	}
 
-	/**
-	 * Anything an add-on wants the preview to know about.
-	 *
-	 * A colour rule being typed exists only in the form until it is saved, so
-	 * without this the preview could only ever show the rules as they were the
-	 * last time somebody pressed Save — which is exactly the round trip a
-	 * preview is for avoiding. An add-on pushes a function here; whatever it
-	 * returns is merged into the request.
-	 *
-	 * @return {Object} Extra fields for the preview request.
-	 */
 	function extraPreviewData() {
 		var extra = {};
 
@@ -568,19 +397,12 @@
 					extra[ key ] = fields[ key ];
 				} );
 			} catch ( error ) {
-				// An add-on that throws must not take the preview with it.
 			}
 		} );
 
 		return extra;
 	}
 
-	/**
-	 * Merge those fields into a request payload.
-	 *
-	 * @param {Object} data The payload.
-	 * @return {Object} The payload, with anything an add-on added.
-	 */
 	function withExtras( data ) {
 		var extra = extraPreviewData();
 
@@ -628,16 +450,8 @@
 
 			gidField.value = response.gid;
 
-			// A source that has never been saved has no columns stored, so the
-			// list under "Columns and rows" was three disabled placeholders and
-			// a note telling you to save first. The preview that just arrived
-			// knows the real headings, so the list is built from that instead
-			// and the names can be set before anything is stored.
 			buildColumnList( response.headers || [] );
 
-			// Only offered once there is something to show. A row that came
-			// back with the wrong number of cells is named here too, since
-			// this is where you would go looking for it.
 			if ( rawWrap && rawText ) {
 				rawWrap.hidden = ! response.raw;
 				rawText.value = response.raw || '';
@@ -663,12 +477,8 @@
 			}
 			setStatus( message, 'ok' );
 
-			// renderTabs() owns that decision: a sheet still has the tab it
-			// was saved with, and hiding the one control that could change it
-			// is not an answer to a list that did not come back.
 			renderTabs( response.tabs, response.gid );
 
-			// Offer a sensible default title once we know the tab name.
 			if ( titleField && ! titleField.value && tabNameField.value ) {
 				titleField.value = tabNameField.value;
 			}
@@ -677,19 +487,10 @@
 			stage.innerHTML = '';
 			setStatus( ( error && error.message ) || i18n.failed, 'error' );
 
-			// Same reasoning: keep the tab the source already has. Only a
-			// source that never had one has nothing to show here.
 			tabsWrap.hidden = ! ( tabNameField && tabNameField.value );
 		} );
 	}
 
-	/*
-	 * The bundled example has no Google card, so it has no preview button and
-	 * no tab picker either. Reaching for them regardless threw, and a throw
-	 * here stopped the rest of this file from running at all — which is why the
-	 * example's colours and style did nothing: not one of those controls had
-	 * been wired up by the time the error landed.
-	 */
 	if ( button ) {
 		button.addEventListener( 'click', function () {
 			if ( ! inFlight ) {
@@ -708,13 +509,6 @@
 		} );
 	}
 
-	// ------------------------------------------------------------ own CSS
-
-	/*
-	 * Rules typed into the CSS field, shown on the preview as they are typed.
-	 * The rewriting that confines them to one table is done on the server, so
-	 * the preview is styled by exactly the code the published page will use.
-	 */
 	( function () {
 		var field = document.getElementById( 'lstab-custom-css' );
 
@@ -729,17 +523,9 @@
 		sheet.className = 'lstab-live-css';
 		stage.parentNode.insertBefore( sheet, stage.nextSibling );
 
-		/**
-		 * Ask the server for the scoped form and put it on the page.
-		 *
-		 * @return {void}
-		 */
 		function refresh() {
 			var css = field.value;
 
-			// The stored rules arrived with the server-rendered preview and are
-			// confined to the saved table's own selector. Once this is driving
-			// the preview they would be a second, stale answer.
 			var stored = stage.querySelector( 'style.lstab-custom-css' );
 			if ( stored ) {
 				stored.parentNode.removeChild( stored );
@@ -764,15 +550,11 @@
 				}
 			} ).then(
 				function ( response ) {
-					// A slow answer to an older keystroke must not overwrite a
-					// newer one.
 					if ( pending === css ) {
 						sheet.textContent = response.css || '';
 					}
 				},
 				function () {
-					// Nothing to say: the field is still there, the preview is
-					// simply one edit behind until the next keystroke.
 				}
 			);
 		}
@@ -784,29 +566,16 @@
 
 		field.addEventListener( 'change', refresh );
 
-		// The guard that stops a repeated keystroke asking twice has to be
-		// lifted first: after a redraw the text is unchanged but the page it
-		// was applied to is gone.
 		refreshLiveCss = function () {
 			pending = null;
 			refresh();
 		};
 	}() );
 
-	// ---------------------------------------------------------- appearance
-
 	var swatches = document.querySelectorAll( '.lstab-swatch' );
 	var metricInputs = document.querySelectorAll( '.lstab-metric-input' );
 	var sizeInputs = document.querySelectorAll( '.lstab-size-input' );
 
-	/**
-	 * A size as the server will store it: a whole number of pixels held inside
-	 * the field's own range, or nothing. The preview has to show what saving
-	 * will keep, so "60" previews as the largest size there is, not as sixty.
-	 *
-	 * @param {HTMLInputElement} input Size field.
-	 * @return {string} Pixels, or ''.
-	 */
 	function sizeOf( input ) {
 		var raw = parseInt( input.value, 10 );
 
@@ -821,12 +590,6 @@
 	}
 	var resetAppearance = document.getElementById( 'lstab-reset-appearance' );
 
-	/**
-	 * Push every override onto the previewed table.
-	 *
-	 * Overrides are CSS custom properties, so applying them is a property set
-	 * on the element — no restyle round trip and no regenerated markup.
-	 */
 	function applyAppearance() {
 		var table = stage.querySelector( '.lstab' );
 		if ( ! table ) {
@@ -844,8 +607,6 @@
 			}
 		} );
 
-		// Metrics map one choice onto several properties, so the server is the
-		// single source of truth for that mapping; mirror it via a data blob.
 		Array.prototype.forEach.call( metricInputs, function ( input ) {
 			var token = input.getAttribute( 'data-lstab-token' );
 			var map = ( settings.metrics || {} )[ token ] || {};
@@ -874,17 +635,6 @@
 		} );
 	}
 
-	/**
-	 * Turn any CSS colour into the #rrggbb a colour input will accept.
-	 *
-	 * A preset writes its colours however it likes — a name, three digits,
-	 * rgb() — but <input type="color"> takes one form only and silently keeps
-	 * its old value when handed anything else. Letting the browser parse it
-	 * through a throwaway element is the only way to cover every spelling.
-	 *
-	 * @param {string} value A CSS colour, or nothing.
-	 * @return {string} A #rrggbb string, or '' when it could not be read.
-	 */
 	function toHex( value ) {
 		var text = ( value || '' ).trim();
 
@@ -920,20 +670,6 @@
 		} ).join( '' );
 	}
 
-	/**
-	 * Show, in the swatch itself, the colour the preset is now supplying.
-	 *
-	 * Clearing an override used to leave the old colour sitting in the picker,
-	 * which read as "still set" even though nothing was. Reading the value back
-	 * off the previewed table means the swatch shows what the table is actually
-	 * using — so a reset looks like a reset.
-	 *
-	 * Call it only after the override has been taken off the table, or it reads
-	 * back the very value being cleared.
-	 *
-	 * @param {Element} swatch The swatch to update.
-	 * @return {void}
-	 */
 	function followPreset( swatch ) {
 		var picker = swatch.querySelector( '.lstab-color-input' );
 		var table = stage.querySelector( '.lstab' );
@@ -944,12 +680,6 @@
 		picker.value = toHex( resolved ) || '#ffffff';
 	}
 
-	/**
-	 * Put one swatch back to following the preset.
-	 *
-	 * @param {Element} swatch The swatch to clear.
-	 * @return {void}
-	 */
 	function clearSwatch( swatch ) {
 		swatch.querySelector( '.lstab-color-value' ).value = '';
 		swatch.querySelector( '.lstab-color-input' ).setAttribute( 'data-lstab-unset', '1' );
@@ -980,8 +710,6 @@
 	} );
 
 	Array.prototype.forEach.call( sizeInputs, function ( input ) {
-		// While typing the preview follows; on leaving the field the number
-		// itself is put inside the range, so the field says what will be saved.
 		input.addEventListener( 'input', applyAppearance );
 		input.addEventListener( 'change', function () {
 			input.value = sizeOf( input );
@@ -1004,21 +732,10 @@
 				table.removeAttribute( 'style' );
 			}
 
-			// Only now that the overrides are off the table can each swatch be
-			// shown the colour the preset supplies in their place.
 			Array.prototype.forEach.call( swatches, followPreset );
 		} );
 	}
 
-	/**
-	 * Squeeze the preview to one of the offered widths.
-	 *
-	 * Constrains the stage so the author can see the table and the card layout
-	 * without resizing the browser; the container query does the rest.
-	 *
-	 * @param {string} width Width in pixels, or '' for the full column.
-	 * @return {void}
-	 */
 	function setPreviewWidth( width ) {
 		stage.style.maxWidth = width ? width + 'px' : '';
 
@@ -1039,8 +756,6 @@
 		input.addEventListener( 'change', function () {
 			applyPreset( input.value );
 
-			// A swatch with no override of its own is showing the old preset's
-			// colour until it is told otherwise.
 			Array.prototype.forEach.call( swatches, function ( swatch ) {
 				if ( ! swatch.querySelector( '.lstab-color-value' ).value ) {
 					followPreset( swatch );
@@ -1049,20 +764,10 @@
 		} );
 	} );
 
-	// Layout is a class too, so swap it in place rather than refetching.
 	Array.prototype.forEach.call( layoutInputs, function ( input ) {
 		input.addEventListener( 'change', function () {
 			var table = stage.querySelector( '.lstab' );
 
-			/*
-			 * The preview is normally as wide as its column, and at that width
-			 * two of the three choices draw exactly the same table — so picking
-			 * one appeared to do nothing at all, which is a fair reason to
-			 * conclude the setting is broken. Each choice is therefore shown at
-			 * the width where it is itself: the two that answer "what happens
-			 * on a phone" go to phone width, and "always cards" goes back to
-			 * the full width, which is the whole of what it claims.
-			 */
 			setPreviewWidth( 'cards' === input.value ? '' : '390' );
 
 			if ( ! table ) {
@@ -1077,7 +782,6 @@
 				table.classList.add( 'lstab-layout-' + input.value );
 			}
 
-			// The slider has to re-measure once the layout changes.
 			table.dispatchEvent( new CustomEvent( 'lstab:resize' ) );
 		} );
 	} );
@@ -1098,29 +802,16 @@
 
 			table.classList.toggle( pins[ name ], box.checked );
 
-			// Pinning changes what has to be measured: a pinned first column
-			// takes width from what is left to scroll.
 			table.dispatchEvent( new CustomEvent( 'lstab:resize' ) );
 		} );
 	} );
 
-	/*
-	 * The row count is only a question once there are pages to put rows on.
-	 * Shown while paging is off it invited a 0 — which is how the whole feature
-	 * used to get switched off by somebody who only meant to clear the box.
-	 */
 	if ( pagingToggle && pagingRows ) {
 		pagingToggle.addEventListener( 'change', function () {
 			pagingRows.hidden = ! pagingToggle.checked;
 		} );
 	}
 
-	/*
-	 * Record that somebody made a decision here, either way. A long sheet
-	 * created without anyone touching these controls has pages turned on for it
-	 * and is told so; one created with the switch deliberately left off keeps
-	 * that answer. To the server the two submissions are otherwise identical.
-	 */
 	var pagingTouched = document.getElementById( 'lstab-paging-touched' );
 
 	if ( pagingTouched ) {
@@ -1137,20 +828,6 @@
 		} );
 	}
 
-	// Hiding or renaming changes the markup itself, so the preview is rebuilt
-	// rather than restyled. A text field only fires this on blur, so a rename
-	// costs one round trip, not one per keystroke.
-	/**
-	 * Redraw the preview from the copy already stored.
-	 *
-	 * Renaming a column or hiding one changes the markup, not just its styling,
-	 * so the table has to be built again — but not by asking Google, which is
-	 * slow, is a request nobody asked for, and is impossible for the bundled
-	 * example. The server has the rows already; this hands it the settings as
-	 * they stand in the form, unsaved.
-	 *
-	 * @return {void}
-	 */
 	function redrawFromStored() {
 		var id = sourceIdField ? parseInt( sourceIdField.value, 10 ) || 0 : 0;
 
@@ -1179,22 +856,10 @@
 				}
 			},
 			function () {
-				// Nothing to say: the preview simply stays as it was until the
-				// next change, or until the save that makes it certain.
 			}
 		);
 	}
 
-	/**
-	 * Write the names as they stand straight onto the previewed table.
-	 *
-	 * Instant, and it needs nothing from the server — a rename changes the
-	 * words in the heading row and nothing else. It is also the only thing that
-	 * can work before the first save, when there is no stored copy to redraw
-	 * from and asking Google again for every keystroke would be absurd.
-	 *
-	 * @return {void}
-	 */
 	function renameHeadings() {
 		var table = stage.querySelector( '.lstab-table' );
 
@@ -1214,11 +879,6 @@
 				return;
 			}
 
-			/*
-			 * Neither a hidden column nor one that lives under the row has a
-			 * heading on the table to rename, and counting them would put every
-			 * name after them on the wrong column.
-			 */
 			if ( ( state && '1' === state.value ) || ( drawer && '1' === drawer.value ) ) {
 				return;
 			}
@@ -1241,15 +901,6 @@
 		} );
 	}
 
-	/*
-	 * A rename shows as it is typed rather than only after a save. Delegated to
-	 * the list rather than bound row by row, because the list is rebuilt from
-	 * the preview on a source that has never been saved.
-	 */
-	/*
-	 * Published so an add-on can ask for the preview to be drawn again when one
-	 * of its own controls changes.
-	 */
 	window.lstabRedrawPreview = redrawFromStored;
 
 	if ( columnList ) {
@@ -1262,8 +913,6 @@
 
 			renameHeadings();
 
-			// The full redraw follows, for the parts of a table a heading is
-			// not: the labels a card layout repeats beside every value.
 			window.clearTimeout( typing );
 			typing = window.setTimeout( redrawFromStored, 600 );
 		} );
@@ -1281,9 +930,6 @@
 				return;
 			}
 
-			// Which line is the heading is a question about the sheet, not
-			// about the stored table, so this one does go to Google — where
-			// there is a sheet to go to.
 			if ( urlInput && urlInput.value ) {
 				loadPreview( gidField ? gidField.value : '' );
 			} else {
@@ -1300,8 +946,6 @@
 			}
 		} );
 
-		// Editing a source that has a sheet behind it: fetch once on opening,
-		// which is also what fills the tab picker.
 		if ( urlInput.value ) {
 			loadPreview( gidField ? gidField.value : '' );
 		}

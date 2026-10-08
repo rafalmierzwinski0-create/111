@@ -1,39 +1,12 @@
 <?php
-/**
- * Per-source appearance overrides.
- *
- * Every colour and metric the stylesheet uses is already a CSS custom property
- * on the table wrapper, so an override is simply that property set inline. No
- * generated stylesheet, no !important, and a value left empty falls straight
- * back to whatever the chosen preset defines.
- *
- * @package LiveSheetsTable
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Appearance token registry.
- */
 class LSTAB_Customizer {
-
-	/**
-	 * Whether the visual editor is offered at all.
-	 *
-	 * Exposed as a filter so the appearance panel can be moved behind the Pro
-	 * add-on later without touching this code.
-	 *
-	 * @return bool
-	 */
 	public static function is_enabled() {
 		return (bool) apply_filters( 'lstab_customizer_enabled', true );
 	}
 
-	/**
-	 * Editable colour tokens.
-	 *
-	 * @return array<string,array{label:string,var:string,note?:string}>
-	 */
 	public static function colors() {
 		return (array) apply_filters(
 			'lstab_customizer_colors',
@@ -59,13 +32,6 @@ class LSTAB_Customizer {
 					'note'  => __( 'Between rows and around cells', 'live-sheets-table' ),
 					'var'   => '--lstab-border',
 				),
-				/*
-				 * One of these belongs to one style, and until now it
-				 * sat among the rest on all nine — a colour well that does
-				 * nothing is a colour well somebody sets, saves, and then goes
-				 * looking for on the page. 'style' says which style a swatch
-				 * is for; the screen shows it only when that style is chosen.
-				 */
 				'stripe'     => array(
 					'label' => __( 'Striped rows', 'live-sheets-table' ),
 					'note'  => __( 'The colour of every other row', 'live-sheets-table' ),
@@ -86,12 +52,6 @@ class LSTAB_Customizer {
 		);
 	}
 
-	/**
-	 * Editable metric tokens, each a fixed set of choices rather than a free
-	 * number, so a table cannot be configured into something unreadable.
-	 *
-	 * @return array<string,array{label:string,choices:array,vars:array}>
-	 */
 	public static function metrics() {
 		return (array) apply_filters(
 			'lstab_customizer_metrics',
@@ -124,12 +84,6 @@ class LSTAB_Customizer {
 						'normal' => __( 'Rows only', 'live-sheets-table' ),
 						'none'   => __( 'No lines', 'live-sheets-table' ),
 					),
-					/*
-					 * Lengths, not whole borders, so this says nothing about the
-					 * colour: Line colour above stays in charge of that whichever
-					 * choice is made here. A table folded into cards on a phone
-					 * ignores both — see --lstab-table-mode in the stylesheet.
-					 */
 					'vars'    => array(
 						'grid'   => array(
 							'--lstab-row-line' => '1px',
@@ -150,12 +104,6 @@ class LSTAB_Customizer {
 						'right'  => __( 'Right', 'live-sheets-table' ),
 					),
 					'vars'    => array(
-						/*
-						 * Each choice places both things in the strip, and
-						 * places them apart: the freshness line keeps left
-						 * unless the buttons are already there, in which case
-						 * it goes to the far side rather than under them.
-						 */
 						'left'   => array(
 							'--lstab-pager-col'   => '1',
 							'--lstab-pager-place' => 'start',
@@ -188,20 +136,6 @@ class LSTAB_Customizer {
 		);
 	}
 
-	/**
-	 * Editable sizes, in whole pixels, each held between a floor and a ceiling.
-	 *
-	 * Small, Normal and Large were too coarse to match a theme by, and a free
-	 * number is how a table ends up with sixty-pixel values. So: a number, and
-	 * a range that keeps it a table. Anything past the ceiling is held at the
-	 * ceiling rather than refused, so "60" still gets the biggest size there is.
-	 *
-	 * The two are independent. The text size reaches the values in the rows and
-	 * nothing else; the headings keep their own size whatever the rows are set
-	 * to, which is what somebody enlarging the figures expects.
-	 *
-	 * @return array<string,array{label:string,note:string,var:string,min:int,max:int,legacy:array<string,int>}>
-	 */
 	public static function sizes() {
 		return (array) apply_filters(
 			'lstab_customizer_sizes',
@@ -212,8 +146,6 @@ class LSTAB_Customizer {
 					'var'    => '--lstab-text-size',
 					'min'    => 11,
 					'max'    => 24,
-					// What the old Small, Normal and Large came to, on the
-					// sixteen-pixel text most themes set.
 					'legacy' => array(
 						'small' => 14,
 						'large' => 17,
@@ -234,13 +166,6 @@ class LSTAB_Customizer {
 		);
 	}
 
-	/**
-	 * One size, made safe: a whole number of pixels inside its range, or ''.
-	 *
-	 * @param mixed                $raw  What was submitted or stored.
-	 * @param array<string,mixed> $size The size's definition.
-	 * @return string
-	 */
 	public static function sanitize_size( $raw, $size ) {
 		$raw = strtolower( trim( (string) $raw ) );
 
@@ -255,11 +180,6 @@ class LSTAB_Customizer {
 		return (string) max( (int) $size['min'], min( (int) $size['max'], (int) $found[1] ) );
 	}
 
-	/**
-	 * Empty override set.
-	 *
-	 * @return array<string,string>
-	 */
 	public static function defaults() {
 		$defaults = array();
 
@@ -276,15 +196,6 @@ class LSTAB_Customizer {
 		return $defaults;
 	}
 
-	/**
-	 * Clean a submitted or stored override set.
-	 *
-	 * Anything unrecognised is dropped rather than passed through, so nothing
-	 * from this array can reach the style attribute unchecked.
-	 *
-	 * @param mixed $raw Raw values.
-	 * @return array<string,string>
-	 */
 	public static function sanitize( $raw ) {
 		$raw   = is_array( $raw ) ? $raw : array();
 		$clean = self::defaults();
@@ -314,12 +225,6 @@ class LSTAB_Customizer {
 		return $clean;
 	}
 
-	/**
-	 * Whether any override is actually set.
-	 *
-	 * @param array<string,string> $values Sanitised overrides.
-	 * @return bool
-	 */
 	public static function has_overrides( $values ) {
 		foreach ( self::css_map( $values ) as $unused ) {
 			return true;
@@ -328,12 +233,6 @@ class LSTAB_Customizer {
 		return false;
 	}
 
-	/**
-	 * Resolve overrides into CSS custom properties.
-	 *
-	 * @param array<string,string> $values Sanitised overrides.
-	 * @return array<string,string> Property name to value.
-	 */
 	public static function css_map( $values ) {
 		$values = self::sanitize( $values );
 		$map    = array();
@@ -363,19 +262,10 @@ class LSTAB_Customizer {
 		return $map;
 	}
 
-	/**
-	 * Build the inline style attribute value for a table wrapper.
-	 *
-	 * @param array<string,string> $values Sanitised overrides.
-	 * @return string Empty when nothing is overridden.
-	 */
 	public static function inline_style( $values ) {
 		$declarations = array();
 
 		foreach ( self::css_map( $values ) as $property => $value ) {
-			// Both halves are ours: property names come from the registry and
-			// values are already hex colours or fixed keyword lookups. This is
-			// belt and braces against a filter returning something odd.
 			$property = preg_replace( '/[^a-z0-9-]/i', '', $property );
 			$value    = preg_replace( '/[^a-z0-9#.%,()\/ -]/i', '', (string) $value );
 

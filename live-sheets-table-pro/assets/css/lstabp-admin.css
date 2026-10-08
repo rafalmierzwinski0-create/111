@@ -1,8 +1,3 @@
-/*
- * Pro's own admin styling. Everything else on the source screen comes from the
- * free plugin's stylesheet, so this only covers what Pro adds.
- */
-
 .lstabp-rule-list select {
 	max-width: 100%;
 }
@@ -16,7 +11,6 @@
 	min-width: 8rem;
 }
 
-/* Shows the chosen look rather than describing it. */
 .lstabp-swatch {
 	display: inline-block;
 	margin-left: 0.45rem;
@@ -27,13 +21,6 @@
 	vertical-align: middle;
 }
 
-/* ────────────────────────────────────────── the palette on a rule */
-
-/*
- * Colours are chosen by looking at them. The dropdown these replace listed
- * five colours by name, which asked somebody to picture "amber" and then trust
- * that the plugin pictured the same one.
- */
 .lstabp-paint {
 	display: inline-flex;
 	align-items: center;
@@ -60,11 +47,6 @@
 	transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-/*
- * The radio itself covers the circle rather than sitting beside it, so the
- * whole chip is the target — a 13px radio button is not something anybody
- * should have to hit nine times in a row.
- */
 .lstabp-paint-chip input[type="radio"] {
 	position: absolute;
 	inset: 0;
@@ -81,7 +63,6 @@
 	transform: scale( 1.12 );
 }
 
-/* A ring outside the colour, so it reads on a pale chip and a strong one. */
 .lstabp-paint-chip:has( input:checked ) {
 	box-shadow: 0 0 0 2px #fff, 0 0 0 4px var( --lstab-a, #0e7c74 );
 }
@@ -90,12 +71,6 @@
 	box-shadow: 0 0 0 2px #fff, 0 0 0 4px var( --lstab-a-deep, #0a5a54 );
 }
 
-/*
- * The two chips that are not a colour show what they do rather than name it: a
- * letter in the weight it would give the cell, and a letter with the line drawn
- * through it. A "B" set in the same weight as everything else is a letter, not
- * a promise.
- */
 .lstabp-paint-effect-bold span[aria-hidden],
 .lstabp-paint-effect-strike span[aria-hidden] {
 	font-size: 0.86rem;
@@ -114,12 +89,6 @@
 	text-decoration-color: #1d2327;
 }
 
-/*
- * One circle for "a colour of your own": the wheel, with the chosen colour
- * painted over it once there is one. The colour input lies on top of it at
- * nothing per cent, so clicking the wheel opens the browser's picker — which
- * is what everybody tried to do with the two-circle version.
- */
 .lstabp-paint-own-wrap {
 	position: relative;
 	display: inline-flex;
@@ -148,12 +117,10 @@
 	-webkit-appearance: none;
 }
 
-/* The wheel grows with the chip under it, so the pair still reads as one. */
 .lstabp-paint-own-wrap:hover .lstabp-paint-own {
 	transform: scale( 1.12 );
 }
 
-/* The colour input is invisible on purpose now, so it is not dimmed twice. */
 .lstabp-rules-card.is-waiting .lstabp-paint {
 	opacity: 0.5;
 	pointer-events: none;
@@ -167,13 +134,6 @@
 	margin-top: 1rem;
 }
 
-/* ───────────────────────────────────────────────────── colour rules */
-
-/*
- * A rule is a sentence, not a row of a table. Read across a table and you have
- * to hold five column headings in your head to work out what one line means;
- * read a sentence and it says itself.
- */
 .lstabp-rules {
 	list-style: none;
 	margin: 0.4rem 0 0.8rem;
@@ -190,7 +150,6 @@
 	margin-bottom: 0.5rem;
 }
 
-/* Numbered, because the order is what decides which rule wins. */
 .lstabp-rule::before {
 	counter-increment: lstabp-rule;
 	content: counter( lstabp-rule );
@@ -202,7 +161,6 @@
 	color: #8a9a98;
 }
 
-/* The empty one at the bottom is an invitation, not a rule that exists. */
 .lstabp-rule.is-new {
 	border-style: dashed;
 	background: transparent;
@@ -234,7 +192,6 @@
 	flex: 1 1 7rem;
 }
 
-/* How the rules decide between themselves, said once above the list. */
 .lstabp-rules-how {
 	list-style: none;
 	margin: 0.6rem 0 0.9rem;
@@ -262,7 +219,6 @@
 	color: #0e7c74;
 }
 
-/* A rule pointing at a heading the sheet no longer has. */
 .lstabp-rules-orphans {
 	margin: 0.6rem 0 0.9rem;
 	padding: 0.7rem 0.9rem;
@@ -284,8 +240,6 @@
 	border-color: #e3b778;
 	background: #fffaf2;
 }
-
-/* ─────────────────────────────────────────── choosing the visitor's filters */
 
 .lstabp-facet-picks {
 	list-style: none;
@@ -320,11 +274,6 @@
 	color: var( --lstab-ink, #101d1b );
 }
 
-/*
- * Said on the columns worth offering, rather than greying out the rest: which
- * ones make a useful filter is a judgement about the sheet, and the person
- * whose sheet it is knows things the counting does not.
- */
 .lstabp-facet-flag {
 	display: inline-block;
 	margin-inline-start: 0.4rem;
@@ -351,12 +300,6 @@
 	background: #fbfdfc;
 }
 
-/*
- * A picture of the filter bar as it appears on the page. People asked what the
- * feature was for; a sentence answered it slowly and this answers it at a
- * glance. Deliberately flat and unclickable — it is an illustration, not a
- * control that has stopped working.
- */
 .lstabp-facets-demo {
 	display: block;
 	margin: 0.2rem 0 0.9rem;
@@ -424,7 +367,6 @@
 	color: #50575e;
 }
 
-/* The button that adds a rule, under the list it adds to. */
 .lstabp-rules-add {
 	margin: 0.55rem 0 0.2rem;
 }
@@ -433,19 +375,6 @@
 	display: none;
 }
 
-/* ---------------------------------------------------------------- column looks */
-
-/* ------------------------------------------------------- column looks */
-
-/*
- * A list of columns, one line each, closed. The line has to be readable
- * without being opened: the name on the left, and on the right what that
- * column looks like now — drawn small, and named beside it.
- *
- * The first version put all five choices on every line. Twenty columns meant
- * a hundred little pictures, the same five over and over, and the names — the
- * only thing that differs down the card — were the quietest marks on it.
- */
 .lstabp-looks {
 	margin: 0 0 1em;
 	padding: 0;
@@ -460,7 +389,6 @@
 	border-top: 1px solid #f0f0f1;
 }
 
-/* A column with a look on it is worth finding again at a glance. */
 .lstabp-look.is-on {
 	background: #f7fbfa;
 	box-shadow: inset 3px 0 0 #2f7d6e;
@@ -477,7 +405,6 @@
 	padding: 9px 12px;
 	cursor: pointer;
 	list-style: none;
-	/* Safari draws its own marker through ::-webkit-details-marker. */
 	user-select: none;
 }
 
@@ -501,7 +428,6 @@
 	overflow-wrap: anywhere;
 }
 
-/* What the column looks like now: the thing, then the word for it. */
 .lstabp-look-now {
 	display: flex;
 	align-items: center;
@@ -519,7 +445,6 @@
 	font-weight: 600;
 }
 
-/* Says what the line does, rather than leaving a bare triangle to guess at. */
 .lstabp-look-more {
 	flex: 0 0 auto;
 	min-width: 5.5em;
@@ -541,12 +466,6 @@
 	background: #fbfcfc;
 }
 
-/*
- * The five choices, side by side, and only on the line being worked on.
- * Each one is the look itself with its name underneath, so the choice is made
- * by recognising it rather than by reading four words and imagining what they
- * draw.
- */
 .lstabp-look-picks {
 	display: flex;
 	flex-wrap: wrap;
@@ -558,12 +477,6 @@
 	justify-items: center;
 	align-content: start;
 	gap: 5px;
-	/*
-	 * Held to one width rather than left to the words. The names differ in
-	 * length by a factor of four, and chips sized by their labels came out as
-	 * five different rectangles — which a row of examples must not be, because
-	 * the eye compares the boxes before it reads them.
-	 */
 	width: 124px;
 	padding: 8px;
 	border: 1px solid #dcdcde;
@@ -582,7 +495,6 @@
 	box-shadow: 0 0 0 1px #2f7d6e;
 }
 
-/* The chip is the control; the radio itself is off screen. */
 .lstabp-look-opt input[ type="radio" ] {
 	position: absolute;
 	width: 1px;
@@ -600,12 +512,6 @@
 	outline-offset: 2px;
 }
 
-/*
- * The miniature. A fixed height, not a minimum: a badge and a button carry
- * padding of their own and came out taller than the plain number beside them,
- * which is enough to make a row of examples look like a row of different
- * things.
- */
 .lstabp-look-face {
 	display: flex;
 	align-items: center;
@@ -622,14 +528,12 @@
 	box-sizing: border-box;
 }
 
-/* In the closed line it is a stamp beside the name, not a panel. */
 .lstabp-look-now .lstabp-look-face {
 	width: 86px;
 	height: 24px;
 	font-size: 11px;
 }
 
-/* A painted column fills its chip, which is the whole point of it. */
 .lstabp-look-face.is-tinted {
 	width: 100%;
 }
@@ -654,13 +558,10 @@
 	margin-top: 10px;
 }
 
-/* Nothing chosen, nothing to set. */
 .lstabp-look:not( .is-on ) .lstabp-look-fields {
 	display: none;
 }
 
-/* Only the fields the chosen look has any use for. A bar has no words of its
-   own, so it has no ink and nothing to say. */
 .lstabp-look-colour {
 	display: none;
 	align-items: center;
@@ -713,20 +614,6 @@
 	display: none;
 }
 
-
-/* ------------------------------------------ the bin beside a colour rule */
-
-/*
- * Quiet until it is wanted. A delete that shouts sits in the corner of the eye
- * all the time somebody is choosing colours, and the one thing it must not do
- * is look like the next step. Quiet is not the same as invisible, though, so
- * it keeps a hairline: without one it read as a smudge rather than a control.
- *
- * It follows the swatch rather than being pushed to the far edge. The line
- * wraps on a narrow screen, and an automatic margin sent the bin off alone to
- * the right-hand end of whatever line it landed on, where it belonged to
- * nothing.
- */
 .lstabp-rule-drop {
 	display: inline-flex;
 	align-items: center;
@@ -746,7 +633,6 @@
 .lstabp-rule-drop svg {
 	width: 15px;
 	height: 15px;
-	/* The click belongs to the button, not to the drawing inside it. */
 	pointer-events: none;
 }
 
@@ -767,12 +653,6 @@
 	cursor: default;
 }
 
-/* ------------------------------------------------ ten of a long list */
-
-/*
- * The button under a folded list. Two of them: the next ten, and the lot —
- * four clicks to reach the fiftieth column is its own kind of long list.
- */
 .lstabp-fold-more {
 	display: flex;
 	align-items: center;
@@ -799,12 +679,6 @@
 	display: none;
 }
 
-/*
- * A folded row really has to go. "hidden" is an attribute, and the browser's
- * own rule for it is one selector weak — a class saying "display: grid" beats
- * it, which is how a list that had been folded went on drawing all fifty rows
- * under a button offering to show them.
- */
 .lstabp-look[ hidden ],
 .lstabp-facet-pick[ hidden ] {
 	display: none;

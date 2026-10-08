@@ -52,11 +52,6 @@ require_once LSTAB_PATH . 'includes/class-lstab-rest.php';
 require_once LSTAB_PATH . 'includes/class-lstab-admin.php';
 require_once LSTAB_PATH . 'includes/class-lstab-plugin.php';
 
-/**
- * Main plugin instance.
- *
- * @return LSTAB_Plugin
- */
 function lstab() {
 	static $instance = null;
 	if ( null === $instance ) {

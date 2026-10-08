@@ -1,12 +1,4 @@
 <?php
-/**
- * Add / edit sheet source screen.
- *
- * @package LiveSheetsTable
- *
- * @var array<string,mixed>|null $source
- * @var int                      $source_id
- */
 
 defined( 'ABSPATH' ) || exit;
 
@@ -19,11 +11,6 @@ $lstab_is_pro     = LSTAB_Limits::is_pro();
 $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 $lstab_is_sample  = $lstab_is_edit && LSTAB_Example::is_example( $source );
 
-/*
- * A link pasted on the welcome screen arrives here in the address. Carrying it
- * through means the first thing somebody sees after pasting is their own table,
- * not the same empty field again.
- */
 if ( ! $lstab_is_edit ) {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only prefill of a field the person just typed.
 	$lstab_pasted = isset( $_GET['sheet_url'] ) ? esc_url_raw( wp_unslash( $_GET['sheet_url'] ) ) : '';
@@ -56,23 +43,8 @@ if ( ! $lstab_is_edit ) {
 		</div>
 	<?php endif; ?>
 
-	<?php
-	/*
-	 * The form wraps the whole editor, not just the left column, so that the
-	 * column settings below the grid are part of it and the save button sits
-	 * under everything it saves.
-	 */
-	?>
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="lstab-source-form">
 
-	<?php
-	/*
-	 * One form, three panes. Splitting it into three saved screens would mean
-	 * three chances to lose unsaved work and three round trips to change two
-	 * things; this way the save button still saves everything, wherever you
-	 * happened to be standing.
-	 */
-	?>
 	<nav class="lstab-panes" id="lstab-panes" role="tablist">
 		<?php
 		$lstab_panes = array(
@@ -138,33 +110,12 @@ if ( ! $lstab_is_edit ) {
 				</p>
 
 				<?php
-				/*
-				 * Drawn already carrying the tab this source is set to, rather
-				 * than hidden until Google answers with the list of them. The
-				 * editor re-reads the sheet on opening, so the field used to
-				 * appear a second or three after the screen did — below the
-				 * button somebody had just finished looking at, which is a
-				 * good way of never being found. The rest of the tabs are put
-				 * into it when the answer arrives.
-				 */
 				$lstab_tab_known = '' !== trim( (string) $lstab_values['tab_name'] );
 				?>
 				<div id="lstab-tabs-wrap" class="lstab-tabs" <?php echo $lstab_tab_known ? '' : 'hidden'; ?>>
 					<label for="lstab-tabs"><strong><?php esc_html_e( 'Sheet tab', 'live-sheets-table' ); ?></strong></label>
-					<?php
-					/*
-					 * Pointed at the note below whether or not there is one to
-					 * read. A screen reader skips a description that is hidden,
-					 * so the attribute costs nothing while the list is fine and
-					 * means the reason is read out with the field on the one
-					 * occasion it matters — otherwise somebody who cannot see
-					 * the sentence beside the field hears a list of one tab and
-					 * no explanation of why.
-					 */
-					?>
 					<select id="lstab-tabs" aria-describedby="lstab-tabs-note">
 						<?php if ( $lstab_tab_known ) : ?>
-							<?php // On one line: an option's text is whatever is between the tags, indentation included. ?>
 							<option value="<?php echo esc_attr( (string) $lstab_values['gid'] ); ?>" selected><?php echo esc_html( $lstab_values['tab_name'] ); ?></option>
 						<?php endif; ?>
 					</select>
@@ -236,14 +187,6 @@ if ( ! $lstab_is_edit ) {
 						</button>
 					</p>
 					<?php
-					/*
-					 * The list used to be five pieces of code and no meanings,
-					 * which is a puzzle rather than a reference: nothing on the
-					 * screen said what meta="no" would do to the page. Where an
-					 * attribute takes one of a fixed set of words, those words
-					 * are printed too — style="striped" is no use to somebody
-					 * who cannot know what else may go in there.
-					 */
 					$lstab_style_words = array();
 					foreach ( LSTAB_Styles::all() as $lstab_slug => $lstab_preset ) {
 						if ( empty( $lstab_preset['pro'] ) || LSTAB_Limits::is_pro() ) {
@@ -276,17 +219,6 @@ if ( ! $lstab_is_edit ) {
 						),
 					);
 
-					/**
-					 * Attributes the shortcode understands, for the reference
-					 * on this screen.
-					 *
-					 * The add-on adds its own here rather than documenting them
-					 * on a screen of its own, so there is one list to read and
-					 * it is beside the shortcode it belongs to.
-					 *
-					 * @param array $lstab_attributes Rows of write/means/values.
-					 * @param array $source           The source being edited.
-					 */
 					$lstab_attributes = apply_filters( 'lstab_shortcode_attributes', $lstab_attributes, $source );
 					?>
 					<p class="lstab-help">
@@ -325,36 +257,16 @@ if ( ! $lstab_is_edit ) {
 			<?php endif; ?>
 
 			<?php
-			/*
-			 * The general tab was the one pane the add-on could not reach, so
-			 * anything belonging here had to go on Appearance instead — which
-			 * is where "let visitors download this table" ended up, filed
-			 * under how the table looks. All three panes take cards now.
-			 *
-			 * @param string     $pane    Pane slug: 'general', 'look' or 'hide'.
-			 * @param array|null $source  Source row, or null while adding.
-			 * @param bool       $is_edit Whether an existing source is open.
-			 */
 			do_action( 'lstab_edit_pane_cards', 'general', $lstab_is_edit ? $source : null, $lstab_is_edit );
 			?>
 
-			</div><!-- /pane general -->
+			</div>
 
 			<div class="lstab-pane" data-lstab-pane="look" hidden>
 			<div class="lstab-card">
 				<h2 class="lstab-card-title"><?php esc_html_e( 'Look and behaviour', 'live-sheets-table' ); ?></h2>
 
 				<?php
-				/*
-				 * Three choices side by side rather than a dropdown. A dropdown
-				 * shows one line at a time, so the two card options — the one
-				 * that waits until the screen is narrow and the one that never
-				 * waits — read as the same sentence twice and the difference
-				 * between them was invisible. Picking one also moves the
-				 * preview to the width where that choice shows itself: at desk
-				 * width two of the three look identical, so the screen appeared
-				 * not to react at all.
-				 */
 				$lstab_layout  = $lstab_is_edit && ! empty( $source['layout'] ) ? $source['layout'] : 'table';
 				$lstab_layouts = array(
 					'table' => array(
@@ -434,28 +346,11 @@ if ( ! $lstab_is_edit ) {
 				</p>
 
 				<?php
-				/*
-				 * Paging used to be one unlabelled number box holding 0, which
-				 * is how you turn a feature off by accident and never find it
-				 * again: nothing on the screen said the word "pages", so there
-				 * was nothing to look for. It is now a switch that says what it
-				 * does, with the row count only shown once it is on — and the
-				 * stored value is still the same single number, 0 for off.
-				 */
 				$lstab_per_page = $lstab_is_edit && isset( $source['per_page'] ) ? (int) $source['per_page'] : 0;
 				?>
 				<div class="lstab-paging">
 					<h3 class="lstab-subhead"><?php esc_html_e( 'Pagination', 'live-sheets-table' ); ?></h3>
 
-					<?php
-					/*
-					 * Set by the screen the moment either control below is
-					 * touched. A long sheet being created with nobody having
-					 * looked at this gets pages turned on for it; a long sheet
-					 * created with the switch deliberately left off does not.
-					 * Without this the two are the same submission.
-					 */
-					?>
 					<input type="hidden" name="paging_touched" id="lstab-paging-touched" value="">
 
 					<p class="lstab-checkbox">
@@ -518,15 +413,6 @@ if ( ! $lstab_is_edit ) {
 						<?php foreach ( LSTAB_Customizer::colors() as $lstab_key => $lstab_color ) : ?>
 							<?php $lstab_value = isset( $lstab_vars[ $lstab_key ] ) ? $lstab_vars[ $lstab_key ] : ''; ?>
 							<?php
-							/*
-							 * A swatch that belongs to one style is on screen
-							 * only while that style is chosen. The attribute
-							 * says which; the stylesheet does the hiding, so
-							 * the screen is right before the script runs, and
-							 * the field is still in the form either way — a
-							 * colour set on Striped is still there when
-							 * somebody goes back to Striped.
-							 */
 							$lstab_only = isset( $lstab_color['style'] ) ? (string) $lstab_color['style'] : '';
 							?>
 							<div class="lstab-swatch" data-lstab-token="<?php echo esc_attr( $lstab_key ); ?>" data-lstab-var="<?php echo esc_attr( $lstab_color['var'] ); ?>"
@@ -535,7 +421,6 @@ if ( ! $lstab_is_edit ) {
 									<?php echo esc_html( $lstab_color['label'] ); ?>
 								</label>
 								<?php if ( ! empty( $lstab_color['note'] ) ) : ?>
-									<?php // "Accent" and "Lines" name nothing a reader can point at; the note says what they paint. ?>
 									<span class="lstab-swatch-note"><?php echo esc_html( $lstab_color['note'] ); ?></span>
 								<?php endif; ?>
 								<div class="lstab-swatch-controls">
@@ -598,7 +483,6 @@ if ( ! $lstab_is_edit ) {
 									<strong><?php echo esc_html( $lstab_metric['label'] ); ?></strong>
 								</label>
 								<?php if ( ! empty( $lstab_metric['note'] ) ) : ?>
-									<?php // Some settings move more than their name says: the note is where that is admitted. ?>
 									<span class="lstab-swatch-note"><?php echo esc_html( $lstab_metric['note'] ); ?></span>
 								<?php endif; ?>
 								<select id="lstab-metric-<?php echo esc_attr( $lstab_key ); ?>"
@@ -625,13 +509,6 @@ if ( ! $lstab_is_edit ) {
 			<?php endif; ?>
 
 			<?php
-			/**
-			 * Fires inside the "Appearance" pane of the source form.
-			 *
-			 * @param string     $pane    Pane slug: 'general', 'look' or 'hide'.
-			 * @param array|null $source  Source row, or null while adding.
-			 * @param bool       $is_edit Whether an existing source is being edited.
-			 */
 			do_action( 'lstab_edit_pane_cards', 'look', $lstab_is_edit ? $source : null, $lstab_is_edit );
 			?>
 
@@ -663,7 +540,7 @@ if ( ! $lstab_is_edit ) {
 					</p>
 				</div>
 			<?php endif; ?>
-			</div><!-- /pane look -->
+			</div>
 
 			<div class="lstab-pane" data-lstab-pane="hide" hidden>
 	<?php
@@ -672,12 +549,6 @@ if ( ! $lstab_is_edit ) {
 				? LSTAB_Columns::drift( $lstab_columns, $source['data']['headers'] )
 				: array();
 
-			/*
-			 * Until a sheet has been read once there are no columns to list. The card
-			 * still appears, spelling out what it is waiting for: a control that
-			 * materialises later is harder to find than one that was always in view,
-			 * and people went looking for this in the wrong places.
-			 */
 			$lstab_waiting = ! $lstab_columns;
 			$lstab_rows    = $lstab_waiting
 				? array_fill( 0, 3, array( 'source' => '', 'label' => '', 'hidden' => false ) )
@@ -753,14 +624,6 @@ if ( ! $lstab_is_edit ) {
 											placeholder="<?php echo esc_attr( $lstab_column['source'] ); ?>">
 									</td>
 									<td class="lstab-column-state">
-										<?php
-										/*
-										 * Whether a column is left out is the add-on's to
-										 * change; this only reports it and carries it back
-										 * unchanged, so saving from here can never quietly
-										 * put a column back on a public page.
-										 */
-										?>
 										<input type="hidden" <?php disabled( $lstab_waiting ); ?>
 											name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][hidden]"
 											value="<?php echo empty( $lstab_column['hidden'] ) ? '0' : '1'; ?>">
@@ -780,21 +643,11 @@ if ( ! $lstab_is_edit ) {
 						</tbody>
 					</table>
 				</div>
-			</div><!-- /pane hide -->
-
+			</div>
 
 		</div>
 
 		<div class="lstab-preview-pane" data-lstab-style="<?php echo esc_attr( (string) $lstab_values['style_preset'] ); ?>">
-			<?php
-			/*
-			 * The pane is the grid's second column and stretches with it, so
-			 * both columns always end level whichever tab is open; this holds
-			 * what is in it and sticks to the top of the screen while the form
-			 * beside it scrolls. Sticking the column itself cannot work — a
-			 * stretched grid item has no room to move inside.
-			 */
-			?>
 			<div class="lstab-preview-stick">
 			<h2><?php esc_html_e( 'Preview', 'live-sheets-table' ); ?></h2>
 			<p class="lstab-help">
@@ -828,13 +681,6 @@ if ( ! $lstab_is_edit ) {
 			<div id="lstab-preview" class="lstab-preview">
 				<div id="lstab-preview-stage" class="lstab-preview-stage" data-lstab-preview="stage">
 					<?php
-					/*
-					 * Drawn from the copy already stored, so the table is on
-					 * screen the moment the page is. Waiting for a round trip
-					 * to Google left this box empty for a second on every
-					 * visit — and permanently empty for the bundled example,
-					 * which has nothing to fetch and so never filled it in.
-					 */
 					if ( $lstab_is_edit && ! empty( $source['data']['rows'] ) ) {
 						echo LSTAB_Renderer::render_preview( // phpcs:ignore WordPress.Security.EscapeOutput -- Renderer escapes every cell.
 							$source['data'],
@@ -843,11 +689,6 @@ if ( ! $lstab_is_edit ) {
 								'style'       => (string) $source['style_preset'],
 								'style_vars'  => $source['style_vars'],
 								'layout'      => (string) $source['layout'],
-								// render_preview() builds a source of its own
-								// from the data it is handed, and these are not
-								// in it — so without naming them the preview
-								// pinned the first column whatever the form
-								// said, and the setting looked broken.
 								'sticky'      => ! empty( $source['sticky_first'] ),
 								'sticky_head' => ! empty( $source['sticky_head'] ),
 							)
@@ -861,14 +702,6 @@ if ( ! $lstab_is_edit ) {
 				</div>
 			</div>
 
-			<?php
-			/*
-			 * When a table comes out wrong the first question is whether the
-			 * sheet or the plugin is at fault, and nothing else answers it.
-			 * Kept closed, because it is only ever needed when something is
-			 * already wrong.
-			 */
-			?>
 			<details id="lstab-raw-wrap" class="lstab-raw" hidden>
 				<summary><?php esc_html_e( 'What Google actually sent', 'live-sheets-table' ); ?></summary>
 				<p class="lstab-help">
@@ -881,35 +714,20 @@ if ( ! $lstab_is_edit ) {
 		</div>
 	</div>
 
-
-
 	<div class="lstab-pane" data-lstab-pane="hide" hidden>
 
 	<?php
-	/**
-	 * Fires inside the source form, below the column settings.
-	 *
-	 * An add-on printing fields here has them submitted with everything else,
-	 * and can read them back on 'lstab_source_saved' — which only fires after
-	 * the capability and nonce checks have passed.
-	 *
-	 * @param array|null $source  Source row, or null while adding.
-	 * @param bool       $is_edit Whether an existing source is being edited.
-	 */
 	do_action( 'lstab_edit_page_settings', $lstab_is_edit ? $source : null, $lstab_is_edit );
 
-	/** This documented in the Appearance pane above. */
 	do_action( 'lstab_edit_pane_cards', 'hide', $lstab_is_edit ? $source : null, $lstab_is_edit );
 	?>
 
-	</div><!-- /pane hide -->
+	</div>
 
 	<p class="lstab-submit">
 		<button type="submit" class="lstab-btn">
 			<?php
 			if ( $lstab_is_sample ) {
-				// Nothing to sync: promising a sync that cannot happen is the
-				// kind of small lie that makes people distrust the big claims.
 				esc_html_e( 'Save changes', 'live-sheets-table' );
 			} else {
 				echo $lstab_is_edit

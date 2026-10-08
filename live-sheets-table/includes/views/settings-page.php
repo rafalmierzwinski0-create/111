@@ -1,16 +1,4 @@
 <?php
-/**
- * Settings screen.
- *
- * One panel, one row per decision, rather than a stack of identical white
- * boxes. Six equal cards made six equal shouts and gave the eye nowhere to
- * land; here the coloured badge is the landmark, the left column says what the
- * choice is and why, and the right column is the only thing to touch.
- *
- * @package LiveSheetsTable
- *
- * @var array<string,mixed> $settings
- */
 
 defined( 'ABSPATH' ) || exit;
 ?>
@@ -154,15 +142,6 @@ defined( 'ABSPATH' ) || exit;
 		</div>
 
 		<?php
-		/**
-		 * Fires inside the settings form, under the free plugin's own panels.
-		 *
-		 * An add-on printing fields here has them submitted with everything
-		 * else, and can read them back on 'lstab_settings_saved' — which only
-		 * fires once the capability and nonce checks have passed.
-		 *
-		 * @param array<string,mixed> $settings Stored settings.
-		 */
 		do_action( 'lstab_settings_sections', $settings );
 		?>
 

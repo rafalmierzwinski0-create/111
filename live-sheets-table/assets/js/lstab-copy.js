@@ -1,36 +1,10 @@
-/**
- * Live Sheets Table — copying a shortcode.
- *
- * The most repeated action in the plugin, and until now the most annoying: the
- * shortcode was a piece of text you had to select by hand without overshooting
- * either bracket. One click, and the button says so.
- */
 ( function () {
 	'use strict';
 
 	var i18n = ( window.lstabCopy || {} ).i18n || {};
 
-	/**
-	 * Put text on the clipboard, however this browser allows it.
-	 *
-	 * The modern API needs a secure context, which a WordPress dashboard on
-	 * plain http is not — and plenty of small sites still are. The old
-	 * execCommand path is the fallback, so the button works there too.
-	 *
-	 * @param {string} text What to copy.
-	 * @return {Promise} Resolves when the text is on the clipboard.
-	 */
 	function copyText( text ) {
 		if ( navigator.clipboard && navigator.clipboard.writeText ) {
-			/*
-			 * Raced against the clock, because the modern API does not always
-			 * answer. Chromium leaves the promise hanging for ever when the
-			 * page loses focus between the click and the write — no success,
-			 * no error — and a button that answers neither is a button that
-			 * sits there saying "Copy" while the person wonders whether it
-			 * worked. After a second and a half we stop waiting and take the
-			 * old path, which selects the shortcode and says to press Ctrl+C.
-			 */
 			return Promise.race( [
 				navigator.clipboard.writeText( text ),
 				new Promise( function ( resolve, reject ) {
@@ -90,11 +64,6 @@
 				}, 1800 );
 			},
 			function () {
-				/*
-				 * Copying was refused. Selecting the shortcode leaves the
-				 * person one keystroke from having it, which is better than a
-				 * button that appears to do nothing.
-				 */
 				var code = button.parentNode.querySelector( '.lstab-shortcode' );
 
 				if ( code && window.getSelection && document.createRange ) {

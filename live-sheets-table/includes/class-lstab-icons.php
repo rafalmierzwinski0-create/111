@@ -1,32 +1,8 @@
 <?php
-/**
- * The drawn parts of the dashboard: icons and spot illustrations.
- *
- * @package LiveSheetsTable
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Every picture in this plugin, drawn as SVG in the page itself.
- *
- * Nothing here is a file the browser has to fetch, which matters more than it
- * sounds: an icon font or a sprite image is a request that can be slow, blocked
- * or cached wrong, and a dashboard whose icons arrive late looks broken in
- * exactly the moment somebody is deciding whether to trust it.
- *
- * They are also all drawn in `currentColor`, so they take the colour of the
- * text around them. Change the accent in one place and every drawing follows.
- */
 class LSTAB_Icons {
-
-	/**
-	 * One icon, as inline SVG.
-	 *
-	 * @param string $name  Icon name.
-	 * @param string $class Extra class attribute.
-	 * @return string Escaped, ready to echo.
-	 */
 	public static function icon( $name, $class = '' ) {
 		$paths = self::paths();
 
@@ -41,23 +17,6 @@ class LSTAB_Icons {
 		);
 	}
 
-	/**
-	 * An icon on a coloured tile, for the head of a section.
-	 *
-	 * A settings screen made of white boxes reads as a form somebody has to get
-	 * through. One coloured mark per section gives the eye somewhere to land,
-	 * makes the screen scannable from a distance, and — because the hue is
-	 * fixed per section — becomes a landmark people navigate by without ever
-	 * reading the heading twice.
-	 *
-	 * The glyph is the same line work as everywhere else, drawn in white on the
-	 * tile, so nothing here is a second icon set to keep in step with the first.
-	 *
-	 * @param string $name Icon name.
-	 * @param string $hue  One of the hues in the stylesheet: teal, indigo,
-	 *                     amber, rose, violet, sky, slate.
-	 * @return string
-	 */
 	public static function badge( $name, $hue = 'teal' ) {
 		$paths = self::paths();
 
@@ -80,20 +39,6 @@ class LSTAB_Icons {
 		);
 	}
 
-	/**
-	 * The product's own mark.
-	 *
-	 * A selected range with the handle you drag it by — the same frame the
-	 * dashboard puts around every block, which is why the mark and the screen
-	 * around it read as one thing rather than as a logo dropped on top of an
-	 * interface.
-	 *
-	 * Drawn rather than fetched: an inline SVG needs no request, takes the
-	 * page's own colours where it should, and cannot arrive late.
-	 *
-	 * @param int $size Pixel size.
-	 * @return string
-	 */
 	public static function mark( $size = 34 ) {
 		$size = (int) $size;
 
@@ -106,8 +51,6 @@ class LSTAB_Icons {
 				. '<path d="M6 11.5h16" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".95"></path>'
 				. '<path d="M6 17.5h16M6 22.5h16" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".5"></path>'
 				. '<path d="M13.2 11.5v11" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".5"></path>'
-				// The handle, half on and half off the corner, exactly as a
-				// spreadsheet draws it.
 				. '<rect x="23.5" y="23.5" width="7" height="7" rx="2" fill="#fff"></rect>'
 				. '<rect x="24.9" y="24.9" width="4.2" height="4.2" rx="1" fill="#0a5a54"></rect>'
 				. '</svg>',
@@ -115,16 +58,6 @@ class LSTAB_Icons {
 		);
 	}
 
-	/**
-	 * The same mark in one colour, for the admin menu.
-	 *
-	 * WordPress paints a menu icon as a background image, which cannot be
-	 * recoloured from a stylesheet — so the colour is baked in, and the shape
-	 * is simplified because it is only ever drawn at 20 pixels.
-	 *
-	 * @param string $colour Any CSS colour.
-	 * @return string A data URI.
-	 */
 	public static function menu_mark( $colour = '#a7aaad' ) {
 		$svg = sprintf(
 			'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke="%1$s" stroke-width="2.4" stroke-linecap="round">'
@@ -138,14 +71,6 @@ class LSTAB_Icons {
 		return 'data:image/svg+xml;base64,' . base64_encode( $svg );
 	}
 
-	/**
-	 * The line work, one entry per icon.
-	 *
-	 * Kept as plain path data on a 24-unit grid with one stroke weight, so the
-	 * set reads as one family rather than as icons collected from three places.
-	 *
-	 * @return array<string,string>
-	 */
 	protected static function paths() {
 		return array(
 			'grid'     => '<rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M3 9.5h18M9 9.5V20"></path>',
@@ -157,7 +82,6 @@ class LSTAB_Icons {
 			'copy'     => '<rect x="9" y="9" width="11.5" height="11.5" rx="2.4"></rect><path d="M15 6.2V5.4A2 2 0 0 0 13 3.4H5.6a2 2 0 0 0-2 2V13a2 2 0 0 0 2 2h.9"></path>',
 			'clock'    => '<circle cx="12" cy="12" r="8.6"></circle><path d="M12 7v5.3l3.4 2"></path>',
 			'plus'     => '<path d="M12 5.2v13.6M5.2 12h13.6"></path>',
-			// A stack of pages, for the offer to split a long table into them.
 			'pages'    => '<rect x="3.4" y="3.4" width="12.4" height="15.2" rx="1.8"></rect><path d="M18.2 6.6a1.8 1.8 0 0 1 1.8 1.8v10a2.2 2.2 0 0 1-2.2 2.2H7.4"></path><path d="M6.6 7.6h6M6.6 11h6M6.6 14.4h3.4"></path>',
 			'sliders'  => '<path d="M4 7.4h14.6M4 16.6h11"></path><circle cx="16.2" cy="7.4" r="2.3"></circle><circle cx="8.6" cy="16.6" r="2.3"></circle>',
 			'spark'    => '<path d="m12 3.6 2 5.6 5.6 2-5.6 2-2 5.6-2-5.6-5.6-2 5.6-2z"></path>',
@@ -177,16 +101,6 @@ class LSTAB_Icons {
 		);
 	}
 
-	/**
-	 * One spot illustration, as inline SVG.
-	 *
-	 * These stand where somebody is stuck — a screen with nothing on it yet, or
-	 * one where something has gone wrong. They are the only decoration in the
-	 * plugin, and each is allowed to exist in exactly one place.
-	 *
-	 * @param string $name Illustration name.
-	 * @return string
-	 */
 	public static function art( $name ) {
 		$art = self::drawings();
 
@@ -202,15 +116,8 @@ class LSTAB_Icons {
 		);
 	}
 
-	/**
-	 * The illustrations themselves.
-	 *
-	 * @return array<string,array{box:string,body:string}>
-	 */
 	protected static function drawings() {
 		return array(
-			// A spreadsheet becoming a table: the whole promise of the plugin,
-			// and the only thing worth drawing on a screen with nothing on it.
 			'start'   => array(
 				'box'  => '0 0 270 106',
 				'body' => '<rect x="8" y="17" width="76" height="72" rx="6" stroke="currentColor" stroke-width="2" opacity=".5"></rect>
@@ -226,7 +133,6 @@ class LSTAB_Icons {
 					<rect x="255" y="84" width="9" height="9" rx="1.5" fill="currentColor"></rect>',
 			),
 
-			// Nothing matched. Rows behind the glass, and the glass empty.
 			'nothing' => array(
 				'box'  => '0 0 200 76',
 				'body' => '<path d="M40 18h120M40 38h84M40 58h104" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" opacity=".14"></path>
@@ -235,7 +141,6 @@ class LSTAB_Icons {
 					<path d="M83 36h18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" opacity=".55"></path>',
 			),
 
-			// Google is silent; the saved copy stands next to it and works.
 			'offline' => array(
 				'box'  => '0 0 200 76',
 				'body' => '<path d="M52 32a15 15 0 0 1 29-4 12 12 0 0 1 16 11 10 10 0 0 1-10 10H61a14 14 0 0 1-9-17z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" opacity=".4"></path>
@@ -247,7 +152,6 @@ class LSTAB_Icons {
 					<rect x="183" y="65" width="8" height="8" rx="1.4" fill="currentColor"></rect>',
 			),
 
-			// Everything is current. Quiet is information too.
 			'calm'    => array(
 				'box'  => '0 0 200 76',
 				'body' => '<circle cx="100" cy="38" r="32" stroke="currentColor" stroke-width="2" opacity=".14"></circle>

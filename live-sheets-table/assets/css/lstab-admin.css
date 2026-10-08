@@ -1,23 +1,12 @@
-/**
- * Live Sheets Table — dashboard styles.
- *
- * Every colour is named once here and used by name everywhere below. Changing
- * the accent, or adding a second theme later, is then an edit to this block
- * rather than a hunt through the file — which is how the front-end table has
- * always worked, and why it can offer style presets at all.
- */
-
 .lstab-admin,
 .lstab-grace-notice,
 .lstab-hidden-alert,
 .lstab-ragged-notice {
-	/* Accent. One colour, and it means "you can act on this" — never a state. */
 	--lstab-a: #0e7c74;
 	--lstab-a-deep: #0a5a54;
 	--lstab-a-wash: #e2f1ef;
 	--lstab-a-glow: rgba( 14, 124, 116, 0.2 );
 
-	/* Ink and paper. */
 	--lstab-ink: #101d1b;
 	--lstab-ink-2: #556764;
 	--lstab-ink-3: #7b8a88;
@@ -27,9 +16,6 @@
 	--lstab-line: #dbe5e3;
 	--lstab-line-soft: #eaf0ef;
 
-	/* State. Working normally has no colour on purpose: colour that shows on
-	   every card all day is not a signal any more, and a real fault has to be
-	   visible from across the room. */
 	--lstab-calm: #5b6d6b;
 	--lstab-calm-wash: #e9efee;
 	--lstab-ok: #0f7b3e;
@@ -42,16 +28,12 @@
 	--lstab-shadow: 0 1px 2px rgba( 16, 24, 24, 0.05 ), inset 0 1px 0 rgba( 255, 255, 255, 0.9 );
 }
 
-/* Icons take the colour of the text they sit in, so nothing has to be
-   restyled when the accent changes. */
 .lstab-icon {
 	inline-size: 1em;
 	block-size: 1em;
 	flex: none;
 	vertical-align: -0.14em;
 }
-
-/* ─────────────────────────────────────────────────── product masthead */
 
 .lstab-admin .wp-header-end {
 	visibility: hidden;
@@ -67,11 +49,6 @@
 	margin: 0.4rem 0 1rem;
 }
 
-/*
- * The mark carries its own tile now, so this is only the box it sits in. The
- * shadow stays here rather than in the SVG: it belongs to the page's lighting,
- * not to the logo, and a mark exported for anywhere else should not bring it.
- */
 .lstab-logo {
 	display: grid;
 	place-items: center;
@@ -123,8 +100,6 @@
 	margin-left: 0.4rem;
 	vertical-align: 0.16em;
 }
-
-/* ─────────────────────────────────────────────────────────── buttons */
 
 .lstab-admin .lstab-btn {
 	display: inline-flex;
@@ -216,10 +191,6 @@
 	text-underline-offset: 2px;
 }
 
-/* ───────────────────────────────────────────────────────────── the tabs */
-
-/* WordPress draws these as a row of manila folders. An underline reads as
-   navigation, takes the accent, and leaves room for an icon. */
 .lstab-admin .nav-tab-wrapper.lstab-tabs {
 	display: flex;
 	flex-wrap: wrap;
@@ -268,7 +239,6 @@
 
 .lstab-admin .lstab-tabs .nav-tab-active .lstab-icon { opacity: 1; }
 
-/* The preview's width buttons: ours, not WordPress's blue. */
 .lstab-admin .lstab-width-button.is-active {
 	border-color: var( --lstab-a );
 	color: var( --lstab-a-deep );
@@ -283,15 +253,6 @@
 	margin-top: 1.2rem;
 }
 
-/*
- * The HTML `hidden` attribute is only a `display: none` rule, and any class
- * that sets its own display beats it on specificity. The editor grid is a
- * `display: grid`, so without this it stayed on screen while marked hidden —
- * the preview pane hung there on the columns tab with an empty column beside
- * it. Stated once here rather than remembered at every call site.
- */
-/* Checkboxes, radios and the like are drawn by the browser; this is the one
-   property that tells it which colour we are working in. */
 .lstab-admin {
 	accent-color: var( --lstab-a );
 }
@@ -300,18 +261,6 @@
 	display: none !important;
 }
 
-/* ══════════════════════════════════════════════ coloured section badges ══ */
-
-/*
- * One coloured tile per section. A settings screen of identical white boxes
- * reads as a form to get through; a landmark per section is what lets somebody
- * find "the dangerous one" or "the Google one" at a glance, and keeps finding
- * it in the same place a month later.
- *
- * The hues are deliberately not the accent: the accent means "you can act on
- * this", and a badge is not an action. They are also not the status colours,
- * for the same reason.
- */
 .lstab-badge {
 	display: grid;
 	place-items: center;
@@ -343,7 +292,6 @@
 .lstab-badge--lg { inline-size: 3rem; block-size: 3rem; border-radius: 14px; }
 .lstab-badge--lg svg { inline-size: 1.55rem; block-size: 1.55rem; }
 
-/* A panel whose content is prose or a table rather than label/control rows. */
 .lstab-panel-body { padding: 1.05rem 1.25rem 1.2rem; }
 
 .lstab-admin .lstab-panel-body > p:first-child { margin-top: 0; }
@@ -355,18 +303,12 @@
 
 .lstab-admin .lstabp-client-form label { display: block; margin-bottom: 0.25rem; font-size: 0.82rem; }
 
-/* A row whose control is a small form rather than one field. */
 .lstab-row--wide { grid-template-columns: minmax( 0, 1fr ) minmax( 0, 26rem ); }
 
 @media ( max-width: 60rem ) {
 	.lstab-row--wide { grid-template-columns: minmax( 0, 1fr ); }
 }
 
-/*
- * An address with no spaces in it, plus the button that saves anyone from
- * having to select it by hand. Without the wrapping rule a long URL in a narrow
- * column breaks one character per line and turns into a vertical ribbon.
- */
 .lstab-copyline {
 	display: flex;
 	flex-wrap: wrap;
@@ -391,7 +333,6 @@
 
 .lstab-admin ol.lstab-steps > li > span { min-inline-size: 0; }
 
-/* A reference table inside a panel: read left to right, like a glossary. */
 .lstab-panel-body .lstab-column-list { inline-size: 100%; }
 
 .lstab-panel-body .lstab-column-list th,
@@ -403,11 +344,6 @@
 .lstab-panel-body .lstab-column-list th:first-child,
 .lstab-panel-body .lstab-column-list td:first-child { inline-size: 8rem; }
 
-/*
- * The same glossary shape on the source screen, where the shortcode's optional
- * attributes live. They were a list of code with no meanings beside it, which
- * is a puzzle rather than a reference.
- */
 .lstab-attribute-list {
 	inline-size: 100%;
 	margin-block-start: 0.4rem;
@@ -415,8 +351,6 @@
 	font-size: 0.85rem;
 }
 
-/* WordPress's own table styles right-align a second column; a glossary reads
- * left to right or not at all. */
 .lstab-admin .lstab-attribute-list th,
 .lstab-admin .lstab-attribute-list td {
 	padding: 0.4rem 0.6rem 0.4rem 0;
@@ -438,10 +372,6 @@
 
 .lstab-attribute-list td:first-child { white-space: nowrap; }
 
-/*
- * The words an attribute will accept, under what it does. style="striped" is
- * no use to somebody who has no way of knowing what else may go in there.
- */
 .lstab-attribute-values {
 	display: block;
 	margin-block-start: 0.15rem;
@@ -464,7 +394,6 @@
 .lstab-attribute-list tr:last-child th,
 .lstab-attribute-list tr:last-child td { border-block-end: 0; }
 
-/* A checkbox that reads as a switch, because "off by default" is the point. */
 .lstab-switch {
 	display: inline-flex;
 	align-items: center;
@@ -485,13 +414,6 @@
 	box-shadow: 0 0 0 3px var( --lstab-a-glow );
 }
 
-/* ══════════════════════════════════════════ settings as rows, not boxes ══ */
-
-/*
- * One panel, one row per decision. Six separate white cards made six equal
- * shouts; a single panel with quiet dividers has a rhythm, and the eye can run
- * down the left edge reading only the things it has to decide.
- */
 .lstab-panel {
 	background: var( --lstab-card );
 	border: 1px solid var( --lstab-line );
@@ -500,11 +422,6 @@
 	margin-bottom: 1.1rem;
 }
 
-/*
- * The head's tint used to be kept inside the rounded corner by clipping the
- * whole panel, which also clipped the fill handle that now sits outside it.
- * Rounding the head itself does the same job and clips nothing.
- */
 .lstab-panel > .lstab-panel-head:first-child {
 	border-start-start-radius: 14px;
 	border-start-end-radius: 14px;
@@ -589,10 +506,8 @@
 
 .lstab-admin .lstab-row-do input[type="number"] { max-inline-size: 100%; }
 
-/* The row nobody should reach for by accident. */
 .lstab-row--danger { background: linear-gradient( 90deg, rgba( 193, 53, 42, 0.045 ), transparent 60% ); }
 
-/* A state line at the top of a panel: connected, running, lapsed. */
 .lstab-state-strip {
 	display: flex;
 	flex-wrap: wrap;
@@ -607,7 +522,6 @@
 
 .lstab-state-strip .lstab-state { margin: 0; }
 
-/* Steps somebody has to follow in order, numbered because they are ordered. */
 .lstab-admin ol.lstab-steps {
 	margin: 0.35rem 0 0;
 	padding-inline-start: 0;
@@ -641,8 +555,6 @@
 	font-weight: 700;
 	font-variant-numeric: tabular-nums;
 }
-
-/* ─────────────────────────────────────────────── the editor's own panes */
 
 .lstab-panes {
 	display: flex;
@@ -688,7 +600,6 @@
 	outline-offset: 1px;
 }
 
-/* The shortcode and its button, on the editor as on the list. */
 .lstab-timeout {
 	display: inline-flex;
 	align-items: center;
@@ -702,10 +613,6 @@
 	font-variant-numeric: tabular-nums;
 }
 
-/*
- * The scheduling warning, folded. Everything past the first line is advice
- * about hosting, which is worth reading once and then never again.
- */
 .lstab-cron-line-one {
 	margin: 0.5rem 0;
 }
@@ -767,14 +674,6 @@
 	white-space: nowrap;
 }
 
-/* ──────────────────────────────────────────────────── the source cards */
-
-/*
- * The sheets sit on paper. The grid is the plugin's one piece of decoration
- * and it is not decoration: it says what this tool is about before a word is
- * read, and it makes the white cards read as cells laid on a sheet rather than
- * as boxes floating on grey.
- */
 .lstab-src-list {
 	display: flex;
 	flex-direction: column;
@@ -800,19 +699,6 @@
 	transition: border-color 130ms ease, box-shadow 130ms ease;
 }
 
-/*
- * ── The selection frame ───────────────────────────────────────────────
- *
- * Pointing at a block marks it the way a spreadsheet marks a selected range:
- * the edge takes the accent and the little square everyone drags from appears
- * in the corner. Borrowed on purpose — it is the one gesture every person who
- * opens this plugin already knows, and it is what ties the sheets list, the
- * editor, the settings and the add-on's screens into one thing rather than
- * four screens that happen to share a colour.
- *
- * Every block that holds content gets it, so the list is written once here
- * rather than repeated per screen.
- */
 .lstab-src,
 .lstab-admin .lstab-card,
 .lstab-panel,
@@ -833,10 +719,6 @@
 	box-shadow: 0 0 0 1px var( --lstab-a ), 0 6px 18px -12px var( --lstab-a-glow );
 }
 
-/*
- * The fill handle. It sits just outside the corner, which is why none of these
- * blocks may clip their overflow.
- */
 .lstab-src::after,
 .lstab-admin .lstab-card::after,
 .lstab-panel::after,
@@ -869,26 +751,17 @@
 	transform: scale( 1 );
 }
 
-/*
- * A block inside a block would draw two frames around nearly the same edge and
- * two handles a few pixels apart, which reads as a rendering fault rather than
- * as a design.
- */
 .lstab-admin .lstab-card .lstab-card::after,
 .lstab-panel .lstab-card::after,
 .lstab-admin .lstab-card .lstab-panel::after {
 	display: none;
 }
 
-/* The severity stripe is drawn inside the rounded edge. */
 .lstab-src::before {
 	border-start-start-radius: var( --lstab-radius );
 	border-end-start-radius: var( --lstab-radius );
 }
 
-/* A bar down the left edge, colourless until something wants doing. A card
-   that is fine says so quietly; a card that is not can be spotted from the
-   other side of the room without reading a word of it. */
 .lstab-src::before {
 	content: "";
 	position: absolute;
@@ -931,7 +804,6 @@
 
 .lstab-src-title .lstab-icon { color: var( --lstab-ink-3 ); }
 
-/* The two things anybody came here to do, level with the name. */
 .lstab-src-actions {
 	display: flex;
 	flex-wrap: wrap;
@@ -979,15 +851,6 @@
 .lstab-fact .lstab-icon { color: var( --lstab-ink-3 ); }
 .lstab-fact b { font-weight: 600; font-variant-numeric: tabular-nums; color: var( --lstab-ink ); }
 
-/* The last few checks. One red bar is an accident; three in a row is a
-   problem — and that difference is visible without reading anything. */
-/*
- * One mark per check, oldest first. They were bars of varying height, which is
- * the shape of a measurement — and nothing was being measured: the heights came
- * out of an arithmetic pattern on the loop counter. All the same height now, so
- * the picture answers the only question it raises, which is how the last few
- * checks went.
- */
 .lstab-spark {
 	display: inline-flex;
 	align-items: center;
@@ -1003,7 +866,6 @@
 	opacity: 0.5;
 }
 
-/* The newest check is the one being reported, so it is the one drawn solidly. */
 .lstab-bar:last-child { opacity: 1; inline-size: 5px; }
 .lstab-bar--error { background: var( --lstab-err ); opacity: 0.75; }
 .lstab-bar--error:last-child { opacity: 1; }
@@ -1125,8 +987,6 @@
 .lstab-admin .lstab-quiet--danger:hover,
 .lstab-admin .lstab-quiet--danger:focus { color: var( --lstab-err ); }
 
-/* ───────────────────────────────────────────────── the welcome screen */
-
 .lstab-welcome {
 	position: relative;
 	background: var( --lstab-card );
@@ -1146,8 +1006,6 @@
 	box-shadow: var( --lstab-shadow );
 }
 
-/* The little square a spreadsheet drags from. Everyone recognises it, and
-   nobody else uses it as a mark. */
 .lstab-handle {
 	position: absolute;
 	inset-inline-end: -5px;
@@ -1287,7 +1145,6 @@
 
 .lstab-hidden-form { display: none; }
 
-/* The same offer, smaller, once there is already something in the list. */
 .lstab-example-offer {
 	display: flex;
 	align-items: center;
@@ -1307,9 +1164,6 @@
 @media ( prefers-reduced-motion: reduce ) {
 	.lstab-admin * { transition-duration: 0.01ms !important; }
 }
-
-
-/* ══════════════════════════════════ screens carried over from before ══ */
 
 .lstab-admin .lstab-card {
 	background: var( --lstab-card );
@@ -1339,14 +1193,6 @@
 	margin-bottom: 0.25rem;
 }
 
-/*
- * Both columns are one grid row, so they end level whatever is in them. They
- * did not before: the form column runs from 490px on the hiding tab to 1790px
- * on the appearance one, and opening "What Google actually sent" adds another
- * 360 to the other side — so which column was longer, and by how much, changed
- * with every tab and every disclosure. The page looked broken in a way nobody
- * could name.
- */
 .lstab-editor-grid {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr);
@@ -1354,11 +1200,6 @@
 	align-items: stretch;
 }
 
-/*
- * Both columns are one row, so they are the same height — but the last block
- * inside each has to reach the bottom of that row too, or the boxes still end
- * at different heights and the row's tidiness is invisible.
- */
 .lstab-form,
 .lstab-form > .lstab-pane:not([hidden]) {
 	display: flex;
@@ -1370,23 +1211,10 @@
 	flex: 1 1 auto;
 }
 
-/*
- * A card carries a margin under it to separate it from the next one, and the
- * last card has no next one — so that margin was the last sixteen pixels
- * between the two columns' bottom edges.
- */
 .lstab-form > .lstab-pane:not([hidden]) > *:last-child {
 	margin-bottom: 0;
 }
 
-/*
- * Except that on the Columns tab there is a next one. The wide cards an add-on
- * prints sit in their own pane below the grid, and with the grid's last card
- * having just had its margin taken away the two ended up touching — one long
- * white block split by a hairline, which read as a rendering fault rather than
- * as two cards. The space is put back on the block that follows, so it only
- * exists when something actually follows.
- */
 .lstab-editor-grid + .lstab-pane:not([hidden]) > *:first-child {
 	margin-block-start: 1rem;
 }
@@ -1396,23 +1224,10 @@
 		grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
 	}
 
-	/* One column, full width: see the note in the pane switcher. */
 	.lstab-editor-grid.is-solo {
 		grid-template-columns: minmax(0, 1fr);
 	}
 
-	/*
-	 * The column stretches; what is inside it sticks. A stretched grid item is
-	 * exactly as tall as its row, so it has nowhere to move and sticky does
-	 * nothing to it — the inner box is what follows the screen down.
-	 */
-	/*
-	 * As tall as its column, so its last block ends level with the form's —
-	 * but never taller than the screen, so that on the long tabs it stays a
-	 * panel pinned beside what you are editing rather than a column of table
-	 * you have already scrolled past. The preview inside it takes the slack
-	 * and scrolls when there is more table than room.
-	 */
 	.lstab-preview-stick {
 		position: sticky;
 		top: 46px;
@@ -1428,12 +1243,6 @@
 		max-height: none;
 	}
 
-	/*
-	 * Only the two boxes that can scroll are allowed to give up height. Saying
-	 * it of every child let the panel squeeze the headings and the width
-	 * buttons as well: on a window under about 800px tall the paragraph lost a
-	 * third of its height and its lines printed over the row beneath.
-	 */
 	.lstab-preview-stick > * {
 		flex: none;
 	}
@@ -1457,41 +1266,20 @@
 	background: var( --lstab-card );
 	border: 1px solid var( --lstab-line );
 	border-radius: 6px;
-	/*
-	 * No padding at the foot: a slider pinned to the bottom of this box stops
-	 * at the edge of its padding, and the strip of padding below it showed
-	 * the next row through. The table's own margin keeps it off the edge.
-	 */
 	padding: 1rem 1.2rem 0;
 	min-height: 12rem;
 	max-height: 60vh;
-	/*
-	 * Up and down only. Sideways is the table's own business: a wide table
-	 * scrolls inside itself and brings its own slider. Left on "auto", a
-	 * couple of pixels of shadow room poking past the edge was enough for the
-	 * browser to add a scrollbar of its own under the table's — two sliders,
-	 * one of which moved nothing anybody wanted moved.
-	 */
 	overflow-x: hidden;
 	overflow-y: auto;
 }
 
-/*
- * The table's slider, in the preview. On a page it floats over the rows while
- * the table runs past the bottom of the screen; here the "screen" is this box,
- * and floating half an em above its edge left a strip of the next row showing
- * underneath, so the slider looked as though it had stopped halfway down the
- * table. In here it docks flush on the box's bottom edge instead.
- */
 .lstab-preview .lstab-scrollbar {
 	bottom: 0;
 }
 
-/* Floating, it is a strip of the table's own paper, so no row shows around it. */
 .lstab-preview .lstab-scrollbar.is-floating {
 	box-shadow: 0 0 0 0.5em var( --lstab-bg ), 0 -10px 18px -10px var( --lstab-edge-shadow, rgba( 0, 0, 0, 0.2 ) );
 }
-
 
 .lstab-placeholder {
 	color: #8c8f94;
@@ -1520,8 +1308,6 @@
 	vertical-align: middle;
 }
 
-/* The narrow-screen layout choice, and the paging switch under it */
-
 .lstab-choice-head {
 	display: block;
 	margin-bottom: 0.5rem;
@@ -1531,11 +1317,6 @@
 	margin-top: 0.2rem;
 }
 
-/*
- * Three long descriptions side by side, so they want more room each than a
- * style preset does — below about 1100px the card is not wide enough for
- * three and they stack, which is the right answer rather than three slivers.
- */
 .lstab-layouts {
 	grid-template-columns: repeat( auto-fit, minmax( 15rem, 1fr ) );
 	margin-bottom: 1.1rem;
@@ -1555,11 +1336,6 @@
 	vertical-align: 0.1em;
 }
 
-/*
- * A heading inside a card, for the one setting that is a feature of its own
- * rather than another line of the same list. WordPress leaves h3 at heading
- * size, which would make it shout louder than the card's own title.
- */
 .lstab-admin .lstab-subhead {
 	margin: 1.2rem 0 0.5rem;
 	padding-top: 1rem;
@@ -1582,15 +1358,9 @@
 	white-space: nowrap;
 }
 
-/*
- * `hidden` is only a display rule, and .lstab-field sets display: flex — which
- * wins. Without this the row count stayed on screen with paging switched off.
- */
 .lstab-admin .lstab-field[hidden] {
 	display: none;
 }
-
-/* Presets */
 
 .lstab-presets {
 	display: grid;
@@ -1652,8 +1422,6 @@
 	vertical-align: 0.1em;
 }
 
-/* Source list */
-
 .lstab-sources .lstab-status {
 	display: inline-flex;
 	gap: 0.35rem;
@@ -1682,10 +1450,6 @@
 }
 
 .lstab-shortcode {
-	/* One click selects the whole thing, so it may wrap freely: a shortcode
-	   held on one line either ran over the buttons in the next column or was
-	   cut off, and a shortcode you cannot read in full is the one thing this
-	   cell exists to give you. */
 	user-select: all;
 	font-size: 0.82rem;
 	display: inline-block;
@@ -1694,7 +1458,6 @@
 	vertical-align: middle;
 }
 
-/* One click selects the whole line, since it is meant to be pasted verbatim. */
 .lstab-cron-line {
 	display: block;
 	user-select: all;
@@ -1724,8 +1487,6 @@
 	color: #646970;
 	font-size: 0.85rem;
 }
-
-/* Empty state and upsell */
 
 .lstab-empty-state {
 	background: #fff;
@@ -1785,18 +1546,8 @@
 	display: flex;
 	gap: 0.6rem;
 	align-items: center;
-	/* It now sits below the grid and the column settings rather than inside
-	   the left column, so it needs its own breathing room. */
 	margin-top: 1.4rem;
 }
-
-/*
- * Full width, like every other card in its column. Capping this one at 62ch
- * left it visibly narrower than the two cards above it, which looked like a
- * mistake — the shortcode line inside it is short, but the ragged right-hand
- * edge of the column was what you actually noticed. The help text sets its own
- * reading width.
- */
 
 .lstab-sources .lstab-col-status {
 	width: 28%;
@@ -1813,8 +1564,6 @@
 .lstab-sources .lstab-status {
 	align-items: center;
 }
-
-/* Preview width switcher */
 
 .lstab-widths {
 	display: flex;
@@ -1852,8 +1601,6 @@
 	}
 }
 
-/* Appearance panel */
-
 .lstab-size-field {
 	display: inline-flex;
 	align-items: center;
@@ -1875,11 +1622,6 @@
 	margin-bottom: 1.1rem;
 }
 
-/*
- * Some swatches carry a line saying what they paint and some do not, so the
- * colour wells would sit at four different heights down the grid. Pushing them
- * to the bottom of each cell puts them back on one line.
- */
 .lstab-swatch {
 	display: flex;
 	flex-direction: column;
@@ -1894,11 +1636,6 @@
 	color: #50575e;
 }
 
-/*
- * "Accent" and "Lines" name nothing a reader can point at on the table in
- * front of them, so the swatches that need it say what they paint. Quieter
- * than the label and tight under it, so the pair still reads as one field.
- */
 .lstab-swatch-note {
 	display: block;
 	margin: -0.15rem 0 0.3rem;
@@ -1924,7 +1661,6 @@
 	flex: none;
 }
 
-/* An untouched colour is following the preset, not sitting on white. */
 .lstab-color-input[data-lstab-unset] {
 	background-image: repeating-linear-gradient(
 		45deg,
@@ -1958,13 +1694,6 @@
 	width: 100%;
 }
 
-/*
- * The dashboard styles inputs and buttons globally, which would otherwise win
- * inside the preview and show WordPress's blue instead of the table's own
- * accent. Re-assert the plugin's look here, scoped to the preview only, so the
- * author sees the colours their visitors will.
- */
-
 .lstab-preview .lstab-search-input,
 .lstab-preview .lstab-search-input:focus {
 	border-color: var(--lstab-border-strong);
@@ -1994,8 +1723,6 @@
 	box-shadow: none;
 	color: inherit;
 }
-
-/* Column list */
 
 .lstab-column-list {
 	width: 100%;
@@ -2030,11 +1757,6 @@
 	background: #f6f7f7;
 }
 
-/*
- * Before the first sync the card shows what it will hold rather than nothing
- * at all. Greying the placeholder keeps it clearly out of reach without
- * hiding where the setting lives.
- */
 .lstab-columns-waiting {
 	margin: 0 0 0.2rem;
 	color: #646970;
@@ -2058,8 +1780,6 @@
 	list-style: disc;
 }
 
-/* A sheet that synced but came back malformed. */
-
 .lstab-status-ragged {
 	display: flex;
 	gap: 0.3rem;
@@ -2079,8 +1799,6 @@
 	margin: 0 0 1.2rem;
 }
 
-/* The raw payload, for when a table comes out wrong. */
-
 .lstab-raw {
 	margin-top: 1rem;
 	border: 1px solid var( --lstab-line );
@@ -2096,27 +1814,15 @@
 
 .lstab-raw-text {
 	width: 100%;
-	/*
-	 * Opening this used to add a third of a screen to one column and nothing
-	 * to the other. It is a thing you look at when something is wrong, not a
-	 * thing to give a third of the page to.
-	 */
 	max-height: 15rem;
 	overflow-y: auto;
 	font-family: Consolas, Monaco, monospace;
 	font-size: 0.78rem;
 	line-height: 1.5;
-	/* Wrapping would hide exactly what this is here to show: where one line
-	   ends and the next begins. */
 	white-space: pre;
 	overflow-wrap: normal;
 	overflow-x: auto;
 }
-
-
-/* ---------------------------------------------------------------------------
-   Tabs, settings, and the countdown.
-   --------------------------------------------------------------------------- */
 
 .lstab-tabs {
 	margin-bottom: 20px;
@@ -2139,7 +1845,6 @@
 	color: #787c82;
 }
 
-/* Not out of the table and not in it either, so neither of the two above. */
 .lstab-column-state .lstab-state-detail {
 	color: var( --lstab-a );
 	font-weight: 600;
@@ -2157,9 +1862,6 @@
 .lstab-hidden-alert .lstab-alert-list li {
 	margin-bottom: 4px;
 }
-
-/* The CSS field. A monospaced box that looks like somewhere code goes, on the
-   same graph paper as the rest of the plugin so it still belongs to it. */
 
 .lstab-css-field {
 	width: 100%;
@@ -2200,11 +1902,6 @@
 	font-size: 0.82em;
 }
 
-/*
- * Said beside the tab picker when the list of tabs could not be read. The
- * field stays: a sheet still has the tab it was saved with, and taking away
- * the one control that could change it is not an answer to Google being slow.
- */
 .lstab-tabs-note {
 	margin: 0.3rem 0 0;
 	max-inline-size: 42ch;
@@ -2214,15 +1911,6 @@
 	display: none;
 }
 
-/*
- * The offer to split a long sheet into pages.
- *
- * Deliberately not a warning. Nothing is wrong with a long sheet and nothing
- * has been done to it; this is a suggestion, so it gets the plugin's own calm
- * tint rather than the amber that means "look at this now" everywhere else on
- * the card. The two answers sit together at the end, the same size, because
- * "no" is as valid an answer as "yes".
- */
 .lstab-admin .lstab-src-offer {
 	display: flex;
 	flex-wrap: wrap;
@@ -2246,7 +1934,6 @@
 	max-inline-size: 62ch;
 }
 
-/* Aligned with the first line of text rather than the middle of the block. */
 .lstab-admin .lstab-src-offer-say svg {
 	flex: none;
 	margin-top: 0.05rem;
@@ -2260,18 +1947,6 @@
 	flex: none;
 }
 
-/* ---------------------------------- a swatch that belongs to one style */
-
-/*
- * "Striped rows" paints nothing on eight of the nine styles, and "Glass
- * colour" paints nothing on the other eight. A colour well that does nothing
- * is a colour well somebody sets, saves, and then goes looking for on the
- * page — so each is on screen only while its own style is chosen.
- *
- * Hidden by the stylesheet rather than by the script, so the panel is right in
- * the first frame; the field itself stays in the form either way, so a colour
- * set on Striped is still there when somebody comes back to Striped.
- */
 .lstab-appearance .lstab-swatch[ data-lstab-only-style ] {
 	display: none;
 }
@@ -2280,25 +1955,11 @@
 	display: flex;
 }
 
-
-/* ------------------------------------------------- pictures of the styles */
-
-/*
- * Each style card opens with a picture of the style: a table in miniature,
- * built from spans and painted here in that style's own colours and shapes.
- * It sits tilted on a little stage of its own, catching a shadow, and lifts
- * and straightens when the card is pointed at or chosen — the card is a thing
- * to pick up, not a line in a list. Every style sets the same few tokens; the
- * shapes that set one apart (cards, stripes, bands, a grid, a double rule) are
- * a rule or two each underneath.
- */
 .lstab-preset.has-thumb {
 	display: grid;
 	grid-template-columns: auto 1fr;
 	column-gap: 0.55rem;
 	align-items: start;
-	/* Cards in one row are as tall as the tallest; the spare height goes
-	   below the words, not between the picture and the name. */
 	align-content: start;
 	overflow: hidden;
 }
@@ -2328,7 +1989,6 @@
 	overflow: hidden;
 }
 
-/* A soft light falling on the stage from the top left. */
 .lstab-thumb::before {
 	content: "";
 	position: absolute;
@@ -2403,19 +2063,16 @@
 	opacity: 0.85;
 }
 
-/* Ragged, the way real values are. */
 .lstab-thumb i:nth-child( 2 ) { width: 72%; justify-self: end; }
 .lstab-thumb i:nth-child( 3 ) { width: 58%; }
 .lstab-thumb-row:nth-child( 3 ) i:first-child { width: 78%; }
 .lstab-thumb-row:nth-child( 4 ) i:nth-child( 3 ) { width: 80%; }
 .lstab-thumb-row:nth-child( 5 ) i:first-child { width: 64%; }
 
-/* --- Striped: every other row shaded. */
 .lstab-thumb-striped .lstab-thumb-row:nth-child( odd ) {
 	background: #eaf0f4;
 }
 
-/* --- Bordered: the full grid and a shaded heading. */
 .lstab-thumb-bordered {
 	--thumb-head: #eef2f6;
 	--thumb-line: #d7dee5;
@@ -2429,7 +2086,6 @@
 		linear-gradient( 90deg, transparent calc( 73.5% - 0.5px ), var( --thumb-line ) 0, var( --thumb-line ) calc( 73.5% + 0.5px ), transparent 0 );
 }
 
-/* --- Midnight: a dark table, high contrast. */
 .lstab-thumb-midnight {
 	--thumb-stage: linear-gradient( 140deg, #26324a, #0b1120 );
 	--thumb-paper: #0f172a;
@@ -2440,7 +2096,6 @@
 	--thumb-shadow: 0 22px 30px -16px rgba( 0, 0, 0, 0.8 ), 0 0 0 1px rgba( 255, 255, 255, 0.06 );
 }
 
-/* --- Editorial: warm paper, a strong rule under the headings, hairlines. */
 .lstab-thumb-editorial {
 	--thumb-stage: linear-gradient( 140deg, #f6efe4, #e6dac7 );
 	--thumb-paper: #fffdf8;
@@ -2456,7 +2111,6 @@
 	border-radius: 1px;
 }
 
-/* --- Cards: no table at all, a stack of separate cards. */
 .lstab-thumb-cards {
 	--thumb-stage: linear-gradient( 140deg, #e9eff6, #d6e1ec );
 }
@@ -2484,7 +2138,6 @@
 	border-top: 0;
 }
 
-/* --- Terminal: mint lettering on near-black, one width of letter. */
 .lstab-thumb-terminal {
 	--thumb-stage: linear-gradient( 140deg, #13312b, #040b0a );
 	--thumb-paper: #07110f;
@@ -2504,7 +2157,6 @@
 	background: repeating-linear-gradient( 90deg, var( --thumb-head-ink ) 0 4px, transparent 4px 6px );
 }
 
-/* --- Aurora: the heading bar sweeps through the colours. */
 .lstab-thumb-aurora {
 	--thumb-stage: linear-gradient( 140deg, #f3e8ff, #ffe4e6 55%, #ffedd5 );
 	--thumb-head: linear-gradient( 90deg, #6d28d9, #a21caf, #be123c, #c2410c );
@@ -2517,7 +2169,6 @@
 	--thumb-shadow: 0 22px 30px -16px rgba( 109, 40, 217, 0.55 ), 0 10px 22px -14px rgba( 219, 39, 119, 0.5 );
 }
 
-/* --- Ledger: warm paper, a band down the middle column, a double rule. */
 .lstab-thumb-ledger {
 	--thumb-stage: linear-gradient( 140deg, #f1e7d1, #dccba8 );
 	--thumb-paper: #fdfbf5;
@@ -2532,7 +2183,6 @@
 	background-image: linear-gradient( 90deg, transparent 41.5%, #f3ecdb 41.5%, #f3ecdb 73.5%, transparent 73.5% );
 }
 
-/* --- Contrast: a solid dark heading bar and a first column with weight. */
 .lstab-thumb-contrast {
 	--thumb-stage: linear-gradient( 140deg, #e3eeec, #c9dbd8 );
 	--thumb-head: #14201f;
@@ -2557,13 +2207,6 @@
 	}
 }
 
-/* ─────────────────────────────────────────────────── the start screen */
-
-/*
- * One screen for the first visit and every one after it. The large block on
- * the left is the only part that changes; the three steps beside it and the
- * two cards below stay put, so the screen is recognisable either way.
- */
 .lstab-start {
 	display: grid;
 	grid-template-columns: minmax( 0, 1.25fr ) minmax( 0, 1fr );

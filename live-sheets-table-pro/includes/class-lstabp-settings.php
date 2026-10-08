@@ -1,24 +1,10 @@
 <?php
-/**
- * Pro settings screen.
- *
- * @package LiveSheetsTablePro
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Settings and the private-sheet toggle.
- */
 class LSTABP_Settings {
-
 	const PAGE_SLUG = 'live-sheets-table-pro';
 
-	/**
-	 * Register hooks.
-	 *
-	 * @return void
-	 */
 	public function register() {
 		add_action( 'admin_menu', array( $this, 'add_menu' ), 20 );
 		add_filter( 'lstab_admin_tabs', array( $this, 'add_tab' ) );
@@ -28,17 +14,7 @@ class LSTABP_Settings {
 		add_action( 'admin_post_lstabp_save_sources', array( $this, 'handle_save_sources' ) );
 	}
 
-	/**
-	 * Add the screen under the free plugin's menu.
-	 *
-	 * @return void
-	 */
 	public function add_menu() {
-		/*
-		 * Under the free plugin's own menu, so the add-on's screen is where
-		 * somebody looks for it: in the sidebar with the rest of this plugin,
-		 * as well as in the row of tabs above the screens themselves.
-		 */
 		add_submenu_page(
 			LSTAB_Admin::MENU_SLUG,
 			__( 'Pro settings', 'live-sheets-table-pro' ),
@@ -49,12 +25,6 @@ class LSTABP_Settings {
 		);
 	}
 
-	/**
-	 * Add this screen to the row of tabs the free plugin prints.
-	 *
-	 * @param array<string,string> $tabs Page slug mapped to its label.
-	 * @return array<string,string>
-	 */
 	public function add_tab( $tabs ) {
 		if ( current_user_can( 'manage_options' ) ) {
 			$tabs[ self::PAGE_SLUG ] = __( 'Pro', 'live-sheets-table-pro' );
@@ -63,16 +33,6 @@ class LSTABP_Settings {
 		return $tabs;
 	}
 
-	/**
-	 * The licence, and how to stop paying for it, on the settings screen.
-	 *
-	 * Cancelling is put where someone would look for it rather than made hard
-	 * to find. A subscription that takes a support ticket to leave is one people
-	 * leave angrily, and say so in public.
-	 *
-	 * @param array<string,mixed> $settings Stored settings.
-	 * @return void
-	 */
 	public function render_licence_section( $settings ) {
 		$grace  = LSTAB_Limits::is_pro() ? 0 : LSTAB_Limits::grace_remaining();
 		$active = LSTAB_Limits::is_pro();
@@ -129,21 +89,10 @@ class LSTABP_Settings {
 		<?php
 	}
 
-	/**
-	 * Where billing is managed.
-	 *
-	 * @return string
-	 */
 	public static function account_url() {
 		return (string) apply_filters( 'lstabp_account_url', 'https://example.com/live-sheets-table/account/' );
 	}
 
-	/**
-	 * Reuse the free plugin's admin styling, so Pro does not look bolted on.
-	 *
-	 * @param string $hook Current admin page hook.
-	 * @return void
-	 */
 	public function enqueue( $hook ) {
 		if ( false === strpos( (string) $hook, self::PAGE_SLUG ) ) {
 			return;
@@ -158,11 +107,6 @@ class LSTABP_Settings {
 		);
 	}
 
-	/**
-	 * Save the OAuth client.
-	 *
-	 * @return void
-	 */
 	public function handle_save_client() {
 		$this->guard( 'lstabp_save_client' );
 
@@ -174,11 +118,6 @@ class LSTABP_Settings {
 		$this->redirect_with( 'success', __( 'Google client saved.', 'live-sheets-table-pro' ) );
 	}
 
-	/**
-	 * Save which sources need the connected account.
-	 *
-	 * @return void
-	 */
 	public function handle_save_sources() {
 		$this->guard( 'lstabp_save_sources' );
 
@@ -195,11 +134,6 @@ class LSTABP_Settings {
 		$this->redirect_with( 'success', __( 'Sheet settings saved.', 'live-sheets-table-pro' ) );
 	}
 
-	/**
-	 * Render the screen.
-	 *
-	 * @return void
-	 */
 	public function render() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'You are not allowed to view this page.', 'live-sheets-table-pro' ) );
@@ -212,11 +146,6 @@ class LSTABP_Settings {
 		require LSTABP_PATH . 'includes/views/settings-page.php';
 	}
 
-	/**
-	 * Print and clear the queued notice.
-	 *
-	 * @return void
-	 */
 	public static function print_notice() {
 		$key    = 'lstabp_notice_' . get_current_user_id();
 		$notice = get_transient( $key );
@@ -234,12 +163,6 @@ class LSTABP_Settings {
 		);
 	}
 
-	/**
-	 * Capability and nonce check.
-	 *
-	 * @param string $action Nonce action.
-	 * @return void
-	 */
 	protected function guard( $action ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'You are not allowed to do that.', 'live-sheets-table-pro' ), '', array( 'response' => 403 ) );
@@ -248,13 +171,6 @@ class LSTABP_Settings {
 		check_admin_referer( $action );
 	}
 
-	/**
-	 * Redirect back with a message.
-	 *
-	 * @param string $type    success or error.
-	 * @param string $message Message.
-	 * @return void
-	 */
 	protected function redirect_with( $type, $message ) {
 		set_transient(
 			'lstabp_notice_' . get_current_user_id(),

@@ -1,28 +1,8 @@
 <?php
-/**
- * RFC 4180 CSV parser.
- *
- * Written by hand rather than leaning on str_getcsv() because Google exports
- * routinely contain quoted fields with embedded commas, quotes and newlines,
- * and str_getcsv() cannot see past a single line.
- *
- * @package LiveSheetsTable
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * CSV parser.
- */
 class LSTAB_CSV_Parser {
-
-	/**
-	 * Parse a CSV payload into a header row plus body rows.
-	 *
-	 * @param string $csv              Raw CSV text.
-	 * @param bool   $first_row_header Treat the first row as column labels.
-	 * @return array{headers:array<int,string>,rows:array<int,array<int,string>>}|WP_Error
-	 */
 	public static function parse( $csv, $first_row_header = true ) {
 		$csv = self::normalise_encoding( (string) $csv );
 
@@ -35,9 +15,6 @@ class LSTAB_CSV_Parser {
 
 		$grid = self::to_grid( $csv );
 
-		// Row numbers are reported back to the site owner, so they have to be
-		// the numbers they see in Google. Blank rows are trimmed off the top
-		// below, which would otherwise shift every one of them.
 		$offset = self::leading_blank_rows( $grid );
 		$grid   = self::trim_empty_rows( $grid );
 
@@ -69,16 +46,9 @@ class LSTAB_CSV_Parser {
 		$parsed = array(
 			'headers' => $headers,
 			'rows'    => array_values( $rows ),
-			// How many lines of the sheet come before the first stored row.
-			// Kept so that a row can be referred to by the number Google shows
-			// beside it rather than by its place in what was stored, which are
-			// not the same thing the moment a sheet has a heading or a gap at
-			// the top — and a row number that is off by one is worse than none.
 			'offset'  => $offset + ( $first_row_header ? 1 : 0 ),
 		);
 
-		// Carried with the data rather than reported separately, so it travels
-		// into the stored copy and is replaced the moment a clean sync lands.
 		if ( $ragged ) {
 			$parsed['ragged'] = $ragged;
 		}
@@ -86,12 +56,6 @@ class LSTAB_CSV_Parser {
 		return $parsed;
 	}
 
-	/**
-	 * Count blank rows at the top of a grid.
-	 *
-	 * @param array<int,array<int,string>> $grid Parsed grid.
-	 * @return int
-	 */
 	protected static function leading_blank_rows( $grid ) {
 		$blank = 0;
 
@@ -108,20 +72,6 @@ class LSTAB_CSV_Parser {
 		return $blank;
 	}
 
-	/**
-	 * Find rows holding a different number of cells from the rest.
-	 *
-	 * Google gives every row the same number of cells, always. A row that
-	 * disagrees means the payload did not survive the trip intact — most often
-	 * an unmatched quotation mark, which runs two rows together. Nothing is
-	 * corrected here: the table still renders, and the site owner is told where
-	 * to look.
-	 *
-	 * @param array<int,array<int,string>> $grid    Parsed grid.
-	 * @param int                          $columns Cells the widest row holds.
-	 * @param int                          $offset  Blank rows trimmed off the top.
-	 * @return array{expected:int,total:int,rows:array<int,array{row:int,found:int}>}|null
-	 */
 	protected static function ragged_rows( $grid, $columns, $offset ) {
 		$found = array();
 		$total = 0;
@@ -133,8 +83,6 @@ class LSTAB_CSV_Parser {
 
 			$total++;
 
-			// A handful is enough to find the problem; a list of two hundred
-			// is just a wall.
 			if ( count( $found ) < 5 ) {
 				$found[] = array(
 					'row'   => $offset + $index + 1,
@@ -154,19 +102,11 @@ class LSTAB_CSV_Parser {
 		);
 	}
 
-	/**
-	 * Strip a UTF-8 BOM and coerce the payload to valid UTF-8.
-	 *
-	 * @param string $csv Raw payload.
-	 * @return string
-	 */
 	public static function normalise_encoding( $csv ) {
-		// UTF-8 BOM.
 		if ( 0 === strncmp( $csv, "\xEF\xBB\xBF", 3 ) ) {
 			$csv = substr( $csv, 3 );
 		}
 
-		// UTF-16 BOMs: convert rather than mangle.
 		if ( 0 === strncmp( $csv, "\xFF\xFE", 2 ) || 0 === strncmp( $csv, "\xFE\xFF", 2 ) ) {
 			$from = ( "\xFF\xFE" === substr( $csv, 0, 2 ) ) ? 'UTF-16LE' : 'UTF-16BE';
 			if ( function_exists( 'mb_convert_encoding' ) ) {
@@ -178,40 +118,19 @@ class LSTAB_CSV_Parser {
 		}
 
 		if ( ! self::is_valid_utf8( $csv ) ) {
-			// Google always serves UTF-8; this only guards hand-edited or proxied payloads.
 			$converted = function_exists( 'mb_convert_encoding' )
 				? mb_convert_encoding( $csv, 'UTF-8', 'Windows-1252' )
 				: false;
 			$csv = ( false !== $converted && null !== $converted ) ? $converted : wp_check_invalid_utf8( $csv, true );
 		}
 
-		// Normalise line endings so the scanner only has to deal with "\n".
 		$csv = str_replace( array( "\r\n", "\r" ), "\n", $csv );
 
-		/*
-		 * Control characters that mean nothing in a cell are dropped here, at
-		 * the edge, rather than left to travel through the parser, the
-		 * database, the page and any feed or export built from it. A null byte
-		 * pasted into a spreadsheet is invisible in Google and invisible in a
-		 * browser, but it truncates C strings, makes XML invalid, and is the
-		 * kind of thing that turns up months later as an unexplained blank.
-		 * Tab and newline are left alone: both are legitimate inside a cell.
-		 */
 		$csv = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $csv );
 
 		return (string) $csv;
 	}
 
-	/**
-	 * UTF-8 validity check that works across supported WordPress versions.
-	 *
-	 * seems_utf8() was deprecated in WordPress 6.9 in favour of
-	 * wp_is_valid_utf8(); the plugin still supports 6.0, so pick whichever
-	 * exists rather than emitting a deprecation notice on new installs.
-	 *
-	 * @param string $text Text to check.
-	 * @return bool
-	 */
 	protected static function is_valid_utf8( $text ) {
 		if ( function_exists( 'wp_is_valid_utf8' ) ) {
 			return (bool) wp_is_valid_utf8( $text );
@@ -220,12 +139,6 @@ class LSTAB_CSV_Parser {
 		return (bool) seems_utf8( $text );
 	}
 
-	/**
-	 * Scan CSV text into a two dimensional array.
-	 *
-	 * @param string $csv Normalised CSV text.
-	 * @return array<int,array<int,string>>
-	 */
 	protected static function to_grid( $csv ) {
 		$rows    = array();
 		$row     = array();
@@ -238,22 +151,10 @@ class LSTAB_CSV_Parser {
 
 			if ( $quoted ) {
 				if ( '"' === $char ) {
-					// A doubled quote inside a quoted field is a literal quote.
 					if ( $i + 1 < $length && '"' === $csv[ $i + 1 ] ) {
 						$field .= '"';
 						$i++;
 
-						/*
-						 * Normally the field carries on after an escaped
-						 * quote. But a value that ends in a quote of its own —
-						 * Mountain bike „Trek" — written by something that
-						 * forgot to double it leaves these same two characters
-						 * exactly where the field ends. Reading them as an
-						 * escape then swallows every remaining row into this
-						 * one cell. A delimiter straight afterwards settles
-						 * it: the pair was the value's quote and the field's
-						 * closing one.
-						 */
 						$after = $i + 1 < $length ? $csv[ $i + 1 ] : '';
 
 						if ( '' === $after || ',' === $after || "\n" === $after || "\r" === $after ) {
@@ -263,14 +164,6 @@ class LSTAB_CSV_Parser {
 						continue;
 					}
 
-					/*
-					 * A real closing quote is followed by a comma, a line
-					 * break, or nothing at all. Anything else means the sheet
-					 * holds a stray quotation mark, and ending the field here
-					 * would swallow every remaining row into this one cell —
-					 * a single stray quote could turn a seven-row table into
-					 * one row of run-together text. Keep it as a character.
-					 */
 					$next = $i + 1 < $length ? $csv[ $i + 1 ] : '';
 
 					if ( '' === $next || ',' === $next || "\n" === $next || "\r" === $next ) {
@@ -284,8 +177,6 @@ class LSTAB_CSV_Parser {
 				continue;
 			}
 
-			// A quote only opens a quoted field at the start of one. Halfway
-			// through, it is just a character the sheet happens to contain.
 			if ( '"' === $char && '' === $field ) {
 				$quoted = true;
 				continue;
@@ -308,7 +199,6 @@ class LSTAB_CSV_Parser {
 			$field .= $char;
 		}
 
-		// Flush whatever is still buffered when the payload has no trailing newline.
 		if ( '' !== $field || $row ) {
 			$row[]  = $field;
 			$rows[] = $row;
@@ -317,12 +207,6 @@ class LSTAB_CSV_Parser {
 		return $rows;
 	}
 
-	/**
-	 * Drop trailing rows that are entirely empty.
-	 *
-	 * @param array<int,array<int,string>> $grid Parsed grid.
-	 * @return array<int,array<int,string>>
-	 */
 	protected static function trim_empty_rows( $grid ) {
 		$filtered = array();
 
@@ -340,7 +224,6 @@ class LSTAB_CSV_Parser {
 			);
 		}
 
-		// Trim empties from both ends but keep blank separator rows in the middle.
 		while ( $filtered && $filtered[0]['empty'] ) {
 			array_shift( $filtered );
 		}
@@ -351,13 +234,6 @@ class LSTAB_CSV_Parser {
 		return array_values( wp_list_pluck( $filtered, 'row' ) );
 	}
 
-	/**
-	 * Clean up header labels, filling in blanks and de-duplicating.
-	 *
-	 * @param array<int,string> $raw     Raw header row.
-	 * @param int               $columns Column count.
-	 * @return array<int,string>
-	 */
 	protected static function normalise_headers( $raw, $columns ) {
 		$raw     = self::pad_row( (array) $raw, $columns );
 		$headers = array();
@@ -385,12 +261,6 @@ class LSTAB_CSV_Parser {
 		return $headers;
 	}
 
-	/**
-	 * Placeholder headers for sheets whose first row is data.
-	 *
-	 * @param int $columns Column count.
-	 * @return array<int,string>
-	 */
 	protected static function generated_headers( $columns ) {
 		$headers = array();
 		for ( $i = 0; $i < $columns; $i++ ) {
@@ -400,13 +270,6 @@ class LSTAB_CSV_Parser {
 		return $headers;
 	}
 
-	/**
-	 * Pad or truncate a row so every row has the same width.
-	 *
-	 * @param array<int,string> $row     Row values.
-	 * @param int               $columns Target width.
-	 * @return array<int,string>
-	 */
 	protected static function pad_row( $row, $columns ) {
 		$row = array_values( array_map( 'strval', (array) $row ) );
 

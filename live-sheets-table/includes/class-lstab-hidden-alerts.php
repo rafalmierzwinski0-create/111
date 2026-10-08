@@ -1,39 +1,12 @@
 <?php
-/**
- * Telling someone when a hidden thing has come back.
- *
- * @package LiveSheetsTable
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Watches the choices about what to leave out, and says when one stops working.
- *
- * Every other kind of fault here announces itself: a table that will not sync
- * turns red, a sheet that arrives damaged raises a warning. Something being
- * shown that was meant to be hidden announces nothing at all — the page simply
- * looks complete, which is exactly what it would look like if all were well.
- * That is the one failure in this plugin nobody would notice on their own, so
- * it is the one that has to come and find them.
- */
 class LSTAB_Hidden_Alerts {
-
-	/**
-	 * Autoloaded index: source ID mapped to what has come undone.
-	 */
 	const OPTION = 'lstab_hidden_alerts';
 
-	/**
-	 * Signatures of alerts somebody has already seen and put away.
-	 */
 	const DISMISSED_OPT = 'lstab_hidden_alerts_dismissed';
 
-	/**
-	 * Register hooks.
-	 *
-	 * @return void
-	 */
 	public function register() {
 		add_action( 'lstab_after_sync', array( __CLASS__, 'check' ), 20, 2 );
 		add_action( 'lstab_source_deleted', array( __CLASS__, 'forget' ) );
@@ -41,13 +14,6 @@ class LSTAB_Hidden_Alerts {
 		add_action( 'admin_post_lstab_dismiss_hidden', array( $this, 'handle_dismiss' ) );
 	}
 
-	/**
-	 * Look at one source after it has synced.
-	 *
-	 * @param array<string,mixed> $source Source row as it was before the sync.
-	 * @param array<string,mixed> $table  The table just stored.
-	 * @return void
-	 */
 	public static function check( $source, $table ) {
 		$id = isset( $source['id'] ) ? (int) $source['id'] : 0;
 
@@ -55,8 +21,6 @@ class LSTAB_Hidden_Alerts {
 			return;
 		}
 
-		// Read the source again: the sync has just rewritten the choices about
-		// hidden rows and the column settings against what actually arrived.
 		$fresh = LSTAB_Storage::get( $id );
 
 		if ( ! $fresh ) {
@@ -72,12 +36,6 @@ class LSTAB_Hidden_Alerts {
 		}
 		$headers = isset( $table['headers'] ) ? (array) $table['headers'] : array();
 
-		/*
-		 * Columns are read from the settings as they were *before* this sync.
-		 * Reconciling them against the new headings is what drops a setting
-		 * whose column has gone — which is the very thing worth reporting, so
-		 * by the time the source is read again there is nothing left to see.
-		 */
 		$found = array(
 			'title'   => (string) $fresh['title'],
 			'rows'    => $lines,
@@ -87,13 +45,6 @@ class LSTAB_Hidden_Alerts {
 		self::record( $id, ( $found['rows'] || $found['columns'] ) ? $found : null );
 	}
 
-	/**
-	 * Put one source into the index, or take it out.
-	 *
-	 * @param int        $id    Source ID.
-	 * @param array|null $found What has come undone, or null when nothing has.
-	 * @return void
-	 */
 	protected static function record( $id, $found ) {
 		$index = (array) get_option( self::OPTION, array() );
 		$had   = isset( $index[ $id ] );
@@ -110,36 +61,14 @@ class LSTAB_Hidden_Alerts {
 		self::prune_dismissals( $index );
 	}
 
-	/**
-	 * Forget a source that has been deleted.
-	 *
-	 * @param int $id Source ID.
-	 * @return void
-	 */
 	public static function forget( $id ) {
 		self::record( (int) $id, null );
 	}
 
-	/**
-	 * What makes one alert different from another.
-	 *
-	 * Dismissing is of this particular thing having come undone, not of the
-	 * subject in general: a second row coming back next week is news again.
-	 *
-	 * @param int                 $id    Source ID.
-	 * @param array<string,mixed> $found Recorded finding.
-	 * @return string
-	 */
 	public static function signature( $id, $found ) {
 		return md5( (string) $id . '|' . wp_json_encode( array( $found['rows'], $found['columns'] ) ) );
 	}
 
-	/**
-	 * Drop dismissals of alerts that are no longer raised.
-	 *
-	 * @param array<int,array<string,mixed>> $index Current index.
-	 * @return void
-	 */
 	protected static function prune_dismissals( $index ) {
 		$live = array();
 
@@ -152,11 +81,6 @@ class LSTAB_Hidden_Alerts {
 		update_option( self::DISMISSED_OPT, $dismissed, true );
 	}
 
-	/**
-	 * Everything currently worth saying, minus what has been put away.
-	 *
-	 * @return array<int,array<string,mixed>>
-	 */
 	public static function pending() {
 		$index     = (array) get_option( self::OPTION, array() );
 		$dismissed = (array) get_option( self::DISMISSED_OPT, array() );
@@ -173,18 +97,6 @@ class LSTAB_Hidden_Alerts {
 		return $pending;
 	}
 
-	/**
-	 * Whether a finding means something is on the page that should not be.
-	 *
-	 * A column whose heading has gone is publishing its data again, and a row
-	 * that can no longer be told from its neighbours is back among them. A row
-	 * that has simply been deleted is neither: nothing is being shown, because
-	 * there is nothing left to show. Calling both of those the same thing is
-	 * how a warning stops being read.
-	 *
-	 * @param array<string,mixed> $found Recorded finding.
-	 * @return bool
-	 */
 	public static function is_exposure( $found ) {
 		foreach ( $found['columns'] as $column ) {
 			if ( $column['hidden'] ) {
@@ -201,11 +113,6 @@ class LSTAB_Hidden_Alerts {
 		return false;
 	}
 
-	/**
-	 * Print the notice.
-	 *
-	 * @return void
-	 */
 	public static function print_notice() {
 		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
 			return;
@@ -265,8 +172,6 @@ class LSTAB_Hidden_Alerts {
 
 					<?php foreach ( $lstab_found['rows'] as $lstab_row ) : ?>
 						<?php
-						// A row that was blank in every cell has nothing to quote,
-						// and “” in the middle of a sentence reads as a bug.
 						$lstab_said = '' !== $lstab_row['label']
 							? $lstab_row['label']
 							: __( 'the empty row', 'live-sheets-table' );
@@ -318,11 +223,6 @@ class LSTAB_Hidden_Alerts {
 		<?php
 	}
 
-	/**
-	 * Remember that this has been read.
-	 *
-	 * @return void
-	 */
 	public function handle_dismiss() {
 		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
 			wp_die( esc_html__( 'You do not have permission to do that.', 'live-sheets-table' ) );

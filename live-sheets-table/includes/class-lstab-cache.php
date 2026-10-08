@@ -1,75 +1,16 @@
 <?php
-/**
- * Telling the page cache that a table has changed.
- *
- * This is the failure nobody attributes to caching. The sheet is edited, the
- * plugin fetches it on time, the dashboard shows the new figure — and the
- * visitor still sees yesterday's price, because the page they are served was
- * built hours ago and stored by a caching plugin that has no idea anything
- * happened. Nothing in this plugin is broken and everything about it looks
- * broken, which is exactly the review it earns.
- *
- * The reason it happens is that a page cache is cleared by editing a post, and
- * a sheet arriving from Google is not that. So the plugin has to say so itself.
- *
- * Two things keep it well-mannered. It fires only when the sheet actually
- * changed — the stored copy is hashed, so a check that found nothing new clears
- * nothing. And it clears the pages the table is actually on, found through the
- * usage map the dashboard already builds, rather than throwing away the whole
- * site's cache because one price moved.
- *
- * @package LiveSheetsTable
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Page-cache integration.
- */
 class LSTAB_Cache {
-
-	/**
-	 * Where the last clearing of each source is recorded, for the dashboard.
-	 */
 	const LOG_OPTION = 'lstab_purge_log';
 
-	/**
-	 * Whether to do this at all.
-	 *
-	 * There is no setting for it, on purpose. "Should the page a visitor sees
-	 * match the sheet?" is not a question worth putting to somebody: the answer
-	 * is always yes, and the people most likely to be bitten are the least
-	 * likely to have found the switch. It is a filter rather than a setting, so
-	 * a developer with a reason can still turn it off.
-	 *
-	 * @param int $source_id Source about to be cleared.
-	 * @return bool
-	 */
 	public static function enabled( $source_id = 0 ) {
-		/**
-		 * Filters whether the page cache is cleared when a sheet changes.
-		 *
-		 * @param bool $enabled   Whether to clear.
-		 * @param int  $source_id Source that changed.
-		 */
 		return (bool) apply_filters( 'lstab_clear_page_cache', true, (int) $source_id );
 	}
 
-	/**
-	 * Most pages cleared for one change.
-	 */
 	const MAX_PAGES = 50;
 
-	/**
-	 * Clear the pages that hold an old copy of one table.
-	 *
-	 * Only the pages the table is known to be on. A table nobody has found yet,
-	 * or one on more pages than MAX_PAGES (a footer, a sidebar), clears
-	 * nothing: the page script replaces an outdated table on screen anyway.
-	 *
-	 * @param int $source_id Source ID.
-	 * @return array{scope:string,posts:int} What was done.
-	 */
 	public static function purge( $source_id ) {
 		$source_id = (int) $source_id;
 
@@ -94,16 +35,6 @@ class LSTAB_Cache {
 			self::purge_post( (int) $post_id );
 		}
 
-		/**
-		 * Fires after the pages holding one table have been cleared.
-		 *
-		 * The hook for anything this plugin has not heard of: a host's own
-		 * cache, a CDN, a reverse proxy. It is given the pages that were
-		 * cleared and the table that changed.
-		 *
-		 * @param array<int,int> $posts     Post IDs whose cache was cleared.
-		 * @param int            $source_id Source that changed.
-		 */
 		do_action( 'lstab_purge_page_cache', $posts, $source_id );
 
 		self::record( $source_id, 'pages', count( $posts ) );
@@ -114,14 +45,7 @@ class LSTAB_Cache {
 		);
 	}
 
-	/**
-	 * Register hooks.
-	 *
-	 * @return void
-	 */
 	public function register() {
-		// Saving changes what the page looks like as surely as new data does: a
-		// hidden column or a different style is a different page.
 		add_action(
 			'lstab_source_saved',
 			static function ( $source_id ) {
@@ -132,81 +56,48 @@ class LSTAB_Cache {
 		add_action(
 			'lstab_source_deleted',
 			static function ( $source_id ) {
-				// The pages that held it are now pages without it.
 				LSTAB_Cache::purge( (int) $source_id );
 				LSTAB_Cache::forget( (int) $source_id );
 			}
 		);
 	}
 
-	/**
-	 * Clear one page, in whatever is caching it.
-	 *
-	 * Each of these is the published way to clear one post in that plugin. The
-	 * ones that are actions can be fired without checking: an action nobody is
-	 * listening to costs nothing. The ones that are functions or methods have
-	 * to be there first.
-	 *
-	 * @param int $post_id Post ID.
-	 * @return void
-	 */
 	protected static function purge_post( $post_id ) {
 		if ( $post_id <= 0 ) {
 			return;
 		}
 
-		// Core's own object cache for the post, which a persistent object cache
-		// would otherwise keep serving to the renderer itself.
 		clean_post_cache( $post_id );
 
-		// WP Rocket.
 		if ( function_exists( 'rocket_clean_post' ) ) {
 			rocket_clean_post( $post_id );
 		}
 
-		// W3 Total Cache.
 		if ( function_exists( 'w3tc_flush_post' ) ) {
 			w3tc_flush_post( $post_id );
 		}
 
-		// WP Super Cache.
 		if ( function_exists( 'wp_cache_post_change' ) ) {
 			wp_cache_post_change( $post_id );
 		}
 
-		// WP Fastest Cache, which exposes an object rather than a function.
 		if ( isset( $GLOBALS['wp_fastest_cache'] ) && method_exists( $GLOBALS['wp_fastest_cache'], 'singleDeleteCache' ) ) {
 			$GLOBALS['wp_fastest_cache']->singleDeleteCache( false, $post_id );
 		}
 
-		// WP Engine's own page cache.
 		if ( class_exists( 'WpeCommon' ) && method_exists( 'WpeCommon', 'purge_varnish_cache' ) ) {
 			WpeCommon::purge_varnish_cache( $post_id );
 		}
 
-		// LiteSpeed Cache, Cache Enabler and Hummingbird all listen for these.
 		do_action( 'litespeed_purge_post', $post_id );
 		do_action( 'cache_enabler_clear_page_cache_by_post', $post_id );
 		do_action( 'wphb_clear_page_cache', $post_id );
 
-		// SiteGround's optimiser clears by address rather than by post.
 		if ( function_exists( 'sg_cachepress_purge_cache' ) ) {
 			sg_cachepress_purge_cache( get_permalink( $post_id ) );
 		}
 	}
 
-	/**
-	 * Remember what was cleared, so the dashboard can say so.
-	 *
-	 * The first question on a support thread about a stale table is whether the
-	 * cache was cleared at all, and "we cleared 3 pages at 14:05" answers it
-	 * without anybody having to reproduce anything.
-	 *
-	 * @param int    $source_id Source ID.
-	 * @param string $scope     What was cleared.
-	 * @param int    $posts     How many pages were cleared.
-	 * @return void
-	 */
 	protected static function record( $source_id, $scope, $posts ) {
 		$log = (array) get_option( self::LOG_OPTION, array() );
 
@@ -216,29 +107,15 @@ class LSTAB_Cache {
 			'posts' => (int) $posts,
 		);
 
-		// One entry per source, and sources are few, so this cannot grow into
-		// something that has to be cleaned up on a schedule.
 		update_option( self::LOG_OPTION, $log, false );
 	}
 
-	/**
-	 * The last clearing for one source, or nothing.
-	 *
-	 * @param int $source_id Source ID.
-	 * @return array{time:int,scope:string,posts:int}|null
-	 */
 	public static function last( $source_id ) {
 		$log = (array) get_option( self::LOG_OPTION, array() );
 
 		return isset( $log[ (int) $source_id ] ) ? (array) $log[ (int) $source_id ] : null;
 	}
 
-	/**
-	 * Forget a deleted source.
-	 *
-	 * @param int $source_id Source ID.
-	 * @return void
-	 */
 	public static function forget( $source_id ) {
 		$log = (array) get_option( self::LOG_OPTION, array() );
 

@@ -1,13 +1,4 @@
 <?php
-/**
- * Pro settings screen.
- *
- * @package LiveSheetsTablePro
- *
- * @var array<string,string>          $client
- * @var bool                          $connected
- * @var array<int,array<string,mixed>> $sources
- */
 
 defined( 'ABSPATH' ) || exit;
 ?>

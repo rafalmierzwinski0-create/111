@@ -38,11 +38,6 @@ require_once LSTABP_PATH . 'includes/class-lstabp-picker.php';
 require_once LSTABP_PATH . 'includes/class-lstabp-settings.php';
 require_once LSTABP_PATH . 'includes/class-lstabp-plugin.php';
 
-/**
- * Pro plugin instance.
- *
- * @return LSTABP_Plugin
- */
 function lstabp() {
 	static $instance = null;
 	if ( null === $instance ) {

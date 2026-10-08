@@ -1,39 +1,16 @@
 <?php
-/**
- * Letting visitors take the table with them.
- *
- * The export is generated from exactly what the page shows: the same filter,
- * the same hidden columns, the same renamed headings. An export that reached
- * past those would be a way to read what the page was built not to show, so
- * the link carries a signature and the endpoint rebuilds the table through the
- * renderer's own preparation rather than reading the sheet directly.
- *
- * @package LiveSheetsTablePro
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * CSV and print export.
- */
 class LSTABP_Export {
-
 	const OPTION = 'lstabp_export_sources';
 	const ACTION = 'lstabp_export';
 
-	/**
-	 * Register hooks.
-	 *
-	 * @return void
-	 */
 	public function register() {
 		add_filter( 'lstab_rendered_table', array( $this, 'add_buttons' ), 10, 3 );
 		add_action( 'admin_post_' . self::ACTION, array( $this, 'serve' ) );
 		add_action( 'admin_post_nopriv_' . self::ACTION, array( $this, 'serve' ) );
 
-		// The General tab. It was on Appearance, on the reasoning that these
-		// are buttons a visitor sees — but nobody looks for "can people
-		// download this?" under how the table is coloured.
 		add_action( 'lstab_edit_pane_cards', array( $this, 'render_pane_card' ), 20, 3 );
 		add_action( 'lstab_source_saved', array( $this, 'save' ) );
 		add_action( 'lstab_source_deleted', array( $this, 'forget' ) );
@@ -42,58 +19,24 @@ class LSTABP_Export {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue' ) );
 	}
 
-	/**
-	 * Sources whose tables offer the buttons.
-	 *
-	 * @return array<int,bool>
-	 */
 	public static function enabled_sources() {
 		return array_map( 'boolval', (array) get_option( self::OPTION, array() ) );
 	}
 
-	/**
-	 * Whether one source offers them.
-	 *
-	 * @param int $source_id Source ID.
-	 * @return bool
-	 */
 	public static function is_enabled( $source_id ) {
 		$all = self::enabled_sources();
 
 		return ! empty( $all[ (int) $source_id ] );
 	}
 
-	/**
-	 * Front-end script for the print button.
-	 *
-	 * @return void
-	 */
 	public function enqueue() {
 		wp_register_script( 'lstabp-export', LSTABP_URL . 'assets/js/lstabp-export.js', array(), LSTABP_VERSION, true );
 	}
 
-	/**
-	 * A signature tying a download link to the table it came from.
-	 *
-	 * Without it the filter could be edited in the address bar, and a page
-	 * built to show one category would hand over the whole sheet.
-	 *
-	 * @param int    $source_id Source ID.
-	 * @param string $filter    Filter expression the table was rendered with.
-	 * @return string
-	 */
 	public static function signature( $source_id, $filter ) {
 		return wp_hash( self::ACTION . '|' . (int) $source_id . '|' . $filter );
 	}
 
-	/**
-	 * Put the buttons under a table that offers them.
-	 *
-	 * @param string              $html   Rendered table.
-	 * @param array<string,mixed> $source Source row.
-	 * @param array<string,mixed> $args   Rendering options.
-	 * @return string
-	 */
 	public function add_buttons( $html, $source, $args ) {
 		$source_id = isset( $source['id'] ) ? (int) $source['id'] : 0;
 
@@ -103,8 +46,6 @@ class LSTABP_Export {
 
 		$filter = isset( $args['filter'] ) ? (string) $args['filter'] : '';
 
-		// What the visitor picked under "Show only" goes with the link: those
-		// only ever narrow the rows, so they need no signature.
 		$picked = array();
 		foreach ( (array) $_GET as $name => $value ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only, public navigation.
 			if ( is_scalar( $value ) && preg_match( '/^lstab-f\d+-' . $source_id . '$/', (string) $name ) ) {
@@ -134,7 +75,6 @@ class LSTABP_Export {
 		?>
 		<p class="lstabp-export">
 			<?php if ( LSTABP_Xlsx::is_available() ) : ?>
-				<?php // First, because it is what most people mean by "download the table". ?>
 				<a class="lstabp-export-button" href="<?php echo esc_url( $link( 'xlsx' ) ); ?>" rel="nofollow">
 					<?php esc_html_e( 'Download for Excel', 'live-sheets-table-pro' ); ?>
 				</a>
@@ -149,18 +89,6 @@ class LSTABP_Export {
 		<?php
 		$buttons = (string) ob_get_clean();
 
-		/*
-		 * Inside the table's own element, so the buttons take its colours and
-		 * disappear with it when printing.
-		 *
-		 * Which is not the last </div> in the markup: the table sits in a
-		 * container of its own, so the last one closes that and everything
-		 * before it. The buttons went in there, one level too far out, where
-		 * none of the table's custom properties reach — and a button whose
-		 * border, background and ink are all var() of something undefined is
-		 * not a button with default colours, it is three words of plain text.
-		 * The one before it is the table's.
-		 */
 		$outer = strrpos( $html, '</div>' );
 
 		if ( false === $outer ) {
@@ -176,11 +104,6 @@ class LSTABP_Export {
 		return substr_replace( $html, $buttons . '</div>', $inner, strlen( '</div>' ) );
 	}
 
-	/**
-	 * Stream the table as a file.
-	 *
-	 * @return void
-	 */
 	public function serve() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- A signed public link, not a form submission.
 		$source_id = isset( $_GET['source'] ) ? absint( wp_unslash( $_GET['source'] ) ) : 0;
@@ -189,9 +112,6 @@ class LSTABP_Export {
 		$format    = isset( $_GET['format'] ) ? sanitize_key( wp_unslash( $_GET['format'] ) ) : 'csv';
 		// phpcs:enable
 
-		// The format decides how the same rows are written, never which rows
-		// they are, so it is outside the signature — and anything unrecognised
-		// is the format the links have always used.
 		if ( 'xlsx' !== $format || ! LSTABP_Xlsx::is_available() ) {
 			$format = 'csv';
 		}
@@ -206,13 +126,6 @@ class LSTABP_Export {
 			wp_die( esc_html__( 'This download link is not valid.', 'live-sheets-table-pro' ), '', array( 'response' => 403 ) );
 		}
 
-		// Through the renderer's own preparation, so the file holds exactly the
-		// rows and columns the page held — no more.
-		/*
-		 * Every page of a paged table, not the first one: the file is the
-		 * table, not what fitted on screen. The visitor's picks under "Show
-		 * only" arrive with the link and apply as they do on the page.
-		 */
 		LSTABP_Facets::$exporting = true;
 		$prepared                 = LSTAB_Renderer::prepare(
 			$source,
@@ -225,8 +138,6 @@ class LSTABP_Export {
 
 		$name = sanitize_file_name( $source['title'] ? $source['title'] : 'table' );
 
-		// A title made entirely of characters a filename cannot hold leaves
-		// nothing behind, and "\".csv"" is not a filename.
 		if ( '' === $name ) {
 			$name = 'table';
 		}
@@ -257,7 +168,6 @@ class LSTABP_Export {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions -- Streaming to the browser; there is no WP_Filesystem equivalent.
 		$out = fopen( 'php://output', 'w' );
 
-		// A BOM, or Excel opens a Polish price list as mojibake.
 		fwrite( $out, "\xEF\xBB\xBF" );
 		self::put_row( $out, $prepared['headers'] );
 
@@ -269,36 +179,10 @@ class LSTABP_Export {
 		exit;
 	}
 
-	/**
-	 * Write one row, with anything formula-shaped defused first.
-	 *
-	 * @param resource          $handle Output stream.
-	 * @param array<int,string> $cells  Cell values.
-	 * @return void
-	 */
 	protected static function put_row( $handle, $cells ) {
-		// The escape character is disabled on purpose: PHP's default is a
-		// backslash, which is not part of the CSV convention and turns a cell
-		// ending in one into something no reader parses back the same way.
 		fputcsv( $handle, array_map( array( __CLASS__, 'defuse' ), $cells ), ',', '"', '' );
 	}
 
-	/**
-	 * Stop a cell from being run as a formula by whatever opens the file.
-	 *
-	 * A spreadsheet treats a cell beginning with =, +, - or @ as a formula, and
-	 * a formula in a downloaded file runs on the machine of whoever opened it —
-	 * "=cmd|'/c calc'!A0" is the well-known one. The sheet behind a table is not
-	 * necessarily written only by people the site owner trusts: a sheet fed by a
-	 * form, or shared for editing, holds whatever somebody typed into it.
-	 *
-	 * The fix is the one Google Sheets itself uses: an apostrophe in front,
-	 * which marks the cell as text. Numbers are left alone, so a column of
-	 * negative values still adds up.
-	 *
-	 * @param string $value Cell value.
-	 * @return string
-	 */
 	public static function defuse( $value ) {
 		$value = (string) $value;
 
@@ -313,13 +197,6 @@ class LSTABP_Export {
 		return "'" . $value;
 	}
 
-	/**
-	 * Print the setting on the source screen.
-	 *
-	 * @param array<string,mixed>|null $source  Source row.
-	 * @param bool                     $is_edit Editing an existing source.
-	 * @return void
-	 */
 	public function render_pane_card( $pane, $source, $is_edit ) {
 		if ( 'general' !== $pane ) {
 			return;
@@ -328,13 +205,6 @@ class LSTABP_Export {
 		$this->render_card( $source, $is_edit );
 	}
 
-	/**
-	 * Print the export card.
-	 *
-	 * @param array<string,mixed>|null $source  Source row.
-	 * @param bool                     $is_edit Editing an existing source.
-	 * @return void
-	 */
 	public function render_card( $source, $is_edit ) {
 		$enabled = ( $is_edit && $source ) ? self::is_enabled( $source['id'] ) : false;
 		?>
@@ -354,12 +224,6 @@ class LSTABP_Export {
 		<?php
 	}
 
-	/**
-	 * Store the setting.
-	 *
-	 * @param int $source_id Source ID.
-	 * @return void
-	 */
 	public function save( $source_id ) {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified by the free plugin before this fires.
 		if ( ! isset( $_POST['lstabp_export_present'] ) ) {
@@ -378,12 +242,6 @@ class LSTABP_Export {
 		update_option( self::OPTION, $all, true );
 	}
 
-	/**
-	 * Forget a deleted source.
-	 *
-	 * @param int $source_id Source ID.
-	 * @return void
-	 */
 	public function forget( $source_id ) {
 		$all = self::enabled_sources();
 

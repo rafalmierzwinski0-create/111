@@ -1,32 +1,13 @@
 <?php
-/**
- * WP-Cron scheduling.
- *
- * A single recurring "tick" drives every source. The tick runs at the shortest
- * interval any source asks for, and each source is refreshed only once its own
- * interval has elapsed. That keeps one event in the schedule no matter how many
- * sources exist, and makes a per-source interval change a no-op reschedule.
- *
- * @package LiveSheetsTable
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Cron controller.
- */
 class LSTAB_Cron {
-
 	const TICK_HOOK     = 'lstab_sync_tick';
 	const RETRY_HOOK    = 'lstab_sync_source';
 	const TICK_OPTION   = 'lstab_tick_schedule';
 	const LAST_TICK_OPT = 'lstab_last_tick';
 
-	/**
-	 * Register hooks.
-	 *
-	 * @return void
-	 */
 	public function register() {
 		add_filter( 'cron_schedules', array( $this, 'add_schedules' ) ); // phpcs:ignore WordPress.WP.CronInterval
 		add_action( self::TICK_HOOK, array( $this, 'run_tick' ) );
@@ -35,12 +16,6 @@ class LSTAB_Cron {
 		add_action( 'lstab_source_deleted', array( __CLASS__, 'ensure_scheduled' ) );
 	}
 
-	/**
-	 * Add the custom recurrences the plugin offers.
-	 *
-	 * @param array<string,array<string,mixed>> $schedules Existing schedules.
-	 * @return array<string,array<string,mixed>>
-	 */
 	public function add_schedules( $schedules ) {
 		foreach ( self::schedule_map() as $slug => $seconds ) {
 			if ( isset( $schedules[ $slug ] ) ) {
@@ -59,11 +34,6 @@ class LSTAB_Cron {
 		return $schedules;
 	}
 
-	/**
-	 * Schedule slugs mapped to their length in seconds.
-	 *
-	 * @return array<string,int>
-	 */
 	public static function schedule_map() {
 		return array(
 			'lstab_1min'  => 60,
@@ -76,11 +46,6 @@ class LSTAB_Cron {
 		);
 	}
 
-	/**
-	 * Pick the schedule slug that matches the shortest configured interval.
-	 *
-	 * @return string
-	 */
 	public static function required_schedule() {
 		$shortest = 0;
 
@@ -105,11 +70,6 @@ class LSTAB_Cron {
 		return $best;
 	}
 
-	/**
-	 * Make sure the tick is scheduled at the right recurrence.
-	 *
-	 * @return void
-	 */
 	public static function ensure_scheduled() {
 		$needed  = self::required_schedule();
 		$current = get_option( self::TICK_OPTION );
@@ -124,11 +84,6 @@ class LSTAB_Cron {
 		update_option( self::TICK_OPTION, $needed );
 	}
 
-	/**
-	 * Remove every queued tick.
-	 *
-	 * @return void
-	 */
 	public static function unschedule() {
 		$timestamp = wp_next_scheduled( self::TICK_HOOK );
 		while ( $timestamp ) {
@@ -139,75 +94,29 @@ class LSTAB_Cron {
 		delete_option( self::LAST_TICK_OPT );
 	}
 
-	/**
-	 * Cron callback: refresh whatever is due.
-	 *
-	 * @return void
-	 */
 	public function run_tick() {
-		// Recorded even when nothing was due: this is the proof that the
-		// scheduler is running at all, which is what health() reports on.
 		update_option( self::LAST_TICK_OPT, time(), false );
 
 		LSTAB_Sync::run_due();
 	}
 
-	/**
-	 * Sync one named source in the background.
-	 *
-	 * Queued when a check made while a visitor waited ran out of its four
-	 * seconds. This runs in a request of its own, after the page has gone, so
-	 * it has the full timeout — which is the difference between a large sheet
-	 * never being refreshed by a visit and being refreshed moments after one.
-	 *
-	 * @param int $id Source ID.
-	 * @return void
-	 */
 	public static function run_source( $id ) {
 		LSTAB_Sync::run( (int) $id );
 	}
 
-	/**
-	 * Whether the tables are actually being kept up to date.
-	 *
-	 * This used to report on the mechanism: whether WP-Cron was switched off,
-	 * whether the event was scheduled. That was the wrong thing to look at.
-	 * DISABLE_WP_CRON in wp-config.php is the normal setup on any host that
-	 * runs a real system cron, so the plugin was warning perfectly healthy
-	 * sites about a fault they did not have — and a warning that fires when
-	 * nothing is wrong teaches people to ignore warnings.
-	 *
-	 * What matters to the site owner is whether the data on their pages is
-	 * current, and that can simply be measured. A site whose sheets are fresh
-	 * is fine however that happened — background schedule, system cron, or a
-	 * visitor's own page load. A site whose sheets have fallen well behind has
-	 * a real problem worth naming, whatever the configuration says.
-	 *
-	 * @return array{state:string,message:string,detail:string}
-	 */
 	public static function health() {
 		$worst     = null;
 		$worst_age = 0;
 
 		foreach ( LSTAB_Storage::get_all() as $source ) {
-			/*
-			 * The bundled example is not a document anywhere and is never
-			 * fetched, so its stored copy is as fresh as it will ever be.
-			 * Counting it here reported a scheduling fault that did not exist,
-			 * on a site whose schedule was working perfectly.
-			 */
 			if ( LSTAB_Example::is_example( $source ) ) {
 				continue;
 			}
 
-			// A source that has never synced is reported where it is listed,
-			// and by the table itself. Nothing to add here.
 			if ( empty( $source['last_success_gmt'] ) ) {
 				continue;
 			}
 
-			// A sheet Google refuses is reported as failing where it is listed;
-			// it says nothing about whether the schedule runs.
 			if ( 'error' === $source['last_status'] ) {
 				continue;
 			}
@@ -215,8 +124,6 @@ class LSTAB_Cron {
 			$interval = max( 60, (int) $source['sync_interval'] );
 			$age      = time() - (int) strtotime( $source['last_success_gmt'] . ' UTC' );
 
-			// Three missed rounds is past any reasonable jitter on a quiet
-			// site, and an hour keeps a one-minute interval from crying wolf.
 			if ( $age <= max( 3 * $interval, HOUR_IN_SECONDS ) ) {
 				continue;
 			}
@@ -244,25 +151,11 @@ class LSTAB_Cron {
 				$worst['title'],
 				LSTAB_Locale::span( time() - $worst_age, time() )
 			),
-			// Said on the visible line, because it is the answer to the only
-			// urgent question a warning of this size provokes.
 			'calm'    => __( 'Your pages still show the last copy that arrived, so nothing is broken for visitors.', 'live-sheets-table' ),
 			'detail'  => __( 'WordPress runs scheduled work only when a page is requested, so a quiet site falls behind. On a busy site the usual causes are a page cache, a security plugin, or scheduling disabled by the host.', 'live-sheets-table' ),
 		);
 	}
 
-	/**
-	 * The system-cron line that would drive this site's schedule.
-	 *
-	 * WordPress has no clock. Its schedule runs when someone visits, which
-	 * means a site nobody visits never checks anything — no plugin can fix
-	 * that from inside PHP, because no PHP runs. What can be fixed is the
-	 * asking: a site owner told to "set up a system cron" has to go and work
-	 * out what to type, while a line built from their own address can be
-	 * pasted into a hosting panel as it stands.
-	 *
-	 * @return string
-	 */
 	public static function system_cron_line() {
 		$expressions = array(
 			60    => '* * * * *',
@@ -280,11 +173,6 @@ class LSTAB_Cron {
 		return $expression . ' curl -s ' . $url . ' >/dev/null 2>&1';
 	}
 
-	/**
-	 * Length of the currently scheduled tick, in seconds.
-	 *
-	 * @return int
-	 */
 	public static function current_interval() {
 		$slug      = (string) get_option( self::TICK_OPTION );
 		$schedules = self::schedule_map();

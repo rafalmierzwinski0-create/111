@@ -1,9 +1,3 @@
-/**
- * Live Sheets Table — block editor script.
- *
- * Plain ES5 against the wp.* globals, so the plugin ships without a build step
- * and the file in the repository is the file that runs.
- */
 ( function ( wp ) {
 	'use strict';
 
@@ -39,11 +33,6 @@
 		{ label: __( 'Bordered', 'live-sheets-table' ), value: 'bordered' }
 	];
 
-	/**
-	 * Load the saved sources once per editor session.
-	 *
-	 * @return {Object} { sources, loading }
-	 */
 	function useSources() {
 		var sourcesState = useState( null );
 		var sources = sourcesState[ 0 ];
@@ -72,11 +61,6 @@
 		return { sources: sources, loading: null === sources };
 	}
 
-	/*
-	 * The product's mark, drawn rather than named: block.json can only name a
-	 * dashicon, and the inserter is the one place a visitor to the editor meets
-	 * this plugin before it has done anything.
-	 */
 	var blockIcon = el(
 		'svg',
 		{ viewBox: '0 0 32 32', width: 24, height: 24, xmlns: 'http://www.w3.org/2000/svg' },
@@ -182,8 +166,6 @@
 						__nextHasNoMarginBottom: true
 					} )
 				),
-				// Only where an add-on is listening for it. On its own the
-				// field would accept text and change nothing.
 				lstabBlock.isPro ? el(
 					PanelBody,
 					{ title: __( 'Which rows', 'live-sheets-table' ), initialOpen: false },
@@ -241,7 +223,6 @@
 		},
 
 		save: function () {
-			// Dynamic block: the server renders it, so nothing is stored in post content.
 			return null;
 		}
 	} );

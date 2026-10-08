@@ -1,17 +1,4 @@
 <?php
-/**
- * The sheet drawn as a control: click what you want gone.
- *
- * @package LiveSheetsTablePro
- *
- * @var array<int,string>            $headers Sheet headings.
- * @var array<int,array<int,string>> $rows    Every row of the sheet.
- * @var array<int,array<int,string>> $shown   The rows offered for clicking.
- * @var array<int,array>             $columns Column settings.
- * @var array<int,array>             $hidden  Stored choices about rows.
- * @var array<int,bool>              $dropped Positions currently taken out.
- * @var int                          $offset  Lines of the sheet above the first row.
- */
 
 defined( 'ABSPATH' ) || exit;
 ?>
@@ -21,14 +8,6 @@ defined( 'ABSPATH' ) || exit;
 		<?php esc_html_e( 'Click a heading to hide that column, or a line number to hide that row. Click again to bring it back. Nothing is written to Google.', 'live-sheets-table-pro' ); ?>
 	</p>
 
-	<?php
-	/*
-	 * Said before anything is clicked, not after something has gone wrong.
-	 * Someone who knows in advance that reordering their sheet undoes these
-	 * choices can plan around it; someone who learns it from a notice a week
-	 * later has already published the page.
-	 */
-	?>
 	<div class="notice notice-info inline lstabp-picker-note">
 		<p>
 			<strong><?php esc_html_e( 'Moving a column or row in Google will show it again', 'live-sheets-table-pro' ); ?></strong>
@@ -47,13 +26,6 @@ defined( 'ABSPATH' ) || exit;
 		<span class="lstabp-legend-chip"><span class="lstabp-legend-mark lstabp-legend-mark--detail" aria-hidden="true"></span><?php esc_html_e( 'Click the arrow to move a column under the row instead', 'live-sheets-table-pro' ); ?></span>
 	</p>
 
-	<?php
-	/*
-	 * The first data row is numbered 2, because line 1 is the headings. Nobody
-	 * counting rows in the table in front of them arrives at that on their own,
-	 * and the numbers are the whole way a hidden row is matched later.
-	 */
-	?>
 	<p class="lstab-help lstabp-picker-lines">
 		<?php esc_html_e( 'The numbers down the left are the line numbers in your sheet, so line 1 is the headings.', 'live-sheets-table-pro' ); ?>
 	</p>
@@ -82,15 +54,6 @@ defined( 'ABSPATH' ) || exit;
 								<span class="lstabp-picker-name"><?php echo esc_html( $lstabp_col_name ); ?></span>
 								<span class="lstabp-picker-mark" aria-hidden="true"></span>
 							</button>
-							<?php
-							/*
-							 * A second, separate mark rather than a click that
-							 * cycles through three states: cycling makes the
-							 * first click ambiguous and the third a guess, and
-							 * the click that takes a column out is a gesture
-							 * people already know from this screen.
-							 */
-							?>
 							<button type="button"
 								class="lstabp-picker-detail"
 								data-lstabp-detail="<?php echo esc_attr( (string) $lstabp_i ); ?>"
@@ -182,13 +145,6 @@ defined( 'ABSPATH' ) || exit;
 		<ul class="lstabp-chips" id="lstabp-hidden-rows-chips"></ul>
 	</div>
 
-	<?php
-	/*
-	 * Says the picker was on the screen, so that a save made anywhere else
-	 * leaves the stored list alone rather than reading "no fields submitted"
-	 * as "nothing is hidden".
-	 */
-	?>
 	<input type="hidden" name="_lstab_hidden_rows_present" value="1">
 
 	<div id="lstabp-hidden-rows-fields" hidden>
