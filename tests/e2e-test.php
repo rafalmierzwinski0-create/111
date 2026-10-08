@@ -1217,6 +1217,41 @@ LSTAB_Storage::delete( $never_id );
 
 // ---------------------------------------------------------------------------
 
+lstab_section( '11b. A cached page asks for its own overdue tables' );
+
+LSTAB_Sync::reset_view_budget();
+$lstab_kc_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false !== strpos( $lstab_kc_html, 'data-lstab-ask="' . esc_attr( admin_url( 'admin-ajax.php' ) ) . '"' ), 'A table on a page carries where to ask' );
+lstab_assert( 1 === preg_match( '/data-lstab-copy="[0-9a-f]{12}"/', $lstab_kc_html ), 'And a short form of the copy it shows' );
+lstab_assert( 1 === preg_match( '/data-lstab-next="(\d+)"/', $lstab_kc_html, $lstab_kc_next ) && (int) $lstab_kc_next[1] > time(), 'And when it is next due, in the future for a fresh table', isset( $lstab_kc_next[1] ) ? $lstab_kc_next[1] : '' );
+
+$lstab_kc_preview = LSTAB_Renderer::render_preview( array( 'headers' => array( 'A' ), 'rows' => array( array( '1' ) ) ) );
+lstab_assert( false === strpos( $lstab_kc_preview, 'data-lstab-ask' ), 'A preview never asks' );
+
+$lstab_kc_file = LSTAB_Freshness::file();
+LSTAB_Freshness::remove();
+lstab_assert( LSTAB_Freshness::write() && file_exists( $lstab_kc_file['path'] ), 'The due file is written to the uploads folder', $lstab_kc_file['path'] );
+$lstab_kc_due = json_decode( (string) file_get_contents( $lstab_kc_file['path'] ), true );
+$lstab_kc_row = isset( $lstab_kc_due['t'][ (string) $source_id ] ) ? $lstab_kc_due['t'][ (string) $source_id ] : array();
+lstab_assert( isset( $lstab_kc_row['n'], $lstab_kc_row['c'] ) && 2 === count( $lstab_kc_row ), 'It says only when each table is due and which copy it holds', wp_json_encode( $lstab_kc_row ) );
+
+lstab_assert( 'not-due' === LSTAB_Sync::refresh_when_asked( $source_id ), 'A table that is not due is not checked' );
+lstab_assert( 'unknown' === LSTAB_Sync::refresh_when_asked( 99999 ), 'A table that does not exist is not checked' );
+
+global $wpdb;
+$wpdb->update( LSTAB_Storage::table(), array( 'last_success_gmt' => gmdate( 'Y-m-d H:i:s', time() - 7200 ) ), array( 'id' => $source_id ) );
+LSTAB_Storage::flush_cache( $source_id );
+set_transient( 'lstab_view_refresh_' . $source_id, 1, 30 );
+lstab_assert( 'busy' === LSTAB_Sync::refresh_when_asked( $source_id ), 'One already being checked is left alone' );
+delete_transient( 'lstab_view_refresh_' . $source_id );
+
+$lstab_kc_answer = LSTAB_Sync::refresh_when_asked( $source_id );
+lstab_assert( 'unchanged' === $lstab_kc_answer, 'An overdue table is checked, and an unchanged sheet says so', $lstab_kc_answer );
+lstab_assert( LSTAB_Freshness::next_due( LSTAB_Storage::get( $source_id ) ) > time(), 'After which it is due again only an interval later' );
+lstab_assert( 'not-due' === LSTAB_Sync::refresh_when_asked( $source_id ), 'So the next visitor asking changes nothing' );
+
+// ---------------------------------------------------------------------------
+
 lstab_section( '12. REST surface' );
 
 $server = rest_get_server();

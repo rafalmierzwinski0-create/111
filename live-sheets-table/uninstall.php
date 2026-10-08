@@ -24,8 +24,12 @@ require_once __DIR__ . '/includes/class-lstab-hidden-rows.php';
 require_once __DIR__ . '/includes/class-lstab-customizer.php';
 require_once __DIR__ . '/includes/class-lstab-storage.php';
 require_once __DIR__ . '/includes/class-lstab-cron.php';
+require_once __DIR__ . '/includes/class-lstab-freshness.php';
 
 LSTAB_Cron::unschedule();
+
+// Says only when each table is next due, and means nothing without the plugin.
+LSTAB_Freshness::remove();
 
 if ( ! LSTAB_Settings::get( 'delete_on_uninstall' ) ) {
 	return;

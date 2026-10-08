@@ -27,6 +27,7 @@ Most sheet plugins fetch from Google while your visitor waits, which is why tabl
 * A scheduled job fetches the sheet in the background and stores it in your database.
 * Pages render that local copy in PHP, as a real `<table>` element.
 * A table older than its interval is checked before the page is drawn, with a hard four-second cap and the stored copy as the fallback — so a site nobody visits, or a host that blocks WordPress schedules, does not quietly publish last week's prices.
+* It works behind a page cache too. LiteSpeed Cache, WP Rocket and the like serve stored pages without starting WordPress, so nothing would ever notice a table falling behind. Instead, the page itself checks a small file that says when each table is next due and, only if one is overdue, asks the site in the background to update it. The visitor waits for nothing, the page cache is cleared, and the new table replaces the old one on screen. No cron job to set up.
 * Nothing depends on JavaScript to draw the table, so it is readable to search engines and to browsers where a script has failed.
 
 = It keeps working when the sheet does not =
@@ -91,7 +92,7 @@ Live Sheets Table Pro adds unlimited sheet sources, syncing as often as every mi
 
 = Privacy =
 
-The plugin talks to `docs.google.com` and nowhere else, only to download the sheets you configure. It sends no analytics and registers no external services. Sheet data is stored in your own database.
+The plugin talks to `docs.google.com` and nowhere else, only to download the sheets you configure. It sends no analytics and registers no external services. Sheet data is stored in your own database. A small file in your uploads folder, `live-sheets-table-due.json`, records when each table is next due; it holds no sheet content and is removed when the plugin is deleted. Visitors' browsers only ever talk to your own site, and nothing is stored on their device.
 
 == Installation ==
 

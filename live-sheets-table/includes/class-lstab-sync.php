@@ -287,6 +287,55 @@ class LSTAB_Sync {
 	}
 
 	/**
+	 * Check a table because a visitor's browser found it overdue.
+	 *
+	 * The same tests as a check on view — due by the last success, not while
+	 * another request is checking it, not during a failure's cooling-off — but
+	 * nobody is waiting on this request, so the fetch gets its full timeout.
+	 * See LSTAB_Freshness for why the browser asks at all.
+	 *
+	 * @param int $id Source ID.
+	 * @return string 'changed', 'unchanged', 'not-due', 'busy', 'failed' or 'unknown'.
+	 */
+	public static function refresh_when_asked( $id ) {
+		$id     = (int) $id;
+		$source = $id > 0 ? LSTAB_Storage::get( $id ) : null;
+
+		if ( ! $source || LSTAB_Example::is_example( $source ) ) {
+			return 'unknown';
+		}
+
+		$interval = max( 60, (int) $source['sync_interval'] );
+		$success  = empty( $source['last_success_gmt'] ) ? 0 : strtotime( $source['last_success_gmt'] . ' UTC' );
+
+		// The same thirty seconds of slack the schedule allows itself.
+		if ( $success && ( time() - $success ) < ( $interval - 30 ) ) {
+			return 'not-due';
+		}
+
+		$lock = 'lstab_view_refresh_' . $id;
+
+		if ( get_transient( $lock ) || get_transient( self::COOLDOWN_PREFIX . $id ) ) {
+			return 'busy';
+		}
+
+		set_transient( $lock, 1, self::VIEW_LOCK );
+		$before = (string) $source['snapshot_hash'];
+		$result = self::run( $id );
+		delete_transient( $lock );
+
+		if ( is_wp_error( $result ) ) {
+			self::start_cooldown( $id, $interval );
+
+			return 'failed';
+		}
+
+		$after = LSTAB_Storage::get( $id );
+
+		return ( $after && (string) $after['snapshot_hash'] !== $before ) ? 'changed' : 'unchanged';
+	}
+
+	/**
 	 * Sync a single source.
 	 *
 	 * On failure the stored snapshot is deliberately left alone, so the front

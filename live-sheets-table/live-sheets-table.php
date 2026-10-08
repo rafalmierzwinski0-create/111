@@ -42,6 +42,7 @@ require_once LSTAB_PATH . 'includes/class-lstab-url.php';
 require_once LSTAB_PATH . 'includes/class-lstab-csv-parser.php';
 require_once LSTAB_PATH . 'includes/class-lstab-fetcher.php';
 require_once LSTAB_PATH . 'includes/class-lstab-sync.php';
+require_once LSTAB_PATH . 'includes/class-lstab-freshness.php';
 require_once LSTAB_PATH . 'includes/class-lstab-cron.php';
 require_once LSTAB_PATH . 'includes/class-lstab-styles.php';
 require_once LSTAB_PATH . 'includes/class-lstab-renderer.php';

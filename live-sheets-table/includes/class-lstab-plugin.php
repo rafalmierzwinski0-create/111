@@ -118,6 +118,13 @@ class LSTAB_Plugin {
 	public $elementor;
 
 	/**
+	 * Pages asking for an overdue table to be checked.
+	 *
+	 * @var LSTAB_Freshness
+	 */
+	public $freshness;
+
+	/**
 	 * Register everything.
 	 *
 	 * @return void
@@ -138,6 +145,7 @@ class LSTAB_Plugin {
 		$this->cache         = new LSTAB_Cache();
 		$this->example       = new LSTAB_Example();
 		$this->elementor = new LSTAB_Elementor();
+		$this->freshness = new LSTAB_Freshness();
 
 		add_action( 'init', array( $this, 'register_assets' ) );
 		add_action( 'plugins_loaded', array( LSTAB_Storage::class, 'maybe_upgrade' ) );
@@ -156,6 +164,7 @@ class LSTAB_Plugin {
 		$this->cache->register();
 		$this->example->register();
 		$this->elementor->register();
+		$this->freshness->register();
 
 		if ( is_admin() ) {
 			$this->admin->register();

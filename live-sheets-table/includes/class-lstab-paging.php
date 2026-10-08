@@ -558,7 +558,10 @@ class LSTAB_Paging {
 	 * @return string
 	 */
 	public static function url( $source_id, $changes ) {
-		$base = remove_query_arg( 'unused' );
+		// The current address, less the marker a page uses to fetch a newer copy
+		// of itself (see LSTAB_Freshness) — that belongs to one fetch, not to the
+		// links on the page it brought back.
+		$base = remove_query_arg( 'lstab-copy' );
 
 		foreach ( $changes as $name => $value ) {
 			$arg = self::arg( $source_id, $name );

@@ -1262,10 +1262,213 @@
 		Array.prototype.forEach.call( tables, initTable );
 	}
 
-	if ( 'loading' === document.readyState ) {
-		document.addEventListener( 'DOMContentLoaded', init );
-	} else {
+	/* ------------------------------------------ keeping a cached page on time */
+
+	/*
+	 * A page cache hands out a stored copy of the page without starting
+	 * WordPress, so neither its schedule nor the check made as a page is drawn
+	 * ever runs, and a table can sit for hours past its interval. The page asks
+	 * for itself instead (LSTAB_Freshness explains the server's half): it reads
+	 * one small file saying when each table is next due, and only if a table on
+	 * this page really is overdue does it ask WordPress, in the background, to
+	 * check it. If the sheet had changed — now, or already, with this copy of
+	 * the page simply older than the data — the table is swapped for the new
+	 * one, unless the reader has started using it.
+	 *
+	 * The tables carry their attributes only on a page a visitor sees, so in the
+	 * editor, the dashboard and anywhere the markup is copied whole, none of
+	 * this runs.
+	 */
+	var asked = false;
+
+	/**
+	 * Whether the reader has started doing something with a table, which a
+	 * swap would undo: typing a search, sorting, opening a row, or standing in
+	 * it with the keyboard.
+	 *
+	 * @param {Element} box Table wrapper.
+	 * @return {boolean} Whether to leave it alone.
+	 */
+	function inUse( box ) {
+		var search = box.querySelector( '.lstab-search-input' );
+
+		return !! ( ( search && search.value ) ||
+			box.querySelector( 'th[aria-sort="ascending"], th[aria-sort="descending"], .lstab-open[aria-expanded="true"], .lstabp-facet.is-on' ) ||
+			( document.activeElement && box.contains( document.activeElement ) ) );
+	}
+
+	/**
+	 * Put newer copies of some tables in place of the ones on screen.
+	 *
+	 * The page is fetched with a parameter naming the new copy, so a page
+	 * cache that was not told about the change cannot answer with the same old
+	 * page again — and since the parameter only changes when the data does, it
+	 * costs a cache at most one extra entry per change. Anything unexpected and
+	 * the page simply stays as it is; the next visitor gets the new copy.
+	 *
+	 * @param {Object} copies Table ID to the short form of its new copy.
+	 * @return {void}
+	 */
+	function swapQuietly( copies ) {
+		var ids = Object.keys( copies );
+
+		if ( ! ids.length || ! window.DOMParser ) {
+			return;
+		}
+
+		var url = new window.URL( window.location.href );
+		url.hash = '';
+		url.searchParams.set( 'lstab-copy', ids.map( function ( id ) {
+			return copies[ id ];
+		} ).join( '' ).slice( 0, 24 ) );
+
+		window.fetch( url.toString(), { credentials: 'same-origin' } )
+			.then( function ( response ) {
+				return response.ok ? response.text() : '';
+			} )
+			.then( function ( html ) {
+				if ( ! html ) {
+					return;
+				}
+
+				var fetched = containers( new DOMParser().parseFromString( html, 'text/html' ) );
+				var swapped = false;
+
+				containers( document ).forEach( function ( box, index ) {
+					var root = box.querySelector( '.lstab[data-lstab-copy]' );
+					var twin = fetched[ index ] ? fetched[ index ].querySelector( '.lstab[data-lstab-copy]' ) : null;
+
+					if ( ! root || ! twin || inUse( box ) ) {
+						return;
+					}
+
+					var id = root.getAttribute( 'data-lstab-id' );
+
+					// The same table in the same place, and really newer.
+					if ( ! copies[ id ] || twin.getAttribute( 'data-lstab-id' ) !== id ||
+						twin.getAttribute( 'data-lstab-copy' ) === root.getAttribute( 'data-lstab-copy' ) ) {
+						return;
+					}
+
+					box.parentNode.replaceChild( document.importNode( fetched[ index ], true ), box );
+					swapped = true;
+				} );
+
+				if ( swapped ) {
+					init();
+				}
+			} )
+			.catch( function () {} );
+	}
+
+	/**
+	 * Ask for the overdue tables on this page to be checked.
+	 *
+	 * @param {number}      now  Seconds, by the web server's clock where known.
+	 * @param {Object|null} due  The due file's table map, or null without one.
+	 * @param {Array}       mine The tables on this page.
+	 * @return {void}
+	 */
+	function askIfDue( now, due, mine ) {
+		var overdue = [];
+		var newer = {};
+
+		mine.forEach( function ( root ) {
+			var id = root.getAttribute( 'data-lstab-id' );
+			var known = due && due[ id ];
+			var next = known ? Number( known.n ) : Number( root.getAttribute( 'data-lstab-next' ) );
+
+			// Somebody else's visit has already brought this table up to date;
+			// this copy of the page is just older than the data.
+			if ( known && known.c && known.c !== root.getAttribute( 'data-lstab-copy' ) ) {
+				newer[ id ] = known.c;
+				return;
+			}
+
+			if ( next && now >= next && overdue.indexOf( id ) < 0 ) {
+				overdue.push( id );
+			}
+		} );
+
+		swapQuietly( newer );
+
+		if ( ! overdue.length ) {
+			return;
+		}
+
+		var body = new window.FormData();
+		body.append( 'action', 'lstab_keep_current' );
+		body.append( 'tables', overdue.join( ',' ) );
+
+		window.fetch( mine[ 0 ].getAttribute( 'data-lstab-ask' ), { method: 'POST', body: body, credentials: 'same-origin', keepalive: true } )
+			.then( function ( response ) {
+				return response.ok ? response.json() : null;
+			} )
+			.then( function ( answer ) {
+				if ( answer && answer.changed ) {
+					swapQuietly( answer.changed );
+				}
+			} )
+			.catch( function () {} );
+	}
+
+	/**
+	 * Find out whether anything on this page is overdue, once per page view.
+	 *
+	 * @return {void}
+	 */
+	function keepCurrent() {
+		if ( asked || ! window.fetch || ! window.FormData || ! window.URL ) {
+			return;
+		}
+
+		var mine = Array.prototype.slice.call( document.querySelectorAll( '.lstab[data-lstab-ask]' ) );
+
+		if ( ! mine.length ) {
+			return;
+		}
+
+		asked = true;
+
+		var file = mine[ 0 ].getAttribute( 'data-lstab-due' );
+		var clientNow = Date.now() / 1000;
+
+		if ( ! file ) {
+			askIfDue( clientNow, null, mine );
+			return;
+		}
+
+		// A new address every half minute, so nothing between here and the
+		// server can hold an old copy for long; within that, browsers share it.
+		window.fetch( file + '?t=' + Math.floor( Date.now() / 30000 ), { credentials: 'same-origin' } )
+			.then( function ( response ) {
+				if ( ! response.ok ) {
+					throw new Error( String( response.status ) );
+				}
+
+				var stamped = Date.parse( response.headers.get( 'Date' ) || '' );
+
+				return response.json().then( function ( json ) {
+					askIfDue( isNaN( stamped ) ? clientNow : stamped / 1000, json && json.t ? json.t : null, mine );
+				} );
+			} )
+			.catch( function () {
+				askIfDue( clientNow, null, mine );
+			} );
+	}
+
+	/**
+	 * Set up the page.
+	 */
+	function start() {
 		init();
+		keepCurrent();
+	}
+
+	if ( 'loading' === document.readyState ) {
+		document.addEventListener( 'DOMContentLoaded', start );
+	} else {
+		start();
 	}
 
 	// Block editor previews and AJAX-loaded content can add tables later.

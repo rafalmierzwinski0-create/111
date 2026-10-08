@@ -38,6 +38,8 @@ class LSTAB_Renderer {
 			'sticky_head' => null,
 			'filter'      => '',
 			'per_page'    => null,
+			// Filled in by render() for a page a visitor sees; never by a caller.
+			'keep_current' => array(),
 		);
 	}
 
@@ -94,6 +96,10 @@ class LSTAB_Renderer {
 				)
 			);
 		}
+
+		// What the page's script needs to ask for this table to be checked
+		// when the page itself is an old copy (see LSTAB_Freshness).
+		$args['keep_current'] = LSTAB_Freshness::applies( $source ) ? LSTAB_Freshness::attributes( $source ) : array();
 
 		return self::render_table( $source, $args );
 	}
@@ -347,6 +353,7 @@ class LSTAB_Renderer {
 		<?php echo LSTAB_Custom_Css::style_tag( $source_id, $custom_css ); // phpcs:ignore WordPress.Security.EscapeOutput -- Cleaned and rebuilt in LSTAB_Custom_Css; escaping here would print the rules rather than apply them. ?>
 		<div class="<?php echo esc_attr( implode( ' ', array_map( 'sanitize_html_class', $classes ) ) ); ?>"
 			data-lstab-id="<?php echo esc_attr( (string) $source_id ); ?>"
+			<?php echo empty( $args['keep_current'] ) ? '' : self::attributes( $args['keep_current'] ); // phpcs:ignore WordPress.Security.EscapeOutput -- Built by attributes(), which escapes every name and value. ?>
 			<?php if ( '' !== $inline_style ) : ?>
 				style="<?php echo esc_attr( $inline_style ); ?>"
 			<?php endif; ?>>

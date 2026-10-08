@@ -110,6 +110,12 @@ echo "  PHP notices raised while being provoked: none"
 
 echo
 echo "=============================================="
+echo " A page from a page cache keeps its tables current"
+echo "=============================================="
+node "$REPO/tests/keep-current-browser.mjs"
+
+echo
+echo "=============================================="
 echo " Packaging"
 echo "=============================================="
 bash "$REPO/tools/build-zip.sh"
