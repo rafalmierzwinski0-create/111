@@ -246,8 +246,25 @@ class LSTAB_Storage {
 			$formats[] = in_array( $lstab_column, $integer_columns, true ) ? '%d' : '%s';
 		}
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Custom table, no core API available.
-		$inserted = $wpdb->insert( self::table(), $row, $formats );
+		/*
+		 * The number goes into the shortcode somebody pastes into a page, so a
+		 * new table takes the lowest number nobody holds: with three tables,
+		 * delete the third and add one, and the new one is 3 again, not 4. The
+		 * highest number is never more than the number of tables.
+		 *
+		 * Two tables saved in the same instant could both pick the same gap;
+		 * the second insert then fails on the primary key and is simply retried
+		 * without a number, taking whatever the counter hands out.
+		 */
+		$free = self::lowest_free_id();
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery -- Custom table, no core API available.
+		$inserted = $wpdb->insert( self::table(), array( 'id' => $free ) + $row, array_merge( array( '%d' ), $formats ) );
+
+		if ( false === $inserted ) {
+			$inserted = $wpdb->insert( self::table(), $row, $formats );
+		}
+		// phpcs:enable
 
 		if ( false === $inserted ) {
 			return new WP_Error( 'lstab_db_insert_failed', __( 'Could not save the sheet source.', 'live-sheets-table' ) );
@@ -645,6 +662,36 @@ class LSTAB_Storage {
 		}
 
 		return (bool) $deleted;
+	}
+
+	/**
+	 * The lowest table number not in use, starting from 1.
+	 *
+	 * Reads every number rather than asking the database for the first gap:
+	 * a site has a handful of tables, and the plain query reads the same on
+	 * MySQL and SQLite.
+	 *
+	 * @return int
+	 */
+	protected static function lowest_free_id() {
+		global $wpdb;
+
+		$table = self::table();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Custom table; the name cannot be a placeholder.
+		$taken = array_map( 'intval', (array) $wpdb->get_col( "SELECT id FROM {$table} ORDER BY id ASC" ) );
+
+		$free = 1;
+		foreach ( $taken as $id ) {
+			if ( $id > $free ) {
+				break;
+			}
+			if ( $id === $free ) {
+				++$free;
+			}
+		}
+
+		return $free;
 	}
 
 	/**

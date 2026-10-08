@@ -1215,6 +1215,34 @@ $never_id = LSTAB_Storage::insert(
 lstab_assert( '' === do_shortcode( '[sheet_table id="' . $never_id . '"]' ), 'A never-synced source renders nothing for visitors' );
 LSTAB_Storage::delete( $never_id );
 
+// A new table takes the lowest free number, so the numbers in shortcodes never
+// run past the number of tables: delete one in the middle and the next table
+// added gets its number back.
+$numbered = array();
+for ( $lstab_i = 0; $lstab_i < 3; $lstab_i++ ) {
+	$numbered[] = (int) LSTAB_Storage::insert(
+		array(
+			'title'     => 'Numbering ' . $lstab_i,
+			'sheet_url' => 'https://docs.google.com/spreadsheets/d/NUMBERINGSHEETID00000000000000000000/edit',
+			'sheet_id'  => 'NUMBERINGSHEETID00000000000000000000',
+		)
+	);
+}
+LSTAB_Storage::delete( $numbered[1] );
+$refilled = (int) LSTAB_Storage::insert(
+	array(
+		'title'     => 'Numbering refilled',
+		'sheet_url' => 'https://docs.google.com/spreadsheets/d/NUMBERINGSHEETID00000000000000000000/edit',
+		'sheet_id'  => 'NUMBERINGSHEETID00000000000000000000',
+	)
+);
+lstab_assert( $refilled === $numbered[1], 'A new table takes the number a deleted one left free', $numbered[1] . ' freed, new table got ' . $refilled );
+$all_ids = array_map( 'intval', wp_list_pluck( LSTAB_Storage::get_all(), 'id' ) );
+lstab_assert( max( $all_ids ) === count( $all_ids ), 'The highest table number equals the number of tables', implode( ', ', $all_ids ) );
+LSTAB_Storage::delete( $refilled );
+LSTAB_Storage::delete( $numbered[0] );
+LSTAB_Storage::delete( $numbered[2] );
+
 // ---------------------------------------------------------------------------
 
 lstab_section( '12. REST surface' );
