@@ -350,7 +350,9 @@ lstabp_assert( '>=' === $parsed[1]['operator'], 'A two-character operator is not
 
 $lstabp_offered = wp_list_pluck( apply_filters( 'lstab_shortcode_options', array(), array() ), 'write', 'att' );
 lstabp_assert( isset( $lstabp_offered['filter'] ), 'The shortcode card explains the row filter', wp_json_encode( $lstabp_offered ) );
-lstabp_assert( 'filter="Availability is In stock"' === ( $lstabp_offered['filter'] ?? '' ), 'With a whole example, in English', (string) ( $lstabp_offered['filter'] ?? '' ) );
+lstabp_assert( 'filter="Column is value"' === ( $lstabp_offered['filter'] ?? '' ), 'It shows the pattern to write', (string) ( $lstabp_offered['filter'] ?? '' ) );
+$lstabp_examples = wp_list_pluck( apply_filters( 'lstab_shortcode_options', array(), array() ), 'example', 'att' );
+lstabp_assert( 'filter="Availability is In stock"' === ( $lstabp_examples['filter'] ?? '' ), 'And a whole example under it, in English', (string) ( $lstabp_examples['filter'] ?? '' ) );
 
 // WordPress blanks a shortcode attribute containing an unclosed "<" as an XSS
 // precaution, so a "<" only survives entity-encoded. Word operators are the

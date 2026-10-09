@@ -245,7 +245,15 @@ if ( ! $lstab_is_edit ) {
 								<tbody>
 									<?php foreach ( $lstab_written as $lstab_row ) : ?>
 										<tr>
-											<td><code><?php echo esc_html( $lstab_row['write'] ); ?></code></td>
+											<td>
+												<code><?php echo esc_html( $lstab_row['write'] ); ?></code>
+												<?php if ( ! empty( $lstab_row['example'] ) ) : ?>
+													<span class="lstab-attribute-values lstab-attribute-example">
+														<?php esc_html_e( 'For example:', 'live-sheets-table' ); ?>
+														<code><?php echo esc_html( $lstab_row['example'] ); ?></code>
+													</span>
+												<?php endif; ?>
+											</td>
 											<td>
 												<?php echo esc_html( $lstab_row['means'] ); ?>
 												<?php if ( ! empty( $lstab_row['note'] ) ) : ?>

@@ -391,6 +391,17 @@
 	border-radius: 4px;
 }
 
+.lstab-admin .lstab-attribute-list .lstab-attribute-example {
+	margin-block-start: 0.35rem;
+	white-space: nowrap;
+}
+
+.lstab-admin .lstab-attribute-list .lstab-attribute-example code {
+	padding: 0;
+	font-size: 0.74rem;
+	background: none;
+}
+
 .lstab-attribute-list tr:last-child th,
 .lstab-attribute-list tr:last-child td { border-block-end: 0; }
 

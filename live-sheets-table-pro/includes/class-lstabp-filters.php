@@ -11,11 +11,12 @@ class LSTABP_Filters {
 
 	public function offer_filter( $options ) {
 		$options[] = array(
-			'att'   => 'filter',
-			'type'  => 'written',
-			'write' => 'filter="Availability is In stock"',
-			'means' => __( 'Show only the rows that match, so one sheet can feed several pages', 'live-sheets-table-pro' ),
-			'note'  => __( 'Join conditions with a comma; the words to compare with are listed under Pro settings.', 'live-sheets-table-pro' ),
+			'att'     => 'filter',
+			'type'    => 'written',
+			'write'   => __( 'filter="Column is value"', 'live-sheets-table-pro' ),
+			'example' => 'filter="Availability is In stock"',
+			'means'   => __( 'Show only the rows that match, so one sheet can feed several pages', 'live-sheets-table-pro' ),
+			'note'    => __( 'Join conditions with a comma; the words to compare with are listed under Pro settings.', 'live-sheets-table-pro' ),
 		);
 
 		return $options;
