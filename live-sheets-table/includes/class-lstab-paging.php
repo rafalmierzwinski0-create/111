@@ -140,7 +140,7 @@ class LSTAB_Paging {
 
 	public static function request( $source_id ) {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only navigation of public data.
-		$q    = isset( $_GET[ self::arg( $source_id, 'q' ) ] ) ? sanitize_text_field( wp_unslash( $_GET[ self::arg( $source_id, 'q' ) ] ) ) : '';
+		$q    = isset( $_GET[ self::arg( $source_id, 'q' ) ] ) ? html_entity_decode( sanitize_text_field( wp_unslash( $_GET[ self::arg( $source_id, 'q' ) ] ) ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ) : '';
 		$page = isset( $_GET[ self::arg( $source_id, 'page' ) ] ) ? absint( wp_unslash( $_GET[ self::arg( $source_id, 'page' ) ] ) ) : 1;
 		$sort = isset( $_GET[ self::arg( $source_id, 'sort' ) ] ) ? intval( wp_unslash( $_GET[ self::arg( $source_id, 'sort' ) ] ) ) : -1;
 		$dir  = isset( $_GET[ self::arg( $source_id, 'dir' ) ] ) ? sanitize_key( wp_unslash( $_GET[ self::arg( $source_id, 'dir' ) ] ) ) : 'asc';

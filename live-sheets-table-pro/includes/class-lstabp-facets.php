@@ -350,7 +350,7 @@ class LSTABP_Facets {
 
 		$source_id = ( $is_edit && $source ) ? (int) $source['id'] : 0;
 		$headers   = ( $is_edit && $source && ! empty( $source['data']['headers'] ) )
-			? array_values( (array) $source['data']['headers'] )
+			? array_map( 'sanitize_text_field', array_map( 'strval', array_values( (array) $source['data']['headers'] ) ) )
 			: array();
 		$rows      = ( $is_edit && $source && ! empty( $source['data']['rows'] ) )
 			? array_values( (array) $source['data']['rows'] )
@@ -400,8 +400,6 @@ class LSTABP_Facets {
 	}
 
 	public static function fold( $text ) {
-		$text = trim( (string) $text );
-
-		return function_exists( 'mb_strtolower' ) ? mb_strtolower( $text, 'UTF-8' ) : strtolower( $text );
+		return LSTABP_Filters::key( $text );
 	}
 }

@@ -57,7 +57,7 @@ class LSTABP_Column_Looks {
 			return;
 		}
 
-		self::$previewing[ (int) $source_id ] = self::sanitize( $looks );
+		self::$previewing[ (int) $source_id ] = self::sanitize( self::by_heading( $looks ) );
 	}
 
 	public static function sanitize( $raw ) {
@@ -86,6 +86,21 @@ class LSTABP_Column_Looks {
 		}
 
 		return $clean;
+	}
+
+	public static function by_heading( $raw ) {
+		$keyed = array();
+
+		foreach ( (array) $raw as $key => $setting ) {
+			$setting = (array) $setting;
+			$heading = isset( $setting['heading'] ) && is_scalar( $setting['heading'] ) ? (string) $setting['heading'] : (string) $key;
+
+			unset( $setting['heading'] );
+
+			$keyed[ $heading ] = $setting;
+		}
+
+		return $keyed;
 	}
 
 	public static function looks() {
@@ -297,7 +312,7 @@ class LSTABP_Column_Looks {
 		$lstabp_chosen  = ( $is_edit && $source ) ? self::for_source( $source['id'] ) : array();
 		$lstabp_looks   = self::looks();
 		$lstabp_headers = ( $is_edit && $source && ! empty( $source['data']['headers'] ) )
-			? array_values( (array) $source['data']['headers'] )
+			? array_map( 'sanitize_text_field', array_map( 'strval', array_values( (array) $source['data']['headers'] ) ) )
 			: array();
 
 		require LSTABP_PATH . 'includes/views/column-looks-card.php';
@@ -311,7 +326,7 @@ class LSTABP_Column_Looks {
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- Sanitised in sanitize().
 		$raw   = isset( $_POST['lstabp_looks'] ) ? (array) wp_unslash( $_POST['lstabp_looks'] ) : array();
-		$clean = self::sanitize( $raw );
+		$clean = self::sanitize( self::by_heading( $raw ) );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['lstabp_looks_reset'] ) ) {

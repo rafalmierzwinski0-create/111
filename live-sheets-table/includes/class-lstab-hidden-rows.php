@@ -198,7 +198,8 @@ class LSTAB_Hidden_Rows {
 				continue;
 			}
 
-			$fresh = self::entry_for( $rows[ $entry['index'] ], $entry['index'] );
+			$fresh = self::sanitize( array( self::entry_for( $rows[ $entry['index'] ], $entry['index'] ) ) );
+			$fresh = $fresh[0];
 
 			if ( $fresh !== $entry ) {
 				$changed = true;

@@ -589,11 +589,52 @@ ob_start();
 $card->render_pane_card( 'look', array( 'id' => 7, 'data' => array( 'headers' => $headers ) ), true );
 $markup = (string) ob_get_clean();
 
-lstab_check( false !== strpos( $markup, 'name="lstabp_looks[Seats left][look]"' ), 'the card names its fields after the headings' );
+lstab_check(
+	false !== strpos( $markup, 'name="lstabp_looks[1][heading]" value="Seats left"' ) && false !== strpos( $markup, 'name="lstabp_looks[1][look]"' ),
+	'the card names its fields by position and carries each heading beside them'
+);
 lstab_check( substr_count( $markup, 'class="lstabp-look' ) >= 3, 'every column gets a row of its own' );
 lstab_check( false !== strpos( $markup, 'value="#123456"' ), 'a stored colour comes back into the card' );
 lstab_check( false !== strpos( $markup, 'value="Book a seat"' ), 'and so do a button\'s own words' );
 lstab_check( false !== strpos( $markup, 'data-lstabp-look="bar"' ), 'the row says which look it wears, for the stylesheet to read' );
+
+/*
+ * A heading in square brackets, "Price [PLN]", once named its own fields:
+ * lstabp_looks[Price [PLN]][look]. PHP reads that as a key "Price [PLN" and
+ * drops the rest, so the look was lost every time the form was saved. The
+ * form is submitted here the way a browser would, field by field, and read
+ * back the way PHP reads it.
+ */
+$GLOBALS['lstab_options'][ LSTABP_Column_Looks::OPTION ] = array(
+	9 => array( 'Price [PLN]' => array( 'look' => 'bar', 'tint' => '#5fe3cf', 'ink' => '', 'label' => '' ) ),
+);
+
+ob_start();
+$card->render_pane_card( 'look', array( 'id' => 9, 'data' => array( 'headers' => array( 'Item', 'Price [PLN]' ) ) ), true );
+$bracket_card = (string) ob_get_clean();
+
+$submitted = array();
+preg_match_all( '/<input\b[^>]*>/', $bracket_card, $inputs );
+foreach ( $inputs[0] as $input ) {
+	if ( ! preg_match( '/\bname="([^"]*)"/', $input, $name ) || ! preg_match( '/\bvalue="([^"]*)"/', $input, $value ) ) {
+		continue;
+	}
+	if ( false !== strpos( $input, 'type="radio"' ) && false === strpos( $input, 'checked' ) ) {
+		continue;
+	}
+	$submitted[] = rawurlencode( html_entity_decode( $name[1], ENT_QUOTES ) ) . '=' . rawurlencode( html_entity_decode( $value[1], ENT_QUOTES ) );
+}
+parse_str( implode( '&', $submitted ), $_POST );
+
+$card->save( 9 );
+$bracket_saved = LSTABP_Column_Looks::for_source( 9 );
+
+lstab_check(
+	isset( $bracket_saved['Price [PLN]']['look'] ) && 'bar' === $bracket_saved['Price [PLN]']['look'],
+	'a heading in square brackets keeps its look through a save',
+	json_encode( $bracket_saved )
+);
+lstab_check( 1 === count( $bracket_saved ), 'and nothing else is invented on the way', json_encode( $bracket_saved ) );
 
 /*
  * The chooser draws what it offers. A dropdown could only name the looks, and

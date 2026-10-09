@@ -56,7 +56,7 @@ class LSTAB_Block {
 				'style'     => sanitize_key( (string) $attributes['stylePreset'] ),
 				'caption'   => sanitize_text_field( (string) $attributes['caption'] ),
 				'layout'    => sanitize_key( (string) $attributes['layout'] ),
-				'filter'    => sanitize_text_field( (string) $attributes['filter'] ),
+				'filter'    => LSTAB_Shortcode::filter_text( $attributes['filter'] ),
 			)
 		);
 

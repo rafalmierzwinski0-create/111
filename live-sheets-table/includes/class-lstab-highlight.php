@@ -28,13 +28,11 @@ class LSTAB_Highlight {
 	}
 
 	public static function mark( $html ) {
-		$needle = esc_html( self::$needle );
-
-		if ( '' === $needle ) {
+		if ( '' === self::$needle ) {
 			return $html;
 		}
 
-		$pattern = '~' . preg_quote( $needle, '~' ) . '~iu';
+		$pattern = '~(' . preg_quote( self::$needle, '~' ) . ')~iu';
 
 		$parts = preg_split( '~(<[^>]*>)~', $html, -1, PREG_SPLIT_DELIM_CAPTURE );
 		$out   = '';
@@ -49,9 +47,16 @@ class LSTAB_Highlight {
 				continue;
 			}
 
-			$replaced = preg_replace( $pattern, '<mark class="lstab-hit">$0</mark>', $part );
+			$pieces = preg_split( $pattern, html_entity_decode( $part, ENT_QUOTES | ENT_HTML5, 'UTF-8' ), -1, PREG_SPLIT_DELIM_CAPTURE );
 
-			$out .= null === $replaced ? $part : $replaced;
+			if ( ! is_array( $pieces ) || count( $pieces ) < 2 ) {
+				$out .= $part;
+				continue;
+			}
+
+			foreach ( $pieces as $at => $piece ) {
+				$out .= 1 === $at % 2 ? '<mark class="lstab-hit">' . esc_html( $piece ) . '</mark>' : esc_html( $piece );
+			}
 		}
 
 		return $out;

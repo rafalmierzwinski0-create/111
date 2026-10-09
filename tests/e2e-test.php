@@ -3071,6 +3071,148 @@ wp_set_current_user( 0 );
 
 // ---------------------------------------------------------------------------
 
+lstab_section( '17. Headings and values the way sheets really hold them' );
+
+/*
+ * A heading typed on two lines in Google (Alt+Enter), one with a double space,
+ * one with something shaped like a tag. What the dashboard saves is cleaned
+ * text, what the sheet sends is not, and the two were compared as they stood:
+ * a column its owner had hidden was shown to every visitor, and the dashboard
+ * kept warning that the heading had changed when it had not.
+ */
+add_filter( 'lstab_is_pro', '__return_true' );
+lstab_serve_custom( "Product,\"Price\n(net)\",Weight  (kg),Size <M>,Notes\nBike,4100,12,L,ok\nHelmet,350,1,M,fine\n" );
+$odd_id = (int) LSTAB_Storage::insert(
+	array(
+		'title'     => 'Odd headings',
+		'sheet_url' => 'https://docs.google.com/spreadsheets/d/ODDHEADINGS0000000000000000/edit',
+		'sheet_id'  => 'ODDHEADINGS0000000000000000',
+	)
+);
+LSTAB_Sync::run( $odd_id );
+$odd_config = LSTAB_Storage::get( $odd_id )['columns_config'];
+foreach ( array( 1, 2, 3 ) as $odd_index ) {
+	$odd_config[ $odd_index ]['hidden'] = true;
+}
+$odd_config[4]['label'] = 'Remarks';
+LSTAB_Storage::update( $odd_id, array( 'columns_config' => LSTAB_Columns::sanitize( $odd_config ) ) );
+
+$odd_html = lstab_view( '[sheet_table id="' . $odd_id . '"]' );
+lstab_assert( 2 === substr_count( $odd_html, 'role="columnheader"' ), 'Columns hidden by their owner stay hidden whatever their headings hold', (string) substr_count( $odd_html, 'role="columnheader"' ) );
+lstab_assert( false === strpos( $odd_html, '4100' ) && false === strpos( $odd_html, 'Weight' ), 'Not a figure from them reaches the page' );
+lstab_assert( false !== strpos( $odd_html, 'Remarks' ), 'And a renamed column still wears its new name' );
+
+LSTAB_Sync::run( $odd_id );
+$odd_after = LSTAB_Storage::get( $odd_id );
+lstab_assert( array() === LSTAB_Columns::drift( $odd_after['columns_config'], $odd_after['data']['headers'] ), 'A heading that has not changed is not reported as changed', wp_json_encode( LSTAB_Columns::drift( $odd_after['columns_config'], $odd_after['data']['headers'] ) ) );
+$odd_alerts = (array) get_option( LSTAB_Hidden_Alerts::OPTION, array() );
+lstab_assert( ! isset( $odd_alerts[ $odd_id ] ), 'And no warning about it waits in the dashboard' );
+remove_filter( 'lstab_is_pro', '__return_true' );
+
+/*
+ * Searching a paged table runs on the server, and what is typed arrives
+ * cleaned of anything shaped like markup. "<18" became "&lt;18", matched
+ * nothing, and stood in the box as "&lt;18". Marking the matches worked on
+ * escaped text, so a search for "39" cut into the "&#039;" of an apostrophe
+ * and the page showed the code instead of the character.
+ */
+lstab_serve_custom( "Name,Age\nKids' helmet 39,<18\nRock & Roll amp,18-25\nPlain 39,<18\n" );
+LSTAB_Storage::update( $odd_id, array( 'columns_config' => array(), 'per_page' => 10 ) );
+LSTAB_Sync::run( $odd_id );
+
+$_GET[ LSTAB_Paging::arg( $odd_id, 'q' ) ] = '<18';
+$odd_search = lstab_view( '[sheet_table id="' . $odd_id . '"]' );
+lstab_assert( 2 === substr_count( $odd_search, '<tr role="row" class="lstab-row"' ), 'A search for "<18" finds the rows that say <18', (string) substr_count( $odd_search, '<tr role="row" class="lstab-row"' ) );
+lstab_assert( false !== strpos( $odd_search, 'value="&lt;18"' ) && false === strpos( $odd_search, '&amp;lt;' ), 'And the box still says <18 afterwards' );
+
+$_GET[ LSTAB_Paging::arg( $odd_id, 'q' ) ] = '39';
+$odd_search = lstab_view( '[sheet_table id="' . $odd_id . '"]' );
+lstab_assert( false !== strpos( $odd_search, 'Kids&#039; helmet <mark class="lstab-hit">39</mark>' ), 'Marking "39" leaves the apostrophe beside it alone', preg_match( '#Kids[^<]*(<mark[^>]*>[^<]*</mark>)?[^<]*#', $odd_search, $odd_m ) ? $odd_m[0] : '' );
+lstab_assert( false === strpos( $odd_search, '&amp;#0' ), 'No escaped code is left showing' );
+
+$_GET[ LSTAB_Paging::arg( $odd_id, 'q' ) ] = 'amp';
+$odd_search = lstab_view( '[sheet_table id="' . $odd_id . '"]' );
+lstab_assert( false !== strpos( $odd_search, 'Rock &amp; Roll <mark class="lstab-hit">amp</mark>' ), 'A search for "amp" marks the word, not the inside of "&"', preg_match( '#Rock[^<]*(<mark[^>]*>[^<]*</mark>)?[^<]*#', $odd_search, $odd_m ) ? $odd_m[0] : '' );
+unset( $_GET[ LSTAB_Paging::arg( $odd_id, 'q' ) ] );
+
+// The column a paged table is sorted by says so on its heading, where both
+// screen readers and the stylesheet's arrow look for it.
+$_GET[ LSTAB_Paging::arg( $odd_id, 'sort' ) ] = '1';
+$_GET[ LSTAB_Paging::arg( $odd_id, 'dir' ) ]  = 'desc';
+$odd_sorted = lstab_view( '[sheet_table id="' . $odd_id . '"]' );
+unset( $_GET[ LSTAB_Paging::arg( $odd_id, 'sort' ) ], $_GET[ LSTAB_Paging::arg( $odd_id, 'dir' ) ] );
+lstab_assert( 1 === preg_match( '#<th scope="col" role="columnheader"[^>]*aria-sort="descending"#', $odd_sorted ), 'A paged table sorted by a column marks that heading as sorted' );
+lstab_assert( 0 === preg_match( '#<a class="lstab-sort[^>]*aria-sort#', $odd_sorted ), 'Rather than the link inside it, where it means nothing' );
+
+/*
+ * A filter typed in the block or in Elementor, "Price<100, Stock>5", went
+ * through WordPress's text cleaning, which took "<100, Stock>" for a tag and
+ * removed it. What was left filtered nothing, and every row came through.
+ */
+lstab_assert( 'Price<100, Stock>5' === LSTAB_Shortcode::filter_text( 'Price<100, Stock>5' ), 'A filter keeps its comparison signs', LSTAB_Shortcode::filter_text( 'Price<100, Stock>5' ) );
+lstab_assert( 'Price is 5' === LSTAB_Shortcode::filter_text( "Price\x00is\n5 " ), 'And loses only what no filter is written with', LSTAB_Shortcode::filter_text( "Price\x00is\n5 " ) );
+
+// The background refresh puts itself back if its schedule is lost: a site
+// restored from a backup, a cron cleaner, a database tidied by hand.
+LSTAB_Cron::unschedule();
+LSTAB_Cron::keep_scheduled();
+lstab_assert( (bool) wp_next_scheduled( LSTAB_Cron::TICK_HOOK ), 'A lost refresh schedule is put back on the next request' );
+
+/*
+ * A tab far larger than any web page should carry. Read in full, it took all
+ * the memory PHP had and the page a visitor had asked for died with it. It is
+ * refused instead, with a reason the owner can act on, and the copy already
+ * held keeps being shown.
+ */
+lstab_serve_custom( "Name,Age\nKept,1\n" );
+LSTAB_Sync::run( $odd_id );
+add_filter( 'lstab_max_sheet_bytes', static fn() => MB_IN_BYTES );
+lstab_serve_custom( "A,B\n" . str_repeat( "some value here,another one\n", 40000 ) );
+@unlink( WP_CONTENT_DIR . '/lstab-mock-log.txt' );
+$odd_big = LSTAB_Sync::run( $odd_id );
+remove_all_filters( 'lstab_max_sheet_bytes' );
+$odd_kept = LSTAB_Storage::get( $odd_id );
+lstab_assert( is_wp_error( $odd_big ) && 'lstab_too_large' === $odd_big->get_error_code(), 'A tab over the size limit is refused', is_wp_error( $odd_big ) ? $odd_big->get_error_code() : 'synced' );
+lstab_assert( false !== strpos( (string) $odd_kept['last_error'], 'Split it across several tabs' ), 'With a reason the owner can act on', (string) $odd_kept['last_error'] );
+lstab_assert( 1 === (int) $odd_kept['row_count'] && false !== strpos( lstab_view( '[sheet_table id="' . $odd_id . '"]' ), 'Kept' ), 'And the copy already held is still what visitors see' );
+lstab_assert( false === strpos( (string) @file_get_contents( WP_CONTENT_DIR . '/lstab-mock-log.txt' ), 'gviz' ), 'The same oversized tab is not fetched a second time from the other address' );
+
+$odd_tight = json_decode( (string) shell_exec( 'php -d memory_limit=300M ' . escapeshellarg( __DIR__ . '/harness/big-sheet.php' ) . ' ' . escapeshellarg( $wp_root ) . ' 18' ), true );
+lstab_assert( isset( $odd_tight['code'] ) && 'lstab_too_large' === $odd_tight['code'], 'A tab too big for the memory PHP is given is refused before it is read, not half way through', wp_json_encode( $odd_tight ) );
+lstab_assert( isset( $odd_tight['message'] ) && false !== strpos( $odd_tight['message'], 'memory' ), 'And says it is memory, and whose', isset( $odd_tight['message'] ) ? $odd_tight['message'] : '' );
+$odd_roomy = json_decode( (string) shell_exec( 'php -d memory_limit=300M ' . escapeshellarg( __DIR__ . '/harness/big-sheet.php' ) . ' ' . escapeshellarg( $wp_root ) . ' 4' ), true );
+lstab_assert( isset( $odd_roomy['code'] ) && 'ok' === $odd_roomy['code'], 'While one that fits is read as usual', wp_json_encode( $odd_roomy ) );
+
+/*
+ * A hidden row whose first cell held "<" was rewritten into the database on
+ * every refresh, because the copy just read and the copy saved were compared
+ * in two different forms.
+ */
+add_filter( 'lstab_is_pro', '__return_true' );
+lstab_serve_custom( "Name,Age\n<18 group,1\nAdults,2\n" );
+LSTAB_Sync::run( $odd_id );
+$odd_rows = LSTAB_Storage::get( $odd_id )['data']['rows'];
+LSTAB_Storage::update( $odd_id, array( 'hidden_rows' => array( LSTAB_Hidden_Rows::entry_for( $odd_rows[0], 0 ) ) ) );
+LSTAB_Hidden_Rows::reanchor( $odd_id, $odd_rows );
+$odd_writes = 0;
+$odd_count  = static function ( $query ) use ( &$odd_writes ) {
+	if ( 0 === stripos( ltrim( $query ), 'UPDATE' ) && false !== strpos( $query, LSTAB_Storage::table() ) ) {
+		$odd_writes++;
+	}
+	return $query;
+};
+add_filter( 'query', $odd_count );
+LSTAB_Hidden_Rows::reanchor( $odd_id, $odd_rows );
+remove_filter( 'query', $odd_count );
+lstab_assert( 0 === $odd_writes, 'A hidden row that has not moved is not written again on every refresh', (string) $odd_writes );
+lstab_assert( false === strpos( lstab_view( '[sheet_table id="' . $odd_id . '"]' ), '&lt;18 group' ), 'And it stays hidden' );
+remove_filter( 'lstab_is_pro', '__return_true' );
+
+LSTAB_Storage::delete( $odd_id );
+lstab_set_mock( 'ok' );
+
+// ---------------------------------------------------------------------------
+
 echo "\n";
 echo str_repeat( '─', 60 ) . "\n";
 printf(

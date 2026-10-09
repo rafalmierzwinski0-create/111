@@ -517,9 +517,7 @@ class LSTABP_Rules {
 	}
 
 	public static function key( $name ) {
-		return function_exists( 'mb_strtolower' )
-			? mb_strtolower( trim( $name ), 'UTF-8' )
-			: strtolower( trim( $name ) );
+		return LSTABP_Filters::key( $name );
 	}
 
 	public function enqueue( $hook ) {
@@ -576,7 +574,7 @@ class LSTABP_Rules {
 	public function render_card( $source, $is_edit ) {
 		$rules   = ( $is_edit && $source ) ? self::for_source( $source['id'] ) : array();
 		$headers = ( $is_edit && $source && ! empty( $source['data']['headers'] ) )
-			? array_values( (array) $source['data']['headers'] )
+			? array_map( 'sanitize_text_field', array_map( 'strval', array_values( (array) $source['data']['headers'] ) ) )
 			: array();
 
 		require LSTABP_PATH . 'includes/views/rules-card.php';

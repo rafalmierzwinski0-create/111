@@ -300,11 +300,13 @@ class LSTAB_Renderer {
 									<?php continue; ?>
 								<?php endif; ?>
 								<?php
+								$lstab_active          = $sortable && $paged && (int) $paging['request']['sort'] === (int) $index;
 								$lstab_head_attributes = (array) apply_filters(
 									'lstab_heading_attributes',
 									array(
 										'data-lstab-col'   => (string) $index,
 										'data-lstab-align' => isset( $alignments[ $index ] ) ? $alignments[ $index ] : 'start',
+										'aria-sort'        => $lstab_active ? ( 'asc' === $paging['request']['dir'] ? 'ascending' : 'descending' ) : false,
 									),
 									(string) $header,
 									(int) $index,
@@ -314,14 +316,10 @@ class LSTAB_Renderer {
 								<th scope="col" role="columnheader"<?php echo self::attributes( $lstab_head_attributes ); // phpcs:ignore WordPress.Security.EscapeOutput -- Escaped in attributes(). ?>>
 									<?php if ( $sortable && $paged ) : ?>
 										<?php
-										$lstab_active = (int) $paging['request']['sort'] === (int) $index;
-										$lstab_next   = ( $lstab_active && 'asc' === $paging['request']['dir'] ) ? 'desc' : 'asc';
+										$lstab_next = ( $lstab_active && 'asc' === $paging['request']['dir'] ) ? 'desc' : 'asc';
 										?>
 										<a class="lstab-sort<?php echo $lstab_active ? ' is-sorted is-' . esc_attr( $paging['request']['dir'] ) : ''; ?>"
-											href="<?php echo esc_url( LSTAB_Paging::url( $source_id, array( 'sort' => $index, 'dir' => $lstab_next, 'page' => null ) ) ); ?>"
-											<?php if ( $lstab_active ) : ?>
-												aria-sort="<?php echo 'asc' === $paging['request']['dir'] ? 'ascending' : 'descending'; ?>"
-											<?php endif; ?>>
+											href="<?php echo esc_url( LSTAB_Paging::url( $source_id, array( 'sort' => $index, 'dir' => $lstab_next, 'page' => null ) ) ); ?>">
 											<span class="lstab-sort-label"><?php echo esc_html( (string) $header ); ?></span>
 											<span class="lstab-sort-icon" aria-hidden="true"></span>
 										</a>

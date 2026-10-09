@@ -102,7 +102,11 @@ class LSTABP_Xlsx {
 	}
 
 	protected static function is_plain_number( $value ) {
-		if ( ! preg_match( '/^[-+]?[0-9][0-9\s\x{00A0}\x{202F}.,]*$/u', $value ) ) {
+		if ( ! preg_match( '/^-?[0-9][0-9\s\x{00A0}\x{202F}.,]*$/u', $value ) ) {
+			return false;
+		}
+
+		if ( preg_match( '/^-?0[0-9]/', $value ) || preg_match_all( '/[0-9]/', $value ) > 15 ) {
 			return false;
 		}
 

@@ -14,6 +14,15 @@ class LSTAB_Cron {
 		add_action( self::RETRY_HOOK, array( __CLASS__, 'run_source' ) );
 		add_action( 'lstab_source_saved', array( __CLASS__, 'ensure_scheduled' ) );
 		add_action( 'lstab_source_deleted', array( __CLASS__, 'ensure_scheduled' ) );
+		add_action( 'init', array( __CLASS__, 'keep_scheduled' ) );
+	}
+
+	public static function keep_scheduled() {
+		if ( wp_installing() || wp_next_scheduled( self::TICK_HOOK ) ) {
+			return;
+		}
+
+		self::ensure_scheduled();
 	}
 
 	public function add_schedules( $schedules ) {

@@ -108,7 +108,7 @@ class LSTABP_Export {
 	public function serve() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- A signed public link, not a form submission.
 		$source_id = isset( $_GET['source'] ) ? absint( wp_unslash( $_GET['source'] ) ) : 0;
-		$filter    = isset( $_GET['filter'] ) ? sanitize_text_field( rawurldecode( sanitize_text_field( wp_unslash( $_GET['filter'] ) ) ) ) : '';
+		$filter    = isset( $_GET['filter'] ) ? self::filter_text( wp_unslash( $_GET['filter'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Cleaned in filter_text(), the way the table it came from cleaned it.
 		$signature = isset( $_GET['sig'] ) ? sanitize_text_field( wp_unslash( $_GET['sig'] ) ) : '';
 		$format    = isset( $_GET['format'] ) ? sanitize_key( wp_unslash( $_GET['format'] ) ) : 'csv';
 		// phpcs:enable
@@ -178,6 +178,12 @@ class LSTABP_Export {
 
 		fclose( $out ); // phpcs:ignore WordPress.WP.AlternativeFunctions -- Closing the response stream opened above.
 		exit;
+	}
+
+	public static function filter_text( $value ) {
+		$value = is_scalar( $value ) ? (string) $value : '';
+
+		return is_callable( array( 'LSTAB_Shortcode', 'filter_text' ) ) ? LSTAB_Shortcode::filter_text( $value ) : sanitize_text_field( $value );
 	}
 
 	protected static function put_row( $handle, $cells ) {

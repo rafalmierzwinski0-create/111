@@ -54,6 +54,10 @@ class LSTAB_Columns {
 		return $updated;
 	}
 
+	public static function is_same( $heading, $source ) {
+		return sanitize_text_field( (string) $heading ) === (string) $source;
+	}
+
 	public static function letter( $index ) {
 		$index  = max( 0, (int) $index );
 		$letter = '';
@@ -82,7 +86,7 @@ class LSTAB_Columns {
 
 			$now = isset( $headers[ $index ] ) ? $headers[ $index ] : '';
 
-			if ( $now === $column['source'] ) {
+			if ( self::is_same( $now, $column['source'] ) ) {
 				continue;
 			}
 
@@ -110,7 +114,7 @@ class LSTAB_Columns {
 
 			$now = isset( $headers[ $index ] ) ? (string) $headers[ $index ] : '';
 
-			if ( $now !== $column['source'] ) {
+			if ( ! self::is_same( $now, $column['source'] ) ) {
 				$drifted[] = array(
 					'index' => (int) $index,
 					'was'   => $column['source'],
@@ -135,7 +139,7 @@ class LSTAB_Columns {
 
 		foreach ( $headers as $index => $heading ) {
 			$column  = isset( $config[ $index ] ) ? $config[ $index ] : null;
-			$matches = $column && ( '' === $column['source'] || (string) $heading === $column['source'] );
+			$matches = $column && ( '' === $column['source'] || self::is_same( $heading, $column['source'] ) );
 
 			if ( $matches && $column['hidden'] ) {
 				continue;
@@ -168,7 +172,7 @@ class LSTAB_Columns {
 		foreach ( $headers as $index => $heading ) {
 			$column = isset( $config[ $index ] ) ? $config[ $index ] : null;
 
-			$matches = $column && ( '' === $column['source'] || (string) $heading === $column['source'] );
+			$matches = $column && ( '' === $column['source'] || self::is_same( $heading, $column['source'] ) );
 
 			if ( $matches && $column['hidden'] && $may_hide ) {
 				continue;

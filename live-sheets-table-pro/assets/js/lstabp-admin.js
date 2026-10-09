@@ -330,7 +330,8 @@
 				return;
 			}
 
-			var named = pick.name.match( /^lstabp_looks\[(.*)\]\[look\]$/ );
+			var heading = row.querySelector( '.lstabp-look-heading' );
+			var named = heading ? [ '', heading.value ] : pick.name.match( /^lstabp_looks\[(.*)\]\[look\]$/ );
 
 			if ( ! named ) {
 				return;

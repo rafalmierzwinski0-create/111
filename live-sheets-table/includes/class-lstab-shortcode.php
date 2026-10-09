@@ -45,7 +45,7 @@ class LSTAB_Shortcode {
 				'caption'   => sanitize_text_field( $atts['caption'] ),
 				'class'     => sanitize_html_class( $atts['class'] ),
 				'layout'    => sanitize_key( $atts['layout'] ),
-				'filter'    => sanitize_text_field( $atts['filter'] ),
+				'filter'    => self::filter_text( $atts['filter'] ),
 			)
 		) );
 	}
@@ -62,6 +62,12 @@ class LSTAB_Shortcode {
 			'layout'  => 'inherit',
 			'filter'  => '',
 		);
+	}
+
+	public static function filter_text( $value ) {
+		$value = wp_check_invalid_utf8( is_scalar( $value ) ? (string) $value : '' );
+
+		return trim( (string) preg_replace( '/[\x00-\x1F\x7F]+/', ' ', $value ) );
 	}
 
 	protected static function boolish( $value ) {

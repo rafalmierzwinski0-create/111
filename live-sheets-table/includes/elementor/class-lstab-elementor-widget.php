@@ -170,7 +170,7 @@ class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
 				'style'     => sanitize_key( isset( $settings['style_preset'] ) ? $settings['style_preset'] : '' ),
 				'layout'    => sanitize_key( isset( $settings['layout'] ) ? $settings['layout'] : 'inherit' ),
 				'caption'   => sanitize_text_field( isset( $settings['caption'] ) ? $settings['caption'] : '' ),
-				'filter'    => sanitize_text_field( isset( $settings['filter'] ) ? $settings['filter'] : '' ),
+				'filter'    => LSTAB_Shortcode::filter_text( isset( $settings['filter'] ) ? $settings['filter'] : '' ),
 			)
 		);
 

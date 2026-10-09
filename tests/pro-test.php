@@ -1394,6 +1394,135 @@ delete_option( LSTABP_Facets::OPTION );
 
 // ---------------------------------------------------------------------------
 
+lstabp_section( '5f3. Headings and values the way sheets really hold them' );
+
+/*
+ * A heading typed on two lines in Google (Alt+Enter), a value shaped like
+ * "<18", a heading with square brackets. What the dashboard saves is cleaned
+ * text and what the sheet sends is not; compared as they stood, a colour rule,
+ * a "Show only" menu, a column look or a written filter naming such a column
+ * matched nothing, and nothing said so.
+ */
+$odd_source = (int) LSTAB_Storage::insert(
+	array(
+		'title'     => 'Odd headings',
+		'sheet_url' => 'https://docs.google.com/spreadsheets/d/ODDPRO00000000000000000000/edit',
+		'sheet_id'  => 'ODDPRO00000000000000000000',
+	)
+);
+LSTAB_Storage::record_success(
+	$odd_source,
+	array(
+		'headers' => array( 'Product', "Price\n(net)", 'Age group', 'Price [PLN]' ),
+		'rows'    => array(
+			array( 'Bike', '4100', '<18', '4100' ),
+			array( 'Helmet', '350', '18-25', '350' ),
+			array( 'Lock', '80', '<18', '80' ),
+		),
+	)
+);
+$odd_rows_in = static function ( $html ) {
+	return substr_count( $html, '<tr role="row" class="lstab-row"' );
+};
+
+update_option(
+	LSTABP_Rules::OPTION,
+	array(
+		$odd_source => LSTABP_Rules::sanitize(
+			array(
+				array( 'column' => 'Price (net)', 'operator' => '>', 'value' => '1000', 'style' => '#fbd5d5', 'scope' => 'cell' ),
+				array( 'column' => 'Age group', 'operator' => '=', 'value' => '<18', 'style' => '#cfebd9', 'scope' => 'cell' ),
+			)
+		),
+	),
+	false
+);
+$odd_ruled = do_shortcode( '[sheet_table id="' . $odd_source . '"]' );
+lstabp_assert( 1 === substr_count( $odd_ruled, '--lstab-row-tint:#fbd5d5' ), 'A colour rule on a heading written on two lines colours its cells', (string) substr_count( $odd_ruled, '--lstab-row-tint:#fbd5d5' ) );
+lstabp_assert( 2 === substr_count( $odd_ruled, '--lstab-row-tint:#cfebd9' ), 'A rule looking for "<18" finds the cells that say <18', (string) substr_count( $odd_ruled, '--lstab-row-tint:#cfebd9' ) );
+delete_option( LSTABP_Rules::OPTION );
+
+update_option( LSTABP_Facets::OPTION, array( $odd_source => array( 'Age group', 'Price (net)' ) ), false );
+$odd_bar = do_shortcode( '[sheet_table id="' . $odd_source . '"]' );
+lstabp_assert( false !== strpos( $odd_bar, '<b>Price (net):</b>' ), 'A "Show only" menu is offered for a heading written on two lines' );
+$_GET[ LSTAB_Paging::arg( $odd_source, 'f2' ) ] = '<18';
+$odd_picked = do_shortcode( '[sheet_table id="' . $odd_source . '"]' );
+unset( $_GET[ LSTAB_Paging::arg( $odd_source, 'f2' ) ] );
+lstabp_assert( 2 === $odd_rows_in( $odd_picked ), 'And picking "<18" under "Show only" leaves the two rows that say it', (string) $odd_rows_in( $odd_picked ) );
+delete_option( LSTABP_Facets::OPTION );
+
+update_option( LSTABP_Column_Looks::OPTION, array( $odd_source => array( 'Price (net)' => array( 'look' => 'bar', 'tint' => '#5fe3cf', 'ink' => '', 'label' => '' ) ) ), false );
+$odd_looked = do_shortcode( '[sheet_table id="' . $odd_source . '"]' );
+lstabp_assert( 3 === substr_count( $odd_looked, '--lstabp-bar:' ), 'A column look reaches a column whose heading is on two lines', (string) substr_count( $odd_looked, '--lstabp-bar:' ) );
+delete_option( LSTABP_Column_Looks::OPTION );
+
+lstabp_assert( 1 === $odd_rows_in( do_shortcode( '[sheet_table id="' . $odd_source . '" filter="Price (net) gt 1000"]' ) ), 'A written filter can name that column the way it reads on one line' );
+
+// The block and Elementor keep "<" and ">" in what was typed; WordPress's text
+// cleaning took "<1000, Price (net)>" for a tag and the filter was lost.
+$odd_block = ( new LSTAB_Block() )->render( array( 'sourceId' => $odd_source, 'filter' => 'Price (net)<1000, Price (net)>100' ) );
+lstabp_assert( 1 === $odd_rows_in( $odd_block ), 'A filter typed with symbols in the block keeps both conditions', (string) $odd_rows_in( $odd_block ) );
+
+update_option( LSTABP_Export::OPTION, array( $odd_source => true ), true );
+$odd_block = ( new LSTAB_Block() )->render( array( 'sourceId' => $odd_source, 'filter' => 'Price (net)<1000, Price (net)>100' ) );
+$odd_csv   = preg_match( '#href="([^"]*format=csv[^"]*)"#', $odd_block, $odd_link ) ? wp_remote_get( html_entity_decode( $odd_link[1] ), array( 'timeout' => 20 ) ) : null;
+delete_option( LSTABP_Export::OPTION );
+lstabp_assert( $odd_csv && 200 === (int) wp_remote_retrieve_response_code( $odd_csv ), 'The download link of that table is accepted', $odd_csv ? (string) wp_remote_retrieve_response_code( $odd_csv ) : 'no link' );
+lstabp_assert( $odd_csv && false !== strpos( wp_remote_retrieve_body( $odd_csv ), 'Helmet' ) && false === strpos( wp_remote_retrieve_body( $odd_csv ), 'Bike' ), 'And it holds the same rows as the table', $odd_csv ? wp_remote_retrieve_body( $odd_csv ) : '' );
+
+/*
+ * A filter naming a column the table does not have used to be skipped in
+ * silence, so a typo showed every row. The rows still come through, but the
+ * owner is told, and nobody else sees the note.
+ */
+wp_set_current_user( 1 );
+$odd_typo = do_shortcode( '[sheet_table id="' . $odd_source . '" filter="Colour is red"]' );
+lstabp_assert( false !== strpos( $odd_typo, 'lstabp-filter-note' ) && false !== strpos( $odd_typo, '“Colour”' ), 'The owner is told which column a filter names that the table lacks', wp_strip_all_tags( $odd_typo ) );
+lstabp_assert( false !== strpos( $odd_typo, 'Product, Price (net), Age group, Price [PLN]' ), 'And which columns it does have' );
+wp_set_current_user( 0 );
+lstabp_assert( false === strpos( do_shortcode( '[sheet_table id="' . $odd_source . '" filter="Colour is red"]' ), 'lstabp-filter-note' ), 'A visitor sees no such note' );
+lstabp_assert( false === strpos( do_shortcode( '[sheet_table id="' . $odd_source . '" filter="Age group is 18-25"]' ), 'lstabp-filter-note' ), 'Nor is there one when the filter is right' );
+
+// The dashboard cards show such a heading on one line and find what was saved
+// under it, rather than offering it unticked and dropping it on the next save.
+$odd_stored = LSTAB_Storage::get( $odd_source );
+update_option( LSTABP_Rules::OPTION, array( $odd_source => LSTABP_Rules::sanitize( array( array( 'column' => 'Price (net)', 'operator' => '>', 'value' => '1000', 'style' => '#fbd5d5', 'scope' => 'cell' ) ) ) ), false );
+update_option( LSTABP_Facets::OPTION, array( $odd_source => array( 'Price (net)' ) ), false );
+ob_start();
+( new LSTABP_Rules() )->render_card( $odd_stored, true );
+$odd_rules_card = (string) ob_get_clean();
+ob_start();
+( new LSTABP_Facets() )->render_pane_card( 'look', $odd_stored, true );
+$odd_facets_card = (string) ob_get_clean();
+delete_option( LSTABP_Rules::OPTION );
+delete_option( LSTABP_Facets::OPTION );
+lstabp_assert( 1 === preg_match( '#<option value="Price \(net\)"\s+selected#', $odd_rules_card ), 'The colour rule card still has the rule on that column selected' );
+lstabp_assert( 1 === preg_match( '#value="Price \(net\)"[^>]*checked#', $odd_facets_card ), 'And the "Show only" card still has it ticked' );
+
+LSTAB_Storage::delete( $odd_source );
+
+/*
+ * A code with a leading zero, a number written with a plus, an ID longer than
+ * a spreadsheet can count. Written into Excel as numbers they lost the zero,
+ * the plus and their last digits.
+ */
+$odd_xlsx = LSTABP_Xlsx::build(
+	array( 'Code' ),
+	array( array( '02134' ), array( '+48 600 700 800' ), array( '1234567890123456789' ), array( '0,5' ), array( '1 215,50' ), array( '-7' ) ),
+	'Codes'
+);
+$odd_zip = new ZipArchive();
+$odd_zip->open( $odd_xlsx );
+$odd_sheet = (string) $odd_zip->getFromName( 'xl/worksheets/sheet1.xml' );
+$odd_zip->close();
+wp_delete_file( $odd_xlsx );
+lstabp_assert( false !== strpos( $odd_sheet, '<t xml:space="preserve">02134</t>' ), 'A code with a leading zero keeps it', $odd_sheet );
+lstabp_assert( false !== strpos( $odd_sheet, '<t xml:space="preserve">+48 600 700 800</t>' ), 'A phone number keeps its plus and its spaces' );
+lstabp_assert( false !== strpos( $odd_sheet, '<t xml:space="preserve">1234567890123456789</t>' ), 'A nineteen-digit ID keeps every digit' );
+lstabp_assert( false !== strpos( $odd_sheet, '<v>0.5</v>' ) && false !== strpos( $odd_sheet, '<v>1215.5</v>' ) && false !== strpos( $odd_sheet, '<v>-7</v>' ), 'While ordinary figures are still figures', $odd_sheet );
+
+// ---------------------------------------------------------------------------
+
 lstabp_section( '5g. Where the add-on lives, and how to leave' );
 
 // The add-on is a tab across the top of the plugin's own screens, and a line

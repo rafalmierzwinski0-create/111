@@ -33,7 +33,7 @@ $lstabp_offer = array( '' => __( 'Ordinary', 'live-sheets-table-pro' ) ) + $lsta
 		</p>
 	<?php else : ?>
 		<ul class="lstabp-looks" data-lstabp-fold="10">
-			<?php foreach ( $lstabp_headers as $lstabp_heading ) : ?>
+			<?php foreach ( $lstabp_headers as $lstabp_index => $lstabp_heading ) : ?>
 				<?php
 				$lstabp_setting = isset( $lstabp_chosen[ $lstabp_heading ] )
 					? $lstabp_chosen[ $lstabp_heading ]
@@ -44,12 +44,13 @@ $lstabp_offer = array( '' => __( 'Ordinary', 'live-sheets-table-pro' ) ) + $lsta
 						'label' => '',
 					);
 
-				$lstabp_field = 'lstabp_looks[' . $lstabp_heading . ']';
+				$lstabp_field = 'lstabp_looks[' . (int) $lstabp_index . ']';
 				$lstabp_is    = isset( $lstabp_setting['look'] ) ? $lstabp_setting['look'] : '';
 				$lstabp_tint  = '' !== $lstabp_setting['tint'] ? $lstabp_setting['tint'] : LSTABP_Column_Looks::DEFAULT_TINT;
 				$lstabp_ink   = '' !== $lstabp_setting['ink'] ? $lstabp_setting['ink'] : '#06100f';
 				?>
 				<li class="lstabp-look<?php echo $lstabp_is ? ' is-on' : ''; ?>" data-lstabp-look="<?php echo esc_attr( $lstabp_is ); ?>">
+					<input type="hidden" class="lstabp-look-heading" name="<?php echo esc_attr( $lstabp_field ); ?>[heading]" value="<?php echo esc_attr( $lstabp_heading ); ?>">
 					<details class="lstabp-look-box" name="lstabp-looks">
 						<summary class="lstabp-look-head">
 							<span class="lstabp-look-name"><?php echo esc_html( $lstabp_heading ); ?></span>

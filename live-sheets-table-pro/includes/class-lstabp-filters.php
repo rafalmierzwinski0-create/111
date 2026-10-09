@@ -3,8 +3,11 @@
 defined( 'ABSPATH' ) || exit;
 
 class LSTABP_Filters {
+	protected static $unknown = array();
+
 	public function register() {
 		add_filter( 'lstab_source_rows', array( $this, 'filter_rows' ), 10, 4 );
+		add_action( 'lstab_before_table', array( $this, 'say_unknown' ), 5, 2 );
 		add_filter( 'lstab_filter_supported', '__return_true' );
 		add_filter( 'lstab_shortcode_options', array( $this, 'offer_filter' ) );
 	}
@@ -150,7 +153,10 @@ class LSTABP_Filters {
 	}
 
 	public function filter_rows( $rows, $headers, $source, $args ) {
+		$source_id  = isset( $source['id'] ) ? (int) $source['id'] : 0;
 		$expression = isset( $args['filter'] ) ? (string) $args['filter'] : '';
+
+		unset( self::$unknown[ $source_id ] );
 
 		if ( '' === trim( $expression ) ) {
 			return $rows;
@@ -163,6 +169,20 @@ class LSTABP_Filters {
 		}
 
 		$columns = self::column_map( array_values( (array) $headers ), $source );
+		$missing = array();
+
+		foreach ( $conditions as $condition ) {
+			if ( ! isset( $columns[ self::key( $condition['column'] ) ] ) ) {
+				$missing[] = $condition['column'];
+			}
+		}
+
+		if ( $missing ) {
+			self::$unknown[ $source_id ] = array(
+				'names'   => array_values( array_unique( $missing ) ),
+				'columns' => self::column_names( array_values( (array) $headers ), $source ),
+			);
+		}
 
 		$filtered = array();
 
@@ -173,6 +193,47 @@ class LSTABP_Filters {
 		}
 
 		return $filtered;
+	}
+
+	public function say_unknown( $source, $args ) {
+		$source_id = isset( $source['id'] ) ? (int) $source['id'] : 0;
+
+		if ( empty( self::$unknown[ $source_id ] ) ) {
+			return;
+		}
+
+		$found = self::$unknown[ $source_id ];
+
+		unset( self::$unknown[ $source_id ] );
+
+		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
+			return;
+		}
+
+		$message = sprintf(
+			/* translators: 1: column names the filter mentions, 2: the table's own column names. */
+			_n(
+				'Only you can see this note. The filter mentions %1$s, but this table has no column by that name, so that part of the filter is ignored. Its columns are: %2$s.',
+				'Only you can see this note. The filter mentions %1$s, but this table has no columns by those names, so those parts of the filter are ignored. Its columns are: %2$s.',
+				count( $found['names'] ),
+				'live-sheets-table-pro'
+			),
+			'“' . implode( '”, “', $found['names'] ) . '”',
+			implode( ', ', $found['columns'] )
+		);
+
+		echo '<div class="lstab-notice lstabp-filter-note"><p>' . esc_html( $message ) . '</p></div>';
+	}
+
+	protected static function column_names( $headers, $source ) {
+		$config = isset( $source['columns_config'] ) ? (array) $source['columns_config'] : array();
+		$names  = array();
+
+		foreach ( $headers as $index => $heading ) {
+			$names[] = ! empty( $config[ $index ]['label'] ) ? (string) $config[ $index ]['label'] : sanitize_text_field( (string) $heading );
+		}
+
+		return $names;
 	}
 
 	public static function column_map( $headers, $source ) {
@@ -192,10 +253,16 @@ class LSTABP_Filters {
 		return $map;
 	}
 
-	protected static function key( $name ) {
-		return function_exists( 'mb_strtolower' )
-			? mb_strtolower( trim( $name ), 'UTF-8' )
-			: strtolower( trim( $name ) );
+	public static function key( $name ) {
+		$name = (string) $name;
+
+		if ( preg_match( '/[<%\r\n\t]| {2}/', $name ) ) {
+			$name = sanitize_text_field( $name );
+		}
+
+		$name = trim( $name );
+
+		return function_exists( 'mb_strtolower' ) ? mb_strtolower( $name, 'UTF-8' ) : strtolower( $name );
 	}
 
 	protected static function matches( $row, $conditions, $columns ) {
