@@ -406,44 +406,63 @@
 	max-width: none;
 }
 
-.lstab-shortcode-toggles {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.5rem;
-	margin-block-end: 0.4rem;
-}
-
 .lstab-admin .lstab-shortcode-options .lstab-shortcode-written {
 	margin: 1.2rem 0 0;
 }
 
-.lstab-admin .lstab-shortcode-field {
-	display: grid;
-	grid-template-columns: 11rem minmax( 0, 1fr );
+.lstab-showhide-row {
+	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
-	gap: 0.3rem 0.7rem;
-	margin: 0.7rem 0 0;
+	gap: 0.35rem 0.8rem;
+	padding: 0.35rem 0;
 }
 
-.lstab-admin .lstab-shortcode-field select,
-.lstab-admin .lstab-shortcode-field input {
-	justify-self: start;
-	max-inline-size: 100%;
+.lstab-showhide-label {
+	min-inline-size: 13rem;
+	font-size: 0.88rem;
+	color: var( --lstab-ink );
 }
 
-.lstab-admin .lstab-shortcode-field .lstab-help {
-	grid-column: 2;
-	margin-top: 0;
+.lstab-showhide {
+	display: inline-flex;
+	padding: 2px;
+	border: 1px solid var( --lstab-line );
+	border-radius: 8px;
+	background: var( --lstab-tint );
 }
 
-@media ( max-width: 600px ) {
-	.lstab-admin .lstab-shortcode-field {
-		grid-template-columns: minmax( 0, 1fr );
-	}
+.lstab-admin .lstab-showhide button {
+	min-inline-size: 4.2rem;
+	padding: 0.28rem 0.8rem;
+	border: 0;
+	border-radius: 6px;
+	background: transparent;
+	color: var( --lstab-ink-3 );
+	font: inherit;
+	font-size: 0.82rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
 
-	.lstab-admin .lstab-shortcode-field .lstab-help {
-		grid-column: 1;
-	}
+.lstab-admin .lstab-showhide button:hover {
+	color: var( --lstab-ink );
+}
+
+.lstab-admin .lstab-showhide button[aria-pressed="true"] {
+	background: var( --lstab-card );
+	color: var( --lstab-a );
+	box-shadow: 0 1px 2px rgba( 16, 24, 40, 0.12 );
+}
+
+.lstab-admin .lstab-showhide button[data-lstab-set="hide"][aria-pressed="true"] {
+	color: var( --lstab-ink-2 );
+}
+
+.lstab-admin .lstab-showhide button:focus-visible {
+	outline: 2px solid var( --lstab-a );
+	outline-offset: 1px;
 }
 
 .lstab-switch {

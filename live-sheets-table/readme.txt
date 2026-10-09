@@ -195,8 +195,8 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 
 = 3.41.1 =
 * Fixed: the line between rows was twice as thick under a pinned first column as under every other column, in every style.
-* Changed: "Put it on a page" sets the shortcode with switches — search box, sorting, the "updated … ago" line and caption — instead of a list of words to type into it. The shortcode and the Copy button follow as you go.
-* Changed (Pro): the row filter is still written into the shortcode by hand, as before, with its example under the switches.
+* Changed: "Put it on a page" sets the shortcode with Show and Hide for the search box, sorting and the "updated … ago" line, instead of a list of words to type into it. The shortcode and the Copy button follow as you go.
+* Changed (Pro): the row filter on that card has a whole example: filter="Availability is In stock".
 
 = 3.41.0 =
 * Changed: clearing the page cache is limited to the pages a table is actually shown on. The plugin remembers where each table is drawn and clears only those pages, never the whole site.

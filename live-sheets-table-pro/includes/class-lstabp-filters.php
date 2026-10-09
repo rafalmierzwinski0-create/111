@@ -6,31 +6,14 @@ class LSTABP_Filters {
 	public function register() {
 		add_filter( 'lstab_source_rows', array( $this, 'filter_rows' ), 10, 4 );
 		add_filter( 'lstab_filter_supported', '__return_true' );
-		add_filter( 'lstab_shortcode_options', array( $this, 'offer_filter' ), 10, 2 );
+		add_filter( 'lstab_shortcode_options', array( $this, 'offer_filter' ) );
 	}
 
-	public function offer_filter( $options, $source ) {
-		$example = __( 'filter="Column is value"', 'live-sheets-table-pro' );
-
-		if ( ! empty( $source['columns'] ) && is_array( $source['columns'] ) ) {
-			foreach ( $source['columns'] as $column ) {
-				$heading = '';
-
-				if ( is_array( $column ) ) {
-					$heading = ! empty( $column['label'] ) ? $column['label'] : ( isset( $column['heading'] ) ? $column['heading'] : '' );
-				}
-
-				if ( '' !== trim( (string) $heading ) ) {
-					$example = sprintf( 'filter="%s is …"', $heading );
-					break;
-				}
-			}
-		}
-
+	public function offer_filter( $options ) {
 		$options[] = array(
 			'att'   => 'filter',
 			'type'  => 'written',
-			'write' => $example,
+			'write' => 'filter="Availability is In stock"',
 			'means' => __( 'Show only the rows that match, so one sheet can feed several pages', 'live-sheets-table-pro' ),
 			'note'  => __( 'Join conditions with a comma; the words to compare with are listed under Pro settings.', 'live-sheets-table-pro' ),
 		);

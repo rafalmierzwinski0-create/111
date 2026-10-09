@@ -721,33 +721,35 @@ await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
 await awaitPreview( 15000 );
 
 // ------------------------------------------------ the shortcode, by switches
-section( '3c1. Building the shortcode with switches' );
+section( '3c1. Building the shortcode with Show and Hide' );
 
 await pane( 'general' );
 const builtCode = () => page.evaluate( () => ( {
 	shown: document.querySelector( '.lstab-usage .lstab-shortcode' ).textContent,
 	copied: document.querySelector( '.lstab-usage .lstab-copy' ).getAttribute( 'data-lstab-copy' ),
 } ) );
+const setTo = ( att, value ) => page.locator( `.lstab-usage [data-lstab-att="${ att }"] [data-lstab-set="${ value }"]` ).click();
 
 let built = await builtCode();
 check( built.shown === `[sheet_table id="${ sourceId }"]`, 'The shortcode starts out plain', built.shown );
+check( await page.locator( '.lstab-usage [data-lstab-set="show"][aria-pressed="true"]' ).count() === 3, 'Search, sorting and the updated line all start on Show' );
 
-await page.locator( '.lstab-usage [data-lstab-att="search"]' ).uncheck();
-await page.locator( '.lstab-usage [data-lstab-att="meta"]' ).uncheck();
-await page.locator( '.lstab-usage [data-lstab-att="caption"]' ).fill( 'Spring "sale" [list]' );
-await page.locator( '.lstab-usage [data-lstab-att="caption"]' ).press( 'Enter' );
+await setTo( 'search', 'hide' );
+await setTo( 'meta', 'hide' );
 
 built = await builtCode();
-const expected = `[sheet_table id="${ sourceId }" search="no" meta="no" caption="Spring sale list"]`;
-check( built.shown === expected, 'Each switch changes the shortcode as it is set', built.shown );
+const expected = `[sheet_table id="${ sourceId }" search="no" meta="no"]`;
+check( built.shown === expected, 'Hide adds its words to the shortcode', built.shown );
 check( built.copied === expected, 'And Copy copies exactly what is shown', built.copied );
-check( page.url().includes( 'live-sheets-table-edit' ), 'Enter in a field does not save the table' );
+check(
+	await page.locator( '.lstab-usage [data-lstab-att="search"] [data-lstab-set="hide"]' ).getAttribute( 'aria-pressed' ) === 'true',
+	'The chosen side reads as pressed'
+);
+check( page.url().includes( 'live-sheets-table-edit' ), 'Choosing does not submit the form' );
 
-await page.locator( '.lstab-usage [data-lstab-att="search"]' ).check();
+await setTo( 'search', 'show' );
 built = await builtCode();
-check( ! built.shown.includes( 'search=' ), 'Turning a switch back on takes its words out again', built.shown );
-
-check( /^\[sheet_table id="\d+"( [a-z]+="[^"\[\]]*")*\]$/.test( built.shown ), 'What it builds is a well-formed shortcode', built.shown );
+check( built.shown === `[sheet_table id="${ sourceId }" meta="no"]`, 'Show takes its words out again', built.shown );
 
 await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
 await awaitPreview( 15000 );

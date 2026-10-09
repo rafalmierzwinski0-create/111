@@ -37,30 +37,15 @@
 		} );
 	}
 
-	function clean( value ) {
-		return String( value ).replace( /["\[\]]/g, '' ).replace( /\s+/g, ' ' ).trim();
-	}
-
 	function build( builder ) {
 		var card = builder.closest( '.lstab-usage' );
 		var code = card ? card.querySelector( '.lstab-shortcode' ) : null;
 		var button = card ? card.querySelector( '.lstab-copy' ) : null;
 		var text = '[sheet_table id="' + builder.getAttribute( 'data-lstab-shortcode-builder' ) + '"';
 
-		builder.querySelectorAll( '[data-lstab-att]' ).forEach( function ( field ) {
-			var att = field.getAttribute( 'data-lstab-att' );
-
-			if ( 'checkbox' === field.type ) {
-				if ( ! field.checked ) {
-					text += ' ' + att + '="no"';
-				}
-				return;
-			}
-
-			var value = clean( field.value );
-
-			if ( value ) {
-				text += ' ' + att + '="' + value + '"';
+		builder.querySelectorAll( '[data-lstab-att]' ).forEach( function ( group ) {
+			if ( 'hide' === group.getAttribute( 'data-lstab-value' ) ) {
+				text += ' ' + group.getAttribute( 'data-lstab-att' ) + '="no"';
 			}
 		} );
 
@@ -74,21 +59,21 @@
 		}
 	}
 
-	function onChange( event ) {
-		var builder = event.target.closest ? event.target.closest( '[data-lstab-shortcode-builder]' ) : null;
+	document.addEventListener( 'click', function ( event ) {
+		var choice = event.target.closest ? event.target.closest( '[data-lstab-set]' ) : null;
+		var builder = choice ? choice.closest( '[data-lstab-shortcode-builder]' ) : null;
+		var group = choice ? choice.closest( '[data-lstab-att]' ) : null;
 
-		if ( builder ) {
-			build( builder );
+		if ( ! builder || ! group ) {
+			return;
 		}
-	}
 
-	document.addEventListener( 'input', onChange );
-	document.addEventListener( 'change', onChange );
+		group.setAttribute( 'data-lstab-value', choice.getAttribute( 'data-lstab-set' ) );
+		group.querySelectorAll( '[data-lstab-set]' ).forEach( function ( option ) {
+			option.setAttribute( 'aria-pressed', option === choice ? 'true' : 'false' );
+		} );
 
-	document.addEventListener( 'keydown', function ( event ) {
-		if ( 'Enter' === event.key && event.target.closest && event.target.closest( '[data-lstab-shortcode-builder]' ) ) {
-			event.preventDefault();
-		}
+		build( builder );
 	} );
 
 	document.addEventListener( 'click', function ( event ) {
