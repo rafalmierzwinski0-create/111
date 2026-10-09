@@ -953,18 +953,29 @@ await page.waitForTimeout( 200 );
 // --------------------------------------------------------- numeric alignment
 section( '5c. Numeric columns' );
 
+// Measured rather than read off the stylesheet: alignment is written as
+// "end" so a right-to-left page mirrors it, and "end" is what a browser
+// reports even where it lands on the right. Where the words sit is the answer.
 const alignments = await page.evaluate( () => {
 	const heads = document.querySelectorAll( '.lstab-style-striped thead th' );
-	return Array.from( heads ).map( ( th ) => ( {
-		label: th.textContent.trim(),
-		align: th.getAttribute( 'data-lstab-align' ),
-		computed: getComputedStyle( th ).textAlign,
-	} ) );
+	return Array.from( heads ).map( ( th ) => {
+		const cell = th.getBoundingClientRect();
+		const style = getComputedStyle( th );
+		const words = ( th.querySelector( '.lstab-sort' ) || th ).getBoundingClientRect();
+
+		return {
+			label: th.textContent.trim(),
+			align: th.getAttribute( 'data-lstab-align' ),
+			computed: style.textAlign,
+			roomLeft: Math.round( words.left - cell.left - parseFloat( style.paddingLeft ) ),
+			roomRight: Math.round( cell.right - parseFloat( style.paddingRight ) - words.right ),
+		};
+	} );
 } );
 const priceColumn = alignments.find( ( a ) => a.label.startsWith( 'Cena' ) );
 const productColumn = alignments.find( ( a ) => a.label.startsWith( 'Produkt' ) );
 check( priceColumn && priceColumn.align === 'end', 'Price column marked numeric', JSON.stringify( priceColumn ) );
-check( priceColumn && priceColumn.computed === 'right', 'Price column renders right-aligned', priceColumn && priceColumn.computed );
+check( priceColumn && priceColumn.roomRight <= 1 && priceColumn.roomLeft > priceColumn.roomRight, 'Price column renders right-aligned', JSON.stringify( priceColumn ) );
 check( productColumn && productColumn.align === 'start', 'Product column stays left-aligned', JSON.stringify( productColumn ) );
 
 const tabular = await page.evaluate( () =>
@@ -1161,11 +1172,15 @@ check( syncResult.valuenow === '0', 'Scrolling the table moves the slider back',
  */
 // Short enough that the end of the table cannot be on screen with the top of
 // it, which is the only state where the question arises at all.
+// The table's top is put near the top of the screen, so rows are in view and
+// its end is not: where the page happened to be left by the checks above is
+// no starting point, since a table still wholly below the fold has a slider
+// that rightly waits where it is.
 const roomy = mpage.viewportSize();
 await mpage.setViewportSize( { width: roomy.width, height: 320 } );
 await mpage.evaluate( () => {
-	const bar = document.querySelector( '.lstab-style-striped .lstab-scrollbar' );
-	window.scrollTo( 0, window.scrollY + bar.getBoundingClientRect().top - 260 );
+	const frame = document.querySelector( '.lstab-style-striped .lstab-scroll' );
+	window.scrollTo( 0, window.scrollY + frame.getBoundingClientRect().top - 20 );
 } );
 await mpage.waitForTimeout( 600 );
 const floating = await mpage.evaluate( () => {
