@@ -316,7 +316,7 @@
 	font-weight: 600;
 	letter-spacing: 0.03em;
 	text-transform: uppercase;
-	color: var( --lstab-ink-3, #7b8a88 );
+	color: var( --lstab-ink-3, #5f6e6c );
 }
 
 .lstabp-facets-demo-bar {
@@ -349,7 +349,7 @@
 
 .lstabp-facets-demo-arrow {
 	font-size: 0.7em;
-	color: #7b8a88;
+	color: #5f6e6c;
 }
 
 .lstabp-facets-demo-clear {

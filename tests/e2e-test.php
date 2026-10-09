@@ -478,6 +478,11 @@ $errors = libxml_get_errors();
 libxml_clear_errors();
 lstab_assert( $loaded && ! $errors, 'Output parses as well-formed HTML', $errors ? $errors[0]->message : '' );
 
+preg_match( '#<tr role="row" class="lstab-row"[^>]*>.*?</tr>#s', $html, $lstab_one_row );
+lstab_assert( isset( $lstab_one_row[0] ) && false === strpos( $lstab_one_row[0], "\t" ), 'A row carries no indentation, so a long table is not mostly tabs', isset( $lstab_one_row[0] ) ? (string) strlen( $lstab_one_row[0] ) : 'no row' );
+lstab_assert( 1 === preg_match( '#<span class="lstab-cell-value">[^\s<][^<]*[^\s<]</span>#u', $html ), 'A cell value has no stray space around it' );
+lstab_assert( 0 === preg_match( '#aria-label="\s#', $html ), 'No aria-label starts with a line break' );
+
 // Shortcode option handling.
 $plain = do_shortcode( '[sheet_table id="' . $source_id . '" search="no" sort="no" meta="no"]' );
 lstab_assert( false === strpos( $plain, 'lstab-search-input' ), 'search="no" removes the search box' );

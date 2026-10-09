@@ -701,7 +701,7 @@ if ( ! $lstab_is_edit ) {
 				<?php esc_html_e( 'A wide table becomes one card per row when its column is too narrow.', 'live-sheets-table' ); ?>
 			</p>
 
-			<div id="lstab-preview" class="lstab-preview">
+			<div id="lstab-preview" class="lstab-preview" tabindex="0" role="region" aria-label="<?php esc_attr_e( 'Preview of the table', 'live-sheets-table' ); ?>">
 				<div id="lstab-preview-stage" class="lstab-preview-stage" data-lstab-preview="stage">
 					<?php
 					if ( $lstab_is_edit && ! empty( $source['data']['rows'] ) ) {

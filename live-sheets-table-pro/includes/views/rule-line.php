@@ -6,7 +6,7 @@ defined( 'ABSPATH' ) || exit;
 				<span class="lstabp-rule-line">
 					<span class="lstabp-rule-word"><?php esc_html_e( 'When', 'live-sheets-table-pro' ); ?></span>
 
-					<select class="lstabp-rule-column" name="lstabp_rules[<?php echo esc_attr( (string) $lstabp_index ); ?>][column]" <?php disabled( $lstabp_waiting ); ?>>
+					<select class="lstabp-rule-column" name="lstabp_rules[<?php echo esc_attr( (string) $lstabp_index ); ?>][column]" aria-label="<?php esc_attr_e( 'Column the rule looks at', 'live-sheets-table-pro' ); ?>" <?php disabled( $lstabp_waiting ); ?>>
 						<option value="">
 							<?php
 							echo esc_html(
@@ -34,7 +34,7 @@ defined( 'ABSPATH' ) || exit;
 						<?php endforeach; ?>
 					</select>
 
-					<select name="lstabp_rules[<?php echo esc_attr( (string) $lstabp_index ); ?>][operator]" <?php disabled( $lstabp_waiting ); ?>>
+					<select name="lstabp_rules[<?php echo esc_attr( (string) $lstabp_index ); ?>][operator]" aria-label="<?php esc_attr_e( 'How the value is compared', 'live-sheets-table-pro' ); ?>" <?php disabled( $lstabp_waiting ); ?>>
 						<?php foreach ( $lstabp_operators as $lstabp_symbol => $lstabp_label ) : ?>
 							<option value="<?php echo esc_attr( $lstabp_symbol ); ?>" <?php selected( $lstabp_rule['operator'], $lstabp_symbol ); ?>>
 								<?php echo esc_html( $lstabp_label ); ?>
@@ -46,11 +46,12 @@ defined( 'ABSPATH' ) || exit;
 						name="lstabp_rules[<?php echo esc_attr( (string) $lstabp_index ); ?>][value]"
 						value="<?php echo esc_attr( $lstabp_rule['value'] ); ?>"
 						placeholder="<?php esc_attr_e( 'the value to match', 'live-sheets-table-pro' ); ?>"
+						aria-label="<?php esc_attr_e( 'The value to match', 'live-sheets-table-pro' ); ?>"
 						<?php disabled( $lstabp_waiting ); ?>>
 
 					<span class="lstabp-rule-word lstabp-rule-then"><?php esc_html_e( 'paint', 'live-sheets-table-pro' ); ?></span>
 
-					<select name="lstabp_rules[<?php echo esc_attr( (string) $lstabp_index ); ?>][scope]" <?php disabled( $lstabp_waiting ); ?>>
+					<select name="lstabp_rules[<?php echo esc_attr( (string) $lstabp_index ); ?>][scope]" aria-label="<?php esc_attr_e( 'What the rule paints', 'live-sheets-table-pro' ); ?>" <?php disabled( $lstabp_waiting ); ?>>
 						<option value="cell" <?php selected( $lstabp_rule['scope'], 'cell' ); ?>><?php esc_html_e( 'that cell', 'live-sheets-table-pro' ); ?></option>
 						<option value="row" <?php selected( $lstabp_rule['scope'], 'row' ); ?>><?php esc_html_e( 'the whole row', 'live-sheets-table-pro' ); ?></option>
 						<option value="text" <?php selected( $lstabp_rule['scope'], 'text' ); ?>><?php esc_html_e( 'just the words in that cell', 'live-sheets-table-pro' ); ?></option>

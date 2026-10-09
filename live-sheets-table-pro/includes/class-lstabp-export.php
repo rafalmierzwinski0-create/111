@@ -168,14 +168,14 @@ class LSTABP_Export {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions -- Streaming to the browser; there is no WP_Filesystem equivalent.
 		$out = fopen( 'php://output', 'w' );
 
-		fwrite( $out, "\xEF\xBB\xBF" );
+		fwrite( $out, "\xEF\xBB\xBF" ); // phpcs:ignore WordPress.WP.AlternativeFunctions -- Writing to the response stream opened above.
 		self::put_row( $out, $prepared['headers'] );
 
 		foreach ( $prepared['rows'] as $row ) {
 			self::put_row( $out, (array) $row );
 		}
 
-		fclose( $out );
+		fclose( $out ); // phpcs:ignore WordPress.WP.AlternativeFunctions -- Closing the response stream opened above.
 		exit;
 	}
 

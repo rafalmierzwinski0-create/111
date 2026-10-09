@@ -76,7 +76,7 @@
 
 .lstabp-picker-handle .lstabp-picker-toggle {
 	font-weight: 400;
-	color: #787c82;
+	color: #646970;
 	justify-content: center;
 	gap: 3px;
 }
@@ -167,7 +167,7 @@
 }
 
 .lstabp-chip.is-orphan .lstabp-chip-note {
-	color: #787c82;
+	color: #646970;
 }
 
 .lstabp-chip-remove {

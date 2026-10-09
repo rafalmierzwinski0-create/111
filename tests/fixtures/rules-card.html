@@ -21,7 +21,7 @@
 				<span class="lstabp-rule-line">
 					<span class="lstabp-rule-word">When</span>
 
-					<select class="lstabp-rule-column" name="lstabp_rules[0][column]" >
+					<select class="lstabp-rule-column" name="lstabp_rules[0][column]" aria-label="Column the rule looks at" >
 						<option value="">
 							— remove this rule —						</option>
 																			<option value="Session" >
@@ -30,7 +30,7 @@
 								Status							</option>
 											</select>
 
-					<select name="lstabp_rules[0][operator]" >
+					<select name="lstabp_rules[0][operator]" aria-label="How the value is compared" >
 													<option value="="  selected='selected'>
 								is							</option>
 													<option value="!=" >
@@ -51,11 +51,12 @@
 						name="lstabp_rules[0][value]"
 						value="Full"
 						placeholder="the value to match"
+						aria-label="The value to match"
 						>
 
 					<span class="lstabp-rule-word lstabp-rule-then">paint</span>
 
-					<select name="lstabp_rules[0][scope]" >
+					<select name="lstabp_rules[0][scope]" aria-label="What the rule paints" >
 						<option value="cell" >that cell</option>
 						<option value="row" >the whole row</option>
 						<option value="text" >just the words in that cell</option>
@@ -202,7 +203,7 @@
 				<span class="lstabp-rule-line">
 					<span class="lstabp-rule-word">When</span>
 
-					<select class="lstabp-rule-column" name="lstabp_rules[1][column]" >
+					<select class="lstabp-rule-column" name="lstabp_rules[1][column]" aria-label="Column the rule looks at" >
 						<option value="">
 							— pick a column —						</option>
 																			<option value="Session" >
@@ -211,7 +212,7 @@
 								Status							</option>
 											</select>
 
-					<select name="lstabp_rules[1][operator]" >
+					<select name="lstabp_rules[1][operator]" aria-label="How the value is compared" >
 													<option value="="  selected='selected'>
 								is							</option>
 													<option value="!=" >
@@ -232,11 +233,12 @@
 						name="lstabp_rules[1][value]"
 						value=""
 						placeholder="the value to match"
+						aria-label="The value to match"
 						>
 
 					<span class="lstabp-rule-word lstabp-rule-then">paint</span>
 
-					<select name="lstabp_rules[1][scope]" >
+					<select name="lstabp_rules[1][scope]" aria-label="What the rule paints" >
 						<option value="cell"  selected='selected'>that cell</option>
 						<option value="row" >the whole row</option>
 						<option value="text" >just the words in that cell</option>
@@ -391,7 +393,7 @@
 				<span class="lstabp-rule-line">
 					<span class="lstabp-rule-word">When</span>
 
-					<select class="lstabp-rule-column" name="lstabp_rules[lstabp-new][column]" >
+					<select class="lstabp-rule-column" name="lstabp_rules[lstabp-new][column]" aria-label="Column the rule looks at" >
 						<option value="">
 							— pick a column —						</option>
 																			<option value="Session" >
@@ -400,7 +402,7 @@
 								Status							</option>
 											</select>
 
-					<select name="lstabp_rules[lstabp-new][operator]" >
+					<select name="lstabp_rules[lstabp-new][operator]" aria-label="How the value is compared" >
 													<option value="="  selected='selected'>
 								is							</option>
 													<option value="!=" >
@@ -421,11 +423,12 @@
 						name="lstabp_rules[lstabp-new][value]"
 						value=""
 						placeholder="the value to match"
+						aria-label="The value to match"
 						>
 
 					<span class="lstabp-rule-word lstabp-rule-then">paint</span>
 
-					<select name="lstabp_rules[lstabp-new][scope]" >
+					<select name="lstabp_rules[lstabp-new][scope]" aria-label="What the rule paints" >
 						<option value="cell"  selected='selected'>that cell</option>
 						<option value="row" >the whole row</option>
 						<option value="text" >just the words in that cell</option>

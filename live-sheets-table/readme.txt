@@ -197,6 +197,8 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Fixed: the line between rows was twice as thick under a pinned first column as under every other column, in every style.
 * Fixed: a background colour picked by hand stopped at the pinned first column in the Terminal, Aurora and Ledger styles.
 * Added: "Slider outline", a colour of its own for the line around the slider. Left empty, it follows the line colour.
+* Changed: a table's HTML is about 40% smaller — rows are written without the indentation of the template. A long table without pages loads noticeably faster.
+* Fixed: accessibility. Small grey text in the dashboard now meets the WCAG contrast ratio, every drop-down has a name a screen reader can read, the "x of y rows" count stays readable in dark styles, and each table on a page is announced by its caption or first columns.
 * Changed: "Fine-tune the look" is laid out afresh. Each colour shows the one the style is using until you pick your own, with its code and a reset beside it.
 * Fixed (Pro): the row hover did not reach cells a colour rule had painted.
 * Fixed (Pro): a colour rule on the first column did not show while that column was pinned.

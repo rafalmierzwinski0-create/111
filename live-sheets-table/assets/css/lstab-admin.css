@@ -8,8 +8,8 @@
 	--lstab-a-glow: rgba( 14, 124, 116, 0.2 );
 
 	--lstab-ink: #101d1b;
-	--lstab-ink-2: #556764;
-	--lstab-ink-3: #7b8a88;
+	--lstab-ink-2: #475755;
+	--lstab-ink-3: #5f6e6c;
 	--lstab-card: #fff;
 	--lstab-tint: #f9fcfb;
 	--lstab-ground: #eef3f2;
@@ -1364,7 +1364,7 @@
 }
 
 .lstab-placeholder {
-	color: #8c8f94;
+	color: #646970;
 	margin: 0;
 }
 
@@ -1380,7 +1380,7 @@
 }
 
 .lstab-preview-status.is-ok {
-	color: #1a7f37;
+	color: #16692e;
 }
 
 .lstab-spinner.is-active {
@@ -1512,7 +1512,7 @@
 }
 
 .lstab-status--ok {
-	color: #1a7f37;
+	color: #16692e;
 }
 
 .lstab-status--stale,
@@ -1991,7 +1991,7 @@
 }
 
 .lstab-columns-card.is-waiting .lstab-column-list code {
-	color: #8c8f94;
+	color: #646970;
 }
 
 .lstab-drift {
@@ -2065,7 +2065,7 @@
 }
 
 .lstab-column-state .lstab-state-shown {
-	color: #787c82;
+	color: #646970;
 }
 
 .lstab-column-state .lstab-state-detail {

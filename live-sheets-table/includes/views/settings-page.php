@@ -29,13 +29,13 @@ defined( 'ABSPATH' ) || exit;
 
 			<div class="lstab-row">
 				<div class="lstab-row-say">
-					<p class="lstab-row-title"><?php esc_html_e( 'Who can manage tables', 'live-sheets-table' ); ?></p>
+					<p class="lstab-row-title" id="lstab-set-manage"><?php esc_html_e( 'Who can manage tables', 'live-sheets-table' ); ?></p>
 					<p class="lstab-row-help">
 						<?php esc_html_e( 'Anyone who can manage tables can also read every sheet they point at, including columns left out of the published table.', 'live-sheets-table' ); ?>
 					</p>
 				</div>
 				<div class="lstab-row-do">
-					<select name="lstab_settings[manage_capability]">
+					<select name="lstab_settings[manage_capability]" aria-labelledby="lstab-set-manage">
 						<?php foreach ( LSTAB_Settings::capabilities() as $lstab_cap => $lstab_label ) : ?>
 							<option value="<?php echo esc_attr( $lstab_cap ); ?>" <?php selected( $settings['manage_capability'], $lstab_cap ); ?>>
 								<?php echo esc_html( $lstab_label ); ?>
@@ -57,13 +57,13 @@ defined( 'ABSPATH' ) || exit;
 
 			<div class="lstab-row">
 				<div class="lstab-row-say">
-					<p class="lstab-row-title"><?php esc_html_e( 'How often new tables check Google', 'live-sheets-table' ); ?></p>
+					<p class="lstab-row-title" id="lstab-set-interval"><?php esc_html_e( 'How often new tables check Google', 'live-sheets-table' ); ?></p>
 					<p class="lstab-row-help">
 						<?php esc_html_e( 'The value given to each new table. Existing tables are not affected, and every table can be set separately.', 'live-sheets-table' ); ?>
 					</p>
 				</div>
 				<div class="lstab-row-do">
-					<select name="lstab_settings[default_interval]">
+					<select name="lstab_settings[default_interval]" aria-labelledby="lstab-set-interval">
 						<option value="0" <?php selected( (int) $settings['default_interval'], 0 ); ?>>
 							<?php
 							printf(
@@ -121,13 +121,13 @@ defined( 'ABSPATH' ) || exit;
 
 			<div class="lstab-row">
 				<div class="lstab-row-say">
-					<p class="lstab-row-title"><?php esc_html_e( 'How new tables look', 'live-sheets-table' ); ?></p>
+					<p class="lstab-row-title" id="lstab-set-style"><?php esc_html_e( 'How new tables look', 'live-sheets-table' ); ?></p>
 					<p class="lstab-row-help">
 						<?php esc_html_e( 'The style given to each new table. Every table can still be changed afterwards.', 'live-sheets-table' ); ?>
 					</p>
 				</div>
 				<div class="lstab-row-do">
-					<select name="lstab_settings[default_style]">
+					<select name="lstab_settings[default_style]" aria-labelledby="lstab-set-style">
 						<?php foreach ( LSTAB_Styles::all() as $lstab_slug => $lstab_preset ) : ?>
 							<?php if ( ! empty( $lstab_preset['pro'] ) && ! LSTAB_Limits::is_pro() ) : ?>
 								<?php continue; ?>

@@ -274,8 +274,17 @@ class LSTAB_Renderer {
 				</p>
 			<?php endif; ?>
 
+			<?php
+			$lstab_named = '' !== (string) $args['caption']
+				? (string) $args['caption']
+				: implode( ', ', array_slice( array_filter( array_map( 'strval', array_diff_key( $headers, (array) $details ) ), 'strlen' ), 0, 3 ) );
+			$lstab_region = '' !== $lstab_named
+				/* translators: %s: the table's caption, or the names of its first columns. */
+				? sprintf( __( 'Table: %s, scrollable sideways', 'live-sheets-table' ), $lstab_named )
+				: __( 'Table, scrollable sideways', 'live-sheets-table' );
+			?>
 			<div class="lstab-scroll" tabindex="0" role="region"
-				aria-label="<?php esc_attr_e( 'Table, scrollable sideways', 'live-sheets-table' ); ?>">
+				aria-label="<?php echo esc_attr( $lstab_region ); ?>">
 				<table id="<?php echo esc_attr( $table_id ); ?>" class="lstab-table" role="table"
 					<?php if ( $args['caption'] ) : ?>
 						aria-labelledby="<?php echo esc_attr( $caption_id ); ?>"
@@ -313,17 +322,11 @@ class LSTAB_Renderer {
 											<span class="lstab-sort-icon" aria-hidden="true"></span>
 										</a>
 									<?php elseif ( $sortable ) : ?>
-										<button type="button" class="lstab-sort" aria-label="
-											<?php
-											echo esc_attr(
-												sprintf(
-													/* translators: %s: column name. */
-													__( 'Sort by %s', 'live-sheets-table' ),
-													(string) $header
-												)
-											);
-											?>
-										">
+										<?php
+										/* translators: %s: column name. */
+										$lstab_sort_label = sprintf( __( 'Sort by %s', 'live-sheets-table' ), (string) $header );
+										?>
+										<button type="button" class="lstab-sort" aria-label="<?php echo esc_attr( $lstab_sort_label ); ?>">
 											<span class="lstab-sort-label"><?php echo esc_html( (string) $header ); ?></span>
 											<span class="lstab-sort-icon" aria-hidden="true"></span>
 										</button>
@@ -336,56 +339,53 @@ class LSTAB_Renderer {
 					</thead>
 					<tbody role="rowgroup">
 						<?php foreach ( $rows as $row_index => $row ) : ?>
-							<tr role="row" class="lstab-row"<?php echo $details ? ' data-lstab-row="' . esc_attr( (string) $row_index ) . '"' : ''; ?>>
-								<?php $lstab_first_cell = true; ?>
-								<?php foreach ( (array) $row as $col_index => $cell ) : ?>
-									<?php if ( isset( $details[ $col_index ] ) ) : ?>
-										<?php continue; ?>
-									<?php endif; ?>
-									<?php
-									$label = isset( $headers[ $col_index ] ) ? (string) $headers[ $col_index ] : '';
+							<?php
+							echo '<tr role="row" class="lstab-row"' . ( $details ? ' data-lstab-row="' . esc_attr( (string) $row_index ) . '"' : '' ) . '>';
 
-									$custom = apply_filters( 'lstab_render_cell', null, (string) $cell, (int) $col_index, (int) $row_index, $source );
+							$lstab_first_cell = true;
 
-									$attributes = (array) apply_filters(
-										'lstab_cell_attributes',
-										array(
-											'data-label'       => $label,
-											'data-lstab-align' => isset( $alignments[ $col_index ] ) ? $alignments[ $col_index ] : 'start',
-											'class'            => ( $details && $lstab_first_cell ) ? 'lstab-cell-opens' : false,
-										),
-										(string) $cell,
-										(int) $col_index,
-										(int) $row_index,
-										$source
-									);
-									?>
-									<td role="cell"<?php echo self::attributes( $attributes ); // phpcs:ignore WordPress.Security.EscapeOutput -- Escaped in attributes(). ?>>
-										<?php if ( $details && $lstab_first_cell ) : ?>
-											<button type="button" class="lstab-open"
-												aria-expanded="false"
-												aria-controls="<?php echo esc_attr( $table_id . '-detail-' . $row_index ); ?>"
-												data-lstab-open="<?php echo esc_attr( (string) $row_index ); ?>">
-												<span class="screen-reader-text"><?php esc_html_e( 'Show details', 'live-sheets-table' ); ?></span>
-												<span class="lstab-open-mark" aria-hidden="true"></span>
-											</button>
-										<?php endif; ?>
-										<?php $lstab_first_cell = false; ?>
-										<?php if ( '' !== $label ) : ?>
-											<span class="lstab-cell-label"><?php echo esc_html( $label ); ?></span>
-										<?php endif; ?>
-										<span class="lstab-cell-value">
-											<?php
-											if ( null !== $custom ) {
-												echo wp_kses_post( $custom );
-											} else {
-												echo esc_html( (string) $cell );
-											}
-											?>
-										</span>
-									</td>
-								<?php endforeach; ?>
-							</tr>
+							foreach ( (array) $row as $col_index => $cell ) {
+								if ( isset( $details[ $col_index ] ) ) {
+									continue;
+								}
+
+								$label = isset( $headers[ $col_index ] ) ? (string) $headers[ $col_index ] : '';
+
+								$custom = apply_filters( 'lstab_render_cell', null, (string) $cell, (int) $col_index, (int) $row_index, $source );
+
+								$attributes = (array) apply_filters(
+									'lstab_cell_attributes',
+									array(
+										'data-label'       => $label,
+										'data-lstab-align' => isset( $alignments[ $col_index ] ) ? $alignments[ $col_index ] : 'start',
+										'class'            => ( $details && $lstab_first_cell ) ? 'lstab-cell-opens' : false,
+									),
+									(string) $cell,
+									(int) $col_index,
+									(int) $row_index,
+									$source
+								);
+
+								echo '<td role="cell"' . self::attributes( $attributes ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput -- Escaped in attributes().
+
+								if ( $details && $lstab_first_cell ) {
+									echo '<button type="button" class="lstab-open" aria-expanded="false" aria-controls="' . esc_attr( $table_id . '-detail-' . $row_index ) . '" data-lstab-open="' . esc_attr( (string) $row_index ) . '">'
+										. '<span class="screen-reader-text">' . esc_html__( 'Show details', 'live-sheets-table' ) . '</span>'
+										. '<span class="lstab-open-mark" aria-hidden="true"></span>'
+										. '</button>';
+								}
+
+								$lstab_first_cell = false;
+
+								if ( '' !== $label ) {
+									echo '<span class="lstab-cell-label">' . esc_html( $label ) . '</span>';
+								}
+
+								echo '<span class="lstab-cell-value">' . ( null !== $custom ? wp_kses_post( $custom ) : esc_html( (string) $cell ) ) . '</span></td>';
+							}
+
+							echo "</tr>\n";
+							?>
 
 							<?php if ( $details ) : ?>
 								<?php
