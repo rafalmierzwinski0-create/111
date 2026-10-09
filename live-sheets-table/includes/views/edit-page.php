@@ -417,44 +417,59 @@ if ( ! $lstab_is_edit ) {
 					: LSTAB_Customizer::defaults();
 				?>
 				<div class="lstab-card lstab-appearance" data-lstab-style="<?php echo esc_attr( (string) $lstab_values['style_preset'] ); ?>">
-					<h2 class="lstab-card-title"><?php esc_html_e( 'Fine-tune the look', 'live-sheets-table' ); ?></h2>
-					<p class="lstab-help">
-						<?php esc_html_e( 'Optional. Anything left empty follows the style chosen above.', 'live-sheets-table' ); ?>
-					</p>
+					<div class="lstab-tune-head">
+						<div>
+							<h2 class="lstab-card-title"><?php esc_html_e( 'Fine-tune the look', 'live-sheets-table' ); ?></h2>
+							<p class="lstab-help">
+								<?php esc_html_e( 'Optional. Anything left alone follows the style chosen above.', 'live-sheets-table' ); ?>
+							</p>
+						</div>
+						<button type="button" class="lstab-mini lstab-tune-reset" id="lstab-reset-appearance">
+							<?php echo LSTAB_Icons::icon( 'refresh' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+							<?php esc_html_e( 'Reset all to the style', 'live-sheets-table' ); ?>
+						</button>
+					</div>
 
+					<h3 class="lstab-tune-group"><?php esc_html_e( 'Colours', 'live-sheets-table' ); ?></h3>
 					<div class="lstab-swatches">
 						<?php foreach ( LSTAB_Customizer::colors() as $lstab_key => $lstab_color ) : ?>
 							<?php $lstab_value = isset( $lstab_vars[ $lstab_key ] ) ? $lstab_vars[ $lstab_key ] : ''; ?>
 							<?php
 							$lstab_only = isset( $lstab_color['style'] ) ? (string) $lstab_color['style'] : '';
 							?>
-							<div class="lstab-swatch" data-lstab-token="<?php echo esc_attr( $lstab_key ); ?>" data-lstab-var="<?php echo esc_attr( $lstab_color['var'] ); ?>"
+							<div class="lstab-swatch<?php echo $lstab_value ? ' is-set' : ''; ?>" data-lstab-token="<?php echo esc_attr( $lstab_key ); ?>" data-lstab-var="<?php echo esc_attr( $lstab_color['var'] ); ?>"
 								<?php echo '' !== $lstab_only ? 'data-lstab-only-style="' . esc_attr( $lstab_only ) . '"' : ''; ?>>
-								<label for="lstab-color-<?php echo esc_attr( $lstab_key ); ?>">
-									<?php echo esc_html( $lstab_color['label'] ); ?>
-								</label>
-								<?php if ( ! empty( $lstab_color['note'] ) ) : ?>
-									<span class="lstab-swatch-note"><?php echo esc_html( $lstab_color['note'] ); ?></span>
-								<?php endif; ?>
-								<div class="lstab-swatch-controls">
+								<span class="lstab-swatch-dot">
 									<input type="color"
 										id="lstab-color-<?php echo esc_attr( $lstab_key ); ?>"
 										class="lstab-color-input"
 										value="<?php echo esc_attr( $lstab_value ? $lstab_value : '#ffffff' ); ?>"
 										<?php echo $lstab_value ? '' : 'data-lstab-unset="1"'; ?>>
-									<input type="hidden"
-										class="lstab-color-value"
-										name="style_vars[<?php echo esc_attr( $lstab_key ); ?>]"
-										value="<?php echo esc_attr( $lstab_value ); ?>">
-									<button type="button" class="button-link lstab-color-clear"
-										<?php disabled( '' === $lstab_value ); ?>>
-										<?php esc_html_e( 'Reset', 'live-sheets-table' ); ?>
+								</span>
+								<label class="lstab-swatch-text" for="lstab-color-<?php echo esc_attr( $lstab_key ); ?>">
+									<span class="lstab-swatch-name"><?php echo esc_html( $lstab_color['label'] ); ?></span>
+									<?php if ( ! empty( $lstab_color['note'] ) ) : ?>
+										<span class="lstab-swatch-note"><?php echo esc_html( $lstab_color['note'] ); ?></span>
+									<?php endif; ?>
+								</label>
+								<span class="lstab-swatch-side">
+									<span class="lstab-swatch-hex" data-lstab-style-word="<?php esc_attr_e( 'Style', 'live-sheets-table' ); ?>"><?php echo $lstab_value ? esc_html( strtoupper( $lstab_value ) ) : esc_html__( 'Style', 'live-sheets-table' ); ?></span>
+									<button type="button" class="lstab-color-clear"
+										<?php disabled( '' === $lstab_value ); ?>
+										aria-label="<?php echo esc_attr( sprintf( /* translators: %s: name of a colour setting, e.g. "Background". */ __( 'Reset %s to the style', 'live-sheets-table' ), $lstab_color['label'] ) ); ?>">
+										<?php echo LSTAB_Icons::icon( 'refresh' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+										<span class="lstab-color-clear-label"><?php esc_html_e( 'Reset', 'live-sheets-table' ); ?></span>
 									</button>
-								</div>
+								</span>
+								<input type="hidden"
+									class="lstab-color-value"
+									name="style_vars[<?php echo esc_attr( $lstab_key ); ?>]"
+									value="<?php echo esc_attr( $lstab_value ); ?>">
 							</div>
 						<?php endforeach; ?>
 					</div>
 
+					<h3 class="lstab-tune-group"><?php esc_html_e( 'Text and spacing', 'live-sheets-table' ); ?></h3>
 					<div class="lstab-metrics">
 						<?php foreach ( LSTAB_Customizer::sizes() as $lstab_key => $lstab_size ) : ?>
 							<?php $lstab_size_value = isset( $lstab_vars[ $lstab_key ] ) ? (string) $lstab_vars[ $lstab_key ] : ''; ?>
@@ -513,11 +528,6 @@ if ( ! $lstab_is_edit ) {
 						<?php endforeach; ?>
 					</div>
 
-					<p>
-						<button type="button" class="lstab-mini" id="lstab-reset-appearance">
-							<?php esc_html_e( 'Reset everything to the chosen style', 'live-sheets-table' ); ?>
-						</button>
-					</p>
 				</div>
 			<?php endif; ?>
 
@@ -695,7 +705,7 @@ if ( ! $lstab_is_edit ) {
 				<div id="lstab-preview-stage" class="lstab-preview-stage" data-lstab-preview="stage">
 					<?php
 					if ( $lstab_is_edit && ! empty( $source['data']['rows'] ) ) {
-						echo LSTAB_Renderer::render_preview( // phpcs:ignore WordPress.Security.EscapeOutput -- Renderer escapes every cell.
+						$lstab_preview_html = LSTAB_Renderer::render_preview(
 							$source['data'],
 							array(
 								'source_id'   => (int) $source['id'],
@@ -706,6 +716,7 @@ if ( ! $lstab_is_edit ) {
 								'sticky_head' => ! empty( $source['sticky_head'] ),
 							)
 						);
+						echo $lstab_preview_html; // phpcs:ignore WordPress.Security.EscapeOutput -- Renderer escapes every cell.
 					} else {
 						?>
 						<p class="lstab-placeholder"><?php esc_html_e( 'Paste a link and choose “Load preview”.', 'live-sheets-table' ); ?></p>

@@ -210,6 +210,7 @@ class LSTAB_Admin {
 				'i18n'       => array(
 					'loading'     => __( 'Loading preview…', 'live-sheets-table' ),
 					'failed'      => __( 'Preview failed', 'live-sheets-table' ),
+					/* translators: 1: number of rows, 2: number of columns. */
 					'rowsFound'   => __( 'Found %1$s rows across %2$s columns.', 'live-sheets-table' ),
 					'truncated'   => __( 'Showing the first 25 rows.', 'live-sheets-table' ),
 					'pickTab'     => __( 'Pick the tab you want to publish:', 'live-sheets-table' ),
@@ -218,7 +219,9 @@ class LSTAB_Admin {
 					/* translators: %1$s: column number. */
 					'columnNumber' => __( 'Column %1$s', 'live-sheets-table' ),
 					'shown'        => __( 'Shown', 'live-sheets-table' ),
+					/* translators: %1$s: number of characters. */
 					'rawBytes'    => __( '%1$s characters received.', 'live-sheets-table' ),
+					/* translators: %1$s: row number. */
 					'rawRagged'   => __( 'Look at row %1$s: it came back with a different number of cells than the rest.', 'live-sheets-table' ),
 				),
 			)
@@ -261,7 +264,8 @@ class LSTAB_Admin {
 	}
 
 	public function handle_save() {
-		$this->guard( 'lstab_save_source' );
+		$this->guard();
+		check_admin_referer( 'lstab_save_source' );
 
 		$source_id = isset( $_POST['source_id'] ) ? absint( wp_unslash( $_POST['source_id'] ) ) : 0;
 		$raw_url   = isset( $_POST['sheet_url'] ) ? sanitize_text_field( wp_unslash( $_POST['sheet_url'] ) ) : '';
@@ -299,7 +303,7 @@ class LSTAB_Admin {
 			);
 		}
 
-		$gid = isset( $_POST['gid'] ) ? LSTAB_Url::sanitize_gid( wp_unslash( $_POST['gid'] ) ) : $reference['gid'];
+		$gid = isset( $_POST['gid'] ) ? LSTAB_Url::sanitize_gid( sanitize_text_field( wp_unslash( $_POST['gid'] ) ) ) : $reference['gid'];
 
 		$data = array(
 			'title'            => isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '',
@@ -308,10 +312,10 @@ class LSTAB_Admin {
 			'sheet_kind'       => $reference['sheet_kind'],
 			'gid'              => $gid,
 			'tab_name'         => isset( $_POST['tab_name'] ) ? sanitize_text_field( wp_unslash( $_POST['tab_name'] ) ) : (string) ( $existing ? $existing['tab_name'] : '' ),
-			'sync_interval'    => isset( $_POST['sync_interval'] ) ? LSTAB_Limits::clamp_interval( wp_unslash( $_POST['sync_interval'] ) ) : LSTAB_Limits::min_interval(),
+			'sync_interval'    => isset( $_POST['sync_interval'] ) ? LSTAB_Limits::clamp_interval( absint( wp_unslash( $_POST['sync_interval'] ) ) ) : LSTAB_Limits::min_interval(),
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Presence check only; the value is never used.
 			'first_row_header' => empty( $_POST['first_row_header'] ) ? 0 : 1,
-			'style_preset'     => isset( $_POST['style_preset'] ) ? LSTAB_Styles::sanitize( wp_unslash( $_POST['style_preset'] ) ) : 'clean',
+			'style_preset'     => isset( $_POST['style_preset'] ) ? LSTAB_Styles::sanitize( sanitize_key( wp_unslash( $_POST['style_preset'] ) ) ) : 'clean',
 			'layout'           => isset( $_POST['layout'] ) && in_array( sanitize_key( wp_unslash( $_POST['layout'] ) ), array( 'table', 'auto', 'cards' ), true )
 				? sanitize_key( wp_unslash( $_POST['layout'] ) )
 				: 'table',
@@ -380,7 +384,8 @@ class LSTAB_Admin {
 	}
 
 	public function handle_delete() {
-		$this->guard( 'lstab_delete_source' );
+		$this->guard();
+		check_admin_referer( 'lstab_delete_source' );
 
 		$source_id = isset( $_POST['source_id'] ) ? absint( wp_unslash( $_POST['source_id'] ) ) : 0;
 
@@ -392,7 +397,8 @@ class LSTAB_Admin {
 	}
 
 	public function handle_refresh() {
-		$this->guard( 'lstab_refresh_source' );
+		$this->guard();
+		check_admin_referer( 'lstab_refresh_source' );
 
 		$source_id = isset( $_POST['source_id'] ) ? absint( wp_unslash( $_POST['source_id'] ) ) : 0;
 		$result    = LSTAB_Sync::run( $source_id );
@@ -501,7 +507,8 @@ class LSTAB_Admin {
 	}
 
 	public function handle_dismiss_ragged() {
-		$this->guard( 'lstab_dismiss_ragged' );
+		$this->guard();
+		check_admin_referer( 'lstab_dismiss_ragged' );
 
 		$index = (array) get_option( LSTAB_Storage::RAGGED_OPT, array() );
 		update_option( LSTAB_Storage::DISMISSED_OPT, array_values( $index ), true );
@@ -511,7 +518,7 @@ class LSTAB_Admin {
 		exit;
 	}
 
-	protected function guard( $action ) {
+	protected function guard() {
 		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
 			wp_die(
 				esc_html__( 'You are not allowed to manage sheet sources.', 'live-sheets-table' ),
@@ -519,8 +526,6 @@ class LSTAB_Admin {
 				array( 'response' => 403 )
 			);
 		}
-
-		check_admin_referer( $action );
 	}
 
 	protected function redirect_with_notice( $source_id, $type, $message, $to_list = false ) {
@@ -568,7 +573,7 @@ class LSTAB_Admin {
 		return sprintf(
 			/* translators: 1: number of rows, 2: expected column count, 3: list of row numbers. */
 			_n(
-				'Row %3$s came back with a different number of cells than the other rows (%2$d), so a value in it may be missing or sitting in the wrong column. Most often a lone quotation mark or a comma inside a value has run two cells into one.',
+				'%1$d row came back with a different number of cells than the other rows (%2$d): row %3$s. A value in it may be missing or sitting in the wrong column. Most often a lone quotation mark or a comma inside a value has run two cells into one.',
 				'%1$d rows came back with a different number of cells than the rest (%2$d), so values in them may be missing or sitting in the wrong column. Most often a lone quotation mark or a comma inside a value has run two cells into one. Rows: %3$s.',
 				(int) $ragged['total'],
 				'live-sheets-table'
@@ -875,7 +880,8 @@ class LSTAB_Admin {
 		);
 	}
 	public function handle_page_source() {
-		$this->guard( 'lstab_page_source' );
+		$this->guard();
+		check_admin_referer( 'lstab_page_source' );
 
 		$source_id = isset( $_POST['source_id'] ) ? absint( wp_unslash( $_POST['source_id'] ) ) : 0;
 		$source    = $source_id ? LSTAB_Storage::get( $source_id ) : null;
@@ -903,7 +909,8 @@ class LSTAB_Admin {
 	}
 
 	public function handle_keep_one_page() {
-		$this->guard( 'lstab_keep_one_page' );
+		$this->guard();
+		check_admin_referer( 'lstab_keep_one_page' );
 
 		$source_id = isset( $_POST['source_id'] ) ? absint( wp_unslash( $_POST['source_id'] ) ) : 0;
 

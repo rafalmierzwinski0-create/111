@@ -108,7 +108,8 @@ class LSTABP_Settings {
 	}
 
 	public function handle_save_client() {
-		$this->guard( 'lstabp_save_client' );
+		$this->guard();
+		check_admin_referer( 'lstabp_save_client' );
 
 		LSTABP_Google_Auth::save_client(
 			isset( $_POST['client_id'] ) ? sanitize_text_field( wp_unslash( $_POST['client_id'] ) ) : '',
@@ -119,7 +120,8 @@ class LSTABP_Settings {
 	}
 
 	public function handle_save_sources() {
-		$this->guard( 'lstabp_save_sources' );
+		$this->guard();
+		check_admin_referer( 'lstabp_save_sources' );
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- keys and values cast below.
 		$submitted = isset( $_POST['private'] ) ? (array) wp_unslash( $_POST['private'] ) : array();
@@ -163,12 +165,10 @@ class LSTABP_Settings {
 		);
 	}
 
-	protected function guard( $action ) {
+	protected function guard() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'You are not allowed to do that.', 'live-sheets-table-pro' ), '', array( 'response' => 403 ) );
 		}
-
-		check_admin_referer( $action );
 	}
 
 	protected function redirect_with( $type, $message ) {

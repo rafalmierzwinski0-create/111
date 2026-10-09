@@ -257,7 +257,10 @@ class LSTAB_Renderer {
 							aria-controls="<?php echo esc_attr( $table_id ); ?>"
 							autocomplete="off">
 					</label>
-					<span class="lstab-count" data-lstab-count-template="<?php echo esc_attr__( '%1$s of %2$s rows', 'live-sheets-table' ); ?>"></span>
+					<span class="lstab-count" data-lstab-count-template="<?php
+					/* translators: 1: rows shown, 2: rows in the table. */
+					echo esc_attr__( '%1$s of %2$s rows', 'live-sheets-table' );
+					?>"></span>
 				</div>
 			<?php endif; ?>
 
@@ -506,6 +509,7 @@ class LSTAB_Renderer {
 						<?php
 						$lstab_said = empty( $args['keep_current'] ) ? '' : wp_json_encode(
 							array(
+								/* translators: %s: human readable duration, e.g. "5 minutes". */
 								't' => __( 'Updated %s ago', 'live-sheets-table' ),
 								'u' => LSTAB_Locale::span_words(),
 							)

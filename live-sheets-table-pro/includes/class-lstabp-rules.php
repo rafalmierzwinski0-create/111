@@ -141,9 +141,7 @@ class LSTABP_Rules {
 
 		$paint .= '--lstabp-pill-fill-set:transparent;';
 
-		if ( 'row' === $scope ) {
-			$paint .= '--lstab-row-tint:' . $hex . ';';
-		}
+		$paint .= '--lstab-row-tint:' . $hex . ';';
 
 		return $paint;
 	}
@@ -455,6 +453,10 @@ class LSTABP_Rules {
 		$lstabp_classes = isset( $attributes['class'] ) ? $attributes['class'] . ' ' : '';
 
 		$lstabp_classes .= 'lstab-ruled';
+
+		if ( false !== strpos( $css, 'background-color:' ) ) {
+			$lstabp_classes .= ' lstab-painted';
+		}
 
 		if ( isset( $this->shapes[ $row_index ][ $col_index ] ) ) {
 			$lstabp_classes .= ' lstabp-' . $this->shapes[ $row_index ][ $col_index ];

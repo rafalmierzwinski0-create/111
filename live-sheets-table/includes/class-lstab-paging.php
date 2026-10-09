@@ -108,7 +108,7 @@ class LSTAB_Paging {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only navigation of public data.
 		$q    = isset( $_GET[ self::arg( $source_id, 'q' ) ] ) ? sanitize_text_field( wp_unslash( $_GET[ self::arg( $source_id, 'q' ) ] ) ) : '';
 		$page = isset( $_GET[ self::arg( $source_id, 'page' ) ] ) ? absint( wp_unslash( $_GET[ self::arg( $source_id, 'page' ) ] ) ) : 1;
-		$sort = isset( $_GET[ self::arg( $source_id, 'sort' ) ] ) ? (int) wp_unslash( $_GET[ self::arg( $source_id, 'sort' ) ] ) : -1;
+		$sort = isset( $_GET[ self::arg( $source_id, 'sort' ) ] ) ? intval( wp_unslash( $_GET[ self::arg( $source_id, 'sort' ) ] ) ) : -1;
 		$dir  = isset( $_GET[ self::arg( $source_id, 'dir' ) ] ) ? sanitize_key( wp_unslash( $_GET[ self::arg( $source_id, 'dir' ) ] ) ) : 'asc';
 		// phpcs:enable
 

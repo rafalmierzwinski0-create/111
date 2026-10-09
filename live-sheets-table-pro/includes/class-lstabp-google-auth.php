@@ -90,7 +90,7 @@ class LSTABP_Google_Auth {
 		$state = wp_generate_password( 24, false );
 		set_transient( 'lstabp_oauth_state_' . get_current_user_id(), $state, 15 * MINUTE_IN_SECONDS );
 
-		wp_redirect( self::consent_url( $state ) );
+		wp_redirect( self::consent_url( $state ) ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Google's consent screen, a fixed external host.
 		exit;
 	}
 

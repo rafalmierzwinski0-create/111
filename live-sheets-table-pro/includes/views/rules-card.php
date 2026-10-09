@@ -47,7 +47,7 @@ $lstabp_rows    = array_merge( $rules, array( $lstabp_blank ) );
 					<?php
 					printf(
 						/* translators: %s: number of rules. */
-						esc_html( _n( 'One rule names a column your sheet no longer has.', '%s rules name columns your sheet no longer has.', count( $lstabp_orphans ), 'live-sheets-table-pro' ) ),
+						esc_html( _n( '%s rule names a column your sheet no longer has.', '%s rules name columns your sheet no longer has.', count( $lstabp_orphans ), 'live-sheets-table-pro' ) ),
 						esc_html( number_format_i18n( count( $lstabp_orphans ) ) )
 					);
 					?>

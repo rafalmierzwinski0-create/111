@@ -1683,97 +1683,238 @@
 	}
 }
 
-.lstab-size-field {
+.lstab-tune-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 0.6rem 1rem;
+}
+
+.lstab-admin .lstab-tune-head .lstab-help {
+	margin-top: 0.15rem;
+}
+
+.lstab-admin .lstab-tune-reset {
 	display: inline-flex;
 	align-items: center;
-	gap: 0.4rem;
+	gap: 0.35rem;
+	flex: none;
 }
 
-.lstab-size-field .lstab-size-input {
-	width: 6.5rem;
+.lstab-admin .lstab-tune-group {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	margin: 1.3rem 0 0.65rem;
+	font-size: 0.74rem;
+	font-weight: 700;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+	color: var( --lstab-ink-3 );
 }
 
-.lstab-size-unit {
-	color: #646970;
+.lstab-admin .lstab-tune-group::after {
+	content: "";
+	flex: 1;
+	border-top: 1px solid var( --lstab-line-soft );
 }
 
 .lstab-swatches {
 	display: grid;
-	grid-template-columns: repeat( auto-fit, minmax( 11rem, 1fr ) );
-	gap: 0.8rem 1rem;
-	margin-bottom: 1.1rem;
+	grid-template-columns: repeat( auto-fill, minmax( 15.5rem, 1fr ) );
+	gap: 0.55rem;
 }
 
 .lstab-swatch {
+	position: relative;
 	display: flex;
-	flex-direction: column;
+	align-items: center;
+	gap: 0.7rem;
+	min-block-size: 3.6rem;
+	padding: 0.55rem 0.7rem;
+	border: 1px solid var( --lstab-line );
+	border-radius: 11px;
+	background: var( --lstab-tint );
+	transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.lstab-swatch .lstab-swatch-controls { margin-block-start: auto; }
+.lstab-swatch:hover {
+	border-color: color-mix( in srgb, var( --lstab-a ) 45%, var( --lstab-line ) );
+	background: var( --lstab-card );
+}
 
-.lstab-swatch label {
-	display: block;
-	margin-bottom: 0.25rem;
+.lstab-swatch:focus-within {
+	border-color: var( --lstab-a );
+	box-shadow: 0 0 0 3px var( --lstab-a-glow );
+}
+
+.lstab-swatch.is-set {
+	background: var( --lstab-card );
+	border-color: color-mix( in srgb, var( --lstab-a ) 35%, var( --lstab-line ) );
+}
+
+.lstab-swatch-dot {
+	position: relative;
+	flex: none;
+	inline-size: 2.15rem;
+	block-size: 2.15rem;
+	border-radius: 50%;
+	box-shadow: 0 0 0 1px rgba( 16, 29, 27, 0.14 ), 0 1px 3px rgba( 16, 29, 27, 0.12 );
+	overflow: hidden;
+}
+
+.lstab-admin .lstab-color-input {
+	position: absolute;
+	inset: -0.5rem;
+	inline-size: calc( 100% + 1rem );
+	block-size: calc( 100% + 1rem );
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: pointer;
+}
+
+.lstab-admin .lstab-color-input:focus {
+	outline: none;
+	box-shadow: none;
+}
+
+.lstab-swatch-text {
+	display: flex;
+	flex-direction: column;
+	gap: 0.1rem;
+	flex: 1;
+	min-inline-size: 0;
+	cursor: pointer;
+}
+
+.lstab-swatch-name {
 	font-size: 0.86rem;
-	color: #50575e;
+	font-weight: 600;
+	color: var( --lstab-ink );
 }
 
 .lstab-swatch-note {
 	display: block;
-	margin: -0.15rem 0 0.3rem;
-	font-size: 0.78rem;
-	line-height: 1.35;
-	color: #6b747b;
+	font-size: 0.76rem;
+	line-height: 1.3;
+	color: var( --lstab-ink-3 );
 }
 
-.lstab-swatch-controls {
+.lstab-swatch-side {
 	display: flex;
-	align-items: center;
-	gap: 0.4rem;
-}
-
-.lstab-color-input {
-	width: 2.4rem;
-	height: 2rem;
-	padding: 0.15rem;
-	border: 1px solid #8c8f94;
-	border-radius: 4px;
-	background: #fff;
-	cursor: pointer;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 0.15rem;
 	flex: none;
 }
 
-.lstab-color-input[data-lstab-unset] {
-	background-image: repeating-linear-gradient(
-		45deg,
-		#f0f0f1 0 5px,
-		#fff 5px 10px
-	);
+.lstab-swatch-hex {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.72rem;
+	color: var( --lstab-ink-3 );
 }
 
-.lstab-color-clear {
-	font-size: 0.8rem;
+.lstab-swatch:not( .is-set ) .lstab-swatch-hex {
+	padding: 0.05rem 0.4rem;
+	border-radius: 999px;
+	background: var( --lstab-calm-wash );
+	font-family: inherit;
+	font-size: 0.68rem;
+	font-weight: 600;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
 }
 
-.lstab-color-clear[disabled] {
-	color: #a7aaad;
-	cursor: default;
-	text-decoration: none;
+.lstab-swatch.is-set .lstab-swatch-hex {
+	color: var( --lstab-ink-2 );
+}
+
+.lstab-admin .lstab-color-clear {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.2rem;
+	padding: 0;
+	border: 0;
+	background: none;
+	font-size: 0.74rem;
+	font-weight: 600;
+	color: var( --lstab-a );
+	cursor: pointer;
+}
+
+.lstab-admin .lstab-color-clear:hover {
+	color: var( --lstab-a-deep );
+	text-decoration: underline;
+}
+
+.lstab-admin .lstab-color-clear[disabled] {
+	display: none;
 }
 
 .lstab-metrics {
 	display: grid;
-	grid-template-columns: repeat( auto-fit, minmax( 12rem, 1fr ) );
-	gap: 0.4rem 1rem;
-	margin-bottom: 0.6rem;
+	grid-template-columns: repeat( auto-fill, minmax( 15.5rem, 1fr ) );
+	gap: 0.55rem;
+	margin-bottom: 0.2rem;
 }
 
-.lstab-metric {
+.lstab-admin .lstab-metric {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
 	margin: 0;
+	padding: 0.65rem 0.75rem 0.75rem;
+	border: 1px solid var( --lstab-line );
+	border-radius: 11px;
+	background: var( --lstab-tint );
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.lstab-metric select {
-	width: 100%;
+.lstab-admin .lstab-metric:focus-within {
+	border-color: var( --lstab-a );
+	box-shadow: 0 0 0 3px var( --lstab-a-glow );
+}
+
+.lstab-admin .lstab-metric label strong {
+	font-size: 0.86rem;
+	font-weight: 600;
+	color: var( --lstab-ink );
+}
+
+.lstab-admin .lstab-metric .lstab-swatch-note {
+	margin-block-end: 0.2rem;
+}
+
+.lstab-admin .lstab-metric select,
+.lstab-admin .lstab-metric .lstab-size-input {
+	margin-block-start: auto;
+	min-block-size: 2.2rem;
+	border-color: var( --lstab-line );
+	border-radius: 8px;
+	background-color: var( --lstab-card );
+}
+
+.lstab-admin .lstab-metric select {
+	inline-size: 100%;
+	max-inline-size: none;
+}
+
+.lstab-size-field {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	margin-block-start: auto;
+}
+
+.lstab-admin .lstab-size-field .lstab-size-input {
+	inline-size: 6.5rem;
+}
+
+.lstab-size-unit {
+	font-size: 0.8rem;
+	color: var( --lstab-ink-3 );
 }
 
 .lstab-preview .lstab-search-input,

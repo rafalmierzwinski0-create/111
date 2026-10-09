@@ -291,8 +291,8 @@ $lstab_add_button = $lstab_can_add
 								<?php echo LSTAB_Icons::icon( 'bolt' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
 								<?php
 								printf(
-									/* translators: 1: number of pages, 2: human readable duration, e.g. "5 minutes". */
 									esc_html(
+										/* translators: 1: number of pages, 2: human readable duration, e.g. "5 minutes". */
 										_n(
 											'Page cache cleared on %1$s page, %2$s ago',
 											'Page cache cleared on %1$s pages, %2$s ago',

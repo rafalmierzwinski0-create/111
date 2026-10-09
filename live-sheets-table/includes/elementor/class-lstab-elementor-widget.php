@@ -161,7 +161,7 @@ class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
 	protected function render() {
 		$settings = $this->get_settings_for_display();
 
-		echo LSTAB_Renderer::render( // phpcs:ignore WordPress.Security.EscapeOutput -- The renderer escapes its own output.
+		$html = LSTAB_Renderer::render(
 			array(
 				'source_id' => absint( isset( $settings['source_id'] ) ? $settings['source_id'] : 0 ),
 				'search'    => 'yes' === ( isset( $settings['show_search'] ) ? $settings['show_search'] : 'yes' ),
@@ -173,5 +173,7 @@ class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
 				'filter'    => sanitize_text_field( isset( $settings['filter'] ) ? $settings['filter'] : '' ),
 			)
 		);
+
+		echo $html; // phpcs:ignore WordPress.Security.EscapeOutput -- The renderer escapes its own output.
 	}
 }

@@ -32,6 +32,11 @@ class LSTAB_Customizer {
 					'note'  => __( 'Between rows and around cells', 'live-sheets-table' ),
 					'var'   => '--lstab-border',
 				),
+				'sliderLine' => array(
+					'label' => __( 'Slider outline', 'live-sheets-table' ),
+					'note'  => __( 'The line around the floating slider', 'live-sheets-table' ),
+					'var'   => '--lstab-slider-line',
+				),
 				'stripe'     => array(
 					'label' => __( 'Striped rows', 'live-sheets-table' ),
 					'note'  => __( 'The colour of every other row', 'live-sheets-table' ),

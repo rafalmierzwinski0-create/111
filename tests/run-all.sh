@@ -40,6 +40,12 @@ node "$REPO/tests/stripes-browser.mjs"
 
 echo
 echo "=============================================="
+echo " Colours picked by hand, and rows a rule paints"
+echo "=============================================="
+node "$REPO/tests/colours-browser.mjs"
+
+echo
+echo "=============================================="
 echo " Column looks — bars, buttons and the shapes a rule wears"
 echo "=============================================="
 # Same shape as the sorting pair: the PHP run writes the cells it produced and

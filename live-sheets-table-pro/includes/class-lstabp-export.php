@@ -107,7 +107,7 @@ class LSTABP_Export {
 	public function serve() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- A signed public link, not a form submission.
 		$source_id = isset( $_GET['source'] ) ? absint( wp_unslash( $_GET['source'] ) ) : 0;
-		$filter    = isset( $_GET['filter'] ) ? sanitize_text_field( rawurldecode( wp_unslash( $_GET['filter'] ) ) ) : '';
+		$filter    = isset( $_GET['filter'] ) ? sanitize_text_field( rawurldecode( sanitize_text_field( wp_unslash( $_GET['filter'] ) ) ) ) : '';
 		$signature = isset( $_GET['sig'] ) ? sanitize_text_field( wp_unslash( $_GET['sig'] ) ) : '';
 		$format    = isset( $_GET['format'] ) ? sanitize_key( wp_unslash( $_GET['format'] ) ) : 'csv';
 		// phpcs:enable

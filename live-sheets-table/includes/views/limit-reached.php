@@ -9,8 +9,8 @@ defined( 'ABSPATH' ) || exit;
 		<h2>
 			<?php
 			printf(
-				/* translators: %d: number of sources allowed in the free version. */
 				esc_html(
+					/* translators: %d: number of sources allowed in the free version. */
 					_n(
 						'The free version keeps %d sheet source',
 						'The free version keeps %d sheet sources',

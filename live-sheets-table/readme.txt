@@ -195,6 +195,11 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 
 = 3.41.1 =
 * Fixed: the line between rows was twice as thick under a pinned first column as under every other column, in every style.
+* Fixed: a background colour picked by hand stopped at the pinned first column in the Terminal, Aurora and Ledger styles.
+* Added: "Slider outline", a colour of its own for the line around the slider. Left empty, it follows the line colour.
+* Changed: "Fine-tune the look" is laid out afresh. Each colour shows the one the style is using until you pick your own, with its code and a reset beside it.
+* Fixed (Pro): the row hover did not reach cells a colour rule had painted.
+* Fixed (Pro): a colour rule on the first column did not show while that column was pinned.
 * Changed: "Put it on a page" sets the shortcode with Show and Hide for the search box, sorting and the "updated … ago" line, instead of a list of words to type into it. The shortcode and the Copy button follow as you go.
 * Changed (Pro): the row filter on that card shows its pattern, filter="Column is value", with a whole example under it: filter="Availability is In stock".
 

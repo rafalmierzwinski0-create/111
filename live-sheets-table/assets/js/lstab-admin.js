@@ -443,6 +443,7 @@
 
 			stage.innerHTML = response.html || '';
 			applyAppearance();
+			followPresetWhereUnset();
 			refreshLiveCss();
 			if ( window.lstabInit ) {
 				window.lstabInit();
@@ -670,6 +671,17 @@
 		} ).join( '' );
 	}
 
+	function describe( swatch ) {
+		var value = swatch.querySelector( '.lstab-color-value' ).value;
+		var hex = swatch.querySelector( '.lstab-swatch-hex' );
+
+		swatch.classList.toggle( 'is-set', !! value );
+
+		if ( hex ) {
+			hex.textContent = value ? value.toUpperCase() : hex.getAttribute( 'data-lstab-style-word' );
+		}
+	}
+
 	function followPreset( swatch ) {
 		var picker = swatch.querySelector( '.lstab-color-input' );
 		var table = stage.querySelector( '.lstab' );
@@ -678,12 +690,22 @@
 			: '';
 
 		picker.value = toHex( resolved ) || '#ffffff';
+		describe( swatch );
+	}
+
+	function followPresetWhereUnset() {
+		Array.prototype.forEach.call( swatches, function ( swatch ) {
+			if ( ! swatch.querySelector( '.lstab-color-value' ).value ) {
+				followPreset( swatch );
+			}
+		} );
 	}
 
 	function clearSwatch( swatch ) {
 		swatch.querySelector( '.lstab-color-value' ).value = '';
 		swatch.querySelector( '.lstab-color-input' ).setAttribute( 'data-lstab-unset', '1' );
 		swatch.querySelector( '.lstab-color-clear' ).disabled = true;
+		describe( swatch );
 	}
 
 	Array.prototype.forEach.call( swatches, function ( swatch ) {
@@ -695,6 +717,7 @@
 			hidden.value = picker.value;
 			picker.removeAttribute( 'data-lstab-unset' );
 			clear.disabled = false;
+			describe( swatch );
 			applyAppearance();
 		} );
 
@@ -704,6 +727,8 @@
 			followPreset( swatch );
 		} );
 	} );
+
+	followPresetWhereUnset();
 
 	Array.prototype.forEach.call( metricInputs, function ( input ) {
 		input.addEventListener( 'change', applyAppearance );
@@ -756,11 +781,7 @@
 		input.addEventListener( 'change', function () {
 			applyPreset( input.value );
 
-			Array.prototype.forEach.call( swatches, function ( swatch ) {
-				if ( ! swatch.querySelector( '.lstab-color-value' ).value ) {
-					followPreset( swatch );
-				}
-			} );
+			followPresetWhereUnset();
 		} );
 	} );
 
@@ -850,6 +871,7 @@
 			function ( response ) {
 				stage.innerHTML = response.html || '';
 				applyAppearance();
+				followPresetWhereUnset();
 				refreshLiveCss();
 				if ( window.lstabInit ) {
 					window.lstabInit();

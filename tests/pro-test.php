@@ -522,6 +522,8 @@ update_option(
 $ruled = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
 lstabp_assert( false !== strpos( $ruled, 'background-color:#fbd5d5' ), 'A cell rule colours its cell' );
 lstabp_assert( false !== strpos( $ruled, 'lstab-ruled' ), 'Styled cells are marked with a class as well' );
+lstabp_assert( false !== strpos( $ruled, 'lstab-ruled lstab-painted' ), 'A coloured cell is marked as painted, so the row hover can reach it' );
+lstabp_assert( false !== strpos( $ruled, '--lstab-row-tint:#fbd5d5' ), 'And carries its colour where a pinned first column can paint it' );
 
 // The one "Brak" row, and only it.
 lstabp_assert( 1 === substr_count( $ruled, 'background-color:#fbd5d5' ), 'Only matching cells are coloured', (string) substr_count( $ruled, 'background-color:#fbd5d5' ) );
@@ -560,6 +562,7 @@ lstabp_assert( false !== strpos( $worded, 'color:#d9a441' ), 'A words-only rule 
 lstabp_assert( false === strpos( $worded, 'background-color:#d9a441' ), 'And leaves the cell its own background' );
 lstabp_assert( 1 === substr_count( $worded, 'color:#d9a441' ), 'On the matching cell alone', (string) substr_count( $worded, 'color:#d9a441' ) );
 lstabp_assert( false !== strpos( $worded, 'lstab-ruled' ), 'Marked with the same class as any other rule' );
+lstabp_assert( false === strpos( $worded, 'lstab-painted' ), 'But not as painted, so its row hovers like any other' );
 
 // The choice has to survive being stored, or it is a setting that forgets.
 $kept = LSTABP_Rules::sanitize(

@@ -13,6 +13,7 @@
 	--lstab-head-fg: #61696f;
 	--lstab-border: #e3e8ec;
 	--lstab-border-strong: #cdd5db;
+	--lstab-slider-line: var(--lstab-border);
 	--lstab-stripe: #eaf0f4;
 	--lstab-hover: #dfeaf4;
 	--lstab-accent: #2563eb;
@@ -418,7 +419,13 @@
 	bottom: calc( -1 * var(--lstab-pin-line-h) );
 	background-image:
 		linear-gradient( to top, var(--lstab-row-line-colour, var(--lstab-border)) var(--lstab-pin-line-h), transparent var(--lstab-pin-line-h) ),
+		linear-gradient( var(--lstab-pin-over, transparent), var(--lstab-pin-over, transparent) ),
 		linear-gradient( var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent) );
+}
+
+.lstab .lstab-table tbody tr:hover > td.lstab-painted {
+	--lstab-pin-over: color-mix(in srgb, var(--lstab-hover) 55%, transparent);
+	background-image: linear-gradient( var(--lstab-pin-over), var(--lstab-pin-over) );
 }
 
 .lstab-sticky-first .lstab-table thead th:first-child::before {
@@ -511,7 +518,7 @@
 
 .lstab-scrollbar.is-floating {
 	padding: 0.5em 0.7em;
-	border: 1px solid var(--lstab-border);
+	border: 1px solid var(--lstab-slider-line, var(--lstab-border));
 	border-radius: 999px;
 	background-color: var(--lstab-bg);
 	box-shadow: 0 6px 16px -8px var(--lstab-edge-shadow);
@@ -849,7 +856,9 @@
 
 .lstab-style-cards.lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child::before {
 	bottom: 0;
-	background-image: linear-gradient( var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent) );
+	background-image:
+		linear-gradient( var(--lstab-pin-over, transparent), var(--lstab-pin-over, transparent) ),
+		linear-gradient( var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent) );
 }
 
 .lstab-style-cards.lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child,
@@ -878,7 +887,7 @@
 	--lstab-stripe: #0e1615;
 	--lstab-hover: #142421;
 	--lstab-accent: #5fe3cf;
-	--lstab-sticky-bg: #0b1110;
+	--lstab-sticky-bg: var(--lstab-bg);
 	--lstab-radius: 4px;
 	--lstab-hit-bg: #17514a;
 	--lstab-hit-fg: #e7fffa;
@@ -918,7 +927,7 @@
 	--lstab-hover: #f5edff;
 	--lstab-accent: #9d174d;
 	--lstab-radius: 16px;
-	--lstab-sticky-bg: #ffffff;
+	--lstab-sticky-bg: var(--lstab-bg);
 	--lstab-bg-fade: rgba(255, 255, 255, 0);
 	--lstab-frame-border: 1px solid #e6d8fb;
 	--lstab-frame-shadow:
@@ -999,7 +1008,7 @@
 	--lstab-hover: #efe4cd;
 	--lstab-accent: #8a5a1f;
 	--lstab-radius: 3px;
-	--lstab-sticky-bg: #fdfbf5;
+	--lstab-sticky-bg: var(--lstab-bg);
 	--lstab-frame-border: 1px solid #e7dfcd;
 	--lstab-frame-shadow: none;
 }
