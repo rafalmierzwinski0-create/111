@@ -68,7 +68,7 @@ defined( 'ABSPATH' ) || exit;
 							<?php
 							printf(
 								/* translators: %s: human readable duration, e.g. "15 minutes". */
-								esc_html__( 'The fastest allowed, currently every %s', 'live-sheets-table' ),
+								esc_html__( 'Fastest allowed (%s)', 'live-sheets-table' ),
 								esc_html( LSTAB_Locale::span( 0, LSTAB_Limits::min_interval() ) )
 							);
 							?>

@@ -40,12 +40,12 @@ class LSTAB_Links {
 
 		foreach ( $pieces as $piece ) {
 			if ( ! $is_link ) {
-				$html .= esc_html( $piece );
+				$html .= esc_html( LSTAB_Renderer::literal( $piece ) );
 			} else {
 				$anchor = self::anchor( $piece );
 
 				if ( null === $anchor ) {
-					$html .= esc_html( $piece );
+					$html .= esc_html( LSTAB_Renderer::literal( $piece ) );
 				} else {
 					$html  .= $anchor;
 					$linked = true;
@@ -87,8 +87,8 @@ class LSTAB_Links {
 		return sprintf(
 			'<a href="%1$s" rel="nofollow ugc">%2$s</a>%3$s',
 			$safe,
-			esc_html( $match ),
-			esc_html( $trailing )
+			esc_html( LSTAB_Renderer::literal( $match ) ),
+			esc_html( LSTAB_Renderer::literal( $trailing ) )
 		);
 	}
 }

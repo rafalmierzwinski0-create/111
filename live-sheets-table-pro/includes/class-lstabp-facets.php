@@ -232,6 +232,8 @@ class LSTABP_Facets {
 			? array_values( array_diff( $chosen, array( $value ) ) )
 			: array_merge( $chosen, array( $value ) );
 
+		$next = array_map( array( __CLASS__, 'one_line' ), $next );
+
 		return LSTAB_Paging::url(
 			$source_id,
 			array(
@@ -285,7 +287,7 @@ class LSTABP_Facets {
 							<?php
 							echo esc_html(
 								$lstabp_facet['chosen']
-									? implode( ', ', $lstabp_facet['chosen'] )
+									? str_replace( '&', '&amp;', implode( ', ', $lstabp_facet['chosen'] ) )
 									: __( 'any', 'live-sheets-table-pro' )
 							);
 							?>
@@ -305,7 +307,7 @@ class LSTABP_Facets {
 								rel="nofollow"
 								href="<?php echo esc_url( self::toggle_url( $source_id, $lstabp_position, $lstabp_facet['chosen'], (string) $lstabp_value ) ); ?>">
 								<span class="lstabp-facet-box" aria-hidden="true"></span>
-								<span class="lstabp-facet-text"><?php echo esc_html( $lstabp_value ); ?></span>
+								<span class="lstabp-facet-text"><?php echo esc_html( str_replace( '&', '&amp;', (string) $lstabp_value ) ); ?></span>
 								<span class="lstabp-facet-count"><?php echo esc_html( number_format_i18n( $lstabp_count ) ); ?></span>
 							</a>
 						<?php endforeach; ?>
@@ -397,6 +399,12 @@ class LSTABP_Facets {
 
 		unset( $all[ (int) $source_id ] );
 		update_option( self::OPTION, $all, false );
+	}
+
+	protected static function one_line( $text ) {
+		$line = preg_replace( '/\s+/u', ' ', trim( (string) $text ) );
+
+		return null === $line ? (string) $text : $line;
 	}
 
 	public static function fold( $text ) {

@@ -5,12 +5,26 @@ defined( 'ABSPATH' ) || exit;
 class LSTAB_Shortcode {
 	const TAG = 'sheet_table';
 
+	protected static $written = '';
+
 	public function register() {
 		add_shortcode( self::TAG, array( $this, 'render' ) );
 		add_shortcode( 'live_sheets_table', array( $this, 'render' ) );
+		add_filter( 'pre_do_shortcode_tag', array( __CLASS__, 'remember_written' ), 10, 4 );
+	}
+
+	public static function remember_written( $output, $tag, $attr, $match ) {
+		if ( self::TAG === $tag || 'live_sheets_table' === $tag ) {
+			self::$written = is_array( $match ) && isset( $match[0] ) ? (string) $match[0] : '';
+		}
+
+		return $output;
 	}
 
 	public function render( $atts ) {
+		$written       = self::$written;
+		self::$written = '';
+
 		$defaults = (array) apply_filters(
 			'lstab_shortcode_atts',
 			array(
@@ -27,6 +41,18 @@ class LSTAB_Shortcode {
 		);
 
 		$atts = shortcode_atts( $defaults, $atts, self::TAG );
+
+		if ( '' === trim( (string) $atts['filter'] ) && preg_match( '/\bfilter\s*=/i', $written ) && ! preg_match( '/\bfilter\s*=\s*(""|\'\')/i', $written ) ) {
+			return LSTAB_Renderer::notice(
+				__( 'WordPress could not read this table\'s filter, so no rows are shown. A shortcode cannot hold “<”: write lt instead of < and lte instead of <=, for example filter="Price lt 100". Check, too, that the quotes are straight (") rather than curly (”).', 'live-sheets-table' )
+			);
+		}
+
+		if ( ! absint( $atts['id'] ) && preg_match( '/\bid\s*=\s*[^\s"\'\]]/iu', $written ) ) {
+			return LSTAB_Renderer::notice(
+				__( 'WordPress could not read which table this shortcode asks for. Its quotes are probably curly (”), which happens when a shortcode is copied from a document or another website. Type them again as straight quotes ("), for example [sheet_table id="1"].', 'live-sheets-table' )
+			);
+		}
 
 		$extra = array();
 		foreach ( $atts as $name => $value ) {

@@ -223,7 +223,9 @@ class LSTAB_Paging {
 	}
 
 	protected static function fold( $text ) {
-		$text = (string) $text;
+		$text   = (string) $text;
+		$spaced = preg_replace( '/[\s\x{00A0}\x{1680}\x{2000}-\x{200B}\x{202F}\x{205F}\x{3000}\x{FEFF}]+/u', ' ', $text );
+		$text   = null === $spaced ? $text : $spaced;
 
 		return function_exists( 'mb_strtolower' ) ? mb_strtolower( $text, 'UTF-8' ) : strtolower( $text );
 	}

@@ -41,14 +41,15 @@ class LSTABP_Filters {
 		);
 	}
 
-	protected static function parse_words( $part ) {
+	protected static function word_readings( $part ) {
 		$tokens = preg_split( '/\s+/', trim( $part ) );
 
 		if ( ! is_array( $tokens ) || count( $tokens ) < 3 ) {
-			return null;
+			return array();
 		}
 
-		$words = self::word_operators();
+		$words    = self::word_operators();
+		$readings = array();
 
 		for ( $i = 1; $i < count( $tokens ) - 1; $i++ ) {
 			$word = strtolower( $tokens[ $i ] );
@@ -65,14 +66,14 @@ class LSTABP_Filters {
 				$value_at++;
 			}
 
-			return array(
+			$readings[] = array(
 				'column'   => implode( ' ', array_slice( $tokens, 0, $i ) ),
 				'operator' => $operator,
 				'value'    => implode( ' ', array_slice( $tokens, $value_at ) ),
 			);
 		}
 
-		return null;
+		return $readings;
 	}
 
 	protected static function parse_condition( $part ) {
@@ -82,6 +83,8 @@ class LSTABP_Filters {
 			return null;
 		}
 
+		$readings = array();
+
 		foreach ( self::operators() as $operator ) {
 			$position = strpos( $part, $operator );
 
@@ -89,14 +92,25 @@ class LSTABP_Filters {
 				continue;
 			}
 
-			return array(
+			$readings[] = array(
 				'column'   => trim( substr( $part, 0, $position ) ),
 				'operator' => $operator,
 				'value'    => trim( substr( $part, $position + strlen( $operator ) ) ),
 			);
+
+			break;
 		}
 
-		return self::parse_words( $part );
+		$readings = array_merge( $readings, self::word_readings( $part ) );
+
+		if ( ! $readings ) {
+			return null;
+		}
+
+		$condition             = $readings[0];
+		$condition['readings'] = $readings;
+
+		return $condition;
 	}
 
 	protected static function all_conditions( $parts ) {
@@ -168,13 +182,19 @@ class LSTABP_Filters {
 			return $rows;
 		}
 
-		$columns = self::column_map( array_values( (array) $headers ), $source );
-		$missing = array();
+		$columns  = self::column_map( array_values( (array) $headers ), $source );
+		$missing  = array();
+		$resolved = array();
 
 		foreach ( $conditions as $condition ) {
-			if ( ! isset( $columns[ self::key( $condition['column'] ) ] ) ) {
+			$reading = self::reading_for( $condition, $columns );
+
+			if ( null === $reading ) {
 				$missing[] = $condition['column'];
+				continue;
 			}
+
+			$resolved[] = $reading;
 		}
 
 		if ( $missing ) {
@@ -187,12 +207,24 @@ class LSTABP_Filters {
 		$filtered = array();
 
 		foreach ( $rows as $row ) {
-			if ( self::matches( (array) $row, $conditions, $columns ) ) {
+			if ( self::matches( (array) $row, $resolved, $columns ) ) {
 				$filtered[] = $row;
 			}
 		}
 
 		return $filtered;
+	}
+
+	protected static function reading_for( $condition, $columns ) {
+		$readings = isset( $condition['readings'] ) ? (array) $condition['readings'] : array( $condition );
+
+		foreach ( $readings as $reading ) {
+			if ( isset( $columns[ self::key( $reading['column'] ) ] ) ) {
+				return $reading;
+			}
+		}
+
+		return null;
 	}
 
 	public function say_unknown( $source, $args ) {
@@ -256,11 +288,16 @@ class LSTABP_Filters {
 	public static function key( $name ) {
 		$name = (string) $name;
 
-		if ( preg_match( '/[<%\r\n\t]| {2}/', $name ) ) {
+		if ( false !== strpbrk( $name, '<%' ) ) {
 			$name = sanitize_text_field( $name );
 		}
 
-		$name = trim( $name );
+		if ( false !== strpos( $name, '&' ) ) {
+			$name = html_entity_decode( $name, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+		}
+
+		$spaced = preg_replace( '/[\s\x{00A0}\x{1680}\x{2000}-\x{200B}\x{202F}\x{205F}\x{3000}\x{FEFF}]+/u', ' ', $name );
+		$name   = trim( null === $spaced ? $name : $spaced );
 
 		return function_exists( 'mb_strtolower' ) ? mb_strtolower( $name, 'UTF-8' ) : strtolower( $name );
 	}

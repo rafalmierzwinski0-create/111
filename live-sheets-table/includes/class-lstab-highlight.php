@@ -22,9 +22,10 @@ class LSTAB_Highlight {
 			return $html;
 		}
 
-		$marked = self::mark( null === $html ? esc_html( (string) $value ) : (string) $html );
+		$plain  = esc_html( LSTAB_Renderer::literal( $value ) );
+		$marked = self::mark( null === $html ? $plain : (string) $html );
 
-		return null === $html && $marked === esc_html( (string) $value ) ? null : $marked;
+		return null === $html && $marked === $plain ? null : $marked;
 	}
 
 	public static function mark( $html ) {
@@ -32,7 +33,9 @@ class LSTAB_Highlight {
 			return $html;
 		}
 
-		$pattern = '~(' . preg_quote( self::$needle, '~' ) . ')~iu';
+		$quoted  = preg_quote( self::$needle, '~' );
+		$spaced  = preg_replace( '/\s+/u', '\s+', $quoted );
+		$pattern = '~(' . ( null === $spaced ? $quoted : $spaced ) . ')~iu';
 
 		$parts = preg_split( '~(<[^>]*>)~', $html, -1, PREG_SPLIT_DELIM_CAPTURE );
 		$out   = '';
@@ -55,7 +58,7 @@ class LSTAB_Highlight {
 			}
 
 			foreach ( $pieces as $at => $piece ) {
-				$out .= 1 === $at % 2 ? '<mark class="lstab-hit">' . esc_html( $piece ) . '</mark>' : esc_html( $piece );
+				$out .= 1 === $at % 2 ? '<mark class="lstab-hit">' . esc_html( LSTAB_Renderer::literal( $piece ) ) . '</mark>' : esc_html( LSTAB_Renderer::literal( $piece ) );
 			}
 		}
 

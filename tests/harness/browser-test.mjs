@@ -1005,6 +1005,15 @@ await page.fill( '.lstab-style-striped .lstab-search-input', 'nieistniejące' );
 await page.waitForTimeout( 300 );
 check( await page.locator( '.lstab-style-striped .lstab-no-results' ).isVisible(), 'Empty search shows the "no rows" message' );
 
+// A cell written on two lines in Google holds a line break, and nobody types
+// a line break into a search box: the words either side of it still match.
+await page.fill( '.lstab-style-striped .lstab-search-input', 'opis:  druga' );
+await page.waitForTimeout( 300 );
+visible = await page.locator( '.lstab-style-striped tbody tr.lstab-row:not([hidden])' ).count();
+check( visible === 1, 'A search finds words a line break splits in the cell', String( visible ) );
+const acrossBreak = await page.locator( '.lstab-style-striped mark.lstab-hit' ).allTextContents();
+check( 1 === acrossBreak.length && /^opis:\s+druga$/.test( acrossBreak[ 0 ] ), 'And marks them across the break', JSON.stringify( acrossBreak ) );
+
 await page.fill( '.lstab-style-striped .lstab-search-input', '' );
 await page.waitForTimeout( 300 );
 visible = await page.locator( '.lstab-style-striped tbody tr:not([hidden])' ).count();

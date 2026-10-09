@@ -635,13 +635,20 @@
 			}
 		}
 
+		function finder( term ) {
+			return new RegExp( term.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' ).replace( / /g, '\\s+' ), 'gi' );
+		}
+
 		function mark( scope, term ) {
 			var walker = document.createTreeWalker( scope, NodeFilter.SHOW_TEXT, null );
 			var targets = [];
+			var seek = finder( term );
 			var node;
 
 			while ( ( node = walker.nextNode() ) ) {
-				if ( ! node.nodeValue || node.nodeValue.toLowerCase().indexOf( term ) === -1 ) {
+				seek.lastIndex = 0;
+
+				if ( ! node.nodeValue || ! seek.test( node.nodeValue ) ) {
 					continue;
 				}
 
@@ -654,23 +661,28 @@
 
 			targets.forEach( function ( text ) {
 				var value = text.nodeValue;
-				var lower = value.toLowerCase();
 				var piece = document.createDocumentFragment();
 				var at = 0;
-				var found = lower.indexOf( term );
+				var found;
 
-				while ( found !== -1 ) {
-					if ( found > at ) {
-						piece.appendChild( document.createTextNode( value.slice( at, found ) ) );
+				seek.lastIndex = 0;
+
+				while ( ( found = seek.exec( value ) ) ) {
+					if ( ! found[ 0 ].length ) {
+						seek.lastIndex++;
+						continue;
+					}
+
+					if ( found.index > at ) {
+						piece.appendChild( document.createTextNode( value.slice( at, found.index ) ) );
 					}
 
 					var hit = document.createElement( 'mark' );
 					hit.className = 'lstab-hit';
-					hit.textContent = value.slice( found, found + term.length );
+					hit.textContent = found[ 0 ];
 					piece.appendChild( hit );
 
-					at = found + term.length;
-					found = lower.indexOf( term, at );
+					at = found.index + found[ 0 ].length;
 				}
 
 				if ( at < value.length ) {
@@ -681,15 +693,19 @@
 			} );
 		}
 
+		function squash( text ) {
+			return String( text ).replace( /\s+/g, ' ' ).trim().toLowerCase();
+		}
+
 		function filter() {
-			var term = input ? input.value.trim().toLowerCase() : '';
+			var term = input ? squash( input.value ) : '';
 			var visible = 0;
 
 			rows.forEach( function ( row ) {
 				var detail = detailOf( row );
 
 				var haystack = rowText( row ) + ( detail ? ' ' + detail.textContent : '' );
-				var match = ! term || haystack.toLowerCase().indexOf( term ) !== -1;
+				var match = ! term || squash( haystack ).indexOf( term ) !== -1;
 
 				unmark( row );
 

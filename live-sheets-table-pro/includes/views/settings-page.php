@@ -243,7 +243,7 @@ defined( 'ABSPATH' ) || exit;
 			</tbody>
 		</table>
 		<p class="lstab-help">
-			<?php esc_html_e( 'Symbols such as = and > also work, but WordPress strips a “less than” sign from shortcode attributes, so the words above are the safer form.', 'live-sheets-table-pro' ); ?>
+			<?php esc_html_e( 'A shortcode cannot carry square brackets or a backslash. If a column\'s name has either, give the column a plain name under Columns on the sheet\'s own screen, and use that name in the filter.', 'live-sheets-table-pro' ); ?>
 		</p>
 		</div>
 	</div>

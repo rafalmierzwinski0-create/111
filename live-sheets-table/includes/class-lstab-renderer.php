@@ -21,6 +21,7 @@ class LSTAB_Renderer {
 			'filter'      => '',
 			'per_page'    => null,
 			'keep_current' => array(),
+			'too_long'    => false,
 		);
 	}
 
@@ -60,11 +61,44 @@ class LSTAB_Renderer {
 
 		$args['keep_current'] = LSTAB_Freshness::applies( $source ) ? LSTAB_Freshness::attributes( $source ) : array();
 
+		$args = self::fit_on_page( $source, $args );
+
 		LSTAB_Paging::begin_instance( $source_id, $args );
 		$html = self::render_table( $source, $args );
 		LSTAB_Paging::end_instance( $source_id );
 
 		return $html;
+	}
+
+	const ROOMY_CELLS = 20000;
+
+	const BYTES_PER_CELL = 800;
+
+	protected static function fit_on_page( $source, $args ) {
+		$asked = ( isset( $args['per_page'] ) && null !== $args['per_page'] && '' !== $args['per_page'] ) ? (int) $args['per_page'] : null;
+		$paged = null !== $asked ? $asked > 0 : ! empty( $source['per_page'] );
+		$cells = (int) $source['row_count'] * max( 1, (int) $source['col_count'] );
+
+		if ( $paged || $cells < self::ROOMY_CELLS ) {
+			return $args;
+		}
+
+		$need = $cells * self::BYTES_PER_CELL;
+
+		if ( LSTAB_Fetcher::has_room( $need ) ) {
+			return $args;
+		}
+
+		wp_raise_memory_limit( 'lstab' );
+
+		if ( LSTAB_Fetcher::has_room( $need ) ) {
+			return $args;
+		}
+
+		$args['per_page'] = LSTAB_Paging::auto_per_page();
+		$args['too_long'] = true;
+
+		return $args;
 	}
 
 	public static function render_preview( $data, $args = array() ) {
@@ -268,6 +302,23 @@ class LSTAB_Renderer {
 				</div>
 			<?php endif; ?>
 
+			<?php if ( ! empty( $args['too_long'] ) && current_user_can( LSTAB_Limits::capability() ) ) : ?>
+				<div class="lstab-notice lstab-too-long">
+					<p>
+						<?php
+						echo esc_html(
+							sprintf(
+								/* translators: 1: number of rows in the table, 2: rows shown on each page. */
+								__( 'Only you can see this note. This table has %1$s rows, more than this server has the memory to draw on one page, so it is shown %2$s rows at a time. Turn on pages on the table\'s own screen to choose how many.', 'live-sheets-table' ),
+								number_format_i18n( (int) $source['row_count'] ),
+								number_format_i18n( (int) $args['per_page'] )
+							)
+						);
+						?>
+					</p>
+				</div>
+			<?php endif; ?>
+
 			<?php
 			do_action( 'lstab_before_table', $source, $args );
 			?>
@@ -320,7 +371,7 @@ class LSTAB_Renderer {
 										?>
 										<a class="lstab-sort<?php echo $lstab_active ? ' is-sorted is-' . esc_attr( $paging['request']['dir'] ) : ''; ?>"
 											href="<?php echo esc_url( LSTAB_Paging::url( $source_id, array( 'sort' => $index, 'dir' => $lstab_next, 'page' => null ) ) ); ?>">
-											<span class="lstab-sort-label"><?php echo esc_html( (string) $header ); ?></span>
+											<span class="lstab-sort-label"><?php echo esc_html( self::literal( $header ) ); ?></span>
 											<span class="lstab-sort-icon" aria-hidden="true"></span>
 										</a>
 									<?php elseif ( $sortable ) : ?>
@@ -329,11 +380,11 @@ class LSTAB_Renderer {
 										$lstab_sort_label = sprintf( __( 'Sort by %s', 'live-sheets-table' ), (string) $header );
 										?>
 										<button type="button" class="lstab-sort" aria-label="<?php echo esc_attr( $lstab_sort_label ); ?>">
-											<span class="lstab-sort-label"><?php echo esc_html( (string) $header ); ?></span>
+											<span class="lstab-sort-label"><?php echo esc_html( self::literal( $header ) ); ?></span>
 											<span class="lstab-sort-icon" aria-hidden="true"></span>
 										</button>
 									<?php else : ?>
-										<?php echo esc_html( (string) $header ); ?>
+										<?php echo esc_html( self::literal( $header ) ); ?>
 									<?php endif; ?>
 								</th>
 							<?php endforeach; ?>
@@ -380,10 +431,10 @@ class LSTAB_Renderer {
 								$lstab_first_cell = false;
 
 								if ( '' !== $label ) {
-									echo '<span class="lstab-cell-label">' . esc_html( $label ) . '</span>';
+									echo '<span class="lstab-cell-label">' . esc_html( self::literal( $label ) ) . '</span>';
 								}
 
-								echo '<span class="lstab-cell-value">' . ( null !== $custom ? wp_kses_post( $custom ) : esc_html( (string) $cell ) ) . '</span></td>';
+								echo '<span class="lstab-cell-value">' . ( null !== $custom ? wp_kses_post( $custom ) : esc_html( self::literal( $cell ) ) ) . '</span></td>';
 							}
 
 							echo "</tr>\n";
@@ -422,14 +473,14 @@ class LSTAB_Renderer {
 												?>
 												<div class="lstab-detail-pair">
 													<span class="lstab-detail-key">
-														<?php echo esc_html( isset( $headers[ $lstab_detail_index ] ) ? (string) $headers[ $lstab_detail_index ] : '' ); ?>
+														<?php echo esc_html( self::literal( isset( $headers[ $lstab_detail_index ] ) ? $headers[ $lstab_detail_index ] : '' ) ); ?>
 													</span>
 													<span class="lstab-detail-value">
 														<?php
 														if ( null !== $lstab_detail_custom ) {
 															echo wp_kses_post( $lstab_detail_custom );
 														} else {
-															echo esc_html( $lstab_detail_value );
+															echo esc_html( self::literal( $lstab_detail_value ) );
 														}
 														?>
 													</span>
@@ -712,7 +763,11 @@ class LSTAB_Renderer {
 		return $out;
 	}
 
-	protected static function notice( $message ) {
+	public static function literal( $text ) {
+		return str_replace( '&', '&amp;', (string) $text );
+	}
+
+	public static function notice( $message ) {
 		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
 			return '';
 		}

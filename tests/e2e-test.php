@@ -3184,6 +3184,21 @@ $odd_roomy = json_decode( (string) shell_exec( 'php -d memory_limit=300M ' . esc
 lstab_assert( isset( $odd_roomy['code'] ) && 'ok' === $odd_roomy['code'], 'While one that fits is read as usual', wp_json_encode( $odd_roomy ) );
 
 /*
+ * Reading is one half; drawing is the other. Thirty thousand rows with pages
+ * switched off is some forty megabytes of page, and on a server that keeps
+ * PHP to 160 MB the page died half way. Where WordPress may raise the limit
+ * for the job, the whole table is drawn; where it may not, the table is shown
+ * in pages and the owner is told why.
+ */
+$odd_long = json_decode( (string) shell_exec( 'php -d memory_limit=160M ' . escapeshellarg( __DIR__ . '/harness/long-table.php' ) . ' ' . escapeshellarg( $wp_root ) . ' 30000 fixed' ), true );
+lstab_assert( isset( $odd_long['rows'] ) && 50 === $odd_long['rows'] && ! empty( $odd_long['pages'] ), 'A table too long for the memory left is shown in pages rather than taking the page down', wp_json_encode( $odd_long ) );
+lstab_assert( ! empty( $odd_long['note'] ), 'And the site owner is told why', wp_json_encode( $odd_long ) );
+$odd_raised = json_decode( (string) shell_exec( 'php -d memory_limit=160M ' . escapeshellarg( __DIR__ . '/harness/long-table.php' ) . ' ' . escapeshellarg( $wp_root ) . ' 30000' ), true );
+lstab_assert( isset( $odd_raised['rows'] ) && 30000 === $odd_raised['rows'] && empty( $odd_raised['note'] ), 'Where WordPress may raise the limit for it, the whole table is drawn', wp_json_encode( $odd_raised ) );
+$odd_short = json_decode( (string) shell_exec( 'php -d memory_limit=160M ' . escapeshellarg( __DIR__ . '/harness/long-table.php' ) . ' ' . escapeshellarg( $wp_root ) . ' 3000 fixed' ), true );
+lstab_assert( isset( $odd_short['rows'] ) && 3000 === $odd_short['rows'] && empty( $odd_short['note'] ), 'And an ordinary long table is drawn whole, as asked', wp_json_encode( $odd_short ) );
+
+/*
  * A hidden row whose first cell held "<" was rewritten into the database on
  * every refresh, because the copy just read and the copy saved were compared
  * in two different forms.

@@ -159,6 +159,24 @@ echo "  PHP notices raised by the Pro add-on: none"
 
 echo
 echo "=============================================="
+echo " Awkward characters through every feature — WordPress 7.1"
+echo "=============================================="
+# Headings and values with line breaks, odd spaces, quotes, "<", "&", brackets,
+# emoji and things shaped like formulas, renamed, hidden, coloured, filtered,
+# searched, sorted and downloaded. The add-on has to be active for most of it.
+rm -f "$SCRATCH/wp71/wp-content/debug.log"
+php "$REPO/tests/characters-test.php" "$SCRATCH/wp71"
+
+if [ -f "$SCRATCH/wp71/wp-content/debug.log" ] && grep -v "$NOISE" "$SCRATCH/wp71/wp-content/debug.log" | grep -q .; then
+	echo
+	echo "  PHP notices raised by awkward characters:"
+	grep -v "$NOISE" "$SCRATCH/wp71/wp-content/debug.log" | sed 's/^/    /'
+	exit 1
+fi
+echo "  PHP notices raised by awkward characters: none"
+
+echo
+echo "=============================================="
 echo " Whole-table skins, and the dials on top of them"
 echo "=============================================="
 # Nine skins, each drawn three ways, on real pages of the real site: the PHP run
@@ -268,6 +286,15 @@ if [ -f "$SCRATCH/wp/wp-content/debug.log" ] && grep -v "$NOISE" "$SCRATCH/wp/wp
 	exit 1
 fi
 echo "  PHP notices raised by the Pro add-on on 6.7: none"
+
+php "$REPO/tests/characters-test.php" "$SCRATCH/wp"
+
+if [ -f "$SCRATCH/wp/wp-content/debug.log" ] && grep -v "$NOISE" "$SCRATCH/wp/wp-content/debug.log" | grep -q .; then
+	echo
+	echo "  PHP notices raised by awkward characters on 6.7:"
+	grep -v "$NOISE" "$SCRATCH/wp/wp-content/debug.log" | sed 's/^/    /'
+	exit 1
+fi
 
 php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp" 8088 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null
 

@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.42.0
+Stable tag: 3.42.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -192,6 +192,18 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.42.1 =
+* Fixed (Pro): a written filter can name any column, including one whose name holds a sign ("Rating >= 4") or one of the filter's own words ("Is it? not"), and can match values with signs in them, such as "<18" or "a > b".
+* Fixed (Pro): a non-breaking space in a heading or a value, which text pasted from a web page often carries, no longer stops a filter, a colour rule or "Show only" from matching what was typed with an ordinary space.
+* Fixed (Pro): picking, under "Show only", a value written on two lines in the sheet chose nothing.
+* Fixed: a search finds words a line break or a double space separates in a cell, in a table with pages and in one without, and marks them.
+* Fixed: a cell or heading that literally says "&amp;" or "&lt;" is shown as written, rather than as "&" or "<".
+* Fixed: a shortcode whose filter WordPress could not read showed every row. WordPress does not allow "<" in a shortcode and drops such a filter before the plugin sees it. The table now shows no rows, and tells the site owner to write "lt" instead of "<".
+* Added: a shortcode pasted with curly quotes (”), as happens when it is copied from a document or another website, tells the site owner so, instead of the table simply being missing.
+* Changed (Pro): the filter reference on the Pro screen lists only the words — is, not, has, gt, gte, lt, lte — and no longer offers signs, which a shortcode does not carry reliably. It also says what to do with a column whose name has square brackets.
+* Fixed: a very long table with pages switched off could use up the server's memory and take the page down. When the server cannot draw it on one page, it is shown in pages, and the site owner is told why.
+* Changed: "How often new tables check Google" reads "Fastest allowed (15 minutes)", which fits on a phone.
 
 = 3.42.0 =
 * Fixed: a renamed column, or a column hidden from visitors (Pro), went back to being shown under its own name when its heading in Google was written on two lines, held a double space or something shaped like a tag, such as "Size <M>". The dashboard also kept warning that such a heading had changed when it had not.
@@ -667,6 +679,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.42.1 =
+Filters, searches and rules read every character a sheet can hold.
 
 = 3.42.0 =
 Columns hidden from visitors stay hidden when their headings in Google are written on two lines.

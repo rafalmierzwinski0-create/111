@@ -98,7 +98,7 @@ class LSTAB_Fetcher {
 		return self::has_room( $need );
 	}
 
-	protected static function has_room( $need ) {
+	public static function has_room( $need ) {
 		$limit = self::memory_limit();
 
 		return $limit <= 0 || memory_get_usage() + $need < $limit;
