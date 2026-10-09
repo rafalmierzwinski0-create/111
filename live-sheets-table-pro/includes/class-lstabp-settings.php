@@ -111,10 +111,15 @@ class LSTABP_Settings {
 		$this->guard();
 		check_admin_referer( 'lstabp_save_client' );
 
-		LSTABP_Google_Auth::save_client(
-			isset( $_POST['client_id'] ) ? sanitize_text_field( wp_unslash( $_POST['client_id'] ) ) : '',
-			isset( $_POST['client_secret'] ) ? sanitize_text_field( wp_unslash( $_POST['client_secret'] ) ) : ''
-		);
+		$client_id = isset( $_POST['client_id'] ) ? sanitize_text_field( wp_unslash( $_POST['client_id'] ) ) : '';
+		$secret    = isset( $_POST['client_secret'] ) ? sanitize_text_field( wp_unslash( $_POST['client_secret'] ) ) : '';
+		$kept      = LSTABP_Google_Auth::client();
+
+		if ( '' === $secret && '' !== $client_id && $client_id === $kept['client_id'] ) {
+			$secret = $kept['client_secret'];
+		}
+
+		LSTABP_Google_Auth::save_client( $client_id, $secret );
 
 		$this->redirect_with( 'success', __( 'Google client saved.', 'live-sheets-table-pro' ) );
 	}

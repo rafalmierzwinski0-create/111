@@ -89,6 +89,13 @@ php( `global $wpdb; $wpdb->update( LSTAB_Storage::table(), array( 'last_success_
 const later = await visit( cachedHtml );
 ok( 'An old page says truthfully how long ago its table was updated', 'Updated 2 minutes ago' === later.said && 0 === later.asked, JSON.stringify( { said: later.said, asked: later.asked } ) );
 
+// Overdue, but the sheet has not changed: the check still happened, so the
+// line has to say so rather than repeat the old age.
+php( `global $wpdb; $wpdb->update( LSTAB_Storage::table(), array( 'last_success_gmt' => gmdate( 'Y-m-d H:i:s', time() - 7200 ) ), array( 'id' => ${ made.id } ) ); LSTAB_Storage::flush_cache( ${ made.id } ); LSTAB_Freshness::write();` );
+const unchanged = await visit( cachedHtml );
+ok( 'An overdue table that turns out unchanged is checked once', 1 === unchanged.asked && 0 === unchanged.swapped, JSON.stringify( { asked: unchanged.asked, swapped: unchanged.swapped } ) );
+ok( 'And its line then says it was just checked, not two hours ago', /Updated \d+ seconds? ago/.test( unchanged.said ), unchanged.said );
+
 // The sheet changes in Google, and the table falls overdue.
 mock( 'second' );
 php( `global $wpdb; $wpdb->update( LSTAB_Storage::table(), array( 'last_success_gmt' => gmdate( 'Y-m-d H:i:s', time() - 7200 ) ), array( 'id' => ${ made.id } ) ); LSTAB_Storage::flush_cache( ${ made.id } ); LSTAB_Freshness::write();` );
@@ -103,6 +110,34 @@ ok( 'But still gets the new table', two.copy === one.copy && 1 === two.swapped, 
 
 const typing = await visit( cachedHtml, async ( p ) => { await p.fill( '.lstab-search-input', 'x' ); } );
 ok( 'A visitor already searching keeps the table they are using', typing.copy === oldCopy, `${ typing.copy }` );
+
+console.log( '\nTwo tables on one page' );
+
+mock( 'main' );
+const pair = JSON.parse( php( `
+	$paged = LSTAB_Storage::insert( array( 'title' => 'Paged one', 'sheet_url' => 'https://docs.google.com/spreadsheets/d/PAGEDONESHEET00000000000000000000000/edit', 'sheet_id' => 'PAGEDONESHEET00000000000000000000000', 'sync_interval' => 900, 'per_page' => 2 ) );
+	LSTAB_Sync::run( $paged );
+	$page = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'Two tables', 'post_content' => '[sheet_table id="' . $paged . '"]<p>Between</p>[sheet_table id="${ made.id }"]' ) );
+	echo wp_json_encode( array( 'id' => $paged, 'page' => $page, 'url' => get_permalink( $page ) ) );
+` ) );
+{
+	const c = await b.newContext();
+	const p = await c.newPage();
+	await p.goto( pair.url );
+	const second = p.locator( '.lstab-container' ).nth( 1 );
+	await second.locator( '.lstab-search-input' ).fill( 'Kask' );
+	await p.waitForTimeout( 300 );
+	const visibleBefore = await second.locator( 'tbody tr.lstab-row:not([hidden])' ).count();
+	await p.locator( '.lstab-container' ).first().locator( 'a.lstab-page-link[rel="next"]' ).click();
+	await p.waitForFunction( () => /Page 2 of/.test( document.querySelector( '.lstab-container' ).textContent ) );
+	await p.waitForTimeout( 300 );
+	const kept = await second.locator( '.lstab-search-input' ).inputValue();
+	const visibleAfter = await second.locator( 'tbody tr.lstab-row:not([hidden])' ).count();
+	ok( 'Turning a page in one table leaves what was typed into the other', 'Kask' === kept, kept );
+	ok( 'And the other keeps showing only what was searched for', visibleBefore === visibleAfter && visibleAfter < 7, `${ visibleBefore } → ${ visibleAfter }` );
+	await c.close();
+}
+php( `wp_delete_post( ${ pair.page }, true ); LSTAB_Storage::delete( ${ pair.id } );` );
 
 php( `wp_delete_post( ${ made.page }, true ); LSTAB_Storage::delete( ${ made.id } ); file_put_contents( WP_CONTENT_DIR . '/lstab-mock-state.json', wp_json_encode( array( 'mode' => 'ok', 'tab' => 'main' ) ) );` );
 await b.close();

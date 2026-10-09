@@ -47,9 +47,10 @@ class LSTABP_Export {
 		$filter = isset( $args['filter'] ) ? (string) $args['filter'] : '';
 
 		$picked = array();
+		$own    = '/^lstab-f(\d+)-' . $source_id . preg_quote( LSTAB_Paging::suffix( $source_id ), '/' ) . '$/';
 		foreach ( (array) $_GET as $name => $value ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only, public navigation.
-			if ( is_scalar( $value ) && preg_match( '/^lstab-f\d+-' . $source_id . '$/', (string) $name ) ) {
-				$picked[ (string) $name ] = rawurlencode( sanitize_text_field( wp_unslash( (string) $value ) ) );
+			if ( is_scalar( $value ) && preg_match( $own, (string) $name, $match ) ) {
+				$picked[ 'lstab-f' . $match[1] . '-' . $source_id ] = rawurlencode( sanitize_text_field( wp_unslash( (string) $value ) ) );
 			}
 		}
 

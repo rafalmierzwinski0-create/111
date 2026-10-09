@@ -1472,6 +1472,16 @@ lstabp_section( '7. Deleting the add-on takes the key to Google with it' );
  * The real uninstall.php runs, in its own process, exactly as WordPress runs
  * it — asserting on the file's contents would prove nothing.
  */
+update_option( 'lstabp_google_client', array( 'client_id' => 'qa.apps.googleusercontent.com', 'client_secret' => 'qa-secret-never-shown' ), false );
+wp_set_current_user( 1 );
+ob_start();
+( new LSTABP_Settings() )->render();
+$lstabp_settings_html = (string) ob_get_clean();
+wp_set_current_user( 0 );
+lstabp_assert( false === strpos( $lstabp_settings_html, 'qa-secret-never-shown' ), 'The saved Google client secret is never written back into the page' );
+lstabp_assert( false !== strpos( $lstabp_settings_html, 'Saved. Leave empty to keep it.' ), 'The field says one is saved instead' );
+delete_option( 'lstabp_google_client' );
+
 $lstabp_seed_options = static function () {
 	update_option( 'lstabp_google_token', array( 'refresh_token' => 'test-refresh-token', 'access_token' => 'test-access', 'expires_at' => time() + 3600 ), false );
 	update_option( 'lstabp_google_client', array( 'client_id' => 'test.apps.googleusercontent.com', 'client_secret' => 'test-secret' ) );

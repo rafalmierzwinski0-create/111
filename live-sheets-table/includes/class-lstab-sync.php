@@ -39,6 +39,47 @@ class LSTAB_Sync {
 		self::$view_spent = false;
 	}
 
+	public static function since( $gmt ) {
+		$then = empty( $gmt ) ? 0 : (int) strtotime( $gmt . ' UTC' );
+
+		if ( $then <= 0 || $then > time() + 300 ) {
+			return PHP_INT_MAX;
+		}
+
+		return max( 0, time() - $then );
+	}
+
+	protected static function run_within( $source, $seconds ) {
+		$id       = (int) $source['id'];
+		$deadline = microtime( true ) + max( 1, $seconds );
+
+		$shorten = function ( $args ) use ( $deadline ) {
+			$args['timeout'] = max( 0.5, min( isset( $args['timeout'] ) ? (float) $args['timeout'] : LSTAB_Fetcher::DEFAULT_TIMEOUT, $deadline - microtime( true ) ) );
+
+			return $args;
+		};
+
+		$give_up = function ( $url ) use ( $deadline ) {
+			return microtime( true ) < $deadline ? $url : '';
+		};
+
+		add_filter( 'lstab_fetch_args', $shorten, 99 );
+		add_filter( 'lstab_fetch_fallback_url', $give_up, 99 );
+		$result = self::run( $id );
+		remove_filter( 'lstab_fetch_args', $shorten, 99 );
+		remove_filter( 'lstab_fetch_fallback_url', $give_up, 99 );
+
+		if ( is_wp_error( $result ) && 'lstab_http_error' === $result->get_error_code() ) {
+			LSTAB_Storage::restore_status( $id, $source['last_status'], $source['last_error'] );
+
+			if ( ! wp_next_scheduled( LSTAB_Cron::RETRY_HOOK, array( $id ) ) ) {
+				wp_schedule_single_event( time(), LSTAB_Cron::RETRY_HOOK, array( $id ) );
+			}
+		}
+
+		return $result;
+	}
+
 	public static function refresh_for_view( $source ) {
 		if ( empty( $source['id'] ) ) {
 			return $source;
@@ -68,46 +109,21 @@ class LSTAB_Sync {
 			return $source;
 		}
 
-		$interval = max( 60, (int) $source['sync_interval'] );
-		$success  = empty( $source['last_success_gmt'] ) ? 0 : strtotime( $source['last_success_gmt'] . ' UTC' );
+		$interval = LSTAB_Limits::interval_of( $source );
 
-		if ( $success && ( time() - $success ) < $interval ) {
+		if ( self::since( $source['last_success_gmt'] ) < $interval ) {
 			return $source;
 		}
 
 		self::$view_spent = true;
 		set_transient( $lock, 1, self::VIEW_LOCK );
 
-		$deadline = microtime( true ) + self::view_timeout();
-
-		$shorten = function ( $args ) use ( $deadline ) {
-			$args['timeout'] = max( 0.5, $deadline - microtime( true ) );
-
-			return $args;
-		};
-
-		$give_up = function ( $url ) use ( $deadline ) {
-			return microtime( true ) < $deadline ? $url : '';
-		};
-
-		add_filter( 'lstab_fetch_args', $shorten, 99 );
-		add_filter( 'lstab_fetch_fallback_url', $give_up, 99 );
-		$result = self::run( (int) $source['id'] );
-		remove_filter( 'lstab_fetch_args', $shorten, 99 );
-		remove_filter( 'lstab_fetch_fallback_url', $give_up, 99 );
+		$result = self::run_within( $source, self::view_timeout() );
 
 		delete_transient( $lock );
 
 		if ( is_wp_error( $result ) ) {
 			self::start_cooldown( $id, $interval );
-
-			if ( 'lstab_http_error' === $result->get_error_code() ) {
-				LSTAB_Storage::restore_status( $id, $source['last_status'], $source['last_error'] );
-
-				if ( ! wp_next_scheduled( LSTAB_Cron::RETRY_HOOK, array( $id ) ) ) {
-					wp_schedule_single_event( time(), LSTAB_Cron::RETRY_HOOK, array( $id ) );
-				}
-			}
 
 			return $source;
 		}
@@ -117,7 +133,7 @@ class LSTAB_Sync {
 		return $fresh ? $fresh : $source;
 	}
 
-	public static function refresh_when_asked( $id ) {
+	public static function refresh_when_asked( $id, $seconds = 15 ) {
 		$id     = (int) $id;
 		$source = $id > 0 ? LSTAB_Storage::get( $id ) : null;
 
@@ -125,10 +141,9 @@ class LSTAB_Sync {
 			return 'unknown';
 		}
 
-		$interval = max( 60, (int) $source['sync_interval'] );
-		$success  = empty( $source['last_success_gmt'] ) ? 0 : strtotime( $source['last_success_gmt'] . ' UTC' );
+		$interval = LSTAB_Limits::interval_of( $source );
 
-		if ( $success && ( time() - $success ) < ( $interval - 30 ) ) {
+		if ( self::since( $source['last_success_gmt'] ) < ( $interval - 30 ) ) {
 			return 'not-due';
 		}
 
@@ -140,7 +155,7 @@ class LSTAB_Sync {
 
 		set_transient( $lock, 1, self::VIEW_LOCK );
 		$before = (string) $source['snapshot_hash'];
-		$result = self::run( $id );
+		$result = self::run_within( $source, $seconds );
 		delete_transient( $lock );
 
 		if ( is_wp_error( $result ) ) {
@@ -166,6 +181,8 @@ class LSTAB_Sync {
 		}
 
 		do_action( 'lstab_before_sync', $source );
+
+		LSTAB_Storage::touch_attempt( $id );
 
 		$table = LSTAB_Fetcher::fetch_table(
 			$source['sheet_id'],
@@ -256,17 +273,8 @@ class LSTAB_Sync {
 			return false;
 		}
 
-		if ( empty( $source['last_attempt_gmt'] ) ) {
-			return true;
-		}
+		$interval = LSTAB_Limits::interval_of( $source );
 
-		$last = strtotime( $source['last_attempt_gmt'] . ' UTC' );
-		if ( ! $last ) {
-			return true;
-		}
-
-		$interval = max( 60, (int) $source['sync_interval'] );
-
-		return ( time() - $last ) >= ( $interval - 30 );
+		return self::since( $source['last_attempt_gmt'] ) >= ( $interval - 30 );
 	}
 }

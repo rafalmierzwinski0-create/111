@@ -57,8 +57,11 @@ defined( 'ABSPATH' ) || exit;
 				<p>
 					<label for="lstabp-client-secret"><strong><?php esc_html_e( 'Client secret', 'live-sheets-table-pro' ); ?></strong></label>
 					<input type="password" id="lstabp-client-secret" name="client_secret" class="large-text code"
-						value="<?php echo esc_attr( $client['client_secret'] ); ?>"
-						autocomplete="off">
+						value=""
+						<?php if ( '' !== $client['client_secret'] ) : ?>
+							placeholder="<?php esc_attr_e( 'Saved. Leave empty to keep it.', 'live-sheets-table-pro' ); ?>"
+						<?php endif; ?>
+						autocomplete="new-password">
 				</p>
 				<p>
 					<button type="submit" class="lstab-btn"><?php esc_html_e( 'Save client', 'live-sheets-table-pro' ); ?></button>

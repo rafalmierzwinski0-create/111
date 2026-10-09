@@ -60,7 +60,11 @@ class LSTAB_Renderer {
 
 		$args['keep_current'] = LSTAB_Freshness::applies( $source ) ? LSTAB_Freshness::attributes( $source ) : array();
 
-		return self::render_table( $source, $args );
+		LSTAB_Paging::begin_instance( $source_id, $args );
+		$html = self::render_table( $source, $args );
+		LSTAB_Paging::end_instance( $source_id );
+
+		return $html;
 	}
 
 	public static function render_preview( $data, $args = array() ) {
@@ -133,7 +137,7 @@ class LSTAB_Renderer {
 
 		$style     = $args['style'] ? LSTAB_Styles::sanitize( $args['style'] ) : LSTAB_Styles::sanitize( $source['style_preset'] );
 		$source_id = (int) $source['id'];
-		$uid       = $source_id > 0 ? (string) $source_id : uniqid();
+		$uid       = $source_id > 0 ? $source_id . LSTAB_Paging::element_suffix( $source_id ) : uniqid();
 		$table_id  = 'lstab-table-' . $uid;
 		$caption_id = 'lstab-caption-' . $uid;
 
@@ -224,7 +228,7 @@ class LSTAB_Renderer {
 								class="lstab-search-input"
 								name="<?php echo esc_attr( LSTAB_Paging::arg( $source_id, 'q' ) ); ?>"
 								value="<?php echo esc_attr( $paging['request']['q'] ); ?>"
-								placeholder="<?php esc_attr_e( 'Search the whole sheet…', 'live-sheets-table' ); ?>"
+								placeholder="<?php esc_attr_e( 'Search all rows…', 'live-sheets-table' ); ?>"
 								autocomplete="off">
 						</label>
 						<button type="submit" class="lstab-search-go"><?php esc_html_e( 'Search', 'live-sheets-table' ); ?></button>
@@ -465,13 +469,11 @@ class LSTAB_Renderer {
 
 			<?php
 			$lstab_has_pager = $paged && $paging['pages'] > 1;
-			$lstab_fresh     = ( ! empty( $args['show_meta'] ) && ! empty( $source['last_success_gmt'] ) )
-				? strtotime( $source['last_success_gmt'] . ' UTC' )
-				: 0;
+			$lstab_fresh     = ! empty( $args['show_meta'] ) ? LSTAB_Freshness::checked_at( $source ) : 0;
 			?>
 
 			<?php if ( $lstab_has_pager || $lstab_fresh ) : ?>
-				<div class="lstab-foot">
+				<div class="lstab-foot<?php echo $lstab_has_pager ? ' has-pager' : ''; ?>">
 					<?php if ( $lstab_has_pager ) : ?>
 						<nav class="lstab-pager" aria-label="<?php esc_attr_e( 'Table pages', 'live-sheets-table' ); ?>">
 							<?php if ( $paging['page'] > 1 ) : ?>

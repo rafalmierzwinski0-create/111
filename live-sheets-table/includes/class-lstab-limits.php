@@ -83,6 +83,10 @@ class LSTAB_Limits {
 		return apply_filters( 'lstab_sync_intervals', $all );
 	}
 
+	public static function interval_of( $source ) {
+		return max( 60, self::min_interval(), isset( $source['sync_interval'] ) ? (int) $source['sync_interval'] : 0 );
+	}
+
 	public static function clamp_interval( $seconds ) {
 		$seconds   = (int) $seconds;
 		$allowed   = array_keys( self::intervals() );

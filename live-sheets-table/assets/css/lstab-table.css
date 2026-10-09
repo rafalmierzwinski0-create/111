@@ -3,7 +3,12 @@
 	container-name: lstab;
 }
 
+[dir="rtl"] .lstab {
+	--lstab-flip: -1;
+}
+
 .lstab {
+	--lstab-flip: 1;
 	--lstab-fg: #1c2024;
 	--lstab-fg-muted: #61696f;
 	--lstab-fg-faint: #6b747b;
@@ -33,6 +38,8 @@
 	--lstab-pager-place: center;
 	--lstab-meta-col: 1;
 	--lstab-meta-place: start;
+	--lstab-meta-col-paged: 2;
+	--lstab-meta-place-paged: center;
 
 	--lstab-table-display: table;
 	--lstab-tbody-display: table-row-group;
@@ -53,7 +60,7 @@
 	--lstab-cell-cols: minmax(0, 38%) 1fr;
 	--lstab-table-layout: auto;
 	--lstab-cell-align: inherit;
-	--lstab-align-end: right;
+	--lstab-align-end: end;
 	--lstab-cell-max: 22rem;
 	--lstab-slider-display: block;
 	--lstab-frame-border: 1px solid var(--lstab-border);
@@ -97,14 +104,15 @@
 
 .lstab-search-input {
 	width: 100%;
-	padding: 0.6em 0.9em 0.6em 2.3em;
+	padding-block: 0.6em;
+	padding-inline: 2.3em 0.9em;
 	font: inherit;
 	font-size: 1em;
 	color: var(--lstab-fg);
 	background-color: var(--lstab-bg);
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2361696f' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.6-3.6'/%3E%3C/svg%3E");
 	background-repeat: no-repeat;
-	background-position: 0.7em center;
+	background-position: left 0.7em center;
 	background-size: 1.05em;
 	border: 1px solid var(--lstab-border-strong);
 	border-radius: 8px;
@@ -116,14 +124,36 @@
 .lstab .lstab-search input.lstab-search-input {
 	box-sizing: border-box;
 	width: 100%;
+	max-width: none;
 	height: auto;
 	min-height: 0;
 	margin: 0;
-	padding: 0.6em 0.9em 0.6em 2.3em;
+	padding-block: 0.6em;
+	padding-inline: 2.3em 0.9em;
+	font: inherit;
+	font-size: 1em;
 	line-height: 1.4;
+	letter-spacing: normal;
+	text-transform: none;
+	color: var(--lstab-fg);
+	background-color: var(--lstab-search-bg, var(--lstab-bg));
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2361696f' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.6-3.6'/%3E%3C/svg%3E");
 	background-repeat: no-repeat;
-	background-position: 0.7em center;
+	background-position: left 0.7em center;
 	background-size: 1.05em;
+	border: 1px solid var(--lstab-search-line, var(--lstab-border-strong));
+	border-radius: 8px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+	outline: none;
+}
+
+[dir="rtl"] .lstab .lstab-search input.lstab-search-input {
+	background-position: right 0.7em center;
+}
+
+.lstab .lstab-search input.lstab-search-input:focus {
+	border-color: var(--lstab-accent);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--lstab-accent) 18%, transparent);
 }
 
 .lstab-search-input::placeholder {
@@ -206,9 +236,35 @@
 	font-variant-numeric: tabular-nums;
 }
 
+.lstab .lstab-table {
+	display: var(--lstab-table-display);
+	table-layout: var(--lstab-table-layout);
+	width: 100%;
+	min-width: var(--lstab-table-min, max-content);
+	max-width: none;
+	margin: 0;
+	border: 0;
+	border-collapse: collapse;
+	border-spacing: 0;
+	font-size: inherit;
+}
+
+.lstab-container .lstab .lstab-table {
+	overflow: visible;
+}
+
+.lstab .lstab-table thead {
+	white-space: normal;
+}
+
+.lstab .lstab-table th,
+.lstab .lstab-table td {
+	word-break: normal;
+}
+
 .lstab-caption {
 	margin: 0 0 0.6em;
-	text-align: left;
+	text-align: start;
 	font-weight: 600;
 	font-size: 1.02em;
 	line-height: 1.35;
@@ -231,7 +287,7 @@
 .lstab-table th,
 .lstab-table td {
 	padding: var(--lstab-pad-y) var(--lstab-pad-x);
-	text-align: left;
+	text-align: start;
 	vertical-align: top;
 	line-height: 1.5;
 	border: 0;
@@ -272,18 +328,38 @@
 	transition: background-color 0.12s ease;
 }
 
+.lstab-container .lstab .lstab-table tbody tr {
+	background-color: var(--lstab-bg);
+}
+
+.lstab-container .lstab .lstab-table tbody tr:hover {
+	background-color: var(--lstab-hover);
+}
+
+.lstab-container .lstab .lstab-table tbody td {
+	background-color: var(--lstab-cell-bg, transparent);
+}
+
+.lstab .lstab-cell-value,
+.lstab .lstab-cell-label,
+.lstab .lstab-sort-label,
+.lstab .lstab-detail-key,
+.lstab .lstab-detail-value {
+	line-height: inherit;
+}
+
 .lstab-table tbody tr:last-child {
 	border-bottom-width: var(--lstab-row-last-bottom);
 }
 
 .lstab-table thead th,
 .lstab-table tbody td {
-	border-right: calc(var(--lstab-col-line) * var(--lstab-table-mode)) solid var(--lstab-border);
+	border-inline-end: calc(var(--lstab-col-line) * var(--lstab-table-mode)) solid var(--lstab-border);
 }
 
 .lstab-table thead th:last-child,
 .lstab-table tbody td:last-child {
-	border-right-width: 0;
+	border-inline-end-width: 0;
 }
 
 .lstab-table tbody tr:hover {
@@ -296,7 +372,7 @@
 }
 
 .lstab-table [data-lstab-align="end"] {
-	text-align: var(--lstab-align-end, right);
+	text-align: var(--lstab-align-end, end);
 }
 
 .lstab-table thead th[data-lstab-align="end"] .lstab-sort {
@@ -333,10 +409,6 @@
 	transition: color 0.12s ease;
 }
 
-.lstab-sort:hover {
-	color: var(--lstab-fg);
-}
-
 .lstab-sort:focus-visible {
 	outline: 2px solid var(--lstab-accent);
 	outline-offset: 3px;
@@ -354,7 +426,7 @@
 }
 
 .lstab-sort:hover .lstab-sort-icon {
-	opacity: 0.6;
+	opacity: 0.8;
 }
 
 .lstab-table th[aria-sort] {
@@ -390,7 +462,7 @@
 .lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child,
 .lstab-sticky-first .lstab-table thead th:first-child {
 	position: var(--lstab-sticky, sticky);
-	left: 0;
+	inset-inline-start: 0;
 	z-index: 1;
 }
 
@@ -406,7 +478,8 @@
 .lstab-sticky-first .lstab-table thead th:first-child::before {
 	content: "";
 	position: absolute;
-	inset: 0 auto 0 0;
+	inset-block: 0;
+	inset-inline: 0 auto;
 	width: calc( var(--lstab-table-mode, 1) * 100% );
 	z-index: -1;
 	pointer-events: none;
@@ -444,12 +517,12 @@
 
 .lstab {
 	--lstab-pin-line: color-mix(in srgb, var(--lstab-fg) 25%, transparent);
-	--lstab-pin-shadow: 9px 0 9px -9px rgba( 16, 24, 40, 0.42 );
+	--lstab-pin-shadow: calc( 9px * var(--lstab-flip, 1) ) 0 9px -9px rgba( 16, 24, 40, 0.42 );
 }
 
 .lstab-sticky-first.lstab-is-scrolled .lstab-table tbody tr:not(.lstab-detail) > td:first-child::before,
 .lstab-sticky-first.lstab-is-scrolled .lstab-table thead th:first-child::before {
-	box-shadow: 1px 0 0 var(--lstab-pin-line), var(--lstab-pin-shadow);
+	box-shadow: calc( 1px * var(--lstab-flip, 1) ) 0 0 var(--lstab-pin-line), var(--lstab-pin-shadow);
 }
 
 .lstab-hit {
@@ -514,6 +587,10 @@
 	padding: 0.15em 0;
 	touch-action: none;
 	transition: padding 0.12s ease, background-color 0.12s ease;
+}
+
+.lstab-scrollbar.is-resting {
+	position: relative;
 }
 
 .lstab-scrollbar.is-floating {
@@ -602,7 +679,7 @@
 
 .lstab-notice {
 	padding: 0.9em 1.1em;
-	border-left: 4px solid #d97706;
+	border-inline-start: 4px solid #d97706;
 	background: var(--lstab-notice-bg, #fffbeb);
 	color: var(--lstab-notice-fg, #7c2d12);
 	border-radius: 6px;
@@ -676,28 +753,9 @@
 	--lstab-shadow: 0 2px 6px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(122, 180, 255, 0.06);
 }
 
-.lstab-style-midnight .lstab-search-input {
-	background-color: #131a23;
-	border-color: #2c3846;
-	color: var(--lstab-fg);
-}
-
-.lstab-style-midnight
-.lstab .lstab-search input.lstab-search-input {
-	box-sizing: border-box;
-	width: 100%;
-	height: auto;
-	min-height: 0;
-	margin: 0;
-	padding: 0.6em 0.9em 0.6em 2.3em;
-	line-height: 1.4;
-	background-repeat: no-repeat;
-	background-position: 0.7em center;
-	background-size: 1.05em;
-}
-
-.lstab-search-input::placeholder {
-	color: var(--lstab-fg-faint);
+.lstab-style-midnight {
+	--lstab-search-bg: #131a23;
+	--lstab-search-line: #2c3846;
 }
 
 .lstab-style-editorial {
@@ -818,7 +876,7 @@
 }
 
 .lstab-style-cards .lstab-table tbody td {
-	background-color: var(--lstab-bg);
+	--lstab-cell-bg: var(--lstab-bg);
 	background-image: linear-gradient(var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent));
 	border-top: calc(var(--lstab-row-line) * var(--lstab-table-mode)) solid var(--lstab-border);
 	border-bottom: var(--lstab-row-line) solid var(--lstab-border);
@@ -826,11 +884,11 @@
 }
 
 .lstab-style-cards .lstab-table tbody td:not(:last-child) {
-	box-shadow: 0.5px 0 0 var(--lstab-row-tint, var(--lstab-bg)), var(--lstab-card-shadow);
+	box-shadow: calc( 0.5px * var(--lstab-flip, 1) ) 0 0 var(--lstab-row-tint, var(--lstab-bg)), var(--lstab-card-shadow);
 }
 
 .lstab-style-cards .lstab-table tbody td:first-child {
-	border-left: calc(var(--lstab-row-line) * var(--lstab-table-mode)) solid var(--lstab-border);
+	border-inline-start: calc(var(--lstab-row-line) * var(--lstab-table-mode)) solid var(--lstab-border);
 	border-start-start-radius: calc(var(--lstab-radius) * var(--lstab-table-mode) + (1 - var(--lstab-table-mode)) * max(0px, var(--lstab-row-radius) - 1px));
 	border-start-end-radius: calc((1 - var(--lstab-table-mode)) * max(0px, var(--lstab-row-radius) - 1px));
 	border-end-start-radius: calc(var(--lstab-radius) * var(--lstab-table-mode));
@@ -838,7 +896,7 @@
 }
 
 .lstab-style-cards .lstab-table tbody td:last-child {
-	border-right: calc(var(--lstab-row-line) * var(--lstab-table-mode)) solid var(--lstab-border);
+	border-inline-end: calc(var(--lstab-row-line) * var(--lstab-table-mode)) solid var(--lstab-border);
 	border-start-end-radius: calc(var(--lstab-radius) * var(--lstab-table-mode));
 	border-end-start-radius: calc((1 - var(--lstab-table-mode)) * max(0px, var(--lstab-row-radius) - 1px));
 	border-end-end-radius: calc(var(--lstab-radius) * var(--lstab-table-mode) + (1 - var(--lstab-table-mode)) * max(0px, var(--lstab-row-radius) - 1px));
@@ -863,7 +921,7 @@
 
 .lstab-style-cards.lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child,
 .lstab-style-cards.lstab-sticky-first .lstab-table thead th:first-child {
-	left: calc(-1 * var(--lstab-card-bleed) * var(--lstab-table-mode));
+	inset-inline-start: calc(-1 * var(--lstab-card-bleed) * var(--lstab-table-mode));
 }
 
 .lstab-style-cards.lstab-sticky-first .lstab-table thead th:first-child::before {
@@ -1048,8 +1106,8 @@
 		--lstab-row-radius: var(--lstab-radius);
 		--lstab-cell-border: 1px solid var(--lstab-border);
 		--lstab-table-mode: 0;
-		--lstab-cell-align: left;
-		--lstab-align-end: left;
+		--lstab-cell-align: start;
+		--lstab-align-end: start;
 		--lstab-cell-max: none;
 		--lstab-slider-display: none;
 		--lstab-table-min: 0;
@@ -1075,8 +1133,8 @@
 		--lstab-row-radius: var(--lstab-radius);
 		--lstab-cell-border: 1px solid var(--lstab-border);
 		--lstab-table-mode: 0;
-		--lstab-cell-align: left;
-		--lstab-align-end: left;
+		--lstab-cell-align: start;
+		--lstab-align-end: start;
 		--lstab-cell-max: none;
 		--lstab-slider-display: none;
 		--lstab-table-min: 0;
@@ -1102,8 +1160,8 @@
 		--lstab-row-radius: var(--lstab-radius);
 		--lstab-cell-border: 1px solid var(--lstab-border);
 		--lstab-table-mode: 0;
-		--lstab-cell-align: left;
-		--lstab-align-end: left;
+		--lstab-cell-align: start;
+		--lstab-align-end: start;
 		--lstab-cell-max: none;
 		--lstab-slider-display: none;
 		--lstab-table-min: 0;
@@ -1129,8 +1187,8 @@
 		--lstab-row-radius: var(--lstab-radius);
 		--lstab-cell-border: 1px solid var(--lstab-border);
 		--lstab-table-mode: 0;
-		--lstab-cell-align: left;
-		--lstab-align-end: left;
+		--lstab-cell-align: start;
+		--lstab-align-end: start;
 		--lstab-cell-max: none;
 		--lstab-slider-display: none;
 		--lstab-table-min: 0;
@@ -1156,8 +1214,8 @@
 		--lstab-row-radius: var(--lstab-radius);
 		--lstab-cell-border: 1px solid var(--lstab-border);
 		--lstab-table-mode: 0;
-		--lstab-cell-align: left;
-		--lstab-align-end: left;
+		--lstab-cell-align: start;
+		--lstab-align-end: start;
 		--lstab-cell-max: none;
 		--lstab-slider-display: none;
 		--lstab-table-min: 0;
@@ -1187,7 +1245,7 @@
 	--lstab-cell-border: 0;
 	--lstab-table-mode: 1;
 	--lstab-cell-align: inherit;
-	--lstab-align-end: right;
+	--lstab-align-end: end;
 	--lstab-cell-max: 22rem;
 	--lstab-slider-display: block;
 	--lstab-frame-border: 1px solid var(--lstab-border);
@@ -1208,8 +1266,8 @@
 	--lstab-row-radius: var(--lstab-radius);
 	--lstab-cell-border: 1px solid var(--lstab-border);
 	--lstab-table-mode: 0;
-	--lstab-cell-align: left;
-	--lstab-align-end: left;
+	--lstab-cell-align: start;
+	--lstab-align-end: start;
 	--lstab-cell-max: none;
 	--lstab-slider-display: none;
 	--lstab-table-min: 0;
@@ -1260,8 +1318,8 @@
 			--lstab-row-radius: var(--lstab-radius);
 			--lstab-cell-border: 1px solid var(--lstab-border);
 			--lstab-table-mode: 0;
-			--lstab-cell-align: left;
-			--lstab-align-end: left;
+			--lstab-cell-align: start;
+			--lstab-align-end: start;
 			--lstab-cell-max: none;
 			--lstab-slider-display: none;
 			--lstab-table-min: 0;
@@ -1302,11 +1360,6 @@
 	color: inherit;
 }
 
-.lstab-even .lstab-table > thead > tr > th,
-.lstab-even .lstab-table > tbody > tr > td {
-	width: var( --lstab-col-basis, auto );
-}
-
 .lstab-even {
 	--lstab-table-min: 0;
 }
@@ -1320,19 +1373,29 @@
 	margin: 0;
 }
 
-.lstab-search-go {
+.lstab .lstab-search-go {
 	flex: none;
+	width: auto;
+	min-height: 0;
+	margin: 0;
 	padding: 0.45em 0.9em;
-	border: 1px solid var(--lstab-border-strong);
+	border: 1px solid var(--lstab-search-line, var(--lstab-border-strong));
 	border-radius: 8px;
-	background: var(--lstab-bg);
+	background: var(--lstab-search-bg, var(--lstab-bg));
 	color: var(--lstab-fg);
 	font: inherit;
+	line-height: 1.4;
+	letter-spacing: normal;
+	text-transform: none;
+	box-shadow: none;
 	cursor: pointer;
 }
 
-.lstab-search-go:hover {
+.lstab .lstab-search-go:hover,
+.lstab .lstab-search-go:focus-visible {
 	border-color: var(--lstab-accent);
+	background: var(--lstab-search-bg, var(--lstab-bg));
+	color: var(--lstab-fg);
 }
 
 .lstab-search-clear {
@@ -1361,15 +1424,20 @@
 	margin-top: 0;
 }
 
+.lstab-foot.has-pager .lstab-meta {
+	grid-column: var(--lstab-meta-col-paged);
+	justify-self: var(--lstab-meta-place-paged);
+}
+
 @container lstab (max-width: 420px) {
 	.lstab-foot {
 		grid-template-columns: 1fr;
-	}
-
-	.lstab-foot .lstab-pager,
-	.lstab-foot .lstab-meta {
-		grid-column: 1;
-		justify-self: center;
+		--lstab-pager-col: 1;
+		--lstab-pager-place: center;
+		--lstab-meta-col: 1;
+		--lstab-meta-place: center;
+		--lstab-meta-col-paged: 1;
+		--lstab-meta-place-paged: center;
 	}
 }
 
@@ -1589,13 +1657,13 @@
 	display: inline-block;
 	width: 0.6em;
 	height: 0.6em;
-	margin-right: 0.55em;
+	margin-inline-end: 0.55em;
 	border-radius: 999px;
 	background-color: var( --lstabp-dot, currentColor );
 }
 
 .lstab-table td[data-lstab-align="end"].lstabp-pill {
-	text-align: right;
+	text-align: end;
 }
 
 .lstabp-bar {
@@ -1607,7 +1675,7 @@
 	content: "";
 	position: absolute;
 	z-index: 0;
-	left: 0;
+	inset-inline-start: 0;
 	top: 14%;
 	bottom: 14%;
 	width: calc( var( --lstab-table-mode, 1 ) * var( --lstabp-bar, 0% ) );
@@ -1621,7 +1689,7 @@
 	content: "";
 	position: absolute;
 	z-index: -1;
-	left: -0.45em;
+	inset-inline-start: -0.45em;
 	top: -0.3em;
 	bottom: -0.3em;
 	width: calc( ( 1 - var( --lstab-table-mode, 1 ) ) * ( var( --lstabp-bar, 0% ) + 0.45em ) );
@@ -1685,6 +1753,239 @@
 	color: var(--lstab-accent);
 }
 
+.lstab-container .lstab .lstab-sort {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4em;
+	min-width: 0;
+	height: auto;
+	min-height: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 4px;
+	background: none;
+	box-shadow: none;
+	color: inherit;
+	font: inherit;
+	line-height: inherit;
+	letter-spacing: inherit;
+	text-transform: inherit;
+	text-decoration: none;
+	text-shadow: none;
+}
+
+.lstab-container .lstab .lstab-sort:hover,
+.lstab-container .lstab .lstab-sort:focus,
+.lstab-container .lstab .lstab-sort:active {
+	background: none;
+	border-color: transparent;
+	box-shadow: none;
+	color: inherit;
+	text-decoration: none;
+	text-shadow: none;
+	transform: none;
+}
+
+.lstab-container .lstab .lstab-sort:focus-visible {
+	outline: 2px solid var(--lstab-accent);
+	outline-offset: 3px;
+}
+
+.lstab-container .lstab .lstab-open {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	inline-size: 1.7em;
+	block-size: 1.7em;
+	min-inline-size: 0;
+	min-block-size: 0;
+	margin: 0;
+	margin-inline-end: calc( 0.55em * var(--lstab-table-mode, 1) );
+	padding: 0;
+	border: 1px solid var(--lstab-border);
+	border-radius: calc( var(--lstab-radius) * 0.5 );
+	background: transparent;
+	box-shadow: none;
+	color: inherit;
+	font: inherit;
+	line-height: 1;
+	letter-spacing: normal;
+	text-transform: none;
+	text-decoration: none;
+	text-shadow: none;
+}
+
+.lstab-container .lstab .lstab-open:hover,
+.lstab-container .lstab .lstab-open:focus,
+.lstab-container .lstab .lstab-open:active {
+	background: transparent;
+	box-shadow: none;
+	text-decoration: none;
+	transform: none;
+}
+
+.lstab-container .lstab .lstab-open:hover,
+.lstab-container .lstab .lstab-open:focus-visible {
+	border-color: var(--lstab-accent);
+	color: var(--lstab-accent);
+}
+
+.lstab-container .lstab .lstab-open[aria-expanded="true"] {
+	transform: rotate( calc( 90deg * var(--lstab-flip, 1) ) );
+	border-color: var(--lstab-accent);
+	color: var(--lstab-accent);
+}
+
+.lstab-container .lstab .lstab-page-link {
+	display: inline-block;
+	padding: 0.35em 0.8em;
+	border: 1px solid var(--lstab-border);
+	border-radius: 8px;
+	background: none;
+	box-shadow: none;
+	color: var(--lstab-accent);
+	font: inherit;
+	line-height: inherit;
+	letter-spacing: normal;
+	text-transform: none;
+	text-decoration: none;
+}
+
+.lstab-container .lstab .lstab-page-link:hover,
+.lstab-container .lstab .lstab-page-link:focus {
+	border-color: var(--lstab-accent);
+	background: none;
+	box-shadow: none;
+	color: var(--lstab-accent);
+	text-decoration: none;
+}
+
+.lstab-container .lstab .lstab-page-link.is-disabled {
+	border-color: transparent;
+	color: var(--lstab-fg-faint);
+}
+
+.lstab-container .lstab .lstab-search-clear,
+.lstab-container .lstab .lstab-search-clear:hover,
+.lstab-container .lstab .lstab-search-clear:focus {
+	border: 0;
+	background: none;
+	box-shadow: none;
+	color: var(--lstab-fg-faint);
+	letter-spacing: normal;
+	text-transform: none;
+}
+
+.lstab-container .lstab .lstab-cell-value a:not(.lstabp-cta-link) {
+	border: 0;
+	background: none;
+	box-shadow: none;
+	color: var(--lstab-accent);
+	text-decoration-line: underline;
+	text-underline-offset: 0.15em;
+}
+
+.lstab-container .lstab .lstab-cell-value a:not(.lstabp-cta-link):hover,
+.lstab-container .lstab .lstab-cell-value a:not(.lstabp-cta-link):focus-visible {
+	color: var(--lstab-accent);
+	text-decoration-line: underline;
+	text-decoration-thickness: 2px;
+}
+
+.lstab-container .lstab .lstab-ruled .lstab-cell-value a:not(.lstabp-cta-link),
+.lstab-container .lstab .lstab-ruled .lstab-cell-value a:not(.lstabp-cta-link):hover,
+.lstab-container .lstab .lstab-ruled .lstab-cell-value a:not(.lstabp-cta-link):focus-visible {
+	color: inherit;
+}
+
+.lstab-container .lstab .lstab-cell-value a.lstabp-cta-link,
+.lstab-container .lstab .lstab-cell-value a.lstabp-cta-link:hover,
+.lstab-container .lstab .lstab-cell-value a.lstabp-cta-link:focus-visible {
+	border: 0;
+	box-shadow: none;
+	background-color: var( --lstabp-cta-bg, var( --lstab-accent ) );
+	color: var( --lstabp-cta-ink, #06100f );
+	letter-spacing: normal;
+	text-transform: none;
+	text-decoration: none;
+}
+
+.lstab-container .lstab .lstabp-facet-value,
+.lstab-container .lstab .lstabp-facet-value:focus {
+	border: 0;
+	background: none;
+	box-shadow: none;
+	color: var(--lstab-fg);
+	letter-spacing: normal;
+	text-transform: none;
+	text-decoration: none;
+}
+
+.lstab-container .lstab .lstabp-facet-value:hover {
+	border: 0;
+	background: var(--lstab-hover);
+	box-shadow: none;
+	color: var(--lstab-fg);
+	text-decoration: none;
+}
+
+.lstab-container .lstab .lstabp-facets-clear,
+.lstab-container .lstab .lstabp-facets-clear:hover,
+.lstab-container .lstab .lstabp-facets-clear:focus {
+	border: 0;
+	background: none;
+	box-shadow: none;
+	color: var(--lstab-accent);
+	letter-spacing: normal;
+	text-transform: none;
+}
+
+.lstab-container .lstab input.lstabp-facet-find {
+	width: 100%;
+	height: auto;
+	min-height: 0;
+	margin: 0.15em 0 0.35em;
+	padding: 0.42em 0.6em;
+	border: 1px solid var(--lstab-border-strong);
+	border-radius: 7px;
+	background: var(--lstab-bg);
+	box-shadow: none;
+	color: var(--lstab-fg);
+	font: inherit;
+	font-size: 0.88em;
+}
+
+.lstab-container .lstab .lstabp-export-button {
+	width: auto;
+	height: auto;
+	min-height: 0;
+	margin: 0;
+	padding: 0.4em 0.9em;
+	border: 1px solid var(--lstab-border-strong);
+	border-radius: 8px;
+	background: var(--lstab-bg);
+	box-shadow: none;
+	color: var(--lstab-fg);
+	font: inherit;
+	font-size: 0.9em;
+	line-height: 1.4;
+	letter-spacing: normal;
+	text-transform: none;
+	text-decoration: none;
+	text-shadow: none;
+}
+
+.lstab-container .lstab .lstabp-export-button:hover,
+.lstab-container .lstab .lstabp-export-button:focus {
+	border-color: var(--lstab-accent);
+	background: var(--lstab-bg);
+	box-shadow: none;
+	color: var(--lstab-accent);
+	text-decoration: none;
+	transform: none;
+}
+
 @media print {
 	.lstab-controls,
 	.lstab-scrollbar,
@@ -1713,8 +2014,12 @@
 }
 
 .lstab-open {
-	float: left;
-	margin-right: 0.55em;
+	float: inline-start;
+	margin-inline-end: calc( 0.55em * var(--lstab-table-mode, 1) );
+	grid-row: 1;
+	grid-column: -2 / -1;
+	justify-self: end;
+	align-self: start;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -1737,6 +2042,10 @@
 	transform: translateX( -0.1em ) rotate( -45deg );
 }
 
+[dir="rtl"] .lstab .lstab-open-mark {
+	transform: translateX( 0.1em ) rotate( 135deg );
+}
+
 .lstab-open:hover,
 .lstab-open:focus-visible {
 	border-color: var(--lstab-accent);
@@ -1749,12 +2058,23 @@
 	color: var(--lstab-accent);
 }
 
-.lstab-table tr.is-open {
+.lstab .lstab-table tbody tr.is-open {
 	background: var(--lstab-hover, transparent);
 }
 
 .lstab-cell-opens .lstab-cell-value {
-	display: flow-root;
+	display: block;
+	margin-inline-start: calc( 2.25em * var(--lstab-table-mode, 1) );
+}
+
+.lstab-cell-opens .lstab-cell-label {
+	grid-row: 1;
+	grid-column: 1;
+}
+
+.lstab-cell-opens .lstab-cell-label,
+.lstab-cell-opens .lstab-cell-value {
+	padding-inline-end: calc( 2.4em * ( 1 - var(--lstab-table-mode, 1) ) );
 }
 
 .lstab-detail {
@@ -1765,7 +2085,7 @@
 	display: none;
 }
 
-.lstab-detail > td {
+.lstab .lstab-table .lstab-detail > td {
 	display: var(--lstab-cell-display);
 	padding: 0;
 	background: var(--lstab-hover, transparent);
@@ -1776,7 +2096,8 @@
 	display: grid;
 	grid-template-columns: repeat( auto-fit, minmax( 13rem, 1fr ) );
 	gap: 0.7em 2em;
-	padding: 0.2em var(--lstab-pad-x, 0.8em) 1em calc( var(--lstab-pad-x, 0.8em) + 2.4em );
+	padding-block: 0.2em 1em;
+	padding-inline: calc( var(--lstab-pad-x, 0.8em) + 2.4em ) var(--lstab-pad-x, 0.8em);
 	width: 0;
 	min-width: 100%;
 }
@@ -1797,7 +2118,7 @@
 
 @container lstab (max-width: 560px) {
 	.lstab-detail-inner {
-		padding-left: var(--lstab-pad-x, 0.8em);
+		padding-inline-start: var(--lstab-pad-x, 0.8em);
 	}
 }
 

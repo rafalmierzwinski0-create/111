@@ -103,6 +103,10 @@
 				}
 
 				here.forEach( function ( old, index ) {
+					if ( box && index !== at ) {
+						return;
+					}
+
 					var fresh = document.importNode( fetched[ index ], true );
 					old.parentNode.replaceChild( fresh, old );
 
@@ -328,7 +332,13 @@
 		}
 
 		function dressBar() {
-			var onTheRows = scroller.getBoundingClientRect().bottom - bar.getBoundingClientRect().top > 1;
+			var frame = scroller.getBoundingClientRect();
+			var view = window.innerHeight || document.documentElement.clientHeight || 0;
+			var resting = frame.top > view - Math.min( 140, frame.height );
+
+			bar.classList.toggle( 'is-resting', resting );
+
+			var onTheRows = ! resting && frame.bottom - bar.getBoundingClientRect().top > 1;
 
 			bar.classList.toggle( 'is-floating', ! bar.hidden && onTheRows );
 		}
@@ -342,6 +352,8 @@
 
 		var dragging = false;
 		var grabOffset = 0;
+		var rtl = 'rtl' === window.getComputedStyle( scroller ).direction;
+		var sign = rtl ? -1 : 1;
 
 		function overflow() {
 			var table = scroller.querySelector( '.lstab-table' );
@@ -353,32 +365,52 @@
 			return Math.max( table.scrollWidth, table.offsetWidth ) - scroller.clientWidth;
 		}
 
-		function applyEvenColumns( scrollable ) {
+		function applyEvenColumns() {
 			var table = scroller.querySelector( '.lstab-table' );
-			var count = table ? table.querySelectorAll( 'thead th' ).length : 0;
+			var heads = table ? Array.prototype.slice.call( table.querySelectorAll( 'thead th' ) ) : [];
 
-			if ( scrollable > 2 || count < 2 || 'table' !== window.getComputedStyle( table ).display ) {
-				root.classList.remove( 'lstab-even' );
-				return scrollable;
+			heads.forEach( function ( th ) {
+				th.style.width = '';
+			} );
+			root.classList.remove( 'lstab-even' );
+
+			if ( heads.length < 2 || overflow() > 2 || 'table' !== window.getComputedStyle( table ).display ) {
+				return;
 			}
 
-			root.style.setProperty( '--lstab-col-basis', 'calc(100% / ' + count + ')' );
+			table.style.width = 'auto';
+
+			var natural = heads.map( function ( th ) {
+				return th.getBoundingClientRect().width;
+			} );
+
+			table.style.width = '';
+
+			var whole = table.getBoundingClientRect().width;
+			var used = natural.reduce( function ( sum, width ) {
+				return sum + width;
+			}, 0 );
+			var share = ( whole - used ) / heads.length;
+
+			if ( share < 1 || ! whole ) {
+				return;
+			}
+
+			heads.forEach( function ( th, index ) {
+				th.style.width = ( ( natural[ index ] + share ) / whole * 100 ).toFixed( 3 ) + '%';
+			} );
 			root.classList.add( 'lstab-even' );
 
-			scrollable = overflow();
-
-			if ( scrollable > 2 ) {
+			if ( overflow() > 2 ) {
+				heads.forEach( function ( th ) {
+					th.style.width = '';
+				} );
 				root.classList.remove( 'lstab-even' );
-				scrollable = overflow();
 			}
-
-			return scrollable;
 		}
 
 		function sync() {
 			var scrollable = overflow();
-
-			scrollable = applyEvenColumns( scrollable );
 
 			if ( scrollable <= 2 ) {
 				bar.hidden = true;
@@ -396,22 +428,22 @@
 			root.classList.remove( 'lstab-fits' );
 			root.classList.add( 'lstab-has-slider' );
 
-			root.classList.toggle( 'lstab-is-scrolled', scroller.scrollLeft > 0 );
+			root.classList.toggle( 'lstab-is-scrolled', Math.abs( scroller.scrollLeft ) > 0 );
 
 			var trackWidth = track.clientWidth;
 			var ratio = scroller.clientWidth / scroller.scrollWidth;
 			var thumbWidth = Math.max( 32, Math.round( trackWidth * ratio ) );
 			var travel = trackWidth - thumbWidth;
-			var progress = scrollable > 0 ? scroller.scrollLeft / scrollable : 0;
+			var progress = scrollable > 0 ? Math.min( 1, Math.abs( scroller.scrollLeft ) / scrollable ) : 0;
 
 			thumb.style.width = thumbWidth + 'px';
-			thumb.style.transform = 'translateX(' + Math.round( travel * progress ) + 'px)';
+			thumb.style.transform = 'translateX(' + Math.round( travel * ( rtl ? 1 - progress : progress ) ) + 'px)';
 			thumb.setAttribute( 'aria-valuenow', String( Math.round( progress * 100 ) ) );
 		}
 
 		function scrollToProgress( progress ) {
 			progress = Math.min( 1, Math.max( 0, progress ) );
-			scroller.scrollLeft = overflow() * progress;
+			scroller.scrollLeft = sign * overflow() * progress;
 		}
 
 		function scrollFromPointer( clientX ) {
@@ -423,7 +455,9 @@
 				return;
 			}
 
-			scrollToProgress( ( clientX - rect.left - grabOffset ) / travel );
+			var along = ( clientX - rect.left - grabOffset ) / travel;
+
+			scrollToProgress( rtl ? 1 - along : along );
 		}
 
 		thumb.addEventListener( 'pointerdown', function ( event ) {
@@ -475,16 +509,16 @@
 					scroller.scrollLeft += step;
 					break;
 				case 'PageUp':
-					scroller.scrollLeft -= scroller.clientWidth * 0.9;
+					scroller.scrollLeft -= sign * scroller.clientWidth * 0.9;
 					break;
 				case 'PageDown':
-					scroller.scrollLeft += scroller.clientWidth * 0.9;
+					scroller.scrollLeft += sign * scroller.clientWidth * 0.9;
 					break;
 				case 'Home':
 					scroller.scrollLeft = 0;
 					break;
 				case 'End':
-					scroller.scrollLeft = overflow();
+					scroller.scrollLeft = sign * overflow();
 					break;
 				default:
 					handled = false;
@@ -496,7 +530,7 @@
 		} );
 
 		function measure() {
-			root.classList.remove( 'lstab-even' );
+			applyEvenColumns();
 			sync();
 		}
 
@@ -843,8 +877,10 @@
 
 	function inUse( box ) {
 		var search = box.querySelector( '.lstab-search-input' );
+		var scroller = box.querySelector( '.lstab-scroll' );
 
 		return !! ( ( search && search.value ) ||
+			( scroller && Math.abs( scroller.scrollLeft ) > 2 ) ||
 			box.querySelector( 'th[aria-sort="ascending"], th[aria-sort="descending"], .lstab-open[aria-expanded="true"], .lstabp-facet.is-on' ) ||
 			( document.activeElement && box.contains( document.activeElement ) ) );
 	}
@@ -889,7 +925,15 @@
 						return;
 					}
 
-					box.parentNode.replaceChild( document.importNode( fetched[ index ], true ), box );
+					var before = box.getBoundingClientRect();
+					var fresh = document.importNode( fetched[ index ], true );
+
+					box.parentNode.replaceChild( fresh, box );
+
+					if ( before.bottom <= 0 ) {
+						window.scrollBy( 0, fresh.getBoundingClientRect().height - before.height );
+					}
+
 					swapped = true;
 				} );
 
@@ -965,7 +1009,21 @@
 				return response.ok ? response.json() : null;
 			} )
 			.then( function ( answer ) {
-				if ( answer && answer.changed ) {
+				if ( ! answer ) {
+					return;
+				}
+
+				if ( answer.checked ) {
+					mine.forEach( function ( root ) {
+						var at = answer.checked[ root.getAttribute( 'data-lstab-id' ) ];
+
+						if ( at ) {
+							sayWhen( root, Number( answer.now ), Number( at ) );
+						}
+					} );
+				}
+
+				if ( answer.changed ) {
 					swapQuietly( answer.changed );
 				}
 			} )

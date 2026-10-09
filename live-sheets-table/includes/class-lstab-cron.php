@@ -50,7 +50,7 @@ class LSTAB_Cron {
 		$shortest = 0;
 
 		foreach ( LSTAB_Storage::get_all() as $source ) {
-			$interval = max( 60, (int) $source['sync_interval'] );
+			$interval = LSTAB_Limits::interval_of( $source );
 			if ( 0 === $shortest || $interval < $shortest ) {
 				$shortest = $interval;
 			}
@@ -121,7 +121,7 @@ class LSTAB_Cron {
 				continue;
 			}
 
-			$interval = max( 60, (int) $source['sync_interval'] );
+			$interval = LSTAB_Limits::interval_of( $source );
 			$age      = time() - (int) strtotime( $source['last_success_gmt'] . ' UTC' );
 
 			if ( $age <= max( 3 * $interval, HOUR_IN_SECONDS ) ) {

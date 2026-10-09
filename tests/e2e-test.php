@@ -1128,6 +1128,11 @@ foreach ( $filler as $filler_id ) {
 }
 
 lstab_assert( 900 === LSTAB_Limits::min_interval(), 'Free tier floor is 15 minutes', (string) LSTAB_Limits::min_interval() );
+lstab_assert( 900 === LSTAB_Limits::interval_of( array( 'sync_interval' => 60 ) ), 'A table left at one minute by the add-on is checked every fifteen once the add-on is gone' );
+lstab_assert(
+	! LSTAB_Sync::is_due( array( 'sync_interval' => 60, 'sheet_kind' => 'doc', 'last_attempt_gmt' => gmdate( 'Y-m-d H:i:s', time() - 300 ) ) ),
+	'So five minutes after its last check it is not due yet'
+);
 lstab_assert( ! isset( LSTAB_Limits::intervals()[60] ), 'One minute interval hidden in free' );
 lstab_assert( 900 === LSTAB_Limits::clamp_interval( 60 ), 'A too-fast interval is clamped up', (string) LSTAB_Limits::clamp_interval( 60 ) );
 lstab_assert( 3 === count( LSTAB_Styles::available() ), 'Three free presets available', (string) count( LSTAB_Styles::available() ) );
@@ -1275,6 +1280,98 @@ $lstab_kc_answer = LSTAB_Sync::refresh_when_asked( $source_id );
 lstab_assert( 'unchanged' === $lstab_kc_answer, 'An overdue table is checked, and an unchanged sheet says so', $lstab_kc_answer );
 lstab_assert( LSTAB_Freshness::next_due( LSTAB_Storage::get( $source_id ) ) > time(), 'After which it is due again only an interval later' );
 lstab_assert( 'not-due' === LSTAB_Sync::refresh_when_asked( $source_id ), 'So the next visitor asking changes nothing' );
+
+// The answer a page gets back, read the way the browser reads it.
+add_filter( 'wp_doing_ajax', '__return_true' );
+$lstab_kc_stop = static function () {
+	return static function () {
+		throw new RuntimeException( 'lstab-sent' );
+	};
+};
+add_filter( 'wp_die_ajax_handler', $lstab_kc_stop );
+$lstab_kc_call = static function ( $tables ) {
+	$_POST['tables'] = $tables;
+	ob_start();
+	try {
+		LSTAB_Freshness::handle();
+	} catch ( RuntimeException $e ) {
+		unset( $e );
+	}
+	unset( $_POST['tables'] );
+
+	return json_decode( (string) ob_get_clean(), true );
+};
+
+$wpdb->update( LSTAB_Storage::table(), array( 'last_success_gmt' => gmdate( 'Y-m-d H:i:s', time() - 7200 ) ), array( 'id' => $source_id ) );
+LSTAB_Storage::flush_cache( $source_id );
+$lstab_kc_reply = $lstab_kc_call( (string) $source_id );
+lstab_assert( isset( $lstab_kc_reply['checked'][ (string) $source_id ] ) && abs( (int) $lstab_kc_reply['checked'][ (string) $source_id ] - time() ) < 5, 'The answer says when each table was just checked, even when nothing changed', wp_json_encode( $lstab_kc_reply ) );
+lstab_assert( isset( $lstab_kc_reply['now'] ) && abs( (int) $lstab_kc_reply['now'] - time() ) < 5, 'And the time on the site, so "updated … ago" is said from the site\'s clock' );
+
+// A clock that jumped: a check stamped in the future must not stop the table for good.
+$wpdb->update( LSTAB_Storage::table(), array( 'last_success_gmt' => gmdate( 'Y-m-d H:i:s', time() + 7200 ) ), array( 'id' => $source_id ) );
+LSTAB_Storage::flush_cache( $source_id );
+lstab_assert( PHP_INT_MAX === LSTAB_Sync::since( gmdate( 'Y-m-d H:i:s', time() + 7200 ) ), 'A time in the future counts as long ago' );
+lstab_assert( 'not-due' !== LSTAB_Sync::refresh_when_asked( $source_id ), 'So a table whose last check is stamped in the future is checked again', LSTAB_Storage::get( $source_id )['last_success_gmt'] );
+lstab_assert( LSTAB_Freshness::next_due( LSTAB_Storage::get( $source_id ) ) <= time() + 3700, 'And its next turn is an interval from now, not from the future stamp' );
+
+// A slow Google must not hold the visitor's request open.
+$wpdb->update( LSTAB_Storage::table(), array( 'last_success_gmt' => gmdate( 'Y-m-d H:i:s', time() - 7200 ), 'last_status' => 'ok', 'last_error' => null ), array( 'id' => $source_id ) );
+LSTAB_Storage::flush_cache( $source_id );
+delete_transient( LSTAB_Sync::COOLDOWN_PREFIX . $source_id );
+delete_transient( LSTAB_Sync::FAILS_PREFIX . $source_id );
+wp_clear_scheduled_hook( LSTAB_Cron::RETRY_HOOK, array( $source_id ) );
+$lstab_kc_budget = static function () {
+	return 2;
+};
+$lstab_kc_slow = static function ( $pre, $args, $url ) {
+	if ( false === strpos( $url, 'docs.google.com' ) ) {
+		return $pre;
+	}
+
+	usleep( (int) ( 1000000 * min( 6, (float) $args['timeout'] ) ) );
+
+	return new WP_Error( 'http_request_failed', 'Operation timed out' );
+};
+add_filter( 'lstab_keep_current_budget', $lstab_kc_budget );
+add_filter( 'pre_http_request', $lstab_kc_slow, 99, 3 );
+$lstab_kc_started = microtime( true );
+$lstab_kc_reply   = $lstab_kc_call( $source_id . ',' . $source_id );
+$lstab_kc_spent   = microtime( true ) - $lstab_kc_started;
+remove_filter( 'pre_http_request', $lstab_kc_slow, 99 );
+remove_filter( 'lstab_keep_current_budget', $lstab_kc_budget );
+lstab_assert( $lstab_kc_spent < 4, 'A slow Google is given up on within the budget, not after twenty seconds', sprintf( '%.1fs', $lstab_kc_spent ) );
+lstab_assert( empty( $lstab_kc_reply['checked'][ (string) $source_id ] ), 'And the answer does not claim the table was checked' );
+lstab_assert( 'ok' === LSTAB_Storage::get( $source_id )['last_status'], 'Our own time limit does not turn the table red in the dashboard', LSTAB_Storage::get( $source_id )['last_status'] );
+lstab_assert( (bool) wp_next_scheduled( LSTAB_Cron::RETRY_HOOK, array( $source_id ) ), 'A background retry is lined up instead' );
+wp_clear_scheduled_hook( LSTAB_Cron::RETRY_HOOK, array( $source_id ) );
+delete_transient( LSTAB_Sync::COOLDOWN_PREFIX . $source_id );
+delete_transient( LSTAB_Sync::FAILS_PREFIX . $source_id );
+remove_filter( 'wp_die_ajax_handler', $lstab_kc_stop );
+remove_filter( 'wp_doing_ajax', '__return_true' );
+LSTAB_Sync::run( $source_id );
+
+lstab_section( '11c. The same table twice on one page' );
+
+// Two copies of one sheet, each showing different rows, as the add-on's filter
+// allows. Only whether filters are honoured is pretended here; the names are
+// what is checked.
+add_filter( 'lstab_filter_supported', '__return_true' );
+LSTAB_Storage::update( $source_id, array( 'per_page' => 2 ) );
+LSTAB_Sync::reset_view_budget();
+$lstab_twice_key = substr( md5( 'stock is out|' ), 0, 6 );
+$_GET[ 'lstab-page-' . $source_id . '-' . $lstab_twice_key ] = '3';
+$lstab_twice = do_shortcode( '[sheet_table id="' . $source_id . '"]' . '[sheet_table id="' . $source_id . '" filter="Stock is out"]' );
+unset( $_GET[ 'lstab-page-' . $source_id . '-' . $lstab_twice_key ] );
+$lstab_plain_after = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+LSTAB_Storage::update( $source_id, array( 'per_page' => 0 ) );
+remove_filter( 'lstab_filter_supported', '__return_true' );
+lstab_assert( 2 === preg_match_all( '/id="lstab-table-' . $source_id . '(-\d+)?"/', $lstab_twice, $lstab_ids ) && 2 === count( array_unique( $lstab_ids[0] ) ), 'Each copy has its own element id', wp_json_encode( $lstab_ids[0] ?? array() ) );
+lstab_assert( false !== strpos( $lstab_twice, 'name="lstab-q-' . $source_id . '"' ) && false !== strpos( $lstab_twice, 'name="lstab-q-' . $source_id . '-' . $lstab_twice_key . '"' ), 'And a copy with its own filter has its own search box name, so searching one does not search the other' );
+lstab_assert( 1 === preg_match_all( '/Page 3 of/', $lstab_twice ) && 1 === preg_match_all( '/Page 1 of/', $lstab_twice ), 'Turning the filtered copy to page 3 leaves the other on page 1', (string) preg_match_all( '/Page \d of/', $lstab_twice ) );
+lstab_assert( false !== strpos( $lstab_twice, 'lstab-page-' . $source_id . '-' . $lstab_twice_key . '=' ), 'The filtered copy\'s page links name it' );
+lstab_assert( false !== strpos( $lstab_plain_after, 'name="lstab-q-' . $source_id . '"' ), 'A table without a filter keeps the plain names, so old links still work' );
+lstab_assert( 2 === substr_count( $lstab_twice, 'data-lstab-id="' . $source_id . '"' ), 'Both still say which table they are, for the page cache and custom CSS' );
 
 // ---------------------------------------------------------------------------
 

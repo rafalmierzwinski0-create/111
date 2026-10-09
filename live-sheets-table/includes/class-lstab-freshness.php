@@ -49,17 +49,28 @@ class LSTAB_Freshness {
 	}
 
 	public static function next_due( $source ) {
-		$interval = max( 60, (int) $source['sync_interval'] );
-		$success  = empty( $source['last_success_gmt'] ) ? 0 : (int) strtotime( $source['last_success_gmt'] . ' UTC' );
-		$attempt  = empty( $source['last_attempt_gmt'] ) ? 0 : (int) strtotime( $source['last_attempt_gmt'] . ' UTC' );
-		$next     = $success + $interval;
+		$interval = LSTAB_Limits::interval_of( $source );
+		$success  = LSTAB_Sync::since( $source['last_success_gmt'] );
+		$next     = PHP_INT_MAX === $success ? time() : time() - $success + $interval;
 
 		if ( 'error' === $source['last_status'] ) {
-			$next = max( $next, $attempt + min( $interval, self::RETRY_AFTER_FAILURE ) );
+			$attempt = LSTAB_Sync::since( $source['last_attempt_gmt'] );
+
+			if ( PHP_INT_MAX !== $attempt ) {
+				$next = max( $next, time() - $attempt + min( $interval, self::RETRY_AFTER_FAILURE ) );
+			}
 		}
 
 		return $next;
 	}
+
+	public static function checked_at( $source ) {
+		$age = LSTAB_Sync::since( isset( $source['last_success_gmt'] ) ? $source['last_success_gmt'] : '' );
+
+		return PHP_INT_MAX === $age ? 0 : time() - $age;
+	}
+
+	const ASK_BUDGET = 15;
 
 	public static function file() {
 		$uploads = wp_upload_dir( null, false );
@@ -109,7 +120,7 @@ class LSTAB_Freshness {
 			$due[ (string) $source['id'] ] = array(
 				'c' => substr( (string) $source['snapshot_hash'], 0, 12 ),
 				'n' => self::next_due( $source ),
-				'f' => empty( $source['last_success_gmt'] ) ? 0 : (int) strtotime( $source['last_success_gmt'] . ' UTC' ),
+				'f' => self::checked_at( $source ),
 			);
 		}
 
@@ -139,16 +150,42 @@ class LSTAB_Freshness {
 		$asked = isset( $_POST['tables'] ) ? sanitize_text_field( wp_unslash( $_POST['tables'] ) ) : '';
 		$ids   = array_slice( array_values( array_unique( array_filter( array_map( 'absint', explode( ',', $asked ) ) ) ) ), 0, 20 );
 
-		$changed = array();
+		$changed  = array();
+		$checked  = array();
+		$deadline = microtime( true ) + max( 2, (int) apply_filters( 'lstab_keep_current_budget', self::ASK_BUDGET ) );
 
 		foreach ( $ids as $id ) {
-			if ( 'changed' === LSTAB_Sync::refresh_when_asked( $id ) ) {
-				$source = LSTAB_Storage::get( $id );
+			$left = $deadline - microtime( true );
 
-				$changed[ (string) $id ] = $source ? substr( (string) $source['snapshot_hash'], 0, 12 ) : '';
+			if ( $left < 1 ) {
+				break;
+			}
+
+			$outcome = LSTAB_Sync::refresh_when_asked( $id, $left );
+
+			if ( 'changed' !== $outcome && 'unchanged' !== $outcome ) {
+				continue;
+			}
+
+			$source = LSTAB_Storage::get( $id );
+
+			if ( ! $source ) {
+				continue;
+			}
+
+			$checked[ (string) $id ] = self::checked_at( $source );
+
+			if ( 'changed' === $outcome ) {
+				$changed[ (string) $id ] = substr( (string) $source['snapshot_hash'], 0, 12 );
 			}
 		}
 
-		wp_send_json( array( 'changed' => (object) $changed ) );
+		wp_send_json(
+			array(
+				'changed' => (object) $changed,
+				'checked' => (object) $checked,
+				'now'     => time(),
+			)
+		);
 	}
 }

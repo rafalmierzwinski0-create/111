@@ -114,6 +114,8 @@ class LSTAB_Customizer {
 							'--lstab-pager-place' => 'start',
 							'--lstab-meta-col'    => '3',
 							'--lstab-meta-place'  => 'end',
+							'--lstab-meta-col-paged'   => '3',
+							'--lstab-meta-place-paged' => 'end',
 						),
 						'normal' => array(),
 						'right'  => array(
@@ -121,6 +123,8 @@ class LSTAB_Customizer {
 							'--lstab-pager-place' => 'end',
 							'--lstab-meta-col'    => '1',
 							'--lstab-meta-place'  => 'start',
+							'--lstab-meta-col-paged'   => '1',
+							'--lstab-meta-place-paged' => 'start',
 						),
 					),
 				),

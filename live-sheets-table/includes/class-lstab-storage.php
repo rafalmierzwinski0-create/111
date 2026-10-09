@@ -300,6 +300,21 @@ class LSTAB_Storage {
 		return md5( (int) $id . '|' . (string) wp_json_encode( $ragged ) );
 	}
 
+	public static function touch_attempt( $id ) {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Custom table, no core API available.
+		$wpdb->update(
+			self::table(),
+			array( 'last_attempt_gmt' => current_time( 'mysql', true ) ),
+			array( 'id' => (int) $id ),
+			array( '%s' ),
+			array( '%d' )
+		);
+
+		self::flush_cache( $id );
+	}
+
 	public static function restore_status( $id, $status, $error ) {
 		global $wpdb;
 

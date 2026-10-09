@@ -100,8 +100,42 @@ class LSTAB_Paging {
 		return isset( self::$state[ $source_id ] ) ? self::$state[ $source_id ] : null;
 	}
 
+	protected static $drawn = array();
+
+	protected static $current = array();
+
+	public static function begin_instance( $source_id, $args = array() ) {
+		$source_id = (int) $source_id;
+		$filter    = isset( $args['filter'] ) ? strtolower( trim( (string) $args['filter'] ) ) : '';
+		$per_page  = isset( $args['per_page'] ) && null !== $args['per_page'] && '' !== $args['per_page'] ? (string) (int) $args['per_page'] : '';
+
+		self::$drawn[ $source_id ] = ( isset( self::$drawn[ $source_id ] ) ? self::$drawn[ $source_id ] : 0 ) + 1;
+
+		self::$current[ $source_id ] = array(
+			'key'    => ( '' === $filter && '' === $per_page ) ? '' : substr( md5( $filter . '|' . $per_page ), 0, 6 ),
+			'number' => self::$drawn[ $source_id ],
+		);
+	}
+
+	public static function end_instance( $source_id ) {
+		unset( self::$current[ (int) $source_id ] );
+	}
+
+	public static function suffix( $source_id ) {
+		$source_id = (int) $source_id;
+
+		return empty( self::$current[ $source_id ]['key'] ) ? '' : '-' . self::$current[ $source_id ]['key'];
+	}
+
+	public static function element_suffix( $source_id ) {
+		$source_id = (int) $source_id;
+		$number    = isset( self::$current[ $source_id ]['number'] ) ? (int) self::$current[ $source_id ]['number'] : 1;
+
+		return $number > 1 ? '-' . $number : '';
+	}
+
 	public static function arg( $source_id, $name ) {
-		return 'lstab-' . $name . '-' . (int) $source_id;
+		return 'lstab-' . $name . '-' . (int) $source_id . self::suffix( $source_id );
 	}
 
 	public static function request( $source_id ) {
@@ -300,6 +334,6 @@ class LSTAB_Paging {
 				: add_query_arg( $arg, rawurlencode( (string) $value ), $base );
 		}
 
-		return $base . '#lstab-table-' . (int) $source_id;
+		return $base . '#lstab-table-' . (int) $source_id . self::element_suffix( $source_id );
 	}
 }

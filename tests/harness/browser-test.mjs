@@ -1552,18 +1552,38 @@ section( '9b. Even column widths' );
 const widthReport = await apage.locator( '.lstab' ).evaluateAll( ( els ) => els.map( ( el ) => {
 	const scroll = el.querySelector( '.lstab-scroll' );
 	const table = el.querySelector( '.lstab-table' );
-	const cols = [ ...table.querySelectorAll( 'thead th' ) ].map( ( e ) => Math.round( e.getBoundingClientRect().width ) );
+	const heads = [ ...table.querySelectorAll( 'thead th' ) ];
+	const now = heads.map( ( e ) => e.getBoundingClientRect().width );
+	const even = el.classList.contains( 'lstab-even' );
+	let extra = [];
+
+	if ( even ) {
+		const saved = heads.map( ( th ) => th.style.width );
+		heads.forEach( ( th ) => {
+			th.style.width = '';
+		} );
+		el.classList.remove( 'lstab-even' );
+		table.style.width = 'auto';
+		const natural = heads.map( ( th ) => th.getBoundingClientRect().width );
+		table.style.width = '';
+		heads.forEach( ( th, i ) => {
+			th.style.width = saved[ i ];
+		} );
+		el.classList.add( 'lstab-even' );
+		extra = now.map( ( w, i ) => w - natural[ i ] );
+	}
+
 	return {
-		even: el.classList.contains( 'lstab-even' ),
+		even,
 		overflow: scroll.scrollWidth - scroll.clientWidth,
-		spread: cols.length ? Math.max( ...cols ) - Math.min( ...cols ) : 0,
-		cols
+		spread: extra.length ? Math.max( ...extra ) - Math.min( ...extra ) : 0,
+		squeezed: extra.some( ( x ) => x < -1 ),
+		cols: now.map( Math.round ),
 	};
 } ) );
 
-// The invariant that matters: asking for equal shares must never be the reason
-// a table starts to scroll. Percentage widths make a table report a wider
-// max-content, and left unchecked that turned an 811px table into 1826px.
+// The invariant that matters: sharing out the room must never be the reason
+// a table starts to scroll.
 check(
 	widthReport.every( ( r ) => ! r.even || r.overflow <= 2 ),
 	'Even columns never push a table into scrolling',
@@ -1571,11 +1591,12 @@ check(
 );
 check(
 	widthReport.some( ( r ) => r.even ),
-	'A table with room to spare gets even columns',
+	'A table with room to spare gets its room shared out',
 	JSON.stringify( widthReport )
 );
 widthReport.filter( ( r ) => r.even ).forEach( ( r, i ) => {
-	check( r.spread <= 4, `Evened table ${ i + 1 } really has equal columns`, r.cols.join( '/' ) );
+	check( r.spread <= 3, `Table ${ i + 1 }: every column gets the same share of the spare width`, r.cols.join( '/' ) );
+	check( ! r.squeezed, `Table ${ i + 1 }: and no column is made narrower than its text needs`, r.cols.join( '/' ) );
 } );
 await apage.locator( '.lstab' ).first().screenshot( { path: `${ SHOTS }/14-even-columns.png` } );
 

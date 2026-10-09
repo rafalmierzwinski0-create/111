@@ -85,6 +85,14 @@ class LSTAB_Cache {
 			$GLOBALS['wp_fastest_cache']->singleDeleteCache( false, $post_id );
 		}
 
+		if ( isset( $GLOBALS['nginx_purger'] ) && is_object( $GLOBALS['nginx_purger'] ) && method_exists( $GLOBALS['nginx_purger'], 'purge_url' ) ) {
+			$permalink = get_permalink( $post_id );
+
+			if ( $permalink ) {
+				$GLOBALS['nginx_purger']->purge_url( $permalink );
+			}
+		}
+
 		if ( class_exists( 'WpeCommon' ) && method_exists( 'WpeCommon', 'purge_varnish_cache' ) ) {
 			WpeCommon::purge_varnish_cache( $post_id );
 		}
