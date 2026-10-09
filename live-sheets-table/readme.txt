@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.41.1
+Stable tag: 3.42.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -126,7 +126,7 @@ No. Link sharing is enough. Publish-to-web URLs are also accepted if you already
 
 = Is there a row limit? =
 
-No. The free version renders every row your sheet contains.
+No. The free version renders every row your sheet contains. The one limit is size: a tab can hold up to 10 MB of data, around a hundred thousand rows of short values, which is far more than one page can show comfortably. A bigger tab is refused with a note in the dashboard, and the copy already held stays on show. Developers can change the size with the `lstab_max_sheet_bytes` filter.
 
 = How quickly do changes appear? =
 
@@ -192,6 +192,35 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.42.0 =
+* Fixed: a renamed column, or a column hidden from visitors (Pro), went back to being shown under its own name when its heading in Google was written on two lines, held a double space or something shaped like a tag, such as "Size <M>". The dashboard also kept warning that such a heading had changed when it had not.
+* Fixed (Pro): colour rules, "Show only" menus, column looks and written filters did not find a column whose heading is on two lines, nor a value such as "<18". The dashboard cards now find what was saved under such headings, instead of offering it unticked and dropping it on the next save.
+* Fixed (Pro): a column look on a heading with square brackets, such as "Price [PLN]", was lost every time the form was saved.
+* Fixed (Pro): a filter typed with symbols in the block or in Elementor, such as Price<100, Stock>5, lost both conditions and showed every row.
+* Added (Pro): when a filter names a column the table does not have, the site owner sees a note above the table naming it and listing the columns there are. Visitors see nothing, and the rows come through as before.
+* Fixed: searching a table that has pages for something with "<" in it, such as "<18", found nothing, and the box then said "&lt;18". Marking what a search found could also show "&#039;" or "&amp;" in place of an apostrophe or an ampersand.
+* Fixed: a table with pages, sorted by a column, showed no arrow on that column, and did not tell screen readers which column it was sorted by.
+* Fixed: a tab far too big for a web page (over 10 MB), or too big for the memory the server gives PHP, could take the page down while it was being read. It is now refused with a reason in the dashboard, and the copy already held stays on show.
+* Fixed: the background refresh puts its own schedule back if it goes missing — after a site is restored from a backup, say, or a tool for tidying scheduled tasks removes it.
+* Fixed: behind a page cache, one slow sheet could use up a visitor's whole background check. The check now has a time budget, and a sheet that runs out of it is finished in the background instead of being reported as failing.
+* Fixed: behind a page cache, "Updated … ago" now moves on after a check that found nothing new, not only after a change.
+* Fixed: a server clock that jumped forward could stop a table from refreshing until the clock caught up.
+* Fixed: a table set to refresh every minute kept being checked every minute after Pro stopped. The plan's shortest interval now applies when each check runs.
+* Added: pages cached by Nginx Helper are cleared when their table changes.
+* Fixed: themes and page builders that style every table, button and field on a site — fixed column widths, stripes, borders, text broken at any letter, uppercase buttons, rounded search boxes — could pull a table out of shape. On Twenty Twenty the pinned first column slid off its edge. The table now keeps its own shape against such rules.
+* Added: right-to-left sites. The pinned first column, alignment, the slider and the arrow that opens a row's details follow the direction of the page.
+* Changed: when a table is narrower than the page, the spare room is shared out between the columns, instead of every column being made the same width, which squeezed long columns into many lines.
+* Fixed: the floating slider showed at the foot of the screen before any of the table's rows had come into view, over whatever stood above the table. It now waits until rows are in view.
+* Fixed: on a phone, the page links and the "updated … ago" line stood squeezed side by side under a table with pages. They stack now.
+* Fixed (Pro): in the Cards layout the arrow that opens a row's details sits in the card's corner, instead of pushing the first value aside.
+* Fixed: the same table placed twice on one page, filtered two ways, shared its search, sorting and pages, and using one redrew the other.
+* Fixed (Pro): in the Contrast style a column name disappeared while it was pointed at.
+* Fixed (Pro): the Google client secret is no longer written back into the Pro screen. Leave the field empty to keep the one saved.
+* Changed: the search box of a table with pages says "Search all rows…", since it searches every page, not the one on screen.
+* Fixed: on a phone the Columns card pushed the screen sideways and stood the sheet's headings one letter to a line, and the list under "Put it on a page" ran off the screen. Both stack now, and each name field tells a screen reader which column it renames.
+* Fixed (Pro): Excel downloads keep a code with a leading zero (02134), a number written with a plus and an ID longer than 15 digits exactly as they are, rather than as numbers that lose the zero, the plus or their last digits.
+* Fixed (Pro): a hidden row whose first cell began with "<" was written to the database again on every refresh.
 
 = 3.41.1 =
 * Fixed: the line between rows was twice as thick under a pinned first column as under every other column, in every style.
@@ -638,6 +667,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.42.0 =
+Columns hidden from visitors stay hidden when their headings in Google are written on two lines.
 
 = 3.17.0 =
 Dark when the page is dark, not when the visitor's laptop is.

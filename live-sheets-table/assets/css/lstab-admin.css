@@ -1994,6 +1994,91 @@
 	color: #646970;
 }
 
+.lstab-column-list input.regular-text {
+	inline-size: 100%;
+	max-inline-size: 25em;
+	box-sizing: border-box;
+}
+
+@media ( max-width: 600px ) {
+	.lstab-column-list,
+	.lstab-column-list tbody {
+		display: block;
+	}
+
+	.lstab-column-list thead {
+		display: none;
+	}
+
+	.lstab-column-list tr {
+		display: grid;
+		grid-template-columns: minmax( 0, 1fr ) auto;
+		align-items: center;
+		gap: 0.35rem 0.6rem;
+		padding-block: 0.6rem;
+		border-bottom: 1px solid #f0f0f1;
+	}
+
+	.lstab-column-list td,
+	.lstab-column-list td:last-child {
+		display: block;
+		inline-size: auto;
+		padding: 0;
+		border: 0;
+		text-align: start;
+	}
+
+	.lstab-column-list td:nth-child( 2 ) {
+		grid-column: 1 / -1;
+		grid-row: 2;
+	}
+
+	.lstab-column-list code {
+		overflow-wrap: anywhere;
+	}
+
+	.lstab-column-list input.regular-text {
+		max-inline-size: none;
+	}
+
+	.lstab-admin .lstab-attribute-list,
+	.lstab-admin .lstab-attribute-list tbody,
+	.lstab-admin .lstab-attribute-list tr {
+		display: block;
+	}
+
+	.lstab-admin .lstab-attribute-list thead {
+		display: none;
+	}
+
+	.lstab-admin .lstab-attribute-list tr {
+		padding-block: 0.5rem;
+		border-block-end: 1px solid var( --lstab-line );
+	}
+
+	.lstab-admin .lstab-attribute-list tr:last-child {
+		border-block-end: 0;
+	}
+
+	.lstab-admin .lstab-attribute-list td,
+	.lstab-admin .lstab-attribute-list td:first-child {
+		display: block;
+		inline-size: auto;
+		padding: 0;
+		border: 0;
+		white-space: normal;
+	}
+
+	.lstab-admin .lstab-attribute-list td + td {
+		margin-block-start: 0.3rem;
+	}
+
+	.lstab-admin .lstab-attribute-list .lstab-attribute-example {
+		white-space: normal;
+		overflow-wrap: anywhere;
+	}
+}
+
 .lstab-drift {
 	margin: 0 0 1rem;
 }

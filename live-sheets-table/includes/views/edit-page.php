@@ -644,7 +644,8 @@ if ( ! $lstab_is_edit ) {
 											<?php disabled( $lstab_waiting ); ?>
 											name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][label]"
 											value="<?php echo esc_attr( $lstab_column['label'] ); ?>"
-											placeholder="<?php echo esc_attr( $lstab_column['source'] ); ?>">
+											placeholder="<?php echo esc_attr( $lstab_column['source'] ); ?>"
+											aria-label="<?php echo esc_attr( sprintf( /* translators: %s: the column's heading in the sheet. */ __( 'Name shown for “%s”', 'live-sheets-table' ), '' === $lstab_column['source'] ? sprintf( /* translators: %d: column number. */ __( 'Column %d', 'live-sheets-table' ), (int) $lstab_index + 1 ) : $lstab_column['source'] ) ); ?>">
 									</td>
 									<td class="lstab-column-state">
 										<input type="hidden" <?php disabled( $lstab_waiting ); ?>

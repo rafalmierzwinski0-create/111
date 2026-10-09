@@ -237,6 +237,16 @@ php "$REPO/tests/harness/activate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pr
 php "$SCRATCH/seed71.php" > /dev/null
 cp "$REPO/tests/harness/picker-test.mjs" "$SCRATCH/picker-test.mjs"
 cd "$SCRATCH" && LSTAB_SHOTS="$REPO/screenshots" node picker-test.mjs
+
+echo
+echo "=============================================="
+echo " The dashboard on a phone, a tablet and a desk"
+echo "=============================================="
+# Every screen and every pane, with the add-on's cards on them, at five widths.
+# The columns card once pushed a phone's screen sideways and stood the sheet's
+# headings one letter to a line; WordPress sizes its fields for a laptop.
+php "$SCRATCH/seed71.php" > /dev/null
+node "$REPO/tests/admin-sweep.mjs"
 php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null
 
 echo
