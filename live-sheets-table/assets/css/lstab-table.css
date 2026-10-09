@@ -574,7 +574,7 @@
 	}
 }
 
-.lstab-layout-cards .lstab-sticky-head .lstab-table thead th {
+.lstab-layout-cards.lstab-sticky-head .lstab-table thead th {
 	position: static;
 }
 

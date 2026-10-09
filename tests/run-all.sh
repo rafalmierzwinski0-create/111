@@ -171,6 +171,17 @@ node "$REPO/tests/skins-browser.mjs"
 # end-to-end suite asks about when it checks that an unused table is unused.
 php "$REPO/tests/harness/drop-skins.php" "$SCRATCH/wp71"
 
+echo
+echo "=============================================="
+echo " Nothing spills — every style, layout and shape of sheet"
+echo "=============================================="
+# Six shapes of sheet in all ten styles and three layouts, on the default theme
+# at a phone and a desk width, under the table and button rules aggressive
+# themes ship, and right to left. A pinned first column that slid off its edge
+# on a hostile theme is what this was written after. It builds its own pages
+# and takes them away again, for the same reason the skins pages go above.
+node "$REPO/tests/layout-sweep.mjs"
+
 # The free plugin's own suite asserts the free tier, so Pro must be off for it.
 php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php
 
