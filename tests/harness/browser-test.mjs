@@ -955,27 +955,35 @@ section( '5c. Numeric columns' );
 
 // Measured rather than read off the stylesheet: alignment is written as
 // "end" so a right-to-left page mirrors it, and "end" is what a browser
-// reports even where it lands on the right. Where the words sit is the answer.
+// reports even where it lands on the right. Where the figures sit in their
+// cells is the answer; the heading cannot say, since it is often the widest
+// thing in its column and has no room on either side.
 const alignments = await page.evaluate( () => {
-	const heads = document.querySelectorAll( '.lstab-style-striped thead th' );
-	return Array.from( heads ).map( ( th ) => {
-		const cell = th.getBoundingClientRect();
-		const style = getComputedStyle( th );
-		const words = ( th.querySelector( '.lstab-sort' ) || th ).getBoundingClientRect();
+	const table = document.querySelector( '.lstab-style-striped .lstab-table' );
+	const row = table.querySelector( 'tbody tr.lstab-row' );
+
+	return Array.from( table.querySelectorAll( 'thead th' ) ).map( ( th, index ) => {
+		const td = row.children[ index ];
+		const words = document.createRange();
+		words.selectNodeContents( td.querySelector( '.lstab-cell-value' ) || td );
+		const text = words.getBoundingClientRect();
+		const cell = td.getBoundingClientRect();
+		const style = getComputedStyle( td );
 
 		return {
 			label: th.textContent.trim(),
 			align: th.getAttribute( 'data-lstab-align' ),
 			computed: style.textAlign,
-			roomLeft: Math.round( words.left - cell.left - parseFloat( style.paddingLeft ) ),
-			roomRight: Math.round( cell.right - parseFloat( style.paddingRight ) - words.right ),
+			value: td.textContent.trim(),
+			roomLeft: Math.round( text.left - cell.left - parseFloat( style.paddingLeft ) ),
+			roomRight: Math.round( cell.right - parseFloat( style.paddingRight ) - text.right ),
 		};
 	} );
 } );
 const priceColumn = alignments.find( ( a ) => a.label.startsWith( 'Cena' ) );
 const productColumn = alignments.find( ( a ) => a.label.startsWith( 'Produkt' ) );
 check( priceColumn && priceColumn.align === 'end', 'Price column marked numeric', JSON.stringify( priceColumn ) );
-check( priceColumn && priceColumn.roomRight <= 1 && priceColumn.roomLeft > priceColumn.roomRight, 'Price column renders right-aligned', JSON.stringify( priceColumn ) );
+check( priceColumn && priceColumn.roomRight <= 1 && priceColumn.roomLeft > 1, 'Price column renders right-aligned', JSON.stringify( priceColumn ) );
 check( productColumn && productColumn.align === 'start', 'Product column stays left-aligned', JSON.stringify( productColumn ) );
 
 const tabular = await page.evaluate( () =>
