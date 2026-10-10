@@ -791,7 +791,7 @@ class LSTAB_Admin {
 			return array(
 				'tone' => 'warn',
 				'icon' => 'alert',
-				'text' => __( 'Google did not answer', 'live-sheets-table' ),
+				'text' => __( 'Last check failed', 'live-sheets-table' ),
 				'note' => __( 'Visitors see the last copy that arrived, so nothing on your pages is broken. The next check runs shortly.', 'live-sheets-table' ) . $why,
 			);
 		}

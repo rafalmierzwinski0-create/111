@@ -84,9 +84,11 @@ $headings = array(
 	'&amp; literal',
 	'Rating >= 4',
 	'Is it? not',
+	"Line one\nLine two\nLine three",
 );
 
 $values = array(
+	"One\nTwo\nThree", "Five\nline\nnote\nends\nhere", "Gap\n\nafter blank", "Ends with break\n", "Out of\nstock",
 	'<18', '18-25', 'A & B', "Kids' helmet", '"quoted"', 'Size <M>', '50%', '100%AB', 'Zażółć', '🚲 bike',
 	"two\nlines", 'double  space', 'pipe|value', 'comma, value', '=1+1', '+48 600 700 800', '02134', '1 215,50',
 	'C:\\dir', "nb\u{00A0}sp", '&amp;', '<b>bold</b>', '[x]', '{y}', 'a > b', 'is not', 'has has',
@@ -98,10 +100,13 @@ $no_shortcode = array( 4, 12 );
 
 $count  = count( $values );
 $rows   = array();
-foreach ( range( 0, 3 ) as $r ) {
+// Five rows: the value under test twice, two others, and a plain one, so that
+// every value in the list turns up in some column.
+foreach ( range( 0, 4 ) as $r ) {
 	$row = array();
 	foreach ( $headings as $c => $heading ) {
-		$row[] = 2 === $r ? 'plain' : ( 1 === $r ? $values[ ( $c + 7 ) % $count ] : $values[ $c % $count ] );
+		$at    = array( $c, $c + 7, 0, $c, $c + 18 );
+		$row[] = 2 === $r ? 'plain' : $values[ $at[ $r ] % $count ];
 	}
 	$rows[] = $row;
 }
@@ -116,6 +121,9 @@ $csv   = implode( ',', array_map( $quote, $headings ) ) . "\n";
 foreach ( $rows as $row ) {
 	$csv .= implode( ',', array_map( $quote, $row ) ) . "\n";
 }
+// Google ends a line inside a cell with \n, but a sheet saved through Excel
+// may carry \r\n; both have to arrive as one line break.
+$csv = str_replace( "Out of\nstock", "Out of\r\nstock", $csv );
 file_put_contents( WP_CONTENT_DIR . '/lstab-mock-custom.csv', $csv );
 file_put_contents( WP_CONTENT_DIR . '/lstab-mock-state.json', wp_json_encode( array( 'mode' => 'custom', 'tab' => 'main' ) ) );
 
@@ -322,7 +330,10 @@ $curly     = $view( '[sheet_table id=”' . $id . '”]' );
 wp_set_current_user( 0 );
 ch_assert( false !== strpos( $lost_note, 'lt instead of' ), 'And tells the site owner how to write it', wp_strip_all_tags( $lost_note ) );
 ch_assert( false !== strpos( $curly, 'curly' ), 'Curly quotes pasted from a document are named as the reason a table is missing', wp_strip_all_tags( $curly ) );
-ch_assert( 2 === $rows_in( $view( '[sheet_table id="' . $id . '" filter="Product is &lt;18"]' ) ), 'A "<" written as &lt; still works' );
+$lt_column = (int) array_search( '<18', array_map( $target, array_keys( $headings ) ), true );
+$lt_name   = trim( preg_replace( '/\s+/u', ' ', $offered[ $lt_column ] ) );
+$lt_rows   = $rows_in( $view( '[sheet_table id="' . $id . '" filter="' . esc_attr( $lt_name ) . ' is &lt;18"]' ) );
+ch_assert( $matching( $lt_column, '<18' ) === $lt_rows && $lt_rows > 0, 'A "<" written as &lt; still works', $lt_name . ': ' . $lt_rows );
 
 echo "\n\033[1m6. Searching and sorting a table with pages\033[0m\n";
 
@@ -361,7 +372,7 @@ foreach ( $headings as $c => $heading ) {
 	);
 	$got  = $rows_in( $view( '[sheet_table id="' . $id . '"]' ) );
 	$_GET = array();
-	if ( 4 !== $got ) {
+	if ( count( $rows ) !== $got ) {
 		$sorted[] = $named( $c ) . ": {$got} rows";
 	}
 }

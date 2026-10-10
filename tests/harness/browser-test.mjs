@@ -1005,6 +1005,15 @@ await page.fill( '.lstab-style-striped .lstab-search-input', 'nieistniejące' );
 await page.waitForTimeout( 300 );
 check( await page.locator( '.lstab-style-striped .lstab-no-results' ).isVisible(), 'Empty search shows the "no rows" message' );
 
+// A cell written on two lines in Google is shown on two lines here as well;
+// a browser would otherwise run the two together as one.
+const twoLines = await page.evaluate( () => {
+	const cell = [ ...document.querySelectorAll( '.lstab-style-striped .lstab-cell-value' ) ].find( ( value ) => value.textContent.includes( 'druga linia' ) );
+
+	return cell ? cell.innerText : null;
+} );
+check( 'Wielolinijkowy opis:\ndruga linia opisu' === twoLines, 'A cell written on two lines in the sheet is shown on two lines', JSON.stringify( twoLines ) );
+
 // A cell written on two lines in Google holds a line break, and nobody types
 // a line break into a search box: the words either side of it still match.
 await page.fill( '.lstab-style-striped .lstab-search-input', 'opis:  druga' );
@@ -1350,7 +1359,7 @@ await Promise.all( [
 await page.waitForLoadState( 'networkidle' );
 
 const failedStatus = await page.locator( '.lstab-state' ).first().innerText();
-check( /Google did not answer/.test( failedStatus ), 'Dashboard shows the sync error', failedStatus );
+check( /Last check failed/.test( failedStatus ), 'Dashboard shows the sync error', failedStatus );
 
 const detail = await page.locator( '.lstab-src-note' ).first().innerText();
 check( /last copy that arrived/.test( detail ), 'Dashboard says the public page is unaffected', detail );

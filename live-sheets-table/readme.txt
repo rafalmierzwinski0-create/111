@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.42.1
+Stable tag: 3.42.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -192,6 +192,12 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 10. The block in the editor, previewing the real server-rendered table.
 
 == Changelog ==
+
+= 3.42.2 =
+* Changed: a cell written on several lines in Google — two, three or more — is shown on those lines, in the table, in cards and under a row, and so is a heading written on more than one line. Before, the lines ran together as one.
+* Changed (Pro): in the Excel download such a cell wraps onto its lines, and its column is as wide as its longest line rather than all of them end to end.
+* Fixed: the memory a long table without pages needs was underestimated, because WordPress goes over the whole page several more times once the table is in it. A table of 30,000 rows could still take the page down on a server allowing 160 MB. Such a table is now shown in pages there, while one of 15,000 rows still fits on one page.
+* Changed: a table whose last check failed is headed "Last check failed" rather than "Google did not answer", which was wrong whenever Google had answered — with a refusal, a missing sheet, or one too large. The reason is given underneath, as before.
 
 = 3.42.1 =
 * Fixed (Pro): a written filter can name any column, including one whose name holds a sign ("Rating >= 4") or one of the filter's own words ("Is it? not"), and can match values with signs in them, such as "<18" or "a > b".
@@ -679,6 +685,9 @@ Yes. Everything from the spreadsheet is escaped on output, so a cell containing 
 * Full internationalisation, with a Polish translation included.
 
 == Upgrade Notice ==
+
+= 3.42.2 =
+Cells written on several lines are shown on those lines.
 
 = 3.42.1 =
 Filters, searches and rules read every character a sheet can hold.

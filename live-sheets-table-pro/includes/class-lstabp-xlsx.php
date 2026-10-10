@@ -75,7 +75,8 @@ class LSTABP_Xlsx {
 		foreach ( $cells as $index => $value ) {
 			$value     = (string) $value;
 			$reference = self::column_name( $index ) . (int) $line;
-			$style     = $head ? ' s="1"' : '';
+			$lines     = false !== strpos( $value, "\n" );
+			$style     = $head ? ( $lines ? ' s="3"' : ' s="1"' ) : ( $lines ? ' s="2"' : '' );
 
 			$width = min( 60, max( 9, self::text_length( $value ) + 2 ) );
 			if ( ! isset( $widths[ $index ] ) || $width > $widths[ $index ] ) {
@@ -122,7 +123,13 @@ class LSTABP_Xlsx {
 	}
 
 	protected static function text_length( $value ) {
-		return function_exists( 'mb_strlen' ) ? (int) mb_strlen( $value, 'UTF-8' ) : strlen( $value );
+		$longest = 0;
+
+		foreach ( explode( "\n", (string) $value ) as $line ) {
+			$longest = max( $longest, function_exists( 'mb_strlen' ) ? (int) mb_strlen( $line, 'UTF-8' ) : strlen( $line ) );
+		}
+
+		return $longest;
 	}
 
 	public static function column_name( $index ) {
@@ -198,9 +205,11 @@ class LSTABP_Xlsx {
 			. '<fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>'
 			. '<borders count="1"><border/></borders>'
 			. '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
-			. '<cellXfs count="2">'
+			. '<cellXfs count="4">'
 			. '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
 			. '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
+			. '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>'
+			. '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>'
 			. '</cellXfs>'
 			. '</styleSheet>';
 	}

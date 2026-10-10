@@ -346,6 +346,7 @@
 .lstab .lstab-detail-key,
 .lstab .lstab-detail-value {
 	line-height: inherit;
+	white-space: pre-line;
 }
 
 .lstab-table tbody tr:last-child {

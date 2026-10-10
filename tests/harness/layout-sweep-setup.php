@@ -37,9 +37,9 @@ $shapes['wide'] = array( $h, $rows, array() );
 $long = 'This frame is built from hydroformed aluminium tubing with internal cable routing, a tapered head tube and room for 2.6 inch tyres, which makes it equally happy on forest singletrack and long gravel roads.';
 $rows = array();
 foreach ( range( 0, 5 ) as $i ) {
-	$rows[] = array( $products[ $i ], $i % 2 ? $long : substr( $long, 0, 60 ), 'https://www.example-bike-shop.com/products/' . strtolower( str_replace( ' ', '-', $products[ $i ] ) ) . '?utm_source=sheet&utm_medium=table&utm_campaign=spring', 'customer.service.department@example-bike-shop.com', 'Pneumonoultramicroscopicsilicovolcanoconiosis-' . $i . '-ABCDEFGHIJKLMNOPQRSTUVWXYZ' );
+	$rows[] = array( $products[ $i ], $i % 3 ? ( $i % 2 ? $long : substr( $long, 0, 60 ) ) : "Written on\nthree lines\nin the sheet", 'https://www.example-bike-shop.com/products/' . strtolower( str_replace( ' ', '-', $products[ $i ] ) ) . '?utm_source=sheet&utm_medium=table&utm_campaign=spring', 'customer.service.department@example-bike-shop.com', 'Pneumonoultramicroscopicsilicovolcanoconiosis-' . $i . '-ABCDEFGHIJKLMNOPQRSTUVWXYZ' );
 }
-$shapes['wordy'] = array( array( 'Name', 'Description', 'Website', 'Contact e-mail', 'A very long heading for a column that goes on and on without stopping' ), $rows, array() );
+$shapes['wordy'] = array( array( 'Name', "Description\n(two lines)", 'Website', 'Contact e-mail', 'A very long heading for a column that goes on and on without stopping' ), $rows, array() );
 
 $h = array( 'Product', 'Price', 'Stock', 'Category', 'Description', 'Weight', 'Warranty', 'Supplier', 'Notes' );
 $rows = array();

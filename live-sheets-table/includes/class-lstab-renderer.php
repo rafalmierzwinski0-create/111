@@ -70,22 +70,30 @@ class LSTAB_Renderer {
 		return $html;
 	}
 
-	const ROOMY_CELLS = 20000;
+	const MARKUP_PER_CELL = 160;
 
-	const BYTES_PER_CELL = 800;
+	const PAGE_COPIES = 7.5;
 
 	protected static function fit_on_page( $source, $args ) {
 		$asked = ( isset( $args['per_page'] ) && null !== $args['per_page'] && '' !== $args['per_page'] ) ? (int) $args['per_page'] : null;
 		$paged = null !== $asked ? $asked > 0 : ! empty( $source['per_page'] );
 		$cells = (int) $source['row_count'] * max( 1, (int) $source['col_count'] );
 
-		if ( $paged || $cells < self::ROOMY_CELLS ) {
+		if ( $paged || $cells < 2000 ) {
 			return $args;
 		}
 
-		$need = $cells * self::BYTES_PER_CELL;
+		$text = 0;
 
-		if ( LSTAB_Fetcher::has_room( $need ) ) {
+		foreach ( (array) $source['data']['rows'] as $row ) {
+			foreach ( (array) $row as $cell ) {
+				$text += strlen( (string) $cell );
+			}
+		}
+
+		$need = (int) ( self::PAGE_COPIES * ( $cells * self::MARKUP_PER_CELL + $text ) );
+
+		if ( $need < 32 * MB_IN_BYTES || LSTAB_Fetcher::has_room( $need ) ) {
 			return $args;
 		}
 
@@ -384,7 +392,7 @@ class LSTAB_Renderer {
 											<span class="lstab-sort-icon" aria-hidden="true"></span>
 										</button>
 									<?php else : ?>
-										<?php echo esc_html( self::literal( $header ) ); ?>
+										<span class="lstab-sort-label"><?php echo esc_html( self::literal( $header ) ); ?></span>
 									<?php endif; ?>
 								</th>
 							<?php endforeach; ?>
@@ -472,18 +480,8 @@ class LSTAB_Renderer {
 												);
 												?>
 												<div class="lstab-detail-pair">
-													<span class="lstab-detail-key">
-														<?php echo esc_html( self::literal( isset( $headers[ $lstab_detail_index ] ) ? $headers[ $lstab_detail_index ] : '' ) ); ?>
-													</span>
-													<span class="lstab-detail-value">
-														<?php
-														if ( null !== $lstab_detail_custom ) {
-															echo wp_kses_post( $lstab_detail_custom );
-														} else {
-															echo esc_html( self::literal( $lstab_detail_value ) );
-														}
-														?>
-													</span>
+													<span class="lstab-detail-key"><?php echo esc_html( self::literal( isset( $headers[ $lstab_detail_index ] ) ? $headers[ $lstab_detail_index ] : '' ) ); ?></span>
+													<span class="lstab-detail-value"><?php echo null !== $lstab_detail_custom ? wp_kses_post( $lstab_detail_custom ) : esc_html( self::literal( $lstab_detail_value ) ); ?></span>
 												</div>
 											<?php endforeach; ?>
 										</div>
