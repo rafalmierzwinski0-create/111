@@ -27,7 +27,8 @@ if ( ! fs.existsSync( cardPath ) ) {
 const markup = fs.readFileSync( cardPath, 'utf8' );
 const adminJs = fs.readFileSync( path.join( repo, 'live-sheets-table-pro/assets/js/lstabp-admin.js' ), 'utf8' );
 const adminCss = fs.readFileSync( path.join( repo, 'live-sheets-table-pro/assets/css/lstabp-admin.css' ), 'utf8' );
-const tableCss = fs.readFileSync( path.join( repo, 'live-sheets-table/assets/css/lstab-table.css' ), 'utf8' );
+const tableCss = fs.readFileSync( path.join( repo, 'live-sheets-table/assets/css/lstab-table.css' ), 'utf8' )
+	+ fs.readFileSync( path.join( repo, 'live-sheets-table-pro/assets/css/lstabp-styles.css' ), 'utf8' );
 
 let passed = 0;
 let failed = 0;

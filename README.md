@@ -74,7 +74,7 @@ live-sheets-table/          The plugin — this is what ships
     class-lstab-shortcode.php Thin adapter over the renderer
     class-lstab-rest.php      Preview, source list, manual refresh
     class-lstab-admin.php     Dashboard screens and admin-post handlers
-    class-lstab-limits.php    Every free/Pro boundary, behind filters
+    class-lstab-limits.php    Sync intervals on offer and who may manage tables
     class-lstab-customizer.php Editable appearance tokens and their sanitising
     class-lstab-columns.php   Display labels, visibility, and drift detection
     views/                    Admin templates
@@ -206,7 +206,8 @@ It adds:
 - **Filtered views.** One saved sheet feeds as many pages as you like:
   `[sheet_table id="1" filter="Kategoria is Rowery"]`. Filtering happens at
   render time on the stored copy, so it costs no extra request to Google.
-- Higher limits, one-minute syncing and the premium presets.
+- Syncing every minute or every five, six more table styles, colour rules,
+  column looks, filters for visitors and downloads.
 
 **Untested against live Google.** This environment cannot reach
 `accounts.google.com`, so the token exchange, refresh and authenticated fetch
@@ -241,15 +242,18 @@ Pro add-on later without touching this code.
 
 ## Extension points
 
-Every free/Pro boundary is a filter, so the Pro add-on lifts limits without
-forking the free plugin. The suite exercises these by simulating Pro.
+The free plugin locks nothing and counts nothing down: WordPress.org does not
+allow a free plugin to hold back what a payment would release. The add-on adds
+what it brings through these hooks, and the free plugin works the same with or
+without it.
 
 | Hook | Purpose |
 | --- | --- |
-| `lstab_is_pro` | Flips the tier |
-| `lstab_max_sources` | Number of saved sources (free: 6) |
-| `lstab_min_sync_interval` | Fastest sync in seconds (free: 900) |
-| `lstab_style_presets` | Register presets, or unlock the Pro-marked ones |
+| `lstab_sync_intervals` | Add intervals to offer; the shortest one on offer is the floor |
+| `lstab_style_presets` | Register more table styles |
+| `lstab_style_alias` | Map a retired style's name onto the one that replaced it |
+| `lstab_table_styles` | Add a stylesheet handle that loads with the table's own |
+| `lstab_masthead_title` | Print something beside the plugin's name in the dashboard |
 | `lstab_render_cell` | Replace a cell's HTML — conditional formatting |
 | `lstab_column_alignments` | Override which columns are treated as numeric |
 | `lstab_customizer_enabled` | Turn the visual appearance editor on or off |

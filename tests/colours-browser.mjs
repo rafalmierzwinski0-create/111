@@ -19,7 +19,8 @@ import { fileURLToPath } from 'url';
 
 const here = path.dirname( fileURLToPath( import.meta.url ) );
 const repo = path.join( here, '..' );
-const CSS = fs.readFileSync( path.join( repo, 'live-sheets-table/assets/css/lstab-table.css' ), 'utf8' );
+const CSS = fs.readFileSync( path.join( repo, 'live-sheets-table/assets/css/lstab-table.css' ), 'utf8' )
+	+ fs.readFileSync( path.join( repo, 'live-sheets-table-pro/assets/css/lstabp-styles.css' ), 'utf8' );
 const skins = [ 'clean', 'striped', 'bordered', 'midnight', 'editorial', 'cards', 'terminal', 'aurora', 'ledger', 'contrast' ];
 
 let passed = 0;

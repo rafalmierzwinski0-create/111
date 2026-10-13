@@ -1,5 +1,5 @@
 /**
- * Browser test for the Pro picker: click a heading, click a row, save, and
+ * Browser test for the picker: click a heading, click a row, save, and
  * check that the published page agrees.
  *
  * The PHP suite proves the rules. This proves that a person clicking things in
@@ -28,6 +28,17 @@ const page = await context.newPage();
 const errors = [];
 page.on( 'console', ( m ) => { if ( m.type() === 'error' && ! /net::ERR/.test( m.text() ) ) errors.push( m.text() ); } );
 
+const finish = async () => {
+	check( errors.length === 0, 'No script errors anywhere in the run', errors.join( '\n' ) );
+
+	console.log( '\n' + '─'.repeat( 60 ) );
+	console.log( `  \x1b[32m${ pass } passed\x1b[0m, \x1b[31m${ fail } failed\x1b[0m` );
+	console.log( '─'.repeat( 60 ) );
+
+	await browser.close();
+	process.exit( fail > 0 ? 1 : 0 );
+};
+
 section( '1. Opening the picker' );
 
 await page.goto( `${ BASE }/wp-login.php`, { waitUntil: 'networkidle' } );
@@ -43,18 +54,18 @@ await page.goto( editHref, { waitUntil: 'networkidle' } );
 await page.locator( '[data-lstab-goto="hide"]' ).click();
 await page.waitForTimeout( 150 );
 
-check( await page.locator( '#lstabp-picker' ).count() === 1, 'The picker is on the source screen' );
-check( await page.locator( '#lstabp-picker' ).isVisible(), 'And is on screen once its tab is chosen' );
-check( await page.locator( '#lstabp-picker thead button[data-lstabp-column]' ).count() > 0, 'Headings are buttons' );
-check( await page.locator( '#lstabp-picker tbody button[data-lstabp-row]' ).count() > 0, 'So are rows' );
+check( await page.locator( '#lstab-picker' ).count() === 1, 'The picker is on the source screen' );
+check( await page.locator( '#lstab-picker' ).isVisible(), 'And is on screen once its tab is chosen' );
+check( await page.locator( '#lstab-picker thead button[data-lstab-pick-column]' ).count() > 0, 'Headings are buttons' );
+check( await page.locator( '#lstab-picker tbody button[data-lstab-pick-row]' ).count() > 0, 'So are rows' );
 
 section( '2. Clicking a heading and a row' );
 
-const heading = page.locator( '#lstabp-picker thead button[data-lstabp-column="2"]' );
+const heading = page.locator( '#lstab-picker thead button[data-lstab-pick-column="2"]' );
 const headingName = ( await heading.innerText() ).trim();
 await heading.click();
 check(
-	await page.locator( '#lstabp-picker th.is-hidden' ).count() > 0,
+	await page.locator( '#lstab-picker th.is-hidden' ).count() > 0,
 	'A clicked heading is drawn as dropped'
 );
 check(
@@ -62,27 +73,27 @@ check(
 	'And the list of columns says so too, without a reload'
 );
 
-const rowLabel = ( await page.locator( '#lstabp-picker tbody tr' ).nth( 1 ).locator( 'td' ).first().innerText() ).trim();
-await page.locator( '#lstabp-picker tbody tr' ).nth( 1 ).locator( 'button[data-lstabp-row]' ).click();
+const rowLabel = ( await page.locator( '#lstab-picker tbody tr' ).nth( 1 ).locator( 'td' ).first().innerText() ).trim();
+await page.locator( '#lstab-picker tbody tr' ).nth( 1 ).locator( 'button[data-lstab-pick-row]' ).click();
 await page.waitForTimeout( 300 );
 
-const chips = await page.locator( '#lstabp-hidden-rows-chips .lstabp-chip' ).allInnerTexts();
+const chips = await page.locator( '#lstab-hidden-rows-chips .lstab-picker-chip' ).allInnerTexts();
 check( chips.length === 1, 'A clicked row is listed below the table', JSON.stringify( chips ) );
 check( chips[ 0 ].includes( rowLabel ), 'By name', JSON.stringify( chips ) );
 
-const rowLine = await page.locator( '#lstabp-picker tbody tr' ).nth( 1 ).getAttribute( 'data-lstabp-line' );
+const rowLine = await page.locator( '#lstab-picker tbody tr' ).nth( 1 ).getAttribute( 'data-lstab-pick-line' );
 check( chips[ 0 ].includes( rowLine ), 'And by the line Google shows it on', JSON.stringify( chips ) + ' line ' + rowLine );
 
-const fieldCount = await page.locator( '#lstabp-hidden-rows-fields input[name^="hidden_rows"]' ).count();
+const fieldCount = await page.locator( '#lstab-hidden-rows-fields input[name^="hidden_rows"]' ).count();
 check( fieldCount === 4, 'It carries the line, the name, what it said and how to check it', String( fieldCount ) );
 check(
-	await page.locator( '#lstabp-hidden-rows-fields input[name$="[index]"]' ).first().getAttribute( 'value' ) === '1',
+	await page.locator( '#lstab-hidden-rows-fields input[name$="[index]"]' ).first().getAttribute( 'value' ) === '1',
 	'And the line it remembers is the row that was clicked'
 );
 
-await page.locator( '.lstabp-picker-card' ).scrollIntoViewIfNeeded();
+await page.locator( '.lstab-picker-card' ).scrollIntoViewIfNeeded();
 await page.waitForTimeout( 200 );
-await page.locator( '.lstabp-picker-card' ).screenshot( { path: `${ SHOTS }/37-picker.png` } );
+await page.locator( '.lstab-picker-card' ).screenshot( { path: `${ SHOTS }/37-picker.png` } );
 
 section( '3. Saving, and the published page' );
 
@@ -117,19 +128,19 @@ await page.goto( editHref, { waitUntil: 'networkidle' } );
 await page.locator( '[data-lstab-goto="hide"]' ).click();
 await page.waitForTimeout( 150 );
 check(
-	await page.locator( '#lstabp-picker th.is-hidden' ).count() > 0,
+	await page.locator( '#lstab-picker th.is-hidden' ).count() > 0,
 	'The choice is still shown as made after a reload'
 );
 check(
-	await page.locator( '#lstabp-hidden-rows-chips .lstabp-chip' ).count() === 1,
+	await page.locator( '#lstab-hidden-rows-chips .lstab-picker-chip' ).count() === 1,
 	'And so is the hidden row'
 );
 
-await page.locator( '#lstabp-picker thead button[data-lstabp-column="2"]' ).click();
-await page.locator( '#lstabp-hidden-rows-chips .lstabp-chip-remove' ).first().click();
+await page.locator( '#lstab-picker thead button[data-lstab-pick-column="2"]' ).click();
+await page.locator( '#lstab-hidden-rows-chips .lstab-picker-chip-remove' ).first().click();
 await page.waitForTimeout( 300 );
-check( await page.locator( '#lstabp-picker th.is-hidden' ).count() === 0, 'A second click brings the column back' );
-check( await page.locator( '#lstabp-hidden-rows-chips .lstabp-chip' ).count() === 0, 'And the chip removes the row' );
+check( await page.locator( '#lstab-picker th.is-hidden' ).count() === 0, 'A second click brings the column back' );
+check( await page.locator( '#lstab-hidden-rows-chips .lstab-picker-chip' ).count() === 0, 'And the chip removes the row' );
 
 await Promise.all( [
 	page.waitForLoadState( 'networkidle' ),
@@ -150,7 +161,7 @@ await page.goto( editHref, { waitUntil: 'networkidle' } );
 await page.locator( '[data-lstab-goto="hide"]' ).click();
 await page.waitForTimeout( 200 );
 
-const chevron = page.locator( '#lstabp-picker thead button[data-lstabp-detail="2"]' );
+const chevron = page.locator( '#lstab-picker thead button[data-lstab-pick-detail="2"]' );
 check( await chevron.count() === 1, 'Each heading offers a second mark for the details' );
 
 await chevron.click();
@@ -163,12 +174,12 @@ check(
 
 // Hiding a column takes it out of the drawer too: "hidden but also in the
 // details" is not a state anybody means.
-await page.locator( '#lstabp-picker thead button[data-lstabp-column="2"]' ).click();
+await page.locator( '#lstab-picker thead button[data-lstab-pick-column="2"]' ).click();
 await page.waitForTimeout( 200 );
 check( 'false' === await chevron.getAttribute( 'aria-pressed' ), 'Hiding a column takes it out of the details as well' );
 check( await chevron.isDisabled(), 'And the arrow is not offered while it is hidden' );
 
-await page.locator( '#lstabp-picker thead button[data-lstabp-column="2"]' ).click();
+await page.locator( '#lstab-picker thead button[data-lstab-pick-column="2"]' ).click();
 await page.waitForTimeout( 200 );
 check( ! ( await chevron.isDisabled() ), 'Putting it back offers the arrow again' );
 
@@ -197,7 +208,7 @@ check(
 await page.goto( editHref, { waitUntil: 'networkidle' } );
 await page.locator( '[data-lstab-goto="hide"]' ).click();
 await page.waitForTimeout( 250 );
-await page.locator( '#lstabp-picker thead button[data-lstabp-detail="2"]' ).click();
+await page.locator( '#lstab-picker thead button[data-lstab-pick-detail="2"]' ).click();
 await Promise.all( [
 	page.waitForLoadState( 'networkidle' ),
 	page.locator( '.lstab-submit button[type=submit]' ).first().click()
@@ -205,6 +216,15 @@ await Promise.all( [
 await page.waitForTimeout( 800 );
 
 // -------------------------------------------------- where the Pro cards live
+/*
+ * Everything above comes with the free plugin, and is run once without the
+ * add-on to prove it. The rest is the add-on's, run when it is active.
+ */
+if ( ! process.env.LSTAB_WITH_PRO ) {
+	check( 0 === await page.locator( '.lstabp-rules-card' ).count(), 'Without the add-on, none of its cards are on the screen' );
+	await finish();
+}
+
 section( '6. Colour rules, and which tab the cards sit on' );
 
 await page.goto( editHref, { waitUntil: 'networkidle' } );
@@ -227,7 +247,7 @@ check( await page.locator( '.lstabp-export-card' ).isVisible(), 'It is on Genera
 
 await page.locator( '[data-lstab-goto="hide"]' ).click();
 await page.waitForTimeout( 300 );
-check( await page.locator( '#lstabp-picker' ).isVisible(), 'And the picker stays where hiding is' );
+check( await page.locator( '#lstab-picker' ).isVisible(), 'And the picker stays where hiding is' );
 check( ! ( await page.locator( '.lstabp-rules-card' ).isVisible() ), 'The rules card is not on both at once' );
 
 // A rule is one sentence, and the swatch shows the words in the colour chosen.
@@ -601,11 +621,4 @@ check(
 	JSON.stringify( menuHrefs )
 );
 
-check( errors.length === 0, 'No script errors anywhere in the run', errors.join( '\n' ) );
-
-console.log( '\n' + '─'.repeat( 60 ) );
-console.log( `  \x1b[32m${ pass } passed\x1b[0m, \x1b[31m${ fail } failed\x1b[0m` );
-console.log( '─'.repeat( 60 ) );
-
-await browser.close();
-process.exit( fail > 0 ? 1 : 0 );
+await finish();

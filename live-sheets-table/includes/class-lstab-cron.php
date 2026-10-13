@@ -18,7 +18,13 @@ class LSTAB_Cron {
 	}
 
 	public static function keep_scheduled() {
-		if ( wp_installing() || wp_next_scheduled( self::TICK_HOOK ) ) {
+		if ( wp_installing() ) {
+			return;
+		}
+
+		$current = get_option( self::TICK_OPTION );
+
+		if ( wp_next_scheduled( self::TICK_HOOK ) && ( ! $current || isset( self::schedule_map()[ $current ] ) ) ) {
 			return;
 		}
 
@@ -44,15 +50,31 @@ class LSTAB_Cron {
 	}
 
 	public static function schedule_map() {
-		return array(
-			'lstab_1min'  => 60,
-			'lstab_5min'  => 300,
-			'lstab_15min' => 900,
-			'lstab_30min' => 1800,
-			'lstab_1hour' => 3600,
-			'lstab_6hour' => 21600,
-			'lstab_1day'  => DAY_IN_SECONDS,
-		);
+		$map = array();
+
+		foreach ( array_keys( LSTAB_Limits::intervals() ) as $seconds ) {
+			$map[ self::slug_for( $seconds ) ] = $seconds;
+		}
+
+		return $map;
+	}
+
+	public static function slug_for( $seconds ) {
+		$seconds = (int) $seconds;
+
+		if ( 0 === $seconds % DAY_IN_SECONDS ) {
+			return 'lstab_' . ( $seconds / DAY_IN_SECONDS ) . 'day';
+		}
+
+		if ( 0 === $seconds % HOUR_IN_SECONDS ) {
+			return 'lstab_' . ( $seconds / HOUR_IN_SECONDS ) . 'hour';
+		}
+
+		if ( 0 === $seconds % MINUTE_IN_SECONDS ) {
+			return 'lstab_' . ( $seconds / MINUTE_IN_SECONDS ) . 'min';
+		}
+
+		return 'lstab_' . $seconds . 'sec';
 	}
 
 	public static function required_schedule() {
@@ -69,8 +91,9 @@ class LSTAB_Cron {
 			$shortest = LSTAB_Limits::min_interval();
 		}
 
-		$best = 'lstab_15min';
-		foreach ( self::schedule_map() as $slug => $seconds ) {
+		$map  = self::schedule_map();
+		$best = (string) key( $map );
+		foreach ( $map as $slug => $seconds ) {
 			if ( $seconds <= $shortest ) {
 				$best = $slug;
 			}

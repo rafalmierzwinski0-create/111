@@ -2213,13 +2213,6 @@ const linkStyle = await apage.evaluate( () => {
 } );
 check( linkStyle && linkStyle.accent !== '', 'The table exposes an accent colour for links to use', JSON.stringify( linkStyle ) );
 
-// Without the add-on there is nothing listening for a filter, so the field is
-// not offered — a control that accepts text and changes nothing is worse than
-// no control.
-check(
-	! ( await page.evaluate( () => !! ( window.lstabBlock && window.lstabBlock.isPro ) ) ),
-	'The free build does not claim to be Pro'
-);
 
 // ---------------------------------------------------- the drawer under a row
 section( '9e. Details under the row' );
@@ -2944,6 +2937,18 @@ let editorTable = await canvas.locator( '.lstab-table' ).count().catch( () => 0 
 if ( editorTable === 0 ) { editorTable = await page.locator( '.lstab-table' ).count(); }
 check( editorTable > 0, 'Block renders a live server-side preview inside the editor', String( editorTable ) );
 await page.screenshot( { path: `${ SHOTS }/10-block-editor.png`, fullPage: false } );
+
+// Without the add-on there is nothing listening for a filter, so the field is
+// not offered — a control that accepts text and changes nothing is worse than
+// no control. The style menu offers what the site has, no more and no fewer.
+const blockSettings = await page.evaluate( () => window.lstabBlock || null );
+check( null !== blockSettings, 'The block\'s settings reached the editor' );
+check( !! blockSettings && ! blockSettings.canFilter, 'Without the add-on the block offers no filter field' );
+check(
+	!! blockSettings && 'clean,striped,bordered,midnight' === ( blockSettings.presets || [] ).map( ( p ) => p.value ).join( ',' ),
+	'And its style menu offers the four styles the plugin has',
+	JSON.stringify( blockSettings && blockSettings.presets )
+);
 
 // ------------------------------------------------------------------ wrap up
 section( '11. Console health' );

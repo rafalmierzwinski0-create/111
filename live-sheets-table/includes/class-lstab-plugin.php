@@ -35,6 +35,8 @@ class LSTAB_Plugin {
 
 	public $freshness;
 
+	public $picker;
+
 	public function boot() {
 		$this->cron      = new LSTAB_Cron();
 		$this->admin     = new LSTAB_Admin();
@@ -52,6 +54,7 @@ class LSTAB_Plugin {
 		$this->example       = new LSTAB_Example();
 		$this->elementor = new LSTAB_Elementor();
 		$this->freshness = new LSTAB_Freshness();
+		$this->picker    = new LSTAB_Picker();
 
 		add_action( 'init', array( $this, 'register_assets' ) );
 		add_action( 'plugins_loaded', array( LSTAB_Storage::class, 'maybe_upgrade' ) );
@@ -74,6 +77,7 @@ class LSTAB_Plugin {
 
 		if ( is_admin() ) {
 			$this->admin->register();
+			$this->picker->register();
 		}
 	}
 
@@ -91,10 +95,17 @@ class LSTAB_Plugin {
 
 	public function register_assets() {
 		wp_register_style(
-			'lstab-table',
+			'lstab-table-base',
 			LSTAB_URL . 'assets/css/lstab-table.css',
 			array(),
 			self::asset_version( 'assets/css/lstab-table.css' )
+		);
+
+		wp_register_style(
+			'lstab-table',
+			false,
+			array_values( array_unique( array_merge( array( 'lstab-table-base' ), (array) apply_filters( 'lstab_table_styles', array() ) ) ) ),
+			LSTAB_VERSION
 		);
 
 		wp_register_script(

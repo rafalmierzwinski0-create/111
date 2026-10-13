@@ -7,7 +7,6 @@ $lstab_defaults   = LSTAB_Storage::defaults();
 $lstab_values     = $lstab_is_edit ? $source : $lstab_defaults;
 $lstab_intervals  = LSTAB_Limits::intervals();
 $lstab_presets    = LSTAB_Styles::all();
-$lstab_is_pro     = LSTAB_Limits::is_pro();
 $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 $lstab_is_sample  = $lstab_is_edit && LSTAB_Example::is_example( $source );
 
@@ -163,9 +162,6 @@ if ( ! $lstab_is_edit ) {
 							(int) LSTAB_Sync::VIEW_TIMEOUT
 						);
 						?>
-						<?php if ( ! $lstab_is_pro ) : ?>
-							<?php esc_html_e( 'Pro syncs as often as every minute.', 'live-sheets-table' ); ?>
-						<?php endif; ?>
 					</span>
 				</p>
 				<?php endif; ?>
@@ -388,20 +384,15 @@ if ( ! $lstab_is_edit ) {
 
 				<div class="lstab-presets lstab-style-picks">
 					<?php foreach ( $lstab_presets as $lstab_slug => $lstab_preset ) : ?>
-						<?php $lstab_locked = ! empty( $lstab_preset['pro'] ) && ! $lstab_is_pro; ?>
-						<label class="lstab-preset has-thumb <?php echo $lstab_locked ? 'is-locked' : ''; ?>">
+						<label class="lstab-preset has-thumb">
 							<?php echo LSTAB_Styles::thumbnail( $lstab_slug ); // phpcs:ignore WordPress.Security.EscapeOutput -- Built from a fixed slug, escaped inside. ?>
 							<input type="radio"
 								name="style_preset"
 								value="<?php echo esc_attr( $lstab_slug ); ?>"
-								<?php checked( $lstab_values['style_preset'], $lstab_slug ); ?>
-								<?php disabled( $lstab_locked ); ?>>
+								<?php checked( $lstab_values['style_preset'], $lstab_slug ); ?>>
 							<span class="lstab-preset-body">
 								<span class="lstab-preset-name">
 									<?php echo esc_html( $lstab_preset['label'] ); ?>
-									<?php if ( $lstab_locked ) : ?>
-										<span class="lstab-pro-badge"><?php esc_html_e( 'Pro', 'live-sheets-table' ); ?></span>
-									<?php endif; ?>
 								</span>
 								<span class="lstab-preset-desc"><?php echo esc_html( $lstab_preset['description'] ); ?></span>
 							</span>
@@ -581,8 +572,8 @@ if ( ! $lstab_is_edit ) {
 					<h2 class="lstab-card-title"><?php esc_html_e( 'Columns', 'live-sheets-table' ); ?></h2>
 					<p class="lstab-help">
 						<?php esc_html_e( 'Renames a column for visitors. Your spreadsheet keeps its own headings.', 'live-sheets-table' ); ?>
-						<?php if ( ! LSTAB_Limits::is_pro() ) : ?>
-							<?php esc_html_e( 'Hiding columns and rows is part of Pro; you choose them by clicking your own sheet.', 'live-sheets-table' ); ?>
+						<?php if ( $lstab_is_edit ) : ?>
+							<?php esc_html_e( 'To hide a column or a row, click it in the picture of your sheet below.', 'live-sheets-table' ); ?>
 						<?php endif; ?>
 					</p>
 
@@ -742,6 +733,8 @@ if ( ! $lstab_is_edit ) {
 	<div class="lstab-pane" data-lstab-pane="hide" hidden>
 
 	<?php
+	LSTAB_Picker::render_card( $lstab_is_edit ? $source : null, $lstab_is_edit );
+
 	do_action( 'lstab_edit_page_settings', $lstab_is_edit ? $source : null, $lstab_is_edit );
 
 	do_action( 'lstab_edit_pane_cards', 'hide', $lstab_is_edit ? $source : null, $lstab_is_edit );

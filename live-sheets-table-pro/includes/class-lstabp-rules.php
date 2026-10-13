@@ -528,7 +528,7 @@ class LSTABP_Rules {
 		wp_enqueue_style(
 			'lstabp-admin',
 			LSTABP_URL . 'assets/css/lstabp-admin.css',
-			array(),
+			array( 'lstab-admin' ),
 			LSTABP_VERSION
 		);
 

@@ -90,32 +90,36 @@ if ( ! is_plugin_active( 'live-sheets-table-pro/live-sheets-table-pro.php' ) ) {
 
 lstab_skins_section( 'The premium skins are registered' );
 
-$all = LSTAB_Styles::all();
+$all  = LSTAB_Styles::all();
+$free = array( 'clean', 'striped', 'bordered', 'midnight' );
 
-foreach ( array( 'cards', 'terminal', 'aurora', 'contrast', 'ledger' ) as $slug ) {
+foreach ( array( 'editorial', 'cards', 'terminal', 'aurora', 'contrast', 'ledger' ) as $slug ) {
 	lstab_skins_assert( isset( $all[ $slug ] ), "{$slug} is a preset" );
-	lstab_skins_assert( ! empty( $all[ $slug ]['pro'] ), "{$slug} is premium" );
 	lstab_skins_assert( '' !== (string) $all[ $slug ]['description'], "{$slug} says what it looks like" );
 	lstab_skins_assert( $slug === LSTAB_Styles::sanitize( $slug ), "{$slug} renders under Pro" );
 }
 
-lstab_skins_assert( 10 === count( LSTAB_Styles::available() ), 'Ten skins available under Pro', (string) count( LSTAB_Styles::available() ) );
+lstab_skins_assert( 10 === count( $all ), 'Ten skins available under Pro', (string) count( $all ) );
+lstab_skins_assert( $free === array_slice( array_keys( $all ), 0, 4 ), 'The four that come free are listed first', implode( ', ', array_keys( $all ) ) );
 
 /*
  * Every skin needs its own block of rules in the stylesheet, or the name in the
  * picker is the only thing that exists. This is what catches a preset that was
- * registered and then never drawn.
+ * registered and then never drawn. The free plugin draws its four, the add-on
+ * the rest, and neither carries the other's.
  */
-$css = file_get_contents( dirname( __DIR__ ) . '/live-sheets-table/assets/css/lstab-table.css' );
+$free_css = file_get_contents( dirname( __DIR__ ) . '/live-sheets-table/assets/css/lstab-table.css' );
+$pro_css  = file_get_contents( dirname( __DIR__ ) . '/live-sheets-table-pro/assets/css/lstabp-styles.css' );
 
 foreach ( array_keys( $all ) as $slug ) {
 	if ( 'clean' === $slug ) {
 		// Clean is the stylesheet's own defaults; it adds nothing of its own.
 		continue;
 	}
+	$in_free = false !== strpos( $free_css, '.lstab-style-' . $slug );
 	lstab_skins_assert(
-		false !== strpos( $css, '.lstab-style-' . $slug ),
-		"The stylesheet has rules for {$slug}"
+		in_array( $slug, $free, true ) ? $in_free : ( ! $in_free && false !== strpos( $pro_css, '.lstab-style-' . $slug ) ),
+		in_array( $slug, $free, true ) ? "The free stylesheet draws {$slug}" : "The add-on draws {$slug}, and the free stylesheet does not"
 	);
 }
 
@@ -124,7 +128,8 @@ foreach ( array_keys( $all ) as $slug ) {
  * markup painted by the admin stylesheet, so a style registered without its
  * rules there would arrive in the picker as a plain white tile.
  */
-$admin_css = file_get_contents( dirname( __DIR__ ) . '/live-sheets-table/assets/css/lstab-admin.css' );
+$admin_css = file_get_contents( dirname( __DIR__ ) . '/live-sheets-table/assets/css/lstab-admin.css' )
+	. file_get_contents( dirname( __DIR__ ) . '/live-sheets-table-pro/assets/css/lstabp-admin.css' );
 
 foreach ( array_keys( $all ) as $slug ) {
 	$thumb = LSTAB_Styles::thumbnail( $slug );
@@ -225,7 +230,7 @@ $variants = array(
 	),
 );
 
-$skins    = array_keys( LSTAB_Styles::available() );
+$skins    = array_keys( LSTAB_Styles::all() );
 $manifest = array(
 	'base'   => $base,
 	'pages'  => array(),

@@ -23,7 +23,8 @@ if ( ! fs.existsSync( said ) ) {
 	process.exit( 1 );
 }
 
-const CSS = fs.readFileSync( path.join( repo, 'live-sheets-table/assets/css/lstab-table.css' ), 'utf8' );
+const CSS = fs.readFileSync( path.join( repo, 'live-sheets-table/assets/css/lstab-table.css' ), 'utf8' )
+	+ fs.readFileSync( path.join( repo, 'live-sheets-table-pro/assets/css/lstabp-styles.css' ), 'utf8' );
 const table = JSON.parse( fs.readFileSync( said, 'utf8' ) );
 
 let passed = 0;

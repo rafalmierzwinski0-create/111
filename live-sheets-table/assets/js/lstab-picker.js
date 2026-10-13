@@ -1,26 +1,26 @@
 ( function () {
 	'use strict';
 
-	var picker = document.getElementById( 'lstabp-picker' );
+	var picker = document.getElementById( 'lstab-picker' );
 	if ( ! picker ) {
 		return;
 	}
 
-	var settings = window.lstabpPicker || {};
+	var settings = window.lstabPicker || {};
 	var i18n = settings.i18n || {};
 
 	( function paging() {
 		var ROWS = 25;
 		var COLS = 12;
 
-		var bar = document.getElementById( 'lstabp-picker-paging' );
+		var bar = document.getElementById( 'lstab-picker-paging' );
 
 		if ( ! bar ) {
 			return;
 		}
 
 		var bodyRows = picker.querySelectorAll( 'tbody tr' );
-		var headings = picker.querySelectorAll( 'thead th.lstabp-picker-col' );
+		var headings = picker.querySelectorAll( 'thead th.lstab-picker-col' );
 		var at = { rows: 0, cols: 0 };
 
 		var pages = function ( total, per ) {
@@ -51,31 +51,31 @@
 				head.hidden = off;
 
 				Array.prototype.forEach.call(
-					picker.querySelectorAll( 'td[data-lstabp-column="' + index + '"]' ),
+					picker.querySelectorAll( 'td[data-lstab-pick-column="' + index + '"]' ),
 					function ( cell ) {
 						cell.hidden = off;
 					}
 				);
 			} );
 
-			var groups = bar.querySelectorAll( '[data-lstabp-page-for]' );
+			var groups = bar.querySelectorAll( '[data-lstab-pick-page-for]' );
 
 			Array.prototype.forEach.call( groups, function ( group ) {
-				var which = group.getAttribute( 'data-lstabp-page-for' );
+				var which = group.getAttribute( 'data-lstab-pick-page-for' );
 				var total = 'rows' === which ? rowPages : colPages;
 				var count = 'rows' === which ? bodyRows.length : headings.length;
 
 				group.hidden = total < 2;
-				group.querySelector( '[data-lstabp-page-label]' ).textContent =
+				group.querySelector( '[data-lstab-pick-page-label]' ).textContent =
 					label( which, at[ which ], total, count );
 			} );
 
 			bar.hidden = false;
 		};
 
-		Array.prototype.forEach.call( bar.querySelectorAll( '[data-lstabp-step]' ), function ( button ) {
+		Array.prototype.forEach.call( bar.querySelectorAll( '[data-lstab-pick-step]' ), function ( button ) {
 			button.addEventListener( 'click', function () {
-				var parts = button.getAttribute( 'data-lstabp-step' ).split( ':' );
+				var parts = button.getAttribute( 'data-lstab-pick-step' ).split( ':' );
 				var which = parts[ 0 ];
 				var total = 'rows' === which ? rowPages : colPages;
 
@@ -86,22 +86,22 @@
 
 		paint();
 	}() );
-	var fields = document.getElementById( 'lstabp-hidden-rows-fields' );
-	var chips = document.getElementById( 'lstabp-hidden-rows-chips' );
-	var empty = document.querySelector( '.lstabp-picker-empty' );
+	var fields = document.getElementById( 'lstab-hidden-rows-fields' );
+	var chips = document.getElementById( 'lstab-hidden-rows-chips' );
+	var empty = document.querySelector( '.lstab-picker-empty' );
 
 	function strandedEntries() {
 		var found = [];
 
 		Array.prototype.forEach.call(
-			fields.querySelectorAll( 'input[data-lstabp-present="0"]' ),
+			fields.querySelectorAll( 'input[data-lstab-pick-present="0"]' ),
 			function ( field ) {
 				found.push( {
 					index: field.value || '0',
-					name: field.getAttribute( 'data-lstabp-name' ) || '',
-					sig: field.getAttribute( 'data-lstabp-sig' ) || '',
-					label: field.getAttribute( 'data-lstabp-label' ) || '',
-					line: field.getAttribute( 'data-lstabp-line' ) || '',
+					name: field.getAttribute( 'data-lstab-pick-name' ) || '',
+					sig: field.getAttribute( 'data-lstab-pick-sig' ) || '',
+					label: field.getAttribute( 'data-lstab-pick-label' ) || '',
+					line: field.getAttribute( 'data-lstab-pick-line' ) || '',
 					stranded: true
 				} );
 			}
@@ -157,7 +157,7 @@
 
 	function paintDetail( index, detail ) {
 		Array.prototype.forEach.call(
-			picker.querySelectorAll( '[data-lstabp-column="' + index + '"]' ),
+			picker.querySelectorAll( '[data-lstab-pick-column="' + index + '"]' ),
 			function ( cell ) {
 				cell.classList.toggle( 'is-detail', detail );
 
@@ -168,7 +168,7 @@
 			}
 		);
 
-		var button = picker.querySelector( 'button[data-lstabp-detail="' + index + '"]' );
+		var button = picker.querySelector( 'button[data-lstab-pick-detail="' + index + '"]' );
 		if ( button ) {
 			button.setAttribute( 'aria-pressed', detail ? 'true' : 'false' );
 			button.closest( 'th' ).classList.toggle( 'is-detail', detail );
@@ -177,7 +177,7 @@
 
 	function paintColumn( index, hidden ) {
 		Array.prototype.forEach.call(
-			picker.querySelectorAll( '[data-lstabp-column="' + index + '"]' ),
+			picker.querySelectorAll( '[data-lstab-pick-column="' + index + '"]' ),
 			function ( cell ) {
 				cell.classList.toggle( 'is-hidden', hidden );
 
@@ -188,7 +188,7 @@
 			}
 		);
 
-		var toggle = picker.querySelector( 'button[data-lstabp-column="' + index + '"]' );
+		var toggle = picker.querySelector( 'button[data-lstab-pick-column="' + index + '"]' );
 		if ( toggle ) {
 			toggle.setAttribute( 'aria-pressed', hidden ? 'true' : 'false' );
 		}
@@ -198,14 +198,14 @@
 		var entries = stranded.slice();
 
 		Array.prototype.forEach.call(
-			picker.querySelectorAll( 'tr.is-hidden[data-lstabp-index]' ),
+			picker.querySelectorAll( 'tr.is-hidden[data-lstab-pick-index]' ),
 			function ( row ) {
 				entries.push( {
-					index: row.getAttribute( 'data-lstabp-index' ) || '0',
-					name: row.getAttribute( 'data-lstabp-name' ) || '',
-					sig: row.getAttribute( 'data-lstabp-sig' ) || '',
-					label: row.getAttribute( 'data-lstabp-label' ) || '',
-					line: row.getAttribute( 'data-lstabp-line' ) || '',
+					index: row.getAttribute( 'data-lstab-pick-index' ) || '0',
+					name: row.getAttribute( 'data-lstab-pick-name' ) || '',
+					sig: row.getAttribute( 'data-lstab-pick-sig' ) || '',
+					label: row.getAttribute( 'data-lstab-pick-label' ) || '',
+					line: row.getAttribute( 'data-lstab-pick-line' ) || '',
 					stranded: false
 				} );
 			}
@@ -230,10 +230,10 @@
 			} );
 
 			var chip = document.createElement( 'li' );
-			chip.className = 'lstabp-chip' + ( entry.stranded ? ' is-orphan' : '' );
+			chip.className = 'lstab-picker-chip' + ( entry.stranded ? ' is-orphan' : '' );
 
 			var line = document.createElement( 'strong' );
-			line.className = 'lstabp-chip-line';
+			line.className = 'lstab-picker-chip-line';
 			line.textContent = entry.line;
 			chip.appendChild( line );
 
@@ -243,14 +243,14 @@
 
 			if ( entry.stranded ) {
 				var note = document.createElement( 'em' );
-				note.className = 'lstabp-chip-note';
+				note.className = 'lstab-picker-chip-note';
 				note.textContent = i18n.notThereNow || 'not on that line now';
 				chip.appendChild( note );
 			}
 
 			var remove = document.createElement( 'button' );
 			remove.type = 'button';
-			remove.className = 'lstabp-chip-remove';
+			remove.className = 'lstab-picker-chip-remove';
 			remove.setAttribute( 'aria-label', ( i18n.showRowAgain || 'Show this row again' ) + ': ' + ( entry.label || entry.name ) );
 			remove.textContent = '×';
 			remove.addEventListener( 'click', function () {
@@ -270,12 +270,12 @@
 	}
 
 	function setRow( index, hidden ) {
-		var row = picker.querySelector( 'tr[data-lstabp-index="' + index + '"]' );
+		var row = picker.querySelector( 'tr[data-lstab-pick-index="' + index + '"]' );
 
 		if ( row ) {
 			row.classList.toggle( 'is-hidden', hidden );
 
-			var toggle = row.querySelector( 'button[data-lstabp-row]' );
+			var toggle = row.querySelector( 'button[data-lstab-pick-row]' );
 			if ( toggle ) {
 				toggle.setAttribute( 'aria-pressed', hidden ? 'true' : 'false' );
 			}
@@ -285,10 +285,10 @@
 	}
 
 	picker.addEventListener( 'click', function ( event ) {
-		var chevron = event.target.closest( '.lstabp-picker-detail' );
+		var chevron = event.target.closest( '.lstab-picker-detail' );
 
 		if ( chevron && ! chevron.disabled ) {
-			var detailIndex = chevron.getAttribute( 'data-lstabp-detail' );
+			var detailIndex = chevron.getAttribute( 'data-lstab-pick-detail' );
 			var field = detailField( detailIndex );
 			var wanted = 'true' !== chevron.getAttribute( 'aria-pressed' );
 
@@ -301,12 +301,12 @@
 			return;
 		}
 
-		var toggle = event.target.closest( '.lstabp-picker-toggle' );
+		var toggle = event.target.closest( '.lstab-picker-toggle' );
 		if ( ! toggle || toggle.disabled ) {
 			return;
 		}
 
-		var column = toggle.getAttribute( 'data-lstabp-column' );
+		var column = toggle.getAttribute( 'data-lstab-pick-column' );
 
 		if ( null !== column ) {
 			var field = columnField( column );
@@ -326,7 +326,7 @@
 				paintDetail( column, false );
 			}
 
-			var chevronButton = picker.querySelector( 'button[data-lstabp-detail="' + column + '"]' );
+			var chevronButton = picker.querySelector( 'button[data-lstab-pick-detail="' + column + '"]' );
 			if ( chevronButton ) {
 				chevronButton.disabled = hidden;
 			}
@@ -336,7 +336,7 @@
 			return;
 		}
 
-		var index = toggle.getAttribute( 'data-lstabp-row' );
+		var index = toggle.getAttribute( 'data-lstab-pick-row' );
 		if ( null !== index ) {
 			setRow( index, 'true' !== toggle.getAttribute( 'aria-pressed' ) );
 		}

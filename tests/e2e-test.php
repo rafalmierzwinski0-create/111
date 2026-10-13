@@ -108,14 +108,6 @@ lstab_section( '1. Schema and activation' );
 
 LSTAB_Plugin::on_activate();
 
-/*
- * Leaving a column or a row out of a table is the add-on's to decide, and is
- * honoured for ten days after it stops. Most of this suite is about what those
- * choices do, not about who may make them, so the clock is set to now here and
- * section 12f is where it is wound forward deliberately.
- */
-update_option( LSTAB_Limits::SEEN_OPTION, time(), true );
-
 global $wpdb;
 $table  = LSTAB_Storage::table();
 $exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
@@ -1139,8 +1131,10 @@ lstab_assert(
 );
 lstab_assert( ! isset( LSTAB_Limits::intervals()[60] ), 'One minute interval hidden in free' );
 lstab_assert( 900 === LSTAB_Limits::clamp_interval( 60 ), 'A too-fast interval is clamped up', (string) LSTAB_Limits::clamp_interval( 60 ) );
-lstab_assert( 3 === count( LSTAB_Styles::available() ), 'Three free presets available', (string) count( LSTAB_Styles::available() ) );
-lstab_assert( 'clean' === LSTAB_Styles::sanitize( 'midnight' ), 'Pro preset falls back to a free one in free', LSTAB_Styles::sanitize( 'midnight' ) );
+lstab_assert( array( 'clean', 'striped', 'bordered', 'midnight' ) === array_keys( LSTAB_Styles::all() ), 'Four styles come with the plugin, and only those', implode( ', ', array_keys( LSTAB_Styles::all() ) ) );
+lstab_assert( 'midnight' === LSTAB_Styles::sanitize( 'midnight' ), 'Midnight is one of them' );
+lstab_assert( 'clean' === LSTAB_Styles::sanitize( 'aurora' ), 'A table saved with a style the plugin does not have is drawn in Clean', LSTAB_Styles::sanitize( 'aurora' ) );
+lstab_assert( false === strpos( (string) file_get_contents( LSTAB_PATH . 'assets/css/lstab-table.css' ), 'lstab-style-aurora' ), 'And no style the plugin does not offer is shipped in it' );
 
 // There is no row cap anywhere: prove it with a large sheet.
 $big_rows = array();
@@ -1155,13 +1149,22 @@ $big_html = LSTAB_Renderer::render_preview(
 );
 lstab_assert( 5001 === substr_count( $big_html, '<tr' ), 'A 5000 row table renders in full — no row cap', (string) substr_count( $big_html, '<tr' ) );
 
-// Pro simulation: the add-on lifts every limit through filters alone.
-add_filter( 'lstab_is_pro', '__return_true' );
-add_filter( 'lstab_min_sync_interval', function () { return 60; } );
+// An add-on adds what it brings through filters alone.
+$lstab_minute = static function ( $intervals ) {
+	$intervals[60] = 'Every minute';
+	return $intervals;
+};
+$lstab_extra_style = static function ( $presets ) {
+	$presets['probe'] = array( 'label' => 'Probe', 'description' => 'A style an add-on brings.' );
+	return $presets;
+};
+add_filter( 'lstab_sync_intervals', $lstab_minute );
+add_filter( 'lstab_style_presets', $lstab_extra_style );
 
-lstab_assert( LSTAB_Limits::is_pro(), 'lstab_is_pro filter flips the tier' );
-lstab_assert( isset( LSTAB_Limits::intervals()[60] ), 'One minute interval unlocked under Pro' );
-lstab_assert( 10 === count( LSTAB_Styles::available() ), 'Premium presets unlocked under Pro', (string) count( LSTAB_Styles::available() ) );
+lstab_assert( isset( LSTAB_Limits::intervals()[60] ), 'An add-on can offer a one-minute interval' );
+lstab_assert( 60 === LSTAB_Limits::min_interval(), 'And the shortest interval follows what is offered', (string) LSTAB_Limits::min_interval() );
+lstab_assert( 'lstab_1min' === LSTAB_Cron::slug_for( 60 ) && isset( LSTAB_Cron::schedule_map()['lstab_1min'] ), 'And the schedule gains a one-minute tick' );
+lstab_assert( 'probe' === LSTAB_Styles::sanitize( 'probe' ), 'An add-on can bring a style of its own' );
 lstab_assert( 'lstab_1min' === LSTAB_Cron::required_schedule() || 'lstab_15min' === LSTAB_Cron::required_schedule(), 'Cron recurrence follows the fastest source' );
 
 // Conditional formatting hook (a Pro feature) can colour a cell.
@@ -1214,10 +1217,13 @@ lstab_assert(
 	'The switches are not sent with the form, so saving the table is unaffected'
 );
 lstab_assert( is_array( $lstab_settings_hook ), 'The hook fires while the source screen renders' );
+lstab_assert( false !== strpos( $lstab_edit_html, 'id="lstab-picker"' ) && false !== strpos( $lstab_edit_html, 'name="_lstab_hidden_rows_present"' ), 'The picker for hiding columns and rows is on the source screen with no add-on' );
+lstab_assert( false === stripos( $lstab_edit_html, 'part of Pro' ) && false === stripos( $lstab_edit_html, 'Pro syncs' ) && false === strpos( $lstab_edit_html, 'is-locked' ), 'And nothing on the screen is locked behind Pro' );
 lstab_assert( ! empty( $lstab_settings_hook['edit'] ) && ! empty( $lstab_settings_hook['source'] ), 'It is handed the source it is being shown for', wp_json_encode( $lstab_settings_hook ) );
 
-remove_all_filters( 'lstab_is_pro' );
-remove_all_filters( 'lstab_min_sync_interval' );
+remove_filter( 'lstab_sync_intervals', $lstab_minute );
+remove_filter( 'lstab_style_presets', $lstab_extra_style );
+lstab_assert( ! isset( LSTAB_Cron::schedule_map()['lstab_1min'] ), 'Without the add-on there is no one-minute tick to register' );
 
 // ---------------------------------------------------------------------------
 
@@ -1418,11 +1424,11 @@ lstab_assert(
 
 $pro_styled = new WP_REST_Request( 'POST', '/live-sheets-table/v1/preview' );
 $pro_styled->set_param( 'url', 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit' );
-$pro_styled->set_param( 'style', 'midnight' );
+$pro_styled->set_param( 'style', 'aurora' );
 $pro_data = $server->dispatch( $pro_styled )->get_data();
 lstab_assert(
 	false !== strpos( $pro_data['html'], 'lstab-style-clean' ),
-	'Preview will not render a Pro-only preset on the free tier'
+	'Preview draws a style the plugin does not have in Clean'
 );
 
 $bad = new WP_REST_Request( 'POST', '/live-sheets-table/v1/preview' );
@@ -1720,7 +1726,7 @@ lstab_assert(
 $block_json = json_decode( (string) file_get_contents( LSTAB_PATH . 'blocks/sheet-table/block.json' ), true );
 lstab_assert( isset( $block_json['attributes']['filter'] ), 'The block declares a filter attribute' );
 
-lstab_assert( ! LSTAB_Limits::is_pro(), 'The free suite really is running without Pro' );
+lstab_assert( ! function_exists( 'lstabp' ), 'The free suite really is running without Pro' );
 
 /*
  * An add-on can be deactivated by an expired licence, a conflict or a tidy-up.
@@ -1901,83 +1907,49 @@ lstab_assert( false === strpos( $searched, 'Kask Lazer' ), 'A hidden row cannot 
 
 // ---------------------------------------------------------------------------
 
-lstab_section( '12f. What happens when Pro stops' );
+lstab_section( '12f. Hiding is the plugin\'s own' );
 
 /*
- * Choosing what to leave out is the add-on's. A licence ending on a Tuesday
- * should not rearrange a public page on the Tuesday, so the choices keep
- * working for ten days — and the countdown is said out loud while it runs,
- * because ten quiet days followed by a page changing by itself would be worse
- * than no grace at all.
+ * Leaving a column or a row out used to need the add-on, and stopped ten days
+ * after the add-on did. WordPress.org does not allow a free plugin to switch a
+ * feature off with time, and a page that suddenly publishes a working column
+ * is worse than one that never had the switch, so hiding is simply free.
  */
-delete_option( LSTAB_Limits::SEEN_OPTION );
-lstab_assert( 0 === LSTAB_Limits::grace_remaining(), 'A site that never had Pro has no grace to spend' );
-lstab_assert( ! LSTAB_Limits::pro_effective(), 'And hiding is not honoured there' );
+foreach ( array( 'is_pro', 'pro_effective', 'grace_remaining', 'note_pro_seen' ) as $lstab_gone ) {
+	lstab_assert( ! method_exists( 'LSTAB_Limits', $lstab_gone ), "There is no {$lstab_gone} left to ask" );
+}
 
-$showing = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
-lstab_assert( false !== strpos( $showing, 'Kask Lazer' ), 'The hidden row is shown again once nothing is paid for' );
-
-// Pro seen yesterday: the choice still stands, and the countdown is running.
-update_option( LSTAB_Limits::SEEN_OPTION, time() - DAY_IN_SECONDS, true );
-lstab_assert( LSTAB_Limits::pro_effective(), 'A day after Pro stops, choices are still honoured' );
-lstab_assert(
-	LSTAB_Limits::grace_remaining() > 8 * DAY_IN_SECONDS,
-	'With most of the ten days left',
-	(string) round( LSTAB_Limits::grace_remaining() / DAY_IN_SECONDS, 1 )
-);
 lstab_assert(
 	false === strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'Kask Lazer' ),
-	'And the page is unchanged from the day the licence ended'
+	'A hidden row stays hidden with no add-on at all'
 );
 
-// The countdown is for the people who can act on it, so it is shown to them
-// and to nobody else.
+// A site that ran an older version may still hold its long-finished countdown.
+update_option( 'lstab_pro_last_seen', time() - 30 * DAY_IN_SECONDS, true );
+lstab_assert(
+	false === strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'Kask Lazer' ),
+	'A countdown left by an older version changes nothing'
+);
+delete_option( 'lstab_pro_last_seen' );
+
 $lstab_prior_user = get_current_user_id();
 $lstab_admin_user = get_users( array( 'role' => 'administrator', 'number' => 1, 'fields' => 'ID' ) );
 wp_set_current_user( $lstab_admin_user ? (int) $lstab_admin_user[0] : 1 );
-
 ob_start();
-LSTAB_Admin::print_grace_notice();
-$grace_notice = (string) ob_get_clean();
-lstab_assert( false !== strpos( $grace_notice, 'lstab-grace-notice' ), 'The dashboard says the countdown is running' );
-lstab_assert( false !== strpos( $grace_notice, 'is-dismissible' ), 'And it can be put away' );
-
-wp_set_current_user( 0 );
-ob_start();
-LSTAB_Admin::print_grace_notice();
-lstab_assert( '' === trim( (string) ob_get_clean() ), 'Someone who cannot change it is not shown it' );
-wp_set_current_user( $lstab_admin_user ? (int) $lstab_admin_user[0] : 1 );
-
-// Eleven days on: released, and the pages show everything again.
-update_option( LSTAB_Limits::SEEN_OPTION, time() - 11 * DAY_IN_SECONDS, true );
-lstab_assert( 0 === LSTAB_Limits::grace_remaining(), 'After ten days the grace is spent' );
-lstab_assert(
-	false !== strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'Kask Lazer' ),
-	'And the row is on the page again'
-);
-
-ob_start();
-LSTAB_Admin::print_grace_notice();
-lstab_assert( '' === trim( (string) ob_get_clean() ), 'The countdown notice stops once there is nothing to count' );
-
+do_action( 'admin_notices' );
+$lstab_notices = (string) ob_get_clean();
 wp_set_current_user( $lstab_prior_user );
+lstab_assert( false === strpos( $lstab_notices, 'showing again' ) && false === strpos( $lstab_notices, 'lstab-grace-notice' ), 'And the dashboard counts nothing down' );
 
 // Hidden columns follow exactly the same rule.
 LSTAB_Storage::update( $source_id, array( 'columns_config' => array( 2 => array( 'hidden' => true, 'label' => '', 'source' => 'Dostępność' ) ) ) );
 lstab_assert(
-	false !== strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'Dostępność' ),
-	'A hidden column is shown again when the grace is spent'
-);
-
-update_option( LSTAB_Limits::SEEN_OPTION, time(), true );
-lstab_assert(
 	false === strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'Dostępność' ),
-	'And left out again while it is not'
+	'A hidden column is left out with no add-on at all'
 );
 
 // A form saved from a screen without the picker must leave the list alone.
 LSTAB_Storage::update( $source_id, array( 'columns_config' => array(), 'hidden_rows' => array() ) );
-update_option( LSTAB_Limits::SEEN_OPTION, time(), true );
 
 // ---------------------------------------------------------------------------
 
@@ -2516,27 +2488,11 @@ lstab_assert(
 	wp_json_encode( $detail_prepared['headers'] )
 );
 
-/*
- * Without the add-on the drawer is not offered, and a column that was in it
- * comes back into the table. Widening a table is a visible change somebody can
- * see and undo; quietly dropping a column would not be.
- */
-$detail_seen = get_option( LSTAB_Limits::SEEN_OPTION );
-delete_option( LSTAB_Limits::SEEN_OPTION );
-
-if ( ! LSTAB_Limits::pro_effective() ) {
-	$free_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
-	$free_head = substr( $free_html, (int) strpos( $free_html, '<thead' ), (int) strpos( $free_html, '</thead>' ) - (int) strpos( $free_html, '<thead' ) );
-
-	lstab_assert( false === strpos( $free_html, 'lstab-detail' ), 'Without the add-on there is no drawer' );
-	lstab_assert( false !== strpos( $free_head, $detail_heading ), 'And the column is back in the table rather than gone', $detail_heading );
-} else {
-	lstab_assert( true, 'Free-tier fallback not checked here — the add-on is active on this site' );
-}
-
-if ( $detail_seen ) {
-	update_option( LSTAB_Limits::SEEN_OPTION, $detail_seen, true );
-}
+// The drawer is the plugin's own: it needs no add-on and has no clock.
+$free_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$free_head = substr( $free_html, (int) strpos( $free_html, '<thead' ), (int) strpos( $free_html, '</thead>' ) - (int) strpos( $free_html, '<thead' ) );
+lstab_assert( ! function_exists( 'lstabp' ) && false !== strpos( $free_html, 'lstab-detail' ), 'Without the add-on the drawer is still there' );
+lstab_assert( false === strpos( $free_head, $detail_heading ), 'And the column stays in it, not in the headings', $detail_heading );
 
 // Put it back for the rest of the run.
 $detail_config[3]['detail'] = false;
@@ -2919,7 +2875,7 @@ $lstab_start_ids = array();
 $lstab_start_html = $lstab_start_render();
 lstab_assert( false !== strpos( $lstab_start_html, 'Welcome back' ) || false !== strpos( $lstab_start_html, 'Your first table' ), 'The start screen renders' );
 lstab_assert( false !== strpos( $lstab_start_html, 'Three steps' ), 'With the three steps beside it' );
-lstab_assert( false !== strpos( $lstab_start_html, 'Buy Pro' ) && false !== strpos( $lstab_start_html, esc_url( LSTAB_Limits::upgrade_url() ) ), 'And a way to buy Pro, not just read about it' );
+lstab_assert( false === stripos( $lstab_start_html, 'Buy Pro' ) && false === strpos( $lstab_start_html, 'example.com' ), 'And nothing for sale on it' );
 
 for ( $lstab_i = 0; $lstab_i < 5; $lstab_i++ ) {
 	$lstab_start_ids[] = (int) LSTAB_Storage::insert(
@@ -3080,7 +3036,6 @@ lstab_section( '17. Headings and values the way sheets really hold them' );
  * a column its owner had hidden was shown to every visitor, and the dashboard
  * kept warning that the heading had changed when it had not.
  */
-add_filter( 'lstab_is_pro', '__return_true' );
 lstab_serve_custom( "Product,\"Price\n(net)\",Weight  (kg),Size <M>,Notes\nBike,4100,12,L,ok\nHelmet,350,1,M,fine\n" );
 $odd_id = (int) LSTAB_Storage::insert(
 	array(
@@ -3107,7 +3062,6 @@ $odd_after = LSTAB_Storage::get( $odd_id );
 lstab_assert( array() === LSTAB_Columns::drift( $odd_after['columns_config'], $odd_after['data']['headers'] ), 'A heading that has not changed is not reported as changed', wp_json_encode( LSTAB_Columns::drift( $odd_after['columns_config'], $odd_after['data']['headers'] ) ) );
 $odd_alerts = (array) get_option( LSTAB_Hidden_Alerts::OPTION, array() );
 lstab_assert( ! isset( $odd_alerts[ $odd_id ] ), 'And no warning about it waits in the dashboard' );
-remove_filter( 'lstab_is_pro', '__return_true' );
 
 /*
  * Searching a paged table runs on the server, and what is typed arrives
@@ -3203,7 +3157,6 @@ lstab_assert( isset( $odd_short['rows'] ) && 3000 === $odd_short['rows'] && empt
  * every refresh, because the copy just read and the copy saved were compared
  * in two different forms.
  */
-add_filter( 'lstab_is_pro', '__return_true' );
 lstab_serve_custom( "Name,Age\n<18 group,1\nAdults,2\n" );
 LSTAB_Sync::run( $odd_id );
 $odd_rows = LSTAB_Storage::get( $odd_id )['data']['rows'];
@@ -3221,7 +3174,6 @@ LSTAB_Hidden_Rows::reanchor( $odd_id, $odd_rows );
 remove_filter( 'query', $odd_count );
 lstab_assert( 0 === $odd_writes, 'A hidden row that has not moved is not written again on every refresh', (string) $odd_writes );
 lstab_assert( false === strpos( lstab_view( '[sheet_table id="' . $odd_id . '"]' ), '&lt;18 group' ), 'And it stays hidden' );
-remove_filter( 'lstab_is_pro', '__return_true' );
 
 LSTAB_Storage::delete( $odd_id );
 lstab_set_mock( 'ok' );

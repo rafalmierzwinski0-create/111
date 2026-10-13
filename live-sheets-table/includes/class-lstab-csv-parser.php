@@ -136,7 +136,11 @@ class LSTAB_CSV_Parser {
 			return (bool) wp_is_valid_utf8( $text );
 		}
 
-		return (bool) seems_utf8( $text );
+		if ( function_exists( 'mb_check_encoding' ) ) {
+			return mb_check_encoding( $text, 'UTF-8' );
+		}
+
+		return 1 === preg_match( '//u', $text );
 	}
 
 	protected static function to_grid( $csv ) {

@@ -93,13 +93,19 @@ function lstabp_set_mock( $mode = 'ok', $tab = 'main', $oauth = 'ok' ) {
 
 // ---------------------------------------------------------------------------
 
-lstabp_section( '1. The add-on loads and lifts the limits' );
+lstabp_section( '1. The add-on loads and adds what it brings' );
 
 lstabp_assert( function_exists( 'lstabp' ), 'Pro plugin loaded' );
-lstabp_assert( LSTAB_Limits::is_pro(), 'The tier is Pro' );
-lstabp_assert( 60 === LSTAB_Limits::min_interval(), 'One minute syncing is unlocked', (string) LSTAB_Limits::min_interval() );
-lstabp_assert( 10 === count( LSTAB_Styles::available() ), 'Premium presets are available', (string) count( LSTAB_Styles::available() ) );
-lstabp_assert( 'midnight' === LSTAB_Styles::sanitize( 'midnight' ), 'A premium preset renders under Pro' );
+lstabp_assert( 60 === LSTAB_Limits::min_interval(), 'It adds syncing every minute', (string) LSTAB_Limits::min_interval() );
+lstabp_assert( isset( LSTAB_Limits::intervals()[300] ), 'And every five minutes' );
+lstabp_assert( isset( LSTAB_Cron::schedule_map()['lstab_1min'] ), 'With a one-minute tick to run them on' );
+lstabp_assert( 10 === count( LSTAB_Styles::all() ), 'It adds six styles to the four that come free', (string) count( LSTAB_Styles::all() ) );
+lstabp_assert( 'aurora' === LSTAB_Styles::sanitize( 'aurora' ), 'One of its styles renders' );
+lstabp_assert( 'aurora' === LSTAB_Styles::sanitize( 'glass' ), 'And a table saved with the old Glass style is drawn in Aurora' );
+lstabp_assert( in_array( 'lstabp-styles', wp_styles()->query( 'lstab-table' )->deps, true ), 'Its stylesheet travels with the table\'s own' );
+ob_start();
+LSTAB_Admin::render_masthead();
+lstabp_assert( false !== strpos( (string) ob_get_clean(), 'lstab-masthead-badge' ), 'And the dashboard heading says Pro is on' );
 
 // ---------------------------------------------------------------------------
 
@@ -1209,30 +1215,24 @@ delete_option( LSTABP_Facets::OPTION );
 
 lstabp_section( '5f. Pointing at what you want gone' );
 
-// With the add-on running, hiding is honoured outright rather than on borrowed
-// time, and the countdown notice has nothing to count.
-lstabp_assert( LSTAB_Limits::pro_effective(), 'Choices are honoured while the add-on is running' );
-ob_start();
-LSTAB_Admin::print_grace_notice();
-lstabp_assert( '' === trim( (string) ob_get_clean() ), 'And no countdown is shown' );
-
+// The picker comes with the free plugin now; the add-on brings none of its own.
+lstabp_assert( class_exists( 'LSTAB_Picker' ) && ! class_exists( 'LSTABP_Picker' ), 'The picker is the free plugin\'s, not the add-on\'s' );
 
 $picker_source = LSTAB_Storage::get( $source_id );
-$picker        = new LSTABP_Picker();
 
 ob_start();
-$picker->render_card( $picker_source, true );
+LSTAB_Picker::render_card( $picker_source, true );
 $card = (string) ob_get_clean();
 
-lstabp_assert( false !== strpos( $card, 'lstabp-picker' ), 'The add-on prints the picker on the source screen' );
-lstabp_assert( false !== strpos( $card, 'data-lstabp-row=' ), 'Every row is clickable' );
-lstabp_assert( false !== strpos( $card, 'data-lstabp-column=' ), 'So is every heading' );
-lstabp_assert( false !== strpos( $card, 'name="hidden_rows[]"' ) || false !== strpos( $card, 'lstabp-hidden-rows-fields' ), 'What it collects is inside the form' );
+lstabp_assert( 1 === substr_count( $card, 'id="lstab-picker"' ), 'The picker is printed on the source screen once' );
+lstabp_assert( false !== strpos( $card, 'data-lstab-pick-row=' ), 'Every row is clickable' );
+lstabp_assert( false !== strpos( $card, 'data-lstab-pick-column=' ), 'So is every heading' );
+lstabp_assert( false !== strpos( $card, 'name="hidden_rows[]"' ) || false !== strpos( $card, 'lstab-hidden-rows-fields' ), 'What it collects is inside the form' );
 lstabp_assert( false !== strpos( $card, '_lstab_hidden_rows_present' ), 'And it says it was there, so a save elsewhere cannot wipe the list' );
 
 // Adding a source has nothing to point at yet.
 ob_start();
-$picker->render_card( null, false );
+LSTAB_Picker::render_card( null, false );
 lstabp_assert( '' === trim( (string) ob_get_clean() ), 'Nothing is printed while a source is being added' );
 
 /*
@@ -1264,15 +1264,15 @@ lstabp_assert( array( 'Kask', '100', 'W magazynie' ) === $left[1], 'Its identica
  * is not an answer to "which one did I take out?" when two rows say it.
  */
 ob_start();
-$picker->render_card( $twin_source, true );
+LSTAB_Picker::render_card( $twin_source, true );
 $twin_card = (string) ob_get_clean();
-lstabp_assert( false !== strpos( $twin_card, 'data-lstabp-line="2"' ), 'The screen names the line each choice is on' );
-lstabp_assert( false !== strpos( $twin_card, 'data-lstabp-line="4"' ), 'And numbers every row the way Google does' );
-lstabp_assert( false !== strpos( $twin_card, 'data-lstabp-present="1"' ), 'A choice matching its line is marked as working' );
+lstabp_assert( false !== strpos( $twin_card, 'data-lstab-pick-line="2"' ), 'The screen names the line each choice is on' );
+lstabp_assert( false !== strpos( $twin_card, 'data-lstab-pick-line="4"' ), 'And numbers every row the way Google does' );
+lstabp_assert( false !== strpos( $twin_card, 'data-lstab-pick-present="1"' ), 'A choice matching its line is marked as working' );
 
 // Said before anything is clicked: moving the row or the column in Google is
 // what breaks a choice, and that is worth knowing in advance.
-lstabp_assert( false !== strpos( $twin_card, 'lstabp-picker-note' ), 'The screen warns that moving things in Google undoes a choice' );
+lstabp_assert( false !== strpos( $twin_card, 'lstab-picker-note' ), 'The screen warns that moving things in Google undoes a choice' );
 
 /*
  * A choice whose line no longer holds what it did is kept and shown as
@@ -1290,9 +1290,9 @@ $orphan_source['hidden_rows'] = array(
 	),
 );
 ob_start();
-$picker->render_card( $orphan_source, true );
+LSTAB_Picker::render_card( $orphan_source, true );
 $orphan_card = (string) ob_get_clean();
-lstabp_assert( false !== strpos( $orphan_card, 'data-lstabp-present="0"' ), 'A choice that no longer matches its line is marked as such rather than dropped' );
+lstabp_assert( false !== strpos( $orphan_card, 'data-lstab-pick-present="0"' ), 'A choice that no longer matches its line is marked as such rather than dropped' );
 lstabp_assert( false !== strpos( $orphan_card, 'Coś, czego już nie ma' ), 'And still says what it was about' );
 
 // ---------------------------------------------------------------------------
@@ -1562,16 +1562,7 @@ $licence = (string) ob_get_clean();
 lstabp_assert( false !== strpos( $licence, 'lstabp-licence-card' ), 'The settings screen carries a subscription section' );
 lstabp_assert( false !== strpos( $licence, LSTABP_Settings::account_url() ), 'With a way out of it' );
 lstabp_assert( false !== strpos( $licence, 'is-active' ), 'And it says the licence is running' );
-
-// With the add-on gone, the same section counts down instead.
-add_filter( 'lstab_is_pro', '__return_false', 99 );
-update_option( LSTAB_Limits::SEEN_OPTION, time() - DAY_IN_SECONDS, true );
-ob_start();
-( new LSTABP_Settings() )->render_licence_section( LSTAB_Settings::all() );
-$lapsed = (string) ob_get_clean();
-remove_filter( 'lstab_is_pro', '__return_false', 99 );
-lstabp_assert( false !== strpos( $lapsed, 'is-grace' ), 'Once it stops, the same section says what happens next' );
-update_option( LSTAB_Limits::SEEN_OPTION, time(), true );
+lstabp_assert( false === strpos( $licence, 'is-grace' ) && false === strpos( $licence, 'showing again' ), 'With no countdown to show, because nothing switches off' );
 
 wp_set_current_user( 0 );
 

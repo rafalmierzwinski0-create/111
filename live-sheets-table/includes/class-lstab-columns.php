@@ -131,7 +131,7 @@ class LSTAB_Columns {
 		$all     = array_keys( $headers );
 		$config  = self::sanitize( $config );
 
-		if ( ! $config || ! LSTAB_Limits::pro_effective() ) {
+		if ( ! $config ) {
 			return $all;
 		}
 
@@ -165,23 +165,19 @@ class LSTAB_Columns {
 		$labels  = array();
 		$details = array();
 
-		$may_detail = LSTAB_Limits::pro_effective();
-
-		$may_hide = LSTAB_Limits::pro_effective();
-
 		foreach ( $headers as $index => $heading ) {
 			$column = isset( $config[ $index ] ) ? $config[ $index ] : null;
 
 			$matches = $column && ( '' === $column['source'] || self::is_same( $heading, $column['source'] ) );
 
-			if ( $matches && $column['hidden'] && $may_hide ) {
+			if ( $matches && $column['hidden'] ) {
 				continue;
 			}
 
 			$keep[]   = $index;
 			$labels[] = ( $matches && '' !== $column['label'] ) ? $column['label'] : (string) $heading;
 
-			if ( $matches && ! empty( $column['detail'] ) && $may_detail ) {
+			if ( $matches && ! empty( $column['detail'] ) ) {
 				$details[] = count( $keep ) - 1;
 			}
 		}

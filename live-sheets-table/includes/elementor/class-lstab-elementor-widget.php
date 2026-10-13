@@ -129,7 +129,7 @@ class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
 
 		$this->end_controls_section();
 
-		if ( LSTAB_Limits::is_pro() ) {
+		if ( apply_filters( 'lstab_filter_supported', false ) ) {
 			$this->start_controls_section(
 				'lstab_rows_section',
 				array( 'label' => __( 'Which rows', 'live-sheets-table' ) )
@@ -151,7 +151,7 @@ class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
 	protected static function preset_options() {
 		$options = array( '' => __( 'Use the source default', 'live-sheets-table' ) );
 
-		foreach ( LSTAB_Styles::available() as $key => $preset ) {
+		foreach ( LSTAB_Styles::all() as $key => $preset ) {
 			$options[ $key ] = isset( $preset['label'] ) ? $preset['label'] : $key;
 		}
 

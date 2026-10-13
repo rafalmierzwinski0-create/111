@@ -34,8 +34,6 @@ class LSTABP_Settings {
 	}
 
 	public function render_licence_section( $settings ) {
-		$grace  = LSTAB_Limits::is_pro() ? 0 : LSTAB_Limits::grace_remaining();
-		$active = LSTAB_Limits::is_pro();
 		?>
 		<div class="lstab-panel lstabp-licence-card">
 			<div class="lstab-panel-head">
@@ -47,28 +45,10 @@ class LSTABP_Settings {
 			</div>
 
 			<div class="lstab-state-strip">
-				<?php if ( $active ) : ?>
-					<span class="lstab-state lstab-state--calm lstabp-licence-state is-active">
-						<?php echo LSTAB_Icons::icon( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-						<?php esc_html_e( 'Pro is active on this site.', 'live-sheets-table-pro' ); ?>
-					</span>
-				<?php elseif ( $grace > 0 ) : ?>
-					<span class="lstab-state lstab-state--warn lstabp-licence-state is-grace">
-						<?php echo LSTAB_Icons::icon( 'alert' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-						<?php
-						printf(
-							/* translators: %s: human readable time difference, e.g. "6 days". */
-							esc_html__( 'Pro is not running here. Columns and rows you hid will start showing again in %s.', 'live-sheets-table-pro' ),
-							esc_html( LSTAB_Locale::span( time(), time() + $grace ) )
-						);
-						?>
-					</span>
-				<?php else : ?>
-					<span class="lstab-state lstab-state--idle lstabp-licence-state">
-						<?php echo LSTAB_Icons::icon( 'clock' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-						<?php esc_html_e( 'Pro is not running here.', 'live-sheets-table-pro' ); ?>
-					</span>
-				<?php endif; ?>
+				<span class="lstab-state lstab-state--calm lstabp-licence-state is-active">
+					<?php echo LSTAB_Icons::icon( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+					<?php esc_html_e( 'Pro is active on this site.', 'live-sheets-table-pro' ); ?>
+				</span>
 			</div>
 
 			<div class="lstab-row">

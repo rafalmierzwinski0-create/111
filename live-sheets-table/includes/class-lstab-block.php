@@ -27,9 +27,23 @@ class LSTAB_Block {
 			array(
 				'manageUrl' => admin_url( 'admin.php?page=' . LSTAB_Admin::SOURCES_SLUG ),
 				'addUrl'    => admin_url( 'admin.php?page=' . LSTAB_Admin::EDIT_SLUG ),
-				'isPro'     => LSTAB_Limits::is_pro(),
+				'canFilter' => (bool) apply_filters( 'lstab_filter_supported', false ),
+				'presets'   => self::preset_options(),
 			)
 		);
+	}
+
+	protected static function preset_options() {
+		$options = array();
+
+		foreach ( LSTAB_Styles::all() as $slug => $preset ) {
+			$options[] = array(
+				'label' => (string) $preset['label'],
+				'value' => (string) $slug,
+			);
+		}
+
+		return $options;
 	}
 
 	public function render( $attributes ) {

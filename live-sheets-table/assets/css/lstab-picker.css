@@ -1,4 +1,4 @@
-.lstabp-picker-scroll {
+.lstab-picker-scroll {
 	overflow-x: auto;
 	overflow-y: visible;
 	border: 1px solid #dbe5e3;
@@ -6,14 +6,14 @@
 	background: #fff;
 }
 
-.lstabp-picker {
+.lstab-picker {
 	border-collapse: collapse;
 	width: 100%;
 	font-size: 0.85rem;
 }
 
-.lstabp-picker th,
-.lstabp-picker td {
+.lstab-picker th,
+.lstab-picker td {
 	border-bottom: 1px solid #f0f0f1;
 	border-right: 1px solid #f0f0f1;
 	padding: 0;
@@ -22,24 +22,24 @@
 	max-width: 22ch;
 }
 
-.lstabp-picker td {
+.lstab-picker td {
 	padding: 6px 10px;
 	overflow-wrap: anywhere;
 }
 
-.lstabp-picker thead th {
+.lstab-picker thead th {
 	position: sticky;
 	top: 0;
 	z-index: 2;
 	background: #f6f7f7;
 }
 
-.lstabp-picker-corner {
+.lstab-picker-corner {
 	width: 3.5rem;
 	background: #f6f7f7;
 }
 
-.lstabp-picker-toggle {
+.lstab-picker-toggle {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -55,65 +55,65 @@
 	cursor: pointer;
 }
 
-.lstabp-picker-toggle:hover,
-.lstabp-picker-toggle:focus-visible {
+.lstab-picker-toggle:hover,
+.lstab-picker-toggle:focus-visible {
 	background: #e2f1ef;
 	color: #0a5a54;
 }
 
-.lstabp-picker-toggle[disabled] {
+.lstab-picker-toggle[disabled] {
 	cursor: default;
 	opacity: 0.5;
 }
 
-.lstabp-picker-handle {
+.lstab-picker-handle {
 	background: #f6f7f7;
 }
 
-.lstabp-picker tr.is-hidden .lstabp-picker-handle {
+.lstab-picker tr.is-hidden .lstab-picker-handle {
 	background: #f1f2f2;
 }
 
-.lstabp-picker-handle .lstabp-picker-toggle {
+.lstab-picker-handle .lstab-picker-toggle {
 	font-weight: 400;
 	color: #646970;
 	justify-content: center;
 	gap: 3px;
 }
 
-.lstabp-picker-shared {
+.lstab-picker-shared {
 	font-size: 0.75em;
 	font-weight: 600;
 	color: #b26200;
 }
 
-.lstabp-picker-mark::before {
+.lstab-picker-mark::before {
 	content: "×";
 	font-size: 1.1em;
 	line-height: 1;
 	opacity: 0.3;
 }
 
-.lstabp-picker-toggle:hover .lstabp-picker-mark::before,
-.lstabp-picker-toggle:focus-visible .lstabp-picker-mark::before {
+.lstab-picker-toggle:hover .lstab-picker-mark::before,
+.lstab-picker-toggle:focus-visible .lstab-picker-mark::before {
 	opacity: 1;
 }
 
-.lstabp-picker th.is-hidden .lstabp-picker-mark::before,
-.lstabp-picker tr.is-hidden .lstabp-picker-mark::before {
+.lstab-picker th.is-hidden .lstab-picker-mark::before,
+.lstab-picker tr.is-hidden .lstab-picker-mark::before {
 	content: "↺";
 	opacity: 0.75;
 }
 
-.lstabp-picker th.is-hidden .lstabp-picker-name,
-.lstabp-picker td.is-hidden,
-.lstabp-picker tr.is-hidden td,
-.lstabp-picker tr.is-hidden .lstabp-picker-number {
+.lstab-picker th.is-hidden .lstab-picker-name,
+.lstab-picker td.is-hidden,
+.lstab-picker tr.is-hidden td,
+.lstab-picker tr.is-hidden .lstab-picker-number {
 	opacity: 0.4;
 	text-decoration: line-through;
 }
 
-.lstabp-picker tr.is-hidden {
+.lstab-picker tr.is-hidden {
 	background: repeating-linear-gradient(
 		45deg,
 		#fafafa,
@@ -123,11 +123,11 @@
 	);
 }
 
-.lstabp-picker-summary {
+.lstab-picker-summary {
 	margin-top: 12px;
 }
 
-.lstabp-chips {
+.lstab-picker-chips {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 6px;
@@ -136,7 +136,7 @@
 	list-style: none;
 }
 
-.lstabp-chip {
+.lstab-picker-chip {
 	display: inline-flex;
 	align-items: center;
 	gap: 5px;
@@ -148,29 +148,29 @@
 	font-size: 0.82rem;
 }
 
-.lstabp-chip > span {
+.lstab-picker-chip > span {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.lstabp-chip-note {
+.lstab-picker-chip-note {
 	font-size: 0.85em;
 	font-style: normal;
 	color: #b26200;
 	white-space: nowrap;
 }
 
-.lstabp-chip.is-orphan {
+.lstab-picker-chip.is-orphan {
 	border-style: dashed;
 	opacity: 0.75;
 }
 
-.lstabp-chip.is-orphan .lstabp-chip-note {
+.lstab-picker-chip.is-orphan .lstab-picker-chip-note {
 	color: #646970;
 }
 
-.lstabp-chip-remove {
+.lstab-picker-chip-remove {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -186,13 +186,13 @@
 	cursor: pointer;
 }
 
-.lstabp-chip-remove:hover,
-.lstabp-chip-remove:focus-visible {
+.lstab-picker-chip-remove:hover,
+.lstab-picker-chip-remove:focus-visible {
 	background: #d63638;
 	color: #fff;
 }
 
-.lstabp-picker-legend {
+.lstab-picker-legend {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.4rem 1.2rem;
@@ -201,13 +201,13 @@
 	color: #556764;
 }
 
-.lstabp-legend-chip {
+.lstab-picker-legend-chip {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.4rem;
 }
 
-.lstabp-legend-mark {
+.lstab-picker-legend-mark {
 	display: inline-grid;
 	place-items: center;
 	inline-size: 1.15rem;
@@ -220,24 +220,24 @@
 	background: #f9fcfb;
 }
 
-.lstabp-legend-mark--back { border-style: solid; background: #e2f1ef; }
+.lstab-picker-legend-mark--back { border-style: solid; background: #e2f1ef; }
 
-.lstabp-picker-col .lstabp-picker-name {
+.lstab-picker-col .lstab-picker-name {
 	text-decoration: underline dotted #b9cbc8;
 	text-underline-offset: 3px;
 }
 
-.lstabp-picker-col:hover .lstabp-picker-name,
-.lstabp-picker-handle:hover .lstabp-picker-number {
+.lstab-picker-col:hover .lstab-picker-name,
+.lstab-picker-handle:hover .lstab-picker-number {
 	text-decoration-color: #0e7c74;
 }
 
-.lstabp-picker-handle .lstabp-picker-number {
+.lstab-picker-handle .lstab-picker-number {
 	text-decoration: underline dotted #c6d5d2;
 	text-underline-offset: 3px;
 }
 
-.lstabp-picker-paging {
+.lstab-picker-paging {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.5rem 1.4rem;
@@ -245,24 +245,24 @@
 	margin-top: 0.65rem;
 }
 
-.lstabp-page-group {
+.lstab-picker-page-group {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.4rem;
 }
 
-.lstabp-page-label {
+.lstab-picker-page-label {
 	font-size: 0.78rem;
 	color: #556764;
 	font-variant-numeric: tabular-nums;
 	min-inline-size: 12rem;
 }
 
-.lstabp-picker-col {
+.lstab-picker-col {
 	position: relative;
 }
 
-.lstabp-picker-detail {
+.lstab-picker-detail {
 	position: absolute;
 	top: 50%;
 	right: 4px;
@@ -281,26 +281,26 @@
 	opacity: 0.8;
 }
 
-.lstabp-picker-detail:hover,
-.lstabp-picker-detail:focus-visible {
+.lstab-picker-detail:hover,
+.lstab-picker-detail:focus-visible {
 	opacity: 1;
 	border-color: #0e7c74;
 	color: #0e7c74;
 }
 
-.lstabp-picker-detail[aria-pressed="true"] {
+.lstab-picker-detail[aria-pressed="true"] {
 	opacity: 1;
 	border-color: #0e7c74;
 	background: #e2f1ef;
 	color: #0a5a54;
 }
 
-.lstabp-picker-detail[disabled] {
+.lstab-picker-detail[disabled] {
 	opacity: 0.15;
 	cursor: default;
 }
 
-.lstabp-picker-chevron {
+.lstab-picker-chevron {
 	width: 6px;
 	height: 6px;
 	border-right: 2px solid currentColor;
@@ -308,30 +308,30 @@
 	transform: translateY( -2px ) rotate( 45deg );
 }
 
-.lstabp-picker-detail[aria-pressed="true"] .lstabp-picker-chevron {
+.lstab-picker-detail[aria-pressed="true"] .lstab-picker-chevron {
 	transform: translateY( -1px ) rotate( 45deg );
 }
 
-.lstabp-picker-col .lstabp-picker-toggle {
+.lstab-picker-col .lstab-picker-toggle {
 	padding-right: 28px;
 }
 
-.lstabp-picker th.is-detail .lstabp-picker-name {
+.lstab-picker th.is-detail .lstab-picker-name {
 	color: #0a5a54;
 }
 
-.lstabp-picker td.is-detail {
+.lstab-picker td.is-detail {
 	background: rgba( 14, 124, 116, 0.05 );
 	color: #50575e;
 }
 
-.lstabp-legend-mark--detail {
+.lstab-picker-legend-mark--detail {
 	border-style: solid;
 	background: #e2f1ef;
 	position: relative;
 }
 
-.lstabp-legend-mark--detail::after {
+.lstab-picker-legend-mark--detail::after {
 	content: "";
 	position: absolute;
 	inset: 0;

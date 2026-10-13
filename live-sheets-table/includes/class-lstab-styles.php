@@ -5,55 +5,21 @@ defined( 'ABSPATH' ) || exit;
 class LSTAB_Styles {
 	public static function all() {
 		$presets = array(
-			'clean'     => array(
+			'clean'    => array(
 				'label'       => __( 'Clean', 'live-sheets-table' ),
 				'description' => __( 'Light lines between rows and generous spacing. Uses your theme\'s fonts.', 'live-sheets-table' ),
-				'pro'         => false,
 			),
-			'striped'   => array(
+			'striped'  => array(
 				'label'       => __( 'Striped', 'live-sheets-table' ),
 				'description' => __( 'Alternating row shading, which makes a long list easier to follow.', 'live-sheets-table' ),
-				'pro'         => false,
 			),
-			'bordered'  => array(
+			'bordered' => array(
 				'label'       => __( 'Bordered', 'live-sheets-table' ),
 				'description' => __( 'A full grid with a shaded heading row. Suits dense columns of numbers.', 'live-sheets-table' ),
-				'pro'         => false,
 			),
-			'midnight'  => array(
+			'midnight' => array(
 				'label'       => __( 'Midnight', 'live-sheets-table' ),
 				'description' => __( 'A dark table with high contrast.', 'live-sheets-table' ),
-				'pro'         => true,
-			),
-			'editorial' => array(
-				'label'       => __( 'Editorial', 'live-sheets-table' ),
-				'description' => __( 'Serif headings and very thin lines, in the manner of a printed table.', 'live-sheets-table' ),
-				'pro'         => true,
-			),
-			'cards'     => array(
-				'label'       => __( 'Cards', 'live-sheets-table' ),
-				'description' => __( 'Every row its own card, with the page showing between them. A list of things rather than a spreadsheet.', 'live-sheets-table' ),
-				'pro'         => true,
-			),
-			'terminal'  => array(
-				'label'       => __( 'Terminal', 'live-sheets-table' ),
-				'description' => __( 'Typewriter lettering and thin mint lines on near-black. Figures line up of their own accord.', 'live-sheets-table' ),
-				'pro'         => true,
-			),
-			'aurora'    => array(
-				'label'       => __( 'Aurora', 'live-sheets-table' ),
-				'description' => __( 'A heading bar that sweeps through violet, pink and amber over a crisp white table — or through shades of any heading colour you pick. Colourful without getting in the way of the figures.', 'live-sheets-table' ),
-				'pro'         => true,
-			),
-			'ledger'    => array(
-				'label'       => __( 'Ledger', 'live-sheets-table' ),
-				'description' => __( 'Warm paper, a double rule under the headings and a band down every other column. For a sheet of figures: the bands hold the eye in one column, and the numbers line up of their own accord.', 'live-sheets-table' ),
-				'pro'         => true,
-			),
-			'contrast'  => array(
-				'label'       => __( 'Contrast', 'live-sheets-table' ),
-				'description' => __( 'A solid heading bar over a plain table, and a first column with some weight to it.', 'live-sheets-table' ),
-				'pro'         => true,
 			),
 		);
 
@@ -72,26 +38,9 @@ class LSTAB_Styles {
 			. '</span>';
 	}
 
-	public static function available() {
-		if ( LSTAB_Limits::is_pro() ) {
-			return self::all();
-		}
-
-		return array_filter(
-			self::all(),
-			static function ( $preset ) {
-				return empty( $preset['pro'] );
-			}
-		);
-	}
-
 	public static function sanitize( $slug ) {
-		$slug      = sanitize_key( (string) $slug );
-		$available = self::available();
-
-		if ( 'glass' === $slug ) {
-			$slug = 'aurora';
-		}
+		$slug      = sanitize_key( (string) apply_filters( 'lstab_style_alias', sanitize_key( (string) $slug ) ) );
+		$available = self::all();
 
 		return isset( $available[ $slug ] ) ? $slug : 'clean';
 	}

@@ -1,6 +1,6 @@
 # Zgłoszenie wtyczki do WordPress.org — lista
 
-Spisane 2026-10-08, uzupełnione 2026-10-12. Dotyczy darmowej wtyczki
+Spisane 2026-10-08, uzupełnione 2026-10-13. Dotyczy darmowej wtyczki
 `live-sheets-table/`. Pro nie idzie do katalogu WordPress.org i nie musi być
 gotowe, żeby wysłać darmową.
 
@@ -8,69 +8,57 @@ gotowe, żeby wysłać darmową.
 wtyczkę: kod, bezpieczeństwo, licencję i opis. Wyjątek: odsyłacze z wtyczki
 muszą prowadzić pod istniejące adresy.
 
-## 1. Najważniejsze: blokady Pro w darmowej wtyczce
+## 1. Blokady Pro w darmowej wtyczce — ZROBIONE (3.43.0 / Pro 1.33.0)
 
 Zasada 5 katalogu („Trialware is not permitted”): w darmowej wtyczce nie może
 być funkcji zablokowanych do czasu zapłaty i nie może być funkcji, które
-wyłączają się po czasie albo po limicie. Płatne rzeczy mają siedzieć w osobnej
-wtyczce (u nas Pro), która dokłada je przez hooki. Plugin Check tego nie
-wykrywa, sprawdza to człowiek przy recenzji. Dziś darmowa ma takie blokady:
+wyłączają się po czasie albo po limicie. Płatne rzeczy siedzą w osobnej
+wtyczce (Pro), która dokłada je przez hooki.
 
-| Co jest dziś w darmowej | Dlaczego odpadnie | Propozycja |
-|---|---|---|
-| Limit 6 tabel, Pro go znosi | limit zdejmowany po zapłacie | usunąć limit (innej drogi nie ma) |
-| 10 dni, po których ukryte kolumny i wiersze wracają na stronę, gdy Pro zniknie | funkcja wyłączana po czasie | usunąć |
-| 7 z 10 stylów z kłódką „Pro”, ich kod jest w darmowej | funkcja w kodzie, zablokowana | przenieść 7 stylów do Pro |
-| Odświeżanie co 1 i 5 minut ukryte do czasu Pro | jw. | przenieść te dwie opcje do Pro |
-| Ukrywanie kolumn, kolumny „w szczegółach”, ukryte wiersze działają tylko z Pro | jw. | kolumny: za darmo (wybór przy kolumnie); klikanie w obrazek arkusza i ukrywanie wierszy: w całości do Pro |
-| Reklamy „Buy Pro”, „Compare Free and Pro” z odsyłaczem `https://example.com/...` | odsyłacz donikąd | na razie usunąć; wrócą w aktualizacji, gdy będzie sklep |
+| Było w darmowej | Jest teraz |
+|---|---|
+| Limit 6 tabel, Pro go znosi | Brak limitu. Osobny commit, łatwy do cofnięcia, ale bez niego wtyczka nie przejdzie recenzji. |
+| Ukryte kolumny i wiersze wracały na stronę 10 dni po wyłączeniu Pro | Ukrywanie kolumn, wierszy i kolumny „w szczegółach” jest w darmowej, razem z wyborem przez klikanie w obrazek arkusza. Nic się samo nie wyłącza. |
+| 7 z 10 stylów z kłódką | Darmowa ma 4 style: Clean, Striped, Bordered, Midnight. Pozostałe 6 i ich wygląd (CSS) są w Pro. |
+| Odświeżanie co 1 i 5 minut schowane | Darmowa: od 15 minut. Opcje co 1 i co 5 minut dokłada Pro. |
+| „Buy Pro”, „Compare Free and Pro”, odsyłacz do example.com, wzmianki o Pro w opisie | Usunięte. Wrócą w aktualizacji, gdy będzie sklep (skromnie i z możliwością zamknięcia, zasada 11). |
 
-Stan: **czeka na decyzję właściciela**, które funkcje zostają płatne.
+## 2. Plugin Check — ZROBIONE
 
-## 2. Plugin Check (puszczone 2026-10-12)
+Oficjalne narzędzie, które WordPress.org uruchamia przy wysyłce (wersja 2.1.0
+ze źródeł na GitHubie, na WordPressie 7.1, także testy eksperymentalne).
+Wynik po poprawkach: **0 błędów, 0 ostrzeżeń.**
 
-Oficjalne narzędzie, które WordPress.org uruchamia przy wysyłce. Wersja 2.1.0
-ze źródeł na GitHubie, na WordPressie 7.1. Błąd blokuje wysyłkę, ostrzeżenia
-czyta recenzent.
+Poprawione: zabezpieczenie w `blocks/sheet-table/index.asset.php`, nazwa
+wtyczki bez słowa „WordPress” (teraz „Live Sheets Table”), przestarzałe
+`seems_utf8()`, zapytania SQL z `%i`, nazwy hooków innych wtyczek oznaczone,
+historia zmian w `readme.txt` skrócona poniżej 5 000 znaków (pełna historia
+jest w `CHANGELOG.md` w repozytorium).
 
-- **Błąd (1):** `blocks/sheet-table/index.asset.php` nie ma na początku
-  `defined( 'ABSPATH' ) || exit;`.
-- **Ostrzeżenie:** nazwa wtyczki zawiera słowo „WordPress” (nagłówek
-  `live-sheets-table.php` i tytuł `readme.txt`). Zmienić na „Live Sheets Table”.
-- **Ostrzeżenie:** `seems_utf8()` jest przestarzałe od WordPressa 6.9
-  (`includes/class-lstab-csv-parser.php`).
-- **Ostrzeżenie:** Changelog w `readme.txt` ma ok. 77 000 znaków, katalog
-  pokazuje 5 000. Zostawić ostatnie wydania.
-- **Ostrzeżenia (3):** nazwy hooków innych wtyczek do czyszczenia pamięci
-  podręcznej (`litespeed_purge_post` itd.). Celowe, oznaczyć `phpcs:ignore`.
-- **Ostrzeżenia (7):** nazwa tabeli w zapytaniach SQL w
-  `includes/class-lstab-storage.php`. Przejść na `%i` w `$wpdb->prepare()`.
+## 3. Pozostałe
 
-## 3. Pozostałe poprawki
-
-1. **`readme.txt` mówi o ustawieniu języka i polskim tłumaczeniu**, a obu już
-   nie ma. Usunąć te dwa zdania.
-2. **Sekcja „What Pro adds” i wzmianki o Pro w FAQ:** usunąć do czasu
-   startu sprzedaży, razem z reklamami z punktu 1.
+1. **Usuwanie wtyczki** kończyło się błędem krytycznym (plik odinstalowania
+   sięgał do klasy, której WordPress wtedy nie ładuje). Naprawione, z testem,
+   który usuwa wtyczkę tak jak WordPress.
+2. **`readme.txt`**: bez sekcji o Pro, bez wzmianek o ustawieniu języka
+   i polskim tłumaczeniu, z darmowym ukrywaniem i czterema stylami. Zrobione.
 3. **`== External services ==`** — jest. Zrobione.
 4. **„Tested up to: 7.1”** — zgodne z najnowszym WordPressem. Sprawdzić
    jeszcze raz w dniu wysyłki.
-5. **Contributors** w `readme.txt` (dziś `livesheetstable`): wpisać nazwę
-   użytkownika właściciela na wordpress.org.
-6. **Grafiki do katalogu** są w `wporg-assets/`. Po zmianach sprawdzić, czy
-   zrzuty nie pokazują kłódek „Pro” i czy pasują do `== Screenshots ==`.
+5. **Zrzuty ekranu** w `wporg-assets/` podmienione na aktualne, bez Pro.
+6. **Contributors** w `readme.txt` (dziś `livesheetstable`): wpisać nazwę
+   użytkownika właściciela na wordpress.org. **Czeka na właściciela.**
 
 ## Po stronie właściciela
 
-- Decyzja z punktu 1: co zostaje w Pro.
-- Konto na wordpress.org i jego nazwa użytkownika.
+- Konto na wordpress.org i jego nazwa użytkownika (do pola Contributors).
 - Włączone logowanie dwuetapowe (2FA), wymagane od autorów wtyczek.
-- Później, przed sprzedażą: adres strony z ceną Pro.
+- Później, przed sprzedażą Pro: adres strony z ceną Pro.
 
 ## Kolejność
 
-1. Poprawki z punktów 1–3 → Claude daje gotowy `live-sheets-table.zip`
-   (`tools/build-zip.sh`) i jeszcze raz puszcza Plugin Check.
+1. Właściciel podaje nazwę użytkownika → Claude wpisuje ją do `readme.txt`
+   i daje gotowy `live-sheets-table.zip` (`tools/build-zip.sh`).
 2. Właściciel wysyła zip: https://wordpress.org/plugins/developers/add/
 3. Recenzja trwa od kilku dni do kilku tygodni. Odpowiadamy na maila
    z uwagami.
@@ -81,6 +69,8 @@ czyta recenzent.
 
 - Płatności (pośrednik, który rozlicza VAT).
 - Klucze licencyjne i automatyczne aktualizacje w Pro. Dziś w Pro ich nie ma.
+- Odsyłacz „Manage or cancel subscription” w Pro prowadzi dziś na
+  example.com — podmienić na adres konta w sklepie.
 - Odsyłacze do sklepu w darmowej wtyczce: dodać w aktualizacji, skromnie
   i z możliwością zamknięcia (zasada 11).
 - Formularz na stronie Kontakt: czeka na shortcode z wtyczki formularzy.

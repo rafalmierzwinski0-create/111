@@ -27,11 +27,8 @@
 	];
 
 	var PRESETS = [
-		{ label: __( 'Use the source default', 'live-sheets-table' ), value: '' },
-		{ label: __( 'Clean', 'live-sheets-table' ), value: 'clean' },
-		{ label: __( 'Striped', 'live-sheets-table' ), value: 'striped' },
-		{ label: __( 'Bordered', 'live-sheets-table' ), value: 'bordered' }
-	];
+		{ label: __( 'Use the source default', 'live-sheets-table' ), value: '' }
+	].concat( lstabBlock.presets || [] );
 
 	function useSources() {
 		var sourcesState = useState( null );
@@ -166,7 +163,7 @@
 						__nextHasNoMarginBottom: true
 					} )
 				),
-				lstabBlock.isPro ? el(
+				lstabBlock.canFilter ? el(
 					PanelBody,
 					{ title: __( 'Which rows', 'live-sheets-table' ), initialOpen: false },
 					el( TextControl, {

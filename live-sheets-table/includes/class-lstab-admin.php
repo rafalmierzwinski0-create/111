@@ -8,10 +8,7 @@ class LSTAB_Admin {
 	const EDIT_SLUG     = 'live-sheets-table-edit';
 	const SETTINGS_SLUG = 'live-sheets-table-settings';
 
-	const GRACE_DISMISSED = 'lstab_grace_dismissed';
-
 	public function register() {
-		add_action( 'admin_init', array( 'LSTAB_Limits', 'note_pro_seen' ) );
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
 		add_action( 'admin_post_lstab_save_source', array( $this, 'handle_save' ) );
@@ -21,8 +18,6 @@ class LSTAB_Admin {
 		add_action( 'admin_post_lstab_page_source', array( $this, 'handle_page_source' ) );
 		add_action( 'admin_post_lstab_keep_one_page', array( $this, 'handle_keep_one_page' ) );
 		add_action( 'admin_notices', array( $this, 'print_global_notice' ) );
-		add_action( 'admin_notices', array( __CLASS__, 'print_grace_notice' ) );
-		add_action( 'wp_ajax_lstab_dismiss_grace', array( $this, 'handle_dismiss_grace' ) );
 		add_filter( 'plugin_action_links_' . LSTAB_BASENAME, array( $this, 'action_links' ) );
 	}
 
@@ -144,18 +139,6 @@ class LSTAB_Admin {
 	}
 
 	public function enqueue( $hook ) {
-		if ( ! LSTAB_Limits::is_pro() && LSTAB_Limits::grace_remaining() > 0 ) {
-			wp_enqueue_script(
-				'lstab-notice',
-				LSTAB_URL . 'assets/js/lstab-notice.js',
-				array(),
-				LSTAB_Plugin::asset_version( 'assets/js/lstab-notice.js' ),
-				true
-			);
-
-			wp_localize_script( 'lstab-notice', 'lstabNotice', array( 'ajaxUrl' => admin_url( 'admin-ajax.php' ) ) );
-		}
-
 		if ( false === strpos( (string) $hook, self::MENU_SLUG ) ) {
 			return;
 		}
@@ -562,56 +545,6 @@ class LSTAB_Admin {
 		);
 	}
 
-	public static function print_grace_notice() {
-		if ( LSTAB_Limits::is_pro() || ! current_user_can( LSTAB_Limits::capability() ) ) {
-			return;
-		}
-
-		$left = LSTAB_Limits::grace_remaining();
-
-		if ( $left <= 0 ) {
-			return;
-		}
-
-		$dismissed = (int) get_user_meta( get_current_user_id(), self::GRACE_DISMISSED, true );
-
-		if ( $dismissed > time() - WEEK_IN_SECONDS && $left > 2 * DAY_IN_SECONDS ) {
-			return;
-		}
-
-		?>
-		<div class="notice notice-warning is-dismissible lstab-grace-notice" data-lstab-dismiss="<?php echo esc_attr( wp_create_nonce( self::GRACE_DISMISSED ) ); ?>">
-			<p>
-				<strong>
-					<?php
-					printf(
-						/* translators: %s: human readable time difference, e.g. "6 days". */
-						esc_html__( 'Columns and rows you hid will start showing again in %s.', 'live-sheets-table' ),
-						esc_html( LSTAB_Locale::span( time(), time() + $left ) )
-					);
-					?>
-				</strong>
-			</p>
-			<p>
-				<?php esc_html_e( 'Hiding columns and rows is a Pro feature, and Pro is not active on this site. Your choices are still applied for now.', 'live-sheets-table' ); ?>
-			</p>
-			<p>
-				<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . self::SETTINGS_SLUG ) ); ?>">
-					<?php esc_html_e( 'See what is hidden, and what will come back', 'live-sheets-table' ); ?>
-				</a>
-			</p>
-		</div>
-		<?php
-	}
-
-	public function handle_dismiss_grace() {
-		check_ajax_referer( self::GRACE_DISMISSED );
-
-		update_user_meta( get_current_user_id(), self::GRACE_DISMISSED, time() );
-
-		wp_send_json_success();
-	}
-
 	public static function print_cron_notice() {
 		$health = LSTAB_Cron::health();
 
@@ -690,9 +623,7 @@ class LSTAB_Admin {
 			<span class="lstab-masthead-text">
 				<h1>
 					<?php esc_html_e( 'Live Sheets Table', 'live-sheets-table' ); ?>
-					<?php if ( LSTAB_Limits::is_pro() ) : ?>
-						<span class="lstab-pro-pill"><?php echo LSTAB_Icons::icon( 'spark' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>PRO</span>
-					<?php endif; ?>
+					<?php do_action( 'lstab_masthead_title' ); ?>
 				</h1>
 				<?php if ( '' !== $sub ) : ?>
 					<span class="lstab-masthead-sub"><?php echo esc_html( $sub ); ?></span>

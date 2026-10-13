@@ -61,29 +61,13 @@ class LSTAB_Storage {
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
-		if ( $wpdb->get_var( $wpdb->prepare( "SHOW COLUMNS FROM {$table} LIKE %s", 'refresh_on_view' ) ) ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
-			$wpdb->query( "ALTER TABLE {$table} DROP COLUMN refresh_on_view" );
-		}
-
-		if ( ! get_option( LSTAB_Limits::SEEN_OPTION ) && ! LSTAB_Limits::is_pro() && self::any_column_hidden() ) {
-			update_option( LSTAB_Limits::SEEN_OPTION, time(), true );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW COLUMNS FROM %i LIKE %s', $table, 'refresh_on_view' ) ) ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.DirectDatabaseQuery.SchemaChange
+			$wpdb->query( $wpdb->prepare( 'ALTER TABLE %i DROP COLUMN refresh_on_view', $table ) );
 		}
 
 		update_option( self::DB_VERSION_OPT, self::DB_VERSION );
-	}
-
-	protected static function any_column_hidden() {
-		foreach ( self::get_all() as $source ) {
-			foreach ( (array) $source['columns_config'] as $column ) {
-				if ( ! empty( $column['hidden'] ) ) {
-					return true;
-				}
-			}
-		}
-
-		return false;
 	}
 
 	public static function maybe_upgrade() {
@@ -392,12 +376,8 @@ class LSTAB_Storage {
 		}
 
 		$table = self::table();
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name cannot be a placeholder.
-		$row = $wpdb->get_row(
-			$wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $id ),
-			ARRAY_A
-		);
-		// phpcs:enable
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Custom table, cached above.
+		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE id = %d', $table, $id ), ARRAY_A );
 
 		$source = $row ? self::hydrate( $row ) : null;
 
@@ -413,21 +393,30 @@ class LSTAB_Storage {
 	public static function get_all( $with_data = false ) {
 		global $wpdb;
 
-		$table   = self::table();
-		$columns = $with_data ? '*' : self::meta_columns();
+		$table = self::table();
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names cannot be placeholders.
-		$rows = $wpdb->get_results( "SELECT {$columns} FROM {$table} ORDER BY id ASC", ARRAY_A );
-		// phpcs:enable
+		if ( $with_data ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Custom table, no core API available.
+			$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i ORDER BY id ASC', $table ), ARRAY_A );
+		} else {
+			$columns = self::meta_columns();
+			$names   = implode( ', ', array_fill( 0, count( $columns ), '%i' ) );
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Only %i placeholders, one per column name.
+			$rows = $wpdb->get_results( $wpdb->prepare( "SELECT {$names} FROM %i ORDER BY id ASC", array_merge( $columns, array( $table ) ) ), ARRAY_A );
+		}
 
 		return array_map( array( __CLASS__, 'hydrate' ), (array) $rows );
 	}
 
 	protected static function meta_columns() {
-		return 'id, title, sheet_url, sheet_id, sheet_kind, gid, tab_name, sync_interval, '
-			. 'first_row_header, style_preset, layout, sticky_first, sticky_head, link_cells, per_page, columns_config, hidden_rows, style_vars, custom_css, '
-			. 'snapshot_hash, row_count, col_count, sync_log, '
-			. 'last_status, last_error, last_ragged, last_attempt_gmt, last_success_gmt, created_gmt, updated_gmt';
+		return explode(
+			', ',
+			'id, title, sheet_url, sheet_id, sheet_kind, gid, tab_name, sync_interval, '
+				. 'first_row_header, style_preset, layout, sticky_first, sticky_head, link_cells, per_page, columns_config, hidden_rows, style_vars, custom_css, '
+				. 'snapshot_hash, row_count, col_count, sync_log, '
+				. 'last_status, last_error, last_ragged, last_attempt_gmt, last_success_gmt, created_gmt, updated_gmt'
+		);
 	}
 
 	public static function count_sources() {
@@ -435,9 +424,8 @@ class LSTAB_Storage {
 
 		$table = self::table();
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name cannot be a placeholder.
-		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE sheet_kind <> %s", LSTAB_Example::KIND ) );
-		// phpcs:enable
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Custom table, no core API available.
+		return (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i WHERE sheet_kind <> %s', $table, LSTAB_Example::KIND ) );
 	}
 
 	public static function delete( $id ) {
@@ -469,8 +457,8 @@ class LSTAB_Storage {
 
 		$errors = $wpdb->hide_errors();
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name cannot be a placeholder.
-		$wpdb->query( "ALTER TABLE {$table} AUTO_INCREMENT = 1" );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery
+		$wpdb->query( $wpdb->prepare( 'ALTER TABLE %i AUTO_INCREMENT = 1', $table ) );
 
 		if ( $wpdb->get_var( "SELECT name FROM sqlite_master WHERE type='table' AND name='sqlite_sequence'" ) ) {
 			$wpdb->query( $wpdb->prepare( 'DELETE FROM sqlite_sequence WHERE name = %s', $table ) );
@@ -539,9 +527,8 @@ class LSTAB_Storage {
 		global $wpdb;
 
 		$table = self::table();
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name cannot be a placeholder.
-		$wpdb->query( "DROP TABLE IF EXISTS {$table}" );
-		// phpcs:enable
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.DirectDatabaseQuery.SchemaChange
+		$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $table ) );
 
 		delete_option( self::DB_VERSION_OPT );
 	}

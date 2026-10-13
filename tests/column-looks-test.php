@@ -41,8 +41,7 @@ function add_filter( $hook, $callback, $priority = 10, $args = 1 ) {
 	$GLOBALS['lstab_filters'][ $hook ][ $priority ][] = $callback;
 }
 function add_action() {}
-// Pro is running in this file's world, so what Pro hides stays hidden.
-function apply_filters( $hook, $value ) { return 'lstab_is_pro' === $hook ? true : $value; }
+function apply_filters( $hook, $value ) { return $value; }
 function esc_attr_e( $text, $domain = null ) { echo esc_attr( $text ); }
 function esc_html_e( $text, $domain = null ) { echo esc_html( $text ); }
 function esc_attr__( $text, $domain = null ) { return esc_attr( $text ); }

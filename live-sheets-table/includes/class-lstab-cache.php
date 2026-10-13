@@ -97,9 +97,9 @@ class LSTAB_Cache {
 			WpeCommon::purge_varnish_cache( $post_id );
 		}
 
-		do_action( 'litespeed_purge_post', $post_id );
-		do_action( 'cache_enabler_clear_page_cache_by_post', $post_id );
-		do_action( 'wphb_clear_page_cache', $post_id );
+		do_action( 'litespeed_purge_post', $post_id ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- LiteSpeed Cache's own hook.
+		do_action( 'cache_enabler_clear_page_cache_by_post', $post_id ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Cache Enabler's own hook.
+		do_action( 'wphb_clear_page_cache', $post_id ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Hummingbird's own hook.
 
 		if ( function_exists( 'sg_cachepress_purge_cache' ) ) {
 			sg_cachepress_purge_cache( get_permalink( $post_id ) );

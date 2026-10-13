@@ -143,6 +143,14 @@ run_suite wpzip "clean install from the built zip"
 
 echo
 echo "=============================================="
+echo " Deleting the plugin the way WordPress does"
+echo "=============================================="
+# Switched off first, then its uninstall routine run with none of it loaded.
+# On the clean site, which is rebuilt from the zip on every run anyway.
+php "$REPO/tests/uninstall-test.php" "$SCRATCH/wpzip" 8090
+
+echo
+echo "=============================================="
 echo " Pro add-on suite — WordPress 7.1"
 echo "=============================================="
 php "$REPO/tests/harness/activate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php
@@ -247,14 +255,23 @@ cd "$SCRATCH" && LSTAB_SCRATCH="$SCRATCH" LSTAB_SHOTS="$REPO/screenshots" node b
 
 echo
 echo "=============================================="
-echo " Pro picker in a browser — WordPress 7.1"
+echo " Hiding columns and rows in a browser — free plugin alone, WordPress 7.1"
 echo "=============================================="
 # Clicking things is the whole point of the picker, and the only part of it PHP
-# cannot check. The add-on has to be running for the screen to exist at all.
-php "$REPO/tests/harness/activate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null
+# cannot check. It comes with the free plugin, so it is driven without the
+# add-on first, then again with it for the add-on's own cards.
+php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null
 php "$SCRATCH/seed71.php" > /dev/null
 cp "$REPO/tests/harness/picker-test.mjs" "$SCRATCH/picker-test.mjs"
 cd "$SCRATCH" && LSTAB_SHOTS="$REPO/screenshots" node picker-test.mjs
+
+echo
+echo "=============================================="
+echo " The add-on's cards in a browser — WordPress 7.1"
+echo "=============================================="
+php "$REPO/tests/harness/activate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null
+php "$SCRATCH/seed71.php" > /dev/null
+cd "$SCRATCH" && LSTAB_WITH_PRO=1 LSTAB_SHOTS="$REPO/screenshots" node picker-test.mjs
 
 echo
 echo "=============================================="

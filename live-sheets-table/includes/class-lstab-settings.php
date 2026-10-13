@@ -35,7 +35,7 @@ class LSTAB_Settings {
 
 		if ( isset( $input['default_interval'] ) ) {
 			$seconds = (int) $input['default_interval'];
-			$clean['default_interval'] = ( 0 === $seconds || in_array( $seconds, LSTAB_Cron::schedule_map(), true ) )
+			$clean['default_interval'] = ( 0 === $seconds || isset( LSTAB_Limits::intervals()[ $seconds ] ) )
 				? $seconds
 				: 0;
 		}

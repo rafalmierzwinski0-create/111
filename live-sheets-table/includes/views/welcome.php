@@ -58,12 +58,9 @@ defined( 'ABSPATH' ) || exit;
 		<div class="lstab-fork">
 			<?php echo LSTAB_Icons::icon( 'lock' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
 			<span>
-				<b>
-					<?php esc_html_e( 'Is the sheet private?', 'live-sheets-table' ); ?>
-					<span class="lstab-tagpro">PRO</span>
-				</b>
+				<b><?php esc_html_e( 'Is the sheet private?', 'live-sheets-table' ); ?></b>
 				<span>
-					<?php esc_html_e( 'Sharing by link is all the free version needs. Connecting a Google account, for sheets that cannot be shared, is part of Pro.', 'live-sheets-table' ); ?>
+					<?php esc_html_e( 'In Google Sheets choose Share, then “Anyone with the link” as a Viewer. The plugin only reads the sheet and never changes it.', 'live-sheets-table' ); ?>
 				</span>
 			</span>
 		</div>

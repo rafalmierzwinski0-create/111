@@ -68,15 +68,12 @@ defined( 'ABSPATH' ) || exit;
 							<?php
 							printf(
 								/* translators: %s: human readable duration, e.g. "15 minutes". */
-								esc_html__( 'Fastest allowed (%s)', 'live-sheets-table' ),
+								esc_html__( 'As often as possible (every %s)', 'live-sheets-table' ),
 								esc_html( LSTAB_Locale::span( 0, LSTAB_Limits::min_interval() ) )
 							);
 							?>
 						</option>
-						<?php foreach ( LSTAB_Cron::schedule_map() as $lstab_slug => $lstab_seconds ) : ?>
-							<?php if ( $lstab_seconds < LSTAB_Limits::min_interval() ) : ?>
-								<?php continue; ?>
-							<?php endif; ?>
+						<?php foreach ( array_keys( LSTAB_Limits::intervals() ) as $lstab_seconds ) : ?>
 							<option value="<?php echo esc_attr( (string) $lstab_seconds ); ?>" <?php selected( (int) $settings['default_interval'], $lstab_seconds ); ?>>
 								<?php
 								printf(
@@ -129,9 +126,6 @@ defined( 'ABSPATH' ) || exit;
 				<div class="lstab-row-do">
 					<select name="lstab_settings[default_style]" aria-labelledby="lstab-set-style">
 						<?php foreach ( LSTAB_Styles::all() as $lstab_slug => $lstab_preset ) : ?>
-							<?php if ( ! empty( $lstab_preset['pro'] ) && ! LSTAB_Limits::is_pro() ) : ?>
-								<?php continue; ?>
-							<?php endif; ?>
 							<option value="<?php echo esc_attr( $lstab_slug ); ?>" <?php selected( (string) $settings['default_style'], $lstab_slug ); ?>>
 								<?php echo esc_html( $lstab_preset['label'] ); ?>
 							</option>

@@ -158,7 +158,7 @@ class LSTAB_Hidden_Rows {
 	public static function filter_rows( $rows, $headers, $source, $args ) {
 		$entries = isset( $source['hidden_rows'] ) ? self::sanitize( $source['hidden_rows'] ) : array();
 
-		if ( ! $entries || ! LSTAB_Limits::pro_effective() ) {
+		if ( ! $entries ) {
 			return $rows;
 		}
 

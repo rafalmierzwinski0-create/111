@@ -228,17 +228,5 @@ $lstab_add_button = $lstab_own
 				</form>
 			<?php endif; ?>
 		</div>
-
-		<?php if ( ! LSTAB_Limits::is_pro() ) : ?>
-			<div class="lstab-start-card lstab-start-card--pro">
-				<span class="lstab-start-ico"><?php echo LSTAB_Icons::icon( 'lock' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?></span>
-				<h3><?php esc_html_e( 'Sheet must stay private?', 'live-sheets-table' ); ?> <span class="lstab-tagpro">PRO</span></h3>
-				<p><?php esc_html_e( 'Connect your own Google account and the table is read without a public link. Pro also syncs every minute, colours cells by rules, lets visitors filter and download, and keeps any number of tables.', 'live-sheets-table' ); ?></p>
-				<a class="lstab-btn" href="<?php echo esc_url( LSTAB_Limits::upgrade_url() ); ?>" target="_blank" rel="noopener">
-					<?php echo LSTAB_Icons::icon( 'spark' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-					<?php esc_html_e( 'Buy Pro', 'live-sheets-table' ); ?>
-				</a>
-			</div>
-		<?php endif; ?>
 	</div>
 </div>

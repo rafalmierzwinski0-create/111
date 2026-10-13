@@ -2,12 +2,11 @@
 
 defined( 'ABSPATH' ) || exit;
 
-class LSTABP_Picker {
+class LSTAB_Picker {
 	const MAX_ROWS = 200;
 
 	public function register() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
-		add_action( 'lstab_edit_page_settings', array( $this, 'render_card' ), 5, 2 );
 	}
 
 	public function enqueue( $hook ) {
@@ -16,40 +15,40 @@ class LSTABP_Picker {
 		}
 
 		wp_enqueue_style(
-			'lstabp-picker',
-			LSTABP_URL . 'assets/css/lstabp-picker.css',
+			'lstab-picker',
+			LSTAB_URL . 'assets/css/lstab-picker.css',
 			array(),
-			LSTABP_VERSION
+			LSTAB_Plugin::asset_version( 'assets/css/lstab-picker.css' )
 		);
 
 		wp_enqueue_script(
-			'lstabp-picker',
-			LSTABP_URL . 'assets/js/lstabp-picker.js',
+			'lstab-picker',
+			LSTAB_URL . 'assets/js/lstab-picker.js',
 			array(),
-			LSTABP_VERSION,
+			LSTAB_Plugin::asset_version( 'assets/js/lstab-picker.js' ),
 			true
 		);
 
 		wp_localize_script(
-			'lstabp-picker',
-			'lstabpPicker',
+			'lstab-picker',
+			'lstabPicker',
 			array(
 				'i18n' => array(
-					'showRowAgain' => __( 'Show this row again', 'live-sheets-table-pro' ),
-					'notThereNow'  => __( 'not on that line now', 'live-sheets-table-pro' ),
-					'shown'        => __( 'Shown', 'live-sheets-table-pro' ),
-					'hidden'       => __( 'Hidden', 'live-sheets-table-pro' ),
-					'inDetails'    => __( 'In the details', 'live-sheets-table-pro' ),
+					'showRowAgain' => __( 'Show this row again', 'live-sheets-table' ),
+					'notThereNow'  => __( 'not on that line now', 'live-sheets-table' ),
+					'shown'        => __( 'Shown', 'live-sheets-table' ),
+					'hidden'       => __( 'Hidden', 'live-sheets-table' ),
+					'inDetails'    => __( 'In the details', 'live-sheets-table' ),
 					/* translators: 1: page number, 2: number of pages, 3: total rows. */
-					'rowsPage'     => __( 'Rows — page %1$s of %2$s (%3$s in all)', 'live-sheets-table-pro' ),
+					'rowsPage'     => __( 'Rows — page %1$s of %2$s (%3$s in all)', 'live-sheets-table' ),
 					/* translators: 1: page number, 2: number of pages, 3: total columns. */
-					'colsPage'     => __( 'Columns — page %1$s of %2$s (%3$s in all)', 'live-sheets-table-pro' ),
+					'colsPage'     => __( 'Columns — page %1$s of %2$s (%3$s in all)', 'live-sheets-table' ),
 				),
 			)
 		);
 	}
 
-	public function render_card( $source, $is_edit ) {
+	public static function render_card( $source, $is_edit ) {
 		if ( ! $is_edit || ! is_array( $source ) ) {
 			return;
 		}
@@ -67,6 +66,6 @@ class LSTABP_Picker {
 		$offset  = isset( $source['data']['offset'] ) ? (int) $source['data']['offset'] : 0;
 		$shown   = array_slice( $rows, 0, self::MAX_ROWS );
 
-		include LSTABP_PATH . 'includes/views/picker-card.php';
+		include LSTAB_PATH . 'includes/views/picker-card.php';
 	}
 }
