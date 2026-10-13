@@ -46,7 +46,7 @@ Paste your link and the dashboard shows you exactly what it read — headings, r
 
 = Getting the data in =
 
-* Six saved sheet sources.
+* As many sheets as you like.
 * Unlimited rows in every one of them.
 * A tab picker for spreadsheets with more than one tab.
 * Background sync every 15 minutes, plus a "Refresh now" button.
@@ -88,7 +88,7 @@ Paste your link and the dashboard shows you exactly what it read — headings, r
 
 = What Pro adds =
 
-Live Sheets Table Pro adds unlimited sheet sources, syncing as often as every minute, hiding columns and rows by clicking them in a picture of your own sheet, moving columns into an expandable panel under each row, conditional cell colouring, fixed filtered views, filters your visitors can use themselves, Excel, CSV and print export for visitors, seven more table styles, private sheets through an authenticated Google connection, a multi-site licence and priority support.
+Live Sheets Table Pro adds syncing as often as every minute, hiding columns and rows by clicking them in a picture of your own sheet, moving columns into an expandable panel under each row, conditional cell colouring, fixed filtered views, filters your visitors can use themselves, Excel, CSV and print export for visitors, seven more table styles, private sheets through an authenticated Google connection, a multi-site licence and priority support.
 
 = Privacy =
 
@@ -172,7 +172,7 @@ You do not have to keep an eye on it: if the schedule stops running, the plugin 
 
 = Can I show several different sheets? =
 
-The free version stores six sheet sources. Pro removes the limit.
+Yes, as many as you like. Each sheet, or each tab of a sheet, is a source of its own with its own settings, and any number of pages can show it.
 
 = Is the sheet content safe to display? =
 

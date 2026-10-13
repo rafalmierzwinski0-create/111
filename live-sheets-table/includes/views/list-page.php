@@ -2,8 +2,6 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$lstab_can_add = LSTAB_Limits::can_add_source();
-
 $lstab_own = array_filter(
 	$sources,
 	static function ( $candidate ) {
@@ -11,14 +9,12 @@ $lstab_own = array_filter(
 	}
 );
 
-$lstab_add_button = $lstab_can_add
-	? sprintf(
-		'<a href="%s" class="lstab-btn">%s%s</a>',
-		esc_url( admin_url( 'admin.php?page=' . LSTAB_Admin::EDIT_SLUG ) ),
-		LSTAB_Icons::icon( 'plus' ),
-		esc_html__( 'Add a sheet', 'live-sheets-table' )
-	)
-	: '';
+$lstab_add_button = sprintf(
+	'<a href="%s" class="lstab-btn">%s%s</a>',
+	esc_url( admin_url( 'admin.php?page=' . LSTAB_Admin::EDIT_SLUG ) ),
+	LSTAB_Icons::icon( 'plus' ),
+	esc_html__( 'Add a sheet', 'live-sheets-table' )
+);
 ?>
 <div class="wrap lstab-admin">
 	<?php LSTAB_Admin::render_masthead( LSTAB_Admin::masthead_summary( $sources ), $lstab_add_button ); ?>
@@ -353,16 +349,5 @@ $lstab_add_button = $lstab_can_add
 			</form>
 		<?php endif; ?>
 
-		<?php if ( ! $lstab_can_add ) : ?>
-			<div class="lstab-upsell">
-				<h3><?php esc_html_e( 'Need more than one sheet?', 'live-sheets-table' ); ?></h3>
-				<p>
-					<?php esc_html_e( 'Pro adds unlimited sources, one-minute syncing, colour rules, filtered views, extra styles and private sheets.', 'live-sheets-table' ); ?>
-				</p>
-				<a class="lstab-btn lstab-btn--quiet" href="<?php echo esc_url( LSTAB_Limits::upgrade_url() ); ?>" target="_blank" rel="noopener noreferrer">
-					<?php esc_html_e( 'Compare Free and Pro', 'live-sheets-table' ); ?>
-				</a>
-			</div>
-		<?php endif; ?>
 	<?php endif; ?>
 </div>

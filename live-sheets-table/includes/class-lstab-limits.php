@@ -3,7 +3,6 @@
 defined( 'ABSPATH' ) || exit;
 
 class LSTAB_Limits {
-	const DEFAULT_MAX_SOURCES  = 6;
 	const DEFAULT_MIN_INTERVAL = 900;
 
 	const GRACE_DAYS = 10;
@@ -48,18 +47,9 @@ class LSTAB_Limits {
 		update_option( self::SEEN_OPTION, time(), true );
 	}
 
-	public static function max_sources() {
-		$max = (int) apply_filters( 'lstab_max_sources', self::DEFAULT_MAX_SOURCES );
-		return $max < 1 ? 1 : $max;
-	}
-
 	public static function min_interval() {
 		$min = (int) apply_filters( 'lstab_min_sync_interval', self::DEFAULT_MIN_INTERVAL );
 		return $min < 60 ? 60 : $min;
-	}
-
-	public static function can_add_source() {
-		return LSTAB_Storage::count_sources() < self::max_sources();
 	}
 
 	public static function intervals() {

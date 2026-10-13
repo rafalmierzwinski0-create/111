@@ -255,11 +255,6 @@ class LSTAB_Admin {
 		$source_id = isset( $_GET['source'] ) ? absint( wp_unslash( $_GET['source'] ) ) : 0;
 		$source    = $source_id ? LSTAB_Storage::get( $source_id ) : null;
 
-		if ( ! $source && ! LSTAB_Limits::can_add_source() ) {
-			require LSTAB_PATH . 'includes/views/limit-reached.php';
-			return;
-		}
-
 		require LSTAB_PATH . 'includes/views/edit-page.php';
 	}
 
@@ -284,23 +279,6 @@ class LSTAB_Admin {
 			if ( is_wp_error( $reference ) ) {
 				$this->redirect_with_notice( $source_id, 'error', $reference->get_error_message() );
 			}
-		}
-
-		if ( ! $source_id && ! LSTAB_Limits::can_add_source() ) {
-			$this->redirect_with_notice(
-				0,
-				'error',
-				sprintf(
-					/* translators: %d: number of sources allowed. */
-					_n(
-						'The free version stores %d sheet source. Remove the existing one, or upgrade to add more.',
-						'The free version stores %d sheet sources. Remove one, or upgrade to add more.',
-						LSTAB_Limits::max_sources(),
-						'live-sheets-table'
-					),
-					LSTAB_Limits::max_sources()
-				)
-			);
 		}
 
 		$gid = isset( $_POST['gid'] ) ? LSTAB_Url::sanitize_gid( sanitize_text_field( wp_unslash( $_POST['gid'] ) ) ) : $reference['gid'];

@@ -1075,15 +1075,11 @@ lstab_assert( isset( $due_results[ $source_id ] ) && 'ok' === $due_results[ $sou
 
 lstab_section( '10. Free tier limits and Pro extension points' );
 
-// Six, because the nearest free competitor allows ten tables: capping at three
-// turned the free version away at the third page someone wanted to publish,
-// and rows — not table count — are what the paid tier is for.
-$free_cap = LSTAB_Limits::max_sources();
-lstab_assert( 6 === $free_cap, 'Free tier allows six sources', (string) $free_cap );
-lstab_assert( LSTAB_Limits::can_add_source(), 'A second source is allowed while only one exists' );
-
-// Fill the tier up and confirm the next one is refused.
-$filler = array();
+// No cap on how many sheets: WordPress.org does not allow a free plugin to
+// stop at a number that a paid add-on lifts. Nine is well past the six the
+// free version used to stop at.
+$free_cap = 9;
+$filler   = array();
 for ( $i = 2; $i <= $free_cap; $i++ ) {
 	$filler[] = LSTAB_Storage::insert(
 		array(
@@ -1093,12 +1089,20 @@ for ( $i = 2; $i <= $free_cap; $i++ ) {
 		)
 	);
 }
-lstab_assert( $free_cap === LSTAB_Storage::count_sources(), 'The tier fills up', (string) LSTAB_Storage::count_sources() );
-lstab_assert( ! LSTAB_Limits::can_add_source(), 'One past the cap is blocked' );
+lstab_assert( $free_cap === LSTAB_Storage::count_sources(), 'Nine sources are kept side by side', (string) LSTAB_Storage::count_sources() );
+lstab_assert( ! method_exists( 'LSTAB_Limits', 'can_add_source' ) && ! method_exists( 'LSTAB_Limits', 'max_sources' ), 'There is no cap on sources to check against' );
 
-// The built-in example is nobody's sheet, so it takes none of the places.
+wp_set_current_user( 1 );
+ob_start();
+( new LSTAB_Admin() )->render_edit_page();
+$lstab_add_html = ob_get_clean();
+wp_set_current_user( 0 );
+lstab_assert( false !== strpos( $lstab_add_html, 'name="sheet_url"' ), 'With nine sources the Add screen still offers a new one' );
+lstab_assert( false === strpos( $lstab_add_html, 'upgrade' ), 'And says nothing about upgrading' );
+
+// The built-in example is nobody's sheet, so it is not counted as one of yours.
 $lstab_example_id = LSTAB_Example::install();
-lstab_assert( $free_cap === LSTAB_Storage::count_sources(), 'The example does not count against the free tier', (string) LSTAB_Storage::count_sources() );
+lstab_assert( $free_cap === LSTAB_Storage::count_sources(), 'The example is not counted among your sheets', (string) LSTAB_Storage::count_sources() );
 LSTAB_Storage::delete( $lstab_example_id );
 
 // Rows are never capped: that is the whole difference from the plugins this
@@ -1153,12 +1157,9 @@ lstab_assert( 5001 === substr_count( $big_html, '<tr' ), 'A 5000 row table rende
 
 // Pro simulation: the add-on lifts every limit through filters alone.
 add_filter( 'lstab_is_pro', '__return_true' );
-add_filter( 'lstab_max_sources', function () { return 25; } );
 add_filter( 'lstab_min_sync_interval', function () { return 60; } );
 
 lstab_assert( LSTAB_Limits::is_pro(), 'lstab_is_pro filter flips the tier' );
-lstab_assert( 25 === LSTAB_Limits::max_sources(), 'lstab_max_sources filter lifts the source cap' );
-lstab_assert( LSTAB_Limits::can_add_source(), 'More sources allowed under Pro' );
 lstab_assert( isset( LSTAB_Limits::intervals()[60] ), 'One minute interval unlocked under Pro' );
 lstab_assert( 10 === count( LSTAB_Styles::available() ), 'Premium presets unlocked under Pro', (string) count( LSTAB_Styles::available() ) );
 lstab_assert( 'lstab_1min' === LSTAB_Cron::required_schedule() || 'lstab_15min' === LSTAB_Cron::required_schedule(), 'Cron recurrence follows the fastest source' );
@@ -1216,7 +1217,6 @@ lstab_assert( is_array( $lstab_settings_hook ), 'The hook fires while the source
 lstab_assert( ! empty( $lstab_settings_hook['edit'] ) && ! empty( $lstab_settings_hook['source'] ), 'It is handed the source it is being shown for', wp_json_encode( $lstab_settings_hook ) );
 
 remove_all_filters( 'lstab_is_pro' );
-remove_all_filters( 'lstab_max_sources' );
 remove_all_filters( 'lstab_min_sync_interval' );
 
 // ---------------------------------------------------------------------------

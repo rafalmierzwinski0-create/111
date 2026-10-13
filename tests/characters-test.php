@@ -64,7 +64,6 @@ if ( ! class_exists( 'LSTABP_Filters' ) ) {
 }
 
 wp_set_current_user( 0 );
-add_filter( 'lstab_max_sources', static fn() => 999 );
 
 $headings = array(
 	'Product',

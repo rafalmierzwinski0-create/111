@@ -10,7 +10,6 @@ class LSTABP_Plugin {
 		}
 
 		add_filter( 'lstab_is_pro', '__return_true' );
-		add_filter( 'lstab_max_sources', array( $this, 'max_sources' ) );
 		add_filter( 'lstab_min_sync_interval', array( $this, 'min_interval' ) );
 
 		( new LSTABP_Google_Auth() )->register();
@@ -45,10 +44,6 @@ class LSTABP_Plugin {
 		if ( $known !== $now ) {
 			update_option( 'lstabp_known_sources', $now, false );
 		}
-	}
-
-	public function max_sources() {
-		return (int) apply_filters( 'lstabp_max_sources', 100 );
 	}
 
 	public function min_interval() {

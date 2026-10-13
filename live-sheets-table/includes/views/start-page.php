@@ -52,7 +52,7 @@ $lstab_sub = $lstab_own
 	? LSTAB_Admin::masthead_summary( $lstab_own )
 	: __( 'Google Sheets on your pages, kept up to date by themselves', 'live-sheets-table' );
 
-$lstab_add_button = ( $lstab_own && LSTAB_Limits::can_add_source() )
+$lstab_add_button = $lstab_own
 	? sprintf(
 		'<a href="%s" class="lstab-btn">%s%s</a>',
 		esc_url( admin_url( 'admin.php?page=' . LSTAB_Admin::EDIT_SLUG ) ),
@@ -170,21 +170,19 @@ $lstab_add_button = ( $lstab_own && LSTAB_Limits::can_add_source() )
 				<?php endif; ?>
 			<?php endif; ?>
 
-			<?php if ( LSTAB_Limits::can_add_source() ) : ?>
-				<form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" class="lstab-start-form">
-					<input type="hidden" name="page" value="<?php echo esc_attr( LSTAB_Admin::EDIT_SLUG ); ?>">
-					<span class="lstab-field">
-						<?php echo LSTAB_Icons::icon( 'link' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-						<label class="screen-reader-text" for="lstab-start-url"><?php esc_html_e( 'Google Sheets link', 'live-sheets-table' ); ?></label>
-						<input type="url" id="lstab-start-url" name="sheet_url" inputmode="url" autocomplete="off"
-							placeholder="<?php echo esc_attr( $lstab_own ? __( 'Paste another Google Sheets link', 'live-sheets-table' ) : 'https://docs.google.com/spreadsheets/d/…' ); ?>">
-					</span>
-					<button type="submit" class="lstab-btn">
-						<?php echo LSTAB_Icons::icon( $lstab_own ? 'plus' : 'eye' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-						<?php echo esc_html( $lstab_own ? __( 'Add a table', 'live-sheets-table' ) : __( 'Show me the table', 'live-sheets-table' ) ); ?>
-					</button>
-				</form>
-			<?php endif; ?>
+			<form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" class="lstab-start-form">
+				<input type="hidden" name="page" value="<?php echo esc_attr( LSTAB_Admin::EDIT_SLUG ); ?>">
+				<span class="lstab-field">
+					<?php echo LSTAB_Icons::icon( 'link' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+					<label class="screen-reader-text" for="lstab-start-url"><?php esc_html_e( 'Google Sheets link', 'live-sheets-table' ); ?></label>
+					<input type="url" id="lstab-start-url" name="sheet_url" inputmode="url" autocomplete="off"
+						placeholder="<?php echo esc_attr( $lstab_own ? __( 'Paste another Google Sheets link', 'live-sheets-table' ) : 'https://docs.google.com/spreadsheets/d/…' ); ?>">
+				</span>
+				<button type="submit" class="lstab-btn">
+					<?php echo LSTAB_Icons::icon( $lstab_own ? 'plus' : 'eye' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+					<?php echo esc_html( $lstab_own ? __( 'Add a table', 'live-sheets-table' ) : __( 'Show me the table', 'live-sheets-table' ) ); ?>
+				</button>
+			</form>
 
 			<?php if ( ! $lstab_own ) : ?>
 				<ul class="lstab-start-ticks">

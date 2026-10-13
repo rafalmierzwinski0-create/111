@@ -19,7 +19,6 @@ if ( isset( $argv[3] ) && 'fixed' === $argv[3] ) {
 
 require $argv[1] . '/wp-load.php';
 
-add_filter( 'lstab_max_sources', static fn() => 999 );
 add_filter( 'lstab_refresh_on_view', '__return_false' );
 
 $count = max( 1, (int) $argv[2] );

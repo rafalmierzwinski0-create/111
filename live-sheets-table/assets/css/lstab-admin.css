@@ -1589,26 +1589,6 @@
 	color: #50575e;
 }
 
-.lstab-upsell {
-	margin-top: 1.4rem;
-	padding: 1.1rem 1.3rem;
-	border: 1px solid #d7c9f5;
-	border-left: 4px solid #8b5cf6;
-	border-radius: 6px;
-	background: #faf7ff;
-	max-width: 62ch;
-}
-
-.lstab-upsell h2,
-.lstab-upsell h3 {
-	margin-top: 0;
-}
-
-.lstab-upsell--large {
-	max-width: 70ch;
-	padding: 2rem;
-}
-
 .lstab-tabs {
 	margin: 0.9rem 0;
 }

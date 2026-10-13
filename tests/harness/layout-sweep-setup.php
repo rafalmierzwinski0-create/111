@@ -18,8 +18,6 @@ if ( isset( $argv[2] ) && 'teardown' === $argv[2] ) {
 	exit;
 }
 
-add_filter( 'lstab_max_sources', fn() => 999 );
-
 $products = array( 'Trail Bike Ranger 29"', 'Lazer Compact Helmet', 'Lezyne Front Light 800', 'Insulated Bottle 750 ml', 'Pro Gel Gloves', 'Abus Granit Combo Lock', 'Topeak Rear Rack', 'Road Bike Contend AR', 'Garmin Edge 540', 'Lezyne Floor Pump', 'Gore Rain Jacket', 'Shimano Pedals PD-M520' );
 $shapes = array();
 
