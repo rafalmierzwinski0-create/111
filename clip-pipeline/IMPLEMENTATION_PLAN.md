@@ -817,6 +817,15 @@ faces, and contract files with fingerprints.
 - **Rendering.** One ffmpeg pass per clip, because static layouts need no
   per-frame work. Captions are burned in from transcript word timings (ASS,
   word highlighting).
+- **Light mode (`--url`).**
+  - Finding moments only needs the audio and chat of the whole stream, so
+    only those are downloaded first: yt-dlp audio-only, chat-downloader
+    replay. Video is then downloaded only for the chosen clips, with
+    `--download-sections` and exact cuts.
+  - The facecam is detected on those segments, and clips are cut from them
+    with shifted times.
+  - Verified against the full-VOD run: same moments, frame-exact alignment,
+    and on a real multi-hour VOD a small fraction of the data.
 - **Contracts:** `stream_signals`, `stream_moments`, `stream_plan`,
   `stream_render_log` (`clipper/schemas/`).
 - **Check (`clipper check stream`).** Runs on a synthetic 6-minute stream: a

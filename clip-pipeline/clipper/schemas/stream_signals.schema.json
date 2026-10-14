@@ -3,11 +3,44 @@
   "$id": "clipper/stream_signals.schema.json",
   "title": "stream_signals.json (stream mode)",
   "type": "object",
-  "required": ["schema_version", "kind", "fingerprint", "source", "seconds", "combined"],
+  "required": [
+    "schema_version",
+    "kind",
+    "fingerprint",
+    "source",
+    "seconds",
+    "combined"
+  ],
   "properties": {
-    "schema_version": {"type": "string", "pattern": "^1\\.[0-9]+$"},
-    "kind": {"const": "stream_signals"},
-    "fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-    "combined": {"type": "array", "items": {"type": "number", "minimum": 0, "maximum": 1}}, "seconds": {"type": "integer", "minimum": 1}, "source": {"$ref": "detections.schema.json#/$defs/source"}
+    "schema_version": {
+      "type": "string",
+      "pattern": "^1\\.[0-9]+$"
+    },
+    "kind": {
+      "const": "stream_signals"
+    },
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "combined": {
+      "type": "array",
+      "items": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      }
+    },
+    "seconds": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "path",
+        "duration"
+      ]
+    }
   }
 }

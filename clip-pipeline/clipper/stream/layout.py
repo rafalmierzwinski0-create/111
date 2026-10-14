@@ -34,32 +34,39 @@ log = logging.getLogger(__name__)
 EDGE_WIDTH = 960  # resolution of the persistent-edge map
 
 
-def sample_faces(video_path: str, cfg: dict, samples: int = 40) -> tuple[list[list[list[float]]], np.ndarray | None, np.ndarray | None]:
+def sample_faces(video_path: str | list[str], cfg: dict, samples: int = 40) -> tuple[list[list[list[float]]], np.ndarray | None, np.ndarray | None]:
     """Face boxes (normalised x, y, w, h) in `samples` frames spread over the video, one sample frame,
     and the persistent-edge map (median gradient over the samples, EDGE_WIDTH wide)."""
     from mediapipe.tasks.python import BaseOptions, vision
     import mediapipe as mp
 
-    src = probe(video_path)
+    paths = video_path if isinstance(video_path, list) else [video_path]
+    per = max(3, samples // len(paths))
+    plan = []  # (path, time): spread over each file (light mode: over each downloaded clip)
+    for path in paths:
+        d = probe(path)["duration"]
+        plan += [(path, float(t)) for t in np.linspace(d * 0.05, d * 0.95, per)]
     model = models.ensure(models.FACE_LANDMARKER, cfg)
     opts = vision.FaceLandmarkerOptions(base_options=BaseOptions(model_asset_path=str(model)),
                                         running_mode=vision.RunningMode.IMAGE, num_faces=4,
                                         min_face_detection_confidence=0.4, min_face_presence_confidence=0.4)
-    cap = cv2.VideoCapture(src["path"])
+    caps = {path: cv2.VideoCapture(str(path)) for path in paths}
     out, example, grads = [], None, []
     with vision.FaceLandmarker.create_from_options(opts) as lm:
-        for t in np.linspace(src["duration"] * 0.05, src["duration"] * 0.95, samples):
-            cap.set(cv2.CAP_PROP_POS_MSEC, float(t) * 1000)
+        for path, t in plan:
+            cap = caps[path]
+            cap.set(cv2.CAP_PROP_POS_MSEC, t * 1000)
             ok, img = cap.read()
             if not ok:
                 continue
-            if example is None or len(out) == samples // 2:
+            if example is None or len(out) == len(plan) // 2:
                 example = img
             out.append(_faces_tiled(lm, img))
             small = cv2.cvtColor(cv2.resize(img, (EDGE_WIDTH, round(img.shape[0] * EDGE_WIDTH / img.shape[1]))),
                                  cv2.COLOR_BGR2GRAY).astype(np.float32)
             grads.append(cv2.magnitude(cv2.Sobel(small, cv2.CV_32F, 1, 0), cv2.Sobel(small, cv2.CV_32F, 0, 1)))
-    cap.release()
+    for cap in caps.values():
+        cap.release()
     edges = np.median(np.stack(grads), axis=0) if len(grads) >= 5 else None
     return out, example, edges
 

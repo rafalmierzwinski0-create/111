@@ -448,7 +448,31 @@ It writes `out/vod1/clips/clip_01.mp4`, `clip_02.mp4` and so on, best first,
 all 1080×1920 and ready for Shorts. It also writes `signals.png` (why those
 moments) and `layout_preview.png` (what goes where).
 
-### 11.1 Getting the VOD and the chat
+### 11.1 Light mode: give it the link, not the VOD
+
+A multi-hour VOD is many GB, but finding the moments only needs the
+**audio** (a 4-hour stream is ~100–200 MB) and the **chat** (a few MB).
+With `--url`, `clipper` downloads exactly that, picks the moments, and then
+downloads the **video of the chosen clips only** (each clip plus 2 s of
+margin). In total that is typically 1–3 % of the VOD's size.
+
+```sh
+pip install -e '.[fetch]'      # yt-dlp (Unlicense) + chat-downloader (MIT)
+clipper stream --url https://www.twitch.tv/videos/<id> --config profiles/theburntpeanut.yaml --work out/vod1
+clipper stream --url "https://www.youtube.com/watch?v=<id>" --work out/vod2
+```
+
+- Chat replay is fetched automatically for Twitch and YouTube. For other
+  sites, pass `--chat`. Without chat, audio (and a transcript) still work.
+- The stream must be over (a VOD, not live).
+- Everything downloads on your machine, straight from the platform.
+- Downloads land in `WORK/source/` and are reused on re-runs. Delete the
+  folder when you are done.
+- `stream.fetch.max_height` (default 1080) caps the clip resolution.
+- Clip boundaries are cut exactly (yt-dlp `--force-keyframes-at-cuts`). The
+  check verifies that light-mode clips match full-VOD clips frame for frame.
+
+### 11.2 Getting the VOD and the chat yourself
 
 | Platform | VOD | Chat |
 | --- | --- | --- |
@@ -461,7 +485,7 @@ can. Twitch VODs expire, so download soon after the stream. A transcript is
 also optional. With one you get burned-in captions and a "said: no way"
 signal. Any local Whisper works (section 3).
 
-### 11.2 How moments are found
+### 11.3 How moments are found
 
 One value per second over the whole VOD (`signals.png` shows them):
 
@@ -483,7 +507,7 @@ The weighted mix's peaks become clips:
 A loud explosion in the game with no reaction in chat, or a busy chat
 during a sub train with a calm streamer, scores below real moments.
 
-### 11.3 Layouts
+### 11.4 Layouts
 
 | Layout | What you get | When `auto` picks it |
 | --- | --- | --- |
@@ -507,7 +531,7 @@ clipper stream --video vod.mp4 --chat chat.json --facecam 0.78,0.62,0.20,0.36
 You can also put `facecam: [0.78, 0.62, 0.20, 0.36]` in the streamer's
 profile.
 
-### 11.4 Streamer profiles
+### 11.5 Streamer profiles
 
 `profiles/theburntpeanut.yaml` is a starting profile for TheBurntPeanut:
 
@@ -519,17 +543,20 @@ profile.
 
 Copy the profile for other streamers.
 
-### 11.5 Re-running
+### 11.6 Re-running
 
 The same fingerprint rules as podcast mode apply (section 4.1). Stages are
-`signals`, `moments`, `layout` and `render`, and `--from STAGE` forces one.
+`fetch` (light mode), `signals`, `moments`, `segments` (light mode), `layout`
+and `render`, and `--from STAGE` forces one.
 For example, change the captions style and run `--from render`: the VOD's
 audio is not decoded again.
 
-### 11.6 Output files (stream mode)
+### 11.7 Output files (stream mode)
 
 | File | Contents |
 | --- | --- |
+| `source/audio.m4a`, `source/chat.json`, `source/seg_NN.mp4` | Light mode downloads: the stream's audio, its chat replay, and each clip's video with margins. |
+| `fetch.json`, `segments.json` | Light mode: what was downloaded from where, and each segment's offset in the VOD. |
 | `clips/clip_NN.mp4` | The clips, best first. H.264 + AAC, 1080×1920. |
 | `clips/clip_NN.ass` | The captions burned into that clip (ASS subtitles; edit and `--from render` to re-burn). |
 | `stream_signals.json` | Per second: audio, chat and speech scores, the combined hype, top chat tokens. Loudness per 0.1 s. |
@@ -540,7 +567,7 @@ audio is not decoded again.
 | `signals.png` | The signals over the whole VOD, with the chosen clips shaded. |
 | `layout_preview.png` | A source frame with the regions drawn, next to the resulting vertical frame. |
 
-### 11.7 Stream options (`stream.*`)
+### 11.8 Stream options (`stream.*`)
 
 | Key | Default | Meaning |
 | --- | --- | --- |
@@ -573,9 +600,10 @@ audio is not decoded again.
 | `captions.color` / `highlight` | FFFFFF / FFE135 | Text colour and the colour of the word being spoken (RRGGBB). |
 | `captions.uppercase` | true | All caps. |
 | `captions.y` | null | Vertical position (fraction); null = where the layout leaves room. |
+| `fetch.max_height` | 1080 | Light mode: download clip video at most this tall. |
 | `output.*` | 1080×1920, H.264 CRF 20, AAC 192k, ≤ 60 fps | Encoding. |
 
-### 11.8 Verification
+### 11.9 Verification
 
 ```sh
 python scripts/make_stream_fixture.py --cam human                   # 6 min synthetic stream, planted moments + decoys
@@ -594,9 +622,11 @@ The check verifies the following:
 - every clip's format, duration and captions;
 - the cam panel's pixels against the source;
 - re-use of intermediate files;
-- the avatar and `fit` cases.
+- the avatar and `fit` cases;
+- light mode on the same VOD (`--url` with a local file): the same moments,
+  far less data, and clips aligned frame for frame with the full-VOD ones.
 
-### 11.9 Clipping other people's streams
+### 11.10 Clipping other people's streams
 
 Clips are the streamer's content. Before posting, and especially before
 monetising, check the streamer's rules for clippers (Discord, channel

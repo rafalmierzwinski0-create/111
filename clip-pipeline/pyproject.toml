@@ -19,6 +19,8 @@ dependencies = [
 dev = ["pytest>=7"]
 # LR-ASD active-speaker backend (onnxruntime runs the bundled ONNX export; no PyTorch needed)
 lrasd = ["onnxruntime>=1.17", "python_speech_features>=0.6", "scipy>=1.10"]
+# stream mode --url: download audio, chat and the chosen clips instead of whole VODs
+fetch = ["yt-dlp>=2024.8", "chat-downloader>=0.2.8"]
 
 [project.scripts]
 clipper = "clipper.cli:main"

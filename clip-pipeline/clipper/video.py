@@ -25,8 +25,9 @@ def require_tool(name: str) -> str:
     return path
 
 
-def probe(path: str | Path) -> dict:
-    """The `source` block of the contracts (plan section 5)."""
+def probe(path: str | Path, allow_audio_only: bool = False) -> dict:
+    """The `source` block of the contracts (plan section 5). With allow_audio_only,
+    a file without video (light-mode audio track) gets width/height/fps 0."""
     path = Path(path).resolve()
     if not path.is_file():
         raise VideoError(f"no such file: {path}")
@@ -36,9 +37,14 @@ def probe(path: str | Path) -> dict:
     except subprocess.CalledProcessError as exc:
         raise VideoError(f"ffprobe could not read {path}: {exc.stderr.strip()}") from exc
     video = next((s for s in info.get("streams", []) if s.get("codec_type") == "video"), None)
-    if video is None:
-        raise VideoError(f"{path} has no video stream")
     has_audio = any(s.get("codec_type") == "audio" for s in info.get("streams", []))
+    if video is None:
+        if not allow_audio_only:
+            raise VideoError(f"{path} has no video stream")
+        stat = path.stat()
+        return {"path": str(path), "size_bytes": stat.st_size, "mtime": round(stat.st_mtime, 3), "width": 0, "height": 0,
+                "fps": 0.0, "duration": round(float(info.get("format", {}).get("duration") or 0), 4), "frame_count": 0,
+                "has_audio": has_audio}
 
     fps = float(Fraction(video.get("avg_frame_rate") or "0/1") or Fraction(video.get("r_frame_rate") or "0/1"))
     if fps <= 0:

@@ -30,6 +30,17 @@ def _iou(a, b) -> float:
     return inter / (a[2] * a[3] + b[2] * b[3] - inter)
 
 
+def _gray_frames(path: Path) -> list[np.ndarray]:
+    cap, out = cv2.VideoCapture(str(path)), []
+    while True:
+        ok, f = cap.read()
+        if not ok:
+            break
+        out.append(cv2.cvtColor(cv2.resize(f[700:1900], (135, 150)), cv2.COLOR_BGR2GRAY).astype(np.float32))
+    cap.release()
+    return out
+
+
 def run_check(video: str, chat: str, transcript: str, labels: str, work: str, avatar: str | None = None,
               config_path: str | None = None) -> int:
     rep = Report()
@@ -142,6 +153,26 @@ def run_check(video: str, chat: str, transcript: str, labels: str, work: str, av
                     f"--layout fit renders 1080x1920: {fit_ok}; no chat or transcript needed (audio only)")
         else:
             rep.add(6, "avatar / fit", False, (pa.stderr or pf.stderr)[-800:])
+
+    # 10. Light mode (--url): audio + chat + only the chosen clips' video; same moments, frame-exact clips.
+    lw = work_dir / "light"
+    pl = _run(["--url", video, "--chat", chat, "--transcript", transcript, "--work", str(lw), "--count", str(count), "--offline"],
+              config_path)
+    if pl.returncode == 0:
+        lm = contracts.read(lw / "stream_moments.json", "stream_moments")["clips"]
+        same = sorted((c["start"], c["end"]) for c in lm) == sorted((c["start"], c["end"]) for c in clips)
+        fetched = sum(f.stat().st_size for f in (lw / "source").iterdir())
+        full = Path(video).stat().st_size
+        a_frames = _gray_frames(Path(json.loads((lw / "stream_run_log.json").read_text())["clips"][0]["output"]))
+        ref = next(c for c in rlog["clips"] if (c["start"], c["end"]) == (lm[0]["start"], lm[0]["end"]))
+        b_frames = _gray_frames(Path(ref["output"]))
+        best = max(range(-3, 4), key=lambda off: np.mean([-((a_frames[k] - b_frames[k + off]) ** 2).mean()
+                                                           for k in range(10, min(len(a_frames), len(b_frames)) - 10, 10)]))
+        rep.add(10, "light mode (--url)", same and best == 0,
+                f"same moments as the full VOD: {same}; fetched {fetched / 1e6:.1f} MB (audio + {len(lm)} clip segments) "
+                f"instead of the {full / 1e6:.1f} MB VOD; best frame alignment with the full-mode clip at offset {best} frames")
+    else:
+        rep.add(10, "light mode (--url)", False, pl.stderr[-800:])
 
     findings = audit()
     bad = [f.name for f in findings if f.verdict == "forbidden"]

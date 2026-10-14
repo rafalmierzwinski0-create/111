@@ -1,8 +1,15 @@
 """`clipper stream`: several vertical clips from a stream VOD in one command.
 
+Two ways in:
+  --video vod.mp4   a VOD on disk
+  --url URL         light mode: only the audio and chat of the whole stream are
+                    downloaded; video only for the chosen clips (see fetch.py)
+
 Stages, each reused when its output exists with a matching fingerprint:
+  fetch    (--url) audio track + chat replay                  -> source/, fetch.json
   signals  whole-VOD hype signals (audio decoded once)       -> stream_signals.json
   moments  the best non-overlapping clips around hype peaks  -> stream_moments.json
+  segments (--url) the video of each chosen clip, with margins -> source/seg_NN.mp4, segments.json
   layout   facecam detection and the vertical layout          -> stream_plan.json (+ layout_preview.png)
   render   one MP4 per clip, captions burned in if available  -> clips/clip_NN.mp4 (+ signals.png)
 """
@@ -20,10 +27,12 @@ import numpy as np
 from clipper import contracts, transcript as tr, video as videolib
 from clipper.stream import captions, layout as lay, moments, render, signals
 from clipper.stream.chat import load_chat
+from clipper.stream.fetch import make_fetcher
 
 log = logging.getLogger(__name__)
 
-STAGES = ["signals", "moments", "layout", "render"]
+STAGES = ["fetch", "signals", "moments", "segments", "layout", "render"]
+SEGMENT_MARGIN_S = 2.0
 VERSION = 1
 
 
@@ -40,6 +49,43 @@ def _cached(path: Path, kind: str, fp: str, force: bool) -> dict | None:
         except (contracts.ContractError, ValueError, OSError):
             pass
     return None
+
+
+def stage_fetch(url: str, work: Path, cfg: dict, want_chat: bool, force: bool) -> tuple[dict, bool]:
+    path = work / "fetch.json"
+    if path.is_file() and not force:
+        doc = json.loads(path.read_text())
+        if doc.get("url") == url and Path(doc["audio"]).is_file() and (not doc.get("chat") or Path(doc["chat"]).is_file()):
+            return doc, False
+    f = make_fetcher(url, cfg["stream"]["fetch"]["max_height"])
+    info = f.info()
+    audio = f.audio(work / "source" / "audio.m4a")
+    chat = f.chat(work / "source" / "chat.json") if want_chat else None
+    doc = {"url": url, "info": info, "audio": str(audio), "chat": str(chat) if chat else None}
+    path.write_text(json.dumps(doc, indent=2, ensure_ascii=False), encoding="utf-8")
+    return doc, True
+
+
+def stage_segments(url: str, mom: dict, work: Path, cfg: dict, force: bool) -> tuple[dict, bool]:
+    """Download the video of each chosen clip (plus a margin), nothing else."""
+    path = work / "segments.json"
+    old = {}
+    if path.is_file() and not force:
+        old = {c["rank"]: c for c in json.loads(path.read_text())["clips"]}
+    f = make_fetcher(url, cfg["stream"]["fetch"]["max_height"])
+    segs, ran = [], False
+    for clip in mom["clips"]:
+        a = max(0.0, clip["start"] - SEGMENT_MARGIN_S)
+        b = min(mom["source"]["duration"], clip["end"] + SEGMENT_MARGIN_S)
+        out = work / "source" / f"seg_{clip['rank']:02d}.mp4"
+        prev = old.get(clip["rank"])
+        if not (prev and prev["offset"] == a and prev["end"] == b and out.is_file()):
+            f.section(a, b, out)
+            ran = True
+        segs.append({"rank": clip["rank"], "path": str(out), "offset": a, "end": b})
+    doc = {"url": url, "clips": segs}
+    path.write_text(json.dumps(doc, indent=2), encoding="utf-8")
+    return doc, ran
 
 
 def stage_signals(src: dict, work: Path, cfg: dict, chat: str | None, transcript: str | None, force: bool) -> tuple[dict, bool]:
@@ -95,7 +141,7 @@ def stage_moments(sig: dict, work: Path, cfg: dict, transcript: str | None, coun
 
 
 def stage_layout(src: dict, mom: dict, work: Path, cfg: dict, layout: str | None, facecam: list[float] | None,
-                 force: bool) -> tuple[dict, bool]:
+                 force: bool, sample_paths: list[str] | None = None) -> tuple[dict, bool]:
     s = cfg["stream"]
     requested = layout or s["layout"]
     cam_norm = facecam or s["facecam"]
@@ -108,7 +154,7 @@ def stage_layout(src: dict, mom: dict, work: Path, cfg: dict, layout: str | None
     detection = {"method": "set in config" if cam_norm else "not needed"}
     face_box, example, overlay = None, None, None
     if not cam_norm and requested in ("auto", "stacked"):
-        frames, example, edges = lay.sample_faces(src["path"], cfg, s["detect_samples"])
+        frames, example, edges = lay.sample_faces(sample_paths or src["path"], cfg, s["detect_samples"])
         face_box, info = lay.find_facecam(frames, s["detect_min_presence"])
         if face_box:
             overlay, oinfo = lay.overlay_box(face_box, edges)
@@ -126,8 +172,8 @@ def stage_layout(src: dict, mom: dict, work: Path, cfg: dict, layout: str | None
            "clips": [{k: c[k] for k in ("rank", "start", "end", "duration", "score", "reasons")} for c in mom["clips"]]}
     contracts.write(doc, path, "stream_plan")
     if example is None:
-        cap = cv2.VideoCapture(src["path"])
-        cap.set(cv2.CAP_PROP_POS_MSEC, mom["clips"][0]["peak"] * 1000)
+        cap = cv2.VideoCapture(sample_paths[0] if sample_paths else src["path"])
+        cap.set(cv2.CAP_PROP_POS_MSEC, (SEGMENT_MARGIN_S + 5 if sample_paths else mom["clips"][0]["peak"]) * 1000)
         example = cap.read()[1]
         cap.release()
     if example is not None:
@@ -191,8 +237,10 @@ def signals_png(sig: dict, mom: dict, out: Path, width: int = 1800) -> None:
 
 
 def stage_render(src: dict, plan: dict, mom: dict, sig: dict, work: Path, cfg: dict, transcript: str | None,
-                 force: bool) -> tuple[dict, bool]:
-    fp = contracts.fingerprint("stream_render", VERSION, plan["fingerprint"], _sha(transcript))
+                 force: bool, segments: dict | None = None) -> tuple[dict, bool]:
+    seg_of = {c["rank"]: c for c in segments["clips"]} if segments else {}
+    fp = contracts.fingerprint("stream_render", VERSION, plan["fingerprint"], _sha(transcript),
+                               [(c["rank"], c["offset"]) for c in seg_of.values()])
     path = work / "stream_render_log.json"
     doc = _cached(path, "stream_render_log", fp, force)
     if doc and all(Path(c["output"]).is_file() for c in doc["clips"]):
@@ -201,8 +249,14 @@ def stage_render(src: dict, plan: dict, mom: dict, sig: dict, work: Path, cfg: d
     out_clips = []
     for clip in plan["clips"]:
         out = work / "clips" / f"clip_{clip['rank']:02d}.mp4"
+        # Light mode: cut from the downloaded segment, with times shifted by its offset.
+        csrc, cclip = src, clip
+        if clip["rank"] in seg_of:
+            seg = seg_of[clip["rank"]]
+            csrc = videolib.probe(seg["path"])
+            cclip = {**clip, "start": round(clip["start"] - seg["offset"], 3), "end": round(clip["end"] - seg["offset"], 3)}
         if plan["layout"] == "follow":
-            out_clips.append(_render_follow(src, clip, work, cfg, out))
+            out_clips.append(_render_follow(csrc, cclip, work, cfg, out))
             continue
         ass_path = None
         c = plan["captions"]
@@ -213,7 +267,7 @@ def stage_render(src: dict, plan: dict, mom: dict, sig: dict, work: Path, cfg: d
                 ass_path = work / "clips" / f"clip_{clip['rank']:02d}.ass"
                 ass_path.parent.mkdir(parents=True, exist_ok=True)
                 ass_path.write_text(ass, encoding="utf-8")
-        render.render_clip(src, plan, clip, out, ass_path)
+        render.render_clip(csrc, plan, cclip, out, ass_path)
         out_clips.append({"rank": clip["rank"], "output": str(out), "start": clip["start"], "end": clip["end"],
                           "captions": str(ass_path) if ass_path else None, "filter": render.filter_graph(plan, ass_path)})
     signals_png(sig, mom, work / "signals.png")
@@ -249,14 +303,15 @@ def _render_follow(src: dict, clip: dict, work: Path, cfg: dict, out: Path) -> d
             "filter": "podcast pipeline (follow the speaker)"}
 
 
-def run_stream(video: str, work: str | Path, cfg: dict, chat: str | None = None, transcript: str | None = None,
+def run_stream(video: str | None, work: str | Path, cfg: dict, chat: str | None = None, transcript: str | None = None,
                count: int | None = None, layout: str | None = None, facecam: list[float] | None = None,
-               from_stage: str | None = None) -> dict:
+               from_stage: str | None = None, url: str | None = None) -> dict:
+    if bool(video) == bool(url):
+        raise ValueError("give either --video (a VOD on disk) or --url (light mode)")
     work = Path(work)
     work.mkdir(parents=True, exist_ok=True)
     first = STAGES.index(from_stage) if from_stage else len(STAGES)
     forced = lambda st: STAGES.index(st) >= first
-    src = videolib.probe(video)
     log_rows = []
 
     def timed(name, fn):
@@ -266,11 +321,22 @@ def run_stream(video: str, work: str | Path, cfg: dict, chat: str | None = None,
         log.info("stream: %-8s %s (%.1fs)", name, "done" if ran else "reused", log_rows[-1]["seconds"])
         return doc
 
+    segs = None
+    if url:
+        fetched = timed("fetch", lambda: stage_fetch(url, work, cfg, want_chat=chat is None, force=forced("fetch")))
+        chat = chat or fetched["chat"]
+        src = videolib.probe(fetched["audio"], allow_audio_only=True)
+    else:
+        src = videolib.probe(video)
     sig = timed("signals", lambda: stage_signals(src, work, cfg, chat, transcript, forced("signals")))
     mom = timed("moments", lambda: stage_moments(sig, work, cfg, transcript, count, forced("moments")))
-    plan = timed("layout", lambda: stage_layout(src, mom, work, cfg, layout, facecam, forced("layout")))
-    rlog = timed("render", lambda: stage_render(src, plan, mom, sig, work, cfg, transcript, forced("render")))
-    summary = {"video": src["path"], "layout": plan["layout"], "layout_reason": plan["layout_reason"], "stages": log_rows,
+    if url:
+        segs = timed("segments", lambda: stage_segments(url, mom, work, cfg, forced("segments")))
+        src = videolib.probe(segs["clips"][0]["path"])  # picture size for the layout
+    sample_paths = [c["path"] for c in segs["clips"]] if segs else None
+    plan = timed("layout", lambda: stage_layout(src, mom, work, cfg, layout, facecam, forced("layout"), sample_paths))
+    rlog = timed("render", lambda: stage_render(src, plan, mom, sig, work, cfg, transcript, forced("render"), segs))
+    summary = {"video": url or src["path"], "layout": plan["layout"], "layout_reason": plan["layout_reason"], "stages": log_rows,
                "clips": [{**c, "output": next(r["output"] for r in rlog["clips"] if r["rank"] == c["rank"])} for c in plan["clips"]]}
     (work / "stream_run_log.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
     return summary

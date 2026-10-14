@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -131,3 +132,38 @@ def test_tall_avatar_uses_contain_mode():
     assert cam["mode"] == "contain" and abs(cam["src"][3] - 0.46 * 1080) < 2  # the whole avatar box, not a wide slice
     small = layout.plan_layout(src, cfg["stream"], "stacked", [0.83, 0.60, 0.07, 0.15], None, [0.73, 0.52, 0.25, 0.44])
     assert "mode" not in small["regions"][0]
+
+
+def test_ytdlp_fetcher_commands(monkeypatch, tmp_path):
+    from clipper.stream import fetch
+    calls = []
+
+    def fake_run(cmd, capture_output, text):
+        calls.append(cmd)
+        if "-J" in cmd:
+            out = json.dumps({"id": "v1", "title": "t", "duration": 14400.0, "extractor_key": "TwitchVod"})
+        else:
+            target = cmd[cmd.index("-o") + 1].replace(".%(ext)s", ".m4a")
+            Path(target).write_bytes(b"x")
+            out = ""
+        return type("P", (), {"returncode": 0, "stdout": out, "stderr": ""})()
+
+    monkeypatch.setattr(fetch.subprocess, "run", fake_run)
+    monkeypatch.setattr(fetch, "_ytdlp", lambda: ["yt-dlp"])
+    f = fetch.YtDlpFetcher("https://www.twitch.tv/videos/1", max_height=720)
+    assert f.info()["duration"] == 14400.0
+    f.audio(tmp_path / "audio.m4a")
+    assert "-x" in calls[-1] and "ba/b" in calls[-1]
+    f.section(3600.5, 3650.25, tmp_path / "seg.mp4")
+    cmd = calls[-1]
+    assert cmd[cmd.index("--download-sections") + 1] == "*3600.50-3650.25"
+    assert "--force-keyframes-at-cuts" in cmd and "bv*[height<=720]+ba/b[height<=720]" in cmd
+    assert cmd[-1] == "https://www.twitch.tv/videos/1"
+
+
+def test_make_fetcher_picks_local_for_files(tmp_path):
+    from clipper.stream.fetch import LocalFetcher, YtDlpFetcher, make_fetcher
+    f = tmp_path / "vod.mp4"
+    f.write_bytes(b"")
+    assert isinstance(make_fetcher(str(f)), LocalFetcher)
+    assert isinstance(make_fetcher("https://youtube.com/watch?v=x"), YtDlpFetcher)

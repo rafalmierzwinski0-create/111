@@ -44,14 +44,15 @@ def build_parser() -> argparse.ArgumentParser:
     _common(p)
 
     p = sub.add_parser("stream", help="stream mode: several vertical clips from a game/IRL stream VOD")
-    p.add_argument("--video", required=True, help="the stream VOD")
+    p.add_argument("--video", help="the stream VOD on disk")
+    p.add_argument("--url", help="light mode: VOD URL (Twitch / YouTube / ...); downloads only audio, chat and the chosen clips")
     p.add_argument("--chat", help="chat log (TwitchDownloader / chat-downloader JSON, or timestamped text)")
     p.add_argument("--transcript", help="transcript (enables the speech signal and burned-in captions)")
     p.add_argument("--work", default="work/stream", help="work directory")
     p.add_argument("--count", type=int, help="how many clips (default stream.moments.count)")
     p.add_argument("--layout", choices=["auto", "fit", "stacked", "gameplay", "follow"])
     p.add_argument("--facecam", help="facecam / avatar region x,y,w,h as fractions of the frame, e.g. 0.78,0.62,0.2,0.36")
-    p.add_argument("--from", dest="from_stage", choices=["signals", "moments", "layout", "render"],
+    p.add_argument("--from", dest="from_stage", choices=["fetch", "signals", "moments", "segments", "layout", "render"],
                    help="re-run this stage and every later one")
     p.add_argument("--offline", action="store_true", help="block all network access outside this machine")
     _common(p)
@@ -163,8 +164,10 @@ def main(argv: list[str] | None = None) -> int:
         cam = [float(v) for v in args.facecam.split(",")] if args.facecam else None
         if cam and len(cam) != 4:
             raise SystemExit("--facecam needs four numbers: x,y,w,h")
+        if bool(args.video) == bool(args.url):
+            raise SystemExit("give either --video (a VOD on disk) or --url (light mode)")
         res = run_stream(args.video, args.work, cfg, chat=args.chat, transcript=args.transcript, count=args.count,
-                         layout=args.layout, facecam=cam, from_stage=args.from_stage)
+                         layout=args.layout, facecam=cam, from_stage=args.from_stage, url=args.url)
         print(f"layout: {res['layout']} ({res['layout_reason']})")
         for c in res["clips"]:
             print(f"#{c['rank']}  {c['start']:8.1f}-{c['end']:8.1f}s ({c['duration']:.0f}s)  score {c['score']:.2f}  {c['output']}")

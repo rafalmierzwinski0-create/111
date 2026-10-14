@@ -142,6 +142,8 @@ stream:                          # stream mode: `clipper stream` (game / IRL str
     highlight: FFE135            # the word being spoken
     uppercase: true
     y: null                      # vertical position (fraction of height); null = where the layout leaves room
+  fetch:
+    max_height: 1080             # --url: download clips at most this tall
   output:
     width: 1080
     height: 1920
