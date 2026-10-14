@@ -16,14 +16,7 @@ from . import sample
 
 SR = sample.SR
 
-NAGLOWEK = """import("stdfaust.lib");
-freq = hslider("freq", 200, 20, 12000, 0.001);
-gain = hslider("gain", 0.5, 0, 1, 0.001);
-gate = button("gate");
-effect = _, _;
-"""
-
-# Każdy patch definiuje `process` (stereo). freq/gain/gate ustawia polifonia.
+# Każdy patch definiuje `process` (stereo) z freq/gain/gate jednego głosu.
 PATCHE = {
     # ciepły pad w stylu Juno-106: dwie piły + PWM + sub, filtr Moog z wolną obwiednią
     "juno_pad": """
@@ -152,21 +145,63 @@ def polifonia(nuty, wybrzmienie):
     return najwiecej
 
 
-def syntezator(patch, nuty, n_probek, glosy=None):
-    if glosy is None:
-        glosy = min(32, polifonia(nuty, WYBRZMIENIE.get(patch, 0.6)) + 2)
+PPQN = 960          # rozdzielczość automatyki (przy 120 BPM: ~0,5 ms)
+TIKI_NA_S = 2 * PPQN  # silnik DawDreamer pracuje na stałym 120 BPM
+
+
+def _przydziel_tory(nuty, wybrzmienie, tory):
+    """Każda nuta dostaje tor (głos). Wolny tor = poprzednia nuta już wybrzmiała; inaczej najstarszy."""
+    koniec = [-1e9] * tory
+    przydzial = []
+    for start, dl, m, v in sorted(nuty):
+        wolne = [i for i in range(tory) if koniec[i] + wybrzmienie <= start]
+        i = wolne[0] if wolne else min(range(tory), key=lambda j: koniec[j])
+        koniec[i] = start + dl
+        przydzial.append((i, start, dl, m, v))
+    return przydzial
+
+
+def syntezator(patch, nuty, n_probek, tory=None):
+    """Polifonia przez równoległe tory w jednym programie Faust, sterowane automatyką freq/gain/gate.
+
+    (Wbudowana polifonia DawDreamera albo ucina wybrzmienia, albo każdy głos gra tylko raz.)
+    """
     if patch not in PATCHE:
         raise ValueError(f"Nieznane brzmienie „{patch}”. Dostępne: {', '.join(sorted(PATCHE) + ['fortepian'])}")
+    wybrz = WYBRZMIENIE.get(patch, 0.6)
+    if tory is None:
+        tory = max(1, min(24, polifonia(nuty, wybrz) + 1))
+    dsp = ('import("stdfaust.lib");\n'
+           'tor(i) = environment {\n'
+           'freq = hslider("freq%i", 200, 20, 12000, 0.001);\n'
+           'gain = hslider("gain%i", 0.5, 0, 1, 0.001);\n'
+           'gate = hslider("gate%i", 0, 0, 1, 1);\n'
+           + PATCHE[patch] + '\n}.process;\n'
+           f'process = par(i, {tory}, tor(i)) :> _, _;\n')
     eng = daw.RenderEngine(SR, 512)
+    eng.set_bpm(120)
     p = eng.make_faust_processor("syn")
-    p.num_voices = glosy
-    p.dynamic_voices = False  # inaczej DawDreamer ucina wybrzmienia
     with cicho():
-        ok = p.set_dsp_string(NAGLOWEK + PATCHE[patch])
+        ok = p.set_dsp_string(dsp)
     if not ok:
         raise RuntimeError(f"Błąd kompilacji patcha {patch}")
-    for start, dl, m, v in nuty:
-        p.add_midi_note(int(m), max(1, min(127, int(v * 127))), float(start), float(max(dl, 0.02)))
+    n_tik = int(n_probek / SR * TIKI_NA_S) + 2
+    czest = np.full((tory, n_tik), 220.0, dtype=np.float32)
+    glos = np.zeros((tory, n_tik), dtype=np.float32)
+    bramka = np.zeros((tory, n_tik), dtype=np.float32)
+    for i, start, dl, m, v in _przydziel_tory(nuty, wybrz, tory):
+        a = int(start * TIKI_NA_S)
+        b = max(a + 2, int((start + max(dl, 0.02)) * TIKI_NA_S))
+        if a >= n_tik:
+            continue
+        bramka[i, max(0, a - 3):a] = 0  # krótka przerwa, żeby obwiednia wystartowała od nowa
+        bramka[i, a:b] = 1
+        czest[i, a:] = midi_hz(m)  # wysokość trzymana też w wybrzmieniu
+        glos[i, a:] = v
+    for i in range(tory):
+        p.set_automation(f"/dawdreamer/freq{i}", czest[i], ppqn=PPQN)
+        p.set_automation(f"/dawdreamer/gain{i}", glos[i], ppqn=PPQN)
+        p.set_automation(f"/dawdreamer/gate{i}", bramka[i], ppqn=PPQN)
     with cicho():
         eng.load_graph([(p, [])])
         eng.render(n_probek / SR)
@@ -174,6 +209,10 @@ def syntezator(patch, nuty, n_probek, glosy=None):
     if out.shape[1] < n_probek:
         out = np.pad(out, ((0, 0), (0, n_probek - out.shape[1])))
     return out.astype(np.float32)
+
+
+def midi_hz(m):
+    return 440.0 * 2 ** ((m - 69) / 12)
 
 
 # --------------------------------------------------------------------------
