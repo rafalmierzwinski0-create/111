@@ -17,13 +17,16 @@ from clipper import SCHEMA_VERSION
 SCHEMA_DIR = Path(__file__).parent / "schemas"
 
 
+SHARED_SCHEMAS = {"overlay_log": "render_log"}
+
+
 class ContractError(ValueError):
     pass
 
 
 @lru_cache(maxsize=None)
 def schema(kind: str) -> dict:
-    path = SCHEMA_DIR / f"{kind}.schema.json"
+    path = SCHEMA_DIR / f"{SHARED_SCHEMAS.get(kind, kind)}.schema.json"
     with open(path, encoding="utf-8") as fh:
         return json.load(fh)
 

@@ -63,3 +63,28 @@ def speech_gate(level_db: np.ndarray, silence_db: float, margin_db: float, floor
         hi = np.searchsorted(times, times + hold_s, side="right")
         gate = np.array([gate[a:b].max() for a, b in zip(lo, hi)])
     return gate, f"noise floor {noise:.1f} dBFS, speech threshold {threshold:.1f} dBFS"
+
+
+def level_series(path: str, step_s: float = 0.1, sample_rate: int = SAMPLE_RATE) -> np.ndarray | None:
+    """Mean power per `step_s` block over the whole file, streamed (works for multi-hour sources).
+
+    Returns power (not dB) per block, or None without an audio stream.
+    """
+    cmd = [require_tool("ffmpeg"), "-v", "error", "-i", path, "-vn", "-ac", "1", "-ar", str(sample_rate),
+           "-f", "s16le", "-acodec", "pcm_s16le", "pipe:1"]
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    block = int(step_s * sample_rate)
+    out: list[float] = []
+    rest = np.zeros(0, np.float32)
+    while True:
+        chunk = proc.stdout.read(block * 2 * 600)  # one minute at the default step
+        if not chunk:
+            break
+        x = np.concatenate([rest, np.frombuffer(chunk, dtype=np.int16).astype(np.float32) / 32768.0])
+        whole = len(x) // block * block
+        out.extend((x[:whole].reshape(-1, block) ** 2).mean(axis=1).tolist())
+        rest = x[whole:]
+    proc.wait()
+    if not out:
+        return None
+    return np.asarray(out)

@@ -1,108 +1,427 @@
-# clipper — vertical clip pipeline
+# clipper — vertical clips from long recordings
 
-Turns a long horizontal recording plus its transcript into a short vertical
-(9:16) clip that follows whoever is speaking. Everything runs locally: no paid
-APIs, permissive licences only, face detection by MediaPipe.
+`clipper` takes a long horizontal recording (podcast, interview, panel) and
+its transcript, finds the strongest ~60-second moment, and renders it as a
+vertical 9:16 clip (1080×1920) that follows whoever is speaking. The frame
+glides between speakers and never cuts on a short "yeah".
 
-The design, the data contracts and the phase plan are in
-[IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md). This README covers what is
-built so far: **Phase 1, Foundation** (faces, lip landmarks, tracks, shots)
-and **Phase 2, Intelligence** (who speaks when, and the smoothed 9:16 crop
-path). It is completed in Phase 3.
+Everything runs on your machine. There are no paid APIs or cloud calls, only
+permissive licences (no AGPL/GPL, no Ultralytics), and faces come from
+MediaPipe. The design, data contracts and phase plan are in
+[IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).
 
-## Setup
-
-Requirements: Python ≥ 3.10, FFmpeg (`ffmpeg` and `ffprobe` on `PATH`). On
-Linux, MediaPipe also needs the EGL/GLES runtime libraries
-(`sudo apt install libegl1 libgles2` on Debian/Ubuntu).
-
-```sh
-cd clip-pipeline
-python3 -m venv .venv && . .venv/bin/activate
-pip install -e '.[dev]'
-pip install -e '.[lrasd]'   # optional: the LR-ASD active-speaker backend (onnxruntime, no PyTorch)
+```
+source.mp4 + transcript.json
+   │
+   ├─ select    pick the moment (whole sentences only)           → moment.json
+   ├─ detect    faces, lip landmarks, tracks, cuts (that moment)  → detections.json
+   ├─ speakers  who speaks when, framing segments                 → speakers.json
+   ├─ plan      smoothed 9:16 crop rectangle per frame            → crop_plan.json
+   ├─ render    crop + scale + audio                              → clip.mp4, render_log.json
+   └─ overlay   diagnostic video of every decision                → debug.mp4, overlay_log.json
 ```
 
-The first run downloads the MediaPipe Face Landmarker model (3.6 MB, Apache-2.0,
-SHA-256 pinned) to `~/.cache/clipper/models`. For offline machines, copy
-`face_landmarker.task` into that directory (or into `$CLIPPER_MODEL_DIR`).
+Detection and speaker analysis only run on the selected moment, so a 90-minute
+source costs about the same as a 60-second one, plus decoding the audio once.
 
-## Phase 1 usage
+---
+
+## 1. Installation
+
+### Requirements
+
+- **Python 3.10 or newer.**
+- **FFmpeg** (`ffmpeg` and `ffprobe` on your `PATH`):
+  - macOS: `brew install ffmpeg`
+  - Debian/Ubuntu: `sudo apt install ffmpeg`
+  - Windows: `winget install ffmpeg`
+- **Linux only:** MediaPipe needs the EGL/GLES runtime: `sudo apt install libegl1 libgles2`.
+- A CPU is enough. Expect roughly 1–2 minutes per 60 s clip at 1080p.
+
+### Install
 
 ```sh
-# Faces, landmarks, tracks and shot boundaries for a time range of a video
-clipper detect source.mp4 --start 120 --end 180 --work work/
-
-# Contact sheet (PNG) drawn from the result, for a quick visual check
-clipper inspect detections work/detections.json
-
-# Licence audit of the installed environment (fails on AGPL/GPL)
-clipper licenses
+git clone <this repository> && cd <repository>/clip-pipeline
+python3 -m venv .venv
+. .venv/bin/activate                # Windows: .venv\Scripts\activate
+pip install -e .                    # the pipeline
+pip install -e '.[lrasd]'           # optional: LR-ASD audio-visual speaker detection (onnxruntime, no PyTorch)
+pip install -e '.[dev]'             # optional: tests
+clipper --version
 ```
 
-`clipper detect` writes `work/detections.json` (contract 5.1 in the plan): for
-every analysed frame, each face's box, 40 lip-contour points plus 9 key points,
-six mouth blendshapes, head pose, a track id, and the shot it belongs to.
-Re-running with the same inputs and settings is skipped. Pass `--force` to redo it.
+### Models
 
-Options live in `clipper/config/default.yaml`. Override any of them with
-`--config my.yaml`, which only needs the keys it changes.
+| Model | Used by | Where it comes from |
+| --- | --- | --- |
+| MediaPipe Face Landmarker `face_landmarker.task` (3.6 MB, Apache-2.0) | detect | Downloaded once on first use to `~/.cache/clipper/models/`. SHA-256 pinned in `clipper/models.py`. |
+| LR-ASD, ONNX export of the official weights (MIT) | `--asd lrasd` | Bundled in `clipper/speakers/models/`. Nothing to download. |
 
-## Phase 2 usage
+**Offline machines:** download
+`https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`
+elsewhere and copy it to `~/.cache/clipper/models/face_landmarker.task`, or
+point `CLIPPER_MODEL_DIR` at the folder holding it. Its SHA-256 must be
+`64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff`.
+
+---
+
+## 2. Quick start
 
 ```sh
-clipper speakers work/              # who speaks when -> work/speakers.json (heuristic backend)
-clipper speakers work/ --asd lrasd  # same with the LR-ASD audio-visual model
-clipper plan work/                  # smoothed 9:16 crop path -> work/crop_plan.json
-clipper inspect plan work/ --video  # crop strip PNG + side-by-side preview video
+# 1. a transcript of the whole recording (see section 3)
+clipper transcript import episode.srt transcript.json --language en
+
+# 2. everything, one command
+clipper run --video episode.mp4 --transcript transcript.json --work out/episode42
 ```
 
-- `speakers.json`: a score per face per frame, the raw per-frame decision,
-  and the framing segments. A segment is one speaker, `hold` (nobody clearly
-  speaking, keep the framing) or `wide`. Segments only change on speaker
-  changes and cuts, and are at least 2 s long. Short interjections do not
-  move the frame.
-- `crop_plan.json`: one crop rectangle per output frame (source pixels, 9:16),
-  already smoothed: the frame glides between speakers (ease-in-out, speed
-  limited) and only jumps at the source's own cuts. Together with the source
-  video this is everything the Phase 3 renderer needs.
+It prints the chosen moment and why, and writes `out/episode42/clip.mp4`
+(the clip) and `out/episode42/debug.mp4` (the diagnostic video).
 
-The heuristic backend reads lip motion (and gates it with the audio's speech
-energy when there is audio). The LR-ASD backend is an audio-visual network
-(MIT licence) run through onnxruntime. It is more precise at turn boundaries
-and slower.
+Run the same command again and nothing is recomputed. Change one setting and
+only the stages that depend on it run again (section 4).
 
-## Checkpoint verification
+---
 
-```sh
-./scripts/fetch_fixture.sh   # CC BY 4.0 two-person test video
-clipper check phase1 fixtures/head-pose-face-detection-female-and-male.mp4 \
-    --expect tests/data/phase1_fixture.json
+## 3. The transcript
+
+`clipper` does not transcribe. Any **local** transcriber works; its output
+just needs converting. Word-level timestamps are strongly recommended,
+because they make the clip start and end exactly at sentence boundaries.
+
+| Tool (local, open source) | How to get word timestamps | Import |
+| --- | --- | --- |
+| [faster-whisper](https://github.com/SYSTRAN/faster-whisper) (MIT) | `word_timestamps=True`, dump the segments to JSON | `clipper transcript import out.json transcript.json` |
+| [WhisperX](https://github.com/m-bain/whisperX) (BSD) | default; add diarisation for speaker labels | `clipper transcript import out.json transcript.json` |
+| [openai-whisper](https://github.com/openai/whisper) (MIT) | `--word_timestamps True --output_format json` | `clipper transcript import out.json transcript.json` |
+| whisper.cpp (MIT) / anything that writes subtitles | `.srt` or `.vtt` | `clipper transcript import out.srt transcript.json` |
+
+Use `--language pl` (or `en`, ...) on import. The language selects the word
+lists the moment scorer uses for hooks, fillers and back-references. English
+and Polish are built in, and other languages fall back to English lists.
+Subtitle lines that start with `NAME:` or WebVTT `<v Name>` become speaker
+labels.
+
+Native format (plan 5.4), all times in seconds from the start of the video:
+
+```json
+{
+  "schema_version": "1.0", "kind": "transcript", "language": "en",
+  "segments": [
+    {"start": 12.34, "end": 17.80, "speaker": "SPEAKER_00",
+     "text": "So the thing nobody tells you about hiring is this.",
+     "words": [{"start": 12.34, "end": 12.51, "word": "So"}, ...]}
+  ]
+}
 ```
 
-Prints a PASS/FAIL table (plan 6.1) and writes
-`work/check-phase1/phase1_check.json` and a contact sheet.
+`speaker` and `words` are optional. Without `words`, sentence times are
+interpolated inside each segment by character position.
+
+---
+
+## 4. Running the pipeline
 
 ```sh
-python scripts/make_conversation_fixture.py   # labelled two-person conversation
+clipper run --video SRC --transcript T [--work DIR] [options]
+```
+
+| Option | Effect |
+| --- | --- |
+| `--work DIR` | Where every intermediate and output file goes (default `./work`). One directory per source. |
+| `--from STAGE` | Re-run `STAGE` and every later stage. Stages: `select`, `detect`, `speakers`, `plan`, `render`, `overlay`. Earlier stages are reused. |
+| `--moment 1834.1-1893.4` | Choose the moment yourself. It is still snapped to whole sentences. |
+| `--asd heuristic\|lrasd` | Active-speaker backend (default `speakers.backend`). |
+| `--scorer heuristic\|llm` | Moment scorer (default `select.scorer`). |
+| `--no-debug` | Skip `debug.mp4`. |
+| `--offline` | Block every network connection that leaves the machine. The model must already be cached. |
+| `--allow-hosted-llm` | Explicitly allow a non-local LLM endpoint (see 4.3). |
+| `--config FILE` | YAML deep-merged over the defaults; only the keys you change (section 6). |
+| `-v` | Debug logging. |
+
+### 4.1 Re-using intermediate files
+
+Every stage writes its output with a **fingerprint** of its inputs and
+settings. When the output exists and the fingerprint matches, the stage is
+skipped. So:
+
+- `clipper run ...` twice: the second run does nothing.
+- Change `plan.transition_s`: only `plan`, `render` and `overlay` run.
+- `--from render`: re-renders without re-running selection, detection or
+  speaker detection.
+- `--moment ...` or a changed `select.*` setting: selection runs again, and
+  detection runs again only if the moment's time range changed.
+
+`run_log.json` lists, for every stage, whether it ran or was reused.
+
+### 4.2 Running stages one by one
+
+```sh
+clipper select   --video SRC --transcript T --work W   # -> W/moment.json
+clipper detect   SRC --start 120 --end 180 --work W    # -> W/detections.json (any range)
+clipper speakers W [--asd lrasd]                       # -> W/speakers.json
+clipper plan     W                                     # -> W/crop_plan.json
+clipper render   W                                     # -> W/clip.mp4 + W/render_log.json
+clipper overlay  W [--transcript T]                    # -> W/debug.mp4 + W/overlay_log.json
+clipper inspect  detections W/detections.json          # contact sheet PNG
+clipper inspect  plan W --video                        # crop strip PNG + side-by-side preview
+clipper licenses                                       # licence audit of the environment
+```
+
+Every stage command takes `--force` to ignore the fingerprint.
+
+### 4.3 Moment selection with a local LLM (optional)
+
+The default scorer is a local heuristic. You can let a **local** LLM re-rank
+the heuristic's top candidates. It never chooses boundaries itself, so clips
+still start and end on whole sentences. With [Ollama](https://ollama.com):
+
+```sh
+ollama pull llama3.1:8b
+clipper run --video SRC --transcript T --scorer llm
+```
+
+Any OpenAI-compatible server on your machine also works (llama.cpp
+`server`, LM Studio):
+
+```yaml
+# llm.yaml
+select:
+  llm:
+    endpoint: http://127.0.0.1:8080
+    api: openai
+    model: local-model
+```
+
+Endpoints that are not on this machine are **refused** (plan 2.1: no paid or
+hosted API calls in the processing chain). This applies to
+`https://api.openai.com` and also to another computer on your network. To
+use one anyway you must opt in explicitly with `--allow-hosted-llm` or
+`select.llm.allow_hosted: true`.
+
+---
+
+## 5. Output files
+
+All in the work directory. The JSON files are the stage contracts (plan section
+5). Each carries `schema_version`, `kind` and `fingerprint`, and is
+validated against `clipper/schemas/*.schema.json` whenever it is written or
+read.
+
+| File | Written by | Contents |
+| --- | --- | --- |
+| `moment.json` | select | The chosen moment: `selected` (start/end on sentence boundaries, first/last sentence index, text, score, per-feature scores, human-readable `reasons`). `clip` (the padded range that is cut, never reaching into a neighbouring sentence). `candidates` (the top non-overlapping alternatives, best first). Number of candidates scored, scorer settings, transcript hash. |
+| `detections.json` | detect | For every analysed frame of the clip range: each face's box, 40 lip-contour points + 9 key points (MediaPipe face-mesh indices listed in `landmark_spec`), 6 mouth blendshapes, head pose (yaw/pitch/roll), a `track_id`, and the shot. Also: `shots` (hard cuts in the source), `tracks` (span, coverage, mean box, `spurious` flag). |
+| `speakers.json` | speakers | Per frame: a speaking score in [0, 1] per face and the raw per-frame decision. `segments`: the framing decisions covering the range. Each is `speaker` (frame track N), `hold` (nobody clearly speaking: keep the framing) or `wide`, with confidence and a reason. Segments change only on speaker changes and cuts and last ≥ 2 s. Backend name and settings. |
+| `crop_plan.json` | plan | Everything the renderer needs: output size, frame rate and codecs, and one crop rectangle (`x, y, w, h` in source pixels) per output frame, already smoothed. Also the segments (for humans and the overlay) and the source's cut times. |
+| `clip.mp4` | render | **The result.** H.264 + AAC, 1080×1920, source frame rate, audio from the same span of the source. |
+| `render_log.json` | render | The rectangle and source frame time the renderer actually applied to every output frame. |
+| `debug.mp4` | overlay | The diagnostic video (section 7). |
+| `overlay_log.json` | overlay | The rectangle the overlay drew on every frame. It must equal `render_log.json`. |
+| `run_log.json` | run | Which stages ran or were reused and how long they took, the moment, and the clip path. |
+
+---
+
+## 6. Configuration reference
+
+All options with their defaults live in `clipper/config/default.yaml`. Pass
+`--config my.yaml` with only the keys you want to change (unknown keys are an
+error, so typos do not go unnoticed):
+
+```yaml
+plan:
+  transition_s: 0.8
+select:
+  target_s: 45
+```
+
+### `models`
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `models.cache_dir` | `~/.cache/clipper/models` | Model cache. The env `CLIPPER_MODEL_DIR` overrides it. |
+
+### `select`: choosing the moment
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `scorer` | `heuristic` | `heuristic` (local) or `llm` (a local LLM re-ranks the heuristic's best). |
+| `target_s` | 60 | Ideal clip length (s). |
+| `min_s` / `max_s` | 30 / 90 | Candidates outside these lengths are not considered. |
+| `split_on_speaker_change` | true | A change of speaker also ends a sentence. |
+| `pad_start_s` / `pad_end_s` | 0.25 / 0.5 | Breathing room before the first and after the last word. It only uses the pause there and never reaches into another sentence. |
+| `keep_candidates` | 10 | How many alternatives `moment.json` lists. |
+| `nms_overlap` | 0.5 | An alternative overlapping a better one by more than this share is not listed. |
+| `loudness` | true | Use the source's audio loudness in the `energy` feature. |
+| `heuristic.weights.hook` | 0.25 | Opening grabs attention: question, strong claim ("most people", "the biggest mistake"), number, "you", short first sentence. |
+| `heuristic.weights.standalone` | 0.20 | Opening needs no earlier context. Penalises "And…", "So…", "That's why…", "Yeah, exactly…" and openings that start with a pronoun. |
+| `heuristic.weights.completeness` | 0.20 | Ends with terminal punctuation, has a concluding line in the last 3 sentences / 15 s, and the speaker stops there. Not an ending: someone else's one-word reaction. |
+| `heuristic.weights.density` | 0.12 | Share of content words and numbers per minute. |
+| `heuristic.weights.energy` | 0.08 | Speech rate and loudness relative to the whole episode. |
+| `heuristic.weights.clean` | 0.07 | Few filler words ("um", "you know", "yyy", "jakby"). |
+| `heuristic.weights.duration` | 0.08 | Closeness to `target_s`. |
+| `llm.endpoint` | `http://127.0.0.1:11434` | Local server URL. Non-local hosts are refused unless `allow_hosted`. |
+| `llm.api` | `ollama` | `ollama` or `openai` (any OpenAI-compatible server). |
+| `llm.model` | `llama3.1:8b` | Model name on that server. |
+| `llm.allow_hosted` | false | Explicit opt-in to a non-local endpoint (same as `--allow-hosted-llm`). |
+| `llm.top_k` | 5 | How many heuristic candidates the LLM re-ranks. |
+| `llm.weight` | 0.6 | Final score = (1 − weight) · heuristic + weight · LLM / 10. |
+| `llm.timeout_s` | 120 | Request timeout. |
+
+Sentence-boundary snapping is not an option. It is a hard rule: windows that
+would start or end inside a sentence are never formed.
+
+### `detect`: faces (Phase 1)
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `num_faces` | 4 | Maximum faces per frame. |
+| `max_fps` | 30 | Analyse every n-th frame so the analysed rate is at most this. |
+| `analysis_max_width` | 1280 | Wider frames are downscaled before detection (coordinates stay exact, they are normalised). |
+| `min_detection_confidence` / `min_presence_confidence` / `min_tracking_confidence` | 0.5 | MediaPipe Face Landmarker thresholds. |
+| `landmarks` | `subset` | `subset` (lips + key points) or `full` (all 478; larger files). |
+| `blendshapes` | 6 mouth shapes | Blendshape names to store. |
+| `iou_threshold` | 0.2 | Minimum box overlap to continue a track. |
+| `max_center_dist` | 0.6 | Fallback match by centre distance, in face widths. |
+| `max_gap_s` | 1.0 | A track ends after this long without its face. |
+| `min_track_s` | 0.5 | Shorter tracks are marked `spurious` and ignored later. |
+| `shot_threshold` | 27.0 | HSV content difference that counts as a hard cut. |
+| `min_shot_s` | 0.5 | Minimum shot length. |
+
+### `speakers`: who speaks when (Phase 2)
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `backend` | `heuristic` | `heuristic` (lip motion + audio gate, fast) or `lrasd` (audio-visual network, more precise at turn boundaries, ~1 s of CPU per second of clip per face). |
+| `min_score` | 0.5 | A face counts as speaking in a frame above this score. |
+| `min_segment_s` | 2.0 | No framing segment is shorter (except at cuts and range edges). This is what stops flicker on short interjections. |
+| `switch_margin` | 0.15 | A new speaker must out-score the current one by this much. |
+| `heuristic.jaw_weight` | 0.5 | Weight of the `jawOpen` blendshape in the mouth signal. |
+| `heuristic.window_s` | 0.4 | Half-width of the articulation window (s). |
+| `heuristic.trend_window_s` | 1.0 | Slow mouth trend removed first (held smiles, resting shape). |
+| `heuristic.articulation_mid` / `articulation_scale` | 0.03 / 0.008 | Logistic mapping from articulation to score. |
+| `heuristic.yaw_full` / `yaw_zero` | 35 / 70 | Head yaw (degrees) where the score starts to drop / reaches 0. |
+| `heuristic.min_face_height` | 0.08 | Faces smaller than this share of the frame height are penalised. |
+| `heuristic.audio_gating` | true | Zero all scores where the audio has no speech energy. |
+| `heuristic.audio_window_s` | 0.2 | RMS window for the gate. |
+| `heuristic.silence_db` | −60 | A track whose loudest moment is below this is treated as having no audio (gating off). |
+| `heuristic.speech_margin_db` / `speech_floor_db` | 12 / −45 | Speech is this far above the noise floor and at least this loud. |
+| `heuristic.gate_hold_s` | 0.3 | Keeps the gate open across pauses between words. |
+| `heuristic.noise_percentile` | 3 | Noise floor = this percentile of the level. |
+| `lrasd.weights` | `finetuning_TalkSet` | Or `pretrain_AVA`. |
+| `lrasd.durations` | `[1,1,1,2,2,2,3,3,4,5,6]` | Chunk lengths (s) whose scores are averaged, as in LR-ASD's demo. |
+| `lrasd.crop_scale` | 0.40 | Face-crop padding, as in LR-ASD's demo. |
+
+### `plan`: the crop path (Phase 2)
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `aspect` | `9:16` | Output aspect ratio. |
+| `zoom` | 1.0 | 1.0 = the crop is the full source height; 1.5 = tighter. |
+| `face_y` | 0.38 | Where the face centre sits in the crop height (only when `zoom` > 1 leaves room). |
+| `follow_window_s` | 1.5 | Moving median of the speaker's face position: head motion does not move the frame. |
+| `dead_zone` | 0.12 | Target changes below this share of the crop width are ignored. |
+| `transition_s` | 0.6 | Ease-in-out duration of a move between speakers (stretched if `max_speed` requires it). |
+| `max_speed` | 1.5 | Maximum camera speed, source frame widths per second. |
+| `max_accel` | 8.0 | Acceleration bound (frame widths/s²) the checkpoint verifies. |
+| `smooth_s` | 0.08 | Sigma of the final zero-phase low-pass (s). |
+| `output.width` / `output.height` | 1080 / 1920 | Output size. |
+| `output.max_fps` | 60 | Output frame rate = source frame rate, capped here. |
+| `output.video_codec` / `crf` / `preset` | `libx264` / 18 / `medium` | Video encoding. |
+| `output.audio_codec` / `audio_bitrate` | `aac` / `192k` | Audio encoding. |
+
+---
+
+## 7. Reading `debug.mp4`
+
+`debug.mp4` is a diagnostic. Everything on it comes from the pipeline's files,
+not from a re-run:
+
+- **Left:** the full source frame.
+  - Each face: box and `#track` id, lip contours (inner contour white), key
+    points, head yaw and `jawOpen`.
+  - Under each face: its speaking score for this frame. `RAW` marks the raw
+    per-frame decision.
+  - The **thick green box** is the face currently framed (the segment's
+    speaker).
+  - The **white rectangle** is the crop from `crop_plan.json`.
+- **Right:** the frame decoded from the finished `clip.mp4`. If it does not
+  show what the white rectangle frames, something is wrong. The Phase 3
+  checkpoint verifies this frame by frame.
+- **Bottom:**
+  - The segment timeline (one colour per speaker; `hold`/`wide` grey).
+  - The raw per-frame decision strip under it, where short coloured blips
+    are interjections the segmentation ignored.
+  - Cuts as white lines, the current time in red.
+  - The transcript sentence being spoken.
+
+---
+
+## 8. Verification
+
+Each phase has a checkpoint that prints a PASS/FAIL table (plan section 6):
+
+```sh
+pip install -e '.[dev,lrasd]'
+./scripts/fetch_fixture.sh                       # CC BY 4.0 two-person video (Phase 1)
+python scripts/make_conversation_fixture.py      # labelled 50 s conversation (Phase 2)
+python scripts/make_podcast_fixture.py           # ~8 min scripted podcast + transcript (Phase 3)
+
+clipper check phase1 fixtures/head-pose-face-detection-female-and-male.mp4 --expect tests/data/phase1_fixture.json
 clipper check phase2 fixtures/conversation.mp4 --labels fixtures/conversation_labels.json \
     --negative fixtures/head-pose-face-detection-female-and-male.mp4
-```
-
-Prints the plan 6.2 table and writes `work/check-phase2/phase2_check.json`,
-a crop strip and a preview video.
-
-## Tests
-
-```sh
+clipper check phase3 fixtures/podcast.mp4 --transcript fixtures/podcast_transcript.json
 pytest
 ```
 
-Fixtures: `head-pose-face-detection-female-and-male.mp4` from
-[intel-iot-devkit/sample-videos](https://github.com/intel-iot-devkit/sample-videos), CC BY 4.0;
-the conversation is assembled from
-[OpenTalker/video-retalking](https://github.com/OpenTalker/video-retalking) example clips (local testing only).
+The Phase 3 check runs the whole pipeline with one command, from the long
+source and its transcript, with the network blocked. It then verifies:
 
-LR-ASD: Junhua Liao et al., *LR-ASD: Lightweight and Robust Network for Active
-Speaker Detection* (IJCV 2025), MIT licence; see
-`clipper/speakers/models/LICENSE-LR-ASD.txt`.
+- the moment is sentence-aligned;
+- the output format, duration and A/V sync;
+- that the renderer, the plan and the overlay agree frame by frame and pixel
+  by pixel;
+- re-use of intermediate files;
+- that a hosted LLM endpoint is refused and a local one works.
+
+It finishes by reporting which moment was chosen and why.
+
+The podcast fixture's words are scripted. The audio is real speech from the
+talking-head clips, but it does not say those words. It tests the pipeline and
+the scorer's reading of the text, not transcription.
+
+---
+
+## 9. Troubleshooting
+
+| Symptom | Fix |
+| --- | --- |
+| `libEGL.so.1: cannot open shared object file` | Linux: `sudo apt install libegl1 libgles2`. |
+| `ffprobe not found on PATH` | Install FFmpeg (section 1). |
+| `could not download face_landmarker.task` | Offline or behind a proxy: seed the model cache by hand (section 1). |
+| `refusing LLM endpoint ...` | Working as intended (plan 2.1). Use a local server, or opt in with `--allow-hosted-llm`. |
+| `transcript runs to ...s but the video is ...s long` | The transcript belongs to another file, or its times are not in seconds from the start. |
+| `the lrasd backend needs the optional extra` | `pip install -e '.[lrasd]'`. |
+| `the lrasd backend needs an audio track` | Use `--asd heuristic` for silent video. |
+| Clip frames the listener during long monologues | Check `debug.mp4`. If the raw strip is mostly grey, the speaker's lips are not visible enough (profile, small face). Try `--asd lrasd` or lower `speakers.min_score`. |
+| The frame moves too slowly or too fast | `plan.transition_s`, `plan.max_speed`. |
+| It cuts to short reactions | Raise `speakers.min_segment_s` or `speakers.switch_margin`. |
+| A changed setting did not take effect | Stages re-run only when their inputs or settings change. Use `--from STAGE` to force. |
+
+---
+
+## 10. Licences and credits
+
+- This pipeline: MIT.
+- MediaPipe and the Face Landmarker model: Apache-2.0 (Google).
+- LR-ASD code and weights: MIT. Junhua Liao et al., *LR-ASD: Lightweight and
+  Robust Network for Active Speaker Detection*, IJCV 2025. The ONNX exports
+  in `clipper/speakers/models/` are made with `scripts/export_lrasd_onnx.py`.
+  See `LICENSE-LR-ASD.txt` there.
+- Dependencies: numpy, OpenCV, PyYAML, jsonschema, onnxruntime,
+  python_speech_features, scipy, all permissive. `clipper licenses` audits
+  the installed environment and fails on AGPL/GPL.
+- FFmpeg is called as an external program, never linked.
+- Test fixtures (downloaded, not committed):
+  `head-pose-face-detection-female-and-male.mp4` from intel-iot-devkit/sample-videos (CC BY 4.0),
+  and talking-head example clips from OpenTalker/video-retalking.

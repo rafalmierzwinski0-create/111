@@ -29,6 +29,48 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--force", action="store_true", help="re-run even if the output is up to date")
     _common(p)
 
+    p = sub.add_parser("run", help="the whole pipeline: source + transcript -> WORK/clip.mp4 (+ debug.mp4)")
+    p.add_argument("--video", required=True, help="the full-length source video")
+    p.add_argument("--transcript", required=True, help="its transcript (plan 5.4; see `clipper transcript import`)")
+    p.add_argument("--work", default="work", help="work directory for every intermediate and output file")
+    p.add_argument("--from", dest="from_stage", choices=["select", "detect", "speakers", "plan", "render", "overlay"],
+                   help="re-run this stage and every later one; earlier ones are reused")
+    p.add_argument("--scorer", choices=["heuristic", "llm"], help="moment scorer (default: select.scorer)")
+    p.add_argument("--asd", choices=["heuristic", "lrasd"], help="active-speaker backend (default: speakers.backend)")
+    p.add_argument("--moment", help="override the selection, e.g. 1834.1-1893.4 (snapped to sentences)")
+    p.add_argument("--no-debug", action="store_true", help="skip the debug overlay video")
+    p.add_argument("--allow-hosted-llm", action="store_true", help="explicit opt-in to a non-local LLM endpoint (plan 2.1)")
+    p.add_argument("--offline", action="store_true", help="block all network access outside this machine")
+    _common(p)
+
+    p = sub.add_parser("select", help="Phase 3: pick the moment -> WORK/moment.json")
+    p.add_argument("--video", required=True)
+    p.add_argument("--transcript", required=True)
+    p.add_argument("--work", default="work")
+    p.add_argument("--scorer", choices=["heuristic", "llm"])
+    p.add_argument("--moment", help="override, e.g. 1834.1-1893.4 (snapped to sentences)")
+    p.add_argument("--allow-hosted-llm", action="store_true", help="explicit opt-in to a non-local LLM endpoint (plan 2.1)")
+    p.add_argument("--force", action="store_true")
+    _common(p)
+
+    p = sub.add_parser("render", help="Phase 3: crop_plan.json + source -> WORK/clip.mp4")
+    p.add_argument("work", nargs="?", default="work")
+    p.add_argument("--force", action="store_true")
+    _common(p)
+
+    p = sub.add_parser("overlay", help="Phase 3: debug overlay -> WORK/debug.mp4")
+    p.add_argument("work", nargs="?", default="work")
+    p.add_argument("--transcript", help="show the spoken sentence")
+    p.add_argument("--force", action="store_true")
+    _common(p)
+
+    p = sub.add_parser("transcript", help="convert a transcript to the pipeline's format (plan 5.4)")
+    p.add_argument("action", choices=["import"])
+    p.add_argument("input", help="Whisper / WhisperX / faster-whisper JSON, .srt or .vtt")
+    p.add_argument("output", help="where to write the transcript JSON")
+    p.add_argument("--language", help="language code, e.g. en or pl (word lists for the heuristic scorer)")
+    _common(p)
+
     p = sub.add_parser("speakers", help="Phase 2: who speaks when -> WORK/speakers.json")
     p.add_argument("work", nargs="?", default="work", help="work directory holding detections.json")
     p.add_argument("--asd", choices=["heuristic", "lrasd"], help="active-speaker backend (default: speakers.backend)")
@@ -53,12 +95,13 @@ def build_parser() -> argparse.ArgumentParser:
     _common(p)
 
     p = sub.add_parser("check", help="run a phase checkpoint verification")
-    p.add_argument("phase", choices=["phase1", "phase2"])
+    p.add_argument("phase", choices=["phase1", "phase2", "phase3"])
     p.add_argument("video")
     p.add_argument("--expect-faces", type=int, help="phase1: number of people visible in the fixture")
     p.add_argument("--expect", help="phase1: fixture expectations JSON (e.g. tests/data/phase1_fixture.json)")
     p.add_argument("--labels", help="phase2: ground-truth speaker labels JSON")
     p.add_argument("--negative", help="phase2: a video in which nobody speaks (false-positive report)")
+    p.add_argument("--transcript", help="phase3: the transcript of VIDEO")
     p.add_argument("--start", type=float)
     p.add_argument("--end", type=float)
     p.add_argument("--work", help="work directory (default work/check-<phase>)")
@@ -66,10 +109,57 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _moment(text: str | None) -> tuple[float, float] | None:
+    if not text:
+        return None
+    a, b = text.split("-", 1)
+    return float(a), float(b)
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO, format="%(levelname)s %(message)s")
     cfg = load_config(args.config)
+    if getattr(args, "allow_hosted_llm", False):
+        cfg["select"]["llm"]["allow_hosted"] = True
+    if getattr(args, "offline", False):
+        from clipper import netguard
+        netguard.install()
+
+    if args.command == "run":
+        from clipper.pipeline import run_pipeline
+        res = run_pipeline(args.video, args.transcript, args.work, cfg, from_stage=args.from_stage, scorer=args.scorer,
+                           asd=args.asd, moment=_moment(args.moment), debug=not args.no_debug)
+        m = res["moment"]
+        print(f"clip: {res['clip']}\nmoment: {m['start']:.2f}-{m['end']:.2f}s ({m['duration']:.1f}s), score {m['score']:.3f}")
+        for r in m["reasons"]:
+            print(f"  - {r}")
+        print("stages: " + ", ".join(f"{e['stage']} {'ran' if e['ran'] else 'reused'}" for e in res["stages"]))
+        return 0
+
+    if args.command == "select":
+        from clipper.select.run import run_select
+        print(run_select(args.video, args.transcript, args.work, cfg, scorer=args.scorer, moment=_moment(args.moment),
+                         force=args.force)["path"])
+        return 0
+
+    if args.command == "render":
+        from clipper.render.renderer import run_render
+        print(run_render(args.work, force=args.force)["path"])
+        return 0
+
+    if args.command == "overlay":
+        from clipper.render.overlay import run_overlay
+        print(run_overlay(args.work, args.transcript, force=args.force)["path"])
+        return 0
+
+    if args.command == "transcript":
+        import json
+        from clipper.transcript import import_file
+        doc = import_file(args.input, args.language)
+        Path(args.output).write_text(json.dumps(doc, ensure_ascii=False, indent=1), encoding="utf-8")
+        print(f"{args.output}: {len(doc['segments'])} segments, language {doc['language']}")
+        return 0
 
     if args.command == "detect":
         from clipper.detect.run import run_detect
@@ -118,6 +208,11 @@ def main(argv: list[str] | None = None) -> int:
             from clipper.checks.phase1 import run_check
             return run_check(args.video, work, cfg, expect_faces=args.expect_faces, expect_file=args.expect,
                              start=args.start, end=args.end)
+        if args.phase == "phase3":
+            from clipper.checks.phase3 import run_check as run_check3
+            if not args.transcript:
+                raise SystemExit("check phase3 needs --transcript")
+            return run_check3(args.video, args.transcript, work, cfg, config_path=args.config)
         from clipper.checks.phase2 import run_check as run_check2
         return run_check2(args.video, work, cfg, labels=args.labels, negative=args.negative,
                           start=args.start, end=args.end)

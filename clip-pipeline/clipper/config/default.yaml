@@ -68,3 +68,32 @@ plan:
     preset: medium
     audio_codec: aac
     audio_bitrate: 192k
+
+select:
+  scorer: heuristic              # heuristic (local, default) | llm (local LLM re-ranks the heuristic's best)
+  target_s: 60                   # ideal clip length
+  min_s: 30                      # candidates shorter than this are not considered
+  max_s: 90                      # ... nor longer than this
+  split_on_speaker_change: true  # a change of speaker also ends a sentence
+  pad_start_s: 0.25              # breathing room before the first word, never reaching into the previous sentence
+  pad_end_s: 0.5                 # ... and after the last word
+  keep_candidates: 10            # how many non-overlapping candidates moment.json lists
+  nms_overlap: 0.5               # candidates overlapping a better one by more than this are not listed
+  loudness: true                 # use the source audio's loudness in the energy feature
+  heuristic:
+    weights:                     # relative weights of the features (see README)
+      hook: 0.25
+      standalone: 0.20
+      completeness: 0.20
+      density: 0.12
+      energy: 0.08
+      clean: 0.07
+      duration: 0.08
+  llm:
+    endpoint: http://127.0.0.1:11434   # must be local unless allow_hosted
+    api: ollama                  # ollama | openai (any OpenAI-compatible local server)
+    model: llama3.1:8b
+    allow_hosted: false          # plan 2.1: hosted/paid endpoints are refused unless this is true (or --allow-hosted-llm)
+    top_k: 5                     # heuristic candidates the LLM re-ranks
+    weight: 0.6                  # final = (1 - weight) * heuristic + weight * llm / 10
+    timeout_s: 120

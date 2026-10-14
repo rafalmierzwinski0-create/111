@@ -414,9 +414,11 @@ Native format:
 ```
 
 - `selected.start` is the start of a sentence and `selected.end` the end of a
-  sentence (hard requirement, see 6.3). Small padding
-  (`select.pad_start_s`, `select.pad_end_s`) is applied by the plan stage,
-  never by moving the boundaries into another sentence.
+  sentence (hard requirement, see 6.3). `clip` is the range that is cut:
+  `selected` plus small padding (`select.pad_start_s`, `select.pad_end_s`).
+  The padding only uses the pause around the moment (at most 80 % of it) and
+  never reaches into a neighbouring sentence. Detection, planning and
+  rendering run on `clip`.
 - `candidates` holds the top `select.keep_candidates` by score, best first.
   `selected` equals `candidates[0]` unless overridden with `--moment START-END`.
 
@@ -628,6 +630,15 @@ Deliverables, in this order:
      (2.1). It only re-ranks the heuristic's top candidates and never
      produces boundaries itself.
    - Output `moment.json` (5.5) with the reasons for the choice.
+   - As built: word lists for English and Polish (fallback English). Seven
+     features: hook, standalone, completeness, density, energy, clean,
+     duration. The weighted mean is the score, with non-maximum suppression
+     for distinct alternatives. Completeness asks for a concluding line in
+     the last 3 sentences or 15 s and for the speaker to stop right after
+     (change of speaker or a pause of at least 1 s). Ending on someone
+     else's 1–2 word reaction is penalised. These two rules were sharpened
+     after the first run on the podcast fixture, where the clip stopped one
+     sentence before the punchline.
 1. **Renderer** (`clipper render`): reads only `crop_plan.json` and the source
    video, decodes the range, crops/scales each frame exactly as specified and
    muxes the source audio for the same range (ffmpeg). Writes a
@@ -640,10 +651,12 @@ Deliverables, in this order:
    what the renderer did, it is wrong. The check compares the overlay
    rectangles with `render_log.json`.
 3. **CLI orchestration**: `clipper run --video SRC --transcript T --work DIR`
-   runs select → detect → speakers → plan → render. Every stage reuses an
-   existing output with a matching fingerprint. `--from STAGE` forces a stage
-   and everything after it. Re-running the render must not re-run detection
-   or selection.
+   runs select → detect → speakers → plan → render → overlay. Every stage
+   reuses an existing output with a matching fingerprint. `--from STAGE`
+   forces a stage and everything after it. Re-running the render must not
+   re-run detection or selection. `--offline` blocks every outbound network
+   connection (loopback stays allowed for a local LLM). `run_log.json`
+   records what ran.
 4. **README** written for someone setting this up from scratch: installation
    (Python, ffmpeg, system libraries), model download/offline seeding, the
    transcript format and how to produce one locally, every config option, every
@@ -654,16 +667,39 @@ to end with a single command from the full-length source and its transcript,
 then verify:
 
 1. `moment.json` validates against 5.5. The selected moment starts on a sentence
-   start and ends on a sentence end, with duration within `[min_s, max_s]`.
+   start and ends on a sentence end, checked against an independent
+   re-segmentation of the transcript. The padded clip range stays clear of
+   neighbouring sentences, and the duration is within `[min_s, max_s]`.
 2. The output is MP4 1080×1920, H.264 + AAC, duration = moment duration ± 1
    frame, with audio in sync (same range as the video).
 3. `render_log.json` matches `crop_plan.json` frame for frame. The overlay's
-   rectangles match `render_log.json`.
+   rectangles match `render_log.json`. Pixel check: sampled clip frames match
+   the source re-cut with the logged rectangle (PSNR ≥ 30 dB).
 4. Re-running the same command performs no work. `--from render` re-runs
    only the render (verified from the stage log).
 5. No network access outside the allowed model downloads during the run
-   (2.1). Licence audit passes.
+   (2.1): the run uses `--offline`. A hosted LLM endpoint is refused before
+   any request. A local one (a mock OpenAI-compatible server on 127.0.0.1)
+   works, and its re-ranked choice is still sentence-aligned. The licence
+   audit passes.
 6. Report which moment was selected and why (score, reasons, runner-up).
+7. Transcript import: the `.srt` next to the transcript, when present,
+   imports to the same sentence boundaries.
+8. Unit tests pass.
+
+Phase 3 fixture: `scripts/make_podcast_fixture.py` turns the scripted
+two-person podcast `tests/data/podcast_script.json` (about 8 minutes, 131
+sentences) into `fixtures/podcast.mp4` plus its transcript (JSON with word
+timings, and SRT). It was written after the scorer, with one planted strong
+moment and three traps:
+- strong content that opens with a back-reference,
+- a number-dense passage that ends on an open question,
+- a filler-heavy passage.
+
+While someone speaks, their real talking-head clip and its own audio play.
+The audio does not say the scripted words. A run on a real full-length
+podcast with a real transcript is still needed to judge the scorer on real
+content.
 
 ---
 
@@ -712,6 +748,10 @@ Phase 2 options:
 | `plan.smooth_s` | 0.08 | sigma of the final zero-phase low-pass |
 | `plan.output.*` | 1080×1920, H.264 CRF 18, AAC 192k | written into `crop_plan.json` for the renderer |
 
+Phase 3 options (`select.*`: target/min/max duration, padding, the heuristic
+feature weights, the local LLM endpoint and the hosted opt-in) are listed with
+every other option in README section 6, which is the complete reference.
+
 ---
 
 ## 8. Risks and open questions
@@ -729,8 +769,15 @@ Phase 2 options:
    about 1 s for the heuristic.
 3. **Identity across shots.** Tracks restart at every cut. The clip framing
    doesn't need cross-shot identity, but speaker statistics are per track.
-4. **Test material.** The bundled fixture is silent and only 143 s. Phase 3's
-   end-to-end check needs a real full-length source with speech and its
-   transcript, supplied by the user. Transcription is out of scope (5.4).
+4. **Test material.** No real full-length podcast with a transcript was
+   reachable from the build environment. The Phase 3 check ran on the
+   scripted ~8-minute fixture. Its words are scripted, while its audio and
+   video are real speech. The moment scorer has only been judged on that
+   text, so validate it on your own episodes. Transcription is out of scope
+   (5.4).
+6. **Heuristic moment scoring is English/Polish-lexicon based.** Other
+   languages fall back to English word lists, so only density, energy,
+   completeness punctuation and duration still work. The optional local LLM
+   re-ranker is language-agnostic.
 5. **Variable frame rate sources.** Timestamps come from the decoder's
    presentation times, so VFR is handled, but the renderer outputs CFR.
