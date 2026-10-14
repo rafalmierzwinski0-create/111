@@ -99,7 +99,7 @@ def stage_signals(src: dict, work: Path, cfg: dict, chat: str | None, transcript
     a, excess, loud = signals.audio_signal(src["path"], n, p) if src["has_audio"] else (None, None, None)
     c = rate = tokens = None
     if chat:
-        c, rate, tokens = signals.chat_signal(load_chat(chat), n, p)
+        c, rate, tokens = signals.chat_signal(load_chat(chat, p["ignore_users"], p["ignore_patterns"]), n, p)
     sp = said = None
     if transcript:
         words, _ = tr.words_of(tr.load(transcript))

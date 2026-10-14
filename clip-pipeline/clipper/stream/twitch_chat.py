@@ -58,11 +58,11 @@ def _page(video: str, offset: int, attempts: int = 5) -> dict:
     raise RuntimeError("Twitch did not return chat comments (the VOD may have chat replay disabled)")
 
 
-def _chunk(video: str, start: float, end: float, stats: dict) -> dict[str, tuple[float, str]]:
+def _chunk(video: str, start: float, end: float, stats: dict) -> dict[str, tuple[float, str, str]]:
     """Comments in [start, end), keyed by id. Each page covers a few seconds; the next
     request starts at the last second seen. A second with more messages than one page
     holds is counted in stats["capped"] (the excess is not retrievable by offset)."""
-    out: dict[str, tuple[float, str]] = {}
+    out: dict[str, tuple[float, str, str]] = {}
     offset = int(start)
     while offset < end:
         edges = _page(video, offset).get("edges") or []
@@ -75,7 +75,8 @@ def _chunk(video: str, start: float, end: float, stats: dict) -> dict[str, tuple
             last = max(last, int(t))
             if start <= t < end:
                 text = "".join(f.get("text", "") for f in (node.get("message") or {}).get("fragments", []))
-                out[node["id"]] = (t, text)
+                user = ((node.get("commenter") or {}).get("login") or "").lower()
+                out[node["id"]] = (t, text, user)
         if last <= offset:
             stats["capped"] = stats.get("capped", 0) + 1
             last = offset + 1
@@ -92,13 +93,14 @@ def download(url: str, duration: float, out: Path, workers: int = 6, chunk_s: fl
     stats: dict = {}
     with ThreadPoolExecutor(max_workers=workers) as pool:
         parts = list(pool.map(lambda b: _chunk(video, b[0], b[1], stats), bounds))
-    merged: dict[str, tuple[float, str]] = {}
+    merged: dict[str, tuple[float, str, str]] = {}
     for part in parts:
         merged.update(part)
     msgs = sorted(merged.values())
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps({"video": {"id": video}, "comments": [
-        {"content_offset_seconds": t, "message": {"body": m}} for t, m in msgs]}, ensure_ascii=False), encoding="utf-8")
+        {"content_offset_seconds": t, "commenter": {"name": u}, "message": {"body": m}} for t, m, u in msgs]},
+        ensure_ascii=False), encoding="utf-8")
     log.info("twitch chat: %d messages in %.0fs (%d seconds busier than one page)", len(msgs), time.monotonic() - t0,
              stats.get("capped", 0))
     return out

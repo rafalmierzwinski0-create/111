@@ -124,6 +124,14 @@ stream:                          # stream mode: `clipper stream` (game / IRL str
                   "clip it", monkas, sadge, icant, "no way", omg, holy, insane, "?", "??", "???", wtf, nooo, letsgo, "lets go", gg, ez,
                   "💀", "😂", "🤣"]
     smooth_s: 3                  # smoothing of the combined signal (s)
+    ignore_users: [streamelements, nightbot, moobot, fossabot, streamlabs, wizebot, sery_bot, soundalerts,
+                   botrixoficial, kofistreambot, pokemoncommunitygame, commanderroot, streamstickers]
+    ignore_patterns:             # chat notices that are not reactions (regular expressions)
+      - "subscribed (with|at) (prime|tier)"
+      - "gifted (a|\\d+) tier"
+      - "is gifting \\d+"
+      - "converted from a prime"
+      - "continuing the gift sub"
   moments:
     count: 5                     # clips per VOD
     min_hype: 0.35               # peaks below this are not clips

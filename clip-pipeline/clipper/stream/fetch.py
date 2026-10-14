@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import shutil
 import subprocess
 import sys
@@ -52,7 +53,13 @@ class YtDlpFetcher:
     def _run(self, args: list[str]) -> str:
         cmd = _ytdlp() + ["--no-warnings", "--no-playlist"] + args + [self.url]
         log.info("fetch: %s", " ".join(cmd))
-        proc = subprocess.run(cmd, capture_output=True, text=True)
+        env = dict(os.environ)
+        # Section downloads run through ffmpeg, which only honours a lowercase http_proxy
+        # (it tunnels https through it). Behind an HTTPS proxy, pass it on.
+        proxy = env.get("HTTPS_PROXY") or env.get("https_proxy")
+        if proxy and not env.get("http_proxy"):
+            env["http_proxy"] = proxy
+        proc = subprocess.run(cmd, capture_output=True, text=True, env=env)
         if proc.returncode != 0:
             raise FetchError(f"yt-dlp failed: {proc.stderr.strip()[-800:]}")
         return proc.stdout
@@ -98,9 +105,22 @@ class YtDlpFetcher:
         out.write_text(json.dumps(msgs, ensure_ascii=False), encoding="utf-8")
         return out
 
+    def _formats(self) -> list[dict]:
+        if not hasattr(self, "_fmts"):
+            self._fmts = json.loads(self._run(["-J"])).get("formats", [])
+        return self._fmts
+
     def section(self, start: float, end: float, out: Path) -> Path:
         out.parent.mkdir(parents=True, exist_ok=True)
         h = self.max_height
+        # HLS VODs (Twitch): fetch only the segments that cover the clip.
+        hls = [f for f in self._formats() if str(f.get("protocol", "")).startswith("m3u8")
+               and f.get("vcodec") not in (None, "none") and f.get("acodec") not in (None, "none") and (f.get("height") or 0) <= h]
+        if hls:
+            from clipper.stream.hls import download_section
+            best = max(hls, key=lambda f: ((f.get("height") or 0), (f.get("fps") or 0)))
+            log.info("fetch: %s %.1f-%.1fs from HLS segments", best.get("format_id"), start, end)
+            return download_section(best["url"], start, end, out)
         self._run(["-f", f"bv*[height<={h}]+ba/b[height<={h}]", "-N", "8", "--download-sections", f"*{start:.2f}-{end:.2f}",
                    "--force-keyframes-at-cuts", "--merge-output-format", "mp4", "-o", str(out)])
         if not out.is_file():

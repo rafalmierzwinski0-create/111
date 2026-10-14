@@ -13,6 +13,14 @@ stream:
   facecam: null
   signals:
     chat_delay_s: 5.0            # big chat: reactions arrive a bit later
+    ignore_patterns:             # sub notices + the channel's points gambling/duel commands and their replies
+      - "subscribed (with|at) (prime|tier)"
+      - "gifted (a|\\d+) tier"
+      - "is gifting \\d+"
+      - "converted from a prime"
+      - "continuing the gift sub"
+      - "\\bpeanuts\\b.*(won|lost|has|leaderboard|rank)|(won|lost|went all in).*\\bpeanuts\\b"
+      - "^!\\w+"                  # chat commands (!gamble, !duel, ...)
     chat_z_full: 5.0
     hype_tokens: [kekw, lul, lulw, omegalul, lmao, lmfao, lol, xd, pog, pogchamp, poggers, pogu, w, ww, www, l, clip, clipit,
                   "clip it", monkas, sadge, icant, "no way", omg, holy, insane, "?", "??", "???", wtf, nooo, letsgo, "lets go", gg, ez,

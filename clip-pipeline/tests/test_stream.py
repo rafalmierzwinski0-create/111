@@ -138,7 +138,7 @@ def test_ytdlp_fetcher_commands(monkeypatch, tmp_path):
     from clipper.stream import fetch
     calls = []
 
-    def fake_run(cmd, capture_output, text):
+    def fake_run(cmd, capture_output, text, env=None):
         calls.append(cmd)
         if "-J" in cmd:
             out = json.dumps({"id": "v1", "title": "t", "duration": 14400.0, "extractor_key": "TwitchVod"})
@@ -182,6 +182,14 @@ def test_twitch_chat_offset_paging(monkeypatch):
     monkeypatch.setattr(twitch_chat, "_page", fake_page)
     stats = {}
     got = twitch_chat._chunk("1", 20, 50, stats)
-    assert len(got) == 90 and all(20 <= t < 50 for t, _ in got.values()) and not stats
+    assert len(got) == 90 and all(20 <= t < 50 for t, _, _ in got.values()) and not stats
     assert twitch_chat.vod_id("https://www.twitch.tv/videos/2900094401") == "2900094401"
     assert twitch_chat.vod_id("https://www.youtube.com/watch?v=x") is None
+
+
+def test_hls_playlist_parsing():
+    from clipper.stream.hls import parse_playlist
+    text = "#EXTM3U\n#EXT-X-MAP:URI=\"init-0.mp4\"\n#EXTINF:10.000,\n0.mp4\n#EXTINF:10.000,\n1-muted.mp4\n#EXTINF:4.5,\n2.mp4\n"
+    segs = parse_playlist(text, "https://cdn.example/vod/1080p60/index-dvr.m3u8")
+    assert [(a, b) for a, b, _, _ in segs] == [(0.0, 10.0), (10.0, 20.0), (20.0, 24.5)]
+    assert segs[1][2] == "https://cdn.example/vod/1080p60/1-muted.mp4" and segs[0][3].endswith("/init-0.mp4")
