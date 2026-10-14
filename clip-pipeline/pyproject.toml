@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "clipper"
+version = "0.1.0"
+description = "Long horizontal recording + transcript -> short vertical clip that follows the speaker"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+  "mediapipe>=0.10.14",
+  "numpy>=1.24",
+  "PyYAML>=6.0",
+  "jsonschema>=4.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+clipper = "clipper.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["clipper*"]
+
+[tool.setuptools.package-data]
+clipper = ["config/*.yaml", "schemas/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

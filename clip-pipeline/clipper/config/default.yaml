@@ -1,0 +1,24 @@
+# Every option of the pipeline with its default. A file passed with --config is
+# deep-merged over this one, so it only needs the keys it changes.
+# See IMPLEMENTATION_PLAN.md section 7 and README.md.
+
+models:
+  # Where model files are cached. The CLIPPER_MODEL_DIR environment variable
+  # overrides this. Put the files here by hand for fully offline use.
+  cache_dir: ~/.cache/clipper/models
+
+detect:
+  num_faces: 4                   # maximum faces per frame
+  max_fps: 30                    # analyse every n-th frame so the analysed rate <= this
+  analysis_max_width: 1280       # downscale wider frames before detection
+  min_detection_confidence: 0.5
+  min_presence_confidence: 0.5
+  min_tracking_confidence: 0.5
+  landmarks: subset              # subset (lips + key points) | full (all 478)
+  blendshapes: [jawOpen, mouthClose, mouthFunnel, mouthPucker, mouthSmileLeft, mouthSmileRight]
+  iou_threshold: 0.2             # minimum IoU to continue a track
+  max_center_dist: 0.6           # centre-distance fallback, in face widths
+  max_gap_s: 1.0                 # a track ends after this long without a match
+  min_track_s: 0.5               # shorter tracks are marked spurious
+  shot_threshold: 27.0           # HSV content difference that counts as a hard cut
+  min_shot_s: 0.5                # minimum shot length

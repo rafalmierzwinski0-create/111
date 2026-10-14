@@ -1,0 +1,4 @@
+fixtures/
+work/
+*.egg-info/
+.pytest_cache/

@@ -1,0 +1,6 @@
+{
+  "video": "fixtures/head-pose-face-detection-female-and-male.mp4",
+  "expect_faces": 2,
+  "no_face_intervals": [[56.5, 63.4], [134.0, 140.3]],
+  "notes": "Human-reviewed: in 56.5-63.4 s both people look straight down (faces hidden), in 134.0-140.3 s they face each other in full profile. No frontal or three-quarter face is visible there, so no lip landmarks can exist. Bounds include the head-turn transitions."
+}

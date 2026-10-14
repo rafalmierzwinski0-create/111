@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "clipper/detections.schema.json",
+  "title": "detections.json (IMPLEMENTATION_PLAN.md 5.1)",
+  "type": "object",
+  "required": ["schema_version", "kind", "fingerprint", "source", "range", "analysis", "landmark_spec", "shots", "frames", "tracks"],
+  "properties": {
+    "schema_version": {"type": "string", "pattern": "^1\\.[0-9]+$"},
+    "kind": {"const": "detections"},
+    "fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source": {"$ref": "#/$defs/source"},
+    "range": {"$ref": "#/$defs/range"},
+    "analysis": {
+      "type": "object",
+      "required": ["fps", "frame_step", "detector", "mediapipe_version", "model", "num_faces"],
+      "properties": {
+        "fps": {"type": "number", "exclusiveMinimum": 0},
+        "frame_step": {"type": "integer", "minimum": 1},
+        "detector": {"const": "mediapipe.face_landmarker"},
+        "mediapipe_version": {"type": "string"},
+        "model": {
+          "type": "object",
+          "required": ["name", "sha256"],
+          "properties": {"name": {"type": "string"}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+        },
+        "num_faces": {"type": "integer", "minimum": 1}
+      }
+    },
+    "landmark_spec": {
+      "type": "object",
+      "required": ["topology", "coords", "indices", "groups", "blendshapes"],
+      "properties": {
+        "topology": {"const": "mediapipe_face_mesh_478"},
+        "coords": {"const": "normalized_xyz"},
+        "indices": {"type": "array", "minItems": 40, "uniqueItems": true, "items": {"type": "integer", "minimum": 0, "maximum": 477}},
+        "groups": {
+          "type": "object",
+          "required": ["lips_outer", "lips_inner", "key"],
+          "additionalProperties": {"type": "array", "items": {"type": "integer", "minimum": 0, "maximum": 477}},
+          "properties": {
+            "lips_outer": {"type": "array", "minItems": 20, "maxItems": 20},
+            "lips_inner": {"type": "array", "minItems": 20, "maxItems": 20}
+          }
+        },
+        "blendshapes": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "shots": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["index", "start", "end"],
+        "properties": {"index": {"type": "integer", "minimum": 0}, "start": {"type": "number"}, "end": {"type": "number"}}
+      }
+    },
+    "frames": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["i", "t", "shot", "faces"],
+        "properties": {
+          "i": {"type": "integer", "minimum": 0},
+          "t": {"type": "number", "minimum": 0},
+          "shot": {"type": "integer", "minimum": 0},
+          "faces": {"type": "array", "items": {"$ref": "#/$defs/face"}}
+        }
+      }
+    },
+    "tracks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["track_id", "shot", "start", "end", "num_frames", "coverage", "mean_bbox", "spurious"],
+        "properties": {
+          "track_id": {"type": "integer", "minimum": 0},
+          "shot": {"type": "integer", "minimum": 0},
+          "start": {"type": "number"},
+          "end": {"type": "number"},
+          "num_frames": {"type": "integer", "minimum": 1},
+          "coverage": {"type": "number", "minimum": 0, "maximum": 1},
+          "mean_bbox": {"$ref": "#/$defs/bbox"},
+          "spurious": {"type": "boolean"}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "required": ["path", "size_bytes", "mtime", "width", "height", "fps", "duration", "frame_count", "has_audio"],
+      "properties": {
+        "path": {"type": "string"},
+        "size_bytes": {"type": "integer", "minimum": 0},
+        "mtime": {"type": "number"},
+        "width": {"type": "integer", "minimum": 1},
+        "height": {"type": "integer", "minimum": 1},
+        "fps": {"type": "number", "exclusiveMinimum": 0},
+        "duration": {"type": "number", "exclusiveMinimum": 0},
+        "frame_count": {"type": "integer", "minimum": 0},
+        "has_audio": {"type": "boolean"}
+      }
+    },
+    "range": {
+      "type": "object",
+      "required": ["start", "end"],
+      "properties": {"start": {"type": "number", "minimum": 0}, "end": {"type": "number", "exclusiveMinimum": 0}}
+    },
+    "bbox": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number"}},
+    "face": {
+      "type": "object",
+      "required": ["track_id", "bbox", "landmarks"],
+      "properties": {
+        "track_id": {"type": "integer", "minimum": 0},
+        "bbox": {"$ref": "#/$defs/bbox"},
+        "landmarks": {
+          "type": "array",
+          "minItems": 40,
+          "items": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "number"}}
+        },
+        "blendshapes": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0, "maximum": 1}},
+        "pose": {
+          "type": "object",
+          "required": ["yaw", "pitch", "roll"],
+          "properties": {"yaw": {"type": "number"}, "pitch": {"type": "number"}, "roll": {"type": "number"}}
+        }
+      }
+    }
+  }
+}
