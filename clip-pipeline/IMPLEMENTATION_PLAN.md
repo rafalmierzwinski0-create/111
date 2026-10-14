@@ -513,11 +513,16 @@ Deliverables, in this order:
    Per track: inner-lip aperture normalised by mouth width, plus the
    `jawOpen` blendshape. The score comes from the short-window variability of
    that signal (speech is rapid open/close, not a steady open mouth), within
-   ± `speakers.window_s`, normalised per track to cancel resting-mouth shape
-   differences, and penalised for strong head yaw and small faces. Optional
+   ± `speakers.window_s`, after removing the track's slow mouth trend (a ~1 s
+   moving median), which cancels resting-mouth shape differences and held
+   smiles. The score is penalised for strong head yaw and small faces. Optional
    audio gating: when the source has an audio track, frames whose RMS energy
-   is below the speech floor score 0 for everyone (no audio, nobody speaks).
-   Silent or missing audio disables gating automatically.
+   is below the speech threshold score 0 for everyone (no audio, nobody speaks).
+   The noise floor is a low percentile (3rd) of the level. The pauses between
+   words exceed 3 % of the time even in continuous speech, so the floor never
+   lands on speech. The gate is held open across pauses shorter than about
+   0.6 s. A silent (muted) or missing audio track disables gating
+   automatically, and the heuristic then works visual-only.
 3. **Segmentation on speaker changes**: per-frame argmax → run-length
    segments → enforce `speakers.min_segment_s` (default 2.0 s): a segment
    shorter than the minimum is merged into the neighbour that keeps the
@@ -536,13 +541,22 @@ Deliverables, in this order:
    speed is capped at `plan.max_speed` (fraction of frame width per second),
    and a final zero-phase low-pass removes residual jitter. The crop jumps only
    at `cuts`. The crop is clamped inside the frame.
-5. **LR-ASD backend (second)**: wraps LR-ASD (Junhua-Liao/LR-ASD). Its licence
-   must be re-checked when the backend is added. At planning time the
-   repository and its weights are published under MIT, which is permissive.
-   If the licence is not permissive when the backend is added, stop and
-   report instead of adding it. It is an optional extra (`pip install
-   .[lrasd]`, PyTorch), uses Phase 1's face tracks for its face crops (no
-   other face detector), and needs the audio track.
+5. **LR-ASD backend (second)**: wraps LR-ASD (Junhua-Liao/LR-ASD, pinned
+   commit `1b6dcd2d`). Its licence must be re-checked when the backend is
+   added. If it is not permissive, stop and report instead of adding it.
+   Checked when adding the backend: the code and both weight files are MIT.
+   To keep PyTorch out of the user's install, the weights are exported once
+   to ONNX by `scripts/export_lrasd_onnx.py`, which verifies that
+   onnxruntime matches PyTorch within 1e-3 on several input lengths (measured
+   ~2e-6). The exports and LR-ASD's licence are committed under
+   `clipper/speakers/models/`. Runtime: optional extra `pip install
+   .[lrasd]` (onnxruntime, python_speech_features, scipy, all MIT/BSD). Inputs
+   are prepared exactly like LR-ASD's demo (25 fps grey 112×112 face crops,
+   13-coefficient MFCCs, scores averaged over 1–6 s chunks), but face boxes
+   come from Phase 1's tracks: no other face detector. It needs the audio
+   track. Default weights: `finetuning_TalkSet`, which the authors report as
+   much better on talking-head footage (Columbia F1 96.4 % vs 86.1 %); it
+   also clearly wins on the conversation fixture.
 6. CLI: `clipper speakers WORK`, `clipper plan WORK`, both with fingerprints
    and `--force`. `clipper inspect plan` renders a preview strip.
 
@@ -551,18 +565,40 @@ Checkpoint verification (`clipper check phase2`):
 1. Both files validate against 5.2 / 5.3 schemas.
 2. Segments cover the range without gaps/overlaps, and every segment
    respects `min_segment_s` except at shot boundaries or range edges.
-3. Flicker: no speaker switch sequence A→B→A within `2 × min_segment_s`.
-   Switches per minute are reported.
+3. Flicker: no A→B→A sequence whose B segment is shorter than
+   `min_segment_s`. Switches per minute are reported next to the switches
+   in the raw per-frame decision. The interjection part of check 7 tests
+   the actual failure mode: short real speech by the other person.
 4. Crop validity: every rectangle inside the frame, with the correct aspect ratio,
    and one per output frame.
 5. Smoothness: away from `cuts`, per-frame speed ≤ `plan.max_speed` and
    no velocity discontinuities (acceleration bounded).
 6. Framing: during `speaker` segments, outside transitions, the active
    speaker's face box lies inside the crop on ≥ 99 % of frames.
-7. With a labelled fixture (`--labels`), report frame accuracy of the
-   active-speaker decision.
-8. Licence audit passes (including LR-ASD if installed).
-9. Visual: preview strip / short preview video for human review.
+7. With a labelled fixture (`--labels`): framing accuracy ≥ 90 % and no
+   interjection moves the frame, for the heuristic and, when installed, for
+   LR-ASD. Framing accuracy compares who is on screen with who should be:
+   the turn's speaker, with interjections counting as the surrounding turn and
+   silence accepting anything. 0.5 s around each label change is excluded.
+   Raw per-frame accuracy is reported too.
+8. Re-running `speakers` and `plan` with the same inputs is skipped.
+9. Licence audit passes, and the bundled LR-ASD licence is MIT.
+10. Unit tests pass.
+11. With `--negative VIDEO` (nobody speaks): report how much of it is framed
+    as someone speaking (information, not pass/fail).
+12. Visual: preview strip and side-by-side preview video for human review.
+13. Cuts: the same video re-edited as a multi-camera cut (wide / close-up /
+    close-up / wide, with audio). No segment spans a cut, crop jumps happen
+    only at cuts, and checks 2–6 pass on it.
+
+Phase 2 fixture: `scripts/make_conversation_fixture.py` builds
+`fixtures/conversation.mp4` (50 s, 1920×1080, 30 fps) and
+`fixtures/conversation_labels.json`. It uses two real talking-head clips
+with their own audio (OpenTalker/video-retalking examples, pinned commit,
+downloaded for local testing only, never committed) placed side by side. The
+schedule has 9 turns, 2 interjections (0.6 s and 0.5 s) and a 2 s silence;
+the listener is held on a still frame with a slow head sway. Clips are picked by
+frame timestamp because some are variable frame rate.
 
 ### 6.3 Phase 3 — Output
 
@@ -654,6 +690,28 @@ documents every option. Phase 1 options:
 | `detect.min_shot_s` | 0.5 | minimum shot length |
 | `models.cache_dir` | `~/.cache/clipper/models` | model cache (env `CLIPPER_MODEL_DIR` overrides) |
 
+Phase 2 options:
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `speakers.backend` | `heuristic` | `heuristic` or `lrasd` (CLI `--asd`) |
+| `speakers.min_score` | 0.5 | a face counts as speaking in a frame above this score |
+| `speakers.min_segment_s` | 2.0 | minimum framing segment (except at cuts / range edges) |
+| `speakers.switch_margin` | 0.15 | a new speaker must out-score the current one by this much |
+| `speakers.heuristic.*` | see `default.yaml` | mouth-signal weights, windows, logistic, yaw/size penalties, audio gate |
+| `speakers.lrasd.weights` | `finetuning_TalkSet` | or `pretrain_AVA` |
+| `speakers.lrasd.durations` | `[1,1,1,2,2,2,3,3,4,5,6]` | chunk lengths averaged, as in LR-ASD's demo |
+| `plan.aspect` | `9:16` | output aspect ratio |
+| `plan.zoom` | 1.0 | 1.0 = crop is the full source height |
+| `plan.face_y` | 0.38 | face centre height within the crop (when zoom leaves room) |
+| `plan.follow_window_s` | 1.5 | moving median of the speaker's face position |
+| `plan.dead_zone` | 0.12 | target changes below this fraction of the crop width are ignored |
+| `plan.transition_s` | 0.6 | ease-in-out duration of a move (stretched to respect `max_speed`) |
+| `plan.max_speed` | 1.5 | frame widths per second |
+| `plan.max_accel` | 8.0 | frame widths per second², verified by the checkpoint |
+| `plan.smooth_s` | 0.08 | sigma of the final zero-phase low-pass |
+| `plan.output.*` | 1080×1920, H.264 CRF 18, AAC 192k | written into `crop_plan.json` for the renderer |
+
 ---
 
 ## 8. Risks and open questions
@@ -664,7 +722,11 @@ documents every option. Phase 1 options:
    on the analysis frame (still MediaPipe).
 2. **Lip motion ≠ speech.** Chewing, laughing and nodding move lips. The
    heuristic mitigates with variability-based scoring and audio gating.
-   LR-ASD (audio-visual) is the stronger option.
+   Without usable audio it is visual-only: on the silent head-pose fixture
+   (nobody speaks) about 8 % of the time was framed as someone speaking.
+   LR-ASD (audio-visual) is the stronger option when audio is available.
+   It is also slower: about 60 s of CPU for a 50 s, 2-person clip, against
+   about 1 s for the heuristic.
 3. **Identity across shots.** Tracks restart at every cut. The clip framing
    doesn't need cross-shot identity, but speaker statistics are per track.
 4. **Test material.** The bundled fixture is silent and only 143 s. Phase 3's

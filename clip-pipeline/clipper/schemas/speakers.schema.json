@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "clipper/speakers.schema.json",
+  "title": "speakers.json (IMPLEMENTATION_PLAN.md 5.2)",
+  "type": "object",
+  "required": ["schema_version", "kind", "fingerprint", "source", "range", "inputs", "backend", "frames", "segments", "tracks"],
+  "properties": {
+    "schema_version": {"type": "string", "pattern": "^1\\.[0-9]+$"},
+    "kind": {"const": "speakers"},
+    "fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source": {"$ref": "detections.schema.json#/$defs/source"},
+    "range": {"$ref": "detections.schema.json#/$defs/range"},
+    "inputs": {
+      "type": "object",
+      "required": ["detections"],
+      "properties": {"detections": {"$ref": "#/$defs/input"}}
+    },
+    "backend": {
+      "type": "object",
+      "required": ["name", "version", "params"],
+      "properties": {"name": {"enum": ["heuristic", "lrasd"]}, "version": {"type": "string"}, "params": {"type": "object"},
+                     "notes": {"type": "array", "items": {"type": "string"}}}
+    },
+    "segmentation": {"type": "object"},
+    "frames": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["i", "t", "scores", "raw_active"],
+        "properties": {
+          "i": {"type": "integer", "minimum": 0},
+          "t": {"type": "number", "minimum": 0},
+          "scores": {"type": "object", "propertyNames": {"pattern": "^[0-9]+$"},
+                     "additionalProperties": {"type": "number", "minimum": 0, "maximum": 1}},
+          "raw_active": {"type": ["integer", "null"], "minimum": 0}
+        }
+      }
+    },
+    "segments": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/segment"}},
+    "tracks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["track_id", "speaking_ratio", "mean_score"],
+        "properties": {"track_id": {"type": "integer"}, "speaking_ratio": {"type": "number", "minimum": 0, "maximum": 1},
+                       "mean_score": {"type": "number", "minimum": 0, "maximum": 1}}
+      }
+    }
+  },
+  "$defs": {
+    "input": {
+      "type": "object",
+      "required": ["path", "fingerprint"],
+      "properties": {"path": {"type": "string"}, "fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+    },
+    "segment": {
+      "type": "object",
+      "required": ["index", "start", "end", "speaker", "kind"],
+      "properties": {
+        "index": {"type": "integer", "minimum": 0},
+        "start": {"type": "number", "minimum": 0},
+        "end": {"type": "number", "minimum": 0},
+        "speaker": {"type": ["integer", "null"], "minimum": 0},
+        "kind": {"enum": ["speaker", "hold", "wide"]},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "reason": {"type": "string"}
+      },
+      "if": {"properties": {"kind": {"const": "speaker"}}},
+      "then": {"properties": {"speaker": {"type": "integer"}}},
+      "else": {"properties": {"speaker": {"type": "null"}}}
+    }
+  }
+}

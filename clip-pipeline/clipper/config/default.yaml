@@ -22,3 +22,49 @@ detect:
   min_track_s: 0.5               # shorter tracks are marked spurious
   shot_threshold: 27.0           # HSV content difference that counts as a hard cut
   min_shot_s: 0.5                # minimum shot length
+
+speakers:
+  backend: heuristic             # heuristic | lrasd  (CLI: --asd)
+  min_score: 0.5                 # a face counts as speaking in a frame above this score
+  min_segment_s: 2.0             # no framing segment is shorter (except at cuts / range edges)
+  switch_margin: 0.15            # a new speaker must out-score the current one by this much
+  heuristic:
+    jaw_weight: 0.5              # weight of the jawOpen blendshape in the mouth signal
+    window_s: 0.4                # half-width of the articulation window
+    trend_window_s: 1.0          # slow mouth trend removed before measuring articulation
+    articulation_mid: 0.03       # articulation at which the score is 0.5
+    articulation_scale: 0.008    # logistic steepness
+    yaw_full: 35.0               # |yaw| up to this keeps the full score
+    yaw_zero: 70.0               # |yaw| at which the score drops to 0
+    min_face_height: 0.08        # faces smaller than this fraction of frame height are penalised
+    audio_gating: true           # zero all scores where the audio has no speech energy
+    audio_window_s: 0.2          # RMS window for the speech gate
+    silence_db: -60.0            # loudest moment below this -> no usable audio, gating disabled
+    speech_margin_db: 12.0       # speech is this much above the noise floor ...
+    speech_floor_db: -45.0       # ... and at least this loud
+    gate_hold_s: 0.3             # keep the gate open across pauses between words
+    noise_percentile: 3.0        # noise floor = this percentile of the audio level
+  lrasd:
+    weights: finetuning_TalkSet  # finetuning_TalkSet (better on talking-head footage per LR-ASD authors) | pretrain_AVA
+    durations: [1, 1, 1, 2, 2, 2, 3, 3, 4, 5, 6]  # chunk lengths (s) averaged, as in LR-ASD's demo
+    crop_scale: 0.40             # face crop padding, as in LR-ASD's demo
+
+plan:
+  aspect: "9:16"                 # output aspect ratio of the crop
+  zoom: 1.0                      # 1.0 = crop is full source height; 1.5 = tighter
+  face_y: 0.38                   # face centre at this fraction of the crop height (when zoom leaves room)
+  follow_window_s: 1.5           # moving median of the speaker's face position (ignores head motion)
+  dead_zone: 0.12                # target changes below this fraction of the crop width do not move the frame
+  transition_s: 0.6              # ease-in-out duration of a move (longer if max_speed requires it)
+  max_speed: 1.5                 # max camera speed, source frame widths per second
+  max_accel: 8.0                 # acceleration bound verified by the checkpoint, frame widths per second^2
+  smooth_s: 0.08                 # sigma of the final zero-phase low-pass
+  output:
+    width: 1080
+    height: 1920
+    max_fps: 60                  # output frame rate = source frame rate, capped here
+    video_codec: libx264
+    crf: 18
+    preset: medium
+    audio_codec: aac
+    audio_bitrate: 192k

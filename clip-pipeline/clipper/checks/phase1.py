@@ -197,20 +197,31 @@ def run_check(video: str, work: str, cfg: dict, expect_faces: int | None = None,
     return 0 if rep.passed else 1
 
 
-def shot_boundary_check(video: str, work_dir: Path, cfg: dict, offset: float) -> tuple[bool, str]:
-    """Wide / right-half close-up / left-half close-up / wide, 5 s each: cuts at 5, 10, 15 s."""
+def make_multicam(video: str, out: Path, offset: float, with_audio: bool = False) -> Path:
+    """Wide / right-half close-up / left-half close-up / wide, 5 s each: hard cuts at 5, 10, 15 s."""
     src = videolib.probe(video)
     if src["duration"] - offset < 20:
-        return False, "video shorter than 20 s after --start; cannot build the multi-camera test"
+        raise ValueError("video shorter than 20 s after the offset; cannot build the multi-camera test")
     w, h = src["width"] // 2 * 2, src["height"] // 2 * 2
     cw, ch = w // 2 // 2 * 2, h // 2 // 2 * 2
     seg = lambda k, crop: (f"[0:v]trim={offset + 5 * k}:{offset + 5 * k + 5},setpts=PTS-STARTPTS"
                            f"{',' + crop if crop else ''},scale={w}:{h},setsar=1[s{k}]")
     graph = ";".join([seg(0, ""), seg(1, f"crop={cw}:{ch}:{w - cw}:{h // 10}"), seg(2, f"crop={cw}:{ch}:0:{h // 8}"), seg(3, "")])
-    out = work_dir / "multicam.mp4"
-    subprocess.run([videolib.require_tool("ffmpeg"), "-v", "error", "-y", "-i", video, "-filter_complex",
-                    graph + ";[s0][s1][s2][s3]concat=n=4:v=1:a=0[v]", "-map", "[v]", "-r", str(src["fps"]),
-                    "-c:v", "libx264", "-pix_fmt", "yuv420p", str(out)], check=True)
+    graph += ";[s0][s1][s2][s3]concat=n=4:v=1:a=0[v]"
+    cmd = [videolib.require_tool("ffmpeg"), "-v", "error", "-y", "-i", video, "-filter_complex", graph, "-map", "[v]"]
+    if with_audio and src.get("has_audio"):
+        cmd += ["-map", "0:a", "-af", f"atrim={offset}:{offset + 20},asetpts=PTS-STARTPTS", "-c:a", "aac"]
+    cmd += ["-r", str(src["fps"]), "-c:v", "libx264", "-pix_fmt", "yuv420p", "-t", "20", str(out)]
+    out.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(cmd, check=True)
+    return out
+
+
+def shot_boundary_check(video: str, work_dir: Path, cfg: dict, offset: float) -> tuple[bool, str]:
+    try:
+        out = make_multicam(video, work_dir / "multicam.mp4", offset)
+    except ValueError as exc:
+        return False, str(exc)
     res = run_detect(out, work_dir / "multicam", cfg, force=True)
     det = contracts.read(res["path"], "detections")
     cuts = [s["start"] for s in det["shots"][1:]]

@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "clipper/crop_plan.schema.json",
+  "title": "crop_plan.json (IMPLEMENTATION_PLAN.md 5.3)",
+  "type": "object",
+  "required": ["schema_version", "kind", "fingerprint", "source", "range", "inputs", "output", "crop", "frames", "segments", "cuts"],
+  "properties": {
+    "schema_version": {"type": "string", "pattern": "^1\\.[0-9]+$"},
+    "kind": {"const": "crop_plan"},
+    "fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source": {"$ref": "detections.schema.json#/$defs/source"},
+    "range": {"$ref": "detections.schema.json#/$defs/range"},
+    "inputs": {
+      "type": "object",
+      "required": ["detections", "speakers"],
+      "properties": {"detections": {"$ref": "speakers.schema.json#/$defs/input"},
+                     "speakers": {"$ref": "speakers.schema.json#/$defs/input"}}
+    },
+    "output": {
+      "type": "object",
+      "required": ["width", "height", "fps", "video_codec", "crf", "preset", "audio_codec", "audio_bitrate"],
+      "properties": {
+        "width": {"type": "integer", "minimum": 2, "multipleOf": 2},
+        "height": {"type": "integer", "minimum": 2, "multipleOf": 2},
+        "fps": {"type": "number", "exclusiveMinimum": 0},
+        "video_codec": {"type": "string"},
+        "crf": {"type": "integer", "minimum": 0, "maximum": 51},
+        "preset": {"type": "string"},
+        "audio_codec": {"type": "string"},
+        "audio_bitrate": {"type": "string"}
+      }
+    },
+    "crop": {
+      "type": "object",
+      "required": ["aspect", "zoom"],
+      "properties": {"aspect": {"type": "string", "pattern": "^[0-9]+:[0-9]+$"}, "zoom": {"type": "number", "minimum": 1}}
+    },
+    "params": {"type": "object"},
+    "frames": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["t", "x", "y", "w", "h", "segment"],
+        "properties": {
+          "t": {"type": "number", "minimum": 0},
+          "x": {"type": "number", "minimum": 0},
+          "y": {"type": "number", "minimum": 0},
+          "w": {"type": "number", "exclusiveMinimum": 0},
+          "h": {"type": "number", "exclusiveMinimum": 0},
+          "segment": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "segments": {"type": "array", "minItems": 1, "items": {"$ref": "speakers.schema.json#/$defs/segment"}},
+    "cuts": {"type": "array", "items": {"type": "number"}}
+  }
+}

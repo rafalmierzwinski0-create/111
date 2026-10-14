@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import jsonschema
+from referencing import Registry, Resource
 
 from clipper import SCHEMA_VERSION
 
@@ -27,10 +28,19 @@ def schema(kind: str) -> dict:
         return json.load(fh)
 
 
+@lru_cache(maxsize=None)
+def _registry() -> Registry:
+    resources = []
+    for path in SCHEMA_DIR.glob("*.schema.json"):
+        doc = json.loads(path.read_text(encoding="utf-8"))
+        resources.append((doc["$id"], Resource.from_contents(doc)))
+    return Registry().with_resources(resources)
+
+
 def validate(doc: dict, kind: str) -> None:
     if doc.get("kind") != kind:
         raise ContractError(f"expected kind {kind!r}, got {doc.get('kind')!r}")
-    validator = jsonschema.Draft202012Validator(schema(kind))
+    validator = jsonschema.Draft202012Validator(schema(kind), registry=_registry())
     errors = sorted(validator.iter_errors(doc), key=lambda e: list(e.absolute_path))
     if errors:
         lines = [f"  at /{'/'.join(map(str, e.absolute_path))}: {e.message}" for e in errors[:10]]

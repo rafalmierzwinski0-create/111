@@ -90,3 +90,20 @@ def test_unknown_config_key_is_rejected(tmp_path):
     p.write_text("detect:\n  num_face: 2\n")
     with pytest.raises(ValueError, match="detect.num_face"):
         load_config(p)
+
+
+def test_speaker_segment_kind_and_speaker_must_agree():
+    seg = {"index": 0, "start": 0.0, "end": 1.0, "speaker": None, "kind": "speaker"}
+    doc = {"schema_version": "1.0", "kind": "speakers", "fingerprint": "0" * 64,
+           "source": minimal_detections()["source"], "range": {"start": 0.0, "end": 1.0},
+           "inputs": {"detections": {"path": "d.json", "fingerprint": "0" * 64}},
+           "backend": {"name": "heuristic", "version": "1", "params": {}},
+           "frames": [{"i": 0, "t": 0.0, "scores": {"0": 0.9}, "raw_active": 0}],
+           "segments": [seg], "tracks": []}
+    with pytest.raises(contracts.ContractError):
+        contracts.validate(doc, "speakers")
+    seg["speaker"] = 0
+    contracts.validate(doc, "speakers")
+    seg["kind"] = "hold"
+    with pytest.raises(contracts.ContractError):
+        contracts.validate(doc, "speakers")

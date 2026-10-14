@@ -29,11 +29,23 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--force", action="store_true", help="re-run even if the output is up to date")
     _common(p)
 
-    p = sub.add_parser("inspect", help="render a contact sheet from a contract file for human review")
-    p.add_argument("what", choices=["detections"])
-    p.add_argument("path", help="the contract file, e.g. work/detections.json")
-    p.add_argument("--out", help="PNG path (default: next to the input)")
+    p = sub.add_parser("speakers", help="Phase 2: who speaks when -> WORK/speakers.json")
+    p.add_argument("work", nargs="?", default="work", help="work directory holding detections.json")
+    p.add_argument("--asd", choices=["heuristic", "lrasd"], help="active-speaker backend (default: speakers.backend)")
+    p.add_argument("--force", action="store_true")
+    _common(p)
+
+    p = sub.add_parser("plan", help="Phase 2: smoothed 9:16 crop path -> WORK/crop_plan.json")
+    p.add_argument("work", nargs="?", default="work", help="work directory holding detections.json and speakers.json")
+    p.add_argument("--force", action="store_true")
+    _common(p)
+
+    p = sub.add_parser("inspect", help="render review images/videos from contract files")
+    p.add_argument("what", choices=["detections", "plan"])
+    p.add_argument("path", help="detections: the detections.json file; plan: the work directory")
+    p.add_argument("--out", help="output path (default: next to the input)")
     p.add_argument("--count", type=int, default=12)
+    p.add_argument("--video", action="store_true", help="plan: also write a side-by-side preview video")
     _common(p)
 
     p = sub.add_parser("licenses", help="audit installed packages and models (plan 2.2)")
@@ -41,13 +53,15 @@ def build_parser() -> argparse.ArgumentParser:
     _common(p)
 
     p = sub.add_parser("check", help="run a phase checkpoint verification")
-    p.add_argument("phase", choices=["phase1"])
+    p.add_argument("phase", choices=["phase1", "phase2"])
     p.add_argument("video")
-    p.add_argument("--expect-faces", type=int, help="number of people visible in the fixture")
-    p.add_argument("--expect", help="fixture expectations JSON (e.g. tests/data/phase1_fixture.json)")
+    p.add_argument("--expect-faces", type=int, help="phase1: number of people visible in the fixture")
+    p.add_argument("--expect", help="phase1: fixture expectations JSON (e.g. tests/data/phase1_fixture.json)")
+    p.add_argument("--labels", help="phase2: ground-truth speaker labels JSON")
+    p.add_argument("--negative", help="phase2: a video in which nobody speaks (false-positive report)")
     p.add_argument("--start", type=float)
     p.add_argument("--end", type=float)
-    p.add_argument("--work", default="work/check-phase1")
+    p.add_argument("--work", help="work directory (default work/check-<phase>)")
     _common(p)
     return parser
 
@@ -63,10 +77,26 @@ def main(argv: list[str] | None = None) -> int:
         print(res["path"])
         return 0
 
+    if args.command == "speakers":
+        from clipper.speakers.run import run_speakers
+        print(run_speakers(args.work, cfg, backend=args.asd, force=args.force)["path"])
+        return 0
+
+    if args.command == "plan":
+        from clipper.plan.run import run_plan
+        print(run_plan(args.work, cfg, force=args.force)["path"])
+        return 0
+
     if args.command == "inspect":
-        from clipper.inspect import contact_sheet
-        out = args.out or str(Path(args.path).with_suffix(".png"))
-        print(contact_sheet(args.path, out, count=args.count))
+        if args.what == "detections":
+            from clipper.inspect import contact_sheet
+            out = args.out or str(Path(args.path).with_suffix(".png"))
+            print(contact_sheet(args.path, out, count=args.count))
+        else:
+            from clipper.inspect import plan_preview, plan_strip
+            print(plan_strip(args.path, args.out or Path(args.path) / "plan_strip.png", count=args.count))
+            if args.video:
+                print(plan_preview(args.path, Path(args.path) / "plan_preview.mp4"))
         return 0
 
     if args.command == "licenses":
@@ -83,9 +113,14 @@ def main(argv: list[str] | None = None) -> int:
         return 1 if bad or hits else 0
 
     if args.command == "check":
-        from clipper.checks.phase1 import run_check
-        return run_check(args.video, args.work, cfg, expect_faces=args.expect_faces, expect_file=args.expect,
-                         start=args.start, end=args.end)
+        work = args.work or f"work/check-{args.phase}"
+        if args.phase == "phase1":
+            from clipper.checks.phase1 import run_check
+            return run_check(args.video, work, cfg, expect_faces=args.expect_faces, expect_file=args.expect,
+                             start=args.start, end=args.end)
+        from clipper.checks.phase2 import run_check as run_check2
+        return run_check2(args.video, work, cfg, labels=args.labels, negative=args.negative,
+                          start=args.start, end=args.end)
     return 2
 
 
