@@ -464,6 +464,10 @@ clipper stream --url "https://www.youtube.com/watch?v=<id>" --work out/vod2
 
 - Chat replay is fetched automatically for Twitch and YouTube. For other
   sites, pass `--chat`. Without chat, audio (and a transcript) still work.
+  - Twitch: a built-in fetcher (`clipper/stream/twitch_chat.py`) asks
+    Twitch's public web API by time offset, in parallel. A 7-hour VOD takes a
+    few minutes.
+  - YouTube: chat-downloader.
 - The stream must be over (a VOD, not live).
 - Everything downloads on your machine, straight from the platform.
 - Downloads land in `WORK/source/` and are reused on re-runs. Delete the

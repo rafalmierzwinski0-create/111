@@ -167,3 +167,21 @@ def test_make_fetcher_picks_local_for_files(tmp_path):
     f.write_bytes(b"")
     assert isinstance(make_fetcher(str(f)), LocalFetcher)
     assert isinstance(make_fetcher("https://youtube.com/watch?v=x"), YtDlpFetcher)
+
+
+def test_twitch_chat_offset_paging(monkeypatch):
+    from clipper.stream import twitch_chat
+    # 3 messages per second for 100 s; pages return 10 comments starting at the requested second
+    data = [(f"id{s}_{k}", s + k / 3) for s in range(100) for k in range(3)]
+
+    def fake_page(video, offset, attempts=5):
+        rows = [d for d in data if d[1] >= offset][:10]
+        return {"edges": [{"node": {"id": i, "contentOffsetSeconds": int(t), "message": {"fragments": [{"text": "KEKW"}]}}}
+                          for i, t in rows]}
+
+    monkeypatch.setattr(twitch_chat, "_page", fake_page)
+    stats = {}
+    got = twitch_chat._chunk("1", 20, 50, stats)
+    assert len(got) == 90 and all(20 <= t < 50 for t, _ in got.values()) and not stats
+    assert twitch_chat.vod_id("https://www.twitch.tv/videos/2900094401") == "2900094401"
+    assert twitch_chat.vod_id("https://www.youtube.com/watch?v=x") is None

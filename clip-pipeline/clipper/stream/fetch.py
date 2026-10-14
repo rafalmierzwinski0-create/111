@@ -66,13 +66,20 @@ class YtDlpFetcher:
 
     def audio(self, out: Path) -> Path:
         out.parent.mkdir(parents=True, exist_ok=True)
-        self._run(["-f", "ba/b", "-x", "--audio-format", "m4a", "-o", str(out.with_suffix(".%(ext)s"))])
+        self._run(["-f", "ba/b", "-N", "8", "-x", "--audio-format", "m4a", "-o", str(out.with_suffix(".%(ext)s"))])
         final = out.with_suffix(".m4a")
         if not final.is_file():
             raise FetchError(f"yt-dlp did not produce {final}")
         return final
 
     def chat(self, out: Path) -> Path | None:
+        from clipper.stream import twitch_chat
+        if twitch_chat.vod_id(self.url):
+            try:
+                return twitch_chat.download(self.url, self.info()["duration"], out)
+            except Exception as exc:  # noqa: BLE001
+                log.warning("fetch: Twitch chat replay failed (%s); continuing without chat", exc)
+                return None
         try:
             from chat_downloader import ChatDownloader
         except ImportError:
@@ -94,7 +101,7 @@ class YtDlpFetcher:
     def section(self, start: float, end: float, out: Path) -> Path:
         out.parent.mkdir(parents=True, exist_ok=True)
         h = self.max_height
-        self._run(["-f", f"bv*[height<={h}]+ba/b[height<={h}]", "--download-sections", f"*{start:.2f}-{end:.2f}",
+        self._run(["-f", f"bv*[height<={h}]+ba/b[height<={h}]", "-N", "8", "--download-sections", f"*{start:.2f}-{end:.2f}",
                    "--force-keyframes-at-cuts", "--merge-output-format", "mp4", "-o", str(out)])
         if not out.is_file():
             raise FetchError(f"yt-dlp did not produce {out}")
