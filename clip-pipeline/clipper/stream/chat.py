@@ -47,9 +47,13 @@ def _from_items(items: list) -> list[tuple[float, str]]:
 def load_chat(path: str | Path) -> list[tuple[float, str]]:
     path = Path(path)
     raw = path.read_text(encoding="utf-8-sig", errors="replace")
-    stripped = raw.lstrip()
-    if stripped.startswith("{") or stripped.startswith("["):
-        data = json.loads(raw)
+    data = None
+    if raw.lstrip()[:1] in ("{", "["):
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError:
+            data = None  # e.g. a text log whose lines start with "[0:01:05]"
+    if data is not None:
         items = data.get("comments", data.get("messages", [])) if isinstance(data, dict) else data
         out = _from_items(items)
     else:

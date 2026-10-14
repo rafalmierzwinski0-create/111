@@ -24,6 +24,15 @@ source.mp4 + transcript.json
 Detection and speaker analysis only run on the selected moment, so a 90-minute
 source costs about the same as a 60-second one, plus decoding the audio once.
 
+There are two modes:
+
+- **Podcast mode** (`clipper run`, sections 2–7): long conversations. Picks
+  the best ~60 s *by what is said* and follows the speaker.
+- **Stream mode** (`clipper stream`, section 11): game and IRL stream VODs.
+  Picks several clips *by what happens*: the streamer gets loud, chat
+  explodes, someone yells "no way". Lays each clip out as facecam/avatar on
+  top and gameplay below, with captions burned in.
+
 ---
 
 ## 1. Installation
@@ -425,3 +434,172 @@ the scorer's reading of the text, not transcription.
 - Test fixtures (downloaded, not committed):
   `head-pose-face-detection-female-and-male.mp4` from intel-iot-devkit/sample-videos (CC BY 4.0),
   and talking-head example clips from OpenTalker/video-retalking.
+
+
+---
+
+## 11. Stream mode: clips from game streams
+
+```sh
+clipper stream --video vod.mp4 --chat chat.json [--transcript t.json] --work out/vod1 [--count 8] [--config profiles/<streamer>.yaml]
+```
+
+It writes `out/vod1/clips/clip_01.mp4`, `clip_02.mp4` and so on, best first,
+all 1080×1920 and ready for Shorts. It also writes `signals.png` (why those
+moments) and `layout_preview.png` (what goes where).
+
+### 11.1 Getting the VOD and the chat
+
+| Platform | VOD | Chat |
+| --- | --- | --- |
+| Twitch | [TwitchDownloader](https://github.com/lay295/TwitchDownloader) (MIT): `TwitchDownloaderCLI videodownload --id <vod id> -o vod.mp4` | `TwitchDownloaderCLI chatdownload --id <vod id> -o chat.json` |
+| YouTube | [yt-dlp](https://github.com/yt-dlp/yt-dlp): `yt-dlp -f "bv*[height<=1080]+ba" -o vod.mp4 <url>` | [chat-downloader](https://github.com/xenova/chat-downloader) (MIT): `chat_downloader <url> --output chat.json` |
+| Kick / other | any downloader | chat-downloader JSON, or a text log with `[h:mm:ss] user: message` lines |
+
+The chat is optional, but it is the best signal there is, so use it when you
+can. Twitch VODs expire, so download soon after the stream. A transcript is
+also optional. With one you get burned-in captions and a "said: no way"
+signal. Any local Whisper works (section 3).
+
+### 11.2 How moments are found
+
+One value per second over the whole VOD (`signals.png` shows them):
+
+- **audio**: how much louder than the last two minutes the stream is. The
+  streamer shouting, laughing or screaming.
+- **chat**: messages per second against the chat's own normal rate. Messages
+  with hype emotes (KEKW, OMEGALUL, "NO WAY", "CLIP IT", 💀 …) count double.
+  Shifted back by the chat's reaction delay.
+- **speech** (with a transcript): "no way", "let's go", "oh my god",
+  laughter, "nie wierzę", "co to było" …
+
+The weighted mix's peaks become clips:
+
+- Each clip starts **12 s before** the peak, so the build-up is in.
+- Each clip runs on while the hype lasts, between 15 and 55 s.
+- Clips start and end on the quietest moment nearby, never mid-word.
+- The best `count` clips that do not overlap are kept.
+
+A loud explosion in the game with no reaction in chat, or a busy chat
+during a sub train with a calm streamer, scores below real moments.
+
+### 11.3 Layouts
+
+| Layout | What you get | When `auto` picks it |
+| --- | --- | --- |
+| `stacked` | Facecam or avatar on top (35 % of the height), gameplay below, captions on the seam. | A face sits in the same spot across the VOD (facecam). A tall avatar or face is shown whole (`contain`) instead of being sliced. |
+| `fit` | The whole stream picture, full width, on a blurred background. Shows everything wherever it is. | No facecam found. |
+| `gameplay` | A 9:16 crop of the game only (crosshair centred). | Never; use `--layout gameplay`. |
+| `follow` | The podcast pipeline's speaker-following crop. | The camera is the main picture (IRL / just chatting). |
+
+The facecam is found automatically. Frames are sampled across the VOD, faces
+are searched in overlapping tiles (a facecam face is small), and the cam's
+rectangle is found from edges that stay put while the game changes, so the
+gameplay crop avoids it.
+
+If it guesses wrong, or a VTuber avatar is not seen as a face, set it once:
+
+```sh
+clipper stream-setup vod.mp4              # writes frame_grid.png with a 5 % grid
+clipper stream --video vod.mp4 --chat chat.json --facecam 0.78,0.62,0.20,0.36
+```
+
+You can also put `facecam: [0.78, 0.62, 0.20, 0.36]` in the streamer's
+profile.
+
+### 11.4 Streamer profiles
+
+`profiles/theburntpeanut.yaml` is a starting profile for TheBurntPeanut:
+
+- extraction shooters, a big chat, and the peanut avatar;
+- 8 clips per VOD, a longer pre-roll for fights, and extra emotes;
+- layout `auto`, which uses `stacked` when the avatar is detected and `fit`
+  otherwise. Fill in `facecam` once you have read his avatar's position off
+  `frame_grid.png`.
+
+Copy the profile for other streamers.
+
+### 11.5 Re-running
+
+The same fingerprint rules as podcast mode apply (section 4.1). Stages are
+`signals`, `moments`, `layout` and `render`, and `--from STAGE` forces one.
+For example, change the captions style and run `--from render`: the VOD's
+audio is not decoded again.
+
+### 11.6 Output files (stream mode)
+
+| File | Contents |
+| --- | --- |
+| `clips/clip_NN.mp4` | The clips, best first. H.264 + AAC, 1080×1920. |
+| `clips/clip_NN.ass` | The captions burned into that clip (ASS subtitles; edit and `--from render` to re-burn). |
+| `stream_signals.json` | Per second: audio, chat and speech scores, the combined hype, top chat tokens. Loudness per 0.1 s. |
+| `stream_moments.json` | The chosen clips: peak, start/end, score, per-signal values, and reasons ("chat exploded (11.9× its usual rate; KEKW×10)"). |
+| `stream_plan.json` | The layout, why it was chosen, the facecam detection details, and the source → output regions. |
+| `stream_render_log.json` | The ffmpeg filter graph used for each clip. |
+| `stream_run_log.json` | What ran, timings, and the clip list. |
+| `signals.png` | The signals over the whole VOD, with the chosen clips shaded. |
+| `layout_preview.png` | A source frame with the regions drawn, next to the resulting vertical frame. |
+
+### 11.7 Stream options (`stream.*`)
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `layout` | `auto` | `auto`, `fit`, `stacked`, `gameplay` or `follow`. |
+| `facecam` | null | `[x, y, w, h]` (fractions of the frame) of the facecam / avatar; enables `stacked`. |
+| `cam_height` | 0.35 | `stacked`: share of the output height for the cam panel. |
+| `cam_scale` | 2.6 | `stacked`, face found but no overlay border: cam panel height in face heights. |
+| `gameplay_x` | 0.5 | Horizontal centre of the gameplay crop. |
+| `gameplay_zoom` | 1.0 | `stacked`: 1.0 = full source height; 1.3 = 30 % closer. |
+| `fit_y` / `fit_blur` | 0.6 / 30 | `fit`: vertical position of the picture, background blur. |
+| `detect_samples` / `detect_min_presence` | 40 / 0.4 | Frames sampled for facecam detection; share of them a face must appear in, in the same place. |
+| `signals.weights` | audio 0.45, chat 0.40, speech 0.15 | Mix of the signals (renormalised over the ones you have). |
+| `signals.audio_baseline_s` | 120 | Rolling loudness baseline. |
+| `signals.audio_excess_min_db` / `audio_excess_full_db` | 4 / 16 | dB above baseline where the audio score starts / is full. |
+| `signals.audio_floor_db` | −50 | Quieter than this is never hype. |
+| `signals.chat_delay_s` | 4 | Chat reacts this long after the moment. |
+| `signals.chat_smooth_s` / `chat_baseline_s` | 5 / 300 | Chat-rate smoothing and baseline window. |
+| `signals.chat_z_full` | 6 | Robust z-score at which chat counts fully. |
+| `signals.hype_weight` | 2 | A message with a hype token counts this many messages. |
+| `signals.hype_tokens` | Twitch emotes and slang | Emotes / words that mark hype (lower-case match). |
+| `signals.smooth_s` | 3 | Smoothing of the combined signal. |
+| `moments.count` | 5 | Clips per VOD (`--count`). |
+| `moments.min_hype` | 0.35 | Peaks below this are not clips. |
+| `moments.min_gap_s` | 45 | Peaks closer than this are one moment. |
+| `moments.pre_roll_s` / `post_roll_s` | 12 / 8 | Seconds before / after the peak. |
+| `moments.min_s` / `max_s` | 15 / 55 | Clip length bounds. |
+| `captions.enabled` | true | Burn in captions when a transcript is given. |
+| `captions.words_per_line` | 3 | Words shown at once. |
+| `captions.font` / `size` / `outline` | DejaVu Sans / 78 / 6 | Look (any installed font). |
+| `captions.color` / `highlight` | FFFFFF / FFE135 | Text colour and the colour of the word being spoken (RRGGBB). |
+| `captions.uppercase` | true | All caps. |
+| `captions.y` | null | Vertical position (fraction); null = where the layout leaves room. |
+| `output.*` | 1080×1920, H.264 CRF 20, AAC 192k, ≤ 60 fps | Encoding. |
+
+### 11.8 Verification
+
+```sh
+python scripts/make_stream_fixture.py --cam human                   # 6 min synthetic stream, planted moments + decoys
+python scripts/make_stream_fixture.py --cam avatar --duration 120   # VTuber-style drawn avatar
+clipper check stream fixtures/stream_human.mp4 --chat fixtures/stream_human_chat.json \
+    --transcript fixtures/stream_human_transcript.json --labels fixtures/stream_human_labels.json \
+    --avatar fixtures/stream_avatar.mp4
+```
+
+The check verifies the following:
+
+- all planted moments are found with their build-up;
+- the decoys (a game explosion without reactions, a sub train) are not
+  picked;
+- the facecam overlay is found where it is, and the gameplay crop avoids it;
+- every clip's format, duration and captions;
+- the cam panel's pixels against the source;
+- re-use of intermediate files;
+- the avatar and `fit` cases.
+
+### 11.9 Clipping other people's streams
+
+Clips are the streamer's content. Before posting, and especially before
+monetising, check the streamer's rules for clippers (Discord, channel
+descriptions) or ask. YouTube can also limit monetisation of "reused
+content". Captions, a good choice of moments and your own edits help, but
+they do not replace permission. Music playing on stream can trigger Content ID.

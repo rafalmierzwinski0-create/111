@@ -781,3 +781,56 @@ every other option in README section 6, which is the complete reference.
    re-ranker is language-agnostic.
 5. **Variable frame rate sources.** Timestamps come from the decoder's
    presentation times, so VFR is handled, but the renderer outputs CFR.
+
+---
+
+## 9. Extension: stream mode (`clipper stream`)
+
+Added after Phase 3 for clipping game/IRL stream VODs. The hard constraints in
+section 2 apply unchanged: local only, permissive licences, MediaPipe for
+faces, and contract files with fingerprints.
+
+- **Moments by hype, not by sentences.** The audio is decoded once for the
+  whole VOD and gives three per-second signals:
+  - audio loudness over a rolling baseline;
+  - the chat's message rate against its own baseline (robust z-score), with
+    hype emotes weighted and shifted back by the chat delay;
+  - transcript exclamations and laughter.
+
+  Peaks of the weighted mix become clips:
+  - pre-roll before the peak for the build-up;
+  - extended while the hype lasts;
+  - both ends snapped to the quietest nearby block and out of words;
+  - several non-overlapping clips per VOD.
+- **Layouts.**
+  - `stacked`: facecam/avatar on top, gameplay below.
+  - `fit`: the whole picture on a blurred background.
+  - `gameplay`: a 9:16 game crop.
+  - `follow`: the podcast pipeline.
+
+  Facecam detection:
+  - looks for faces in overlapping tiles, because a facecam face is too
+    small for the landmarker's detector on the full frame;
+  - keeps a face that stays in the same place across sampled frames;
+  - finds the overlay rectangle from persistent edges;
+  - shows tall avatars/faces whole (`contain`) instead of slicing them.
+- **Rendering.** One ffmpeg pass per clip, because static layouts need no
+  per-frame work. Captions are burned in from transcript word timings (ASS,
+  word highlighting).
+- **Contracts:** `stream_signals`, `stream_moments`, `stream_plan`,
+  `stream_render_log` (`clipper/schemas/`).
+- **Check (`clipper check stream`).** Runs on a synthetic 6-minute stream: a
+  procedural shooter with a real talking-head facecam, a TwitchDownloader-style
+  chat, 4 planted moments and 2 decoys. A VTuber-style variant uses a drawn
+  avatar. The check verifies:
+  - the planted moments are found and the decoys are not;
+  - the facecam overlay is found (IoU 0.98), and the gameplay crop avoids it;
+  - the outputs and their cam panel pixels against the source;
+  - captions and reuse.
+- **Risks.**
+  - Real streams have game audio as loud as the streamer, music, and
+    multi-hour baselines.
+  - The defaults have only been tuned on the synthetic stream, so the first
+    real VODs should be reviewed with `signals.png`.
+  - Whether a given VTuber avatar is detected as a face is unknown until
+    tried; `stream.facecam` covers it.

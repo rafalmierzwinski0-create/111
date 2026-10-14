@@ -43,6 +43,25 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--offline", action="store_true", help="block all network access outside this machine")
     _common(p)
 
+    p = sub.add_parser("stream", help="stream mode: several vertical clips from a game/IRL stream VOD")
+    p.add_argument("--video", required=True, help="the stream VOD")
+    p.add_argument("--chat", help="chat log (TwitchDownloader / chat-downloader JSON, or timestamped text)")
+    p.add_argument("--transcript", help="transcript (enables the speech signal and burned-in captions)")
+    p.add_argument("--work", default="work/stream", help="work directory")
+    p.add_argument("--count", type=int, help="how many clips (default stream.moments.count)")
+    p.add_argument("--layout", choices=["auto", "fit", "stacked", "gameplay", "follow"])
+    p.add_argument("--facecam", help="facecam / avatar region x,y,w,h as fractions of the frame, e.g. 0.78,0.62,0.2,0.36")
+    p.add_argument("--from", dest="from_stage", choices=["signals", "moments", "layout", "render"],
+                   help="re-run this stage and every later one")
+    p.add_argument("--offline", action="store_true", help="block all network access outside this machine")
+    _common(p)
+
+    p = sub.add_parser("stream-setup", help="frame with a coordinate grid, to read the facecam/avatar region off")
+    p.add_argument("video")
+    p.add_argument("--out", default="frame_grid.png")
+    p.add_argument("--at", type=float, help="time in seconds (default: middle of the video)")
+    _common(p)
+
     p = sub.add_parser("select", help="Phase 3: pick the moment -> WORK/moment.json")
     p.add_argument("--video", required=True)
     p.add_argument("--transcript", required=True)
@@ -95,13 +114,15 @@ def build_parser() -> argparse.ArgumentParser:
     _common(p)
 
     p = sub.add_parser("check", help="run a phase checkpoint verification")
-    p.add_argument("phase", choices=["phase1", "phase2", "phase3"])
+    p.add_argument("phase", choices=["phase1", "phase2", "phase3", "stream"])
     p.add_argument("video")
     p.add_argument("--expect-faces", type=int, help="phase1: number of people visible in the fixture")
     p.add_argument("--expect", help="phase1: fixture expectations JSON (e.g. tests/data/phase1_fixture.json)")
-    p.add_argument("--labels", help="phase2: ground-truth speaker labels JSON")
+    p.add_argument("--labels", help="phase2: ground-truth speaker labels JSON; stream: planted moments JSON")
     p.add_argument("--negative", help="phase2: a video in which nobody speaks (false-positive report)")
-    p.add_argument("--transcript", help="phase3: the transcript of VIDEO")
+    p.add_argument("--transcript", help="phase3 / stream: the transcript of VIDEO")
+    p.add_argument("--chat", help="stream: chat log of VIDEO")
+    p.add_argument("--avatar", help="stream: a VOD with a VTuber-style avatar instead of a face")
     p.add_argument("--start", type=float)
     p.add_argument("--end", type=float)
     p.add_argument("--work", help="work directory (default work/check-<phase>)")
@@ -135,6 +156,26 @@ def main(argv: list[str] | None = None) -> int:
         for r in m["reasons"]:
             print(f"  - {r}")
         print("stages: " + ", ".join(f"{e['stage']} {'ran' if e['ran'] else 'reused'}" for e in res["stages"]))
+        return 0
+
+    if args.command == "stream":
+        from clipper.stream.run import run_stream
+        cam = [float(v) for v in args.facecam.split(",")] if args.facecam else None
+        if cam and len(cam) != 4:
+            raise SystemExit("--facecam needs four numbers: x,y,w,h")
+        res = run_stream(args.video, args.work, cfg, chat=args.chat, transcript=args.transcript, count=args.count,
+                         layout=args.layout, facecam=cam, from_stage=args.from_stage)
+        print(f"layout: {res['layout']} ({res['layout_reason']})")
+        for c in res["clips"]:
+            print(f"#{c['rank']}  {c['start']:8.1f}-{c['end']:8.1f}s ({c['duration']:.0f}s)  score {c['score']:.2f}  {c['output']}")
+            for r in c["reasons"]:
+                print(f"      - {r}")
+        print("stages: " + ", ".join(f"{e['stage']} {'ran' if e['ran'] else 'reused'}" for e in res["stages"]))
+        return 0
+
+    if args.command == "stream-setup":
+        from clipper.stream.setup import frame_grid
+        print(frame_grid(args.video, args.out, args.at))
         return 0
 
     if args.command == "select":
@@ -208,6 +249,12 @@ def main(argv: list[str] | None = None) -> int:
             from clipper.checks.phase1 import run_check
             return run_check(args.video, work, cfg, expect_faces=args.expect_faces, expect_file=args.expect,
                              start=args.start, end=args.end)
+        if args.phase == "stream":
+            from clipper.checks.stream import run_check as run_check_stream
+            if not (args.transcript and args.chat and args.labels):
+                raise SystemExit("check stream needs --chat, --transcript and --labels")
+            return run_check_stream(args.video, args.chat, args.transcript, args.labels, work, avatar=args.avatar,
+                                    config_path=args.config)
         if args.phase == "phase3":
             from clipper.checks.phase3 import run_check as run_check3
             if not args.transcript:

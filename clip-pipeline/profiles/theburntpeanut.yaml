@@ -1,0 +1,24 @@
+# Profile for clipping TheBurntPeanut's streams (FPS / extraction shooters, VTuber peanut avatar).
+#   clipper stream --video vod.mp4 --chat chat.json --config profiles/theburntpeanut.yaml
+#
+# His avatar is a 3D peanut with real eyes and mouth, which face detection does
+# not reliably find, so this profile defaults to `fit`: the whole stream frame
+# (game + avatar wherever it is) on a blurred background.
+#
+# For the "avatar on top, game below" look: run `clipper stream-setup vod.mp4`,
+# read the avatar's rectangle off frame_grid.png (fractions of the frame), and
+# fill in facecam below, e.g. [0.78, 0.62, 0.20, 0.36]. Layout auto then uses stacked.
+stream:
+  layout: auto
+  facecam: null
+  signals:
+    chat_delay_s: 5.0            # big chat: reactions arrive a bit later
+    chat_z_full: 5.0
+    hype_tokens: [kekw, lul, lulw, omegalul, lmao, lmfao, lol, xd, pog, pogchamp, poggers, pogu, w, ww, www, l, clip, clipit,
+                  "clip it", monkas, sadge, icant, "no way", omg, holy, insane, "?", "??", "???", wtf, nooo, letsgo, "lets go", gg, ez,
+                  peanut, nut, "💀", "😂", "🤣", "🥜"]
+  moments:
+    count: 8                     # long streams: more clips per VOD
+    pre_roll_s: 14               # shooters: show the fight before the reaction
+    post_roll_s: 8
+    max_s: 58
