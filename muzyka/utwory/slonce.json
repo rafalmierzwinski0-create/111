@@ -1,0 +1,69 @@
+{
+  "tytul": "Słońce",
+  "inspiracja": "Calvin Harris – jasny, letni pop-house: stabsy fortepianu z lat 90., funkowy bas, chwytliwy hook supersaw",
+  "bpm": 124,
+  "swing": 0.06,
+  "zestaw": "909",
+  "poglos": {"czas": 2.2, "predelay": 20, "ton": 8000},
+  "master": {"lufs": -8.5},
+
+  "instrumenty": {
+    "piano":    {"barwa": "fortepian", "glosnosc": -5, "rejestr": [55, 79], "humanizacja": 4},
+    "organy":   {"barwa": "organy", "glosnosc": -14, "rejestr": [55, 79]},
+    "bas":      {"barwa": "moog_bas", "glosnosc": -3, "rejestr": [33, 48]},
+    "lead":     {"barwa": "supersaw", "glosnosc": -7},
+    "chop":     {"barwa": "vox_a", "glosnosc": -9, "delay": 0.3},
+    "smyczki":  {"barwa": "smyczki", "glosnosc": -12}
+  },
+
+  "progresje": {
+    "A": "Am9 | Dm9 | Gsus4:8 G:8 | Cmaj9 | Fmaj9 | Dm9 | Esus4:8 E:8 | E7"
+  },
+
+  "wzory": {
+    "piano_A":   {"typ": "akordy", "instrument": "piano", "progresja": "A", "rytm": "x-.x-.x-..x-.x-."},
+    "piano_dlugo": {"typ": "akordy", "instrument": "piano", "progresja": "A", "rytm": "x-------o-------", "lewa_reka": true},
+    "organy_A":  {"typ": "akordy", "instrument": "organy", "progresja": "A", "rytm": "x-.x-.x-..x-.x-."},
+    "bas_A":     {"typ": "bas", "instrument": "bas", "progresja": "A", "rytm": "x-.o-.x-..o.x-o.", "legato": 0.85},
+    "smyczki_A": {"typ": "akordy", "instrument": "smyczki", "progresja": "A"},
+
+    "hook": {"typ": "melodia", "instrument": "lead", "nuty": [
+      "E5:2 G5:2 A5:2 C6:3 B5:3 A5:2 G5:2",
+      "A5:3 F5:3 E5:2 D5:2 E5:2 F5:4",
+      "G5:2 C6:2 D6:2 C6:3 B5:3 G5:4",
+      "E5:3 G5:3 B5:2 D6:4 r:4",
+      "A5:2 C6:2 E6:2 D6:3 C6:3 A5:2 G5:2",
+      "A5:3 F5:3 E5:2 D5:2 E5:2 F5:4",
+      "E5:2 A5:2 B5:2 A5:3 G#5:3 E5:4",
+      "G#5:6 B5:2 D6:4 E6:4"
+    ]},
+    "chop_A": {"typ": "melodia", "instrument": "chop", "legato": 0.7, "nuty": [
+      "r:2 E5:1 E5:1 r:2 G5:2 A5:4 r:4",
+      "r:2 F5:1 F5:1 r:2 A5:2 C6:4 r:4",
+      "r:2 D5:1 D5:1 r:2 G5:2 B5:4 r:4",
+      "r:2 E5:1 E5:1 r:2 G5:2 E5:8",
+      "r:2 C5:1 C5:1 r:2 F5:2 A5:4 r:4",
+      "r:2 D5:1 D5:1 r:2 F5:2 A5:4 r:4",
+      "r:2 B4:1 B4:1 r:2 E5:2 G#5:4 r:4",
+      "r:2 D5:1 D5:1 r:2 E5:2 G#5:8"
+    ]},
+
+    "beat_intro": {"typ": "bebny", "kick": "x...x...x...x...", "ohat": "..x...x...x...x.", "shaker": "ogxgogxgogxgogxg"},
+    "beat_zwrotka": {"typ": "bebny", "kick": "x...x...x...x...", "clap": "....x.......x...", "hat": "gogogogogogogogo",
+                     "shaker": "ogxgogxgogxgogxg", "tamb": "....o.......o..."},
+    "beat_drop": {"typ": "bebny", "kick": "x...x...x...x...", "clap": "....x.......x...", "ohat": "..x...x...x...x.",
+                  "hat": "gogogogogogogogo", "shaker": "ogxgogxgogxgogxg", "tamb": "....x.......x..."},
+    "roll": {"typ": "roll", "instrument": "snare", "glosnosc": 0.8}
+  },
+
+  "aranzacja": [
+    {"sekcja": "intro",   "takty": 8,  "graja": ["beat_intro", "piano_A"], "filtr": {"*": [500, 3000]}},
+    {"sekcja": "zwrotka", "takty": 16, "graja": ["beat_zwrotka", "bas_A", "piano_A", "chop_A"]},
+    {"sekcja": "build",   "takty": 8,  "graja": ["piano_A", "smyczki_A", "chop_A", "roll"], "filtr": {"*": [1200, 16000]}, "fx": ["riser", "odwrocony", "cisza"]},
+    {"sekcja": "drop",    "takty": 16, "graja": ["beat_drop", "bas_A", "piano_A", "organy_A", "hook"], "fx": ["crash", "uderzenie"]},
+    {"sekcja": "przerwa", "takty": 8,  "graja": ["piano_dlugo", "smyczki_A", "chop_A"], "fx": ["crash"]},
+    {"sekcja": "build 2", "takty": 8,  "graja": ["piano_A", "smyczki_A", "hook", "roll"], "filtr": {"*": [900, 16000]}, "fx": ["riser", "odwrocony", "cisza"]},
+    {"sekcja": "drop 2",  "takty": 16, "graja": ["beat_drop", "bas_A", "piano_A", "organy_A", "hook", "chop_A"], "fx": ["crash", "uderzenie"]},
+    {"sekcja": "outro",   "takty": 8,  "graja": ["beat_intro", "bas_A", "piano_A"], "filtr": {"*": [12000, 400]}, "glosnosc": {"*": [0, -8]}}
+  ]
+}

@@ -29,3 +29,6 @@ __pycache__/
 
 # Wyrenderowane utwory z pipeline muzyki: duże pliki audio, odtwarzalne z JSON + seeda.
 muzyka/wyjscie/
+
+# Biblioteka sampli pobierana z npm przy pierwszym renderze (ok. 80 MB).
+muzyka/sample/

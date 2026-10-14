@@ -1,0 +1,64 @@
+{
+  "tytul": "Wiadomość",
+  "inspiracja": "Fred again.. – emocjonalny fortepian, garage 2-step przechodzący w euforyczne 4x4, pocięte wokale, breakbeat, ciepły szum winylu",
+  "bpm": 132,
+  "swing": 0.14,
+  "zestaw": "garage",
+  "poglos": {"czas": 2.8, "predelay": 20, "ton": 6000},
+  "master": {"lufs": -9.0},
+
+  "instrumenty": {
+    "piano":  {"barwa": "fortepian", "glosnosc": -4, "rejestr": [55, 79], "humanizacja": 7, "sidechain": 0.55},
+    "sub":    {"barwa": "sub", "glosnosc": -4, "rejestr": [27, 39]},
+    "chop":   {"barwa": "vox_a", "glosnosc": -8, "delay": 0.25, "poglos": 0.35},
+    "chor":   {"barwa": "vox_u", "glosnosc": -13, "rejestr": [58, 79]},
+    "stab":   {"barwa": "supersaw", "glosnosc": -12, "rejestr": [58, 82], "sidechain": 0.7},
+    "breaks": {"barwa": "petla:sp/loop_amen", "glosnosc": -11, "hp": 250},
+    "winyl":  {"barwa": "tekstura:sp/vinyl_hiss", "glosnosc": -27}
+  },
+
+  "progresje": {
+    "AB": "Abmaj9 | Bb6 | Gm11 | Cm9 | Abmaj9 | Bb/D | Ebmaj9/G | Cm9:8 Bb:8"
+  },
+
+  "wzory": {
+    "piano_AB":   {"typ": "akordy", "instrument": "piano", "progresja": "AB", "rytm": "x-----x-..x---x-", "lewa_reka": true},
+    "piano_solo": {"typ": "akordy", "instrument": "piano", "progresja": "AB", "rytm": "x-------o---g---", "lewa_reka": "oktawa", "glosnosc": 0.8},
+    "sub_2step":  {"typ": "bas", "instrument": "sub", "progresja": "AB", "rytm": "x-------..x-----"},
+    "sub_dlugi":  {"typ": "bas", "instrument": "sub", "progresja": "AB", "rytm": "x---------------"},
+    "stab_AB":    {"typ": "akordy", "instrument": "stab", "progresja": "AB", "rytm": "x..x..x...x..x..", "bez_prymy": false},
+    "chor_AB":    {"typ": "akordy", "instrument": "chor", "progresja": "AB", "glosnosc": 0.7},
+
+    "chop_AB": {"typ": "melodia", "instrument": "chop", "legato": 0.75, "nuty": [
+      "Eb5:1 Eb5:1 r:1 Eb5:1 r:2 G5:2 F5:2 Eb5:2 C5:4",
+      "D5:1 D5:1 r:1 D5:1 r:2 F5:2 G5:2 F5:2 D5:4",
+      "Bb4:1 Bb4:1 r:1 Bb4:1 r:2 D5:2 F5:2 D5:2 C5:4",
+      "C5:1 C5:1 r:1 C5:1 r:2 Eb5:2 G5:4 r:4",
+      "Eb5:1 Eb5:1 r:1 Eb5:1 r:2 G5:2 F5:2 Eb5:2 C5:4",
+      "D5:1 D5:1 r:1 D5:1 r:2 F5:2 G5:2 F5:2 D5:4",
+      "G5:1 G5:1 r:1 G5:1 r:2 Bb5:2 G5:2 F5:2 Eb5:4",
+      "C5:1 C5:1 r:1 C5:1 r:2 Eb5:2 D5:4 Bb4:4"
+    ]},
+
+    "beat_2step": {"typ": "bebny", "kick": "x.........x.....", "clap": "....x.......x...", "snap": "....x.......x...",
+                   "hat": "..x..gx...x..gx.", "shaker": "gogggogggogggogg", "rim": "...o.....o..o..."},
+    "beat_drop":  {"typ": "bebny", "kick": "x...x...x...x...", "clap": "....x.......x...", "snap": "....x.......x...",
+                   "hat": "..x..gx...x..gx.", "ohat": "..x...x...x...x.", "shaker": "gogggogggogggogg"},
+    "petla_breaks": {"typ": "petla", "instrument": "breaks"},
+    "tekstura":     {"typ": "tekstura", "instrument": "winyl"},
+    "roll": {"typ": "roll", "instrument": "snare", "glosnosc": 0.7}
+  },
+
+  "aranzacja": [
+    {"sekcja": "intro",   "takty": 8,  "graja": ["piano_AB", "chop_AB", "tekstura"], "filtr": {"*": [500, 2500]}},
+    {"sekcja": "zwrotka", "takty": 16, "graja": ["beat_2step", "sub_2step", "piano_AB", "chop_AB", "tekstura"]},
+    {"sekcja": "build",   "takty": 8,  "graja": ["piano_AB", "petla_breaks", "chor_AB", "chop_AB", "tekstura"],
+     "filtr": {"*": [900, 16000]}, "hp": {"breaks": [600, 200]}, "fx": ["riser", "odwrocony", "cisza"]},
+    {"sekcja": "drop",    "takty": 16, "graja": ["beat_drop", "sub_dlugi", "piano_AB", "stab_AB", "chop_AB", "tekstura"], "fx": ["crash", "uderzenie"]},
+    {"sekcja": "przerwa", "takty": 8,  "graja": ["piano_solo", "chor_AB", "tekstura"], "fx": ["crash"]},
+    {"sekcja": "build 2", "takty": 8,  "graja": ["piano_AB", "petla_breaks", "chop_AB", "roll", "tekstura"],
+     "filtr": {"*": [900, 16000]}, "fx": ["riser", "odwrocony", "cisza"]},
+    {"sekcja": "drop 2",  "takty": 16, "graja": ["beat_drop", "petla_breaks", "sub_dlugi", "piano_AB", "stab_AB", "chop_AB", "chor_AB", "tekstura"], "fx": ["crash", "uderzenie"]},
+    {"sekcja": "outro",   "takty": 8,  "graja": ["piano_solo", "chop_AB", "tekstura"], "filtr": {"*": [6000, 600]}, "glosnosc": {"*": [0, -14]}}
+  ]
+}

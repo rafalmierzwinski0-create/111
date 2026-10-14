@@ -1,0 +1,68 @@
+{
+  "tytul": "Głębia",
+  "inspiracja": "RÜFÜS DU SOL – melancholijny deep/progressive house, szerokie pady, toczący się bas, duże pogłosy",
+  "bpm": 120,
+  "swing": 0.03,
+  "zestaw": "deep",
+  "poglos": {"czas": 4.2, "predelay": 35, "ton": 5500},
+  "master": {"lufs": -9.5},
+
+  "instrumenty": {
+    "pad":    {"barwa": "juno_pad"},
+    "bas":    {"barwa": "moog_bas", "rejestr": [30, 45]},
+    "arp":    {"barwa": "pluck", "glosnosc": -14, "pan": -0.15, "delay": 0.35},
+    "hook":   {"barwa": "pluck", "glosnosc": -8, "delay": 0.3, "poglos": 0.35, "szerokosc": 1.3},
+    "chor":   {"barwa": "vox_u", "glosnosc": -12, "rejestr": [60, 79], "chorus": 0.4},
+    "wokal":  {"barwa": "vox_o", "glosnosc": -9, "humanizacja": 8},
+    "piano":  {"barwa": "fortepian", "glosnosc": -7, "poglos": 0.4, "humanizacja": 6}
+  },
+
+  "progresje": {
+    "A": "F#m9 | F#m9 | Dmaj9 | Dmaj9 | Bm11 | Bm11 | C#7sus4 | C#m7"
+  },
+
+  "wzory": {
+    "pad_A":   {"typ": "akordy", "instrument": "pad", "progresja": "A"},
+    "chor_A":  {"typ": "akordy", "instrument": "chor", "progresja": "A", "glosnosc": 0.7},
+    "piano_A": {"typ": "akordy", "instrument": "piano", "progresja": "A", "rytm": "x-------o-----g-", "lewa_reka": true, "glosnosc": 0.7},
+    "bas_A":   {"typ": "bas", "instrument": "bas", "progresja": "A", "rytm": ".xxo.xxx.xxo.xox", "legato": 0.8},
+    "bas_dlugi": {"typ": "bas", "instrument": "bas", "progresja": "A", "rytm": "x---------------"},
+    "arp_A":   {"typ": "arp", "instrument": "arp", "progresja": "A", "rytm": "xoxoxoxoxoxoxoxo", "kolejnosc": "gora_dol", "oktawy": 2, "rejestr": [61, 88]},
+
+    "hook_A": {"typ": "melodia", "instrument": "hook", "nuty": [
+      "C#6:3 B5:3 A5:2 G#5:3 A5:3 E5:2", "E5:3 F#5:3 G#5:2 A5:8",
+      "C#6:3 B5:3 A5:2 F#5:3 A5:3 E5:2", "E5:3 F#5:3 A5:2 F#5:8",
+      "D6:3 C#6:3 B5:2 F#5:3 A5:3 E5:2", "E5:3 D5:3 E5:2 F#5:8",
+      "C#6:3 B5:3 G#5:2 F#5:3 G#5:3 B5:2", "G#5:3 E5:3 C#5:2 C#5:8"
+    ]},
+    "wokal_A": {"typ": "melodia", "instrument": "wokal", "nuty": [
+      "r:4 C#5:4 E5:4 F#5:4", "G#5:10 r:2 F#5:2 E5:2",
+      "F#5:12 r:4", "E5:4 C#5:6 r:6",
+      "r:4 D5:4 E5:4 F#5:4", "A5:10 r:2 F#5:2 E5:2",
+      "F#5:6 G#5:6 B5:4", "G#5:12 r:4"
+    ]},
+
+    "beat_intro": {"typ": "bebny", "kick": "x...x...x...x...", "hat": "..x...x...x...x.", "shaker": "ogxgogxgogxgogxg"},
+    "beat_zwrotka": {"typ": "bebny", "kick": "x...x...x...x...", "hat": "..x...x...x...x.", "shaker": "ogxgogxgogxgogxg",
+                     "rim": "...o..o...o..o..", "clap": "....o.......o..."},
+    "beat_drop": {"typ": "bebny", "kick": "x...x...x...x...", "clap": "....x.......x...", "ohat": "..x...x...x...x.",
+                  "hat": "gogogogogogogogo", "shaker": "ogxgogxgogxgogxg", "rim": "...o..o...o..o.."},
+    "beat_drop2": {"typ": "bebny", "kick": "x...x...x...x...", "clap": "....x.......x...", "ohat": "..x...x...x...x.",
+                   "hat": "gogogogogogogogo", "shaker": "ogxgogxgogxgogxg", "rim": "...o..o...o..o..", "ride": "x.o.x.o.x.o.x.o."},
+    "roll": {"typ": "roll", "instrument": "snare", "glosnosc": 0.8}
+  },
+
+  "aranzacja": [
+    {"sekcja": "intro",   "takty": 8,  "graja": ["pad_A", "arp_A", "chor_A"], "filtr": {"*": [300, 1800]}, "glosnosc": {"*": [-12, 0]}},
+    {"sekcja": "intro 2", "takty": 8,  "graja": ["pad_A", "arp_A", "beat_intro", "bas_dlugi"], "filtr": {"*": [1200, 4000]}},
+    {"sekcja": "zwrotka", "takty": 16, "graja": ["pad_A", "bas_A", "arp_A", "beat_zwrotka", "wokal_A"], "filtr": {"arp": [1500, 3500], "bas": [400, 1500]}},
+    {"sekcja": "build",   "takty": 8,  "graja": ["pad_A", "bas_A", "arp_A", "chor_A", "roll"], "filtr": {"*": [1500, 14000]},
+     "hp": {"bas": [30, 300]}, "fx": ["riser", "odwrocony", "cisza"]},
+    {"sekcja": "drop",    "takty": 16, "graja": ["pad_A", "bas_A", "hook_A", "arp_A", "chor_A", "beat_drop"], "fx": ["crash", "uderzenie"]},
+    {"sekcja": "przerwa", "takty": 16, "graja": ["piano_A", "pad_A", "wokal_A", "chor_A"], "filtr": {"pad": [900, 900]}, "fx": ["crash"]},
+    {"sekcja": "build 2", "takty": 8,  "graja": ["pad_A", "bas_A", "arp_A", "wokal_A", "roll"], "filtr": {"*": [1200, 14000]},
+     "hp": {"bas": [30, 300]}, "fx": ["riser", "odwrocony", "cisza"]},
+    {"sekcja": "drop 2",  "takty": 16, "graja": ["pad_A", "bas_A", "hook_A", "arp_A", "chor_A", "wokal_A", "beat_drop2"], "fx": ["crash", "uderzenie"]},
+    {"sekcja": "outro",   "takty": 16, "graja": ["pad_A", "bas_A", "arp_A", "beat_intro"], "filtr": {"*": [9000, 300]}, "glosnosc": {"*": [0, -10]}}
+  ]
+}

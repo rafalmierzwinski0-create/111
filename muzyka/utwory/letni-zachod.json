@@ -1,9 +1,0 @@
-{
-  "tytul": "Letni zachód",
-  "styl": "tropical",
-  "bpm": 108,
-  "tonacja": "F-dur",
-  "akordy": ["vi", "IV", "I", "V"],
-  "septymy": false,
-  "seed": 7
-}
