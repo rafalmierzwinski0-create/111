@@ -114,7 +114,8 @@ stream:                          # stream mode: `clipper stream` (game / IRL str
     hsv_low: [0, 0, 0]           # OpenCV HSV range of the avatar's main colour
     hsv_high: [179, 255, 255]
     regions: []                  # [x, y, w, h] spots where the avatar sits during gameplay -> stacked
-    min_fill: 0.15               # share of a region the avatar must cover
+    min_fill: 0.15               # share of a region the avatar must cover ...
+    max_fill: 1.0                # ... and at most (more = probably scenery of the same colour)
     samples: 10                  # frames sampled per clip
     min_presence: 0.7            # a pixel must have the avatar colour in this share of samples
     pad: 0.25                    # padding around the avatar box in the cam panel

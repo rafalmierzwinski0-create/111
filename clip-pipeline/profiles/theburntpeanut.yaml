@@ -16,6 +16,8 @@ stream:
     hsv_high: [30, 220, 230]
     regions:
       - [0.14, 0.70, 0.20, 0.30]   # gameplay: bottom-left, above the squad bars
+    min_fill: 0.10               # on the real VOD the peanut fills 12-22 % of that spot in gameplay ...
+    max_fill: 0.30               # ... the beach break scene (sand, a peanut statue) fills ~39 %
   signals:
     chat_delay_s: 5.0            # big chat: reactions arrive a bit later
     ignore_patterns:             # sub notices + the channel's points gambling/duel commands and their replies

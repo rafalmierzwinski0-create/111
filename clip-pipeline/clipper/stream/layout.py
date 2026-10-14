@@ -374,7 +374,7 @@ def clip_layout_for_avatar(src: dict, s: dict, path: str, start: float, end: flo
     lo, hi = a["hsv_low"], a["hsv_high"]
     for region in a["regions"]:
         fill, box = avatar_in_region(path, start, end, region, lo, hi, a["samples"], a["min_presence"])
-        if fill >= a["min_fill"] and box:
+        if a["min_fill"] <= fill <= a["max_fill"] and box:
             cam = pad_box(box, a["pad"], a["hat_extra"])
             plan = plan_layout(src, s, "stacked", box, None, cam)
             return plan, f"avatar at its gameplay spot ({fill:.0%} of the region): avatar on top, gameplay below", \
