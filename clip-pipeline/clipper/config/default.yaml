@@ -109,6 +109,17 @@ stream:                          # stream mode: `clipper stream` (game / IRL str
   fit_blur: 30                   # fit: background blur
   detect_samples: 40             # frames sampled across the VOD to find a facecam
   detect_min_presence: 0.4       # a face must sit in the same place in this share of samples to count as a facecam
+  avatar:                        # VTuber avatar described by colour (per-clip layouts); see profiles/
+    enabled: false
+    hsv_low: [0, 0, 0]           # OpenCV HSV range of the avatar's main colour
+    hsv_high: [179, 255, 255]
+    regions: []                  # [x, y, w, h] spots where the avatar sits during gameplay -> stacked
+    min_fill: 0.15               # share of a region the avatar must cover
+    samples: 10                  # frames sampled per clip
+    min_presence: 0.7            # a pixel must have the avatar colour in this share of samples
+    pad: 0.25                    # padding around the avatar box in the cam panel
+    hat_extra: 0.35              # extra room on top (hats, hair)
+    max_area_center: 0.05        # largest avatar blob (share of frame) accepted mid-scene -> 9:16 crop around it
   signals:
     weights: {audio: 0.45, chat: 0.40, speech: 0.15}   # renormalised over the signals you have
     audio_baseline_s: 120        # rolling baseline for loudness

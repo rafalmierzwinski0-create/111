@@ -145,8 +145,8 @@ def stage_layout(src: dict, mom: dict, work: Path, cfg: dict, layout: str | None
     s = cfg["stream"]
     requested = layout or s["layout"]
     cam_norm = facecam or s["facecam"]
-    fp = contracts.fingerprint("stream_plan", VERSION, mom["fingerprint"], requested, cam_norm,
-                               {k: v for k, v in s.items() if k not in ("signals", "moments")})
+    fp = contracts.fingerprint("stream_plan", VERSION + 1, mom["fingerprint"], requested, cam_norm,
+                               {k: v for k, v in s.items() if k not in ("signals", "moments")}, sample_paths)
     path = work / "stream_plan.json"
     doc = _cached(path, "stream_plan", fp, force)
     if doc:
@@ -165,11 +165,24 @@ def stage_layout(src: dict, mom: dict, work: Path, cfg: dict, layout: str | None
                              "Set stream.facecam: [x, y, w, h] (fractions of the frame) or use --layout fit")
     chosen, why = lay.choose_layout(requested, face_box, cam_norm)
     regions = lay.plan_layout(src, s, chosen, face_box, cam_norm, overlay)
+    # Per-clip layouts for a VTuber avatar described in the profile (stream.avatar):
+    # the avatar's spot changes between scenes (gameplay corner, studio centre).
+    per_clip = {}
+    if s["avatar"]["enabled"] and not (layout or cam_norm):
+        for k, c in enumerate(mom["clips"]):
+            path, off = (sample_paths[k], c["start"] - SEGMENT_MARGIN_S if c["start"] >= SEGMENT_MARGIN_S else 0.0) \
+                if sample_paths else (src["path"], 0.0)
+            cp, cwhy, cinfo = lay.clip_layout_for_avatar(src, s, path, c["start"] - off, c["end"] - off)
+            if cp:
+                per_clip[c["rank"]] = {"layout": cp["layout"], "regions": cp["regions"], "layout_reason": cwhy, "avatar": cinfo}
+            else:
+                per_clip[c["rank"]] = {"layout_reason": cwhy, "avatar": cinfo}
     doc = {"schema_version": "1.0", "kind": "stream_plan", "fingerprint": fp, "source": src,
            "inputs": {"moments": {"fingerprint": mom["fingerprint"]}},
            "layout": regions["layout"], "layout_reason": why, "facecam_detection": detection,
            "regions": regions["regions"], "output": s["output"], "captions": s["captions"],
-           "clips": [{k: c[k] for k in ("rank", "start", "end", "duration", "score", "reasons")} for c in mom["clips"]]}
+           "clips": [{**{k: c[k] for k in ("rank", "start", "end", "duration", "score", "reasons")}, **per_clip.get(c["rank"], {})}
+                     for c in mom["clips"]]}
     contracts.write(doc, path, "stream_plan")
     if example is None:
         cap = cv2.VideoCapture(sample_paths[0] if sample_paths else src["path"])
@@ -258,18 +271,20 @@ def stage_render(src: dict, plan: dict, mom: dict, sig: dict, work: Path, cfg: d
         if plan["layout"] == "follow":
             out_clips.append(_render_follow(csrc, cclip, work, cfg, out))
             continue
+        cplan = {**plan, "layout": clip["layout"], "regions": clip["regions"]} if clip.get("regions") else plan
         ass_path = None
         c = plan["captions"]
         if words and c["enabled"]:
-            y_frac = c["y"] if c["y"] is not None else _caption_y(plan)
+            y_frac = c["y"] if c["y"] is not None else _caption_y(cplan)
             ass = captions.build_ass(words, clip["start"], clip["end"], plan["output"]["width"], plan["output"]["height"], c, y_frac)
             if ass:
                 ass_path = work / "clips" / f"clip_{clip['rank']:02d}.ass"
                 ass_path.parent.mkdir(parents=True, exist_ok=True)
                 ass_path.write_text(ass, encoding="utf-8")
-        render.render_clip(csrc, plan, cclip, out, ass_path)
+        render.render_clip(csrc, cplan, cclip, out, ass_path)
         out_clips.append({"rank": clip["rank"], "output": str(out), "start": clip["start"], "end": clip["end"],
-                          "captions": str(ass_path) if ass_path else None, "filter": render.filter_graph(plan, ass_path)})
+                          "layout": cplan["layout"], "captions": str(ass_path) if ass_path else None,
+                          "filter": render.filter_graph(cplan, ass_path)})
     signals_png(sig, mom, work / "signals.png")
     doc = {"schema_version": "1.0", "kind": "stream_render_log", "fingerprint": fp, "layout": plan["layout"],
            "regions": plan["regions"], "clips": out_clips}

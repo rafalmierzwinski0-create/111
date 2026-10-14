@@ -291,3 +291,99 @@ def choose_layout(requested: str, facecam_box: list[float] | None, cam_region_no
     if facecam_box[3] >= 0.35:
         return "follow", "the camera is the main picture (IRL / just chatting): follow the speaker"
     return "stacked", "facecam detected in a fixed position"
+
+
+def find_avatar(path: str, start: float, end: float, hsv_low: list[int], hsv_high: list[int], samples: int = 10,
+                min_presence: float = 0.7, min_area: float = 0.004, max_area: float = 0.3) -> tuple[list[float] | None, dict]:
+    """A VTuber avatar by its colour: the largest blob of avatar-coloured pixels that stays
+    in the same place in most sampled frames of [start, end] (the game behind it moves).
+
+    Returns the blob's bounding box (normalised x, y, w, h) or None.
+    """
+    cap = cv2.VideoCapture(str(path))
+    masks = []
+    for t in np.linspace(start + 0.5, end - 0.5, samples):
+        cap.set(cv2.CAP_PROP_POS_MSEC, float(t) * 1000)
+        ok, img = cap.read()
+        if not ok:
+            continue
+        small = cv2.resize(img, (480, round(img.shape[0] * 480 / img.shape[1])), interpolation=cv2.INTER_AREA)
+        hsv = cv2.cvtColor(small, cv2.COLOR_BGR2HSV)
+        masks.append(cv2.inRange(hsv, np.array(hsv_low, np.uint8), np.array(hsv_high, np.uint8)) > 0)
+    cap.release()
+    if len(masks) < 3:
+        return None, {"avatar": "too few frames"}
+    presence = np.mean(masks, axis=0) >= min_presence
+    m = cv2.morphologyEx(presence.astype(np.uint8), cv2.MORPH_CLOSE, np.ones((5, 5), np.uint8))
+    m = cv2.morphologyEx(m, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+    n, labels, stats, _ = cv2.connectedComponentsWithStats(m)
+    h, w = m.shape
+    best = None
+    for k in range(1, n):
+        x, y, bw, bh, area = stats[k]
+        frac = area / (w * h)
+        if min_area <= frac <= max_area and (best is None or area > stats[best][4]):
+            best = k
+    if best is None:
+        return None, {"avatar": "not found", "persistent_px": int(presence.sum())}
+    x, y, bw, bh, area = stats[best]
+    box = [round(x / w, 4), round(y / h, 4), round(bw / w, 4), round(bh / h, 4)]
+    return box, {"avatar": "found", "area": round(area / (w * h), 4), "frames": len(masks)}
+
+
+def pad_box(box: list[float], pad: float, top_extra: float = 0.0) -> list[float]:
+    """Grow a normalised box by `pad` of its size on each side (plus `top_extra` of its height on top, for hats)."""
+    x, y, w, h = box
+    x0, y0 = max(0.0, x - w * pad), max(0.0, y - h * (pad + top_extra))
+    x1, y1 = min(1.0, x + w * (1 + pad)), min(1.0, y + h * (1 + pad))
+    return [round(x0, 4), round(y0, 4), round(x1 - x0, 4), round(y1 - y0, 4)]
+
+
+def avatar_in_region(path: str, start: float, end: float, region: list[float], hsv_low: list[int], hsv_high: list[int],
+                     samples: int = 10, min_presence: float = 0.7) -> tuple[float, list[float] | None]:
+    """Share of `region` covered by persistently avatar-coloured pixels, and their bounding box (normalised)."""
+    cap = cv2.VideoCapture(str(path))
+    masks = []
+    for t in np.linspace(start + 0.5, end - 0.5, samples):
+        cap.set(cv2.CAP_PROP_POS_MSEC, float(t) * 1000)
+        ok, img = cap.read()
+        if not ok:
+            continue
+        H, W = img.shape[:2]
+        x, y, w, h = (int(round(v)) for v in (region[0] * W, region[1] * H, region[2] * W, region[3] * H))
+        hsv = cv2.cvtColor(img[y:y + h, x:x + w], cv2.COLOR_BGR2HSV)
+        masks.append(cv2.inRange(hsv, np.array(hsv_low, np.uint8), np.array(hsv_high, np.uint8)) > 0)
+    cap.release()
+    if len(masks) < 3:
+        return 0.0, None
+    pres = (np.mean(masks, axis=0) >= min_presence).astype(np.uint8)
+    pres = cv2.morphologyEx(pres, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
+    fill = float(pres.mean())
+    ys, xs = np.nonzero(pres)
+    if not len(xs):
+        return fill, None
+    rh, rw = pres.shape
+    box = [region[0] + xs.min() / rw * region[2], region[1] + ys.min() / rh * region[3],
+           (xs.max() - xs.min() + 1) / rw * region[2], (ys.max() - ys.min() + 1) / rh * region[3]]
+    return round(fill, 3), [round(v, 4) for v in box]
+
+
+def clip_layout_for_avatar(src: dict, s: dict, path: str, start: float, end: float) -> tuple[dict | None, str, dict]:
+    """Per-clip layout from the profile's avatar description (stream.avatar), or None to use the default."""
+    a = s["avatar"]
+    lo, hi = a["hsv_low"], a["hsv_high"]
+    for region in a["regions"]:
+        fill, box = avatar_in_region(path, start, end, region, lo, hi, a["samples"], a["min_presence"])
+        if fill >= a["min_fill"] and box:
+            cam = pad_box(box, a["pad"], a["hat_extra"])
+            plan = plan_layout(src, s, "stacked", box, None, cam)
+            return plan, f"avatar at its gameplay spot ({fill:.0%} of the region): avatar on top, gameplay below", \
+                {"region": region, "fill": fill, "box": box}
+    box, info = find_avatar(path, start, end, lo, hi, a["samples"], a["min_presence"], max_area=a["max_area_center"])
+    if box:
+        cx = box[0] + box[2] / 2
+        if 1 / 3 <= cx <= 2 / 3:
+            s2 = dict(s, gameplay_x=cx)
+            return plan_layout(src, s2, "gameplay", None, None), "avatar in the middle of the scene: 9:16 crop around it", \
+                {"box": box, **info}
+    return None, "no avatar found in this clip: default layout", {"box": box, **info}

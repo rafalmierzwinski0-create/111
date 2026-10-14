@@ -1,16 +1,21 @@
 # Profile for clipping TheBurntPeanut's streams (FPS / extraction shooters, VTuber peanut avatar).
 #   clipper stream --video vod.mp4 --chat chat.json --config profiles/theburntpeanut.yaml
 #
-# His avatar is a 3D peanut with real eyes and mouth, which face detection does
-# not reliably find, so this profile defaults to `fit`: the whole stream frame
-# (game + avatar wherever it is) on a blurred background.
-#
-# For the "avatar on top, game below" look: run `clipper stream-setup vod.mp4`,
-# read the avatar's rectangle off frame_grid.png (fractions of the frame), and
-# fill in facecam below, e.g. [0.78, 0.62, 0.20, 0.36]. Layout auto then uses stacked.
+# His avatar is a 3D peanut with real eyes and mouth; face detection does not
+# find it (1 face in 40 samples on a real VOD), so the avatar is found by colour
+# and by staying put while the game moves. Each clip gets its own layout:
+#   gameplay (peanut bottom-left)  -> peanut on top, gameplay below
+#   studio / break scenes (centre) -> 9:16 crop around the peanut
+#   anything else                  -> fit (whole stream on a blurred background)
 stream:
   layout: auto
   facecam: null
+  avatar:                        # measured on VOD 2900094401 (Oct 2026): peanut skin / bandana colours
+    enabled: true
+    hsv_low: [8, 110, 80]
+    hsv_high: [30, 220, 230]
+    regions:
+      - [0.14, 0.70, 0.20, 0.30]   # gameplay: bottom-left, above the squad bars
   signals:
     chat_delay_s: 5.0            # big chat: reactions arrive a bit later
     ignore_patterns:             # sub notices + the channel's points gambling/duel commands and their replies
