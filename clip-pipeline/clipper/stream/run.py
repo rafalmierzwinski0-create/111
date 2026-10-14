@@ -170,9 +170,9 @@ def stage_layout(src: dict, mom: dict, work: Path, cfg: dict, layout: str | None
     per_clip = {}
     if s["avatar"]["enabled"] and not (layout or cam_norm):
         for k, c in enumerate(mom["clips"]):
-            path, off = (sample_paths[k], c["start"] - SEGMENT_MARGIN_S if c["start"] >= SEGMENT_MARGIN_S else 0.0) \
-                if sample_paths else (src["path"], 0.0)
-            cp, cwhy, cinfo = lay.clip_layout_for_avatar(src, s, path, c["start"] - off, c["end"] - off)
+            # light mode: the clip's own segment, which starts SEGMENT_MARGIN_S before the clip (or at 0)
+            clip_path, off = (sample_paths[k], max(0.0, c["start"] - SEGMENT_MARGIN_S)) if sample_paths else (src["path"], 0.0)
+            cp, cwhy, cinfo = lay.clip_layout_for_avatar(src, s, clip_path, c["start"] - off, c["end"] - off)
             if cp:
                 per_clip[c["rank"]] = {"layout": cp["layout"], "regions": cp["regions"], "layout_reason": cwhy, "avatar": cinfo}
             else:
