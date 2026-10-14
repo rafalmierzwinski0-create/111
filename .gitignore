@@ -26,3 +26,6 @@ landing/przeplyw/markup.json
 # przy każdym przebudowaniu strony jako zmieniony plik binarny.
 __pycache__/
 *.pyc
+
+# Wyrenderowane utwory z pipeline muzyki: duże pliki audio, odtwarzalne z JSON + seeda.
+muzyka/wyjscie/
