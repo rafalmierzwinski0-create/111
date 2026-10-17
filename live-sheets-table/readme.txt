@@ -4,7 +4,7 @@ Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.43.0
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -128,10 +128,10 @@ Yes. Everything from the sheet is escaped, so a cell containing HTML or a `<scri
 
 == Changelog ==
 
-= 3.43.0 =
+= 1.0.0 =
 * First public release.
 
 == Upgrade Notice ==
 
-= 3.43.0 =
+= 1.0.0 =
 First public release.

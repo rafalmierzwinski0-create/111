@@ -4,7 +4,7 @@ The whole history of both plugins. The free plugin's `readme.txt` lists only
 the current release, because WordPress.org shows at most 5,000 characters of
 it. Entries marked (Pro) are about the add-on.
 
-= 3.43.0 / Pro 1.33.0 =
+= 1.0.0 (free and Pro; numbered 3.43.0 / Pro 1.33.0 during development) =
 * Changed: hiding columns and rows, and moving a column into the panel under each row, belong to the free plugin. The picker moved from the add-on with them. What is hidden stays hidden; the ten days after which hidden columns and rows came back without the add-on are gone.
 * Changed: any number of sheets can be added. The limit of six is gone.
 * Changed: the free plugin offers four styles: Clean, Striped, Bordered and Midnight. Editorial, Cards, Terminal, Aurora, Ledger and Contrast come with the add-on, which registers them and ships their stylesheet.

@@ -3,7 +3,7 @@
 defined( 'ABSPATH' ) || exit;
 
 class LSTABP_Plugin {
-	const CORE_VERSION = '3.43.0';
+	const CORE_VERSION = '1.0.0';
 
 	public function boot() {
 		if ( ! function_exists( 'lstab' ) || ! class_exists( 'LSTAB_Limits' ) ) {
