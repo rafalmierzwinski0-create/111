@@ -706,6 +706,7 @@ if ( ! $lstab_is_edit ) {
 								'layout'      => (string) $source['layout'],
 								'sticky'      => ! empty( $source['sticky_first'] ),
 								'sticky_head' => ! empty( $source['sticky_head'] ),
+								'limit'       => 25,
 							)
 						);
 						echo $lstab_preview_html; // phpcs:ignore WordPress.Security.EscapeOutput -- Renderer escapes every cell.

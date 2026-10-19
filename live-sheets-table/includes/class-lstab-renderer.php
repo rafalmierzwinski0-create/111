@@ -118,6 +118,8 @@ class LSTAB_Renderer {
 					'show_meta' => false,
 					'search'    => true,
 					'sort'      => true,
+					'limit'     => 0,
+					'preview'   => true,
 				)
 			)
 		);
@@ -145,6 +147,10 @@ class LSTAB_Renderer {
 		$rows    = isset( $source['data']['rows'] ) ? (array) $source['data']['rows'] : array();
 
 		$rows = (array) apply_filters( 'lstab_source_rows', $rows, $headers, $source, $args );
+
+		if ( ! empty( $args['limit'] ) ) {
+			$rows = array_slice( $rows, 0, (int) $args['limit'] );
+		}
 
 		$columns = null !== $args['columns'] ? $args['columns'] : ( isset( $source['columns_config'] ) ? $source['columns_config'] : array() );
 

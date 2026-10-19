@@ -331,7 +331,21 @@
 			return;
 		}
 
+		var firstHead = root.querySelector( '.lstab-table thead th' );
+
+		function markStuck() {
+			if ( ! firstHead || ! root.classList.contains( 'lstab-sticky-head' ) ) {
+				return;
+			}
+
+			var table = firstHead.closest( 'table' );
+
+			root.classList.toggle( 'lstab-head-stuck', !! table && firstHead.getBoundingClientRect().top - table.getBoundingClientRect().top > 1 );
+		}
+
 		function dressBar() {
+			markStuck();
+
 			var frame = scroller.getBoundingClientRect();
 			var view = window.innerHeight || document.documentElement.clientHeight || 0;
 			var resting = frame.top > view - Math.min( 140, frame.height );
@@ -553,6 +567,7 @@
 		dressBar();
 
 		scroller.addEventListener( 'scroll', sync, { passive: true } );
+		scroller.addEventListener( 'scroll', markStuck, { passive: true } );
 
 		if ( window.ResizeObserver ) {
 			var observer = new window.ResizeObserver( measure );

@@ -2656,3 +2656,7 @@
 	.lstab-start-main { padding: 1.4rem 1.2rem; }
 	.lstab-start-form { flex-direction: column; }
 }
+
+.lstab-admin .lstab-preview .lstab-sticky-head {
+	--lstab-sticky-top: -1rem;
+}

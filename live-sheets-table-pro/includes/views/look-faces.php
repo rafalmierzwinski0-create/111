@@ -17,7 +17,7 @@ $lstabp_face_word   = '' !== trim( $lstabp_face_says ) ? $lstabp_face_says : __(
 	</span>
 <?php elseif ( 'pill' === $lstabp_face_look ) : ?>
 	<span class="lstabp-look-face">
-		<span class="lstabp-pill-face" style="<?php echo esc_attr( $lstabp_face_css ); ?>"><?php esc_html_e( 'Open', 'live-sheets-table-pro' ); ?></span>
+		<span class="lstabp-pill-face" style="<?php echo esc_attr( $lstabp_face_css ); ?>"><?php esc_html_e( 'In stock', 'live-sheets-table-pro' ); ?></span>
 	</span>
 <?php elseif ( 'tint' === $lstabp_face_look ) : ?>
 	<span class="lstabp-look-face is-tinted" style="<?php echo esc_attr( $lstabp_face_css ); ?>">

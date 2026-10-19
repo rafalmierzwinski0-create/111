@@ -74,6 +74,25 @@
 		} );
 
 		build( builder );
+
+		if ( window.lstabRedrawPreview ) {
+			window.lstabRedrawPreview();
+		}
+	} );
+
+	window.lstabPreviewFields = window.lstabPreviewFields || [];
+	window.lstabPreviewFields.push( function () {
+		var shown = {};
+
+		document.querySelectorAll( '[data-lstab-shortcode-builder] [data-lstab-att]' ).forEach( function ( group ) {
+			var att = group.getAttribute( 'data-lstab-att' );
+
+			if ( 'search' === att || 'sort' === att ) {
+				shown[ att ] = 'hide' !== group.getAttribute( 'data-lstab-value' );
+			}
+		} );
+
+		return shown;
 	} );
 
 	document.addEventListener( 'click', function ( event ) {

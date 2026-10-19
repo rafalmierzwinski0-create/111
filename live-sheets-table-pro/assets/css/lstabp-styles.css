@@ -237,6 +237,10 @@
 	}
 }
 
+.lstab-style-aurora .lstab-scroll {
+	margin-bottom: calc( 1.1em * var(--lstab-table-mode, 1) );
+}
+
 .lstab-style-aurora .lstab-table thead th {
 	--lstab-head-rule: 0px;
 	box-shadow: none;
@@ -280,9 +284,14 @@
 }
 
 .lstab-style-contrast .lstab-table tbody td:first-child {
+	--lstab-row-line-colour: color-mix(in srgb, var(--lstab-fg) 12%, var(--lstab-stripe));
 	font-weight: 600;
 	background-color: var(--lstab-stripe);
 	background-image: linear-gradient(var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent));
+}
+
+.lstab-style-contrast.lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child::before {
+	background-color: var(--lstab-stripe);
 }
 
 .lstab-style-ledger {
@@ -321,4 +330,8 @@
 .lstab-style-ledger .lstab-table tbody tr > td:nth-child( even ) {
 	background-color: color-mix( in srgb, var(--lstab-band) calc( var(--lstab-table-mode) * 100% ), transparent );
 	background-image: linear-gradient( var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent) );
+}
+
+.lstab-style-ledger .lstab-table tbody tr > td:nth-child( even ) {
+	--lstab-row-line-colour: color-mix(in srgb, var(--lstab-fg) 12%, var(--lstab-band));
 }

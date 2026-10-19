@@ -13,6 +13,8 @@ class LSTABP_Facets {
 
 	protected static $previewing = array();
 
+	protected static $preview_picks = array();
+
 	public function register() {
 		add_filter( 'lstab_source_rows', array( $this, 'narrow' ), 12, 4 );
 		add_action( 'lstab_before_table', array( $this, 'render_bar' ), 10, 2 );
@@ -66,7 +68,23 @@ class LSTABP_Facets {
 		}
 
 		self::$previewing[ (int) $source_id ] = $clean;
+
+		$picks = $request->get_param( 'facetPicks' );
+		$kept  = array();
+
+		if ( is_array( $picks ) ) {
+			foreach ( $picks as $column => $value ) {
+				$value = sanitize_text_field( (string) $value );
+
+				if ( is_numeric( $column ) && '' !== $value ) {
+					$kept[ (int) $column ] = $value;
+				}
+			}
+		}
+
+		self::$preview_picks[ (int) $source_id ] = $kept;
 	}
+
 
 	protected static function arg( $column ) {
 		return 'f' . (int) $column;
@@ -91,7 +109,9 @@ class LSTABP_Facets {
 
 		unset( self::$state[ $source_id ] );
 
-		if ( $source_id <= 0 || ! self::on_a_page() ) {
+		$preview = ! empty( $args['preview'] );
+
+		if ( ! $preview && ( $source_id <= 0 || ! self::on_a_page() ) ) {
 			return $rows;
 		}
 
@@ -115,7 +135,7 @@ class LSTABP_Facets {
 				'heading' => $heading,
 				'values'  => array_slice( $tally, 0, self::MAX_VALUES, true ),
 				'kinds'   => count( $tally ),
-				'chosen'  => self::chosen( $source_id, $position, array_keys( $tally ) ),
+				'chosen'  => self::chosen( $source_id, $position, array_keys( $tally ), $preview ),
 			);
 		}
 
@@ -198,11 +218,15 @@ class LSTABP_Facets {
 		return $counts;
 	}
 
-	protected static function chosen( $source_id, $position, $known ) {
-		$name = LSTAB_Paging::arg( $source_id, self::arg( $position ) );
+	protected static function chosen( $source_id, $position, $known, $preview = false ) {
+		if ( $preview ) {
+			$raw = isset( self::$preview_picks[ (int) $source_id ][ (int) $position ] ) ? self::$preview_picks[ (int) $source_id ][ (int) $position ] : '';
+		} else {
+			$name = LSTAB_Paging::arg( $source_id, self::arg( $position ) );
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only navigation of public data.
-		$raw = isset( $_GET[ $name ] ) ? sanitize_text_field( wp_unslash( $_GET[ $name ] ) ) : '';
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only navigation of public data.
+			$raw = isset( $_GET[ $name ] ) ? sanitize_text_field( wp_unslash( $_GET[ $name ] ) ) : '';
+		}
 
 		if ( '' === $raw ) {
 			return array();
@@ -227,17 +251,21 @@ class LSTABP_Facets {
 		return $picked;
 	}
 
-	protected static function toggle_url( $source_id, $position, $chosen, $value ) {
+	protected static function toggled( $chosen, $value ) {
 		$next = in_array( $value, $chosen, true )
 			? array_values( array_diff( $chosen, array( $value ) ) )
 			: array_merge( $chosen, array( $value ) );
 
-		$next = array_map( array( __CLASS__, 'one_line' ), $next );
+		return implode( '|', array_map( array( __CLASS__, 'one_line' ), $next ) );
+	}
+
+	protected static function toggle_url( $source_id, $position, $chosen, $value ) {
+		$next = self::toggled( $chosen, $value );
 
 		return LSTAB_Paging::url(
 			$source_id,
 			array(
-				self::arg( $position ) => $next ? implode( '|', $next ) : null,
+				self::arg( $position ) => '' !== $next ? $next : null,
 				'page'                 => null,
 			)
 		);
@@ -250,9 +278,10 @@ class LSTABP_Facets {
 			return;
 		}
 
-		$facets = self::$state[ $source_id ]['facets'];
-		$total  = (int) self::$state[ $source_id ]['total'];
-		$any    = false;
+		$facets  = self::$state[ $source_id ]['facets'];
+		$total   = (int) self::$state[ $source_id ]['total'];
+		$any     = false;
+		$preview = ! empty( $args['preview'] );
 
 		foreach ( $facets as $facet ) {
 			if ( $facet['chosen'] ) {
@@ -272,7 +301,7 @@ class LSTABP_Facets {
 			}
 		}
 
-		if ( $long ) {
+		if ( $long && ! $preview ) {
 			wp_enqueue_script( 'lstabp-facets' );
 		}
 		?>
@@ -295,7 +324,7 @@ class LSTABP_Facets {
 					</summary>
 
 					<div class="lstabp-facet-menu">
-						<?php if ( $lstabp_facet['kinds'] > self::LONG_MENU ) : ?>
+						<?php if ( $lstabp_facet['kinds'] > self::LONG_MENU && ! $preview ) : ?>
 							<input type="search" class="lstabp-facet-find" hidden
 								placeholder="<?php esc_attr_e( 'Type to narrow this list…', 'live-sheets-table-pro' ); ?>"
 								aria-label="<?php esc_attr_e( 'Find a value', 'live-sheets-table-pro' ); ?>">
@@ -303,9 +332,16 @@ class LSTABP_Facets {
 
 						<?php foreach ( $lstabp_facet['values'] as $lstabp_value => $lstabp_count ) : ?>
 							<?php $lstabp_picked = in_array( (string) $lstabp_value, $lstabp_facet['chosen'], true ); ?>
-							<a class="lstabp-facet-value<?php echo $lstabp_picked ? ' is-picked' : ''; ?>"
-								rel="nofollow"
-								href="<?php echo esc_url( self::toggle_url( $source_id, $lstabp_position, $lstabp_facet['chosen'], (string) $lstabp_value ) ); ?>">
+							<?php if ( $preview ) : ?>
+								<a class="lstabp-facet-value<?php echo $lstabp_picked ? ' is-picked' : ''; ?>"
+									href="#" role="button"
+									data-lstabp-column="<?php echo esc_attr( (string) $lstabp_position ); ?>"
+									data-lstabp-pick="<?php echo esc_attr( self::toggled( $lstabp_facet['chosen'], (string) $lstabp_value ) ); ?>">
+							<?php else : ?>
+								<a class="lstabp-facet-value<?php echo $lstabp_picked ? ' is-picked' : ''; ?>"
+									rel="nofollow"
+									href="<?php echo esc_url( self::toggle_url( $source_id, $lstabp_position, $lstabp_facet['chosen'], (string) $lstabp_value ) ); ?>">
+							<?php endif; ?>
 								<span class="lstabp-facet-box" aria-hidden="true"></span>
 								<span class="lstabp-facet-text"><?php echo esc_html( str_replace( '&', '&amp;', (string) $lstabp_value ) ); ?></span>
 								<span class="lstabp-facet-count"><?php echo esc_html( number_format_i18n( $lstabp_count ) ); ?></span>
@@ -331,7 +367,11 @@ class LSTABP_Facets {
 			<?php endforeach; ?>
 
 			<?php if ( $any ) : ?>
-				<a class="lstabp-facets-clear" rel="nofollow" href="<?php echo esc_url( LSTAB_Paging::url( $source_id, $clear ) ); ?>">
+				<?php if ( $preview ) : ?>
+					<a class="lstabp-facets-clear" href="#" role="button" data-lstabp-clear="1">
+				<?php else : ?>
+					<a class="lstabp-facets-clear" rel="nofollow" href="<?php echo esc_url( LSTAB_Paging::url( $source_id, $clear ) ); ?>">
+				<?php endif; ?>
 					<?php
 					printf(
 						/* translators: %s: how many rows the table holds unfiltered. */

@@ -1431,6 +1431,21 @@ lstab_assert(
 	'Preview draws a style the plugin does not have in Clean'
 );
 
+// The shortcode card's Show/Hide switches for the search box and sorting are
+// drawn in the preview straight away, before anything is saved.
+$bare = new WP_REST_Request( 'POST', '/live-sheets-table/v1/preview' );
+$bare->set_param( 'url', 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit' );
+$bare->set_param( 'search', false );
+$bare->set_param( 'sort', false );
+$bare_html = (string) $server->dispatch( $bare )->get_data()['html'];
+lstab_assert( false !== strpos( $bare_html, '<table' ), 'A preview without search and sorting still draws the table' );
+lstab_assert( false === strpos( $bare_html, 'lstab-search' ), 'Hiding the search box takes it out of the preview' );
+lstab_assert( false === strpos( $bare_html, 'lstab-sort-icon' ), 'Hiding sorting takes the arrows out of the preview' );
+lstab_assert(
+	false !== strpos( (string) $data['html'], 'lstab-sort-icon' ) && false !== strpos( (string) $data['html'], 'lstab-search' ),
+	'Both of which the ordinary preview has'
+);
+
 $bad = new WP_REST_Request( 'POST', '/live-sheets-table/v1/preview' );
 $bad->set_param( 'url', 'https://evil.example.com/spreadsheets/d/x/edit' );
 $bad_response = $server->dispatch( $bad );

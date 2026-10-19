@@ -22,7 +22,7 @@ $lstabp_offer = array( '' => __( 'Ordinary', 'live-sheets-table-pro' ) ) + $lsta
 <div class="lstab-card lstabp-looks-card<?php echo $lstabp_waiting ? ' is-waiting' : ''; ?>">
 	<h2 class="lstab-card-title"><?php esc_html_e( 'Column looks', 'live-sheets-table-pro' ); ?></h2>
 	<p class="lstab-help">
-		<?php esc_html_e( 'A colour rule says one value is special. This says what a whole column is: a measurement to be seen at a glance, a set of labels, a column that belongs in a colour of its own, or a way through to somewhere else.', 'live-sheets-table-pro' ); ?>
+		<?php esc_html_e( 'Give a column a look and every cell in it is shown that way, in every row. To colour only some values, for example “Out of stock” in red, use Colour rules instead.', 'live-sheets-table-pro' ); ?>
 	</p>
 
 	<input type="hidden" name="_lstabp_looks_present" value="1">
@@ -111,7 +111,7 @@ $lstabp_offer = array( '' => __( 'Ordinary', 'live-sheets-table-pro' ) ) + $lsta
 
 								<span class="lstabp-look-colour" data-lstabp-for="<?php echo esc_attr( implode( ' ', $lstabp_wants['ink'] ) ); ?>">
 									<label>
-										<span class="lstabp-look-colour-name"><?php esc_html_e( 'Text', 'live-sheets-table-pro' ); ?></span>
+										<span class="lstabp-look-colour-name"><?php esc_html_e( 'Text colour', 'live-sheets-table-pro' ); ?></span>
 										<input type="color" class="lstabp-look-ink" name="<?php echo esc_attr( $lstabp_field ); ?>[ink]"
 											value="<?php echo esc_attr( $lstabp_ink ); ?>">
 									</label>
@@ -119,7 +119,7 @@ $lstabp_offer = array( '' => __( 'Ordinary', 'live-sheets-table-pro' ) ) + $lsta
 
 								<span class="lstabp-look-colour" data-lstabp-for="<?php echo esc_attr( implode( ' ', $lstabp_wants['label'] ) ); ?>">
 									<label>
-										<span class="lstabp-look-colour-name"><?php esc_html_e( 'Says', 'live-sheets-table-pro' ); ?></span>
+										<span class="lstabp-look-colour-name"><?php esc_html_e( 'Button text', 'live-sheets-table-pro' ); ?></span>
 										<input type="text" class="lstabp-look-label" name="<?php echo esc_attr( $lstabp_field ); ?>[label]"
 											value="<?php echo esc_attr( $lstabp_setting['label'] ); ?>"
 											maxlength="<?php echo esc_attr( (string) LSTABP_Column_Looks::MAX_LABEL ); ?>"
@@ -151,18 +151,35 @@ $lstabp_offer = array( '' => __( 'Ordinary', 'live-sheets-table-pro' ) ) + $lsta
 			</button>
 		</p>
 
-		<ul class="lstabp-rules-how">
-			<li>
-				<?php echo LSTAB_Icons::icon( 'layers' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-				<?php esc_html_e( 'A bar is as long as its number is large, measured against the largest in the column. A column that never goes below zero is measured from zero, so numbers that are all much the same do not look wildly different.', 'live-sheets-table-pro' ); ?>
-			</li>
+		<?php
+		$lstabp_how = array(
+			'bar'    => __( 'The bigger the number, the longer the bar, so rows can be compared at a glance. Cells without a number stay plain.', 'live-sheets-table-pro' ),
+			'pill'   => __( 'Each value sits in a small rounded label, like a tag. Best for short words such as a status or a category.', 'live-sheets-table-pro' ),
+			'tint'   => __( 'Every cell in the column gets the colour you pick, so one column stands out, for example a total.', 'live-sheets-table-pro' ),
+			'button' => __( 'A cell holding a web address (https://…) becomes a button with the words you type in “Button text”. Cells without an address stay as they are.', 'live-sheets-table-pro' ),
+		);
+		?>
+		<ul class="lstabp-rules-how lstabp-looks-how">
+			<?php foreach ( $lstabp_how as $lstabp_how_look => $lstabp_how_text ) : ?>
+				<?php
+				$lstabp_face_look = $lstabp_how_look;
+				$lstabp_face_tint = LSTABP_Column_Looks::DEFAULT_TINT;
+				$lstabp_face_ink  = '#06100f';
+				$lstabp_face_says = '';
+				?>
+				<li>
+					<?php require __DIR__ . '/look-faces.php'; ?>
+					<span>
+						<b><?php echo esc_html( $lstabp_looks[ $lstabp_how_look ] ); ?>.</b>
+						<?php echo esc_html( $lstabp_how_text ); ?>
+					</span>
+				</li>
+			<?php endforeach; ?>
 			<li>
 				<?php echo LSTAB_Icons::icon( 'brush' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-				<?php esc_html_e( 'A pill and a whole-column colour dress every row the same, whatever the value says — that is the difference from a colour rule, which dresses only the rows that match it. Where both have something to say about the same cell the rule wins, so a rule can still single one row out of a column that already has a look.', 'live-sheets-table-pro' ); ?>
-			</li>
-			<li>
-				<?php echo LSTAB_Icons::icon( 'link' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-				<?php esc_html_e( 'Only a cell holding a web address becomes a button. A note or a blank in the same column is left as it is, because a button that goes nowhere is worse than the note it replaced.', 'live-sheets-table-pro' ); ?>
+				<span>
+					<?php esc_html_e( 'If a colour rule also matches a cell, the rule’s colour wins for that cell. That way one row can still stand out in a column that has a look.', 'live-sheets-table-pro' ); ?>
+				</span>
 			</li>
 		</ul>
 	<?php endif; ?>

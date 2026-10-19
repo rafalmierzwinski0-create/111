@@ -1,7 +1,7 @@
 <div class="lstab-card lstabp-looks-card">
 	<h2 class="lstab-card-title">Column looks</h2>
 	<p class="lstab-help">
-		A colour rule says one value is special. This says what a whole column is: a measurement to be seen at a glance, a set of labels, a column that belongs in a colour of its own, or a way through to somewhere else.	</p>
+		Give a column a look and every cell in it is shown that way, in every row. To colour only some values, for example “Out of stock” in red, use Colour rules instead.	</p>
 
 	<input type="hidden" name="_lstabp_looks_present" value="1">
 
@@ -49,7 +49,7 @@
 											value="pill"
 											>
 											<span class="lstabp-look-face">
-		<span class="lstabp-pill-face" style="--lstabp-pill-line:#c7e0f4;--lstabp-pill-fill:color-mix(in srgb,#c7e0f4 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#c7e0f4 35%,currentColor);">Open</span>
+		<span class="lstabp-pill-face" style="--lstabp-pill-line:#c7e0f4;--lstabp-pill-fill:color-mix(in srgb,#c7e0f4 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#c7e0f4 35%,currentColor);">In stock</span>
 	</span>
 										<span class="lstabp-look-word">Every value as a pill</span>
 									</label>
@@ -86,7 +86,7 @@
 
 								<span class="lstabp-look-colour" data-lstabp-for="button">
 									<label>
-										<span class="lstabp-look-colour-name">Text</span>
+										<span class="lstabp-look-colour-name">Text colour</span>
 										<input type="color" class="lstabp-look-ink" name="lstabp_looks[0][ink]"
 											value="#06100f">
 									</label>
@@ -94,7 +94,7 @@
 
 								<span class="lstabp-look-colour" data-lstabp-for="button">
 									<label>
-										<span class="lstabp-look-colour-name">Says</span>
+										<span class="lstabp-look-colour-name">Button text</span>
 										<input type="text" class="lstabp-look-label" name="lstabp_looks[0][label]"
 											value=""
 											maxlength="40"
@@ -151,7 +151,7 @@
 											value="pill"
 											>
 											<span class="lstabp-look-face">
-		<span class="lstabp-pill-face" style="--lstabp-pill-line:#5fe3cf;--lstabp-pill-fill:color-mix(in srgb,#5fe3cf 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#5fe3cf 35%,currentColor);">Open</span>
+		<span class="lstabp-pill-face" style="--lstabp-pill-line:#5fe3cf;--lstabp-pill-fill:color-mix(in srgb,#5fe3cf 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#5fe3cf 35%,currentColor);">In stock</span>
 	</span>
 										<span class="lstabp-look-word">Every value as a pill</span>
 									</label>
@@ -188,7 +188,7 @@
 
 								<span class="lstabp-look-colour" data-lstabp-for="button">
 									<label>
-										<span class="lstabp-look-colour-name">Text</span>
+										<span class="lstabp-look-colour-name">Text colour</span>
 										<input type="color" class="lstabp-look-ink" name="lstabp_looks[1][ink]"
 											value="#06100f">
 									</label>
@@ -196,7 +196,7 @@
 
 								<span class="lstabp-look-colour" data-lstabp-for="button">
 									<label>
-										<span class="lstabp-look-colour-name">Says</span>
+										<span class="lstabp-look-colour-name">Button text</span>
 										<input type="text" class="lstabp-look-label" name="lstabp_looks[1][label]"
 											value=""
 											maxlength="40"
@@ -253,7 +253,7 @@
 											value="pill"
 											>
 											<span class="lstabp-look-face">
-		<span class="lstabp-pill-face" style="--lstabp-pill-line:#123456;--lstabp-pill-fill:color-mix(in srgb,#123456 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#123456 35%,currentColor);">Open</span>
+		<span class="lstabp-pill-face" style="--lstabp-pill-line:#123456;--lstabp-pill-fill:color-mix(in srgb,#123456 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#123456 35%,currentColor);">In stock</span>
 	</span>
 										<span class="lstabp-look-word">Every value as a pill</span>
 									</label>
@@ -290,7 +290,7 @@
 
 								<span class="lstabp-look-colour" data-lstabp-for="button">
 									<label>
-										<span class="lstabp-look-colour-name">Text</span>
+										<span class="lstabp-look-colour-name">Text colour</span>
 										<input type="color" class="lstabp-look-ink" name="lstabp_looks[2][ink]"
 											value="#ffffff">
 									</label>
@@ -298,7 +298,7 @@
 
 								<span class="lstabp-look-colour" data-lstabp-for="button">
 									<label>
-										<span class="lstabp-look-colour-name">Says</span>
+										<span class="lstabp-look-colour-name">Button text</span>
 										<input type="text" class="lstabp-look-label" name="lstabp_looks[2][label]"
 											value="Book a seat"
 											maxlength="40"
@@ -318,12 +318,42 @@
 				Set every column back to ordinary			</button>
 		</p>
 
-		<ul class="lstabp-rules-how">
-			<li>
-				<svg data-icon="layers"></svg>				A bar is as long as its number is large, measured against the largest in the column. A column that never goes below zero is measured from zero, so numbers that are all much the same do not look wildly different.			</li>
-			<li>
-				<svg data-icon="brush"></svg>				A pill and a whole-column colour dress every row the same, whatever the value says — that is the difference from a colour rule, which dresses only the rows that match it. Where both have something to say about the same cell the rule wins, so a rule can still single one row out of a column that already has a look.			</li>
-			<li>
-				<svg data-icon="link"></svg>				Only a cell holding a web address becomes a button. A note or a blank in the same column is left as it is, because a button that goes nowhere is worse than the note it replaced.			</li>
+				<ul class="lstabp-rules-how lstabp-looks-how">
+											<li>
+						<span class="lstabp-look-face lstabp-bar" style="--lstabp-bar:64%;--lstabp-bar-colour:#c7e0f4;">
+		<span class="lstab-cell-value">1 240</span>
+	</span>
+					<span>
+						<b>A bar behind the number.</b>
+						The bigger the number, the longer the bar, so rows can be compared at a glance. Cells without a number stay plain.					</span>
+				</li>
+											<li>
+						<span class="lstabp-look-face">
+		<span class="lstabp-pill-face" style="--lstabp-pill-line:#c7e0f4;--lstabp-pill-fill:color-mix(in srgb,#c7e0f4 18%,transparent);--lstabp-pill-ink:color-mix(in srgb,#c7e0f4 35%,currentColor);">In stock</span>
+	</span>
+					<span>
+						<b>Every value as a pill.</b>
+						Each value sits in a small rounded label, like a tag. Best for short words such as a status or a category.					</span>
+				</li>
+											<li>
+						<span class="lstabp-look-face is-tinted" style="background-color:#c7e0f4;color:#114874;--lstab-fg-faint:color-mix(in srgb,#114874 78%,#c7e0f4);--lstabp-pill-ink-set:#114874;--lstabp-pill-fill-set:transparent;--lstab-row-tint:#c7e0f4;">
+		<span class="lstab-cell-value">1 240</span>
+	</span>
+					<span>
+						<b>The whole column in a colour.</b>
+						Every cell in the column gets the colour you pick, so one column stands out, for example a total.					</span>
+				</li>
+											<li>
+						<span class="lstabp-look-face">
+		<span class="lstab-cell-value"><a class="lstabp-cta-link" style="--lstabp-cta-bg:#c7e0f4;--lstabp-cta-ink:#06100f;">Open</a></span>
+	</span>
+					<span>
+						<b>A button, if the cell holds a link.</b>
+						A cell holding a web address (https://…) becomes a button with the words you type in “Button text”. Cells without an address stay as they are.					</span>
+				</li>
+						<li>
+				<svg data-icon="brush"></svg>				<span>
+					If a colour rule also matches a cell, the rule’s colour wins for that cell. That way one row can still stand out in a column that has a look.				</span>
+			</li>
 		</ul>
 	</div>

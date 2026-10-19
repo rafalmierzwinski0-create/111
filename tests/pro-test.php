@@ -1383,6 +1383,29 @@ lstabp_assert( 7 === substr_count( $lstabp_gone, '<tr role="row"' ) - 1, 'And na
 
 unset( $_GET[ 'lstab-f2-' . $source_id ] );
 
+// The admin preview shows the filters ticked on the card before they are
+// saved, and a value picked in it narrows the preview without an address.
+$lstabp_was_user = get_current_user_id();
+wp_set_current_user( 1 );
+update_option( LSTABP_Facets::OPTION, array(), false );
+
+$lstabp_redraw = new WP_REST_Request( 'POST', '/live-sheets-table/v1/redraw' );
+$lstabp_redraw->set_param( 'sourceId', $source_id );
+$lstabp_redraw->set_param( 'facets', array( 'Dostępność' ) );
+$lstabp_redrawn = (string) rest_get_server()->dispatch( $lstabp_redraw )->get_data()['html'];
+lstabp_assert( false !== strpos( $lstabp_redrawn, 'lstabp-facets' ), 'A column ticked on the card puts its filter in the preview before saving' );
+lstabp_assert( 7 === substr_count( $lstabp_redrawn, '<tr role="row"' ) - 1, 'And narrows nothing there until a value is picked', (string) ( substr_count( $lstabp_redrawn, '<tr role="row"' ) - 1 ) );
+lstabp_assert( false !== strpos( $lstabp_redrawn, 'data-lstabp-pick="W magazynie"' ), 'Its values are picked in place rather than followed as links' );
+lstabp_assert( false === strpos( $lstabp_redrawn, 'lstab-f2-' ), 'And none of them leads to the REST address the preview came from' );
+
+$lstabp_redraw->set_param( 'facetPicks', array( 2 => 'W magazynie' ) );
+$lstabp_picked = (string) rest_get_server()->dispatch( $lstabp_redraw )->get_data()['html'];
+lstabp_assert( 5 === substr_count( $lstabp_picked, '<tr role="row"' ) - 1, 'A value picked in the preview narrows the preview', (string) ( substr_count( $lstabp_picked, '<tr role="row"' ) - 1 ) );
+lstabp_assert( false !== strpos( $lstabp_picked, 'data-lstabp-clear="1"' ), 'And offers the way back' );
+lstabp_assert( array() === LSTABP_Facets::all(), 'Nothing about it is saved' );
+
+wp_set_current_user( $lstabp_was_user );
+
 // Deleting a source takes its filters with it.
 update_option( LSTABP_Facets::OPTION, array( $source_id => array( 'Dostępność' ), 999 => array( 'Cokolwiek' ) ), false );
 do_action( 'lstab_source_deleted', 999 );

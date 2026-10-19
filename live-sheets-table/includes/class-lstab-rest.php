@@ -46,6 +46,14 @@ class LSTAB_Rest {
 						'type'    => 'boolean',
 						'default' => true,
 					),
+					'search'         => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
+					'sort'           => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
 					'columns'        => array(
 						'type'    => 'array',
 						'default' => array(),
@@ -93,6 +101,14 @@ class LSTAB_Rest {
 						'default' => true,
 					),
 					'stickyHead' => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
+					'search'     => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
+					'sort'       => array(
 						'type'    => 'boolean',
 						'default' => true,
 					),
@@ -198,13 +214,16 @@ class LSTAB_Rest {
 				'html'      => LSTAB_Renderer::render_preview(
 					array(
 						'headers' => (array) $source['data']['headers'],
-						'rows'    => $preview,
+						'rows'    => $rows,
 					),
 					array(
 						'style'       => LSTAB_Styles::sanitize( (string) $request->get_param( 'style' ) ),
 						'layout'      => (string) $request->get_param( 'layout' ),
 						'sticky'      => (bool) $request->get_param( 'sticky' ),
 						'sticky_head' => (bool) $request->get_param( 'stickyHead' ),
+						'search'      => false !== $request->get_param( 'search' ),
+						'sort'        => false !== $request->get_param( 'sort' ),
+						'limit'       => 25,
 						'source_id'   => $source_id,
 						'columns'    => LSTAB_Columns::sanitize( (array) $request->get_param( 'columns' ) ),
 						'style_vars' => isset( $source['style_vars'] ) ? $source['style_vars'] : array(),
@@ -313,13 +332,16 @@ class LSTAB_Rest {
 				'html'      => LSTAB_Renderer::render_preview(
 					array(
 						'headers' => $table['headers'],
-						'rows'    => $preview,
+						'rows'    => $rows,
 					),
 					array(
 						'style'       => LSTAB_Styles::sanitize( (string) $request->get_param( 'style' ) ),
 						'layout'      => (string) $request->get_param( 'layout' ),
 						'sticky'      => (bool) $request->get_param( 'sticky' ),
 						'sticky_head' => (bool) $request->get_param( 'stickyHead' ),
+						'search'      => false !== $request->get_param( 'search' ),
+						'sort'        => false !== $request->get_param( 'sort' ),
+						'limit'       => 25,
 						'source_id'   => absint( $request->get_param( 'sourceId' ) ),
 						'columns'   => LSTAB_Columns::sanitize( (array) $request->get_param( 'columns' ) ),
 					)

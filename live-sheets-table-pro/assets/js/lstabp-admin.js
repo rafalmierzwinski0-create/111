@@ -442,14 +442,40 @@
 	}
 
 	function init() {
+		var picks = {};
+
 		window.lstabPreviewFields = window.lstabPreviewFields || [];
 		window.lstabPreviewFields.push( function () {
 			return {
 				rules: currentRules(),
 				looks: currentLooks(),
-				facets: currentFacets()
+				facets: currentFacets(),
+				facetPicks: picks
 			};
 		} );
+
+		window.addEventListener( 'click', function ( event ) {
+			var link = event.target.closest ? event.target.closest( '#lstab-preview [data-lstabp-pick], #lstab-preview [data-lstabp-clear]' ) : null;
+
+			if ( ! link ) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+
+			if ( link.hasAttribute( 'data-lstabp-clear' ) ) {
+				picks = {};
+			} else if ( '' === link.getAttribute( 'data-lstabp-pick' ) ) {
+				delete picks[ link.getAttribute( 'data-lstabp-column' ) ];
+			} else {
+				picks[ link.getAttribute( 'data-lstabp-column' ) ] = link.getAttribute( 'data-lstabp-pick' );
+			}
+
+			if ( window.lstabRedrawPreview ) {
+				window.lstabRedrawPreview();
+			}
+		}, true );
 
 		var redrawing = null;
 
