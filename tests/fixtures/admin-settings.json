@@ -1,5 +1,6 @@
 {
     "maxRules": 20,
     "foldMore": "Show %1$s more — %2$s still hidden",
-    "foldAll": "Show them all"
+    "foldAll": "Show them all",
+    "foldLess": "Show fewer"
 }

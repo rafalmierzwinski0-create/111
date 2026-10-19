@@ -716,10 +716,30 @@ await longPage.click( '.lstabp-fold-all' );
 await longPage.waitForTimeout( 80 );
 
 const afterAll = await visible();
-const buttonGone = await longPage.$eval( '.lstabp-fold-more', ( p ) => 'none' === getComputedStyle( p ).display );
+const shownButtons = () => longPage.$$eval( '.lstabp-fold-more button', ( buttons ) => buttons
+	.filter( ( b ) => 'none' !== getComputedStyle( b ).display && 'none' !== getComputedStyle( b.parentNode ).display )
+	.map( ( b ) => b.textContent ) );
+const opened = await shownButtons();
 
 check( afterAll.length === 24, 'and "show them all" brings the lot', `${ afterAll.length }` );
-check( buttonGone, 'with the button gone once there is nothing left to show' );
+check(
+	1 === opened.length && /fewer/i.test( opened[ 0 ] ),
+	'with nothing left to show, the only button folds the list back',
+	opened.join( ' | ' )
+);
+
+await longPage.click( '.lstabp-fold-more button:has-text("fewer")' );
+await longPage.waitForTimeout( 80 );
+
+const folded = await visible();
+const foldedButtons = await shownButtons();
+
+check( folded.length === atFirst.length, 'which puts it back the way it started', `${ folded.length }` );
+check(
+	2 === foldedButtons.length && foldedButtons.every( ( text ) => ! /fewer/i.test( text ) ),
+	'and offers more again instead of fewer',
+	foldedButtons.join( ' | ' )
+);
 
 check( longErrors.length === 0, 'no errors on the long card', longErrors.join( ' | ' ) );
 
