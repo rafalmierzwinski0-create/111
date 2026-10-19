@@ -560,7 +560,8 @@ for ( const skin of skins ) {
 	} else {
 		check( 0 === d.lastColLine, `${ skin }: no stray line down the outside edge`, `${ d.lastColLine }` );
 	}
-	const sticky = d.stickyBackdrop.match( /rgba?\(([^)]+)\)/ );
+	// A colour mixed in CSS comes back as color(srgb r g b / a) rather than rgb().
+	const sticky = d.stickyBackdrop.match( /(?:rgba?|color)\(\s*(?:srgb\s+)?([^)]+)\)/ );
 	const alpha = sticky ? Number( sticky[ 1 ].split( /[\s,\/]+/ ).filter( ( s ) => '' !== s )[ 3 ] ?? 1 ) : 0;
 
 	check( alpha > 0.5, `${ skin }: the pinned column has something solid behind it`, d.stickyBackdrop );
