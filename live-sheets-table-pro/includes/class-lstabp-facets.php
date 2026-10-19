@@ -291,17 +291,12 @@ class LSTABP_Facets {
 		}
 
 		$clear = array( 'page' => null );
-		$long  = false;
 
-		foreach ( $facets as $position => $facet ) {
+		foreach ( array_keys( $facets ) as $position ) {
 			$clear[ self::arg( $position ) ] = null;
-
-			if ( $facet['kinds'] > self::LONG_MENU ) {
-				$long = true;
-			}
 		}
 
-		if ( $long && ! $preview ) {
+		if ( ! $preview ) {
 			wp_enqueue_script( 'lstabp-facets' );
 		}
 		?>

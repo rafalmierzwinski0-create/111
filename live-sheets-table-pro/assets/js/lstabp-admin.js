@@ -386,8 +386,14 @@
 		all.className = 'lstabp-fold-all';
 		all.textContent = words.all;
 
+		var less = document.createElement( 'button' );
+		less.type = 'button';
+		less.className = 'lstabp-fold-all';
+		less.textContent = words.less || '';
+
 		more.appendChild( next );
 		more.appendChild( all );
+		more.appendChild( less );
 		list.parentNode.insertBefore( more, list.nextSibling );
 
 		function apply() {
@@ -411,7 +417,14 @@
 				hidden++;
 			} );
 
-			more.hidden = 0 === hidden;
+			var folds = shown > step && !! words.less && items.slice( step ).some( function ( item ) {
+				return ! isOn( item );
+			} );
+
+			next.hidden = 0 === hidden;
+			all.hidden = 0 === hidden;
+			less.hidden = ! folds;
+			more.hidden = 0 === hidden && ! folds;
 			next.textContent = words.more.replace( '%1$s', String( Math.min( step, hidden ) ) ).replace( '%2$s', String( hidden ) );
 		}
 
@@ -434,6 +447,19 @@
 		all.addEventListener( 'click', function () {
 			shown = items.length;
 			apply();
+		} );
+
+		less.addEventListener( 'click', function () {
+			shown = step;
+			apply();
+
+			var top = list.getBoundingClientRect().top;
+
+			if ( top < 0 ) {
+				list.scrollIntoView( { block: 'start' } );
+			}
+
+			next.focus( { preventScroll: true } );
 		} );
 
 		list.addEventListener( 'change', apply );
@@ -574,7 +600,7 @@
 
 						return !! picked && '' !== picked.value;
 					},
-					{ more: settings.foldMore || '', all: settings.foldAll || '' }
+					{ more: settings.foldMore || '', all: settings.foldAll || '', less: settings.foldLess || '' }
 				);
 			}
 		}
@@ -594,7 +620,7 @@
 
 						return !! box && box.checked;
 					},
-					{ more: settings.foldMore || '', all: settings.foldAll || '' }
+					{ more: settings.foldMore || '', all: settings.foldAll || '', less: settings.foldLess || '' }
 				);
 			}
 		}

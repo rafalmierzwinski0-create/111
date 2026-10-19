@@ -540,6 +540,14 @@ class LSTABP_Rules {
 			true
 		);
 
+		wp_enqueue_script(
+			'lstabp-facets',
+			LSTABP_URL . 'assets/js/lstabp-facets.js',
+			array(),
+			LSTABP_VERSION,
+			true
+		);
+
 		$swatches = array();
 		foreach ( self::styles() as $key => $style ) {
 			$swatches[ $key ] = $style['css'];
@@ -560,6 +568,7 @@ class LSTABP_Rules {
 			/* translators: 1: how many more are about to be shown, 2: how many are still hidden. */
 			'foldMore' => __( 'Show %1$s more — %2$s still hidden', 'live-sheets-table-pro' ),
 			'foldAll'  => __( 'Show them all', 'live-sheets-table-pro' ),
+			'foldLess' => __( 'Show fewer', 'live-sheets-table-pro' ),
 		);
 	}
 

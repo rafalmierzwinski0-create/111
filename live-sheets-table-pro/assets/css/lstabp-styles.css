@@ -9,7 +9,7 @@
 	--lstab-hover: #f1ece1;
 	--lstab-accent: #9a5b2c;
 	--lstab-radius: 0px;
-	--lstab-frame-border: 0;
+	--lstab-frame-border: 1px solid color-mix(in srgb, var(--lstab-border-strong) 30%, var(--lstab-border));
 	--lstab-frame-shadow: none;
 	--lstab-font-size: 1.02em;
 	--lstab-pad-y: 0.85em;
@@ -30,13 +30,6 @@
 	text-transform: none;
 	color: var(--lstab-fg);
 	--lstab-head-rule: 2px;
-}
-
-.lstab-style-editorial .lstab-table tbody tr:last-child {
-	--lstab-row-line-colour: var(--lstab-border-strong);
-	--lstab-pin-under: var(--lstab-row-line);
-	border-bottom-width: var(--lstab-row-line);
-	border-bottom-color: var(--lstab-border-strong);
 }
 
 .lstab-style-cards,

@@ -52,6 +52,34 @@
 		Array.prototype.forEach.call( document.querySelectorAll( '.lstabp-facet-find' ), init );
 	}
 
+	function closeAll( except ) {
+		Array.prototype.forEach.call( document.querySelectorAll( 'details.lstabp-facet[open]' ), function ( menu ) {
+			if ( menu !== except ) {
+				menu.open = false;
+			}
+		} );
+	}
+
+	document.addEventListener( 'click', function ( event ) {
+		closeAll( event.target.closest ? event.target.closest( 'details.lstabp-facet' ) : null );
+	} );
+
+	document.addEventListener( 'keydown', function ( event ) {
+		var menu = 'Escape' === event.key && event.target.closest ? event.target.closest( 'details.lstabp-facet[open]' ) : null;
+
+		if ( ! menu ) {
+			return;
+		}
+
+		menu.open = false;
+
+		var summary = menu.querySelector( 'summary' );
+
+		if ( summary ) {
+			summary.focus();
+		}
+	} );
+
 	if ( 'loading' === document.readyState ) {
 		document.addEventListener( 'DOMContentLoaded', start );
 	} else {

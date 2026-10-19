@@ -675,7 +675,8 @@
 	color: #135e96;
 }
 
-.lstabp-fold-more[ hidden ] {
+.lstabp-fold-more[ hidden ],
+.lstabp-fold-more [ hidden ] {
 	display: none;
 }
 
@@ -692,6 +693,10 @@
 	--thumb-line: #ece4d8;
 	--thumb-under-head: 2px solid #2b2118;
 	--thumb-radius: 2px;
+}
+
+.lstab-thumb-editorial .lstab-thumb-panel {
+	border: 1px solid #c9bca8;
 }
 
 .lstab-thumb-editorial .lstab-thumb-head i {
