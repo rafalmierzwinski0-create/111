@@ -55,7 +55,7 @@ class LSTABP_Google_Auth {
 	}
 
 	public static function expired_message() {
-		return __( 'Google has ended the connection to your Google account, so private sheets are not updating. Sign in again on the Live Sheets Table → Pro screen. If this happens every seven days, publish your app in Google Cloud so that its status is “In production”.', 'live-sheets-table-pro' );
+		return __( 'Google has ended the connection to your Google account, so private sheets are not updating. Sign in to Google again on the Live Sheets Table → Pro screen. If this happens every seven days, publish your app in Google Cloud so that its status is “In production”.', 'live-sheets-table-pro' );
 	}
 
 	public static function redirect_uri() {
