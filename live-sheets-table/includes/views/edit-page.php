@@ -36,7 +36,7 @@ if ( ! $lstab_is_edit ) {
 			<p><strong><?php esc_html_e( 'Some rows of this sheet could not be read.', 'live-sheets-table' ); ?></strong></p>
 			<p><?php echo esc_html( LSTAB_Admin::ragged_summary( $source['last_ragged'] ) ); ?></p>
 			<p>
-				<?php esc_html_e( 'Open those rows in your sheet and compare them with the rows around them. The usual cause is a quotation mark that is opened but never closed.', 'live-sheets-table' ); ?>
+				<?php esc_html_e( 'Open those rows in your sheet and compare them with the rows around them.', 'live-sheets-table' ); ?>
 			</p>
 			<p><?php esc_html_e( 'Your page shows the table as it was read, including these rows. Fix them in Google, then choose “Save and update from Google” at the bottom of this screen.', 'live-sheets-table' ); ?></p>
 		</div>

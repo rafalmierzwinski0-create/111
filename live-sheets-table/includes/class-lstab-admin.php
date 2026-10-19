@@ -534,8 +534,8 @@ class LSTAB_Admin {
 		return sprintf(
 			/* translators: 1: number of rows, 2: expected column count, 3: list of row numbers. */
 			_n(
-				'%1$d row has a different number of cells from the other rows, which have %2$d: row %3$s. A value in it may be missing or shown in the wrong column.',
-				'%1$d rows have a different number of cells from the other rows, which have %2$d, so values in them may be missing or shown in the wrong column. Rows: %3$s.',
+				'%1$d row has a different number of cells from the other rows, which have %2$d: row %3$s. A value in it may be missing or shown in the wrong column. Most often a quotation mark left open, or a comma inside a value, has joined two cells into one.',
+				'%1$d rows have a different number of cells from the other rows, which have %2$d, so values in them may be missing or shown in the wrong column. Most often a quotation mark left open, or a comma inside a value, has joined two cells into one. Rows: %3$s.',
 				(int) $ragged['total'],
 				'live-sheets-table'
 			),
