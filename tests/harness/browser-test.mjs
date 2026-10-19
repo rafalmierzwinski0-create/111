@@ -1362,7 +1362,7 @@ const failedStatus = await page.locator( '.lstab-state' ).first().innerText();
 check( /Last check failed/.test( failedStatus ), 'Dashboard shows the sync error', failedStatus );
 
 const detail = await page.locator( '.lstab-src-note' ).first().innerText();
-check( /last copy that arrived/.test( detail ), 'Dashboard says the public page is unaffected', detail );
+check( /last version that was read/.test( detail ), 'Dashboard says the public page is unaffected', detail );
 // The reassurance must not cost the diagnosis: a fault with no stated cause is
 // how a sheet stays broken for a week.
 check( /403|Share/.test( detail ), 'Dashboard explains what to do about it', detail );
@@ -2529,7 +2529,7 @@ check( 'look' === ( await paneNow() ), 'Clicking a tab moves to it' );
  * beginning, the same as opening an existing one.
  */
 await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
-await page.locator( 'a.lstab-btn:has-text("Add a sheet")' ).first().click();
+await page.locator( 'a.lstab-btn:has-text("Add a table")' ).first().click();
 await page.waitForLoadState( 'networkidle' );
 await page.waitForTimeout( 600 );
 check( 'general' === ( await paneNow() ), 'And "Add a sheet" does too, wherever the last visit ended', await paneNow() );
@@ -2605,7 +2605,7 @@ const pagedNotice = await page.locator( '.notice, .lstab-notice' ).allInnerTexts
 const pagedSaid = pagedNotice.join( ' | ' );
 check( /260/.test( pagedSaid ), 'The screen says how long the sheet turned out to be', pagedSaid.slice( 0, 200 ) );
 check( /50/.test( pagedSaid ), 'And how many rows it is showing at a time', pagedSaid.slice( 0, 200 ) );
-check( /Columns and rows/.test( pagedSaid ), 'And where to change its mind', pagedSaid.slice( 0, 200 ) );
+check( /Appearance → Pagination/.test( pagedSaid ), 'And where to change its mind', pagedSaid.slice( 0, 200 ) );
 
 /*
  * From the card, not the address bar: a save lands on the list, so the URL
