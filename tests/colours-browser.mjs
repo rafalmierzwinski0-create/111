@@ -175,7 +175,18 @@ for ( const skin of skins ) {
 	await away();
 	const spots = await points( `t-${ skin }`, 0 );
 	const [ first, , third ] = await colours( spots );
-	check( first === third, `${ skin }: the first column wears the chosen background like the rest`, `${ first } against ${ third }` );
+	// Contrast gives its first column weight with a light shade of whatever
+	// background is chosen, pinned or not, so there it must be that shade.
+	const shade = ( a, b ) => {
+		const x = a.split( ',' ).map( Number );
+		const y = b.split( ',' ).map( Number );
+		return x.every( ( v, i ) => v <= y[ i ] && y[ i ] - v <= 25 ) && a !== b;
+	};
+	check(
+		'contrast' === skin ? shade( first, third ) : first === third,
+		`${ skin }: the first column wears the chosen background like the rest`,
+		`${ first } against ${ third }`
+	);
 }
 
 console.log( '\nA rule\'s colour on the pinned first column' );
