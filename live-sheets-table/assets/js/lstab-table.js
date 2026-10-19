@@ -376,7 +376,10 @@
 				return 0;
 			}
 
-			return Math.max( table.scrollWidth, table.offsetWidth ) - scroller.clientWidth;
+			var frame = window.getComputedStyle( scroller );
+			var room = scroller.clientWidth - ( parseFloat( frame.paddingLeft ) || 0 ) - ( parseFloat( frame.paddingRight ) || 0 );
+
+			return Math.max( table.scrollWidth, table.offsetWidth ) - room;
 		}
 
 		function applyEvenColumns() {
