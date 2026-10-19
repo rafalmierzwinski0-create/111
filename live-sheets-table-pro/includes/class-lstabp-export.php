@@ -224,7 +224,7 @@ class LSTABP_Export {
 					<?php esc_html_e( 'Let visitors download or print this table', 'live-sheets-table-pro' ); ?>
 				</label>
 				<span class="lstab-help">
-					<?php esc_html_e( 'Excel, CSV and Print buttons under the table. A download holds every row of the table, on every page, after its filter and the visitor’s choices under “Show only” — and only the columns you kept.', 'live-sheets-table-pro' ); ?>
+					<?php esc_html_e( 'Adds “Download for Excel”, “Download CSV” and “Print” buttons under the table. A download holds all the rows, not only the page on screen. Columns and rows you hid are left out, and so are rows that your filter or the visitor’s “Show only” choices leave out. The file is named after the table’s title.', 'live-sheets-table-pro' ); ?>
 				</span>
 			</p>
 		</div>

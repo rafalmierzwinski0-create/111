@@ -40,7 +40,7 @@ class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'source_id',
 			array(
-				'label'   => __( 'Saved source', 'live-sheets-table' ),
+				'label'   => __( 'Table', 'live-sheets-table' ),
 				'type'    => \Elementor\Controls_Manager::SELECT,
 				'options' => LSTAB_Elementor::source_options(),
 				'default' => 0,
@@ -53,8 +53,8 @@ class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
 				'type'            => \Elementor\Controls_Manager::RAW_HTML,
 				'raw'             => sprintf(
 					/* translators: %s: link to the plugin's own screen. */
-					__( 'Sheets are added and refreshed in %s.', 'live-sheets-table' ),
-					'<a href="' . esc_url( admin_url( 'admin.php?page=' . LSTAB_Admin::SOURCES_SLUG ) ) . '" target="_blank">' . esc_html__( 'Sheets Tables', 'live-sheets-table' ) . '</a>'
+					__( 'Tables are added and updated in %s.', 'live-sheets-table' ),
+					'<a href="' . esc_url( admin_url( 'admin.php?page=' . LSTAB_Admin::SOURCES_SLUG ) ) . '" target="_blank">' . esc_html__( 'Live Sheets Table → All tables', 'live-sheets-table' ) . '</a>'
 				),
 				'content_classes' => 'elementor-descriptor',
 			)
@@ -79,7 +79,7 @@ class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'show_sort',
 			array(
-				'label'   => __( 'Sortable columns', 'live-sheets-table' ),
+				'label'   => __( 'Sorting by column', 'live-sheets-table' ),
 				'type'    => \Elementor\Controls_Manager::SWITCHER,
 				'default' => 'yes',
 			)
@@ -101,9 +101,9 @@ class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
 				'type'    => \Elementor\Controls_Manager::SELECT,
 				'default' => 'inherit',
 				'options' => array(
-					'inherit' => __( 'Use the source default', 'live-sheets-table' ),
+					'inherit' => __( 'As set for the table', 'live-sheets-table' ),
 					'table'   => __( 'Table with a slider', 'live-sheets-table' ),
-					'auto'    => __( 'Stack into cards when narrow', 'live-sheets-table' ),
+					'auto'    => __( 'Cards when it stops fitting', 'live-sheets-table' ),
 					'cards'   => __( 'Always cards', 'live-sheets-table' ),
 				),
 			)
@@ -140,7 +140,7 @@ class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
 				array(
 					'label'       => __( 'Filter', 'live-sheets-table' ),
 					'type'        => \Elementor\Controls_Manager::TEXT,
-					'description' => __( 'Show only matching rows, for example: Category is Bikes. Join conditions with “and”. Operators: is, is not, has, gt, gte, lt, lte.', 'live-sheets-table' ),
+					'description' => __( 'Show only the rows that match, for example: Category is Bikes. To use several conditions, join them with “and” or a comma; a row must match all of them. The words you can use are listed on the Live Sheets Table → Pro screen.', 'live-sheets-table' ),
 				)
 			);
 
@@ -149,7 +149,7 @@ class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
 	}
 
 	protected static function preset_options() {
-		$options = array( '' => __( 'Use the source default', 'live-sheets-table' ) );
+		$options = array( '' => __( 'As set for the table', 'live-sheets-table' ) );
 
 		foreach ( LSTAB_Styles::all() as $key => $preset ) {
 			$options[ $key ] = isset( $preset['label'] ) ? $preset['label'] : $key;

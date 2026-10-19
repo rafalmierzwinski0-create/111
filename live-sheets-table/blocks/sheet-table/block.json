@@ -5,7 +5,7 @@
 	"title": "Google Sheets Table",
 	"category": "widgets",
 	"icon": "editor-table",
-	"description": "Show a saved Google Sheet as a responsive, auto-refreshing table.",
+	"description": "Show a table from Live Sheets Table. It keeps itself up to date with its Google Sheet.",
 	"keywords": [
 		"google",
 		"sheets",

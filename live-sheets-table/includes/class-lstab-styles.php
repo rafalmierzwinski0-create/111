@@ -7,19 +7,19 @@ class LSTAB_Styles {
 		$presets = array(
 			'clean'    => array(
 				'label'       => __( 'Clean', 'live-sheets-table' ),
-				'description' => __( 'Light lines between rows and generous spacing. Uses your theme\'s fonts.', 'live-sheets-table' ),
+				'description' => __( 'Thin lines between rows and plenty of space. Uses your theme’s fonts.', 'live-sheets-table' ),
 			),
 			'striped'  => array(
 				'label'       => __( 'Striped', 'live-sheets-table' ),
-				'description' => __( 'Alternating row shading, which makes a long list easier to follow.', 'live-sheets-table' ),
+				'description' => __( 'Every other row is shaded, which makes a long list easier to follow.', 'live-sheets-table' ),
 			),
 			'bordered' => array(
 				'label'       => __( 'Bordered', 'live-sheets-table' ),
-				'description' => __( 'A full grid with a shaded heading row. Suits dense columns of numbers.', 'live-sheets-table' ),
+				'description' => __( 'Lines around every cell and a shaded row of column names. Suits tables full of numbers.', 'live-sheets-table' ),
 			),
 			'midnight' => array(
 				'label'       => __( 'Midnight', 'live-sheets-table' ),
-				'description' => __( 'A dark table with high contrast.', 'live-sheets-table' ),
+				'description' => __( 'A dark table with light text, for sites with a dark design.', 'live-sheets-table' ),
 			),
 		);
 

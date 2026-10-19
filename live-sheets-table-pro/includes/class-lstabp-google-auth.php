@@ -55,7 +55,7 @@ class LSTABP_Google_Auth {
 	}
 
 	public static function expired_message() {
-		return __( 'Google ended the connection to your Google account, so private sheets cannot be read. Sign in to Google again on the Pro screen. If this happens every week, set the publishing status of your Google Cloud app to “In production”.', 'live-sheets-table-pro' );
+		return __( 'Google has ended the connection to your Google account, so private sheets are not updating. Sign in again on the Live Sheets Table → Pro screen. If this happens every seven days, publish your app in Google Cloud so that its status is “In production”.', 'live-sheets-table-pro' );
 	}
 
 	public static function redirect_uri() {
@@ -106,7 +106,7 @@ class LSTABP_Google_Auth {
 		delete_transient( 'lstabp_oauth_state_' . get_current_user_id() );
 
 		if ( ! $expected || ! hash_equals( (string) $expected, $returned ) ) {
-			$this->redirect_with( 'error', __( 'That sign-in did not match the request that started it, so it was discarded. Please try connecting again.', 'live-sheets-table-pro' ) );
+			$this->redirect_with( 'error', __( 'That sign-in could not be matched to this site, so it was ignored for safety. Please choose “Connect a Google account” again.', 'live-sheets-table-pro' ) );
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Verified by the OAuth state value.
@@ -135,7 +135,7 @@ class LSTABP_Google_Auth {
 			$this->redirect_with( 'error', $token->get_error_message() );
 		}
 
-		$this->redirect_with( 'success', __( 'Google account connected. Private sheets can now be used as sources.', 'live-sheets-table-pro' ) );
+		$this->redirect_with( 'success', __( 'Google account connected. Tables can now show private sheets.', 'live-sheets-table-pro' ) );
 	}
 
 	public function handle_disconnect() {
@@ -143,7 +143,7 @@ class LSTABP_Google_Auth {
 
 		delete_option( self::OPTION_TOKEN );
 
-		$this->redirect_with( 'success', __( 'Google account disconnected. Private sheets will stop updating.', 'live-sheets-table-pro' ) );
+		$this->redirect_with( 'success', __( 'Google account disconnected. Tables with private sheets stop updating and keep showing their last version.', 'live-sheets-table-pro' ) );
 	}
 
 	public static function exchange_code( $code ) {

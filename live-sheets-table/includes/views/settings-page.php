@@ -31,7 +31,7 @@ defined( 'ABSPATH' ) || exit;
 				<div class="lstab-row-say">
 					<p class="lstab-row-title" id="lstab-set-manage"><?php esc_html_e( 'Who can manage tables', 'live-sheets-table' ); ?></p>
 					<p class="lstab-row-help">
-						<?php esc_html_e( 'Anyone who can manage tables can also read every sheet they point at, including columns left out of the published table.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'These people can add, change and delete tables. They can also see everything in the sheets behind them, including columns and rows hidden from visitors.', 'live-sheets-table' ); ?>
 					</p>
 				</div>
 				<div class="lstab-row-do">
@@ -51,7 +51,7 @@ defined( 'ABSPATH' ) || exit;
 				<?php echo LSTAB_Icons::badge( 'refresh', 'sky' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
 				<span>
 					<h2><?php esc_html_e( 'Checking Google', 'live-sheets-table' ); ?></h2>
-					<span class="lstab-panel-sub"><?php esc_html_e( 'How often, and how long a visitor may be made to wait', 'live-sheets-table' ); ?></span>
+					<span class="lstab-panel-sub"><?php esc_html_e( 'How often tables are updated, and how long a visitor may wait', 'live-sheets-table' ); ?></span>
 				</span>
 			</div>
 
@@ -59,7 +59,7 @@ defined( 'ABSPATH' ) || exit;
 				<div class="lstab-row-say">
 					<p class="lstab-row-title" id="lstab-set-interval"><?php esc_html_e( 'How often new tables check Google', 'live-sheets-table' ); ?></p>
 					<p class="lstab-row-help">
-						<?php esc_html_e( 'The value given to each new table. Existing tables are not affected, and every table can be set separately.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'The starting value for each table you add from now on. Tables you already have keep their own setting, and you can change it for any table on its own screen.', 'live-sheets-table' ); ?>
 					</p>
 				</div>
 				<div class="lstab-row-do">
@@ -92,7 +92,7 @@ defined( 'ABSPATH' ) || exit;
 				<div class="lstab-row-say">
 					<p class="lstab-row-title"><?php esc_html_e( 'How long to wait for Google', 'live-sheets-table' ); ?></p>
 					<p class="lstab-row-help">
-						<?php esc_html_e( 'Applies only when a visitor opens a table that is overdue for a check. After this time the table is drawn from the copy already stored.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'Only when somebody opens a page with a table that is overdue for a check. If Google has not answered in this time, the visitor sees the version already stored, and the check finishes later.', 'live-sheets-table' ); ?>
 					</p>
 				</div>
 				<div class="lstab-row-do">
@@ -120,7 +120,7 @@ defined( 'ABSPATH' ) || exit;
 				<div class="lstab-row-say">
 					<p class="lstab-row-title" id="lstab-set-style"><?php esc_html_e( 'How new tables look', 'live-sheets-table' ); ?></p>
 					<p class="lstab-row-help">
-						<?php esc_html_e( 'The style given to each new table. Every table can still be changed afterwards.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'The style each new table starts with. You can still change it for any table on its own screen.', 'live-sheets-table' ); ?>
 					</p>
 				</div>
 				<div class="lstab-row-do">
@@ -150,9 +150,9 @@ defined( 'ABSPATH' ) || exit;
 
 			<div class="lstab-row lstab-row--danger">
 				<div class="lstab-row-say">
-					<p class="lstab-row-title"><?php esc_html_e( 'Also delete every sheet source and setting', 'live-sheets-table' ); ?></p>
+					<p class="lstab-row-title"><?php esc_html_e( 'Also delete every table and setting', 'live-sheets-table' ); ?></p>
 					<p class="lstab-row-help">
-						<?php esc_html_e( 'Applies only when the plugin is deleted from the Plugins screen, not when it is deactivated. Your spreadsheets in Google are never touched.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'When this is on and you delete the plugin on the Plugins screen, all your tables and settings are removed for good. Deactivating the plugin removes nothing. Your sheets in Google are never touched.', 'live-sheets-table' ); ?>
 					</p>
 				</div>
 				<div class="lstab-row-do">

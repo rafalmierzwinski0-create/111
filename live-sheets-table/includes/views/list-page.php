@@ -13,7 +13,7 @@ $lstab_add_button = sprintf(
 	'<a href="%s" class="lstab-btn">%s%s</a>',
 	esc_url( admin_url( 'admin.php?page=' . LSTAB_Admin::EDIT_SLUG ) ),
 	LSTAB_Icons::icon( 'plus' ),
-	esc_html__( 'Add a sheet', 'live-sheets-table' )
+	esc_html__( 'Add a table', 'live-sheets-table' )
 );
 ?>
 <div class="wrap lstab-admin">
@@ -192,7 +192,7 @@ $lstab_add_button = sprintf(
 										<?php
 										printf(
 											/* translators: 1: number of rows, 2: rows a page would hold. */
-											esc_html__( 'This sheet has grown to %1$s rows. Shall it be shown %2$s at a time? Visitors get page buttons, the page loads quicker, and searching and sorting still cover every row.', 'live-sheets-table' ),
+											esc_html__( 'This sheet has grown to %1$s rows. Show it %2$s rows per page? The page loads faster, visitors get page buttons, and searching and sorting still cover every row.', 'live-sheets-table' ),
 											esc_html( number_format_i18n( (int) $lstab_source['row_count'] ) ),
 											esc_html( number_format_i18n( LSTAB_Paging::auto_per_page() ) )
 										);
@@ -323,7 +323,7 @@ $lstab_add_button = sprintf(
 								<?php endif; ?>
 
 								<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="lstab-inline-form"
-									onsubmit="return window.confirm( <?php echo esc_js( wp_json_encode( __( 'Delete this sheet source? Tables using it will stop rendering.', 'live-sheets-table' ) ) ); ?> );">
+									onsubmit="return window.confirm( <?php echo esc_js( wp_json_encode( __( 'Delete this table? Pages that show it will show nothing in its place. Your sheet in Google is not touched.', 'live-sheets-table' ) ) ); ?> );">
 									<?php wp_nonce_field( 'lstab_delete_source' ); ?>
 									<input type="hidden" name="action" value="lstab_delete_source">
 									<input type="hidden" name="source_id" value="<?php echo esc_attr( (string) $lstab_source['id'] ); ?>">
@@ -344,7 +344,7 @@ $lstab_add_button = sprintf(
 				<input type="hidden" name="action" value="lstab_add_example">
 				<?php wp_nonce_field( 'lstab_add_example' ); ?>
 				<?php echo LSTAB_Icons::icon( 'play' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-				<span><?php esc_html_e( 'Add the built-in example price list to try the settings out. It never contacts Google.', 'live-sheets-table' ); ?></span>
+				<span><?php esc_html_e( 'Add the example price list that comes with the plugin and try the settings on it. It never contacts Google.', 'live-sheets-table' ); ?></span>
 				<button type="submit" class="lstab-mini lstab-mini--strong"><?php esc_html_e( 'Add the example', 'live-sheets-table' ); ?></button>
 			</form>
 		<?php endif; ?>

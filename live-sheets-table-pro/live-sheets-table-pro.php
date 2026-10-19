@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Live Sheets Table Pro
- * Description:       Adds private Google Sheets, filtered views, filters for visitors, colour rules, column looks, Excel, CSV and print export, six more table styles and syncing every minute to Live Sheets Table.
+ * Description:       Extends Live Sheets Table with private Google Sheets, filters, filter menus for visitors, colour rules, column looks, Excel, CSV and print downloads, six more table styles and updates as often as every minute.
  * Version:           1.0.0
  * Requires at least: 6.7
  * Requires PHP:      7.4

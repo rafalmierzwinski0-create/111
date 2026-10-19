@@ -29,7 +29,7 @@ $lstabp_offer = array( '' => __( 'Ordinary', 'live-sheets-table-pro' ) ) + $lsta
 
 	<?php if ( $lstabp_waiting ) : ?>
 		<p class="lstab-help">
-			<?php esc_html_e( 'Load the sheet first — a column cannot be given a look before its columns are known.', 'live-sheets-table-pro' ); ?>
+			<?php esc_html_e( 'Paste the sheet’s link and choose “Load preview” first. The columns then appear here.', 'live-sheets-table-pro' ); ?>
 		</p>
 	<?php else : ?>
 		<ul class="lstabp-looks" data-lstabp-fold="10">

@@ -173,7 +173,7 @@ class LSTAB_Sync {
 		$source = LSTAB_Storage::get( $id );
 
 		if ( ! $source ) {
-			return new WP_Error( 'lstab_unknown_source', __( 'That sheet source no longer exists.', 'live-sheets-table' ) );
+			return new WP_Error( 'lstab_unknown_source', __( 'That table has been deleted.', 'live-sheets-table' ) );
 		}
 
 		if ( LSTAB_Example::is_example( $source ) ) {
@@ -213,7 +213,7 @@ class LSTAB_Sync {
 		if ( ! LSTAB_Storage::record_success( $id, $table ) ) {
 			$stored = new WP_Error(
 				'lstab_db_write_failed',
-				__( 'The sheet arrived but could not be saved in the database. It may be too large for this server.', 'live-sheets-table' )
+				__( 'The sheet was read but could not be saved in the WordPress database. It may be too large for this server.', 'live-sheets-table' )
 			);
 			LSTAB_Storage::record_failure( $id, $stored->get_error_message() );
 			do_action( 'lstab_sync_failed', $source, $stored );

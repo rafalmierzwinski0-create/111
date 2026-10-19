@@ -36,9 +36,9 @@ if ( ! $lstab_is_edit ) {
 			<p><strong><?php esc_html_e( 'Some rows of this sheet could not be read.', 'live-sheets-table' ); ?></strong></p>
 			<p><?php echo esc_html( LSTAB_Admin::ragged_summary( $source['last_ragged'] ) ); ?></p>
 			<p>
-				<?php esc_html_e( 'Usually an unclosed quotation mark, or a comma inside a value that was not quoted. Open those rows in your sheet and compare them with the rest.', 'live-sheets-table' ); ?>
+				<?php esc_html_e( 'Open those rows in your sheet and compare them with the rows around them. The usual cause is a quotation mark that is opened but never closed.', 'live-sheets-table' ); ?>
 			</p>
-			<p><?php esc_html_e( 'Your page still shows the copy that arrived. Fix the rows in Google, then choose “Save changes and sync”.', 'live-sheets-table' ); ?></p>
+			<p><?php esc_html_e( 'Your page shows the table as it was read, including these rows. Fix them in Google, then choose “Save and update from Google” at the bottom of this screen.', 'live-sheets-table' ); ?></p>
 		</div>
 	<?php endif; ?>
 
@@ -79,7 +79,7 @@ if ( ! $lstab_is_edit ) {
 				<div class="lstab-card">
 					<h2 class="lstab-card-title"><?php esc_html_e( 'This is the built-in example', 'live-sheets-table' ); ?></h2>
 					<p class="lstab-help">
-						<?php esc_html_e( 'A built-in sheet that never contacts Google. Every other setting works as it does for a real one.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'This table comes with the plugin and never contacts Google, so it has no link and no schedule. Every other setting works exactly as it does for your own sheets.', 'live-sheets-table' ); ?>
 					</p>
 				</div>
 			<?php else : ?>
@@ -87,7 +87,7 @@ if ( ! $lstab_is_edit ) {
 				<h2 class="lstab-card-title"><?php esc_html_e( 'Point at your sheet', 'live-sheets-table' ); ?></h2>
 
 				<p class="lstab-help">
-					<?php esc_html_e( 'In Google Sheets: Share → General access → “Anyone with the link”, role “Viewer”. Then copy the address from the browser. No API key needed.', 'live-sheets-table' ); ?>
+					<?php esc_html_e( 'First share the sheet: in Google Sheets choose Share → General access → “Anyone with the link”, with the role “Viewer”. Then copy the address from your browser’s address bar and paste it here. No API key is needed.', 'live-sheets-table' ); ?>
 				</p>
 
 				<p>
@@ -141,7 +141,7 @@ if ( ! $lstab_is_edit ) {
 						class="regular-text"
 						placeholder="<?php esc_attr_e( 'Price list', 'live-sheets-table' ); ?>"
 						value="<?php echo esc_attr( (string) $lstab_values['title'] ); ?>">
-					<span class="lstab-help"><?php esc_html_e( 'Only shown in the dashboard, to tell sources apart.', 'live-sheets-table' ); ?></span>
+					<span class="lstab-help"><?php esc_html_e( 'For you, to tell your tables apart. It is not shown on the page.', 'live-sheets-table' ); ?></span>
 				</p>
 
 				<?php if ( ! $lstab_is_sample ) : ?>
@@ -158,8 +158,8 @@ if ( ! $lstab_is_edit ) {
 						<?php
 						printf(
 							/* translators: %d: how many seconds a visitor may be made to wait. */
-							esc_html__( 'How old the data on your page may be. Checks run in the background, and a table past its time is also checked when somebody opens the page.', 'live-sheets-table' ),
-							(int) LSTAB_Sync::VIEW_TIMEOUT
+							esc_html__( 'How often the plugin looks in Google for changes. This happens in the background. If a table is overdue when somebody opens the page, it is checked then, and that visitor waits at most %d seconds.', 'live-sheets-table' ),
+							(int) LSTAB_Sync::view_timeout()
 						);
 						?>
 					</span>
@@ -173,7 +173,7 @@ if ( ! $lstab_is_edit ) {
 				<div class="lstab-card lstab-usage">
 					<h2 class="lstab-card-title"><?php esc_html_e( 'Put it on a page', 'live-sheets-table' ); ?></h2>
 					<p>
-						<?php esc_html_e( 'Use the “Google Sheets Table” block, or paste this shortcode:', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'In the block editor, add the “Google Sheets Table” block and pick this table. In Elementor, use the “Google Sheets Table” widget. Anywhere else, paste this shortcode:', 'live-sheets-table' ); ?>
 					</p>
 					<p class="lstab-usage-code">
 						<code class="lstab-shortcode"><?php echo esc_html( $lstab_shortcode ); ?></code>
@@ -205,7 +205,7 @@ if ( ! $lstab_is_edit ) {
 					?>
 					<div class="lstab-shortcode-options" data-lstab-shortcode-builder="<?php echo esc_attr( (string) (int) $source['id'] ); ?>">
 						<p class="lstab-help">
-							<?php esc_html_e( 'Change what this table shows on the page. The shortcode above changes with it.', 'live-sheets-table' ); ?>
+							<?php esc_html_e( 'Choose what visitors see with the table. These switches are not saved: they only change the shortcode above, and the preview shows the result. Copy the shortcode when it is ready. The block and the widget have the same switches in their own settings.', 'live-sheets-table' ); ?>
 						</p>
 						<?php foreach ( $lstab_options as $lstab_option ) : ?>
 							<?php if ( 'toggle' === $lstab_option['type'] ) : ?>
@@ -229,7 +229,7 @@ if ( ! $lstab_is_edit ) {
 						?>
 						<?php if ( $lstab_written ) : ?>
 							<p class="lstab-help lstab-shortcode-written">
-								<?php esc_html_e( 'You can add this inside the brackets:', 'live-sheets-table' ); ?>
+								<?php esc_html_e( 'You can also type these into the shortcode, inside the square brackets:', 'live-sheets-table' ); ?>
 							</p>
 							<table class="lstab-attribute-list">
 								<thead>
@@ -280,23 +280,23 @@ if ( ! $lstab_is_edit ) {
 				$lstab_layouts = array(
 					'table' => array(
 						'label' => __( 'Table with a slider', 'live-sheets-table' ),
-						'desc'  => __( 'Columns stay columns at every width. A slider under the table moves it sideways.', 'live-sheets-table' ),
+						'desc'  => __( 'The table keeps its columns at every width. When it is wider than the screen, visitors scroll it sideways with a slider under it.', 'live-sheets-table' ),
 					),
 					'auto'  => array(
 						'label' => __( 'Cards when it stops fitting', 'live-sheets-table' ),
-						'desc'  => __( 'A table on a computer. On a phone each row becomes a block with its heading beside every value.', 'live-sheets-table' ),
+						'desc'  => __( 'A normal table where it fits. Where it does not, such as on a phone, each row becomes a card that lists every value with its column name.', 'live-sheets-table' ),
 						'note'  => __( 'Suggested', 'live-sheets-table' ),
 					),
 					'cards' => array(
 						'label' => __( 'Always cards', 'live-sheets-table' ),
-						'desc'  => __( 'Blocks at every width, including wide screens. Suits profiles and listings rather than figures to compare.', 'live-sheets-table' ),
+						'desc'  => __( 'Every row is a card, even on wide screens. Good for listings such as people or products, less good for figures you want to compare.', 'live-sheets-table' ),
 					),
 				);
 				?>
 				<div class="lstab-choice-head">
 					<strong><?php esc_html_e( 'Behaviour on narrow screens', 'live-sheets-table' ); ?></strong>
 					<span class="lstab-help">
-						<?php esc_html_e( 'The preview switches to the width at which the difference is visible.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'When you pick one, the preview switches to a width where you can see the difference.', 'live-sheets-table' ); ?>
 					</span>
 				</div>
 
@@ -328,7 +328,7 @@ if ( ! $lstab_is_edit ) {
 						<?php esc_html_e( 'Keep the first column in view', 'live-sheets-table' ); ?>
 					</label>
 					<span class="lstab-help">
-						<?php esc_html_e( 'Useful when the first column names the row. Turn it off if that column holds long text.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'When the table scrolls sideways, the first column stays at the left edge. Useful when it names the row, such as a product. Turn it off if that column holds long text.', 'live-sheets-table' ); ?>
 					</span>
 				</p>
 
@@ -339,7 +339,7 @@ if ( ! $lstab_is_edit ) {
 						<?php esc_html_e( 'Keep the headings in view', 'live-sheets-table' ); ?>
 					</label>
 					<span class="lstab-help">
-						<?php esc_html_e( 'The heading row stays visible while the page scrolls. Turn it off if your theme already pins something to the top of the screen.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'The row of column names stays at the top of the screen while visitors scroll down a long table. Turn it off if your theme already keeps a bar at the top and the two overlap.', 'live-sheets-table' ); ?>
 					</span>
 				</p>
 
@@ -350,7 +350,7 @@ if ( ! $lstab_is_edit ) {
 						<?php esc_html_e( 'Turn addresses in cells into links', 'live-sheets-table' ); ?>
 					</label>
 					<span class="lstab-help">
-						<?php esc_html_e( 'Applies to http, https and e-mail addresses only.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'A cell holding a web address (http:// or https://) or an e-mail address becomes a link visitors can click.', 'live-sheets-table' ); ?>
 					</span>
 				</p>
 
@@ -368,7 +368,7 @@ if ( ! $lstab_is_edit ) {
 							<?php esc_html_e( 'Split the table into pages', 'live-sheets-table' ); ?>
 						</label>
 						<span class="lstab-help">
-							<?php esc_html_e( 'Page numbers appear under the table. Searching and sorting then cover the whole sheet, not only the page on screen.', 'live-sheets-table' ); ?>
+							<?php esc_html_e( 'Shows a set number of rows at a time, with page buttons under the table. Searching and sorting still cover every row, not only the page on screen.', 'live-sheets-table' ); ?>
 						</span>
 					</p>
 
@@ -412,7 +412,7 @@ if ( ! $lstab_is_edit ) {
 						<div>
 							<h2 class="lstab-card-title"><?php esc_html_e( 'Fine-tune the look', 'live-sheets-table' ); ?></h2>
 							<p class="lstab-help">
-								<?php esc_html_e( 'Optional. Anything left alone follows the style chosen above.', 'live-sheets-table' ); ?>
+								<?php esc_html_e( 'Optional. Change only what you want; everything you leave alone follows the style chosen above.', 'live-sheets-table' ); ?>
 							</p>
 						</div>
 						<button type="button" class="lstab-mini lstab-tune-reset" id="lstab-reset-appearance">
@@ -530,7 +530,7 @@ if ( ! $lstab_is_edit ) {
 				<div class="lstab-card lstab-css-card">
 					<h2 class="lstab-card-title"><?php esc_html_e( 'Your own CSS', 'live-sheets-table' ); ?></h2>
 					<p class="lstab-help">
-						<?php esc_html_e( 'Ordinary CSS rules, confined to this table automatically. Write & for the table element itself, as in &.lstab-paged.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'For people who know CSS. Rules written here change only this table, nowhere else on the site. Use & to mean the whole table, for example &.lstab-paged.', 'live-sheets-table' ); ?>
 					</p>
 
 					<input type="hidden" name="_lstab_custom_css_present" value="1">
@@ -571,9 +571,9 @@ if ( ! $lstab_is_edit ) {
 				<div class="lstab-card lstab-columns-card<?php echo $lstab_waiting ? ' is-waiting' : ''; ?>">
 					<h2 class="lstab-card-title"><?php esc_html_e( 'Columns', 'live-sheets-table' ); ?></h2>
 					<p class="lstab-help">
-						<?php esc_html_e( 'Renames a column for visitors. Your spreadsheet keeps its own headings.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'Type a new name to rename a column for visitors. Your sheet in Google keeps its own headings.', 'live-sheets-table' ); ?>
 						<?php if ( $lstab_is_edit ) : ?>
-							<?php esc_html_e( 'To hide a column or a row, click it in the picture of your sheet below.', 'live-sheets-table' ); ?>
+							<?php esc_html_e( 'To hide a column or a row, click it in “Hide columns and rows” below.', 'live-sheets-table' ); ?>
 						<?php endif; ?>
 					</p>
 
@@ -582,8 +582,8 @@ if ( ! $lstab_is_edit ) {
 							<?php
 							echo esc_html(
 								$lstab_is_edit
-									? __( 'This sheet has not been read yet. Choose “Refresh” on the sources list.', 'live-sheets-table' )
-									: __( 'Save this source first. It is read straight away, and your real columns appear here.', 'live-sheets-table' )
+									? __( 'The sheet has not been read yet. Go to All tables and choose “Refresh” next to this table.', 'live-sheets-table' )
+									: __( 'Save the table first. The sheet is read straight away, and its columns then appear here.', 'live-sheets-table' )
 							);
 							?>
 						</p>
@@ -593,7 +593,7 @@ if ( ! $lstab_is_edit ) {
 						<div class="notice notice-warning inline lstab-drift">
 							<p><strong><?php esc_html_e( 'The columns in your sheet have moved.', 'live-sheets-table' ); ?></strong></p>
 							<p>
-								<?php esc_html_e( 'Settings are matched by position, so a column added or removed in Google shifts them. Check each row:', 'live-sheets-table' ); ?>
+								<?php esc_html_e( 'The settings below belong to column positions, so a column added or removed in Google moves them onto a different column. Check each one:', 'live-sheets-table' ); ?>
 							</p>
 							<ul>
 								<?php foreach ( $lstab_drift as $lstab_moved ) : ?>
@@ -666,7 +666,7 @@ if ( ! $lstab_is_edit ) {
 			<div class="lstab-preview-stick">
 			<h2><?php esc_html_e( 'Preview', 'live-sheets-table' ); ?></h2>
 			<p class="lstab-help">
-				<?php esc_html_e( 'Exactly what the plugin read from your sheet. Check the headings and a few rows before saving.', 'live-sheets-table' ); ?>
+				<?php esc_html_e( 'This is how the table will look on your page, with your current settings, even before you save. It shows the first 25 rows.', 'live-sheets-table' ); ?>
 			</p>
 			<div id="lstab-preview-status" class="lstab-preview-status" role="status" aria-live="polite"></div>
 
@@ -690,7 +690,7 @@ if ( ! $lstab_is_edit ) {
 			</div>
 
 			<p class="lstab-help">
-				<?php esc_html_e( 'A wide table becomes one card per row when its column is too narrow.', 'live-sheets-table' ); ?>
+				<?php esc_html_e( 'Try the narrower widths to see how the table behaves in a narrow page column or on a phone.', 'live-sheets-table' ); ?>
 			</p>
 
 			<div id="lstab-preview" class="lstab-preview" tabindex="0" role="region" aria-label="<?php esc_attr_e( 'Preview of the table', 'live-sheets-table' ); ?>">
@@ -722,7 +722,7 @@ if ( ! $lstab_is_edit ) {
 			<details id="lstab-raw-wrap" class="lstab-raw" hidden>
 				<summary><?php esc_html_e( 'What Google actually sent', 'live-sheets-table' ); ?></summary>
 				<p class="lstab-help">
-					<?php esc_html_e( 'The exported text as it arrived, before the plugin read it. If a value is wrong here too, fix it in the sheet.', 'live-sheets-table' ); ?>
+					<?php esc_html_e( 'The raw data exactly as Google sent it, before the plugin turned it into a table. If a value is already wrong here, the problem is in the sheet itself.', 'live-sheets-table' ); ?>
 				</p>
 				<p id="lstab-raw-meta" class="lstab-help"></p>
 				<textarea id="lstab-raw" class="lstab-raw-text" rows="12" readonly spellcheck="false"></textarea>
@@ -750,8 +750,8 @@ if ( ! $lstab_is_edit ) {
 				esc_html_e( 'Save changes', 'live-sheets-table' );
 			} else {
 				echo $lstab_is_edit
-					? esc_html__( 'Save changes and sync', 'live-sheets-table' )
-					: esc_html__( 'Save source and sync', 'live-sheets-table' );
+					? esc_html__( 'Save and update from Google', 'live-sheets-table' )
+					: esc_html__( 'Save the table', 'live-sheets-table' );
 			}
 			?>
 		</button>

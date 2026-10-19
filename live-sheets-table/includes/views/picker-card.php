@@ -5,29 +5,29 @@ defined( 'ABSPATH' ) || exit;
 <div class="lstab-card lstab-picker-card">
 	<h2 class="lstab-card-title"><?php esc_html_e( 'Hide columns and rows', 'live-sheets-table' ); ?></h2>
 	<p class="lstab-help">
-		<?php esc_html_e( 'Click a heading to hide that column, or a line number to hide that row. Click again to bring it back. Nothing is written to Google.', 'live-sheets-table' ); ?>
+		<?php esc_html_e( 'Click a column name to hide that column, or a line number to hide that row. Click it again to bring it back. Changes apply when you save. Your sheet in Google is not changed.', 'live-sheets-table' ); ?>
 	</p>
 
 	<div class="notice notice-info inline lstab-picker-note">
 		<p>
-			<strong><?php esc_html_e( 'Moving a column or row in Google will show it again', 'live-sheets-table' ); ?></strong>
+			<strong><?php esc_html_e( 'Changing the order in Google can bring a hidden column or row back', 'live-sheets-table' ); ?></strong>
 		</p>
 		<p>
-			<?php esc_html_e( 'A hidden column is matched by its heading, a hidden row by its line number. Reordering columns, renaming a heading or inserting a row above breaks that match.', 'live-sheets-table' ); ?>
+			<?php esc_html_e( 'The plugin remembers a hidden column by its place and its name, and a hidden row by its line number and what it holds. If you move columns, rename a column or add or remove rows above a hidden row in Google, they no longer match.', 'live-sheets-table' ); ?>
 		</p>
 		<p>
-			<?php esc_html_e( 'When a match breaks, the column or row is shown again rather than the wrong one being hidden. A notice in the dashboard names the table, and you can hide it again here.', 'live-sheets-table' ); ?>
+			<?php esc_html_e( 'When that happens, the column or row is shown again, so that a different one is never hidden by mistake. A notice in the dashboard tells you which table to check, and you can hide it again here.', 'live-sheets-table' ); ?>
 		</p>
 	</div>
 
 	<p class="lstab-picker-legend">
-		<span class="lstab-picker-legend-chip"><span class="lstab-picker-legend-mark" aria-hidden="true">×</span><?php esc_html_e( 'Click a heading or a line number to hide it', 'live-sheets-table' ); ?></span>
+		<span class="lstab-picker-legend-chip"><span class="lstab-picker-legend-mark" aria-hidden="true">×</span><?php esc_html_e( 'Click a column name or a line number to hide it', 'live-sheets-table' ); ?></span>
 		<span class="lstab-picker-legend-chip"><span class="lstab-picker-legend-mark lstab-picker-legend-mark--back" aria-hidden="true">↺</span><?php esc_html_e( 'Click it again to put it back', 'live-sheets-table' ); ?></span>
-		<span class="lstab-picker-legend-chip"><span class="lstab-picker-legend-mark lstab-picker-legend-mark--detail" aria-hidden="true"></span><?php esc_html_e( 'Click the arrow to move a column under the row instead', 'live-sheets-table' ); ?></span>
+		<span class="lstab-picker-legend-chip"><span class="lstab-picker-legend-mark lstab-picker-legend-mark--detail" aria-hidden="true"></span><?php esc_html_e( 'Click the arrow to tuck a column away: visitors open it under each row with “Show details”', 'live-sheets-table' ); ?></span>
 	</p>
 
 	<p class="lstab-help lstab-picker-lines">
-		<?php esc_html_e( 'The numbers down the left are the line numbers in your sheet, so line 1 is the headings.', 'live-sheets-table' ); ?>
+		<?php esc_html_e( 'The numbers down the left are the row numbers in Google Sheets. Line 1 is usually the row of column names.', 'live-sheets-table' ); ?>
 	</p>
 
 	<div class="lstab-picker-scroll">

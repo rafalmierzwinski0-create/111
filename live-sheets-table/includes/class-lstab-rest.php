@@ -164,7 +164,7 @@ class LSTAB_Rest {
 
 		return new WP_Error(
 			'lstab_forbidden',
-			__( 'You are not allowed to manage sheet sources.', 'live-sheets-table' ),
+			__( 'You are not allowed to manage tables.', 'live-sheets-table' ),
 			array( 'status' => rest_authorization_required_code() )
 		);
 	}
@@ -176,7 +176,7 @@ class LSTAB_Rest {
 
 		return new WP_Error(
 			'lstab_forbidden',
-			__( 'You are not allowed to list sheet sources.', 'live-sheets-table' ),
+			__( 'You are not allowed to see the list of tables.', 'live-sheets-table' ),
 			array( 'status' => rest_authorization_required_code() )
 		);
 	}
@@ -188,7 +188,7 @@ class LSTAB_Rest {
 		if ( ! $source ) {
 			return new WP_Error(
 				'lstab_unknown_source',
-				__( 'That sheet source no longer exists.', 'live-sheets-table' ),
+				__( 'That table has been deleted.', 'live-sheets-table' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -196,7 +196,7 @@ class LSTAB_Rest {
 		if ( empty( $source['data']['headers'] ) && empty( $source['data']['rows'] ) ) {
 			return new WP_Error(
 				'lstab_nothing_stored',
-				__( 'This sheet has not been fetched yet, so there is nothing to redraw.', 'live-sheets-table' ),
+				__( 'The sheet has not been read yet, so there is nothing to show. Choose “Load preview” first.', 'live-sheets-table' ),
 				array( 'status' => 409 )
 			);
 		}

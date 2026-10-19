@@ -18,8 +18,8 @@ class LSTABP_Filters {
 			'type'    => 'written',
 			'write'   => __( 'filter="Column is value"', 'live-sheets-table-pro' ),
 			'example' => 'filter="Availability is In stock"',
-			'means'   => __( 'Show only the rows that match, so one sheet can feed several pages', 'live-sheets-table-pro' ),
-			'note'    => __( 'Join conditions with a comma; the words to compare with are listed under Pro settings.', 'live-sheets-table-pro' ),
+			'means'   => __( 'Shows only the rows that match, so one sheet can feed different tables on different pages', 'live-sheets-table-pro' ),
+			'note'    => __( 'Join several conditions with “and” or a comma; a row must match all of them. All the words you can use are on the Live Sheets Table → Pro screen.', 'live-sheets-table-pro' ),
 		);
 
 		return $options;

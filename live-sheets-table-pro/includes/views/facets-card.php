@@ -8,7 +8,7 @@ $lstabp_total   = count( $rows );
 <div class="lstab-card lstabp-facets-card">
 	<h2 class="lstab-card-title"><?php esc_html_e( 'Let visitors narrow the table', 'live-sheets-table-pro' ); ?></h2>
 	<p class="lstab-help">
-		<?php esc_html_e( 'Tick a column and a menu of its values appears above the table. A visitor opens the menu, picks a value, and the table keeps only the rows that match.', 'live-sheets-table-pro' ); ?>
+		<?php esc_html_e( 'Tick a column and a menu of its values appears above the table. A visitor opens the menu, picks a value, and the table keeps only the rows that match. Picking several values in one menu shows rows with any of them; using several menus narrows the table further.', 'live-sheets-table-pro' ); ?>
 	</p>
 
 	<?php
@@ -94,11 +94,11 @@ $lstabp_total   = count( $rows );
 	</div>
 
 	<p class="lstab-help">
-		<?php esc_html_e( 'Every choice has an address of its own, so a filtered table can be sent to somebody as a link. Filters work together with the search box and with pages, over the whole sheet rather than the page on screen.', 'live-sheets-table-pro' ); ?>
+		<?php esc_html_e( 'Each choice changes the page address, so a visitor can copy it and send the filtered table to somebody. The menus work together with the search box and with pages, and always look through the whole sheet, not only the page on screen.', 'live-sheets-table-pro' ); ?>
 	</p>
 
 	<p class="lstab-help">
-		<?php esc_html_e( 'The counts beside each column below come from the copy the plugin holds now.', 'live-sheets-table-pro' ); ?>
+		<?php esc_html_e( 'The numbers below come from the sheet as it was last read.', 'live-sheets-table-pro' ); ?>
 	</p>
 
 	<?php if ( $lstabp_waiting ) : ?>
@@ -107,7 +107,7 @@ $lstabp_total   = count( $rows );
 			echo esc_html(
 				$is_edit
 					? __( 'The sheet has not been read yet, so there are no columns to choose from.', 'live-sheets-table-pro' )
-					: __( 'Load the preview first. Once the columns are known you can offer filters on them.', 'live-sheets-table-pro' )
+					: __( 'Paste the sheet’s link and choose “Load preview” first. The columns then appear here.', 'live-sheets-table-pro' )
 			);
 			?>
 		</p>
@@ -153,7 +153,7 @@ $lstabp_total   = count( $rows );
 				} elseif ( $lstabp_long ) {
 					$lstabp_says = sprintf(
 						/* translators: 1: how many different values, 2: rows behind each one on average, 3: the commonest few, already counted. */
-						__( '%1$s different values, about %2$s rows each. A useful filter, but a long list; visitors can type to narrow it. Most common: %3$s', 'live-sheets-table-pro' ),
+						__( '%1$s different values, about %2$s rows each. A useful filter, but a long list, so its menu gets a box to type in. Most common: %3$s', 'live-sheets-table-pro' ),
 						number_format_i18n( $lstabp_kinds ),
 						number_format_i18n( (int) round( $lstabp_each ) ),
 						$lstabp_top

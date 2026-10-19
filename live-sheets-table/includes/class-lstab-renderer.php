@@ -30,18 +30,18 @@ class LSTAB_Renderer {
 		$source_id = (int) $args['source_id'];
 
 		if ( $source_id <= 0 ) {
-			return self::notice( __( 'No sheet selected yet.', 'live-sheets-table' ) );
+			return self::notice( __( 'Only you can see this note. No table is chosen yet.', 'live-sheets-table' ) );
 		}
 
 		$source = LSTAB_Storage::get( $source_id );
 
 		if ( ! $source ) {
-			return self::notice( __( 'This sheet source no longer exists.', 'live-sheets-table' ) );
+			return self::notice( __( 'Only you can see this note. This table has been deleted.', 'live-sheets-table' ) );
 		}
 
 		if ( '' !== trim( (string) $args['filter'] ) && ! apply_filters( 'lstab_filter_supported', false ) ) {
 			return self::notice(
-				__( 'This table shows only some of its rows, but the add-on that filters them is not active. No rows are shown rather than all of them. Activate the add-on, or remove the filter from the block or shortcode.', 'live-sheets-table' )
+				__( 'Only you can see this note. This table has a filter, which needs Live Sheets Table Pro, and Pro is not active. So that rows meant to be left out are not shown, the table shows nothing. Activate Pro, or remove the filter from the block or shortcode.', 'live-sheets-table' )
 			);
 		}
 
@@ -53,7 +53,7 @@ class LSTAB_Renderer {
 			return self::notice(
 				sprintf(
 					/* translators: %s: source title. */
-					__( '“%s” has not synced yet. Open Live Sheets Table in the dashboard and choose “Refresh”.', 'live-sheets-table' ),
+					__( 'Only you can see this note. “%s” has not been read from Google yet. In the dashboard go to Live Sheets Table → All tables and choose “Refresh” next to it.', 'live-sheets-table' ),
 					$source['title']
 				)
 			);
@@ -323,7 +323,7 @@ class LSTAB_Renderer {
 						echo esc_html(
 							sprintf(
 								/* translators: 1: number of rows in the table, 2: rows shown on each page. */
-								__( 'Only you can see this note. This table has %1$s rows, more than this server has the memory to draw on one page, so it is shown %2$s rows at a time. Turn on pages on the table\'s own screen to choose how many.', 'live-sheets-table' ),
+								__( 'Only you can see this note. This table has %1$s rows, more than this server has the memory to show on one page, so it is shown %2$s rows per page. To choose the number yourself, open the table and turn on Appearance → Pagination.', 'live-sheets-table' ),
 								number_format_i18n( (int) $source['row_count'] ),
 								number_format_i18n( (int) $args['per_page'] )
 							)

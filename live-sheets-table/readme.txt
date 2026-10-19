@@ -20,7 +20,7 @@ You do not need an API key, a Google Cloud project or an account with us.
 
 * The plugin downloads the sheet in the background and keeps a copy in your database.
 * Pages are built from that copy on the server, as a normal HTML table. Visitors never wait for Google, and the table is readable without JavaScript.
-* If a table is older than its refresh interval when someone opens the page, the plugin checks Google first, for at most four seconds, and uses the stored copy if Google is slow.
+* If a table is overdue for a check when someone opens the page, the plugin asks Google first, but waits only a few seconds (four by default, changeable under Settings). If Google is slower, the visitor gets the stored copy.
 * It works with page caches such as LiteSpeed Cache and WP Rocket. When a table changes, the plugin clears the cached pages that show it.
 * If Google cannot be reached or the sheet stops being shared, the last good copy stays on the page. The dashboard tells you what went wrong and how to fix it. Visitors see no errors.
 
@@ -29,15 +29,15 @@ You do not need an API key, a Google Cloud project or an account with us.
 * Any number of sheets, and no row limit.
 * A preview of exactly what was read from the sheet before you save, and a tab picker for spreadsheets with several tabs.
 * Refresh every 15 or 30 minutes, hourly, every 6 hours or daily, plus a "Refresh" button.
-* A warning when a row has more cells than there are headings, usually caused by a merged cell.
+* A warning when a row has a different number of cells from the other rows, so a value never lands in the wrong column unnoticed.
 * Rename columns for your visitors without changing the sheet.
-* Hide columns and rows by clicking them in a picture of your sheet, or move a column into a panel that opens under each row.
+* Hide columns and rows by clicking them in a view of your sheet, or tuck a column into a panel that visitors open under each row.
 * Search, sorting that understands numbers and dates, and optional pages of up to 500 rows. Search and sorting always cover the whole sheet.
 * Headings stay visible while the page scrolls, and the first column can stay in place while the table scrolls sideways.
 * A visible slider under tables that are too wide for the page, or, if you prefer, one card per row on narrow screens.
 * Web and e-mail addresses in cells become links. This can be turned off per table.
 * Four styles (Clean, Striped, Bordered and Midnight), an appearance editor for colours, text size, row height and corners, and your own CSS per table.
-* A card per sheet in the dashboard showing when it last updated, its size and the pages that use it.
+* A list of your tables in the dashboard, showing for each one when it was last updated, its size and the pages that use it.
 
 = Privacy =
 
@@ -59,9 +59,9 @@ Google's privacy policy: https://policies.google.com/privacy
 1. Install and activate the plugin.
 2. In Google Sheets open your spreadsheet and choose **Share → General access → Anyone with the link**, role **Viewer**. No API key or Google Cloud project is required.
 3. Copy the address from your browser's address bar.
-4. In WordPress go to **Sheets Tables → Add new**, paste the link and choose **Load preview**.
-5. Check the preview, pick the tab if your spreadsheet has several, choose a style, and save.
-6. Add the table to a page with the **Google Sheets Table** block, or paste the shortcode shown on the source list.
+4. In WordPress go to **Live Sheets Table → Add new**, paste the link and choose **Load preview**.
+5. Check the preview, choose the tab if your spreadsheet has several, choose a style, and save.
+6. Add the table to a page with the **Google Sheets Table** block or Elementor widget, or paste the shortcode shown on the table's screen and in the list of tables.
 
 == Frequently Asked Questions ==
 
@@ -83,7 +83,7 @@ By default the plugin checks Google every 15 minutes, and you can refresh a tabl
 
 = What happens if the sheet becomes private or Google is down? =
 
-Your page keeps showing the last copy that was downloaded successfully. The dashboard shows the problem and what to change.
+Your page keeps showing the last copy that was downloaded successfully, so visitors see no error. The dashboard shows the problem and what to change.
 
 = Will it work with my page builder? =
 
@@ -97,9 +97,9 @@ By default it stays a table at full text size, with a slider underneath to move 
 
 Yes, on the table's own screen. Changes only affect your site; the plugin never writes to your spreadsheet.
 
-To hide a column or a row, open the "Columns and rows" tab and click it in the picture of your sheet: a heading for a column, a line number for a row. Click again to show it. A hidden column is removed from the page completely, not just made invisible. The arrow on a heading moves a column into a panel under each row instead.
+To hide a column or a row, open the "Columns and rows" tab and click it under "Hide columns and rows": a column name for a column, a line number for a row. Click again to show it, then save. A hidden column is removed from the page completely, not just made invisible. The arrow on a column name tucks the column into a panel that visitors open under each row instead.
 
-If you move or rename columns in Google, the plugin notices that the settings no longer match and tells you, rather than hiding the wrong column.
+If you move or rename columns in Google, the plugin notices that the settings no longer match. It shows the column again rather than hiding the wrong one, and a notice in the dashboard tells you which table to check.
 
 = Can I change how the table looks? =
 
@@ -107,7 +107,7 @@ Pick one of the four styles, then adjust colours, text size, row height, lines a
 
 = Does WP-Cron have to be working? =
 
-The background refresh uses WP-Cron. If it is disabled on your site, use a real system cron that calls `wp-cron.php`, or refresh tables by hand. If the schedule stops running, the plugin says so in the dashboard, and the stored copy keeps showing in the meantime.
+The background updates use WP-Cron, which runs only when somebody visits your site. If it is switched off or falls behind, the plugin says so in the dashboard and shows the exact line to add to your hosting's "Cron jobs" screen. Meanwhile the stored copy keeps showing, and you can update any table by hand with "Refresh".
 
 = Is the sheet content safe to display? =
 
@@ -115,16 +115,16 @@ Yes. Everything from the sheet is escaped, so a cell containing HTML or a `<scri
 
 == Screenshots ==
 
-1. Adding a source: paste the link and the parsed table appears immediately, before anything is saved.
-2. The source list, showing sync status, size, schedule and the ready-to-copy shortcode.
+1. Adding a table: paste the link and the table appears straight away, before anything is saved.
+2. The list of tables, showing whether each one is up to date, its size, its schedule and the ready-to-copy shortcode.
 3. Switching between the tabs of a multi-tab spreadsheet.
 4. The published table on a desktop screen.
 5. The same table on a phone: full-size text, with a slider to move it sideways.
 6. Searching inside the table.
 7. Sorting by a column, numerically where the data is numeric.
-8. A failed sync reported in the dashboard, with instructions.
+8. A failed update reported in the dashboard, with what to do about it.
 9. The public page during that failure, still showing the last good copy.
-10. The block in the editor, previewing the real server-rendered table.
+10. The block in the editor, showing the real table.
 
 == Changelog ==
 

@@ -36,7 +36,7 @@ class LSTAB_Url {
 		if ( ! $url ) {
 			return new WP_Error(
 				'lstab_invalid_url',
-				__( 'That does not look like a valid link. Copy the address straight from your browser.', 'live-sheets-table' )
+				__( 'That does not look like a link. Copy the address straight from your browser’s address bar.', 'live-sheets-table' )
 			);
 		}
 
@@ -63,7 +63,7 @@ class LSTAB_Url {
 		if ( '' === $sheet_id ) {
 			return new WP_Error(
 				'lstab_no_sheet_id',
-				__( 'No spreadsheet ID found in that link. Use the address of the sheet itself, for example https://docs.google.com/spreadsheets/d/ABC123/edit.', 'live-sheets-table' )
+				__( 'That link does not point at a spreadsheet. Open the sheet itself and copy its address, which looks like https://docs.google.com/spreadsheets/d/ABC123/edit.', 'live-sheets-table' )
 			);
 		}
 

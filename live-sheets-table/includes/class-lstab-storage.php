@@ -158,7 +158,7 @@ class LSTAB_Storage {
 		$inserted = $wpdb->insert( self::table(), $row, $formats );
 
 		if ( false === $inserted ) {
-			return new WP_Error( 'lstab_db_insert_failed', __( 'Could not save the sheet source.', 'live-sheets-table' ) );
+			return new WP_Error( 'lstab_db_insert_failed', __( 'Could not save the table.', 'live-sheets-table' ) );
 		}
 
 		return (int) $wpdb->insert_id;

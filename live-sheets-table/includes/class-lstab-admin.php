@@ -26,7 +26,7 @@ class LSTAB_Admin {
 
 		add_menu_page(
 			__( 'Live Sheets Table', 'live-sheets-table' ),
-			__( 'Sheets Tables', 'live-sheets-table' ),
+			__( 'Live Sheets Table', 'live-sheets-table' ),
 			$capability,
 			self::MENU_SLUG,
 			array( $this, 'render_start_page' ),
@@ -45,7 +45,7 @@ class LSTAB_Admin {
 
 		add_submenu_page(
 			self::MENU_SLUG,
-			__( 'All sheet sources', 'live-sheets-table' ),
+			__( 'All tables', 'live-sheets-table' ),
 			__( 'All tables', 'live-sheets-table' ),
 			$capability,
 			self::SOURCES_SLUG,
@@ -54,7 +54,7 @@ class LSTAB_Admin {
 
 		add_submenu_page(
 			self::MENU_SLUG,
-			__( 'Add new sheet source', 'live-sheets-table' ),
+			__( 'Add a table', 'live-sheets-table' ),
 			__( 'Add new', 'live-sheets-table' ),
 			$capability,
 			self::EDIT_SLUG,
@@ -74,7 +74,7 @@ class LSTAB_Admin {
 	public static function tabs() {
 		$tabs = array(
 			self::MENU_SLUG    => __( 'Start', 'live-sheets-table' ),
-			self::SOURCES_SLUG => __( 'Sheet sources', 'live-sheets-table' ),
+			self::SOURCES_SLUG => __( 'All tables', 'live-sheets-table' ),
 		);
 
 		if ( current_user_can( 'manage_options' ) ) {
@@ -132,7 +132,7 @@ class LSTAB_Admin {
 	public function action_links( $links ) {
 		array_unshift(
 			$links,
-			'<a href="' . esc_url( admin_url( 'admin.php?page=' . self::SOURCES_SLUG ) ) . '">' . esc_html__( 'Sheet sources', 'live-sheets-table' ) . '</a>'
+			'<a href="' . esc_url( admin_url( 'admin.php?page=' . self::SOURCES_SLUG ) ) . '">' . esc_html__( 'All tables', 'live-sheets-table' ) . '</a>'
 		);
 
 		return $links;
@@ -192,12 +192,12 @@ class LSTAB_Admin {
 				'metrics'    => wp_list_pluck( LSTAB_Customizer::metrics(), 'vars' ),
 				'i18n'       => array(
 					'loading'     => __( 'Loading preview…', 'live-sheets-table' ),
-					'failed'      => __( 'Preview failed', 'live-sheets-table' ),
+					'failed'      => __( 'Could not load the preview', 'live-sheets-table' ),
 					/* translators: 1: number of rows, 2: number of columns. */
 					'rowsFound'   => __( 'Found %1$s rows across %2$s columns.', 'live-sheets-table' ),
 					'truncated'   => __( 'Showing the first 25 rows.', 'live-sheets-table' ),
-					'pickTab'     => __( 'Pick the tab you want to publish:', 'live-sheets-table' ),
-					'noTabs'      => __( 'Could not read the tab list; the tab from your link will be used.', 'live-sheets-table' ),
+					'pickTab'     => __( 'Choose which tab of the spreadsheet to show:', 'live-sheets-table' ),
+					'noTabs'      => __( 'Could not get the list of tabs, so the tab your link points to is used.', 'live-sheets-table' ),
 					'emptyUrl'    => __( 'Paste a Google Sheets link first.', 'live-sheets-table' ),
 					/* translators: %1$s: column number. */
 					'columnNumber' => __( 'Column %1$s', 'live-sheets-table' ),
@@ -205,7 +205,7 @@ class LSTAB_Admin {
 					/* translators: %1$s: number of characters. */
 					'rawBytes'    => __( '%1$s characters received.', 'live-sheets-table' ),
 					/* translators: %1$s: row number. */
-					'rawRagged'   => __( 'Look at row %1$s: it came back with a different number of cells than the rest.', 'live-sheets-table' ),
+					'rawRagged'   => __( 'Check row %1$s in your sheet: it has a different number of cells from the other rows.', 'live-sheets-table' ),
 				),
 			)
 		);
@@ -213,7 +213,7 @@ class LSTAB_Admin {
 
 	public function render_start_page() {
 		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
-			wp_die( esc_html__( 'You are not allowed to manage sheet sources.', 'live-sheets-table' ) );
+			wp_die( esc_html__( 'You are not allowed to manage tables.', 'live-sheets-table' ) );
 		}
 
 		$sources = LSTAB_Storage::get_all();
@@ -222,7 +222,7 @@ class LSTAB_Admin {
 
 	public function render_list_page() {
 		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
-			wp_die( esc_html__( 'You are not allowed to manage sheet sources.', 'live-sheets-table' ) );
+			wp_die( esc_html__( 'You are not allowed to manage tables.', 'live-sheets-table' ) );
 		}
 
 		$sources = LSTAB_Storage::get_all();
@@ -231,7 +231,7 @@ class LSTAB_Admin {
 
 	public function render_edit_page() {
 		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
-			wp_die( esc_html__( 'You are not allowed to manage sheet sources.', 'live-sheets-table' ) );
+			wp_die( esc_html__( 'You are not allowed to manage tables.', 'live-sheets-table' ) );
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only screen routing.
@@ -327,7 +327,7 @@ class LSTAB_Admin {
 				'warning',
 				sprintf(
 					/* translators: %s: error message. */
-					__( 'Saved, but the first sync failed: %s', 'live-sheets-table' ),
+					__( 'Saved, but the sheet could not be read from Google: %s', 'live-sheets-table' ),
 					$sync->get_error_message()
 				)
 			);
@@ -335,7 +335,7 @@ class LSTAB_Admin {
 
 		$paged_for_you = $is_new ? $this->page_a_long_new_sheet( $source_id, $paging_chosen ) : '';
 
-		list( $lstab_type, $lstab_message ) = $this->sync_outcome( $source_id, __( 'Sheet source saved and synced.', 'live-sheets-table' ) );
+		list( $lstab_type, $lstab_message ) = $this->sync_outcome( $source_id, __( 'Saved. The table shows the latest version of the sheet.', 'live-sheets-table' ) );
 
 		if ( '' !== $paged_for_you && 'error' !== $lstab_type ) {
 			$lstab_message = $paged_for_you;
@@ -354,7 +354,7 @@ class LSTAB_Admin {
 			LSTAB_Storage::delete( $source_id );
 		}
 
-		$this->redirect_with_notice( 0, 'success', __( 'Sheet source deleted.', 'live-sheets-table' ), true );
+		$this->redirect_with_notice( 0, 'success', __( 'Table deleted.', 'live-sheets-table' ), true );
 	}
 
 	public function handle_refresh() {
@@ -370,14 +370,14 @@ class LSTAB_Admin {
 				'error',
 				sprintf(
 					/* translators: %s: error message. */
-					__( 'Refresh failed: %s', 'live-sheets-table' ),
+					__( 'Could not update from Google: %s', 'live-sheets-table' ),
 					$result->get_error_message()
 				),
 				true
 			);
 		}
 
-		list( $lstab_type, $lstab_message ) = $this->sync_outcome( $source_id, __( 'Sheet refreshed from Google.', 'live-sheets-table' ) );
+		list( $lstab_type, $lstab_message ) = $this->sync_outcome( $source_id, __( 'Updated. The table shows the latest version of the sheet.', 'live-sheets-table' ) );
 		$this->redirect_with_notice( 0, $lstab_type, $lstab_message, true );
 	}
 
@@ -451,7 +451,7 @@ class LSTAB_Admin {
 		);
 
 		echo '<div class="notice notice-warning"><p><strong>';
-		echo esc_html__( 'Live Sheets Table: a sheet did not come back cleanly.', 'live-sheets-table' );
+		echo esc_html__( 'Live Sheets Table: some rows of a sheet could not be read correctly.', 'live-sheets-table' );
 		echo '</strong></p><ul style="margin:0.4em 0 0.8em 1.4em;list-style:disc;">';
 
 		foreach ( $links as $line ) {
@@ -482,7 +482,7 @@ class LSTAB_Admin {
 	protected function guard() {
 		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
 			wp_die(
-				esc_html__( 'You are not allowed to manage sheet sources.', 'live-sheets-table' ),
+				esc_html__( 'You are not allowed to manage tables.', 'live-sheets-table' ),
 				'',
 				array( 'response' => 403 )
 			);
@@ -534,8 +534,8 @@ class LSTAB_Admin {
 		return sprintf(
 			/* translators: 1: number of rows, 2: expected column count, 3: list of row numbers. */
 			_n(
-				'%1$d row came back with a different number of cells than the other rows (%2$d): row %3$s. A value in it may be missing or sitting in the wrong column. Most often a lone quotation mark or a comma inside a value has run two cells into one.',
-				'%1$d rows came back with a different number of cells than the rest (%2$d), so values in them may be missing or sitting in the wrong column. Most often a lone quotation mark or a comma inside a value has run two cells into one. Rows: %3$s.',
+				'%1$d row has a different number of cells from the other rows, which have %2$d: row %3$s. A value in it may be missing or shown in the wrong column.',
+				'%1$d rows have a different number of cells from the other rows, which have %2$d, so values in them may be missing or shown in the wrong column. Rows: %3$s.',
 				(int) $ragged['total'],
 				'live-sheets-table'
 			),
@@ -564,12 +564,12 @@ class LSTAB_Admin {
 
 				<p><?php echo esc_html( $health['detail'] ); ?></p>
 				<p>
-					<?php esc_html_e( 'Meanwhile you can update any sheet by hand with “Refresh”.', 'live-sheets-table' ); ?>
+					<?php esc_html_e( 'Until it is fixed, you can update a table by hand: choose “Refresh” next to it under All tables.', 'live-sheets-table' ); ?>
 				</p>
 
 				<p>
-					<strong><?php esc_html_e( 'To run checks without waiting for a visitor', 'live-sheets-table' ); ?></strong><br>
-					<?php esc_html_e( 'WordPress has no clock of its own: its schedule runs only when a page is requested. Most hosting panels have a “Cron jobs” screen. Paste this line into it:', 'live-sheets-table' ); ?>
+					<strong><?php esc_html_e( 'To update tables on time, even when nobody visits', 'live-sheets-table' ); ?></strong><br>
+					<?php esc_html_e( 'WordPress has no clock of its own: its scheduled tasks run only when somebody opens a page of your site. Most hosting control panels have a “Cron jobs” screen that runs them on a timer instead. Add a new cron job there with this line. If the screen has separate boxes for the time and the command, the part before “curl” is the time and the rest is the command.', 'live-sheets-table' ); ?>
 				</p>
 				<p class="lstab-cron-row">
 					<code class="lstab-cron-line"><?php echo esc_html( LSTAB_Cron::system_cron_line() ); ?></code>
@@ -579,7 +579,8 @@ class LSTAB_Admin {
 					</button>
 				</p>
 				<p class="lstab-help">
-					<?php esc_html_e( 'If your hosting has no cron screen, a free uptime monitor pointed at your home page does the same job: every visit it makes runs the schedule.', 'live-sheets-table' ); ?>
+					<?php esc_html_e( 'If your hosting has no cron screen, a free uptime monitor does the same job. Set it to open this address every few minutes:', 'live-sheets-table' ); ?>
+					<code><?php echo esc_html( site_url( 'wp-cron.php?doing_wp_cron' ) ); ?></code>
 				</p>
 				<p>
 					<a class="lstab-quiet" href="https://developer.wordpress.org/plugins/cron/hooking-wp-cron-into-the-system-task-scheduler/" target="_blank" rel="noopener noreferrer">
@@ -673,7 +674,7 @@ class LSTAB_Admin {
 				'tone' => 'calm',
 				'icon' => 'play',
 				'text' => __( 'Example — not from Google', 'live-sheets-table' ),
-				'note' => __( 'Built into the plugin so you can try everything. Delete it whenever you like.', 'live-sheets-table' ),
+				'note' => __( 'Comes with the plugin so you can try every setting. It never contacts Google, and you can delete it at any time.', 'live-sheets-table' ),
 			);
 		}
 
@@ -701,7 +702,7 @@ class LSTAB_Admin {
 				'tone' => 'warn',
 				'icon' => 'alert',
 				'text' => __( 'Last check failed', 'live-sheets-table' ),
-				'note' => __( 'Visitors see the last copy that arrived, so nothing on your pages is broken. The next check runs shortly.', 'live-sheets-table' ) . $why,
+				'note' => __( 'Visitors still see the last version that was read, so your pages keep working. The plugin tries again at the next check.', 'live-sheets-table' ) . $why,
 			);
 		}
 
@@ -755,7 +756,7 @@ class LSTAB_Admin {
 				'icon'   => 'dashicons-yes-alt',
 				'text'   => sprintf(
 					/* translators: %s: human readable time difference. */
-					__( 'Last sync OK (%s ago)', 'live-sheets-table' ),
+					__( 'Updated %s ago', 'live-sheets-table' ),
 					LSTAB_Locale::span( strtotime( $source['last_success_gmt'] . ' UTC' ), time() )
 				),
 				'detail' => '',
@@ -766,17 +767,17 @@ class LSTAB_Admin {
 			$since = $source['last_success_gmt']
 				? sprintf(
 					/* translators: %s: human readable time difference. */
-					__( 'Failing since the last good sync %s ago', 'live-sheets-table' ),
+					__( 'Not updating — last successful update %s ago', 'live-sheets-table' ),
 					LSTAB_Locale::span( strtotime( $source['last_success_gmt'] . ' UTC' ), time() )
 				)
-				: __( 'Never synced successfully', 'live-sheets-table' );
+				: __( 'Never read successfully', 'live-sheets-table' );
 
 			return array(
 				'state'  => $has_data ? 'stale' : 'error',
 				'icon'   => 'dashicons-warning',
 				'text'   => $has_data
-					? __( 'Sync error — visitors still see the last good copy', 'live-sheets-table' )
-					: __( 'Sync error — nothing to show yet', 'live-sheets-table' ),
+					? __( 'Update failed — visitors still see the last good version', 'live-sheets-table' )
+					: __( 'Update failed — nothing to show yet', 'live-sheets-table' ),
 				'detail' => $since . ( $source['last_error'] ? ' — ' . $source['last_error'] : '' ),
 			);
 		}
@@ -784,7 +785,7 @@ class LSTAB_Admin {
 		return array(
 			'state'  => 'never',
 			'icon'   => 'dashicons-clock',
-			'text'   => __( 'Not synced yet', 'live-sheets-table' ),
+			'text'   => __( 'Not read from Google yet', 'live-sheets-table' ),
 			'detail' => '',
 		);
 	}
@@ -807,11 +808,11 @@ class LSTAB_Admin {
 			0,
 			'success',
 			sprintf(
-				/* translators: 1: sheet title, 2: rows per page, 3: name of the tab holding the setting. */
-				__( '“%1$s” is now shown %2$s rows at a time. Change the number, or go back to one long table, under “%3$s” on its own screen.', 'live-sheets-table' ),
+				/* translators: 1: sheet title, 2: rows per page, 3: where the setting is, e.g. "Appearance → Pagination". */
+				__( '“%1$s” now shows %2$s rows per page. To change the number, or to show one long table again, open the table and go to %3$s.', 'live-sheets-table' ),
 				$source['title'],
 				number_format_i18n( $per_page ),
-				__( 'Columns and rows', 'live-sheets-table' )
+				__( 'Appearance → Pagination', 'live-sheets-table' )
 			),
 			true
 		);
@@ -827,7 +828,7 @@ class LSTAB_Admin {
 			LSTAB_Paging::decline( $source_id );
 		}
 
-		$this->redirect_with_notice( 0, 'success', __( 'Kept as one long table. You will not be asked about this sheet again.', 'live-sheets-table' ), true );
+		$this->redirect_with_notice( 0, 'success', __( 'Kept as one long table. You will not be asked about this table again.', 'live-sheets-table' ), true );
 	}
 
 	protected function page_a_long_new_sheet( $source_id, $paging_chosen ) {
@@ -845,11 +846,11 @@ class LSTAB_Admin {
 		LSTAB_Storage::update( $source_id, array( 'per_page' => $per_page ) );
 
 		return sprintf(
-			/* translators: 1: number of rows in the sheet, 2: rows per page, 3: name of the tab holding the setting. */
-			__( 'Saved. This sheet has %1$s rows, so it is being shown %2$s at a time — the whole thing on one page would be slow to load and hard to read. Your visitors get a search box and page buttons, and both look through every row, not just the page on screen. To show it all at once instead, turn pages off under “%3$s”.', 'live-sheets-table' ),
+			/* translators: 1: number of rows in the sheet, 2: rows per page, 3: where the setting is, e.g. "Appearance → Pagination". */
+			__( 'Saved. This sheet has %1$s rows, so the table shows %2$s rows per page — all of them on one page would load slowly and be hard to read. Visitors get page buttons, and searching and sorting still cover every row, not only the page on screen. To show all rows at once, go to %3$s and turn pages off.', 'live-sheets-table' ),
 			number_format_i18n( (int) $source['row_count'] ),
 			number_format_i18n( $per_page ),
-			__( 'Columns and rows', 'live-sheets-table' )
+			__( 'Appearance → Pagination', 'live-sheets-table' )
 		);
 	}
 

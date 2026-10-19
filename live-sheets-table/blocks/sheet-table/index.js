@@ -20,14 +20,14 @@
 	var ExternalLink = components.ExternalLink;
 
 	var LAYOUTS = [
-		{ label: __( 'Use the source default', 'live-sheets-table' ), value: 'inherit' },
+		{ label: __( 'As set for the table', 'live-sheets-table' ), value: 'inherit' },
 		{ label: __( 'Table with a slider', 'live-sheets-table' ), value: 'table' },
-		{ label: __( 'Stack into cards when narrow', 'live-sheets-table' ), value: 'auto' },
+		{ label: __( 'Cards when it stops fitting', 'live-sheets-table' ), value: 'auto' },
 		{ label: __( 'Always cards', 'live-sheets-table' ), value: 'cards' }
 	];
 
 	var PRESETS = [
-		{ label: __( 'Use the source default', 'live-sheets-table' ), value: '' }
+		{ label: __( 'As set for the table', 'live-sheets-table' ), value: '' }
 	].concat( lstabBlock.presets || [] );
 
 	function useSources() {
@@ -74,7 +74,7 @@
 			var blockProps = useBlockProps();
 			var loaded = useSources();
 
-			var options = [ { label: __( 'Select a sheet…', 'live-sheets-table' ), value: 0 } ];
+			var options = [ { label: __( 'Choose a table…', 'live-sheets-table' ), value: 0 } ];
 
 			( loaded.sources || [] ).forEach( function ( source ) {
 				options.push( {
@@ -88,9 +88,9 @@
 				null,
 				el(
 					PanelBody,
-					{ title: __( 'Sheet source', 'live-sheets-table' ), initialOpen: true },
+					{ title: __( 'Table', 'live-sheets-table' ), initialOpen: true },
 					el( SelectControl, {
-						label: __( 'Saved source', 'live-sheets-table' ),
+						label: __( 'Table to show', 'live-sheets-table' ),
 						value: attributes.sourceId,
 						options: options,
 						onChange: function ( value ) {
@@ -104,13 +104,13 @@
 						el(
 							ExternalLink,
 							{ href: lstabBlock.manageUrl },
-							__( 'Manage sheet sources', 'live-sheets-table' )
+							__( 'Manage tables', 'live-sheets-table' )
 						)
 					)
 				),
 				el(
 					PanelBody,
-					{ title: __( 'Table options', 'live-sheets-table' ), initialOpen: true },
+					{ title: __( 'What visitors see', 'live-sheets-table' ), initialOpen: true },
 					el( ToggleControl, {
 						label: __( 'Search box', 'live-sheets-table' ),
 						checked: !! attributes.showSearch,
@@ -120,7 +120,7 @@
 						__nextHasNoMarginBottom: true
 					} ),
 					el( ToggleControl, {
-						label: __( 'Sortable columns', 'live-sheets-table' ),
+						label: __( 'Sorting by column', 'live-sheets-table' ),
 						checked: !! attributes.showSort,
 						onChange: function ( value ) {
 							setAttributes( { showSort: value } );
@@ -139,7 +139,7 @@
 						label: __( 'Layout', 'live-sheets-table' ),
 						value: attributes.layout,
 						options: LAYOUTS,
-						help: __( 'A wide table keeps its shape and gains a draggable slider. Card layouts stack each row instead, which suits tables of long text.', 'live-sheets-table' ),
+						help: __( 'What a table wider than the screen does. “Table with a slider” keeps the columns and lets visitors scroll sideways. The card layouts turn each row into a card instead, which suits long text.', 'live-sheets-table' ),
 						onChange: function ( value ) {
 							setAttributes( { layout: value } );
 						},
@@ -168,7 +168,7 @@
 					{ title: __( 'Which rows', 'live-sheets-table' ), initialOpen: false },
 					el( TextControl, {
 						label: __( 'Filter', 'live-sheets-table' ),
-						help: __( 'Show only matching rows, for example: Category is Bikes. Join conditions with “and”. Operators: is, is not, has, gt, gte, lt, lte.', 'live-sheets-table' ),
+						help: __( 'Show only the rows that match, for example: Category is Bikes. To use several conditions, join them with “and” or a comma; a row must match all of them. The words you can use are listed on the Live Sheets Table → Pro screen.', 'live-sheets-table' ),
 						value: attributes.filter,
 						onChange: function ( value ) {
 							setAttributes( { filter: value } );
@@ -188,9 +188,9 @@
 					{
 						icon: blockIcon,
 						label: __( 'Google Sheets Table', 'live-sheets-table' ),
-						instructions: __( 'No sheet sources yet. Add one in the dashboard, then pick it here.', 'live-sheets-table' )
+						instructions: __( 'There are no tables yet. Add one under Live Sheets Table in the dashboard, then choose it here.', 'live-sheets-table' )
 					},
-					el( ExternalLink, { href: lstabBlock.addUrl }, __( 'Add a sheet source', 'live-sheets-table' ) )
+					el( ExternalLink, { href: lstabBlock.addUrl }, __( 'Add a table', 'live-sheets-table' ) )
 				);
 			} else if ( ! attributes.sourceId ) {
 				body = el(
@@ -198,7 +198,7 @@
 					{
 						icon: blockIcon,
 						label: __( 'Google Sheets Table', 'live-sheets-table' ),
-						instructions: __( 'Choose which saved sheet to show.', 'live-sheets-table' )
+						instructions: __( 'Choose which table to show.', 'live-sheets-table' )
 					},
 					el( SelectControl, {
 						value: attributes.sourceId,

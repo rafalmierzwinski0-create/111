@@ -9,7 +9,7 @@ class LSTAB_CSV_Parser {
 		if ( '' === trim( $csv ) ) {
 			return new WP_Error(
 				'lstab_empty_csv',
-				__( 'The sheet returned no data. Check that the tab you picked actually contains rows.', 'live-sheets-table' )
+				__( 'The sheet sent no data. Check that the tab you picked has rows in it.', 'live-sheets-table' )
 			);
 		}
 
@@ -21,7 +21,7 @@ class LSTAB_CSV_Parser {
 		if ( ! $grid ) {
 			return new WP_Error(
 				'lstab_empty_csv',
-				__( 'The sheet returned no data. Check that the tab you picked actually contains rows.', 'live-sheets-table' )
+				__( 'The sheet sent no data. Check that the tab you picked has rows in it.', 'live-sheets-table' )
 			);
 		}
 

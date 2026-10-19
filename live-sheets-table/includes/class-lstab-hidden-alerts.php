@@ -137,8 +137,8 @@ class LSTAB_Hidden_Alerts {
 					<?php
 					echo esc_html(
 						$exposed
-							? __( 'Something you had taken out of a table is on the page again.', 'live-sheets-table' )
-							: __( 'Something you had taken out of a table is no longer in the sheet.', 'live-sheets-table' )
+							? __( 'A column or row you hid is visible on the page again.', 'live-sheets-table' )
+							: __( 'Some of your settings for a table no longer fit its sheet.', 'live-sheets-table' )
 					);
 					?>
 				</strong>
@@ -154,13 +154,13 @@ class LSTAB_Hidden_Alerts {
 								$lstab_column['hidden']
 									? sprintf(
 										/* translators: 1: heading that was taken out, 2: heading in that position now. */
-										__( 'The column you hid was headed “%1$s”; that position now holds “%2$s”, so the column is back on the page. Select the column you want and save.', 'live-sheets-table' ),
+										__( 'You hid the column “%1$s”, but in its place the sheet now has “%2$s”, so that column is shown again. Columns were probably moved or renamed in Google. Open the table, hide the column you want and save.', 'live-sheets-table' ),
 										$lstab_column['was'],
 										'' === $lstab_column['now'] ? __( 'nothing', 'live-sheets-table' ) : $lstab_column['now']
 									)
 									: sprintf(
 										/* translators: 1: heading that was renamed, 2: the name it was shown under, 3: heading in that position now. */
-										__( 'The column you renamed to “%2$s” was headed “%1$s”; that position now holds “%3$s”, so the sheet\'s own heading is shown again.', 'live-sheets-table' ),
+										__( 'You renamed the column “%1$s” to “%2$s”, but in its place the sheet now has “%3$s”, so the sheet’s own name is shown again. Open the table and set the name again if you still want it.', 'live-sheets-table' ),
 										$lstab_column['was'],
 										$lstab_column['label'],
 										'' === $lstab_column['now'] ? __( 'nothing', 'live-sheets-table' ) : $lstab_column['now']
@@ -182,13 +182,13 @@ class LSTAB_Hidden_Alerts {
 								'moved' === $lstab_row['reason']
 									? sprintf(
 										/* translators: 1: the sheet line, 2: the first few things the row said. */
-										__( 'Line %1$d is no longer “%2$s”, so that row is back on the page. Rows have been inserted, removed or reordered in Google. Select the row you want and save.', 'live-sheets-table' ),
+										__( 'Line %1$d of the sheet no longer holds “%2$s”, so that line is shown again. Rows were probably added, removed or sorted in Google. Open the table, hide the row you want and save.', 'live-sheets-table' ),
 										(int) $lstab_row['line'],
 										$lstab_said
 									)
 									: sprintf(
 										/* translators: 1: the sheet line, 2: the first few things the row said. */
-										__( 'The sheet no longer reaches line %1$d, where “%2$s” was hidden. The setting is kept: if the sheet grows back to that line, whatever is there will be hidden.', 'live-sheets-table' ),
+										__( 'The sheet now ends before line %1$d, where you hid “%2$s”. The setting is kept: if the sheet grows to that line again, whatever is on it will be hidden.', 'live-sheets-table' ),
 										(int) $lstab_row['line'],
 										$lstab_said
 									)

@@ -44,13 +44,13 @@ class LSTAB_Shortcode {
 
 		if ( '' === trim( (string) $atts['filter'] ) && preg_match( '/\bfilter\s*=/i', $written ) && ! preg_match( '/\bfilter\s*=\s*(""|\'\')/i', $written ) ) {
 			return LSTAB_Renderer::notice(
-				__( 'WordPress could not read this table\'s filter, so no rows are shown. A shortcode cannot hold “<”: write lt instead of < and lte instead of <=, for example filter="Price lt 100". Check, too, that the quotes are straight (") rather than curly (”).', 'live-sheets-table' )
+				__( 'Only you can see this note. WordPress could not read this table’s filter, so no rows are shown. A shortcode cannot contain “<”: write lt instead of < and lte instead of <=, for example filter="Price lt 100". Also check that the quotation marks are straight (") and not curly (”).', 'live-sheets-table' )
 			);
 		}
 
 		if ( ! absint( $atts['id'] ) && preg_match( '/\bid\s*=\s*[^\s"\'\]]/iu', $written ) ) {
 			return LSTAB_Renderer::notice(
-				__( 'WordPress could not read which table this shortcode asks for. Its quotes are probably curly (”), which happens when a shortcode is copied from a document or another website. Type them again as straight quotes ("), for example [sheet_table id="1"].', 'live-sheets-table' )
+				__( 'Only you can see this note. WordPress could not tell which table this shortcode asks for. Its quotation marks are probably curly (”), which happens when a shortcode is copied from a document or a website. Type them again as straight ones ("), for example [sheet_table id="1"].', 'live-sheets-table' )
 			);
 		}
 

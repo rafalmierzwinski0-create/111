@@ -57,7 +57,7 @@ $lstab_add_button = $lstab_own
 		'<a href="%s" class="lstab-btn">%s%s</a>',
 		esc_url( admin_url( 'admin.php?page=' . LSTAB_Admin::EDIT_SLUG ) ),
 		LSTAB_Icons::icon( 'plus' ),
-		esc_html__( 'Add a sheet', 'live-sheets-table' )
+		esc_html__( 'Add a table', 'live-sheets-table' )
 	)
 	: '';
 ?>
@@ -75,7 +75,7 @@ $lstab_add_button = $lstab_own
 				<span class="lstab-start-label"><?php esc_html_e( 'Welcome', 'live-sheets-table' ); ?></span>
 				<h2><?php esc_html_e( 'Your first table in under a minute', 'live-sheets-table' ); ?></h2>
 				<p class="lstab-start-lede">
-					<?php esc_html_e( 'Copy the address of a Google Sheet from your browser and paste it below. You will see the table straight away — nothing is saved until you say so.', 'live-sheets-table' ); ?>
+					<?php esc_html_e( 'Open your sheet in Google Sheets, copy the address from the browser’s address bar and paste it below. You will see the table straight away. Nothing is saved until you choose to save it.', 'live-sheets-table' ); ?>
 				</p>
 			<?php else : ?>
 				<span class="lstab-start-label"><?php esc_html_e( 'Your tables', 'live-sheets-table' ); ?></span>
@@ -203,11 +203,11 @@ $lstab_add_button = $lstab_own
 				</li>
 				<li>
 					<b><?php esc_html_e( 'Paste the link here', 'live-sheets-table' ); ?></b>
-					<span><?php esc_html_e( 'Pick the tab, give it a name. The preview shows exactly what the plugin reads.', 'live-sheets-table' ); ?></span>
+					<span><?php esc_html_e( 'Choose which tab of the spreadsheet to show, give the table a name and save. The preview shows exactly how it will look.', 'live-sheets-table' ); ?></span>
 				</li>
 				<li>
 					<b><?php esc_html_e( 'Put it on a page', 'live-sheets-table' ); ?></b>
-					<span><?php esc_html_e( 'The “Google Sheets Table” block, the Elementor widget or a shortcode.', 'live-sheets-table' ); ?></span>
+					<span><?php esc_html_e( 'Add the “Google Sheets Table” block in the editor, use the Elementor widget, or paste the shortcode shown after saving.', 'live-sheets-table' ); ?></span>
 				</li>
 			</ol>
 		</aside>
@@ -217,7 +217,7 @@ $lstab_add_button = $lstab_own
 		<div class="lstab-start-card">
 			<span class="lstab-start-ico"><?php echo LSTAB_Icons::icon( 'grid' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?></span>
 			<h3><?php esc_html_e( 'No spreadsheet yet?', 'live-sheets-table' ); ?></h3>
-			<p><?php esc_html_e( 'Add a ready example price list and try every setting on it. It never contacts Google, and one click removes it.', 'live-sheets-table' ); ?></p>
+			<p><?php esc_html_e( 'Add an example price list that comes with the plugin and try every setting on it. It never contacts Google, and you can delete it at any time.', 'live-sheets-table' ); ?></p>
 			<?php if ( $lstab_example ) : ?>
 				<a class="lstab-btn lstab-btn--quiet" href="<?php echo esc_url( $lstab_edit_url( $lstab_example['id'] ) ); ?>"><?php esc_html_e( 'Open the example', 'live-sheets-table' ); ?></a>
 			<?php else : ?>

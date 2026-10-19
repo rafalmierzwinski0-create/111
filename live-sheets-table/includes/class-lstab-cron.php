@@ -179,12 +179,12 @@ class LSTAB_Cron {
 			'state'   => 'stale',
 			'message' => sprintf(
 				/* translators: 1: source title, 2: human readable time difference, e.g. "2 hours". */
-				__( '“%1$s” has not been refreshed for %2$s.', 'live-sheets-table' ),
+				__( '“%1$s” has not been updated for %2$s.', 'live-sheets-table' ),
 				$worst['title'],
 				LSTAB_Locale::span( time() - $worst_age, time() )
 			),
-			'calm'    => __( 'Your pages still show the last copy that arrived, so nothing is broken for visitors.', 'live-sheets-table' ),
-			'detail'  => __( 'WordPress runs scheduled work only when a page is requested, so a quiet site falls behind. On a busy site the usual causes are a page cache, a security plugin, or scheduling disabled by the host.', 'live-sheets-table' ),
+			'calm'    => __( 'Your pages still show the last version that was read, so visitors see a working table.', 'live-sheets-table' ),
+			'detail'  => __( 'WordPress runs scheduled tasks only when somebody opens a page, so on a quiet site they fall behind. On a busy site the usual causes are a caching plugin, a security plugin, or a host that has switched WordPress scheduling off.', 'live-sheets-table' ),
 		);
 	}
 

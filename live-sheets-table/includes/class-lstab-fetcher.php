@@ -45,14 +45,14 @@ class LSTAB_Fetcher {
 		if ( self::looks_like_html( $body, $type ) ) {
 			return new WP_Error(
 				'lstab_not_public',
-				__( 'Google returned a sign-in page instead of data. Open the sheet, choose Share, and set access to "Anyone with the link – Viewer".', 'live-sheets-table' )
+				__( 'The sheet is not shared by link, so Google asked for a sign-in instead of sending the data. Open the sheet in Google Sheets, choose Share → General access → “Anyone with the link”, with the role “Viewer”.', 'live-sheets-table' )
 			);
 		}
 
 		if ( '' === trim( $body ) ) {
 			return new WP_Error(
 				'lstab_empty_response',
-				__( 'Google returned an empty response for this tab.', 'live-sheets-table' )
+				__( 'Google sent nothing back for this tab. Check that the tab still exists and holds data.', 'live-sheets-table' )
 			);
 		}
 
@@ -61,7 +61,7 @@ class LSTAB_Fetcher {
 				'lstab_too_large',
 				sprintf(
 					/* translators: %s: a size, e.g. "10 MB". */
-					__( 'This tab holds more than %s of data, which is too much for one table on a web page. Split it across several tabs and show each one as its own table.', 'live-sheets-table' ),
+					__( 'This tab holds more than %s of data, too much for one table on a web page. Split it across several tabs and show each one as its own table.', 'live-sheets-table' ),
 					size_format( self::max_bytes() )
 				)
 			);
@@ -129,7 +129,7 @@ class LSTAB_Fetcher {
 		if ( ! $tabs ) {
 			return new WP_Error(
 				'lstab_no_tabs',
-				__( 'Could not read the tab list for this spreadsheet.', 'live-sheets-table' )
+				__( 'Could not get the list of tabs in this spreadsheet.', 'live-sheets-table' )
 			);
 		}
 
@@ -202,7 +202,7 @@ class LSTAB_Fetcher {
 				'lstab_http_error',
 				sprintf(
 					/* translators: %s: underlying transport error. */
-					__( 'Could not reach Google: %s', 'live-sheets-table' ),
+					__( 'Could not connect to Google: %s', 'live-sheets-table' ),
 					$response->get_error_message()
 				)
 			);
@@ -221,15 +221,15 @@ class LSTAB_Fetcher {
 		switch ( $code ) {
 			case 401:
 			case 403:
-				return __( 'Google refused access to this sheet (HTTP 403). Open the sheet, choose Share, and set access to "Anyone with the link – Viewer".', 'live-sheets-table' );
+				return __( 'Google refused access to this sheet (error 403). Open the sheet in Google Sheets, choose Share → General access → “Anyone with the link”, with the role “Viewer”.', 'live-sheets-table' );
 			case 404:
-				return __( 'Google could not find this spreadsheet (HTTP 404). Check that the link is correct and the file has not been deleted.', 'live-sheets-table' );
+				return __( 'Google could not find this spreadsheet (error 404). Check that the link is correct and that the file has not been deleted or moved to the bin.', 'live-sheets-table' );
 			case 429:
-				return __( 'Google is rate limiting requests (HTTP 429). The next scheduled sync will try again.', 'live-sheets-table' );
+				return __( 'Google is getting too many requests from this site right now (error 429). The plugin tries again at the next check, and visitors keep seeing the last version.', 'live-sheets-table' );
 			default:
 				return sprintf(
 					/* translators: %d: HTTP status code. */
-					__( 'Google responded with HTTP %d.', 'live-sheets-table' ),
+					__( 'Google answered with error %d.', 'live-sheets-table' ),
 					$code
 				);
 		}
