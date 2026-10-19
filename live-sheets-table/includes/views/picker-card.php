@@ -27,7 +27,7 @@ defined( 'ABSPATH' ) || exit;
 	</p>
 
 	<p class="lstab-help lstab-picker-lines">
-		<?php esc_html_e( 'The numbers down the left are the row numbers in Google Sheets. Line 1 is usually the row of column names.', 'live-sheets-table' ); ?>
+		<?php esc_html_e( 'The numbers down the left are the row numbers in Google Sheets. Line 1 holds the column names, so the rows of data usually start at line 2.', 'live-sheets-table' ); ?>
 	</p>
 
 	<div class="lstab-picker-scroll">

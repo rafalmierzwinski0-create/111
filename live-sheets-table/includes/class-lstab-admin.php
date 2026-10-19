@@ -640,7 +640,7 @@ class LSTAB_Admin {
 
 	public static function masthead_summary( $sources ) {
 		if ( ! $sources ) {
-			return __( 'No sheets yet', 'live-sheets-table' );
+			return __( 'No tables yet', 'live-sheets-table' );
 		}
 
 		$rows = 0;
@@ -649,8 +649,8 @@ class LSTAB_Admin {
 		}
 
 		$line = sprintf(
-			/* translators: 1: number of sheets, 2: total number of rows. */
-			_n( '%1$s sheet · %2$s rows', '%1$s sheets · %2$s rows', count( $sources ), 'live-sheets-table' ),
+			/* translators: 1: number of tables, 2: total number of rows. */
+			_n( '%1$s table · %2$s rows', '%1$s tables · %2$s rows', count( $sources ), 'live-sheets-table' ),
 			number_format_i18n( count( $sources ) ),
 			number_format_i18n( $rows )
 		);

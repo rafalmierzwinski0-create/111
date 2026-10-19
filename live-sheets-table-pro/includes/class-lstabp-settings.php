@@ -40,7 +40,7 @@ class LSTABP_Settings {
 				<?php echo LSTAB_Icons::badge( 'spark', 'amber' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
 				<span>
 					<h2><?php esc_html_e( 'Your subscription', 'live-sheets-table-pro' ); ?></h2>
-					<span class="lstab-panel-sub"><?php esc_html_e( 'What Pro is doing on this site, and how to stop paying for it', 'live-sheets-table-pro' ); ?></span>
+					<span class="lstab-panel-sub"><?php esc_html_e( 'Your plan, and how to change or cancel it', 'live-sheets-table-pro' ); ?></span>
 				</span>
 			</div>
 

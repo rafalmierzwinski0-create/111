@@ -23,8 +23,8 @@ if ( ! $lstab_is_edit ) {
 	<?php
 	LSTAB_Admin::render_masthead(
 		$lstab_is_edit
-			? esc_html__( 'Editing a sheet', 'live-sheets-table' )
-			: esc_html__( 'Paste a link and see the table before you save', 'live-sheets-table' )
+			? esc_html__( 'Editing a table', 'live-sheets-table' )
+			: esc_html__( 'Paste a link and see the table before you save it', 'live-sheets-table' )
 	);
 	?>
 
