@@ -435,14 +435,14 @@
 }
 
 .lstab-table th[aria-sort] {
-	color: var(--lstab-fg);
+	color: var(--lstab-head-strong, var(--lstab-fg));
 }
 
 .lstab-table th[aria-sort="ascending"] .lstab-sort-icon,
 .lstab-table th[aria-sort="descending"] .lstab-sort-icon {
 	opacity: 1;
-	color: var(--lstab-accent);
-	background-color: var(--lstab-accent);
+	color: var(--lstab-sort-on, var(--lstab-accent));
+	background-color: var(--lstab-sort-on, var(--lstab-accent));
 }
 
 .lstab-table th[aria-sort="ascending"] .lstab-sort-icon {

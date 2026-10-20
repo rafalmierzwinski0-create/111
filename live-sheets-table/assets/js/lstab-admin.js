@@ -627,6 +627,12 @@
 	}
 	var resetAppearance = document.getElementById( 'lstab-reset-appearance' );
 
+	function tokenValue( token ) {
+		var swatch = document.querySelector( '.lstab-swatch[data-lstab-token="' + token + '"] .lstab-color-value' );
+
+		return swatch ? swatch.value : '';
+	}
+
 	function applyAppearance() {
 		var table = stage.querySelector( '.lstab' );
 		if ( ! table ) {
@@ -641,6 +647,16 @@
 				table.style.setProperty( property, value );
 			} else {
 				table.style.removeProperty( property );
+			}
+		} );
+
+		var headText = tokenValue( 'headerText' );
+
+		[ [ '--lstab-head-strong', headText ], [ '--lstab-sort-on', headText && tokenValue( 'headerBg' ) ? headText : '' ] ].forEach( function ( pair ) {
+			if ( pair[ 1 ] ) {
+				table.style.setProperty( pair[ 0 ], pair[ 1 ] );
+			} else {
+				table.style.removeProperty( pair[ 0 ] );
 			}
 		} );
 

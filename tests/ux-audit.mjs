@@ -206,6 +206,56 @@ for ( const { url, skin } of manifest.pages ) {
 }
 
 /*
+ * The sorted column. Its name and its arrow change colour to show which column
+ * the table is sorted by, and both have to stay readable on the heading row:
+ * a dark header with the body's dark text on it shows a column with no name.
+ * Every style is held to it, and a header given its own colours on the
+ * Appearance tab.
+ */
+section( 'The sorted column’s name and arrow stay readable' );
+
+const channels = ( c ) => {
+	const n = ( c.match( /-?[0-9.]+/g ) || [] ).map( Number );
+	const scale = /^color\(/.test( c ) ? 255 : 1;
+	return { rgb: n.slice( 0, 3 ).map( ( v ) => v * scale ), alpha: n.length > 3 ? n[ 3 ] : 1 };
+};
+
+for ( const { url, skin } of [ ...manifest.pages, manifest.tinted ] ) {
+	await open( visitor, url );
+	await visitor.locator( '.lstab-table thead .lstab-sort' ).first().click();
+	await visitor.waitForTimeout( 300 );
+	await visitor.mouse.move( 2, 2 );
+	const sorted = await visitor.evaluate( () => {
+		const th = document.querySelector( '.lstab-table thead th[aria-sort]' );
+		if ( ! th ) {
+			return null;
+		}
+		th.scrollIntoView( { block: 'center' } );
+		const backs = [];
+		for ( let el = th; el; el = el.parentElement ) {
+			backs.push( getComputedStyle( el ).backgroundColor );
+		}
+		const i = th.querySelector( '.lstab-sort-icon' ).getBoundingClientRect();
+		return {
+			ink: getComputedStyle( th.querySelector( '.lstab-sort-label' ) ).color,
+			backs,
+			icon: { x: i.left + i.width / 2, y: i.top + i.height * 0.3, beside: i.right + 3, mid: i.top + i.height / 2 },
+		};
+	} );
+	if ( ! sorted ) {
+		check( false, `${ skin }: a click on a heading sorts the table`, 'no th[aria-sort] after the click' );
+		continue;
+	}
+	const back = sorted.backs.map( channels ).find( ( c ) => c.alpha > 0.5 ) || { rgb: [ 255, 255, 255 ] };
+	const nameRatio = contrast( channels( sorted.ink ).rgb, back.rgb );
+	await visitor.waitForTimeout( 150 );
+	const shot = await grab( visitor );
+	const arrowRatio = contrast( px( shot, sorted.icon.x, sorted.icon.y ), px( shot, sorted.icon.beside, sorted.icon.mid ) );
+	check( nameRatio >= 3, `${ skin }: the sorted column’s name can be read on the heading row`, `contrast ${ nameRatio.toFixed( 2 ) }:1 (${ sorted.ink } on ${ back.rgb.map( Math.round ).join( ',' ) })` );
+	check( arrowRatio >= ARROW_CONTRAST, `${ skin }: and so can its arrow`, `contrast ${ arrowRatio.toFixed( 2 ) }:1` );
+}
+
+/*
  * Nothing painted under the controls round the table. The page behind the
  * buttons under a table must be the page: a shadow or a glow from the table
  * reaching under them makes them look stuck to it, or dirty. The gaps beside

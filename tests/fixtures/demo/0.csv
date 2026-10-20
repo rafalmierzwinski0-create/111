@@ -1,23 +1,23 @@
-Product,Category,Price,Availability,Updated
-Ridgeline 29 Trail Bike,Bikes,"$2,149.00",In stock,2026-10-14
-Summit Carbon Road Bike,Bikes,"$3,499.00",2 left,2026-10-12
-Metro 7 City Bike,Bikes,$689.00,In stock,2026-10-09
-Pebble 16 Kids' Bike,Bikes,$279.00,In stock,2026-10-15
-Voltaire E-Commuter,Bikes,"$2,890.00",Back in November,2026-10-11
-Gravel Pro GRX 600,Bikes,"$1,849.00",In stock,2026-10-16
-Aero Road Helmet,Helmets,$189.00,In stock,2026-10-02
-Trail MIPS Helmet,Helmets,$139.00,In stock,2026-10-08
-Kids' Helmet Junior,Helmets,$45.00,3 left,2026-10-13
-Commuter Helmet with Light,Helmets,$99.00,In stock,2026-10-10
-800-lumen Front Light,Lights,$64.00,In stock,2026-10-07
-Rear Light Radar,Lights,$199.00,Back in November,2026-10-05
-Floor Pump with Gauge,Tools,$42.00,In stock,2026-10-03
-16-in-1 Multi-tool,Tools,$29.00,In stock,2026-10-09
-Folding U-Lock,Locks,$84.00,In stock,2026-10-06
-Waterproof Pannier 20 L,Bags,$119.00,2 left,2026-10-14
-Saddle Bag Small,Bags,$24.00,In stock,2026-10-01
-Insulated Bottle 750 ml,Accessories,$19.00,In stock,2026-10-04
-GPS Bike Computer,Electronics,$299.00,In stock,2026-10-12
-Padded Gel Gloves,Clothing,$34.00,In stock,2026-10-02
-Packable Rain Jacket,Clothing,$129.00,In stock,2026-10-15
-Tubeless Repair Kit,Tools,$18.00,In stock,2026-10-08
+Product,Category,Sizes,Price,Availability
+Ridgeline 29 Trail Bike,Bikes,S – XL,"$2,149.00",In stock
+Summit Carbon Road Bike,Bikes,52 – 58 cm,"$3,499.00",2 left
+Metro 7 City Bike,Bikes,M – L,$689.00,In stock
+Pebble 16 Kids' Bike,Bikes,16″ wheel,$279.00,In stock
+Voltaire E-Commuter,Bikes,M – XL,"$2,890.00",Back in November
+Gravel Pro GRX 600,Bikes,S – L,"$1,849.00",In stock
+Aero Road Helmet,Helmets,S – L,$189.00,In stock
+Trail MIPS Helmet,Helmets,M – L,$139.00,In stock
+Kids' Helmet Junior,Helmets,XS – S,$45.00,3 left
+Commuter Helmet with Light,Helmets,One size,$99.00,In stock
+800-lumen Front Light,Lights,—,$64.00,In stock
+Rear Light Radar,Lights,—,$199.00,Back in November
+Floor Pump with Gauge,Tools,—,$42.00,In stock
+16-in-1 Multi-tool,Tools,—,$29.00,In stock
+Folding U-Lock,Locks,—,$84.00,In stock
+Waterproof Pannier 20 L,Bags,20 L,$119.00,2 left
+Saddle Bag Small,Bags,0.6 L,$24.00,In stock
+Insulated Bottle 750 ml,Accessories,750 ml,$19.00,In stock
+GPS Bike Computer,Electronics,—,$299.00,In stock
+Padded Gel Gloves,Clothing,S – XL,$34.00,In stock
+Packable Rain Jacket,Clothing,XS – XXL,$129.00,In stock
+Tubeless Repair Kit,Tools,—,$18.00,In stock

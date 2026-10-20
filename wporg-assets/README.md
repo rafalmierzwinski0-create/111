@@ -31,7 +31,10 @@ draws around every block, so the listing and the plugin read as one thing.
 Rebuild them from `tools/logo/assets.html` if the colours ever move.
 
 The screenshots come from a throwaway test site filled with the English demo
-shop in `tests/fixtures/demo/`, with only the free plugin active:
+shop in `tests/fixtures/demo/`, with only the free plugin active. The two demo
+pages are laid out in `tools/wporg-shots/layout.mjs` and saved through the
+block editor; screenshot 3 puts two phone shots side by side with
+`tools/wporg-shots/phones.py`, which needs Python with Pillow:
 
 ```
 node tools/wporg-shots/shoot.mjs /tmp/lstab-env/wpshots http://127.0.0.1:8091

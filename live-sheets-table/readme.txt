@@ -115,15 +115,15 @@ Yes. Everything from the sheet is escaped, so a cell containing HTML or a `<scri
 
 == Screenshots ==
 
-1. Adding a table: paste the link and the table appears straight away, before anything is saved.
-2. The list of tables, showing whether each one is up to date, its size, its schedule and the ready-to-copy shortcode.
-3. Switching between the tabs of a multi-tab spreadsheet.
-4. The published table on a desktop screen.
-5. The same table on a phone: full-size text, with a slider to move it sideways.
-6. Searching inside the table.
-7. Sorting by a column, numerically where the data is numeric.
-8. A failed update reported in the dashboard, with what to do about it.
-9. The public page during that failure, still showing the last good copy.
+1. A price list from Google Sheets on a shop page, with its header coloured to match the site.
+2. The four built-in styles, Bordered, Striped, Clean as cards, and Midnight, each showing a different tab of the same spreadsheet.
+3. On a phone: full-size text with a slider to move the table sideways, or every row as a card.
+4. Visitors search and sort. Prices sort as numbers, cheapest first.
+5. Adding a table: paste the link, pick the tab, and the table appears straight away, before anything is saved.
+6. Styles and colours. Every change shows in the preview at once.
+7. Renaming a column, and tucking one away under “Show details”, without touching the sheet.
+8. The list of tables, showing whether each one is up to date, its size, its schedule and the ready-to-copy shortcode.
+9. A failed update reported in the dashboard, with what to do about it. Visitors keep seeing the last good copy.
 10. The block in the editor, showing the real table.
 
 == Changelog ==

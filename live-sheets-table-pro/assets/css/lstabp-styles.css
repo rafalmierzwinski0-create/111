@@ -201,6 +201,7 @@
 	--lstab-bg: #ffffff;
 	--lstab-head-bg: #6d28d9;
 	--lstab-head-fg: #ffffff;
+	--lstab-head-strong: #ffffff;
 	--lstab-aurora-1: var(--lstab-head-bg);
 	--lstab-aurora-2: #a21caf;
 	--lstab-aurora-3: #be123c;
@@ -266,6 +267,7 @@
 	--lstab-radius: 12px;
 	--lstab-head-bg: light-dark(#14201f, #e7efee);
 	--lstab-head-fg: light-dark(#eaf3f1, #14201f);
+	--lstab-head-strong: var(--lstab-head-fg);
 	--lstab-stripe: color-mix(in srgb, var(--lstab-head-bg) 8%, var(--lstab-bg));
 }
 

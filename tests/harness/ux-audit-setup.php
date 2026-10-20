@@ -119,6 +119,29 @@ $free = LSTAB_Storage::insert(
 );
 LSTAB_Sync::run( $free );
 
+$tinted = LSTAB_Storage::insert(
+	array(
+		'title'         => 'UX audit dark header',
+		'sheet_url'     => 'https://docs.google.com/spreadsheets/d/UXAUDITUXAUDITUXAUDIT00000/edit',
+		'sheet_id'      => 'UXAUDITUXAUDITUXAUDIT00000',
+		'sheet_kind'    => 'id',
+		'gid'           => '0',
+		'sync_interval' => 86400,
+		'style_preset'  => 'striped',
+		'style_vars'    => array( 'headerBg' => '#123f30', 'headerText' => '#ffffff', 'accent' => '#1f7a55' ),
+	)
+);
+LSTAB_Sync::run( $tinted );
+$tinted_page = wp_insert_post(
+	array(
+		'post_type'    => 'page',
+		'post_status'  => 'publish',
+		'post_title'   => 'UX audit dark header',
+		'post_name'    => 'ux-audit-dark-header',
+		'post_content' => "<!-- wp:shortcode -->[sheet_table id=\"$tinted\"]<!-- /wp:shortcode -->",
+	)
+);
+
 $heads = array();
 for ( $c = 1; $c <= 14; $c++ ) {
 	$heads[] = 'Field ' . $c;
@@ -197,5 +220,10 @@ foreach ( array_keys( LSTAB_Styles::all() ) as $skin ) {
 	);
 }
 
-file_put_contents( $manifest, wp_json_encode( array( 'sources' => array( $id, $wide, $paged, $free ), 'source' => $id, 'wide' => $wide, 'paged' => $paged, 'pages' => $pages, 'unpinned' => $unpinned, 'all_pages' => array_merge( $pages, $unpinned ), 'pro' => $pro ) + $saved ) );
+$tinted_entry = array(
+	'id'   => $tinted_page,
+	'url'  => get_permalink( $tinted_page ),
+	'skin' => 'striped with its own dark header',
+);
+file_put_contents( $manifest, wp_json_encode( array( 'sources' => array( $id, $wide, $paged, $free, $tinted ), 'source' => $id, 'wide' => $wide, 'paged' => $paged, 'pages' => $pages, 'unpinned' => $unpinned, 'tinted' => $tinted_entry, 'all_pages' => array_merge( $pages, $unpinned, array( $tinted_entry ) ), 'pro' => $pro ) + $saved ) );
 echo count( $pages ) . " pages for source $id" . ( $pro ? ' (with the add-on)' : '' ) . "\n";

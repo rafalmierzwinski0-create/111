@@ -252,6 +252,14 @@ class LSTAB_Customizer {
 			}
 		}
 
+		if ( ! empty( $values['headerText'] ) ) {
+			$map['--lstab-head-strong'] = $values['headerText'];
+
+			if ( ! empty( $values['headerBg'] ) ) {
+				$map['--lstab-sort-on'] = $values['headerText'];
+			}
+		}
+
 		foreach ( self::metrics() as $key => $metric ) {
 			$choice = isset( $values[ $key ] ) ? $values[ $key ] : 'normal';
 			if ( ! isset( $metric['vars'][ $choice ] ) ) {
