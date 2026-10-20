@@ -36,10 +36,8 @@ let kept = 0;
 const keep = ( name, before, after ) => {
 	kept += 1;
 	const base = path.join( SHOTS, `${ String( kept ).padStart( 2, '0' ) }-${ name.replace( /[^a-z0-9]+/gi, '-' ).slice( 0, 60 ) }` );
-	fs.writeFileSync( `${ base }-before.png`, Buffer.from( before, 'base64' ) );
-	if ( after ) {
-		fs.writeFileSync( `${ base }-after.png`, Buffer.from( after, 'base64' ) );
-	}
+	[].concat( before ).forEach( ( shot, i ) => fs.writeFileSync( `${ base }-before-${ i }.png`, Buffer.from( shot, 'base64' ) ) );
+	[].concat( after || [] ).forEach( ( shot, i ) => fs.writeFileSync( `${ base }-after-${ i }.png`, Buffer.from( shot, 'base64' ) ) );
 	return base;
 };
 
@@ -380,35 +378,40 @@ const hoverRow = async () => {
 };
 
 const previewShot = async () => {
-	const box = await owner.locator( '#lstab-preview' ).evaluate( ( el ) => {
-		el.scrollIntoView( { block: 'start' } );
-		window.scrollBy( 0, -40 );
-		const r = el.getBoundingClientRect();
-		return { x: r.left, y: Math.max( 0, r.top ), width: r.width, height: Math.min( r.height, window.innerHeight - Math.max( 0, r.top ) ) };
+	// The "updated … ago" line counts up by itself, so its words are set to
+	// one fixed wording first; whether the line is there still shows.
+	const steady = () => owner.evaluate( () => {
+		document.querySelectorAll( '#lstab-preview .lstab-meta' ).forEach( ( p ) => {
+			p.textContent = 'Updated a moment ago';
+		} );
 	} );
-	await hoverRow();
-	// The "updated … ago" line counts up by itself: its words are made
-	// invisible for the photograph, and the room it takes still shows.
-	await owner.evaluate( () => {
-		if ( ! document.getElementById( 'ux-audit-still' ) ) {
-			const style = document.createElement( 'style' );
-			style.id = 'ux-audit-still';
-			style.textContent = '#lstab-preview .lstab-meta { color: transparent !important; }';
-			document.head.appendChild( style );
+	const frame = async ( end ) => {
+		const box = await owner.locator( '#lstab-preview' ).evaluate( ( el, bottom ) => {
+			el.scrollIntoView( { block: 'start' } );
+			window.scrollBy( 0, -40 );
+			el.scrollTop = bottom ? el.scrollHeight : 0;
+			const r = el.getBoundingClientRect();
+			return { x: r.left, y: Math.max( 0, r.top ), width: r.width, height: Math.min( r.height, window.innerHeight - Math.max( 0, r.top ) ) };
+		}, end );
+		await hoverRow();
+		await steady();
+		// A redrawn table settles over a few frames (columns evened out, the
+		// slider placed): photographed until two pictures in a row agree.
+		let last = ( await owner.screenshot( { clip: box } ) ).toString( 'base64' );
+		for ( let tries = 0; tries < 6; tries += 1 ) {
+			await owner.waitForTimeout( 250 );
+			await steady();
+			const next = ( await owner.screenshot( { clip: box } ) ).toString( 'base64' );
+			if ( next === last ) {
+				return next;
+			}
+			last = next;
 		}
-	} );
-	// A redrawn table settles over a few frames (columns evened out, the
-	// slider placed): photographed until two pictures in a row agree.
-	let last = ( await owner.screenshot( { clip: box } ) ).toString( 'base64' );
-	for ( let tries = 0; tries < 6; tries += 1 ) {
-		await owner.waitForTimeout( 250 );
-		const next = ( await owner.screenshot( { clip: box } ) ).toString( 'base64' );
-		if ( next === last ) {
-			return next;
-		}
-		last = next;
-	}
-	return last;
+		return last;
+	};
+	// The top of the preview and its foot, where the pages, the "updated" line
+	// and the buttons are.
+	return [ await frame( false ), await frame( true ) ];
 };
 
 // What a control does may only show where the table is too wide for its
@@ -423,7 +426,7 @@ const narrow = async ( act ) => {
 	await owner.waitForTimeout( 500 );
 	const before = await previewShot();
 	await act();
-	return before !== await previewShot();
+	return differ( before, await previewShot() );
 };
 
 const redrawn = async ( act ) => {
@@ -478,7 +481,35 @@ const controls = await owner.evaluate( () => {
 
 check( controls.filter( ( c ) => 'look' === c.pane ).length >= 15, `the Appearance tab has the switches and choices this rule is about (${ controls.filter( ( c ) => 'look' === c.pane ).length } found)` );
 
+// Two pictures differ when enough of their pixels differ by enough to see:
+// a redraw can move a pixel or two by a shade with nothing to see.
+const differ = ( a, b ) => {
+	if ( Array.isArray( a ) ) {
+		return a.some( ( part, i ) => differ( part, b[ i ] ) );
+	}
+	if ( a === b ) {
+		return false;
+	}
+	const x = decodePng( Buffer.from( a, 'base64' ) );
+	const y = decodePng( Buffer.from( b, 'base64' ) );
+	if ( x.width !== y.width || x.height !== y.height ) {
+		return true;
+	}
+	let seen = 0;
+	for ( let row = 0; row < x.height; row += 1 ) {
+		for ( let col = 0; col < x.width; col += 1 ) {
+			if ( distance( x.at( col, row ), y.at( col, row ) ) > 24 && ++seen > 30 ) {
+				return true;
+			}
+		}
+	}
+	return false;
+};
+
 const quiet = [
+	// Drawn only while the slider floats over the rows, which depends on where
+	// the page happens to be scrolled; tests/colours-browser.mjs checks it.
+	/^Pick a colour for Slider outline/,
 	// A rule line's column does nothing until the rule also has a value to match.
 	/lstabp_rules\[\d+\]\[(column|operator|scope|style)\]/,
 ];
@@ -493,7 +524,7 @@ await redrawn( () => owner.evaluate( () => window.lstabRedrawPreview && window.l
 const again = await previewShot();
 const againHtml = await owner.evaluate( () => document.getElementById( 'lstab-preview-stage' ).innerHTML );
 let firstChange = '';
-if ( still !== again ) {
+if ( differ( still, again ) ) {
 	const a = stillHtml.replace( /\s+/g, ' ' );
 	const b = againHtml.replace( /\s+/g, ' ' );
 	let i = 0;
@@ -503,7 +534,7 @@ if ( still !== again ) {
 	firstChange = i >= Math.min( a.length, b.length ) && a.length === b.length ? 'the markup is the same; only the picture differs' : `markup differs at: …${ a.slice( Math.max( 0, i - 80 ), i + 80 ) }… / …${ b.slice( Math.max( 0, i - 80 ), i + 80 ) }…`;
 	firstChange += ' — pictures in ' + keep( 'redrawn-unchanged', still, again );
 }
-check( still === again, 'the preview looks the same when it is redrawn with nothing changed, so a difference below means something', firstChange );
+check( ! differ( still, again ), 'the preview looks the same when it is redrawn with nothing changed, so a difference below means something', firstChange );
 
 const setValue = async ( target, kind ) => {
 	await redrawn( () => target.evaluate( ( el, type ) => {
@@ -550,14 +581,15 @@ for ( const c of controls ) {
 			const before = await previewShot();
 			await redrawn( () => target.selectOption( value ) );
 			let after = await previewShot();
-			if ( before === after ) {
+			if ( ! differ( before, after ) ) {
 				await freshEdit( c.pane );
 				target = owner.locator( c.selector ).first();
 				if ( await narrow( () => redrawn( () => target.selectOption( value ) ) ) ) {
 					after = null;
 				}
 			}
-			check( before !== after, `${ c.label.split( ' ' ).slice( 0, 3 ).join( ' ' ) } → “${ text }” — changes the preview`, before === after ? 'the preview looked the same before and after' : '' );
+			const moved = null === after || differ( before, after );
+			check( moved, `${ c.label.split( ' ' ).slice( 0, 3 ).join( ' ' ) } → “${ text }” — changes the preview`, moved ? '' : 'the preview looked the same before and after, at full width and on a phone' );
 		}
 		continue;
 	}
@@ -568,7 +600,7 @@ for ( const c of controls ) {
 		await redrawn( () => target.click( { force: true } ) );
 	}
 	let after = await previewShot();
-	if ( before === after ) {
+	if ( ! differ( before, after ) ) {
 		await freshEdit( c.pane );
 		target = owner.locator( c.selector ).first();
 		const again = 'number' === c.kind || 'color' === c.kind ? setValue : () => redrawn( () => target.click( { force: true } ) );
@@ -576,7 +608,8 @@ for ( const c of controls ) {
 			after = null;
 		}
 	}
-	check( before !== after, `${ c.label } — changes the preview`, before === after ? 'the preview looked the same before and after, at full width and on a phone — picture in ' + keep( c.label, before ) : '' );
+	const moved = null === after || differ( before, after );
+	check( moved, `${ c.label } — changes the preview`, moved ? '' : 'the preview looked the same before and after, at full width and on a phone — picture in ' + keep( c.label, before ) );
 }
 
 /*
