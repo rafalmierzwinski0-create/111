@@ -384,7 +384,18 @@ const previewShot = async () => {
 			document.head.appendChild( style );
 		}
 	} );
-	return ( await owner.screenshot( { clip: box } ) ).toString( 'base64' );
+	// A redrawn table settles over a few frames (columns evened out, the
+	// slider placed): photographed until two pictures in a row agree.
+	let last = ( await owner.screenshot( { clip: box } ) ).toString( 'base64' );
+	for ( let tries = 0; tries < 6; tries += 1 ) {
+		await owner.waitForTimeout( 250 );
+		const next = ( await owner.screenshot( { clip: box } ) ).toString( 'base64' );
+		if ( next === last ) {
+			return next;
+		}
+		last = next;
+	}
+	return last;
 };
 
 // What a control does may only show where the table is too wide for its
