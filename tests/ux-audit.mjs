@@ -28,7 +28,20 @@ const here = path.dirname( fileURLToPath( import.meta.url ) );
 const repo = process.env.LSTAB_REPO || path.join( here, '..' );
 const SITE = '/tmp/lstab-env/wp71';
 const BASE = 'http://127.0.0.1:8089';
-const SHOTS = process.env.LSTAB_UX_SHOTS || '';
+const SHOTS = process.env.LSTAB_UX_SHOTS || '/tmp/lstab-env/ux-audit-failures';
+fs.rmSync( SHOTS, { recursive: true, force: true } );
+fs.mkdirSync( SHOTS, { recursive: true } );
+let kept = 0;
+// The two pictures behind a failed comparison, so a failure can be looked at.
+const keep = ( name, before, after ) => {
+	kept += 1;
+	const base = path.join( SHOTS, `${ String( kept ).padStart( 2, '0' ) }-${ name.replace( /[^a-z0-9]+/gi, '-' ).slice( 0, 60 ) }` );
+	fs.writeFileSync( `${ base }-before.png`, Buffer.from( before, 'base64' ) );
+	if ( after ) {
+		fs.writeFileSync( `${ base }-after.png`, Buffer.from( after, 'base64' ) );
+	}
+	return base;
+};
 
 let passed = 0;
 let failed = 0;
@@ -475,8 +488,22 @@ const quiet = [
 await owner.locator( '.lstab-pane-tab[data-lstab-goto="look"]' ).click();
 await owner.waitForTimeout( 300 );
 const still = await previewShot();
+const stillHtml = await owner.evaluate( () => document.getElementById( 'lstab-preview-stage' ).innerHTML );
 await redrawn( () => owner.evaluate( () => window.lstabRedrawPreview && window.lstabRedrawPreview() ) );
-check( still === await previewShot(), 'the preview looks the same when it is redrawn with nothing changed, so a difference below means something' );
+const again = await previewShot();
+const againHtml = await owner.evaluate( () => document.getElementById( 'lstab-preview-stage' ).innerHTML );
+let firstChange = '';
+if ( still !== again ) {
+	const a = stillHtml.replace( /\s+/g, ' ' );
+	const b = againHtml.replace( /\s+/g, ' ' );
+	let i = 0;
+	while ( i < a.length && a[ i ] === b[ i ] ) {
+		i += 1;
+	}
+	firstChange = i >= Math.min( a.length, b.length ) && a.length === b.length ? 'the markup is the same; only the picture differs' : `markup differs at: …${ a.slice( Math.max( 0, i - 80 ), i + 80 ) }… / …${ b.slice( Math.max( 0, i - 80 ), i + 80 ) }…`;
+	firstChange += ' — pictures in ' + keep( 'redrawn-unchanged', still, again );
+}
+check( still === again, 'the preview looks the same when it is redrawn with nothing changed, so a difference below means something', firstChange );
 
 const setValue = async ( target, kind ) => {
 	await redrawn( () => target.evaluate( ( el, type ) => {
@@ -549,7 +576,7 @@ for ( const c of controls ) {
 			after = null;
 		}
 	}
-	check( before !== after, `${ c.label } — changes the preview`, before === after ? 'the preview looked the same before and after, at full width and on a phone' : '' );
+	check( before !== after, `${ c.label } — changes the preview`, before === after ? 'the preview looked the same before and after, at full width and on a phone — picture in ' + keep( c.label, before ) : '' );
 }
 
 /*
