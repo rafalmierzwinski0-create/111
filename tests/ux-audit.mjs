@@ -377,7 +377,7 @@ const hoverRow = async () => {
 	}
 };
 
-const previewShot = async () => {
+const previewShot = async ( sideways = false ) => {
 	// The "updated … ago" line counts up by itself, so its words are set to
 	// one fixed wording first; whether the line is there still shows.
 	const steady = () => owner.evaluate( () => {
@@ -386,13 +386,19 @@ const previewShot = async () => {
 		} );
 	} );
 	const frame = async ( end ) => {
-		const box = await owner.locator( '#lstab-preview' ).evaluate( ( el, bottom ) => {
+		const box = await owner.locator( '#lstab-preview' ).evaluate( ( el, [ bottom, aside ] ) => {
 			el.scrollIntoView( { block: 'start' } );
 			window.scrollBy( 0, -40 );
 			el.scrollTop = bottom ? el.scrollHeight : 0;
+			const pane = el.querySelector( '.lstab-scroll' );
+			if ( pane && aside ) {
+				pane.scrollLeft = Math.min( 160, pane.scrollWidth - pane.clientWidth ) * ( 'rtl' === getComputedStyle( pane ).direction ? -1 : 1 );
+				pane.dispatchEvent( new Event( 'scroll' ) );
+			}
 			const r = el.getBoundingClientRect();
 			return { x: r.left, y: Math.max( 0, r.top ), width: r.width, height: Math.min( r.height, window.innerHeight - Math.max( 0, r.top ) ) };
-		}, end );
+		}, [ end, sideways ] );
+		await owner.waitForTimeout( sideways ? 200 : 0 );
 		await hoverRow();
 		await steady();
 		// A redrawn table settles over a few frames (columns evened out, the
@@ -415,8 +421,9 @@ const previewShot = async () => {
 };
 
 // What a control does may only show where the table is too wide for its
-// column, so a control that changed nothing at full width is tried again on
-// the phone width before it counts as changing nothing.
+// column, or once it is scrolled sideways, so a control that changed nothing
+// at full width is tried again on the phone width, scrolled sideways, before
+// it counts as changing nothing.
 const narrow = async ( act ) => {
 	const phone = owner.locator( '[data-lstab-width="390"]' );
 	if ( ! await phone.count() ) {
@@ -424,9 +431,9 @@ const narrow = async ( act ) => {
 	}
 	await phone.click();
 	await owner.waitForTimeout( 500 );
-	const before = await previewShot();
+	const before = await previewShot( true );
 	await act();
-	return differ( before, await previewShot() );
+	return differ( before, await previewShot( true ) );
 };
 
 const redrawn = async ( act ) => {
