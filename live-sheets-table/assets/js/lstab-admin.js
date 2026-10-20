@@ -512,9 +512,17 @@
 				titleField.value = tabNameField.value;
 			}
 		} ).catch( function ( error ) {
+			var saved = sourceIdField && parseInt( sourceIdField.value, 10 ) && url === ( urlInput.defaultValue || '' ).trim();
+
 			setBusy( false );
-			stage.innerHTML = '';
-			setStatus( ( error && error.message ) || i18n.failed, 'error' );
+
+			if ( saved ) {
+				redrawFromStored();
+			} else {
+				stage.innerHTML = '';
+			}
+
+			setStatus( ( ( error && error.message ) || i18n.failed ) + ( saved ? ' ' + i18n.lastCopy : '' ), 'error' );
 
 			tabsWrap.hidden = ! ( tabNameField && tabNameField.value );
 		} );
@@ -686,17 +694,64 @@
 		probe.style.display = 'none';
 		document.body.appendChild( probe );
 
-		var parts = ( window.getComputedStyle( probe ).color || '' ).match( /[0-9.]+/g );
+		var hex = hexOf( window.getComputedStyle( probe ).color );
 
 		document.body.removeChild( probe );
 
+		return hex;
+	}
+
+	function channelsOf( computed ) {
+		var text = ( computed || '' ).trim();
+		var parts = text.match( /-?[0-9.]+/g );
+
 		if ( ! parts || parts.length < 3 ) {
+			return null;
+		}
+
+		var scale = /^color\(/.test( text ) ? 255 : 1;
+		var rgb = parts.slice( 0, 3 ).map( function ( part ) {
+			return Math.max( 0, Math.min( 255, parseFloat( part ) * scale ) );
+		} );
+
+		rgb.push( parts.length > 3 ? parseFloat( parts[ 3 ] ) : 1 );
+
+		return rgb;
+	}
+
+	function hexOf( computed, under ) {
+		var rgb = channelsOf( computed );
+
+		if ( ! rgb ) {
 			return '';
 		}
 
-		return '#' + parts.slice( 0, 3 ).map( function ( part ) {
-			return ( '0' + parseInt( part, 10 ).toString( 16 ) ).slice( -2 );
+		var base = channelsOf( under ) || [ 255, 255, 255, 1 ];
+		var alpha = rgb[ 3 ];
+
+		return '#' + [ 0, 1, 2 ].map( function ( i ) {
+			var channel = Math.round( rgb[ i ] * alpha + base[ i ] * ( 1 - alpha ) );
+
+			return ( '0' + channel.toString( 16 ) ).slice( -2 );
 		} ).join( '' );
+	}
+
+	function resolvedIn( table, property ) {
+		var probe = document.createElement( 'span' );
+
+		probe.style.display = 'none';
+		probe.style.color = 'var(' + property + ')';
+		table.appendChild( probe );
+
+		var colour = window.getComputedStyle( probe ).color;
+
+		probe.style.color = 'var(--lstab-bg)';
+
+		var hex = hexOf( colour, window.getComputedStyle( probe ).color );
+
+		table.removeChild( probe );
+
+		return hex;
 	}
 
 	function describe( swatch ) {
@@ -713,11 +768,8 @@
 	function followPreset( swatch ) {
 		var picker = swatch.querySelector( '.lstab-color-input' );
 		var table = stage.querySelector( '.lstab' );
-		var resolved = table
-			? window.getComputedStyle( table ).getPropertyValue( swatch.getAttribute( 'data-lstab-var' ) )
-			: '';
 
-		picker.value = toHex( resolved ) || '#ffffff';
+		picker.value = ( table && resolvedIn( table, swatch.getAttribute( 'data-lstab-var' ) ) ) || '#ffffff';
 		describe( swatch );
 	}
 

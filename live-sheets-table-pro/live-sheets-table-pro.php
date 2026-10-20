@@ -4,7 +4,7 @@
  * Description:       Extends Live Sheets Table with private Google Sheets, filters, filter menus for visitors, colour rules, column looks, Excel, CSV and print downloads, six more table styles and updates as often as every minute.
  * Version:           1.0.0
  * Requires at least: 6.7
- * Requires PHP:      7.4
+ * Requires PHP:      8.0
  * Requires Plugins:  live-sheets-table
  * Author:            Live Sheets Table
  * License:           GPL-2.0-or-later

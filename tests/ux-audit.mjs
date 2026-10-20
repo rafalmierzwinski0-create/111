@@ -694,6 +694,41 @@ if ( await owner.locator( linesSelect ).count() ) {
 }
 
 /*
+ * The colour swatches under "Fine-tune the look" show the colours of the
+ * style that is chosen, not one fixed set: the Background swatch is the colour
+ * the preview's rows are drawn in, and Text the colour of their words.
+ */
+section( 'The colour swatches show the chosen style’s own colours' );
+
+const toRgb = ( hex ) => [ 1, 3, 5 ].map( ( i ) => parseInt( hex.slice( i, i + 2 ), 16 ) );
+const seenSets = new Set();
+await freshEdit( 'look' );
+const swatchStyles = await owner.evaluate( () => [ ...document.querySelectorAll( '[data-lstab-pane="look"] input[name="style_preset"]' ) ].map( ( r ) => r.value ) );
+for ( const style of swatchStyles ) {
+	const radio = owner.locator( `[data-lstab-pane="look"] input[name="style_preset"][value="${ style }"]` );
+	await redrawn( () => radio.click( { force: true } ) );
+	await owner.mouse.move( 2, 2 );
+	await owner.waitForTimeout( 200 );
+	const read = await owner.evaluate( () => {
+		const value = ( token ) => {
+			const s = document.querySelector( `.lstab-swatch[data-lstab-token="${ token }"]` );
+			return s ? s.querySelector( '.lstab-color-input' ).value : '';
+		};
+		const cell = document.querySelector( '#lstab-preview .lstab-table tbody tr:not(.lstab-detail) td:nth-child(3)' );
+		const row = cell.closest( 'tr' );
+		const paint = [ cell, row, row.closest( 'table' ), row.closest( '.lstab' ) ].map( ( el ) => getComputedStyle( el ).backgroundColor ).find( ( c ) => ! /rgba\(0, 0, 0, 0\)|transparent/.test( c ) ) || '';
+		return { background: value( 'background' ), text: value( 'text' ), paint, ink: getComputedStyle( cell ).color, all: [ ...document.querySelectorAll( '.lstab-swatch' ) ].map( ( s ) => s.querySelector( '.lstab-color-input' ).value ).join( ' ' ) };
+	} );
+	const parse = ( c ) => ( c.match( /[0-9.]+/g ) || [] ).slice( 0, 3 ).map( ( v ) => ( /^color\(/.test( c ) ? parseFloat( v ) * 255 : parseFloat( v ) ) );
+	const bgOff = read.paint ? distance( toRgb( read.background ), parse( read.paint ) ) : 0;
+	const inkOff = distance( toRgb( read.text ), parse( read.ink ) );
+	check( bgOff < 10, `${ style }: the Background swatch is the colour the preview’s rows are drawn in`, `swatch ${ read.background }, rows ${ read.paint }` );
+	check( inkOff < 10, `${ style }: the Text swatch is the colour of the words in the preview`, `swatch ${ read.text }, words ${ read.ink }` );
+	seenSets.add( read.all );
+}
+check( seenSets.size >= Math.min( 4, swatchStyles.length ), 'and the swatches are not one fixed set whatever the style', `${ seenSets.size } different sets across ${ swatchStyles.length } styles` );
+
+/*
  * The same in the preview on the edit screen, in every style: the buttons
  * under the table sit on the preview's own background.
  */
@@ -860,6 +895,56 @@ if ( manifest.pro ) {
 	} else {
 		check( false, 'the audit page has filter menus to try', 'no details.lstabp-facet' );
 	}
+}
+
+/*
+ * A click on a column heading sorts; it does not also leave a frame around the
+ * heading. Themes such as Twenty Twenty-Five outline whatever has focus, and a
+ * mouse user then sees a box they never asked for. The keyboard keeps its
+ * frame, since that is how a keyboard user sees where they are.
+ */
+section( 'A click leaves no frame; the keyboard keeps one' );
+
+await open( visitor, manifest.pages[ 0 ].url );
+const sortHead = visitor.locator( '.lstab-table thead .lstab-sort' ).nth( 1 );
+await sortHead.click();
+await visitor.waitForTimeout( 300 );
+const clicked = await visitor.evaluate( () => {
+	const s = getComputedStyle( document.activeElement );
+	return { cls: document.activeElement.className, outline: s.outlineStyle, width: s.outlineWidth };
+} );
+check( /lstab-sort/.test( clicked.cls ) && ( 'none' === clicked.outline || '0px' === clicked.width ), 'a clicked heading has no outline', `${ clicked.outline } ${ clicked.width } on ${ clicked.cls }` );
+await visitor.keyboard.press( 'Shift+Tab' );
+await visitor.keyboard.press( 'Tab' );
+const tabbed = await visitor.evaluate( () => {
+	const s = getComputedStyle( document.activeElement );
+	return { cls: document.activeElement.className, outline: s.outlineStyle, width: s.outlineWidth };
+} );
+check( /lstab-sort/.test( tabbed.cls ) && 'none' !== tabbed.outline && '0px' !== tabbed.width, 'a heading reached with the keyboard has one', `${ tabbed.outline } ${ tabbed.width } on ${ tabbed.cls }` );
+
+/*
+ * When Google stops answering, the edit screen of a saved table still shows
+ * that table: the copy visitors are being shown, under the message saying
+ * what went wrong. An empty white box there reads as "the table is gone".
+ */
+section( 'When Google stops answering, the preview keeps the last copy' );
+
+const mockState = `${ SITE }/wp-content/lstab-mock-state.json`;
+const stateBefore = fs.readFileSync( mockState, 'utf8' );
+fs.writeFileSync( mockState, JSON.stringify( { mode: 'http_403', tab: 'main' } ) );
+try {
+	await open( owner, editUrl( sourceId ) );
+	await owner.waitForSelector( '#lstab-preview-status.is-error', { timeout: 15000 } ).catch( () => {} );
+	await settle( owner, 800 );
+	const kept = await owner.evaluate( () => ( {
+		status: document.getElementById( 'lstab-preview-status' ).className,
+		text: document.getElementById( 'lstab-preview-status' ).textContent,
+		rows: document.querySelectorAll( '#lstab-preview-stage .lstab-table tbody tr' ).length,
+	} ) );
+	check( /is-error/.test( kept.status ), 'the failure is reported above the preview', kept.text );
+	check( kept.rows > 0, 'and the preview still shows the table', `${ kept.rows } rows; status “${ kept.text }”` );
+} finally {
+	fs.writeFileSync( mockState, stateBefore );
 }
 
 /*

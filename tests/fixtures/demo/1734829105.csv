@@ -1,0 +1,8 @@
+Service,Takes,Price,What it covers
+Safety check,30 min,$25.00,"Brakes, gears, tyres and bolts checked and adjusted"
+Basic tune-up,1 hour,$69.00,"Safety check, plus gears and brakes fine-tuned and the chain cleaned"
+Full service,Half a day,$149.00,"Strip-down, clean, new cables, bearings checked and regreased"
+Puncture repair,15 min,$12.00,Tube patched or replaced; tube not included
+Wheel true,30 min,$29.00,Wheel straightened and spokes tensioned
+Brake bleed,45 min,$45.00,Hydraulic brakes bled; one wheel
+E-bike check,1 hour,$89.00,"Motor, battery and wiring tested; firmware updated"

@@ -29,3 +29,13 @@ with only the small one looks soft on every modern laptop.
 The mark is the selected range with its handle — the same frame the dashboard
 draws around every block, so the listing and the plugin read as one thing.
 Rebuild them from `tools/logo/assets.html` if the colours ever move.
+
+The screenshots come from a throwaway test site filled with the English demo
+shop in `tests/fixtures/demo/`, with only the free plugin active:
+
+```
+node tools/wporg-shots/shoot.mjs /tmp/lstab-env/wpshots http://127.0.0.1:8091
+```
+
+The script empties that site of tables and pages first, so never point it at
+a site anyone uses.

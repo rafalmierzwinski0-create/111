@@ -1508,6 +1508,10 @@
 	outline-offset: 3px;
 }
 
+.lstab-container :is(button, a):focus:not(:focus-visible) {
+	outline: none;
+}
+
 .lstab-container .lstab .lstab-open {
 	display: inline-flex;
 	align-items: center;

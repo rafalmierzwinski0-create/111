@@ -192,7 +192,8 @@ class LSTAB_Admin {
 				'metrics'    => wp_list_pluck( LSTAB_Customizer::metrics(), 'vars' ),
 				'i18n'       => array(
 					'loading'     => __( 'Loading preview…', 'live-sheets-table' ),
-					'failed'      => __( 'Could not load the preview', 'live-sheets-table' ),
+					'failed'      => __( 'Could not load the preview.', 'live-sheets-table' ),
+					'lastCopy'    => __( 'Below is the last copy that was read, which is what visitors see.', 'live-sheets-table' ),
 					/* translators: 1: number of rows, 2: number of columns. */
 					'rowsFound'   => __( 'Found %1$s rows across %2$s columns.', 'live-sheets-table' ),
 					'truncated'   => __( 'Showing the first 25 rows.', 'live-sheets-table' ),

@@ -4,7 +4,7 @@
  * Description:       Show a Google Sheet on your site as a fast table that updates itself. Pages use a copy stored on your site, so they keep working even when Google cannot be reached.
  * Version:           1.0.0
  * Requires at least: 6.7
- * Requires PHP:      7.4
+ * Requires PHP:      8.0
  * Author:            Live Sheets Table
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html

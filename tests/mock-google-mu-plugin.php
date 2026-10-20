@@ -9,7 +9,7 @@
  *
  * Control it by writing a JSON state file:
  *   { "mode": "ok" | "http_403" | "timeout" | "html_login" | "empty" | "ragged"
- *             | "endpoints",
+ *             | "endpoints" | "custom" | "demo" | "demo_403",
  *     "tab": "main" | "second" }
  *
  * @package LiveSheetsTable\Tests
@@ -118,6 +118,26 @@ add_filter(
 			gmdate( 'c' ) . " mode={$state['mode']} tab={$state['tab']} url={$url}\n",
 			FILE_APPEND
 		);
+
+		/*
+		 * The English sheet the directory screenshots are taken from: three
+		 * tabs, each its own file named after its gid. "demo_403" is the same
+		 * sheet once its owner has stopped sharing it.
+		 */
+		if ( 'demo' === $state['mode'] || 'demo_403' === $state['mode'] ) {
+			if ( 'demo_403' === $state['mode'] ) {
+				return lstab_mock_response( 403, 'Sorry, unable to open the file at this time.', 'text/html; charset=UTF-8' );
+			}
+
+			if ( false !== strpos( $url, '/htmlview' ) || false !== strpos( $url, '/pubhtml' ) ) {
+				return lstab_mock_response( 200, (string) file_get_contents( LSTAB_MOCK_FIXTURES . '/demo/htmlview.html' ), 'text/html; charset=UTF-8' );
+			}
+
+			$gid = preg_match( '/gid=(\d+)/', $url, $m ) ? $m[1] : '0';
+			$csv = LSTAB_MOCK_FIXTURES . '/demo/' . $gid . '.csv';
+
+			return lstab_mock_response( 200, (string) file_get_contents( file_exists( $csv ) ? $csv : LSTAB_MOCK_FIXTURES . '/demo/0.csv' ) );
+		}
 
 		// Tab discovery request.
 		if ( false !== strpos( $url, '/htmlview' ) || false !== strpos( $url, '/pubhtml' ) ) {
