@@ -172,13 +172,13 @@ defined( 'ABSPATH' ) || exit;
 						</tr>
 					</thead>
 					<tbody>
-						<?php foreach ( $sources as $source ) : ?>
+						<?php foreach ( $sources as $lstabp_source ) : ?>
 							<tr>
-								<td><strong><?php echo esc_html( $source['title'] ); ?></strong></td>
+								<td><strong><?php echo esc_html( $lstabp_source['title'] ); ?></strong></td>
 								<td>
 									<label>
-										<input type="checkbox" name="private[<?php echo esc_attr( (string) $source['id'] ); ?>]" value="1"
-											<?php checked( LSTABP_Private_Sheets::is_private( $source['id'] ) ); ?>>
+										<input type="checkbox" name="private[<?php echo esc_attr( (string) $lstabp_source['id'] ); ?>]" value="1"
+											<?php checked( LSTABP_Private_Sheets::is_private( $lstabp_source['id'] ) ); ?>>
 										<span class="screen-reader-text"><?php esc_html_e( 'Read through the connected account', 'live-sheets-table-pro' ); ?></span>
 									</label>
 								</td>
