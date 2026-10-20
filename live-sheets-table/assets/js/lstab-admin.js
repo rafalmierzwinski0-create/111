@@ -907,22 +907,36 @@
 		refreshPreview();
 	}, true );
 
-	window.addEventListener( 'submit', function ( event ) {
-		var search = event.target;
+	function searchPreview( box ) {
+		var field = box.querySelector( '.lstab-search-input' );
 
-		if ( ! search.matches || ! search.matches( '#lstab-preview form.lstab-search-form' ) ) {
-			return;
+		navArgs = {};
+
+		if ( field && field.name && '' !== field.value.trim() ) {
+			navArgs[ field.name ] = field.value.trim();
 		}
 
-		event.preventDefault();
-		event.stopPropagation();
-		navArgs = {};
-		new window.FormData( search ).forEach( function ( value, key ) {
-			if ( /^lstab-(q|sort|dir)-/.test( key ) ) {
-				navArgs[ key ] = String( value );
-			}
-		} );
 		refreshPreview();
+	}
+
+	window.addEventListener( 'click', function ( event ) {
+		var go = event.target.closest ? event.target.closest( '#lstab-preview .lstab-search-go' ) : null;
+
+		if ( go ) {
+			event.preventDefault();
+			event.stopPropagation();
+			searchPreview( go.closest( '.lstab-search-form' ) );
+		}
+	}, true );
+
+	window.addEventListener( 'keydown', function ( event ) {
+		var field = 'Enter' === event.key && event.target.closest ? event.target.closest( '#lstab-preview .lstab-search-input' ) : null;
+
+		if ( field && field.name ) {
+			event.preventDefault();
+			event.stopPropagation();
+			searchPreview( field.closest( '.lstab-search-form' ) );
+		}
 	}, true );
 
 	var pagingTouched = document.getElementById( 'lstab-paging-touched' );

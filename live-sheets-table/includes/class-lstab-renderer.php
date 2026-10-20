@@ -267,10 +267,14 @@ class LSTAB_Renderer {
 
 			<?php if ( $searchable && $paged ) : ?>
 				<div class="lstab-controls">
+					<?php if ( ! empty( $args['preview'] ) ) : ?>
+					<div class="lstab-search-form" role="search">
+					<?php else : ?>
 					<form class="lstab-search-form" method="get" action="">
 						<?php foreach ( LSTAB_Paging::carried_fields( $source_id ) as $lstab_field => $lstab_value ) : ?>
 							<input type="hidden" name="<?php echo esc_attr( $lstab_field ); ?>" value="<?php echo esc_attr( $lstab_value ); ?>">
 						<?php endforeach; ?>
+					<?php endif; ?>
 						<label class="lstab-search">
 							<span class="screen-reader-text"><?php esc_html_e( 'Search this table', 'live-sheets-table' ); ?></span>
 							<input type="search"
@@ -280,13 +284,17 @@ class LSTAB_Renderer {
 								placeholder="<?php esc_attr_e( 'Search all rows…', 'live-sheets-table' ); ?>"
 								autocomplete="off">
 						</label>
-						<button type="submit" class="lstab-search-go"><?php esc_html_e( 'Search', 'live-sheets-table' ); ?></button>
+						<button type="<?php echo empty( $args['preview'] ) ? 'submit' : 'button'; ?>" class="lstab-search-go"><?php esc_html_e( 'Search', 'live-sheets-table' ); ?></button>
 						<?php if ( '' !== $paging['request']['q'] ) : ?>
 							<a class="lstab-search-clear" href="<?php echo esc_url( LSTAB_Paging::url( $source_id, array( 'q' => null, 'page' => null ) ) ); ?>">
 								<?php esc_html_e( 'Clear', 'live-sheets-table' ); ?>
 							</a>
 						<?php endif; ?>
+					<?php if ( ! empty( $args['preview'] ) ) : ?>
+					</div>
+					<?php else : ?>
 					</form>
+					<?php endif; ?>
 					<span class="lstab-count">
 						<?php
 						echo esc_html(

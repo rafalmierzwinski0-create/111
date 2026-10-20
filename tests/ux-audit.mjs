@@ -734,6 +734,62 @@ if ( manifest.pro ) {
 }
 
 /*
+ * The preview is a working table: on a sheet shown in pages, its page buttons,
+ * sorting and search work in place, and nothing in it is a form of its own —
+ * a form inside the edit screen's form would be folded into it, so pressing
+ * "Search" in the preview would save the table.
+ */
+section( 'Inside the preview, pages, sorting and search work without leaving the screen' );
+
+await freshEdit( 'look' );
+const editAt = owner.url();
+const inPreview = () => owner.evaluate( () => {
+	const p = document.getElementById( 'lstab-preview' );
+	return {
+		forms: p.querySelectorAll( 'form' ).length,
+		page: ( p.querySelector( '.lstab-page-of' ) || {} ).textContent || '',
+		first: ( p.querySelector( '.lstab-table tbody td' ) || {} ).textContent || '',
+		rows: p.querySelectorAll( '.lstab-table tbody tr:not(.lstab-detail)' ).length,
+		count: ( p.querySelector( '.lstab-count' ) || {} ).textContent || '',
+	};
+} );
+const startAt = await inPreview();
+check( 0 === startAt.forms, 'the preview holds no form of its own inside the edit screen’s form', `${ startAt.forms } found` );
+check( /1/.test( startAt.page ), 'a sheet shown in pages shows its first page in the preview', startAt.page.trim() );
+
+const next = owner.locator( '#lstab-preview a.lstab-page-link[rel="next"]' );
+if ( await next.count() ) {
+	await redrawn( () => next.click() );
+	const turned = await inPreview();
+	check( owner.url() === editAt && /2/.test( turned.page ), '“Next” in the preview shows page 2, on the same screen', `${ turned.page.trim() } — ${ owner.url() }` );
+} else {
+	check( false, 'the preview of a sheet in pages has a “Next” button' );
+}
+
+await freshEdit( 'look' );
+const sorter = owner.locator( '#lstab-preview .lstab-table thead .lstab-sort' ).nth( 1 );
+const unsorted = await inPreview();
+await redrawn( () => sorter.click() );
+await redrawn( () => owner.locator( '#lstab-preview .lstab-table thead .lstab-sort' ).nth( 1 ).click() );
+const sorted = await inPreview();
+check( owner.url() === editAt && sorted.first !== unsorted.first, 'sorting in the preview reorders its rows, on the same screen', `${ unsorted.first } → ${ sorted.first }` );
+
+await freshEdit( 'look' );
+const finder = owner.locator( '#lstab-preview .lstab-search-input' );
+if ( await finder.count() ) {
+	await finder.fill( 'Helmet' );
+	await redrawn( () => finder.press( 'Enter' ) );
+	const found = await inPreview();
+	check( owner.url() === editAt && found.rows > 0 && found.rows < startAt.rows, 'searching in the preview narrows its rows, and saves nothing', `${ found.rows } rows, ${ found.count.trim() } — ${ owner.url() }` );
+	await finder.fill( 'Gloves' );
+	await redrawn( () => owner.locator( '#lstab-preview .lstab-search-go' ).click() );
+	const again = await inPreview();
+	check( owner.url() === editAt && /gloves/i.test( again.first ), 'and so does its “Search” button', `${ again.first } — ${ owner.url() }` );
+} else {
+	check( false, 'the preview of a sheet in pages has a search box' );
+}
+
+/*
  * Lists that fold. A list shortened with "Show more" or "Show them all" can be
  * shortened again once it has been opened, and goes back to the length it
  * started at.
