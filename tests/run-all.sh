@@ -34,6 +34,12 @@ node "$REPO/tests/sort-browser.mjs"
 
 echo
 echo "=============================================="
+echo " The wording — notes for translators, one name per thing, readable sentences"
+echo "=============================================="
+node "$REPO/tests/texts-audit.mjs"
+
+echo
+echo "=============================================="
 echo " Striped rows — every other row a reader can see"
 echo "=============================================="
 node "$REPO/tests/stripes-browser.mjs"
@@ -207,6 +213,16 @@ echo "=============================================="
 # on a hostile theme is what this was written after. It builds its own pages
 # and takes them away again, for the same reason the skins pages go above.
 node "$REPO/tests/layout-sweep.mjs"
+
+echo
+echo "=============================================="
+echo " What a person notices in the first minute"
+echo "=============================================="
+# Every switch on the edit screen changes the preview, lists fold back, menus
+# close, sort arrows can be seen, a glow stays off the buttons, every column
+# has its lines, the heading row sticks cleanly, the table has an edge, and
+# help text points at screens and buttons that exist. Measured in pixels.
+node "$REPO/tests/ux-audit.mjs"
 
 # The free plugin's own suite asserts the free tier, so Pro must be off for it.
 php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php

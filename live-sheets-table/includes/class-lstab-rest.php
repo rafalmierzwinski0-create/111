@@ -54,6 +54,18 @@ class LSTAB_Rest {
 						'type'    => 'boolean',
 						'default' => true,
 					),
+					'meta'           => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
+					'linkCells'      => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
+					'perPage'        => array(
+						'type'    => 'integer',
+						'default' => 0,
+					),
 					'columns'        => array(
 						'type'    => 'array',
 						'default' => array(),
@@ -111,6 +123,18 @@ class LSTAB_Rest {
 					'sort'       => array(
 						'type'    => 'boolean',
 						'default' => true,
+					),
+					'meta'       => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
+					'linkCells'  => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
+					'perPage'    => array(
+						'type'    => 'integer',
+						'default' => 0,
 					),
 					'columns'  => array(
 						'type'    => 'array',
@@ -205,12 +229,13 @@ class LSTAB_Rest {
 		$preview = array_slice( $rows, 0, 25 );
 
 		do_action( 'lstab_preview_request', $request, $source_id );
+		self::navigate( $request, $source_id );
 
 		return rest_ensure_response(
 			array(
 				'rowCount'  => count( $rows ),
 				'colCount'  => count( (array) $source['data']['headers'] ),
-				'truncated' => count( $rows ) > count( $preview ),
+				'truncated' => count( $rows ) > count( $preview ) && $request->get_param( 'perPage' ) <= 0,
 				'html'      => LSTAB_Renderer::render_preview(
 					array(
 						'headers' => (array) $source['data']['headers'],
@@ -223,7 +248,11 @@ class LSTAB_Rest {
 						'sticky_head' => (bool) $request->get_param( 'stickyHead' ),
 						'search'      => false !== $request->get_param( 'search' ),
 						'sort'        => false !== $request->get_param( 'sort' ),
-						'limit'       => 25,
+						'show_meta'   => false !== $request->get_param( 'meta' ),
+						'last_success_gmt' => isset( $source['last_success_gmt'] ) ? $source['last_success_gmt'] : null,
+						'link_cells'  => false !== $request->get_param( 'linkCells' ),
+						'per_page'    => max( 0, (int) $request->get_param( 'perPage' ) ),
+						'limit'       => $request->get_param( 'perPage' ) > 0 ? 0 : 25,
 						'source_id'   => $source_id,
 						'columns'    => LSTAB_Columns::sanitize( (array) $request->get_param( 'columns' ) ),
 						'style_vars' => isset( $source['style_vars'] ) ? $source['style_vars'] : array(),
@@ -232,6 +261,27 @@ class LSTAB_Rest {
 				),
 			)
 		);
+	}
+
+	protected static function navigate( $request, $source_id ) {
+		$nav = $request->get_param( 'nav' );
+
+		if ( ! is_array( $nav ) || $source_id <= 0 ) {
+			return;
+		}
+
+		$carried = array();
+
+		foreach ( array( 'q', 'page', 'sort', 'dir' ) as $name ) {
+			$key = LSTAB_Paging::arg( $source_id, $name );
+
+			if ( isset( $nav[ $key ] ) && is_scalar( $nav[ $key ] ) ) {
+				$carried[ $key ] = sanitize_text_field( (string) $nav[ $key ] );
+				$_GET[ $key ]    = $carried[ $key ];
+			}
+		}
+
+		$_SERVER['REQUEST_URI'] = add_query_arg( array_map( 'rawurlencode', $carried ), wp_parse_url( admin_url( 'admin.php' ), PHP_URL_PATH ) );
 	}
 
 	public function can_write_css() {
@@ -314,6 +364,7 @@ class LSTAB_Rest {
 		$preview = array_slice( $rows, 0, 25 );
 
 		do_action( 'lstab_preview_request', $request, absint( $request->get_param( 'sourceId' ) ) );
+		self::navigate( $request, absint( $request->get_param( 'sourceId' ) ) );
 
 		return rest_ensure_response(
 			array(
@@ -341,7 +392,11 @@ class LSTAB_Rest {
 						'sticky_head' => (bool) $request->get_param( 'stickyHead' ),
 						'search'      => false !== $request->get_param( 'search' ),
 						'sort'        => false !== $request->get_param( 'sort' ),
-						'limit'       => 25,
+						'show_meta'   => false !== $request->get_param( 'meta' ),
+						'last_success_gmt' => gmdate( 'Y-m-d H:i:s' ),
+						'link_cells'  => false !== $request->get_param( 'linkCells' ),
+						'per_page'    => absint( $request->get_param( 'sourceId' ) ) ? max( 0, (int) $request->get_param( 'perPage' ) ) : 0,
+						'limit'       => absint( $request->get_param( 'sourceId' ) ) && $request->get_param( 'perPage' ) > 0 ? 0 : 25,
 						'source_id'   => absint( $request->get_param( 'sourceId' ) ),
 						'columns'   => LSTAB_Columns::sanitize( (array) $request->get_param( 'columns' ) ),
 					)

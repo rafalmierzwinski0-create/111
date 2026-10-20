@@ -339,7 +339,7 @@ if ( ! $lstab_is_edit ) {
 						<?php esc_html_e( 'Keep the headings in view', 'live-sheets-table' ); ?>
 					</label>
 					<span class="lstab-help">
-						<?php esc_html_e( 'The row of column names stays at the top of the screen while visitors scroll down a long table. Turn it off if your theme already keeps a bar at the top and the two overlap.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'The row of column names stays in view while visitors scroll down a long table. A table wider than the page scrolls in a box of its own, and the names stay at the top of that box. Turn it off if your theme keeps a bar at the top of the screen and the two overlap.', 'live-sheets-table' ); ?>
 					</span>
 				</p>
 
@@ -706,7 +706,11 @@ if ( ! $lstab_is_edit ) {
 								'layout'      => (string) $source['layout'],
 								'sticky'      => ! empty( $source['sticky_first'] ),
 								'sticky_head' => ! empty( $source['sticky_head'] ),
-								'limit'       => 25,
+								'link_cells'  => ! empty( $source['link_cells'] ),
+								'show_meta'   => true,
+								'last_success_gmt' => isset( $source['last_success_gmt'] ) ? $source['last_success_gmt'] : null,
+								'per_page'    => (int) $source['per_page'],
+								'limit'       => (int) $source['per_page'] > 0 ? 0 : 25,
 							)
 						);
 						echo $lstab_preview_html; // phpcs:ignore WordPress.Security.EscapeOutput -- Renderer escapes every cell.

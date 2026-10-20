@@ -131,7 +131,8 @@ class LSTAB_Renderer {
 			'data'             => $data,
 			'row_count'        => isset( $data['rows'] ) ? count( (array) $data['rows'] ) : 0,
 			'col_count'        => isset( $data['headers'] ) ? count( (array) $data['headers'] ) : 0,
-			'last_success_gmt' => null,
+			'last_success_gmt' => isset( $args['last_success_gmt'] ) ? $args['last_success_gmt'] : null,
+			'link_cells'       => ! isset( $args['link_cells'] ) || (bool) $args['link_cells'],
 			'style_vars'       => isset( $args['style_vars'] ) ? $args['style_vars'] : array(),
 			'custom_css'       => isset( $args['custom_css'] ) ? (string) $args['custom_css'] : '',
 		);

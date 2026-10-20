@@ -87,7 +87,7 @@
 		document.querySelectorAll( '[data-lstab-shortcode-builder] [data-lstab-att]' ).forEach( function ( group ) {
 			var att = group.getAttribute( 'data-lstab-att' );
 
-			if ( 'search' === att || 'sort' === att ) {
+			if ( 'search' === att || 'sort' === att || 'meta' === att ) {
 				shown[ att ] = 'hide' !== group.getAttribute( 'data-lstab-value' );
 			}
 		} );

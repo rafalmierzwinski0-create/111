@@ -423,7 +423,7 @@
 	width: 0.95em;
 	height: 0.95em;
 	flex: none;
-	opacity: 0.5;
+	opacity: 0.6;
 	background-color: currentColor;
 	transition: opacity 0.12s ease;
 	-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1l4 5H4zM8 15l-4-5h8z'/%3E%3C/svg%3E") center / contain no-repeat;
@@ -952,7 +952,7 @@
 	--lstab-sticky: sticky;
 	--lstab-sticky-max: min( 38cqi, 22rem );
 	--lstab-row-gap: 0;
-	--lstab-row-border-width: 0 0 1px 0;
+	--lstab-row-border-width: 0 0 var(--lstab-row-line) 0;
 	--lstab-row-last-bottom: 0px;
 	--lstab-row-radius: 0px;
 	--lstab-cell-line-w: var(--lstab-row-line);

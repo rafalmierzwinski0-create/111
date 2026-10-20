@@ -170,6 +170,34 @@
 		return box ? box.checked : true;
 	}
 
+	var navArgs = {};
+
+	function withOptions( data ) {
+		var perPage = document.getElementById( 'lstab-per-page' );
+
+		data.linkCells = pinned( 'link_cells' );
+		data.perPage = pagingToggle && pagingToggle.checked ? Math.max( 1, parseInt( perPage ? perPage.value : '', 10 ) || 25 ) : 0;
+		data.nav = navArgs;
+
+		return data;
+	}
+
+	function navigationIn( href ) {
+		var found = {};
+
+		try {
+			new window.URL( href, window.location.href ).searchParams.forEach( function ( value, key ) {
+				if ( /^lstab-(q|page|sort|dir)-/.test( key ) ) {
+					found[ key ] = value;
+				}
+			} );
+		} catch ( e ) {
+			return found;
+		}
+
+		return found;
+	}
+
 	function selectedLayout() {
 		var picked = 'table';
 
@@ -427,7 +455,7 @@
 		window.wp.apiFetch( {
 			path: '/live-sheets-table/v1/preview',
 			method: 'POST',
-			data: withExtras( {
+			data: withExtras( withOptions( {
 				url: url,
 				gid: undefined === gid ? '' : String( gid ),
 				firstRowHeader: firstRowHeader ? firstRowHeader.checked : true,
@@ -437,7 +465,7 @@
 				stickyHead: pinned( 'sticky_head' ),
 				columns: columnSettings(),
 				sourceId: sourceIdField ? parseInt( sourceIdField.value, 10 ) || 0 : 0
-			} )
+			} ) )
 		} ).then( function ( response ) {
 			setBusy( false );
 
@@ -833,6 +861,70 @@
 		} );
 	}
 
+	function refreshPreview() {
+		if ( sourceIdField && parseInt( sourceIdField.value, 10 ) ) {
+			redrawFromStored();
+		} else if ( urlInput && urlInput.value && stage.querySelector( '.lstab-table' ) ) {
+			loadPreview( gidField ? gidField.value : '' );
+		}
+	}
+
+	var linkBox = form.querySelector( 'input[name="link_cells"]' );
+	var perPageField = document.getElementById( 'lstab-per-page' );
+	var paging = null;
+
+	if ( linkBox ) {
+		linkBox.addEventListener( 'change', refreshPreview );
+	}
+
+	if ( pagingToggle ) {
+		pagingToggle.addEventListener( 'change', function () {
+			navArgs = {};
+			refreshPreview();
+		} );
+	}
+
+	if ( perPageField ) {
+		perPageField.addEventListener( 'input', function () {
+			window.clearTimeout( paging );
+			paging = window.setTimeout( function () {
+				navArgs = {};
+				refreshPreview();
+			}, 500 );
+		} );
+	}
+
+	window.addEventListener( 'click', function ( event ) {
+		var link = event.target.closest ? event.target.closest( '#lstab-preview a.lstab-page-link, #lstab-preview a.lstab-sort, #lstab-preview a.lstab-search-clear' ) : null;
+
+		if ( ! link ) {
+			return;
+		}
+
+		event.preventDefault();
+		event.stopPropagation();
+		navArgs = navigationIn( link.href );
+		refreshPreview();
+	}, true );
+
+	window.addEventListener( 'submit', function ( event ) {
+		var search = event.target;
+
+		if ( ! search.matches || ! search.matches( '#lstab-preview form.lstab-search-form' ) ) {
+			return;
+		}
+
+		event.preventDefault();
+		event.stopPropagation();
+		navArgs = {};
+		new window.FormData( search ).forEach( function ( value, key ) {
+			if ( /^lstab-(q|sort|dir)-/.test( key ) ) {
+				navArgs[ key ] = String( value );
+			}
+		} );
+		refreshPreview();
+	}, true );
+
 	var pagingTouched = document.getElementById( 'lstab-paging-touched' );
 
 	if ( pagingTouched ) {
@@ -859,14 +951,14 @@
 		window.wp.apiFetch( {
 			path: '/live-sheets-table/v1/redraw',
 			method: 'POST',
-			data: withExtras( {
+			data: withExtras( withOptions( {
 				sourceId: id,
 				style: selectedPreset(),
 				layout: selectedLayout(),
 				sticky: pinned( 'sticky_first' ),
 				stickyHead: pinned( 'sticky_head' ),
 				columns: columnSettings()
-			} )
+			} ) )
 		} ).then(
 			function ( response ) {
 				stage.innerHTML = response.html || '';
