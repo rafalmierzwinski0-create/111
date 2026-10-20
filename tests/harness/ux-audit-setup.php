@@ -145,6 +145,16 @@ LSTAB_Storage::record_success( $wide, array( 'headers' => $heads, 'rows' => $row
 
 $pro = class_exists( 'LSTABP_Export' );
 if ( $pro ) {
+	// The add-on drops what it holds for a table number it has seen with a
+	// different creation time, on the next screen of the dashboard. A number an
+	// earlier test used and gave back would take these settings with it, so
+	// the tables made here are put on its list first, as a dashboard visit would.
+	$known = array();
+	foreach ( LSTAB_Storage::get_all() as $made ) {
+		$known[ (int) $made['id'] ] = (string) $made['created_gmt'];
+	}
+	update_option( 'lstabp_known_sources', $known, false );
+
 	$all        = (array) get_option( LSTABP_Export::OPTION, array() );
 	$all[ $id ] = true;
 	update_option( LSTABP_Export::OPTION, $all, true );
