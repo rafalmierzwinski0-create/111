@@ -29,9 +29,9 @@ class LSTAB_Shortcode {
 			'lstab_shortcode_atts',
 			array(
 				'id'      => 0,
-				'search'  => 'yes',
-				'sort'    => 'yes',
-				'meta'    => 'yes',
+				'search'  => '',
+				'sort'    => '',
+				'meta'    => '',
 				'style'   => '',
 				'caption' => '',
 				'class'   => '',
@@ -64,9 +64,9 @@ class LSTAB_Shortcode {
 		return LSTAB_Renderer::render( array_merge( $extra,
 			array(
 				'source_id' => absint( $atts['id'] ),
-				'search'    => self::boolish( $atts['search'] ),
-				'sort'      => self::boolish( $atts['sort'] ),
-				'show_meta' => self::boolish( $atts['meta'] ),
+				'search'    => self::chosen( $atts['search'] ),
+				'sort'      => self::chosen( $atts['sort'] ),
+				'show_meta' => self::chosen( $atts['meta'] ),
 				'style'     => sanitize_key( $atts['style'] ),
 				'caption'   => sanitize_text_field( $atts['caption'] ),
 				'class'     => sanitize_html_class( $atts['class'] ),
@@ -79,9 +79,9 @@ class LSTAB_Shortcode {
 	protected static function core_atts() {
 		return array(
 			'id'      => 0,
-			'search'  => 'yes',
-			'sort'    => 'yes',
-			'meta'    => 'yes',
+			'search'  => '',
+			'sort'    => '',
+			'meta'    => '',
 			'style'   => '',
 			'caption' => '',
 			'class'   => '',
@@ -94,6 +94,10 @@ class LSTAB_Shortcode {
 		$value = wp_check_invalid_utf8( is_scalar( $value ) ? (string) $value : '' );
 
 		return trim( (string) preg_replace( '/[\x00-\x1F\x7F]+/', ' ', $value ) );
+	}
+
+	protected static function chosen( $value ) {
+		return '' === trim( (string) $value ) ? null : self::boolish( $value );
 	}
 
 	protected static function boolish( $value ) {

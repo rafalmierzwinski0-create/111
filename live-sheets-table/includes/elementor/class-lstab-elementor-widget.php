@@ -68,29 +68,11 @@ class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
 		);
 
 		$this->add_control(
-			'show_search',
+			'shown_note',
 			array(
-				'label'   => __( 'Search box', 'live-sheets-table' ),
-				'type'    => \Elementor\Controls_Manager::SWITCHER,
-				'default' => 'yes',
-			)
-		);
-
-		$this->add_control(
-			'show_sort',
-			array(
-				'label'   => __( 'Sorting by column', 'live-sheets-table' ),
-				'type'    => \Elementor\Controls_Manager::SWITCHER,
-				'default' => 'yes',
-			)
-		);
-
-		$this->add_control(
-			'show_updated',
-			array(
-				'label'   => __( 'Show “updated … ago”', 'live-sheets-table' ),
-				'type'    => \Elementor\Controls_Manager::SWITCHER,
-				'default' => 'yes',
+				'type'            => \Elementor\Controls_Manager::RAW_HTML,
+				'raw'             => esc_html__( 'The search box, sorting and the “updated … ago” line are chosen once, with the table, and show the same wherever it is used. Change them where you edit the table, under Live Sheets Table → All tables.', 'live-sheets-table' ),
+				'content_classes' => 'elementor-descriptor',
 			)
 		);
 
@@ -164,9 +146,6 @@ class LSTAB_Elementor_Widget extends \Elementor\Widget_Base {
 		$html = LSTAB_Renderer::render(
 			array(
 				'source_id' => absint( isset( $settings['source_id'] ) ? $settings['source_id'] : 0 ),
-				'search'    => 'yes' === ( isset( $settings['show_search'] ) ? $settings['show_search'] : 'yes' ),
-				'sort'      => 'yes' === ( isset( $settings['show_sort'] ) ? $settings['show_sort'] : 'yes' ),
-				'show_meta' => 'yes' === ( isset( $settings['show_updated'] ) ? $settings['show_updated'] : 'yes' ),
 				'style'     => sanitize_key( isset( $settings['style_preset'] ) ? $settings['style_preset'] : '' ),
 				'layout'    => sanitize_key( isset( $settings['layout'] ) ? $settings['layout'] : 'inherit' ),
 				'caption'   => sanitize_text_field( isset( $settings['caption'] ) ? $settings['caption'] : '' ),

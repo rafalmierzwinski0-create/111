@@ -26,6 +26,7 @@ class LSTAB_Block {
 			'lstabBlock',
 			array(
 				'manageUrl' => admin_url( 'admin.php?page=' . LSTAB_Admin::SOURCES_SLUG ),
+				'editUrl'   => admin_url( 'admin.php?page=' . LSTAB_Admin::EDIT_SLUG . '&source=' ),
 				'addUrl'    => admin_url( 'admin.php?page=' . LSTAB_Admin::EDIT_SLUG ),
 				'canFilter' => (bool) apply_filters( 'lstab_filter_supported', false ),
 				'presets'   => self::preset_options(),
@@ -51,9 +52,9 @@ class LSTAB_Block {
 			(array) $attributes,
 			array(
 				'sourceId'    => 0,
-				'showSearch'  => true,
-				'showSort'    => true,
-				'showUpdated' => true,
+				'showSearch'  => null,
+				'showSort'    => null,
+				'showUpdated' => null,
 				'stylePreset' => '',
 				'caption'     => '',
 				'layout'      => 'inherit',
@@ -64,9 +65,9 @@ class LSTAB_Block {
 		$html = LSTAB_Renderer::render(
 			array(
 				'source_id' => absint( $attributes['sourceId'] ),
-				'search'    => ! empty( $attributes['showSearch'] ),
-				'sort'      => ! empty( $attributes['showSort'] ),
-				'show_meta' => ! empty( $attributes['showUpdated'] ),
+				'search'    => null === $attributes['showSearch'] ? null : (bool) $attributes['showSearch'],
+				'sort'      => null === $attributes['showSort'] ? null : (bool) $attributes['showSort'],
+				'show_meta' => null === $attributes['showUpdated'] ? null : (bool) $attributes['showUpdated'],
 				'style'     => sanitize_key( (string) $attributes['stylePreset'] ),
 				'caption'   => sanitize_text_field( (string) $attributes['caption'] ),
 				'layout'    => sanitize_key( (string) $attributes['layout'] ),

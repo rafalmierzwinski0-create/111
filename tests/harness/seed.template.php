@@ -63,7 +63,7 @@ if ( $existing_page ) {
 $content  = "<!-- wp:paragraph -->\n<p>Aktualny cennik pobierany automatycznie z arkusza Google. Strona renderuje się z lokalnej kopii, więc ładuje się natychmiast.</p>\n<!-- /wp:paragraph -->\n\n";
 // Wide alignment gives a five-column table the room it needs, so it renders as
 // a real table on desktop and only becomes cards on a phone.
-$content .= '<!-- wp:live-sheets-table/sheet-table {"sourceId":' . $source_id . ',"align":"wide","showSearch":true,"showSort":true,"showUpdated":true,"caption":"Cennik rowerowy – sierpień 2026"} /-->' . "\n\n";
+$content .= '<!-- wp:live-sheets-table/sheet-table {"sourceId":' . $source_id . ',"align":"wide","caption":"Cennik rowerowy – sierpień 2026"} /-->' . "\n\n";
 $content .= "<!-- wp:heading -->\n<h2>Ten sam arkusz przez shortcode</h2>\n<!-- /wp:heading -->\n\n";
 $content .= "<!-- wp:paragraph -->\n<p>Ten sam arkusz w wąskiej kolumnie treści. Pięć kolumn się tu nie mieści, więc tabela zachowuje swój kształt i pełny rozmiar tekstu, a pod nią pojawia się suwak do przewijania w lewo i w prawo.</p>\n<!-- /wp:paragraph -->\n\n";
 $content .= "<!-- wp:paragraph -->\n<p>[sheet_table id=\"{$source_id}\" style=\"bordered\" search=\"no\" caption=\"Wariant bordered, wąska kolumna\"]</p>\n<!-- /wp:paragraph -->";

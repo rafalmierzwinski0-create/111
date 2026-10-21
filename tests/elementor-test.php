@@ -129,9 +129,6 @@ function lstab_el_render( $settings ) {
 $rendered = lstab_el_render(
 	array(
 		'source_id'    => $source_id,
-		'show_search'  => 'yes',
-		'show_sort'    => 'yes',
-		'show_updated' => 'yes',
 		'layout'       => 'inherit',
 		'style_preset' => '',
 		'caption'      => 'Cennik z Elementora',
@@ -141,23 +138,23 @@ $rendered = lstab_el_render(
 lstab_el_assert( false !== strpos( $rendered, 'lstab-table' ), 'It renders the table' );
 lstab_el_assert( 3 === substr_count( $rendered, '<tr role="row" class="lstab-row"' ), 'With every row', (string) substr_count( $rendered, '<tr role="row" class="lstab-row"' ) );
 lstab_el_assert( false !== strpos( $rendered, 'Cennik z Elementora' ), 'And the caption typed into the panel' );
-lstab_el_assert( false !== strpos( $rendered, 'lstab-search-input' ), 'The search box is there when asked for' );
+lstab_el_assert( false !== strpos( $rendered, 'lstab-search-input' ), 'The search box is there while the table has it on' );
 
-// The panel switches have to reach the renderer, or they are decoration.
+// The search box, sorting and the updated line are chosen with the table, not
+// in the widget: whatever the table saved is what the widget shows.
+LSTAB_Storage::update( $source_id, array( 'show_search' => 0, 'show_sort' => 0, 'show_meta' => 0 ) );
 $plain = lstab_el_render(
 	array(
 		'source_id'    => $source_id,
-		'show_search'  => '',
-		'show_sort'    => '',
-		'show_updated' => '',
 		'layout'       => 'cards',
 		'style_preset' => 'bordered',
 		'caption'      => '',
 	)
 );
+LSTAB_Storage::update( $source_id, array( 'show_search' => 1, 'show_sort' => 1, 'show_meta' => 1 ) );
 
-lstab_el_assert( false === strpos( $plain, 'lstab-search-input' ), 'Switching the search off removes it' );
-lstab_el_assert( false === strpos( $plain, 'lstab-sort' ), 'Switching sorting off removes it' );
+lstab_el_assert( false === strpos( $plain, 'lstab-search-input' ), 'A table saved without its search box shows none in the widget' );
+lstab_el_assert( false === strpos( $plain, 'lstab-sort' ), 'Nor sorting, when the table has it off' );
 lstab_el_assert( false !== strpos( $plain, 'lstab-layout-cards' ), 'The layout choice reaches the table' );
 lstab_el_assert( false !== strpos( $plain, 'lstab-style-bordered' ), 'So does the preset' );
 

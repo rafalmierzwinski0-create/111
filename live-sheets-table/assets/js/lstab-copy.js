@@ -37,28 +37,6 @@
 		} );
 	}
 
-	function build( builder ) {
-		var card = builder.closest( '.lstab-usage' );
-		var code = card ? card.querySelector( '.lstab-shortcode' ) : null;
-		var button = card ? card.querySelector( '.lstab-copy' ) : null;
-		var text = '[sheet_table id="' + builder.getAttribute( 'data-lstab-shortcode-builder' ) + '"';
-
-		builder.querySelectorAll( '[data-lstab-att]' ).forEach( function ( group ) {
-			if ( 'hide' === group.getAttribute( 'data-lstab-value' ) ) {
-				text += ' ' + group.getAttribute( 'data-lstab-att' ) + '="no"';
-			}
-		} );
-
-		text += ']';
-
-		if ( code ) {
-			code.textContent = text;
-		}
-		if ( button ) {
-			button.setAttribute( 'data-lstab-copy', text );
-		}
-	}
-
 	document.addEventListener( 'click', function ( event ) {
 		var choice = event.target.closest ? event.target.closest( '[data-lstab-set]' ) : null;
 		var builder = choice ? choice.closest( '[data-lstab-shortcode-builder]' ) : null;
@@ -68,12 +46,17 @@
 			return;
 		}
 
+		var field = group.querySelector( 'input[type="hidden"]' );
+
 		group.setAttribute( 'data-lstab-value', choice.getAttribute( 'data-lstab-set' ) );
 		group.querySelectorAll( '[data-lstab-set]' ).forEach( function ( option ) {
 			option.setAttribute( 'aria-pressed', option === choice ? 'true' : 'false' );
 		} );
 
-		build( builder );
+		if ( field ) {
+			field.value = 'hide' === choice.getAttribute( 'data-lstab-set' ) ? '0' : '1';
+			field.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+		}
 
 		if ( window.lstabRedrawPreview ) {
 			window.lstabRedrawPreview();

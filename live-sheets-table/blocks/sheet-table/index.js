@@ -13,7 +13,6 @@
 
 	var PanelBody = components.PanelBody;
 	var SelectControl = components.SelectControl;
-	var ToggleControl = components.ToggleControl;
 	var TextControl = components.TextControl;
 	var Placeholder = components.Placeholder;
 	var Spinner = components.Spinner;
@@ -111,30 +110,17 @@
 				el(
 					PanelBody,
 					{ title: __( 'What visitors see', 'live-sheets-table' ), initialOpen: true },
-					el( ToggleControl, {
-						label: __( 'Search box', 'live-sheets-table' ),
-						checked: !! attributes.showSearch,
-						onChange: function ( value ) {
-							setAttributes( { showSearch: value } );
-						},
-						__nextHasNoMarginBottom: true
-					} ),
-					el( ToggleControl, {
-						label: __( 'Sorting by column', 'live-sheets-table' ),
-						checked: !! attributes.showSort,
-						onChange: function ( value ) {
-							setAttributes( { showSort: value } );
-						},
-						__nextHasNoMarginBottom: true
-					} ),
-					el( ToggleControl, {
-						label: __( 'Show “updated … ago”', 'live-sheets-table' ),
-						checked: !! attributes.showUpdated,
-						onChange: function ( value ) {
-							setAttributes( { showUpdated: value } );
-						},
-						__nextHasNoMarginBottom: true
-					} ),
+					el(
+						'p',
+						{ className: 'lstab-block-hint' },
+						__( 'The search box, sorting and the “updated … ago” line are chosen once, with the table, and show the same wherever it is used.', 'live-sheets-table' ),
+						attributes.sourceId ? ' ' : null,
+						attributes.sourceId ? el(
+							ExternalLink,
+							{ href: lstabBlock.editUrl + attributes.sourceId },
+							__( 'Change them', 'live-sheets-table' )
+						) : null
+					),
 					el( SelectControl, {
 						label: __( 'Layout', 'live-sheets-table' ),
 						value: attributes.layout,

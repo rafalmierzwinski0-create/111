@@ -6,9 +6,9 @@ class LSTAB_Renderer {
 	public static function defaults() {
 		return array(
 			'source_id'   => 0,
-			'search'      => true,
-			'sort'        => true,
-			'show_meta'   => true,
+			'search'      => null,
+			'sort'        => null,
+			'show_meta'   => null,
 			'style'       => '',
 			'caption'     => '',
 			'class'       => '',
@@ -57,6 +57,12 @@ class LSTAB_Renderer {
 					$source['title']
 				)
 			);
+		}
+
+		foreach ( array( 'search' => 'show_search', 'sort' => 'show_sort', 'show_meta' => 'show_meta' ) as $lstab_arg => $lstab_column ) {
+			if ( null === $args[ $lstab_arg ] ) {
+				$args[ $lstab_arg ] = ! isset( $source[ $lstab_column ] ) || (bool) $source[ $lstab_column ];
+			}
 		}
 
 		$args['keep_current'] = LSTAB_Freshness::applies( $source ) ? LSTAB_Freshness::attributes( $source ) : array();

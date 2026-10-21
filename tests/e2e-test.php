@@ -481,6 +481,21 @@ lstab_assert( false === strpos( $plain, 'lstab-search-input' ), 'search="no" rem
 lstab_assert( false === strpos( $plain, 'class="lstab-sort"' ), 'sort="no" removes sort buttons' );
 lstab_assert( false === strpos( $plain, 'lstab-meta' ), 'meta="no" removes the freshness label' );
 
+// What visitors see is saved with the table: a plain shortcode and a block
+// with nothing set follow it, so the shortcode never has to change.
+LSTAB_Storage::update( $source_id, array( 'show_search' => 0, 'show_sort' => 0, 'show_meta' => 0 ) );
+LSTAB_Storage::flush_cache( $source_id );
+$saved_plain = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$saved_block = lstab()->block->render( array( 'sourceId' => $source_id ) );
+lstab_assert( false === strpos( $saved_plain, 'lstab-search-input' ) && false === strpos( $saved_plain, 'class="lstab-sort"' ) && false === strpos( $saved_plain, 'lstab-meta' ), 'A table saved without search, sorting and the updated line shows none of them through the plain shortcode' );
+lstab_assert( false === strpos( $saved_block, 'lstab-search-input' ) && false === strpos( $saved_block, 'class="lstab-sort"' ) && false === strpos( $saved_block, 'lstab-meta' ), 'Nor through a block that sets nothing itself' );
+$saved_over = do_shortcode( '[sheet_table id="' . $source_id . '" search="yes"]' );
+lstab_assert( false !== strpos( $saved_over, 'lstab-search-input' ), 'A shortcode that says search="yes" still gets its search box' );
+LSTAB_Storage::update( $source_id, array( 'show_search' => 1, 'show_sort' => 1, 'show_meta' => 1 ) );
+LSTAB_Storage::flush_cache( $source_id );
+$saved_back = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+lstab_assert( false !== strpos( $saved_back, 'lstab-search-input' ) && false !== strpos( $saved_back, 'lstab-meta' ), 'Switched back on, they return' );
+
 // The block must produce the same table as the shortcode.
 $block_html = lstab()->block->render(
 	array(

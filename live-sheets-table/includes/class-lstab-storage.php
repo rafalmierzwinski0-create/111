@@ -3,7 +3,7 @@
 defined( 'ABSPATH' ) || exit;
 
 class LSTAB_Storage {
-	const DB_VERSION     = '1.10.0';
+	const DB_VERSION     = '1.11.0';
 	const DB_VERSION_OPT = 'lstab_db_version';
 
 	const RAGGED_OPT = 'lstab_ragged_sources';
@@ -37,6 +37,9 @@ class LSTAB_Storage {
 			sticky_first tinyint(1) NOT NULL DEFAULT 1,
 			sticky_head tinyint(1) NOT NULL DEFAULT 1,
 			link_cells tinyint(1) NOT NULL DEFAULT 1,
+			show_search tinyint(1) NOT NULL DEFAULT 1,
+			show_sort tinyint(1) NOT NULL DEFAULT 1,
+			show_meta tinyint(1) NOT NULL DEFAULT 1,
 			per_page int(10) unsigned NOT NULL DEFAULT 0,
 			columns_config text NULL,
 			hidden_rows text NULL,
@@ -91,6 +94,9 @@ class LSTAB_Storage {
 			'sticky_first'     => 1,
 			'sticky_head'      => 1,
 			'link_cells'       => 1,
+			'show_search'      => 1,
+			'show_sort'        => 1,
+			'show_meta'        => 1,
 			'per_page'         => 0,
 			'columns_config'   => array(),
 			'hidden_rows'      => array(),
@@ -119,6 +125,9 @@ class LSTAB_Storage {
 			'sticky_first'     => empty( $data['sticky_first'] ) ? 0 : 1,
 			'sticky_head'      => empty( $data['sticky_head'] ) ? 0 : 1,
 			'link_cells'       => empty( $data['link_cells'] ) ? 0 : 1,
+			'show_search'      => empty( $data['show_search'] ) ? 0 : 1,
+			'show_sort'        => empty( $data['show_sort'] ) ? 0 : 1,
+			'show_meta'        => empty( $data['show_meta'] ) ? 0 : 1,
 			'per_page'         => max( 0, (int) $data['per_page'] ),
 			'columns_config'   => wp_json_encode( LSTAB_Columns::sanitize( $data['columns_config'] ) ),
 			'hidden_rows'      => wp_json_encode( LSTAB_Hidden_Rows::sanitize( isset( $data['hidden_rows'] ) ? $data['hidden_rows'] : array() ) ),
@@ -144,6 +153,9 @@ class LSTAB_Storage {
 			'sticky_first',
 			'sticky_head',
 			'link_cells',
+			'show_search',
+			'show_sort',
+			'show_meta',
 			'per_page',
 			'row_count',
 			'col_count',
@@ -181,6 +193,9 @@ class LSTAB_Storage {
 			'sticky_first'     => '%d',
 			'sticky_head'      => '%d',
 			'link_cells'       => '%d',
+			'show_search'      => '%d',
+			'show_sort'        => '%d',
+			'show_meta'        => '%d',
 			'per_page'         => '%d',
 			'columns_config'   => '%s',
 			'hidden_rows'      => '%s',
@@ -413,7 +428,7 @@ class LSTAB_Storage {
 		return explode(
 			', ',
 			'id, title, sheet_url, sheet_id, sheet_kind, gid, tab_name, sync_interval, '
-				. 'first_row_header, style_preset, layout, sticky_first, sticky_head, link_cells, per_page, columns_config, hidden_rows, style_vars, custom_css, '
+				. 'first_row_header, style_preset, layout, sticky_first, sticky_head, link_cells, show_search, show_sort, show_meta, per_page, columns_config, hidden_rows, style_vars, custom_css, '
 				. 'snapshot_hash, row_count, col_count, sync_log, '
 				. 'last_status, last_error, last_ragged, last_attempt_gmt, last_success_gmt, created_gmt, updated_gmt'
 		);
@@ -482,6 +497,9 @@ class LSTAB_Storage {
 		$row['sticky_first'] = ! isset( $row['sticky_first'] ) || (bool) $row['sticky_first'];
 		$row['sticky_head']  = ! isset( $row['sticky_head'] ) || (bool) $row['sticky_head'];
 		$row['link_cells']   = ! isset( $row['link_cells'] ) || (bool) $row['link_cells'];
+		$row['show_search']  = ! isset( $row['show_search'] ) || (bool) $row['show_search'];
+		$row['show_sort']    = ! isset( $row['show_sort'] ) || (bool) $row['show_sort'];
+		$row['show_meta']    = ! isset( $row['show_meta'] ) || (bool) $row['show_meta'];
 		$row['per_page']     = isset( $row['per_page'] ) ? max( 0, (int) $row['per_page'] ) : 0;
 
 		if ( array_key_exists( 'last_ragged', $row ) ) {

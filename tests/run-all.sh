@@ -18,6 +18,13 @@ set -euo pipefail
 SCRATCH="${LSTAB_SCRATCH:-/tmp/lstab-env}"
 REPO="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
+# The seed scripts are made from a template; made again here for the same reason
+# the browser suite is copied below, so an edited seed never runs its old self.
+sed -e "s#__SITE__#$SCRATCH/wp71#" -e "s#__PORT__#8089#" \
+	"$REPO/tests/harness/seed.template.php" > "$SCRATCH/seed71.php"
+sed -e "s#__SITE__#$SCRATCH/wp#" -e "s#__PORT__#8088#" \
+	"$REPO/tests/harness/seed.template.php" > "$SCRATCH/seed67.php"
+
 # Warnings WordPress itself raises because this sandbox cannot reach wordpress.org.
 NOISE='wordpress.org\|wp_version_check\|wp_update_plugins\|wp_update_themes'
 

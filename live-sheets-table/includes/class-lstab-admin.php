@@ -290,6 +290,14 @@ class LSTAB_Admin {
 			'per_page'         => self::per_page_from_post(),
 		);
 
+		foreach ( array( 'show_search', 'show_sort', 'show_meta' ) as $lstab_shown ) {
+			if ( isset( $_POST[ $lstab_shown ] ) ) {
+				$data[ $lstab_shown ] = '0' === sanitize_key( wp_unslash( $_POST[ $lstab_shown ] ) ) ? 0 : 1;
+			} elseif ( $existing ) {
+				$data[ $lstab_shown ] = ! empty( $existing[ $lstab_shown ] ) ? 1 : 0;
+			}
+		}
+
 		if ( isset( $_POST['_lstab_custom_css_present'] ) && LSTAB_Custom_Css::user_can_edit() ) {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Cleaned in LSTAB_Custom_Css::sanitize(); sanitize_text_field would eat the newlines and braces this is made of.
 			$data['custom_css'] = LSTAB_Custom_Css::sanitize( wp_unslash( $_POST['custom_css'] ?? '' ) );

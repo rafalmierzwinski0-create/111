@@ -196,6 +196,7 @@ if ( ! $lstab_is_edit ) {
 						),
 						array(
 							'att'   => 'meta',
+							'field' => 'show_meta',
 							'type'  => 'toggle',
 							'label' => __( 'The “updated … ago” line', 'live-sheets-table' ),
 						),
@@ -205,16 +206,21 @@ if ( ! $lstab_is_edit ) {
 					?>
 					<div class="lstab-shortcode-options" data-lstab-shortcode-builder="<?php echo esc_attr( (string) (int) $source['id'] ); ?>">
 						<p class="lstab-help">
-							<?php esc_html_e( 'Choose what visitors see with the table. These switches are not saved: they only change the shortcode above, and the preview shows the result. Copy the shortcode when it is ready. The block and the widget have the same switches in their own settings.', 'live-sheets-table' ); ?>
+							<?php esc_html_e( 'Choose what visitors see with the table. This is saved with the table, so the shortcode stays as it is, and the block and the widget show the table the same way.', 'live-sheets-table' ); ?>
 						</p>
 						<?php foreach ( $lstab_options as $lstab_option ) : ?>
 							<?php if ( 'toggle' === $lstab_option['type'] ) : ?>
+								<?php
+								$lstab_field = isset( $lstab_option['field'] ) ? $lstab_option['field'] : 'show_' . $lstab_option['att'];
+								$lstab_on    = ! isset( $source[ $lstab_field ] ) || (bool) $source[ $lstab_field ];
+								?>
 								<div class="lstab-showhide-row">
 									<span class="lstab-showhide-label"><?php echo esc_html( $lstab_option['label'] ); ?></span>
 									<span class="lstab-showhide" role="group" aria-label="<?php echo esc_attr( $lstab_option['label'] ); ?>"
-										data-lstab-att="<?php echo esc_attr( $lstab_option['att'] ); ?>" data-lstab-value="show">
-										<button type="button" data-lstab-set="show" aria-pressed="true"><?php esc_html_e( 'Show', 'live-sheets-table' ); ?></button>
-										<button type="button" data-lstab-set="hide" aria-pressed="false"><?php esc_html_e( 'Hide', 'live-sheets-table' ); ?></button>
+										data-lstab-att="<?php echo esc_attr( $lstab_option['att'] ); ?>" data-lstab-value="<?php echo $lstab_on ? 'show' : 'hide'; ?>">
+										<input type="hidden" name="<?php echo esc_attr( $lstab_field ); ?>" value="<?php echo $lstab_on ? '1' : '0'; ?>">
+										<button type="button" data-lstab-set="show" aria-pressed="<?php echo $lstab_on ? 'true' : 'false'; ?>"><?php esc_html_e( 'Show', 'live-sheets-table' ); ?></button>
+										<button type="button" data-lstab-set="hide" aria-pressed="<?php echo $lstab_on ? 'false' : 'true'; ?>"><?php esc_html_e( 'Hide', 'live-sheets-table' ); ?></button>
 									</span>
 								</div>
 							<?php endif; ?>
@@ -707,7 +713,9 @@ if ( ! $lstab_is_edit ) {
 								'sticky'      => ! empty( $source['sticky_first'] ),
 								'sticky_head' => ! empty( $source['sticky_head'] ),
 								'link_cells'  => ! empty( $source['link_cells'] ),
-								'show_meta'   => true,
+								'show_meta'   => ! empty( $source['show_meta'] ),
+								'search'      => ! empty( $source['show_search'] ),
+								'sort'        => ! empty( $source['show_sort'] ),
 								'last_success_gmt' => isset( $source['last_success_gmt'] ) ? $source['last_success_gmt'] : null,
 								'per_page'    => (int) $source['per_page'],
 								'limit'       => (int) $source['per_page'] > 0 ? 0 : 25,

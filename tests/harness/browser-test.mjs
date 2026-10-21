@@ -720,8 +720,8 @@ await Promise.all( [
 await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
 await awaitPreview( 15000 );
 
-// ------------------------------------------------ the shortcode, by switches
-section( '3c1. Building the shortcode with Show and Hide' );
+// ------------------------------------- what visitors see, saved with the table
+section( '3c1. Show and Hide are saved with the table; the shortcode stays plain' );
 
 await pane( 'general' );
 const builtCode = () => page.evaluate( () => ( {
@@ -729,28 +729,55 @@ const builtCode = () => page.evaluate( () => ( {
 	copied: document.querySelector( '.lstab-usage .lstab-copy' ).getAttribute( 'data-lstab-copy' ),
 } ) );
 const setTo = ( att, value ) => page.locator( `.lstab-usage [data-lstab-att="${ att }"] [data-lstab-set="${ value }"]` ).click();
+const plainCode = `[sheet_table id="${ sourceId }"]`;
 
 let built = await builtCode();
-check( built.shown === `[sheet_table id="${ sourceId }"]`, 'The shortcode starts out plain', built.shown );
+check( built.shown === plainCode, 'The shortcode starts out plain', built.shown );
 check( await page.locator( '.lstab-usage [data-lstab-set="show"][aria-pressed="true"]' ).count() === 3, 'Search, sorting and the updated line all start on Show' );
 
 await setTo( 'search', 'hide' );
 await setTo( 'meta', 'hide' );
 
 built = await builtCode();
-const expected = `[sheet_table id="${ sourceId }" search="no" meta="no"]`;
-check( built.shown === expected, 'Hide adds its words to the shortcode', built.shown );
-check( built.copied === expected, 'And Copy copies exactly what is shown', built.copied );
+check( built.shown === plainCode && built.copied === plainCode, 'Hide leaves the shortcode as it is', `${ built.shown } / ${ built.copied }` );
 check(
 	await page.locator( '.lstab-usage [data-lstab-att="search"] [data-lstab-set="hide"]' ).getAttribute( 'aria-pressed' ) === 'true',
 	'The chosen side reads as pressed'
 );
 check( page.url().includes( 'live-sheets-table-edit' ), 'Choosing does not submit the form' );
+await page.waitForTimeout( 900 );
+check( 0 === await page.locator( '#lstab-preview-stage .lstab-search-input' ).count(), 'The preview drops the search box straight away' );
+
+await Promise.all( [
+	page.waitForURL( /page=live-sheets-table/ ),
+	page.locator( '#lstab-source-form button[type="submit"]' ).click(),
+] );
+await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
+await awaitPreview( 15000 );
+await pane( 'general' );
+check(
+	'hide' === await page.locator( '.lstab-usage [data-lstab-att="search"]' ).getAttribute( 'data-lstab-value' )
+		&& 'hide' === await page.locator( '.lstab-usage [data-lstab-att="meta"]' ).getAttribute( 'data-lstab-value' )
+		&& 'show' === await page.locator( '.lstab-usage [data-lstab-att="sort"]' ).getAttribute( 'data-lstab-value' ),
+	'After saving, the screen remembers what was hidden'
+);
+
+const savedPage = await page.context().newPage();
+await savedPage.goto( `${ BASE }/cennik/`, { waitUntil: 'networkidle' } );
+const onSite = await savedPage.evaluate( () => ( {
+	search: document.querySelectorAll( '.lstab-search-input' ).length,
+	meta: document.querySelectorAll( '.lstab-meta' ).length,
+	sort: document.querySelectorAll( '.lstab-sort' ).length,
+} ) );
+await savedPage.close();
+check( 0 === onSite.search && 0 === onSite.meta && onSite.sort > 0, 'The page with the plain shortcode and the block follows the saved choice', JSON.stringify( onSite ) );
 
 await setTo( 'search', 'show' );
-built = await builtCode();
-check( built.shown === `[sheet_table id="${ sourceId }" meta="no"]`, 'Show takes its words out again', built.shown );
-
+await setTo( 'meta', 'show' );
+await Promise.all( [
+	page.waitForURL( /page=live-sheets-table/ ),
+	page.locator( '#lstab-source-form button[type="submit"]' ).click(),
+] );
 await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
 await awaitPreview( 15000 );
 

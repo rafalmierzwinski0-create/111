@@ -31,16 +31,13 @@
 			"default": 0
 		},
 		"showSearch": {
-			"type": "boolean",
-			"default": true
+			"type": "boolean"
 		},
 		"showSort": {
-			"type": "boolean",
-			"default": true
+			"type": "boolean"
 		},
 		"showUpdated": {
-			"type": "boolean",
-			"default": true
+			"type": "boolean"
 		},
 		"stylePreset": {
 			"type": "string",
