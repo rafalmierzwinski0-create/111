@@ -1,23 +1,19 @@
-Product,Category,Sizes,Price,Availability
-Ridgeline 29 Trail Bike,Bikes,S – XL,"$2,149.00",In stock
-Summit Carbon Road Bike,Bikes,52 – 58 cm,"$3,499.00",2 left
-Metro 7 City Bike,Bikes,M – L,$689.00,In stock
-Pebble 16 Kids' Bike,Bikes,16″ wheel,$279.00,In stock
-Voltaire E-Commuter,Bikes,M – XL,"$2,890.00",Back in November
-Gravel Pro GRX 600,Bikes,S – L,"$1,849.00",In stock
-Aero Road Helmet,Helmets,S – L,$189.00,In stock
-Trail MIPS Helmet,Helmets,M – L,$139.00,In stock
-Kids' Helmet Junior,Helmets,XS – S,$45.00,3 left
-Commuter Helmet with Light,Helmets,One size,$99.00,In stock
-800-lumen Front Light,Lights,—,$64.00,In stock
-Rear Light Radar,Lights,—,$199.00,Back in November
-Floor Pump with Gauge,Tools,—,$42.00,In stock
-16-in-1 Multi-tool,Tools,—,$29.00,In stock
-Folding U-Lock,Locks,—,$84.00,In stock
-Waterproof Pannier 20 L,Bags,20 L,$119.00,2 left
-Saddle Bag Small,Bags,0.6 L,$24.00,In stock
-Insulated Bottle 750 ml,Accessories,750 ml,$19.00,In stock
-GPS Bike Computer,Electronics,—,$299.00,In stock
-Padded Gel Gloves,Clothing,S – XL,$34.00,In stock
-Packable Rain Jacket,Clothing,XS – XXL,$129.00,In stock
-Tubeless Repair Kit,Tools,—,$18.00,In stock
+Plant,Light,Pot,Price,Stock
+Monstera deliciosa,Bright shade,24 cm,$48.00,🟢 In stock
+Fiddle-leaf fig,Bright light,27 cm,$64.00,🟠 3 left
+Snake plant 'Laurentii',Any light,17 cm,$26.00,🟢 In stock
+Calathea orbifolia,Shade,19 cm,$38.00,🟢 In stock
+Golden pothos,Any light,14 cm,$16.00,🟢 In stock
+Bird of paradise,Bright light,30 cm,$89.00,⚪ Back in May
+Peace lily,Shade,17 cm,$24.00,🟢 In stock
+ZZ plant,Any light,19 cm,$34.00,🟢 In stock
+String of pearls,Bright light,12 cm,$19.00,🟠 2 left
+Rubber plant 'Tineke',Bright shade,21 cm,$42.00,🟢 In stock
+Olive tree,Full sun,35 cm,$129.00,🟢 In stock
+Chinese money plant,Bright shade,12 cm,$14.00,🟢 In stock
+Boston fern,Shade,21 cm,$22.00,🟢 In stock
+Kentia palm,Bright shade,30 cm,$96.00,🟠 1 left
+Hoya carnosa,Bright light,14 cm,$21.00,🟢 In stock
+Anthurium 'Red',Bright shade,17 cm,$32.00,🟢 In stock
+Golden barrel cactus,Full sun,14 cm,$18.00,🟢 In stock
+Alocasia 'Polly',Bright shade,17 cm,$36.00,⚪ Back in May

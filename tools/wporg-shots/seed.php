@@ -1,9 +1,10 @@
 <?php
 /**
- * Fills a throwaway test site with the demo shop the directory screenshots
- * show: the free plugin only, five tables read from the English demo sheet of
- * the Google mock, and two empty pages that shoot.mjs lays out in the block
- * editor, so their markup is exactly what the editor itself saves.
+ * Fills a throwaway test site with the two demo businesses the directory
+ * screenshots show: the free plugin only, the showcase theme from ./theme,
+ * six tables read from the English demo sheet of the Google mock, and empty
+ * pages that shoot.mjs lays out in the block editor, so their markup is
+ * exactly what the editor itself saves.
  *
  * Never run against a site anyone uses: every table and page on it goes.
  *
@@ -14,29 +15,52 @@ require $argv[1] . '/wp-load.php';
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 deactivate_plugins( 'live-sheets-table-pro/live-sheets-table-pro.php', true );
-switch_theme( 'twentytwentyfive' );
-update_option( 'blogname', 'Trailside Bikes' );
-update_option( 'blogdescription', 'Bikes, gear and repairs' );
 
+$theme = get_theme_root() . '/showcase';
+if ( ! is_dir( $theme ) ) {
+	mkdir( $theme . '/templates', 0755, true );
+	mkdir( $theme . '/parts', 0755, true );
+}
+foreach ( array( 'style.css', 'functions.php', 'theme.json', 'templates/showcase-fernhouse.html', 'templates/showcase-walks.html', 'parts/header-fernhouse.html', 'parts/footer-fernhouse.html', 'parts/header-walks.html', 'parts/footer-walks.html' ) as $file ) {
+	copy( __DIR__ . '/theme/' . $file, $theme . '/' . $file );
+}
+switch_theme( 'showcase' );
+update_option( 'blogname', 'Fernhouse' );
+update_option( 'blogdescription', 'Houseplants, pots and good advice' );
+
+if ( ! is_dir( WP_CONTENT_DIR . '/mu-plugins' ) ) {
+	mkdir( WP_CONTENT_DIR . '/mu-plugins', 0755, true );
+}
 copy( __DIR__ . '/no-emoji-mu.php', WP_CONTENT_DIR . '/mu-plugins/screenshots-no-emoji.php' );
 file_put_contents( WP_CONTENT_DIR . '/lstab-mock-state.json', wp_json_encode( array( 'mode' => 'demo', 'tab' => 'main' ) ) );
 
 foreach ( LSTAB_Storage::get_all() as $existing ) {
 	LSTAB_Storage::delete( (int) $existing['id'] );
 }
-foreach ( get_posts( array( 'post_type' => array( 'page', 'post' ), 'post_status' => 'any', 'numberposts' => -1 ) ) as $post ) {
+foreach ( get_posts( array( 'post_type' => array( 'page', 'post', 'wp_template', 'wp_template_part' ), 'post_status' => 'any', 'numberposts' => -1 ) ) as $post ) {
 	wp_delete_post( $post->ID, true );
 }
 
-$sheet  = '1Tr4ilS1deB1kesPr1ceL1st2026xYz0aBcDeFgHiJk';
+$plants_css = 'th { letter-spacing: 0.08em; }
+td[data-label="Plant"] { font-weight: 600; }
+td[data-label="Price"] { font-weight: 600; font-variant-numeric: tabular-nums; }
+td[data-label="Light"], td[data-label="Pot"] { color: #6b665c; }';
+
+$walks_css = 'th { letter-spacing: 0.08em; }
+td[data-label="Walk"] { font-weight: 600; }
+td[data-label="Price"] { font-weight: 600; }
+td[data-label="Date"], td[data-label="Starts"] { font-variant-numeric: tabular-nums; }';
+
+$sheet  = '1FernH0useSh0pSheet2026xYz0aBcDeFgHiJkLmN';
 $tables = array(
-	'prices'   => array( 'Bikes & gear prices', '0', 'Bikes & gear', 3600, 'striped', 'table', array( 'headerBg' => '#123f30', 'headerText' => '#ffffff', 'stripe' => '#f3f8f5', 'hover' => '#e4f2ea', 'accent' => '#1f7a55', 'border' => '#dde9e2' ) ),
-	'service'  => array( 'Service menu', '1734829105', 'Service menu', 86400, 'striped', 'table', array() ),
-	'shops'    => array( 'Our shops', '884466221', 'Our shops', 21600, 'clean', 'cards', array() ),
-	'hours'    => array( 'Opening hours', '1122334455', 'Opening hours', 86400, 'bordered', 'table', array( 'density' => 'compact' ) ),
-	'rides'    => array( 'Group rides', '556677889', 'Group rides', 3600, 'midnight', 'table', array() ),
+	'plants'    => array( 'Plant price list', '0', 'Plants', 3600, 'clean', 'table', array( 'text' => '#24231f', 'headerBg' => '#f6f1e7', 'headerText' => '#5b5345', 'border' => '#ece6da', 'hover' => '#f8f4ec', 'accent' => '#2f6b4f', 'density' => 'roomy', 'corners' => 'pill', 'fontSize' => 16, 'headFontSize' => 12 ), $plants_css ),
+	'walks'     => array( 'Tour departures', '556677889', 'Tour departures', 900, 'striped', 'auto', array( 'text' => '#1d232b', 'headerBg' => '#18222f', 'headerText' => '#f3ead8', 'stripe' => '#faf6ee', 'hover' => '#f4ecdc', 'border' => '#ece4d4', 'accent' => '#9a6a22', 'density' => 'roomy', 'fontSize' => 16, 'headFontSize' => 12 ), $walks_css ),
+	'workshops' => array( 'Workshops', '1734829105', 'Workshops', 86400, 'striped', 'table', array(), '' ),
+	'shops'     => array( 'Our greenhouses', '884466221', 'Shops', 21600, 'clean', 'cards', array(), '' ),
+	'hours'     => array( 'Opening hours', '1122334455', 'Opening hours', 86400, 'bordered', 'table', array(), '' ),
+	'delivery'  => array( 'Delivery areas', '2233445566', 'Delivery', 86400, 'midnight', 'table', array(), '' ),
 );
-$made  = array();
+$made   = array();
 foreach ( $tables as $key => $t ) {
 	$id = LSTAB_Storage::insert(
 		array(
@@ -50,6 +74,7 @@ foreach ( $tables as $key => $t ) {
 			'style_preset'  => $t[4],
 			'layout'        => $t[5],
 			'style_vars'    => $t[6],
+			'custom_css'    => $t[7],
 			'sticky_head'   => 1,
 			'sticky_first'  => 1,
 			'link_cells'    => 1,
@@ -66,15 +91,20 @@ foreach ( $tables as $key => $t ) {
 }
 
 $pages = array();
-foreach ( array( 'prices' => 'Prices', 'visit' => 'Visit us' ) as $slug => $title ) {
-	$pages[ $slug ] = wp_insert_post(
+foreach (
+	array(
+		'plants' => array( 'Price list', 'price-list', 'showcase-fernhouse' ),
+		'walks'  => array( 'Dates and seats', 'dates', 'showcase-walks' ),
+		'styles' => array( 'Styles', 'styles', 'page-no-title' ),
+	) as $key => $p
+) {
+	$pages[ $key ] = wp_insert_post(
 		array(
 			'post_type'     => 'page',
 			'post_status'   => 'publish',
-			'post_title'    => $title,
-			'post_name'     => 'prices' === $slug ? 'prices' : 'visit-us',
-			'menu_order'    => 'prices' === $slug ? 1 : 2,
-			'page_template' => 'page-no-title',
+			'post_title'    => $p[0],
+			'post_name'     => $p[1],
+			'page_template' => $p[2],
 		)
 	);
 }
@@ -86,7 +116,7 @@ update_user_meta(
 	$GLOBALS['wpdb']->get_blog_prefix() . 'persisted_preferences',
 	array(
 		'core/edit-post' => array( 'welcomeGuide' => false, 'fullscreenMode' => true ),
-		'core'           => array( 'isComplementaryAreaVisible' => true ),
+		'core'           => array( 'isComplementaryAreaVisible' => true, 'fixedToolbar' => true ),
 		'_modified'      => gmdate( 'c' ),
 	)
 );

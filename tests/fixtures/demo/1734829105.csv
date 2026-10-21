@@ -1,7 +1,6 @@
-Service,Takes,Price
-Safety check,30 min,$25
-Basic tune-up,1 hour,$69
-Full service,Half a day,$149
-Puncture repair,15 min,$12
-Wheel true,30 min,$29
-E-bike check,1 hour,$89
+Workshop,Date,Time,Seats,Price
+Repotting basics,Sat 7 Nov,10:00,6 left,$35
+Terrarium building,Sun 8 Nov,14:00,2 left,$55
+Kokedama moss balls,Thu 12 Nov,18:30,8 left,$40
+Winter plant care,Sat 14 Nov,11:00,Full,$25
+Wreath making,Sat 28 Nov,10:00,10 left,$60

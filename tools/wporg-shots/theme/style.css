@@ -1,0 +1,77 @@
+/*
+Theme Name: Screenshot Showcase
+Template: twentytwentyfive
+Description: The two demo businesses in the directory screenshots. Copied in by tools/wporg-shots/seed.php; never ship this.
+Version: 1.0
+*/
+
+@font-face { font-family: "Literata"; font-style: normal; font-weight: 500; font-display: block; src: url("../twentytwentyfive/assets/fonts/literata/Literata72pt-Medium.woff2") format("woff2"); }
+@font-face { font-family: "Literata"; font-style: normal; font-weight: 600; font-display: block; src: url("../twentytwentyfive/assets/fonts/literata/Literata72pt-SemiBold.woff2") format("woff2"); }
+@font-face { font-family: "Literata"; font-style: italic; font-weight: 500; font-display: block; src: url("../twentytwentyfive/assets/fonts/literata/Literata72pt-MediumItalic.woff2") format("woff2"); }
+@font-face { font-family: "Manrope"; font-style: normal; font-weight: 200 800; font-display: block; src: url("../twentytwentyfive/assets/fonts/manrope/Manrope-VariableFont_wght.woff2") format("woff2"); }
+@font-face { font-family: "Platypi"; font-style: normal; font-weight: 300 800; font-display: block; src: url("../twentytwentyfive/assets/fonts/platypi/Platypi-VariableFont_wght.woff2") format("woff2"); }
+@font-face { font-family: "Platypi"; font-style: italic; font-weight: 300 800; font-display: block; src: url("../twentytwentyfive/assets/fonts/platypi/Platypi-Italic-VariableFont_wght.woff2") format("woff2"); }
+
+:root {
+	--fh-cream: #f6f1e7;
+	--fh-forest: #1f3b2d;
+	--fh-moss: #2f6b4f;
+	--fh-ink: #24231f;
+	--fh-muted: #6b665c;
+	--ow-ivory: #fbf8f2;
+	--ow-navy: #18222f;
+	--ow-gold: #c4923c;
+}
+
+body { -webkit-font-smoothing: antialiased; }
+
+.sc-bar { background: var(--fh-forest); color: #e7efe6; font-size: 13.5px; letter-spacing: 0.01em; text-align: center; padding: 9px 16px; }
+.sc-bar strong { color: #fff; font-weight: 600; }
+
+.sc-head { display: flex; align-items: center; gap: 40px; max-width: 1240px; margin: 0 auto; padding: 22px 32px; }
+.sc-logo { display: flex; align-items: center; gap: 10px; font-family: "Literata", serif; font-weight: 600; font-size: 26px; letter-spacing: -0.01em; color: var(--fh-ink); text-decoration: none; }
+.sc-logo svg { width: 34px; height: 34px; }
+.sc-nav { display: flex; gap: 30px; font-size: 15.5px; font-weight: 500; }
+.sc-nav a { color: var(--fh-ink); text-decoration: none; opacity: 0.8; }
+.sc-nav a.is-here { opacity: 1; box-shadow: inset 0 -2px 0 currentColor; padding-bottom: 4px; }
+.sc-tools { margin-left: auto; display: flex; align-items: center; gap: 18px; font-size: 15px; }
+.sc-tools .sc-icon { width: 22px; height: 22px; opacity: 0.85; }
+.sc-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--fh-forest); color: #fff; padding: 11px 20px; border-radius: 999px; font-weight: 600; text-decoration: none; font-size: 15px; }
+.sc-cta .sc-count { background: #e9c46a; color: var(--fh-forest); border-radius: 999px; font-size: 12px; min-width: 20px; height: 20px; display: inline-grid; place-items: center; }
+
+.sc-foot { background: var(--fh-forest); color: #c9d6cc; padding: 64px 32px 40px; font-size: 15px; }
+.sc-foot-in { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 48px; }
+.sc-foot h4 { color: #fff; font-family: "Manrope", sans-serif; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 16px; }
+.sc-foot p { margin: 0 0 10px; }
+.sc-foot .sc-logo { color: #fff; margin-bottom: 14px; }
+.sc-foot-base { max-width: 1240px; margin: 48px auto 0; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.12); display: flex; justify-content: space-between; font-size: 13.5px; color: #9fb3a5; }
+
+.sc-walks .sc-logo { font-family: "Platypi", serif; font-weight: 600; color: var(--ow-navy); }
+.sc-walks .sc-nav a { color: var(--ow-navy); }
+.sc-walks .sc-cta { background: var(--ow-gold); color: #1b1408; }
+.sc-walks-bar { background: var(--ow-navy); color: #d9d3c6; }
+.sc-walks-foot { background: var(--ow-navy); color: #b9c0ca; }
+.sc-walks-foot .sc-logo { color: #fff; font-family: "Platypi", serif; }
+.sc-walks-foot .sc-foot-base { color: #8d97a4; }
+
+.wp-site-blocks { padding-top: 0; }
+.wp-site-blocks > * + * { margin-block-start: 0; }
+.wp-block-post-content > .alignfull { margin-block-start: 0; }
+
+.sc-burger { display: none; width: 26px; height: 26px; }
+
+@media (max-width: 760px) {
+	.sc-bar { font-size: 12.5px; padding: 8px 12px; }
+	.sc-head { padding: 14px 18px; gap: 12px; }
+	.sc-logo { font-size: 20px; white-space: nowrap; }
+	.sc-cta { white-space: nowrap; }
+	.sc-bar strong { white-space: nowrap; }
+	.sc-logo svg { width: 28px; height: 28px; }
+	.sc-nav, .sc-tools > :not(.sc-cta):not(.sc-burger) { display: none; }
+	.sc-cta { padding: 8px 14px; font-size: 14px; }
+	.sc-burger { display: block; }
+	.sc-foot { padding: 48px 22px 32px; }
+	.sc-foot-in { grid-template-columns: 1fr 1fr; gap: 32px 24px; }
+	.sc-foot-in > :first-child { grid-column: 1 / -1; }
+	.sc-foot-base { flex-direction: column; gap: 8px; }
+}
