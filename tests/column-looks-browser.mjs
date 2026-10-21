@@ -164,10 +164,11 @@ check(
 );
 
 /*
- * On a phone the row is a card and every value has its column's name above
- * it. There the bar is the same block as in the table, but it starts under
- * that name, behind the value's own line: drawn on the whole cell it covered
- * the name too, and a grey name on a bright bar was hard to read.
+ * On a phone the row is a card and every value has its column's name beside
+ * it, or above it on the narrowest screens. There the bar is the same block
+ * as in the table, but it stays behind the value's own line, clear of that
+ * name: drawn on the whole cell it covered the name too, and a grey name on a
+ * bright bar was hard to read.
  */
 await tab.setViewportSize( { width: 360, height: 900 } );
 await tab.waitForTimeout( 100 );
@@ -184,7 +185,7 @@ const onPhone = await tab.evaluate( () => [ ...document.querySelectorAll( '#ligh
 		behindCell: parseFloat( getComputedStyle( cell, '::after' ).width ),
 		share: parseFloat( block.width ) / valueBox.width * 100,
 		colour: block.backgroundColor,
-		clearOfName: label.getBoundingClientRect().bottom <= valueBox.top + parseFloat( block.top ) + 0.5,
+		clearOfName: label.getBoundingClientRect().bottom <= valueBox.top + parseFloat( block.top ) + 0.5 || label.getBoundingClientRect().right <= valueBox.left + 0.5,
 		card: 'none' !== getComputedStyle( label ).display,
 	};
 } ) );
