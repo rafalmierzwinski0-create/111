@@ -31,7 +31,7 @@ draws around every block, so the listing and the plugin read as one thing.
 Rebuild them from `tools/logo/assets.html` if the colours ever move.
 
 The screenshots come from a throwaway test site, with only the free plugin
-active, dressed as two made-up businesses: the theme in
+active, dressed as three made-up businesses: the theme in
 `tools/wporg-shots/theme/`, the sheet in `tests/fixtures/demo/`, the pages in
 `tools/wporg-shots/layout.mjs` (saved through the block editor), and the
 browser windows and phones round them in `tools/wporg-shots/frames.mjs`:

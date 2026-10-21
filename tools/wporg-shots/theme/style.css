@@ -75,3 +75,15 @@ body { -webkit-font-smoothing: antialiased; }
 	.sc-foot-in > :first-child { grid-column: 1 / -1; }
 	.sc-foot-base { flex-direction: column; gap: 8px; }
 }
+
+body:has(.sc-venue) { background: #0b0d12; }
+.sc-venue { background: #0b0d12; color: #ece8e1; }
+.sc-venue .sc-logo { font-family: "Platypi", serif; font-weight: 600; color: #fff; letter-spacing: -0.02em; }
+.sc-venue .sc-nav a { color: #ece8e1; }
+.sc-venue .sc-tools { color: #a9a39a; }
+.sc-venue .sc-cta { background: #ff8a5c; color: #160a04; }
+.sc-venue-bar { background: #ff8a5c; color: #2a1206; }
+.sc-venue-bar strong { color: #160a04; }
+.sc-venue-foot { background: #07080c; color: #a39d94; border-top: 1px solid #1c1f27; }
+.sc-venue-foot .sc-logo { color: #fff; font-family: "Platypi", serif; }
+.sc-venue-foot .sc-foot-base { color: #7d776f; border-top-color: #1c1f27; }

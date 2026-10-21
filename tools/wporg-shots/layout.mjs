@@ -108,6 +108,41 @@ export const walks = ( t, base ) => [
 	] ],
 ];
 
+const venue = { night: '#0b0d12', ember: '#ff8a5c', ink: '#ece8e1', muted: '#a39d94' };
+
+const fact = ( big, small ) => [ 'core/group', { layout: { type: 'default' } }, [
+	text( big, { color: { text: '#ffffff' }, typography: { fontSize: '30px', fontWeight: '700', lineHeight: '1.1' } } ),
+	text( small, { color: { text: venue.muted }, typography: { fontSize: '14px' }, spacing: { margin: { top: '4px' } } } ),
+] ];
+
+export const gigs = ( t ) => [
+	[ 'core/group', {
+		align: 'full',
+		style: {
+			color: { gradient: 'radial-gradient(900px 520px at 85% 0%, rgba(255,138,92,0.30) 0%, rgba(255,138,92,0) 70%), radial-gradient(800px 600px at 10% 100%, rgba(124,92,255,0.22) 0%, rgba(124,92,255,0) 70%), #0b0d12', text: venue.ink },
+			spacing: pad( '72px', '64px' ),
+		},
+		layout: { type: 'constrained', wideSize: '1240px' },
+	}, [
+		[ 'core/columns', { align: 'wide', verticalAlignment: 'bottom', style: { spacing: { blockGap: { left: '64px' } } } }, [
+			[ 'core/column', { width: '64%' }, [
+				text( 'Live at Northlight · November', { color: { text: venue.ember }, typography: { fontSize: '14px', fontWeight: '700', letterSpacing: '0.16em', textTransform: 'uppercase' } } ),
+				heading( 1, 'What’s on this month', '72px', 'platypi', '#ffffff', { style: { typography: { fontSize: '72px', fontWeight: '600', lineHeight: '1', letterSpacing: '-0.03em' }, color: { text: '#ffffff' }, spacing: { margin: { top: '16px' } } } } ),
+				text( 'Eight nights, four hundred people, one room by the river. Tickets left update straight from the box office sheet.', { color: { text: '#c9c3ba' }, typography: { fontSize: '19px', lineHeight: '1.6' }, spacing: { margin: { top: '20px' } } } ),
+			] ],
+			[ 'core/column', { width: '36%' }, [
+				[ 'core/group', { layout: { type: 'flex', justifyContent: 'space-between', flexWrap: 'nowrap' }, style: { border: { top: { color: '#2a2e38', width: '1px' } }, spacing: { padding: { top: '22px' } } } }, [
+					fact( '8', 'gigs' ),
+					fact( '2', 'sold out' ),
+					fact( '$15', 'cheapest seat' ),
+				] ],
+			] ],
+		] ],
+		[ 'core/spacer', { height: '44px' } ],
+		table( t.gigs, { align: 'wide' } ),
+	] ],
+];
+
 const shown = ( id, preset, extra = {} ) => table( id, { stylePreset: preset, showSearch: false, showUpdated: false, ...extra } );
 
 export const styles = ( t ) => [

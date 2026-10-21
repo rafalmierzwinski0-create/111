@@ -3,7 +3,8 @@
 	"version": 3,
 	"customTemplates": [
 		{ "name": "showcase-fernhouse", "title": "Fernhouse", "postTypes": [ "page" ] },
-		{ "name": "showcase-walks", "title": "Old Town Walks", "postTypes": [ "page" ] }
+		{ "name": "showcase-walks", "title": "Old Town Walks", "postTypes": [ "page" ] },
+		{ "name": "showcase-venue", "title": "Northlight", "postTypes": [ "page" ] }
 	],
 	"settings": {
 		"layout": { "contentSize": "720px", "wideSize": "1240px" },

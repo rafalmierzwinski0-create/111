@@ -115,7 +115,7 @@ Yes. Everything from the sheet is escaped, so a cell containing HTML or a `<scri
 
 == Screenshots ==
 
-1. A plant shop’s price list, read from Google Sheets and styled to match the site.
+1. A music venue’s listings in the dark Midnight style, read from Google Sheets and coloured to match the site.
 2. A tour company’s departures, with the seats left in each walk, read from its booking sheet every 15 minutes.
 3. On a phone: a wide table keeps full-size text and gets a slider, or every row becomes a card.
 4. The four built-in styles: Clean, Striped, Bordered and Midnight.

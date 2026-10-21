@@ -1,8 +1,8 @@
 <?php
 /**
- * Fills a throwaway test site with the two demo businesses the directory
+ * Fills a throwaway test site with the three demo businesses the directory
  * screenshots show: the free plugin only, the showcase theme from ./theme,
- * six tables read from the English demo sheet of the Google mock, and empty
+ * seven tables read from the English demo sheet of the Google mock, and empty
  * pages that shoot.mjs lays out in the block editor, so their markup is
  * exactly what the editor itself saves.
  *
@@ -21,7 +21,7 @@ if ( ! is_dir( $theme ) ) {
 	mkdir( $theme . '/templates', 0755, true );
 	mkdir( $theme . '/parts', 0755, true );
 }
-foreach ( array( 'style.css', 'functions.php', 'theme.json', 'templates/showcase-fernhouse.html', 'templates/showcase-walks.html', 'parts/header-fernhouse.html', 'parts/footer-fernhouse.html', 'parts/header-walks.html', 'parts/footer-walks.html' ) as $file ) {
+foreach ( array( 'style.css', 'functions.php', 'theme.json', 'templates/showcase-fernhouse.html', 'templates/showcase-walks.html', 'templates/showcase-venue.html', 'parts/header-fernhouse.html', 'parts/footer-fernhouse.html', 'parts/header-walks.html', 'parts/footer-walks.html', 'parts/header-venue.html', 'parts/footer-venue.html' ) as $file ) {
 	copy( __DIR__ . '/theme/' . $file, $theme . '/' . $file );
 }
 switch_theme( 'showcase' );
@@ -51,6 +51,12 @@ td[data-label="Walk"] { font-weight: 600; }
 td[data-label="Price"] { font-weight: 600; }
 td[data-label="Date"], td[data-label="Starts"] { font-variant-numeric: tabular-nums; }';
 
+$gigs_css = 'th { letter-spacing: 0.1em; }
+td[data-label="Artist"] { font-weight: 700; color: #ffffff; }
+td[data-label="Date"] { color: #ff8a5c; font-weight: 600; font-variant-numeric: tabular-nums; }
+td[data-label="Genre"], td[data-label="Doors"] { color: #a39d94; }
+td[data-label="From"] { font-weight: 700; color: #ffffff; }';
+
 $sheet  = '1FernH0useSh0pSheet2026xYz0aBcDeFgHiJkLmN';
 $tables = array(
 	'plants'    => array( 'Plant price list', '0', 'Plants', 3600, 'clean', 'table', array( 'text' => '#24231f', 'headerBg' => '#f6f1e7', 'headerText' => '#5b5345', 'border' => '#ece6da', 'hover' => '#f8f4ec', 'accent' => '#2f6b4f', 'density' => 'roomy', 'corners' => 'pill', 'fontSize' => 16, 'headFontSize' => 12 ), $plants_css ),
@@ -59,6 +65,7 @@ $tables = array(
 	'shops'     => array( 'Our greenhouses', '884466221', 'Shops', 21600, 'clean', 'cards', array(), '' ),
 	'hours'     => array( 'Opening hours', '1122334455', 'Opening hours', 86400, 'bordered', 'table', array(), '' ),
 	'delivery'  => array( 'Delivery areas', '2233445566', 'Delivery', 86400, 'midnight', 'table', array(), '' ),
+	'gigs'      => array( 'Gig listings', '3344556677', 'Gigs', 900, 'midnight', 'auto', array( 'background' => '#12151c', 'headerBg' => '#0b0d12', 'headerText' => '#ff8a5c', 'text' => '#ece8e1', 'border' => '#222631', 'hover' => '#1a1e27', 'accent' => '#ff8a5c', 'density' => 'roomy', 'corners' => 'pill', 'fontSize' => 16, 'headFontSize' => 12 ), $gigs_css ),
 );
 $made   = array();
 foreach ( $tables as $key => $t ) {
@@ -95,6 +102,7 @@ foreach (
 	array(
 		'plants' => array( 'Price list', 'price-list', 'showcase-fernhouse' ),
 		'walks'  => array( 'Dates and seats', 'dates', 'showcase-walks' ),
+		'gigs'   => array( 'What’s on', 'whats-on', 'showcase-venue' ),
 		'styles' => array( 'Styles', 'styles', 'page-no-title' ),
 	) as $key => $p
 ) {

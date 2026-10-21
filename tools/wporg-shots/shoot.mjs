@@ -16,7 +16,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { plants, walks, styles, build } from './layout.mjs';
+import { plants, walks, gigs, styles, build } from './layout.mjs';
 import { browserWindow, twoPhones, phoneViewport, styleGrid, render } from './frames.mjs';
 
 const here = path.dirname( fileURLToPath( import.meta.url ) );
@@ -36,6 +36,7 @@ const raw = ( name ) => path.join( work, `${ name }.png` );
 const final = ( n ) => path.join( OUT, `screenshot-${ n }.png` );
 
 const BG = {
+	venue: 'radial-gradient(1400px 900px at 90% 0%, rgba(255,138,92,0.35) 0%, rgba(255,138,92,0) 60%), radial-gradient(1300px 1000px at 0% 100%, rgba(124,92,255,0.30) 0%, rgba(124,92,255,0) 60%), linear-gradient(160deg, #0d0f15, #1a1d27)',
 	fern: 'radial-gradient(1400px 900px at 8% 0%, #fbf8f0 0%, rgba(251,248,240,0) 62%), radial-gradient(1300px 1000px at 100% 100%, #c9dcc4 0%, rgba(201,220,196,0) 62%), #e6ede1',
 	walks: 'radial-gradient(1300px 900px at 88% 0%, rgba(196,146,60,0.38) 0%, rgba(196,146,60,0) 62%), radial-gradient(1200px 900px at 0% 100%, rgba(80,110,150,0.35) 0%, rgba(80,110,150,0) 60%), linear-gradient(160deg, #121a25, #22303f)',
 	phones: 'radial-gradient(1200px 900px at 20% 10%, #fdf9f1 0%, rgba(253,249,241,0) 60%), radial-gradient(1200px 1000px at 90% 100%, #d6c7ab 0%, rgba(214,199,171,0) 60%), #efe7da',
@@ -56,6 +57,7 @@ await Promise.all( [ admin.waitForURL( /wp-admin/ ), admin.click( '#wp-submit' )
 
 await build( admin, BASE, seeded.pages.plants, plants( T, BASE ) );
 await build( admin, BASE, seeded.pages.walks, walks( T, BASE ) );
+await build( admin, BASE, seeded.pages.gigs, gigs( T ) );
 await build( admin, BASE, seeded.pages.styles, styles( T ) );
 
 const visitor = await ( await browser.newContext( { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 } ) ).newPage();
@@ -106,10 +108,10 @@ const MENU = 160;
 const editScreen = ( id ) => `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit${ id ? '&source=' + id : '' }`;
 const previewRows = '#lstab-preview-stage .lstab-table tbody tr';
 
-// 1. The plant shop's price list.
+// 1. The music venue's listings, in the dark Midnight style.
 await visitor.setViewportSize( { width: 1440, height: 1500 } );
-await visitor.goto( seeded.urls.plants, { waitUntil: 'networkidle' } );
-await framed( 1, await shoot( visitor, 'plants' ), 'yoursite.com/price-list', BG.fern, { height: 2200 } );
+await visitor.goto( seeded.urls.gigs, { waitUntil: 'networkidle' } );
+await framed( 1, await shoot( visitor, 'gigs' ), 'yoursite.com/whats-on', BG.venue, { height: 2200 } );
 
 // 2. The walking tours' departures.
 await visitor.setViewportSize( { width: 1440, height: 1300 } );
