@@ -1,5 +1,5 @@
 === Live Sheets Table ===
-Contributors: livesheetstable
+Contributors: blackkiwi534
 Tags: google sheets, table, spreadsheet, csv, data table
 Requires at least: 6.7
 Tested up to: 7.1

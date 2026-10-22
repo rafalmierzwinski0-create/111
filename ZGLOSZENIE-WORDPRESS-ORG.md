@@ -46,12 +46,12 @@ jest w `CHANGELOG.md` w repozytorium).
 4. **„Tested up to: 7.1”** — zgodne z najnowszym WordPressem. Sprawdzić
    jeszcze raz w dniu wysyłki.
 5. **Zrzuty ekranu** w `wporg-assets/` podmienione na aktualne, bez Pro.
-6. **Contributors** w `readme.txt` (dziś `livesheetstable`): wpisać nazwę
-   użytkownika właściciela na wordpress.org. **Czeka na właściciela.**
+6. **Contributors** w `readme.txt`: `blackkiwi534`, nazwa właściciela na
+   wordpress.org. Zrobione.
 
 ## Po stronie właściciela
 
-- Konto na wordpress.org i jego nazwa użytkownika (do pola Contributors).
+- Konto na wordpress.org (`blackkiwi534`). Zrobione.
 - Włączone logowanie dwuetapowe (2FA), wymagane od autorów wtyczek.
 - Później, przed sprzedażą Pro: adres strony z ceną Pro.
 
