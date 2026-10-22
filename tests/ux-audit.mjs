@@ -412,11 +412,16 @@ await stuckHead( owner, 'the admin preview', () => {
  */
 section( 'Every control on the edit screen shows its effect in the preview' );
 
+// The preview the screen arrives with is drawn by the page itself, and every
+// later one by a redraw; the two can sit a fraction of a pixel apart, which
+// changes how every letter is drawn. So the picture before a change is of a
+// redrawn preview too, and only the change itself tells the two apart.
 const freshEdit = async ( pane, id = manifest.paged ) => {
 	await open( owner, editUrl( id ) );
 	await settle( owner, 500 );
 	await owner.locator( `.lstab-pane-tab[data-lstab-goto="${ pane }"]` ).click();
 	await owner.waitForTimeout( 250 );
+	await redrawn( () => owner.evaluate( () => window.lstabRedrawPreview && window.lstabRedrawPreview() ) );
 };
 
 const hoverRow = async () => {
@@ -585,6 +590,7 @@ const quiet = [
 // a change would prove nothing.
 await owner.locator( '.lstab-pane-tab[data-lstab-goto="look"]' ).click();
 await owner.waitForTimeout( 300 );
+await redrawn( () => owner.evaluate( () => window.lstabRedrawPreview && window.lstabRedrawPreview() ) );
 const still = await previewShot();
 const stillHtml = await owner.evaluate( () => document.getElementById( 'lstab-preview-stage' ).innerHTML );
 await redrawn( () => owner.evaluate( () => window.lstabRedrawPreview && window.lstabRedrawPreview() ) );
