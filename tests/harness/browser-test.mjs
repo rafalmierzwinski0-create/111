@@ -1132,7 +1132,9 @@ const pinned = await mpage.evaluate( async () => {
 
 	return {
 		position: getComputedStyle( firstCell ).position,
-		background: getComputedStyle( firstCell ).backgroundColor,
+		// The pinned cell's colour is on the layer behind its text, which stops
+		// half a line short of the row's edges so the row's own line shows.
+		background: getComputedStyle( firstCell, '::before' ).backgroundColor,
 		firstBefore: Math.round( firstBefore ),
 		firstAfter: Math.round( firstCell.getBoundingClientRect().left ),
 		secondBefore: Math.round( secondBefore ),
