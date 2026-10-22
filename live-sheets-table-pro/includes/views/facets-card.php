@@ -94,7 +94,7 @@ $lstabp_total   = count( $rows );
 	</div>
 
 	<p class="lstab-help">
-		<?php esc_html_e( 'Each choice changes the page address, so a visitor can copy it and send the filtered table to somebody. The menus work together with the search box and with pages, and always look through the whole sheet, not only the page on screen.', 'live-sheets-table-pro' ); ?>
+		<?php esc_html_e( 'The menus work together with the search box. On a table split into pages, they look through all the rows, not just the page on screen.', 'live-sheets-table-pro' ); ?>
 	</p>
 
 	<p class="lstab-help">

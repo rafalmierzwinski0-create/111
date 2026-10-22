@@ -400,7 +400,6 @@ if ( ! $lstab_is_edit ) {
 								<span class="lstab-preset-name">
 									<?php echo esc_html( $lstab_preset['label'] ); ?>
 								</span>
-								<span class="lstab-preset-desc"><?php echo esc_html( $lstab_preset['description'] ); ?></span>
 							</span>
 						</label>
 					<?php endforeach; ?>

@@ -95,7 +95,6 @@ $free = array( 'clean', 'striped', 'bordered', 'midnight' );
 
 foreach ( array( 'editorial', 'cards', 'terminal', 'aurora', 'contrast', 'ledger' ) as $slug ) {
 	lstab_skins_assert( isset( $all[ $slug ] ), "{$slug} is a preset" );
-	lstab_skins_assert( '' !== (string) $all[ $slug ]['description'], "{$slug} says what it looks like" );
 	lstab_skins_assert( $slug === LSTAB_Styles::sanitize( $slug ), "{$slug} renders under Pro" );
 }
 

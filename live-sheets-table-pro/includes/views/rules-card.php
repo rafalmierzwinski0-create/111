@@ -22,7 +22,7 @@ $lstabp_rows    = array_merge( $rules, array( $lstabp_blank ) );
 <div class="lstab-card lstabp-rules-card<?php echo $lstabp_waiting ? ' is-waiting' : ''; ?>">
 	<h2 class="lstab-card-title"><?php esc_html_e( 'Colour rules', 'live-sheets-table-pro' ); ?></h2>
 	<p class="lstab-help">
-		<?php esc_html_e( 'Colour a cell, its whole row or just its text depending on what the cell holds, or show the value as a pill or with a coloured dot. For example: when Availability is “Out of stock”, colour the whole row red. Visitors see the colours as soon as the page loads.', 'live-sheets-table-pro' ); ?>
+		<?php esc_html_e( 'Colour a cell, its whole row or just its text depending on what the cell holds, or show the value as a pill or with a coloured dot. For example: when Availability is “Out of stock”, colour the whole row red.', 'live-sheets-table-pro' ); ?>
 	</p>
 
 	<ul class="lstabp-rules-how">
@@ -32,7 +32,7 @@ $lstabp_rows    = array_merge( $rules, array( $lstabp_blank ) );
 		</li>
 		<li>
 			<?php echo LSTAB_Icons::icon( 'brush' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-			<?php esc_html_e( 'A cell’s colour is drawn over its row’s colour. So a grey row with one red cell needs two rules: one for the row and one for the cell.', 'live-sheets-table-pro' ); ?>
+			<?php esc_html_e( 'When a row and one of its cells both get a colour, that cell keeps its own. For example: one rule makes the row grey, another makes its Price cell red, and you see a grey row with a red price.', 'live-sheets-table-pro' ); ?>
 		</li>
 		<li>
 			<?php echo LSTAB_Icons::icon( 'sliders' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
@@ -111,6 +111,6 @@ $lstabp_rows    = array_merge( $rules, array( $lstabp_blank ) );
 	<?php endif; ?>
 
 	<p class="lstab-help">
-		<?php esc_html_e( 'To delete a rule, click the bin beside it and save. If the bin does nothing because JavaScript is switched off in your browser, set the rule’s column to “— remove this rule —” and save.', 'live-sheets-table-pro' ); ?>
+		<?php esc_html_e( 'To delete a rule, click the bin beside it, then save.', 'live-sheets-table-pro' ); ?>
 	</p>
 </div>
