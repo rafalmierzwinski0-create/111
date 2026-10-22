@@ -26,8 +26,8 @@ picture.
 Both sizes of each are wanted: the directory picks by screen, and a listing
 with only the small one looks soft on every modern laptop.
 
-The mark is the selected range with its handle — the same frame the dashboard
-draws around every block, so the listing and the plugin read as one thing.
+The mark is a table in a rounded square, the same one the dashboard
+shows beside the plugin’s name, so the listing and the plugin read as one thing.
 Rebuild them from `tools/logo/assets.html` if the colours ever move.
 
 The screenshots come from a throwaway test site, with only the free plugin
