@@ -430,9 +430,19 @@ const hoverRow = async () => {
 const previewShot = async ( sideways = false ) => {
 	// The "updated … ago" line counts up by itself, so its words are set to
 	// one fixed wording first; whether the line is there still shows.
+	// And the table is set on a whole pixel: a redraw can land it a fraction
+	// of one higher or lower, which redraws every letter a little differently
+	// and would read as a change where there is none.
 	const steady = () => owner.evaluate( () => {
 		document.querySelectorAll( '#lstab-preview .lstab-meta' ).forEach( ( p ) => {
 			p.textContent = 'Updated a moment ago';
+		} );
+		document.querySelectorAll( '#lstab-preview .lstab' ).forEach( ( t ) => {
+			t.style.marginTop = '';
+			const part = ( ( t.getBoundingClientRect().top % 1 ) + 1 ) % 1;
+			if ( part > 0.01 && part < 0.99 ) {
+				t.style.marginTop = ( 1 - part ) + 'px';
+			}
 		} );
 	} );
 	const frame = async ( end ) => {
