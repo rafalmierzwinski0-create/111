@@ -495,8 +495,8 @@
 .lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child::before {
 	--lstab-pin-line-h: calc( var(--lstab-pin-under, var(--lstab-row-line)) * var(--lstab-table-mode, 1) );
 	bottom: calc( -1 * var(--lstab-pin-line-h) );
+	border-bottom: var(--lstab-pin-line-h) solid var(--lstab-row-line-colour, var(--lstab-border));
 	background-image:
-		linear-gradient( to top, var(--lstab-row-line-colour, var(--lstab-border)) var(--lstab-pin-line-h), transparent var(--lstab-pin-line-h) ),
 		linear-gradient( var(--lstab-pin-over, transparent), var(--lstab-pin-over, transparent) ),
 		linear-gradient( var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent) );
 }

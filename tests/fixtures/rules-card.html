@@ -1,13 +1,13 @@
 <div class="lstab-card lstabp-rules-card">
 	<h2 class="lstab-card-title">Colour rules</h2>
 	<p class="lstab-help">
-		Colour a cell, its whole row or just its text depending on what the cell holds, or show the value as a pill or with a coloured dot. For example: when Availability is “Out of stock”, colour the whole row red. Visitors see the colours as soon as the page loads.	</p>
+		Colour a cell, its whole row or just its text depending on what the cell holds, or show the value as a pill or with a coloured dot. For example: when Availability is “Out of stock”, colour the whole row red.	</p>
 
 	<ul class="lstabp-rules-how">
 		<li>
 			<svg data-icon="layers"></svg>			Rules are applied from the top down. If two rules colour the same place, the lower one wins, so put general rules first and exceptions below them.		</li>
 		<li>
-			<svg data-icon="brush"></svg>			A cell’s colour is drawn over its row’s colour. So a grey row with one red cell needs two rules: one for the row and one for the cell.		</li>
+			<svg data-icon="brush"></svg>			When a row and one of its cells both get a colour, that cell keeps its own. For example: one rule makes the row grey, another makes its Price cell red, and you see a grey row with a red price.		</li>
 		<li>
 			<svg data-icon="sliders"></svg>			“is” and “is not” compare text; capital letters and extra spaces make no difference. The other comparisons read the cell as a number, so “1 215,50” and “1215.5” are the same number, and a cell without a number never matches them.		</li>
 	</ul>
@@ -574,5 +574,5 @@
 		</template>
 	
 	<p class="lstab-help">
-		To delete a rule, click the bin beside it and save. If the bin does nothing because JavaScript is switched off in your browser, set the rule’s column to “— remove this rule —” and save.	</p>
+		To delete a rule, click the bin beside it, then save.	</p>
 </div>

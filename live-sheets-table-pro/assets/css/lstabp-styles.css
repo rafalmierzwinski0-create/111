@@ -140,6 +140,7 @@
 
 .lstab-style-cards.lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child::before {
 	bottom: 0;
+	border-bottom: 0;
 	background-image:
 		linear-gradient( var(--lstab-pin-over, transparent), var(--lstab-pin-over, transparent) ),
 		linear-gradient( var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent) );
