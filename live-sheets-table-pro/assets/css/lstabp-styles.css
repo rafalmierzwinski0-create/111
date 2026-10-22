@@ -286,8 +286,19 @@
 	background-image: linear-gradient(var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent));
 }
 
+.lstab-style-contrast.lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child {
+	background-color: inherit;
+}
+
 .lstab-style-contrast.lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child::before {
+	--lstab-pin-line-h: calc( var(--lstab-row-line) * var(--lstab-table-mode, 1) );
+	inset-block: 0 calc( -1 * var(--lstab-pin-line-h) );
+	border-bottom: var(--lstab-pin-line-h) solid var(--lstab-row-line-colour, var(--lstab-border));
 	background-color: var(--lstab-stripe);
+}
+
+.lstab-style-contrast.lstab-sticky-first .lstab-table tbody tr:last-child > td:first-child::before {
+	--lstab-pin-line-h: calc( var(--lstab-row-last-bottom) * var(--lstab-table-mode, 1) );
 }
 
 .lstab-style-ledger {

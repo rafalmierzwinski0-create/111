@@ -565,12 +565,15 @@ for ( const skin of skins ) {
 	const alpha = sticky ? Number( sticky[ 1 ].split( /[\s,\/]+/ ).filter( ( s ) => '' !== s )[ 3 ] ?? 1 ) : 0;
 
 	check( alpha > 0.5, `${ skin }: the pinned column has something solid behind it`, d.stickyBackdrop );
-	// In the table layout the backdrop reaches over the line between rows and
-	// draws that line itself, in place of the one underneath it; a card's line
-	// is the card's own border, so there it stops at the cell.
+	// In the table layout the backdrop stops half a line short of the row's
+	// edge, so the row's own line, drawn with every other column's, shows
+	// through and lines up with it. Contrast shades its first column, so there
+	// the backdrop reaches over the line and draws it in the column's colour; a
+	// card's line is the card's own border, so there it stops at the cell.
+	const wantBottom = 'cards' === skin ? 0 : ( 'contrast' === skin ? -parseFloat( d.lineToken || '0' ) : parseFloat( d.lineToken || '0' ) / 2 );
 	check(
-		parseFloat( d.stickyBackdropBottom ) === ( 'cards' === skin ? 0 : -parseFloat( d.lineToken || '0' ) ),
-		`${ skin }: and that backdrop takes the place of the line rather than adding to it`,
+		parseFloat( d.stickyBackdropBottom ) === wantBottom,
+		`${ skin }: and that backdrop never draws a second line beside the row's own`,
 		`${ d.stickyBackdropBottom } against a ${ d.lineToken } line`
 	);
 }
