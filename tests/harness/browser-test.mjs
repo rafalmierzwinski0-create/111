@@ -1221,56 +1221,38 @@ const syncResult = await mpage.evaluate( async () => {
 check( syncResult.valuenow === '0', 'Scrolling the table moves the slider back', JSON.stringify( syncResult ) );
 
 /*
- * The bar is sticky, so most of the time it is lying on top of rows. Bare, it
- * reads as a line drawn across the data; it has to become a control of its own
- * while it floats, and give all of that back when the end of the table arrives.
+ * The bar sits under the table and nowhere else. It used to stick to the foot
+ * of the screen while the end of the table was out of sight, and so lay on
+ * the rows there, which read as a fault however it was dressed.
  */
 // Short enough that the end of the table cannot be on screen with the top of
-// it, which is the only state where the question arises at all.
-// The table's top is put near the top of the screen, so rows are in view and
-// its end is not: where the page happened to be left by the checks above is
-// no starting point, since a table still wholly below the fold has a slider
-// that rightly waits where it is.
+// it, which was the state where the bar used to float.
 const roomy = mpage.viewportSize();
 await mpage.setViewportSize( { width: roomy.width, height: 320 } );
+const underTable = () => mpage.evaluate( () => {
+	const frame = document.querySelector( '.lstab-style-striped .lstab-scroll' );
+	const bar = document.querySelector( '.lstab-style-striped .lstab-scrollbar' );
+
+	return {
+		gap: Math.round( bar.getBoundingClientRect().top - frame.getBoundingClientRect().bottom ),
+		background: getComputedStyle( bar ).backgroundColor,
+		shadow: getComputedStyle( bar ).boxShadow,
+	};
+} );
+
 await mpage.evaluate( () => {
 	const frame = document.querySelector( '.lstab-style-striped .lstab-scroll' );
 	window.scrollTo( 0, window.scrollY + frame.getBoundingClientRect().top - 20 );
 } );
-await mpage.waitForTimeout( 600 );
-const floating = await mpage.evaluate( () => {
-	const bar = document.querySelector( '.lstab-style-striped .lstab-scrollbar' );
-	const seen = getComputedStyle( bar );
-
-	return {
-		floating: bar.classList.contains( 'is-floating' ),
-		background: seen.backgroundColor,
-		shadow: seen.boxShadow,
-	};
-} );
-check( floating.floating, 'The slider knows it is floating over the rows', JSON.stringify( floating ) );
-check(
-	'rgba(0, 0, 0, 0)' !== floating.background && 'none' !== floating.shadow,
-	'And gives itself paper and a shadow so it is not a line lying on the data',
-	JSON.stringify( floating )
-);
+await mpage.waitForTimeout( 400 );
+const midway = await underTable();
+check( midway.gap >= 0, 'With the end of the table out of sight, the slider stays under it, off the rows', JSON.stringify( midway ) );
+check( 'rgba(0, 0, 0, 0)' === midway.background && 'none' === midway.shadow, 'And paints nothing of its own over the page', JSON.stringify( midway ) );
 
 await mpage.evaluate( () => window.scrollTo( 0, document.body.scrollHeight ) );
-await mpage.waitForTimeout( 500 );
-const settled = await mpage.evaluate( () => {
-	const bar = document.querySelector( '.lstab-style-striped .lstab-scrollbar' );
-
-	return {
-		floating: bar.classList.contains( 'is-floating' ),
-		background: getComputedStyle( bar ).backgroundColor,
-	};
-} );
-check( ! settled.floating, 'It settles once the end of the table is in view', JSON.stringify( settled ) );
-check(
-	'rgba(0, 0, 0, 0)' === settled.background,
-	'And paints nothing over the page there',
-	JSON.stringify( settled )
-);
+await mpage.waitForTimeout( 400 );
+const settled = await underTable();
+check( midway.gap === settled.gap, 'It is in the same place once the end of the table is in view', JSON.stringify( settled ) );
 await mpage.setViewportSize( roomy );
 await mpage.evaluate( () => window.scrollTo( 0, 0 ) );
 await mpage.waitForTimeout( 400 );

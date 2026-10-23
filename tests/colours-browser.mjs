@@ -5,8 +5,7 @@
  * background colour chosen by hand that stopped at the pinned first column on
  * the skins that named their own, a row hover that never reached a cell a rule
  * had painted, and a rule's colour on the first column hidden under the pinned
- * backdrop. The slider outline has its own colour too, and follows the line
- * colour until it is given one.
+ * backdrop.
  *
  * Usage: node tests/colours-browser.mjs
  */
@@ -125,16 +124,14 @@ const table = ( skin, style ) => `<div class="lstab-container"><div class="lstab
 <tr role="row" class="lstab-row">${ cell( 'Row rule', rowPaint ) }${ cell( '2', rowPaint ) }${ cell( 'y', rowPaint ) }</tr>
 <tr role="row" class="lstab-row">${ cell( 'Cell rule', cellPaint ) }${ cell( '3', cellPaint ) }${ cell( 'z' ) }</tr>
 </tbody></table></div>
-<div class="lstab-scrollbar is-floating"><div class="lstab-scrollbar-track"><div class="lstab-scrollbar-thumb"></div></div></div>
+<div class="lstab-scrollbar"><div class="lstab-scrollbar-track"><div class="lstab-scrollbar-thumb"></div></div></div>
 </div></div>`;
 
 const file = path.join( repo, 'build/colours-browser.html' );
 
 fs.mkdirSync( path.dirname( file ), { recursive: true } );
 fs.writeFileSync( file, `<!doctype html><meta charset="utf-8"><style>${ CSS } body{background:#fff;margin:0;padding:8px} .lstab-container{width:560px}</style>`
-	+ skins.map( ( skin ) => table( skin, '--lstab-bg:#ffd6d6;' ) ).join( '' )
-	+ table( 'clean', '--lstab-border:#00ff00;' ).replace( 'id="t-clean"', 'id="line-only"' )
-	+ table( 'clean', '--lstab-border:#00ff00;--lstab-slider-line:#ff0000;' ).replace( 'id="t-clean"', 'id="own-line"' ) );
+	+ skins.map( ( skin ) => table( skin, '--lstab-bg:#ffd6d6;' ) ).join( '' ) );
 
 const browser = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' } );
 const page = await browser.newPage( { viewport: { width: 640, height: 900 }, deviceScaleFactor: 1 } );
@@ -212,12 +209,6 @@ for ( const skin of skins ) {
 		check( 0 === still.length, `${ skin }: hovering a ${ 1 === row ? 'row' : 'cell' } rule lights every cell of the row`, still.length ? `column ${ still.join( ', ' ) } did not change` : '' );
 	}
 }
-
-console.log( '\nThe slider outline' );
-
-const outlines = await page.evaluate( () => [ 'line-only', 'own-line' ].map( ( id ) => getComputedStyle( document.querySelector( `#${ id } .lstab-scrollbar` ) ).borderTopColor ) );
-check( 'rgb(0, 255, 0)' === outlines[ 0 ], 'follows the line colour until it is given its own', outlines[ 0 ] );
-check( 'rgb(255, 0, 0)' === outlines[ 1 ], 'and wears its own once it is', outlines[ 1 ] );
 
 await browser.close();
 

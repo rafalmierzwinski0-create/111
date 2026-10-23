@@ -1340,14 +1340,6 @@
 	overflow-y: auto;
 }
 
-.lstab-preview .lstab-scrollbar {
-	bottom: 0;
-}
-
-.lstab-preview .lstab-scrollbar.is-floating {
-	box-shadow: 0 0 0 0.5em var( --lstab-bg ), 0 -10px 18px -10px var( --lstab-edge-shadow, rgba( 0, 0, 0, 0.2 ) );
-}
-
 .lstab-placeholder {
 	color: #646970;
 	margin: 0;

@@ -343,20 +343,6 @@
 			root.classList.toggle( 'lstab-head-stuck', !! table && firstHead.getBoundingClientRect().top - table.getBoundingClientRect().top > 1 );
 		}
 
-		function dressBar() {
-			markStuck();
-
-			var frame = scroller.getBoundingClientRect();
-			var view = window.innerHeight || document.documentElement.clientHeight || 0;
-			var resting = frame.top > view - Math.min( 140, frame.height );
-
-			bar.classList.toggle( 'is-resting', resting );
-
-			var onTheRows = ! resting && frame.bottom - bar.getBoundingClientRect().top > 1;
-
-			bar.classList.toggle( 'is-floating', ! bar.hidden && onTheRows );
-		}
-
 		var track = bar.querySelector( '.lstab-scrollbar-track' );
 		var thumb = bar.querySelector( '.lstab-scrollbar-thumb' );
 
@@ -431,7 +417,6 @@
 
 			if ( scrollable <= 2 ) {
 				bar.hidden = true;
-				dressBar();
 				root.classList.remove( 'lstab-has-slider' );
 				root.classList.remove( 'lstab-is-scrolled' );
 				root.classList.add( 'lstab-fits' );
@@ -439,8 +424,6 @@
 			}
 
 			bar.hidden = false;
-
-			dressBar();
 
 			root.classList.remove( 'lstab-fits' );
 			root.classList.add( 'lstab-has-slider' );
@@ -553,7 +536,7 @@
 
 		var pending = false;
 
-		var queueFloat = function () {
+		var queueStuck = function () {
 			if ( pending ) {
 				return;
 			}
@@ -561,13 +544,13 @@
 			pending = true;
 			window.requestAnimationFrame( function () {
 				pending = false;
-				dressBar();
+				markStuck();
 			} );
 		};
 
-		window.addEventListener( 'scroll', queueFloat, { passive: true, capture: true } );
-		window.addEventListener( 'resize', queueFloat, { passive: true } );
-		dressBar();
+		window.addEventListener( 'scroll', queueStuck, { passive: true, capture: true } );
+		window.addEventListener( 'resize', queueStuck, { passive: true } );
+		markStuck();
 
 		scroller.addEventListener( 'scroll', sync, { passive: true } );
 		scroller.addEventListener( 'scroll', markStuck, { passive: true } );

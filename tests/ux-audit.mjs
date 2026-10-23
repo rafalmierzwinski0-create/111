@@ -579,9 +579,6 @@ const differ = ( a, b ) => {
 };
 
 const quiet = [
-	// Drawn only while the slider floats over the rows, which depends on where
-	// the page happens to be scrolled; tests/colours-browser.mjs checks it.
-	/^Pick a colour for Slider outline/,
 	// A rule line's column does nothing until the rule also has a value to match.
 	/lstabp_rules\[\d+\]\[(column|operator|scope|style)\]/,
 ];

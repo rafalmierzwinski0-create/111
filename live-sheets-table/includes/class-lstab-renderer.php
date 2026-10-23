@@ -527,7 +527,6 @@ class LSTAB_Renderer {
 						aria-valuenow="0"></div>
 				</div>
 			</div>
-			<div class="lstab-scrollbar-end" aria-hidden="true"></div>
 
 			<?php if ( $paged && 0 === $paging['matched'] ) : ?>
 				<p class="lstab-no-results"><?php esc_html_e( 'No rows match your search.', 'live-sheets-table' ); ?></p>

@@ -143,9 +143,7 @@ for ( const pass of passes ) {
 			await p.waitForTimeout( 200 );
 			const { out, tables: n } = await p.evaluate( inspect );
 			tables += n;
-			// The slider floats over the rows at the foot of the screen on purpose.
-			out.filter( ( o ) => ! ( 'pin-covered' === o.kind && /lstab-scrollbar/.test( o.detail ) ) )
-				.forEach( ( o ) => issues.push( `${ width }px ${ pg.shape }/${ pg.pin }/${ pg.layout } ${ o.table }: ${ o.kind } ${ o.detail }` ) );
+			out.forEach( ( o ) => issues.push( `${ width }px ${ pg.shape }/${ pg.pin }/${ pg.layout } ${ o.table }: ${ o.kind } ${ o.detail }` ) );
 		}
 
 		if ( errs.length ) {
