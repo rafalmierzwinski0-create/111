@@ -1479,12 +1479,12 @@ $scoped->set_param( 'css', '& { --lstab-fg: #123456 } td { padding: 2em }' );
 $scoped_css = $server->dispatch( $scoped )->get_data()['css'];
 
 lstab_assert(
-	false !== strpos( $scoped_css, '[data-lstab-preview="stage"] .lstab{--lstab-fg: #123456}' ),
+	false !== strpos( $scoped_css, ':is([data-lstab-preview="stage"] .lstab, #lstab-none){--lstab-fg: #123456}' ),
 	'The preview confines the CSS field to the table, not the frame around it',
 	$scoped_css
 );
 lstab_assert(
-	false !== strpos( $scoped_css, '[data-lstab-preview="stage"] .lstab td{' ),
+	false !== strpos( $scoped_css, ':is([data-lstab-preview="stage"] .lstab, #lstab-none) td{' ),
 	'And rules naming something inside it still reach it',
 	$scoped_css
 );
@@ -1496,7 +1496,7 @@ $hostile_scope->set_param( 'selector', 'body' );
 $hostile_scope->set_param( 'css', 'td { color: red }' );
 $hostile_css = $server->dispatch( $hostile_scope )->get_data()['css'];
 lstab_assert(
-	0 === strpos( $hostile_css, '[data-lstab-preview="none"]' ),
+	0 === strpos( $hostile_css, ':is([data-lstab-preview="none"] .lstab, #lstab-none)' ),
 	'A selector the plugin does not recognise is refused, not obeyed',
 	$hostile_css
 );
@@ -2772,56 +2772,109 @@ lstab_section( '14z. A table with its own CSS' );
 // shape rather than only end to end.
 $css_selector = LSTAB_Custom_Css::selector( 7 );
 
+// Every rule is given the weight of an id that nothing carries, so a plain
+// "td { background: … }" wins over the built-in look, whose rules are classes.
+$css_scope = ':is([data-lstab-id="7"], #lstab-none)';
+
 $scoped = LSTAB_Custom_Css::scope( 'td { color: red; }', $css_selector );
 lstab_assert(
-	'[data-lstab-id="7"] td{color: red;}' === $scoped,
+	$css_scope . ' td{color: red;}' === $scoped,
 	'A plain rule is confined to its own table',
 	$scoped
 );
 
 $scoped = LSTAB_Custom_Css::scope( 'th, td { padding: 0; }', $css_selector );
 lstab_assert(
-	'[data-lstab-id="7"] th,[data-lstab-id="7"] td{padding: 0;}' === $scoped,
+	$css_scope . ' th,' . $css_scope . ' td{padding: 0;}' === $scoped,
 	'Every selector in a list is confined, not just the first',
 	$scoped
 );
 
 $scoped = LSTAB_Custom_Css::scope( '&.lstab-paged td { color: red; }', $css_selector );
 lstab_assert(
-	'[data-lstab-id="7"].lstab-paged td{color: red;}' === $scoped,
+	$css_scope . '.lstab-paged td{color: red;}' === $scoped,
 	'"&" means the table itself',
+	$scoped
+);
+
+$scoped = LSTAB_Custom_Css::scope( 'td[data-label="R&D"], td[data-label="a, b"] { color: red; }', $css_selector );
+lstab_assert(
+	$css_scope . ' td[data-label="R&D"],' . $css_scope . ' td[data-label="a, b"]{color: red;}' === $scoped,
+	'But an "&" or a comma inside a quoted value is only text',
+	$scoped
+);
+
+$scoped = LSTAB_Custom_Css::scope( 'td[data-label="Old  Town"], td[data-label=Old\\ Town] { color: red; }', $css_selector );
+lstab_assert(
+	false !== strpos( $scoped, '"Old  Town"' ) && false !== strpos( $scoped, 'Old\\ Town' ),
+	'Spaces inside a quoted value and an escaped space are kept as written',
 	$scoped
 );
 
 $scoped = LSTAB_Custom_Css::scope( ':is(th, td) { color: red; }', $css_selector );
 lstab_assert(
-	'[data-lstab-id="7"] :is(th, td){color: red;}' === $scoped,
+	$css_scope . ' :is(th, td){color: red;}' === $scoped,
 	'A comma inside :is() is not a second selector',
 	$scoped
 );
 
 $scoped = LSTAB_Custom_Css::scope( '@media (max-width: 40em) { td { color: red; } }', $css_selector );
 lstab_assert(
-	false !== strpos( $scoped, '[data-lstab-id="7"] td' ) && 0 === strpos( $scoped, '@media' ),
+	false !== strpos( $scoped, $css_scope . ' td' ) && 0 === strpos( $scoped, '@media' ),
 	'Rules inside @media are confined too',
+	$scoped
+);
+
+$scoped = LSTAB_Custom_Css::scope( '@starting-style { td { opacity: 0; } }', $css_selector );
+lstab_assert(
+	'@starting-style{' . $css_scope . ' td{opacity: 0;}}' === $scoped,
+	'And inside @starting-style, rather than being dropped',
 	$scoped
 );
 
 $scoped = LSTAB_Custom_Css::scope( '@keyframes spin { from { opacity: 0 } to { opacity: 1 } }', $css_selector );
 lstab_assert(
-	false === strpos( $scoped, '[data-lstab-id="7"] from' ),
+	false === strpos( $scoped, 'lstab-id="7"] from' ),
 	'@keyframes steps are left alone, since prefixing them would break them',
+	$scoped
+);
+
+$scoped = LSTAB_Custom_Css::scope( '@layer base, mine; @layer mine { td { color: red; } }', $css_selector );
+lstab_assert(
+	0 === strpos( $scoped, '@layer base, mine;@layer mine{' ),
+	'A statement putting layers in order is kept, or the order would be lost',
+	$scoped
+);
+
+$scoped = LSTAB_Custom_Css::scope( '@page { margin: 7cm; } @import url(x.css); @namespace svg url(x);', $css_selector );
+lstab_assert( '' === $scoped, '@page, which would reach the whole printed page, is dropped with the other statements', $scoped );
+
+$scoped = LSTAB_Custom_Css::scope( '@scope (.lstab-table) to (thead) { td { color: red; } } @scope { th { color: red; } }', $css_selector );
+lstab_assert(
+	0 === strpos( $scoped, '@scope (' . $css_scope . ' .lstab-table) to (thead){td{color: red;}}' )
+		&& false !== strpos( $scoped, '@scope (' . $css_scope . '){th{color: red;}}' ),
+	'@scope starts inside the table, and the rules within it are left to it',
 	$scoped
 );
 
 // A pinned first column paints itself on a layer of its own, which a rule on
 // the cell alone would never reach: the scoped CSS repeats any background for
 // that layer, and only the background.
+$css_pinned = ':is(&,&>td):is(.lstab-sticky-first tr:not(.lstab-detail)>:first-child:not(.lstab-painted))';
+
 $scoped = LSTAB_Custom_Css::scope( 'tbody tr:nth-child(even) > td { background-color: #f5edff; color: red; }', $css_selector );
 lstab_assert(
-	false !== strpos( $scoped, '[data-lstab-id="7"] tbody tr:nth-child(even) > td:is(.lstab-sticky-first' )
-		&& false !== strpos( $scoped, ')::before{width: 100%;border-radius: inherit;background-image: none;background-color: #f5edff;}' ),
-	'A background on a cell reaches the pinned column too',
+	false !== strpos( $scoped, $css_scope . ' tbody tr:nth-child(even) > td{' . $css_pinned . '{background:none;&::before{width:100%;border-radius:inherit;background-image:none;background-color: #f5edff}' ),
+	'A background on a cell or a row reaches the pinned column too',
+	$scoped
+);
+
+// Reaching all the way to the line under it only where that is exact: at a
+// fractional pixel density the pinned layer, placed on its own, would cover
+// part of the line, so there it keeps the plugin's half-line gap.
+lstab_assert(
+	false !== strpos( $scoped, '@media (resolution:1dppx),(resolution:2dppx),(resolution:3dppx),(resolution:4dppx){&:is(td)::before{inset-block:0}}' ),
+	'It reaches the row line only at whole pixel densities',
 	$scoped
 );
 lstab_assert(
@@ -2832,18 +2885,38 @@ lstab_assert(
 
 $scoped = LSTAB_Custom_Css::scope( 'tbody tr:hover { background: url("a;b{c}.png") #fff; }', $css_selector );
 lstab_assert(
-	false !== strpos( $scoped, '[data-lstab-id="7"] tbody tr:hover > :is(.lstab-sticky-first' )
-		&& false !== strpos( $scoped, 'background: url("a;b{c}.png") #fff;}' ),
-	'A background on a row reaches its pinned cell, with a quoted value left whole',
+	false !== strpos( $scoped, 'background-image:none;background: url("a;b{c}.png") #fff}' ),
+	'A quoted value is copied whole',
 	$scoped
 );
 
-$scoped = LSTAB_Custom_Css::scope( 'td::after { background: red; } td { color: blue; } .lstab-table { & thead th { background: red; } }', $css_selector );
+$scoped = LSTAB_Custom_Css::scope( 'tbody { tr:nth-child(2) > td { background: red; } td { @media (min-width: 1px) { background: blue; } } }', $css_selector );
 lstab_assert(
-	false === strpos( $scoped, ':is(.lstab-sticky-first' ),
-	'Rules for a pseudo-element, rules with no background and nested rules add nothing',
+	false !== strpos( $scoped, $css_scope . ' tbody{tr:nth-child(2) > td{' . $css_pinned )
+		&& false !== strpos( $scoped, 'td{@media (min-width: 1px){' . $css_pinned ),
+	'A background in a nested rule, or a nested @media, reaches it as well',
 	$scoped
 );
+
+$scoped = LSTAB_Custom_Css::scope( 'td::after { background: red; } td { color: blue; }', $css_selector );
+lstab_assert(
+	false === strpos( $scoped, 'lstab-sticky-first' ),
+	'Rules for a pseudo-element and rules with no background add nothing',
+	$scoped
+);
+
+$scoped = LSTAB_Custom_Css::scope( 'td::before { content: "🌿 Día"; }', $css_selector );
+lstab_assert(
+	false !== strpos( $scoped, 'content: "\\1f33f  D\\ed a"' ) && ! preg_match( '/[^\x00-\x7F]/', $scoped ),
+	'Letters beyond ASCII are written as CSS escapes, which an emoji script cannot turn into pictures',
+	$scoped
+);
+
+$deep    = str_repeat( 'a{', 6000 ) . 'background:red' . str_repeat( '}', 6000 );
+$started = microtime( true );
+LSTAB_Custom_Css::scope( LSTAB_Custom_Css::sanitize( $deep ), $css_selector );
+$took = microtime( true ) - $started;
+lstab_assert( $took < 0.5, 'Nesting thousands deep cannot make every page view slow', sprintf( '%.2fs', $took ) );
 
 lstab_assert(
 	'' === LSTAB_Custom_Css::scope( 'body { display: none; }', '' ) || false === strpos( LSTAB_Custom_Css::scope( 'body { display: none }', $css_selector ), '^body' ),
@@ -2853,7 +2926,17 @@ lstab_assert(
 
 // Nothing typed here may leave the style block or fetch a stylesheet.
 $dirty = LSTAB_Custom_Css::sanitize( "td { color: red }\n</style><script>alert(1)</script>" );
-lstab_assert( false === strpos( $dirty, '</' ), 'The one sequence that could end a style block is removed', $dirty );
+lstab_assert( false === strpos( $dirty, '</' ), 'The one sequence that could end a style block cannot stay', $dirty );
+
+$dirty = LSTAB_Custom_Css::sanitize( 'td { background: url("data:image/svg+xml,<svg></svg>"); }' );
+lstab_assert( false !== strpos( $dirty, '<svg><\\/svg>' ), 'It is escaped rather than cut, so an SVG drawn inline still draws', $dirty );
+
+$dirty = LSTAB_Custom_Css::sanitize( '.lstab-scroll { scroll-behavior: smooth; overscroll-behavior-x: contain; behavior: url(x.htc); }' );
+lstab_assert(
+	false !== strpos( $dirty, 'scroll-behavior: smooth' ) && false !== strpos( $dirty, 'overscroll-behavior-x: contain' ) && false === strpos( $dirty, ' behavior:' ),
+	'Old Internet Explorer behaviours are refused without touching scroll-behavior',
+	$dirty
+);
 
 $dirty = LSTAB_Custom_Css::sanitize( "@import url('https://example.com/x.css');\ntd { color: red }" );
 lstab_assert( false === stripos( $dirty, '@import' ), '@import is refused', $dirty );
@@ -2881,7 +2964,7 @@ lstab_assert(
 	'The published table carries its own style block'
 );
 lstab_assert(
-	false !== strpos( $css_html, '[data-lstab-id="' . $source_id . '"] td{border-left: 3px solid #123456;}' ),
+	false !== strpos( $css_html, ':is([data-lstab-id="' . $source_id . '"], #lstab-none) td{border-left: 3px solid #123456;}' ),
 	'And the rule inside it names this table and nothing else',
 	substr( $css_html, (int) strpos( $css_html, '<style' ), 200 )
 );

@@ -795,7 +795,7 @@ await page.waitForTimeout( 1200 );
 
 const liveCss = await page.locator( 'style.lstab-live-css' ).evaluate( ( el ) => el.textContent );
 check(
-	liveCss.includes( '[data-lstab-preview="stage"] .lstab td' ),
+	liveCss.includes( ':is([data-lstab-preview="stage"] .lstab, #lstab-none) td' ),
 	'What is typed is confined to the table in the preview, not let loose on the dashboard',
 	liveCss
 );

@@ -231,6 +231,15 @@ echo "=============================================="
 # help text points at screens and buttons that exist. Measured in pixels.
 node "$REPO/tests/ux-audit.mjs"
 
+echo
+echo "=============================================="
+echo " A table's own CSS — every shape of rule, wherever the table is shown"
+echo "=============================================="
+# Seventy-odd rule shapes on a page, the same again in the live preview, then
+# pages turned, a newer copy swapped in, the block editor, and a Pro colour rule
+# over an own background. Here, while the add-on is still active, for the rule.
+node "$REPO/tests/custom-css-browser.mjs" "$SCRATCH/wp71" 8089
+
 # The free plugin's own suite asserts the free tier, so Pro must be off for it.
 php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php
 

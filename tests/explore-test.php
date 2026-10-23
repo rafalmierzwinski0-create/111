@@ -498,7 +498,7 @@ foreach ( $escapes as $label => $attempt ) {
 		$list[] = $one;
 
 		foreach ( $list as $selector_part ) {
-			if ( 0 !== strpos( trim( $selector_part ), $css_sel ) ) {
+			if ( 0 !== strpos( trim( $selector_part ), ':is(' . $css_sel . ', #lstab-none)' ) ) {
 				$loose = true;
 			}
 		}

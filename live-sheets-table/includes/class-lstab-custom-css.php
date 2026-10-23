@@ -5,9 +5,9 @@ defined( 'ABSPATH' ) || exit;
 class LSTAB_Custom_Css {
 	const MAX_LENGTH = 20000;
 
-	const PINNED_CELLS = '.lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child, .lstab-sticky-first .lstab-table thead th:first-child';
+	const MAX_DEPTH = 16;
 
-	const PINNED_ROW_CELL = '.lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child';
+	const PINNED = ':is(&,&>td):is(.lstab-sticky-first tr:not(.lstab-detail)>:first-child:not(.lstab-painted))';
 
 	protected static $printed = array();
 
@@ -20,14 +20,11 @@ class LSTAB_Custom_Css {
 
 		$css = str_replace( array( "\r\n", "\r" ), "\n", $css );
 
-		do {
-			$before = $css;
-			$css    = str_replace( '</', '', $css );
-		} while ( $before !== $css );
+		$css = str_replace( '</', '<\\/', $css );
 
 		$css = (string) preg_replace( '#@import\b[^;]*;?#i', '', $css );
 
-		$css = (string) preg_replace( '#(expression|behaviou?r|-moz-binding)\s*[:(]#i', '', $css );
+		$css = (string) preg_replace( '#(?<![\w-])(expression|behaviou?r)\s*[:(]|-moz-binding\s*:#i', '', $css );
 		$css = (string) preg_replace( '#javascript\s*:#i', '', $css );
 
 		if ( strlen( $css ) > self::MAX_LENGTH ) {
@@ -44,7 +41,32 @@ class LSTAB_Custom_Css {
 	}
 
 	public static function scope( $css, $selector ) {
-		return self::scope_block( self::strip_comments( (string) $css ), $selector );
+		return self::ascii( self::scope_block( self::strip_comments( (string) $css ), ':is(' . $selector . ', #lstab-none)' ) );
+	}
+
+	protected static function ascii( $css ) {
+		if ( function_exists( 'mb_scrub' ) ) {
+			$css = mb_scrub( $css, 'UTF-8' );
+		}
+
+		$escaped = preg_replace_callback(
+			'/[\x{80}-\x{10FFFF}]/u',
+			function ( $match ) {
+				$char  = $match[0];
+				$first = ord( $char[0] );
+				$code  = $first >= 0xF0 ? $first & 0x07 : ( $first >= 0xE0 ? $first & 0x0F : $first & 0x1F );
+				$count = strlen( $char );
+
+				for ( $i = 1; $i < $count; $i++ ) {
+					$code = ( $code << 6 ) | ( ord( $char[ $i ] ) & 0x3F );
+				}
+
+				return '\\' . dechex( $code ) . ' ';
+			},
+			$css
+		);
+
+		return null === $escaped ? $css : $escaped;
 	}
 
 	protected static function strip_comments( $css ) {
@@ -88,7 +110,11 @@ class LSTAB_Custom_Css {
 		return $out;
 	}
 
-	protected static function scope_block( $css, $selector ) {
+	protected static function scope_block( $css, $selector, $level = 0 ) {
+		if ( $level > self::MAX_DEPTH ) {
+			return '';
+		}
+
 		$out    = '';
 		$buffer = '';
 		$length = strlen( $css );
@@ -162,9 +188,11 @@ class LSTAB_Custom_Css {
 				}
 
 				if ( '@' === $header[0] ) {
-					if ( preg_match( '#^@(media|supports|container|layer|scope)\b#i', $header ) ) {
-						$out .= $header . '{' . self::scope_block( $inner, $selector ) . '}';
-					} elseif ( preg_match( '#^@(keyframes|-webkit-keyframes|font-face|page|counter-style|property)\b#i', $header ) ) {
+					if ( preg_match( '#^@scope\b#i', $header ) ) {
+						$out .= self::scope_prelude( $header, $selector ) . '{' . self::scope_block( $inner, null, $level + 1 ) . '}';
+					} elseif ( preg_match( '#^@(media|supports|container|layer|starting-style)\b#i', $header ) ) {
+						$out .= $header . '{' . self::scope_block( $inner, $selector, $level + 1 ) . '}';
+					} elseif ( preg_match( '#^@(keyframes|-webkit-keyframes|font-face|counter-style|property|font-feature-values|font-palette-values)\b#i', $header ) ) {
 						$out .= $header . '{' . $inner . '}';
 					}
 
@@ -172,7 +200,7 @@ class LSTAB_Custom_Css {
 				}
 
 				$parts = self::prefix_parts( $header, $selector );
-				$out  .= implode( ',', $parts ) . '{' . trim( $inner ) . '}' . self::pinned_paint( $parts, $inner );
+				$out  .= implode( ',', $parts ) . '{' . trim( $inner ) . '}' . self::pinned_paint( $parts, $inner, $level );
 				continue;
 			}
 
@@ -182,6 +210,9 @@ class LSTAB_Custom_Css {
 			}
 
 			if ( ';' === $char && '@' === substr( ltrim( $buffer ), 0, 1 ) ) {
+				if ( preg_match( '#^@layer\s+[\w-]+(\s*,\s*[\w-]+)*$#i', trim( $buffer ) ) ) {
+					$out .= trim( $buffer ) . ';';
+				}
 				$buffer = '';
 				continue;
 			}
@@ -192,7 +223,20 @@ class LSTAB_Custom_Css {
 		return $out;
 	}
 
-	protected static function pinned_paint( $parts, $inner ) {
+	protected static function pinned_paint( $parts, $inner, $level ) {
+		$parts = array_filter(
+			$parts,
+			function ( $part ) {
+				return ! preg_match( '#::|:(before|after|first-line|first-letter)\b#i', $part );
+			}
+		);
+
+		$inside = self::pinned_layer( $inner ) . self::nested_paint( $inner, $level + 1 );
+
+		return ( empty( $parts ) || '' === $inside ) ? '' : implode( ',', $parts ) . '{' . $inside . '}';
+	}
+
+	protected static function pinned_layer( $inner ) {
 		$paint = array();
 
 		foreach ( self::declarations( $inner ) as $declaration ) {
@@ -205,29 +249,50 @@ class LSTAB_Custom_Css {
 			return '';
 		}
 
-		$targets = array();
+		return self::PINNED . '{background:none;&::before{width:100%;border-radius:inherit;background-image:none;' . implode( ';', $paint ) . '}@media (resolution:1dppx),(resolution:2dppx),(resolution:3dppx),(resolution:4dppx){&:is(td)::before{inset-block:0}}}';
+	}
 
-		foreach ( $parts as $part ) {
-			if ( preg_match( '#::|:(before|after|first-line|first-letter)\b#i', $part ) ) {
+	protected static function nested_paint( $inner, $level ) {
+		$out = '';
+
+		if ( $level > self::MAX_DEPTH ) {
+			return $out;
+		}
+
+		foreach ( self::items( $inner ) as $item ) {
+			if ( ! isset( $item[1] ) ) {
 				continue;
 			}
 
-			$targets[] = $part . ':is(' . self::PINNED_CELLS . ')::before';
-			$targets[] = $part . ' > :is(' . self::PINNED_ROW_CELL . ')::before';
+			list( $header, $body ) = $item;
+
+			if ( '@' !== $header[0] ) {
+				$out .= self::pinned_paint( self::prefix_parts( $header, null ), $body, $level );
+			} elseif ( preg_match( '#^@(media|supports|container|layer|scope|starting-style)\b#i', $header ) ) {
+				$inside = self::pinned_layer( $body ) . self::nested_paint( $body, $level + 1 );
+				$out   .= '' === $inside ? '' : $header . '{' . $inside . '}';
+			}
 		}
 
-		if ( empty( $targets ) ) {
-			return '';
-		}
-
-		return implode( ',', $targets ) . '{width: 100%;border-radius: inherit;background-image: none;' . implode( ';', $paint ) . ';}';
+		return $out;
 	}
 
 	protected static function declarations( $inner ) {
-		$found  = array();
+		$found = array();
+
+		foreach ( self::items( $inner ) as $item ) {
+			if ( ! isset( $item[1] ) ) {
+				$found[] = $item[0];
+			}
+		}
+
+		return $found;
+	}
+
+	protected static function items( $inner ) {
+		$items  = array();
 		$part   = '';
 		$depth  = 0;
-		$braces = 0;
 		$quote  = '';
 		$length = strlen( $inner );
 
@@ -244,15 +309,6 @@ class LSTAB_Custom_Css {
 				continue;
 			}
 
-			if ( $braces > 0 ) {
-				if ( '{' === $char ) {
-					$braces++;
-				} elseif ( '}' === $char ) {
-					$braces--;
-				}
-				continue;
-			}
-
 			if ( '"' === $char || "'" === $char ) {
 				$quote = $char;
 			} elseif ( '(' === $char ) {
@@ -260,36 +316,46 @@ class LSTAB_Custom_Css {
 			} elseif ( ')' === $char ) {
 				$depth = max( 0, $depth - 1 );
 			} elseif ( '{' === $char && 0 === $depth ) {
-				$braces = 1;
-				$part   = '';
+				$end    = self::closing( $inner, $i, '{', '}' );
+				$header = trim( $part );
+
+				if ( '' !== $header ) {
+					$items[] = array( $header, substr( $inner, $i + 1, max( 0, $end - $i - 1 ) ) );
+				}
+
+				$part = '';
+				$i    = $end;
 				continue;
-			} elseif ( ';' === $char && 0 === $depth ) {
-				$found[] = trim( $part );
-				$part    = '';
+			} elseif ( ( ';' === $char || '}' === $char ) && 0 === $depth ) {
+				if ( '' !== trim( $part ) ) {
+					$items[] = array( trim( $part ) );
+				}
+				$part = '';
 				continue;
 			}
 
 			$part .= $char;
 		}
 
-		$found[] = trim( $part );
+		if ( '' !== trim( $part ) ) {
+			$items[] = array( trim( $part ) );
+		}
 
-		return array_values( array_filter( $found, 'strlen' ) );
+		return $items;
 	}
 
-	protected static function prefix_parts( $header, $selector ) {
-		$parts = array();
-		$depth = 0;
-		$part  = '';
-
-		$length = strlen( $header );
+	protected static function closing( $text, $open, $left = '(', $right = ')' ) {
+		$depth  = 0;
 		$quote  = '';
-		for ( $i = 0; $i < $length; $i++ ) {
-			$char = $header[ $i ];
+		$length = strlen( $text );
+
+		for ( $i = $open; $i < $length; $i++ ) {
+			$char = $text[ $i ];
 
 			if ( '' !== $quote ) {
-				$part .= $char;
-				if ( $char === $quote ) {
+				if ( '\\' === $char ) {
+					$i++;
+				} elseif ( $char === $quote ) {
 					$quote = '';
 				}
 				continue;
@@ -297,38 +363,107 @@ class LSTAB_Custom_Css {
 
 			if ( '"' === $char || "'" === $char ) {
 				$quote = $char;
-			} elseif ( '(' === $char ) {
+			} elseif ( $left === $char ) {
 				$depth++;
-			} elseif ( ')' === $char ) {
+			} elseif ( $right === $char && 0 === --$depth ) {
+				return $i;
+			}
+		}
+
+		return $length;
+	}
+
+	protected static function scope_prelude( $header, $selector ) {
+		if ( null === $selector ) {
+			return $header;
+		}
+
+		$rest  = trim( substr( $header, 6 ) );
+		$root  = '';
+		$limit = '';
+
+		if ( '(' === substr( $rest, 0, 1 ) ) {
+			$end  = self::closing( $rest, 0 );
+			$root = substr( $rest, 1, max( 0, $end - 1 ) );
+			$rest = trim( (string) substr( $rest, $end + 1 ) );
+		}
+
+		if ( preg_match( '#^to\s*\(#i', $rest ) ) {
+			$open  = strpos( $rest, '(' );
+			$end   = self::closing( $rest, $open );
+			$limit = ' to (' . substr( $rest, $open + 1, max( 0, $end - $open - 1 ) ) . ')';
+		}
+
+		$roots = '' === trim( $root ) ? array() : self::prefix_parts( $root, $selector );
+
+		return '@scope (' . ( empty( $roots ) ? $selector : implode( ',', $roots ) ) . ')' . $limit;
+	}
+
+	protected static function prefix_parts( $header, $selector ) {
+		$parts  = array();
+		$part   = '';
+		$amp    = false;
+		$depth  = 0;
+		$quote  = '';
+		$length = strlen( $header );
+
+		for ( $i = 0; $i < $length; $i++ ) {
+			$char = $header[ $i ];
+
+			if ( '' !== $quote ) {
+				$part .= $char;
+				if ( '\\' === $char && $i + 1 < $length ) {
+					$part .= $header[ ++$i ];
+				} elseif ( $char === $quote ) {
+					$quote = '';
+				}
+				continue;
+			}
+
+			if ( '\\' === $char && $i + 1 < $length ) {
+				$part .= $char . $header[ ++$i ];
+				continue;
+			}
+
+			if ( '"' === $char || "'" === $char ) {
+				$quote = $char;
+			} elseif ( '(' === $char || '[' === $char ) {
+				$depth++;
+			} elseif ( ')' === $char || ']' === $char ) {
 				$depth = max( 0, $depth - 1 );
 			} elseif ( ',' === $char && 0 === $depth ) {
-				$parts[] = $part;
+				$parts[] = array( $part, $amp );
 				$part    = '';
+				$amp     = false;
+				continue;
+			} elseif ( '&' === $char && null !== $selector ) {
+				$part .= $selector;
+				$amp   = true;
+				continue;
+			} elseif ( ctype_space( $char ) ) {
+				$part .= ' ' === substr( $part, -1 ) ? '' : ' ';
 				continue;
 			}
 
 			$part .= $char;
 		}
 
-		$parts[] = $part;
+		$parts[] = array( $part, $amp );
 
 		$scoped = array();
 
 		foreach ( $parts as $one ) {
-			$one = trim( preg_replace( '#\s+#', ' ', $one ) );
+			$text = trim( $one[0] );
 
-			if ( '' === $one ) {
+			if ( '' === $text ) {
 				continue;
 			}
 
-			$scoped[] = false !== strpos( $one, '&' )
-				? str_replace( '&', $selector, $one )
-				: $selector . ' ' . $one;
+			$scoped[] = ( null === $selector || $one[1] ) ? $text : $selector . ' ' . $text;
 		}
 
 		return $scoped;
 	}
-
 	public static function style_tag( $source_id, $css, $once = true ) {
 		$source_id = (int) $source_id;
 		$css       = self::sanitize( $css );
