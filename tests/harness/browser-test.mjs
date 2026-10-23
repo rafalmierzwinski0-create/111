@@ -868,7 +868,7 @@ const publishedCss = await page.evaluate( async ( base ) => {
 	const html = await res.text();
 	return {
 		hasBlock: html.includes( 'lstab-custom-css' ),
-		scoped: /\[data-lstab-id="\d+"\] td\{outline: 2px dotted rgb\(4, 5, 6\);\}/.test( html ),
+		scoped: /:is\(\[data-lstab-id="\d+"\], #lstab-none\) td\{outline: 2px dotted rgb\(4, 5, 6\);\}/.test( html ),
 		unscoped: html.includes( '<style class="lstab-custom-css" data-lstab-css="0"' ),
 	};
 }, BASE );
