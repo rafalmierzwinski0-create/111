@@ -489,7 +489,7 @@
 }
 
 .lstab-sticky-first .lstab-table tbody tr:not(.lstab-detail) > td:first-child::before {
-	inset-block: calc( var(--lstab-row-line, 1px) / 2 );
+	inset-block: calc( var(--lstab-table-mode, 1) * var(--lstab-row-line, 1px) / 2 );
 	background-image:
 		linear-gradient( var(--lstab-pin-over, transparent), var(--lstab-pin-over, transparent) ),
 		linear-gradient( var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent) );
@@ -814,7 +814,7 @@
 		--lstab-cell-max: none;
 		--lstab-slider-display: none;
 		--lstab-table-min: 0;
-		--lstab-sticky: static;
+		--lstab-sticky: relative;
 		--lstab-sticky-max: none;
 		--lstab-layout-frame-border: 0;
 		--lstab-layout-frame-shadow: none;
@@ -842,7 +842,7 @@
 		--lstab-cell-max: none;
 		--lstab-slider-display: none;
 		--lstab-table-min: 0;
-		--lstab-sticky: static;
+		--lstab-sticky: relative;
 		--lstab-sticky-max: none;
 		--lstab-layout-frame-border: 0;
 		--lstab-layout-frame-shadow: none;
@@ -870,7 +870,7 @@
 		--lstab-cell-max: none;
 		--lstab-slider-display: none;
 		--lstab-table-min: 0;
-		--lstab-sticky: static;
+		--lstab-sticky: relative;
 		--lstab-sticky-max: none;
 		--lstab-layout-frame-border: 0;
 		--lstab-layout-frame-shadow: none;
@@ -898,7 +898,7 @@
 		--lstab-cell-max: none;
 		--lstab-slider-display: none;
 		--lstab-table-min: 0;
-		--lstab-sticky: static;
+		--lstab-sticky: relative;
 		--lstab-sticky-max: none;
 		--lstab-layout-frame-border: 0;
 		--lstab-layout-frame-shadow: none;
@@ -926,7 +926,7 @@
 		--lstab-cell-max: none;
 		--lstab-slider-display: none;
 		--lstab-table-min: 0;
-		--lstab-sticky: static;
+		--lstab-sticky: relative;
 		--lstab-sticky-max: none;
 		--lstab-layout-frame-border: 0;
 		--lstab-layout-frame-shadow: none;
@@ -980,7 +980,7 @@
 	--lstab-cell-max: none;
 	--lstab-slider-display: none;
 	--lstab-table-min: 0;
-	--lstab-sticky: static;
+	--lstab-sticky: relative;
 	--lstab-sticky-max: none;
 	--lstab-layout-frame-border: 0;
 	--lstab-layout-frame-shadow: none;
@@ -1039,7 +1039,7 @@
 			--lstab-cell-max: none;
 			--lstab-slider-display: none;
 			--lstab-table-min: 0;
-			--lstab-sticky: static;
+			--lstab-sticky: relative;
 			--lstab-sticky-max: none;
 			--lstab-layout-frame-border: 0;
 			--lstab-layout-frame-shadow: none;
@@ -1723,7 +1723,7 @@
 
 	.lstab {
 		--lstab-table-min: 0;
-		--lstab-sticky: static;
+		--lstab-sticky: relative;
 	}
 
 	.lstab-scroll {

@@ -2814,6 +2814,37 @@ lstab_assert(
 	$scoped
 );
 
+// A pinned first column paints itself on a layer of its own, which a rule on
+// the cell alone would never reach: the scoped CSS repeats any background for
+// that layer, and only the background.
+$scoped = LSTAB_Custom_Css::scope( 'tbody tr:nth-child(even) > td { background-color: #f5edff; color: red; }', $css_selector );
+lstab_assert(
+	false !== strpos( $scoped, '[data-lstab-id="7"] tbody tr:nth-child(even) > td:is(.lstab-sticky-first' )
+		&& false !== strpos( $scoped, ')::before{width: 100%;border-radius: inherit;background-image: none;background-color: #f5edff;}' ),
+	'A background on a cell reaches the pinned column too',
+	$scoped
+);
+lstab_assert(
+	1 === substr_count( $scoped, 'color: red' ),
+	'But nothing else is copied to that layer',
+	$scoped
+);
+
+$scoped = LSTAB_Custom_Css::scope( 'tbody tr:hover { background: url("a;b{c}.png") #fff; }', $css_selector );
+lstab_assert(
+	false !== strpos( $scoped, '[data-lstab-id="7"] tbody tr:hover > :is(.lstab-sticky-first' )
+		&& false !== strpos( $scoped, 'background: url("a;b{c}.png") #fff;}' ),
+	'A background on a row reaches its pinned cell, with a quoted value left whole',
+	$scoped
+);
+
+$scoped = LSTAB_Custom_Css::scope( 'td::after { background: red; } td { color: blue; } .lstab-table { & thead th { background: red; } }', $css_selector );
+lstab_assert(
+	false === strpos( $scoped, ':is(.lstab-sticky-first' ),
+	'Rules for a pseudo-element, rules with no background and nested rules add nothing',
+	$scoped
+);
+
 lstab_assert(
 	'' === LSTAB_Custom_Css::scope( 'body { display: none; }', '' ) || false === strpos( LSTAB_Custom_Css::scope( 'body { display: none }', $css_selector ), '^body' ),
 	'A rule naming the page itself still only reaches inside the table',
