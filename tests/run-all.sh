@@ -135,7 +135,7 @@ node "$REPO/tests/keep-current-browser.mjs"
 
 echo
 echo "=============================================="
-echo " Tables checked while somebody looks — free every 30 minutes, Pro every 2"
+echo " Tables checked while somebody looks — free every 30 minutes, Pro every 5"
 echo "=============================================="
 node "$REPO/tests/refresh-browser.mjs"
 

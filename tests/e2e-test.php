@@ -1182,7 +1182,7 @@ foreach ( $filler as $filler_id ) {
 }
 
 lstab_assert( 1800 === LSTAB_Limits::min_interval(), 'Free tier floor is 30 minutes', (string) LSTAB_Limits::min_interval() );
-lstab_assert( 1800 === LSTAB_Limits::interval_of( array( 'sync_interval' => 120 ) ), 'A table left at two minutes by the add-on is checked every thirty once the add-on is gone' );
+lstab_assert( 1800 === LSTAB_Limits::interval_of( array( 'sync_interval' => 300 ) ), 'A table left at five minutes by the add-on is checked every thirty once the add-on is gone' );
 lstab_assert( 1800 === LSTAB_Limits::interval_of( array( 'sync_interval' => 900 ) ), 'And so is one left at the fifteen minutes earlier versions offered' );
 lstab_assert( isset( LSTAB_Limits::choices()[ LSTAB_Limits::MANUAL ] ), 'Refreshing only by hand is a choice in the free plugin' );
 lstab_assert( LSTAB_Limits::MANUAL === LSTAB_Limits::clamp_interval( 0 ) && LSTAB_Limits::MANUAL === LSTAB_Limits::interval_of( array( 'sync_interval' => 0 ) ), 'And saving it keeps it, rather than clamping it up' );

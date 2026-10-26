@@ -63,22 +63,14 @@ defined( 'ABSPATH' ) || exit;
 					</p>
 				</div>
 				<div class="lstab-row-do">
+					<?php $lstab_starting = LSTAB_Limits::starting_interval(); ?>
 					<select name="lstab_settings[default_interval]" aria-labelledby="lstab-set-interval">
-						<option value="0" <?php selected( (int) $settings['default_interval'], 0 ); ?>>
-							<?php
-							printf(
-								/* translators: %s: human readable duration, e.g. "30 minutes". */
-								esc_html__( 'As often as possible (every %s)', 'live-sheets-table' ),
-								esc_html( LSTAB_Locale::span( 0, LSTAB_Limits::min_interval() ) )
-							);
-							?>
-						</option>
 						<?php foreach ( LSTAB_Limits::intervals() as $lstab_seconds => $lstab_label ) : ?>
-							<option value="<?php echo esc_attr( (string) $lstab_seconds ); ?>" <?php selected( (int) $settings['default_interval'], $lstab_seconds ); ?>>
+							<option value="<?php echo esc_attr( (string) $lstab_seconds ); ?>" <?php selected( $lstab_starting, $lstab_seconds ); ?>>
 								<?php echo esc_html( $lstab_label ); ?>
 							</option>
 						<?php endforeach; ?>
-						<option value="<?php echo esc_attr( (string) LSTAB_Limits::SETTING_MANUAL ); ?>" <?php selected( (int) $settings['default_interval'], LSTAB_Limits::SETTING_MANUAL ); ?>>
+						<option value="<?php echo esc_attr( (string) LSTAB_Limits::SETTING_MANUAL ); ?>" <?php selected( $lstab_starting, LSTAB_Limits::MANUAL ); ?>>
 							<?php echo esc_html( LSTAB_Limits::choices()[ LSTAB_Limits::MANUAL ] ); ?>
 						</option>
 					</select>

@@ -2,7 +2,7 @@
  * Tables are checked while somebody looks at them, and the page shows it.
  *
  * Run once with the free plugin alone (every 30 minutes) and once with Pro
- * (every 2 minutes), on real pages in a real browser:
+ * (every 5 minutes), on real pages in a real browser:
  *
  *   1. a page whose copy is younger than the table's time asks nothing;
  *   2. one whose copy is older is drawn from that copy at once (the HTML the
@@ -145,8 +145,8 @@ try {
 	await run( 'Free', 1800, 25 * 60, 35 * 60 );
 
 	harness( 'activate.php', PRO );
-	ok( 'Pro: a new table starts at two minutes', '120' === php( `echo LSTAB_Limits::starting_interval();` ) );
-	const t = await run( 'Pro', 120, 60, 180 );
+	ok( 'Pro: a new table starts at five minutes', '300' === php( `echo LSTAB_Limits::starting_interval();` ) );
+	const t = await run( 'Pro', 300, 240, 360 );
 
 	// 6. A private sheet: only a request carrying the connected account's token
 	//    gets rows, and it is an anonymous visitor's check that has to send it.
@@ -158,7 +158,7 @@ try {
 		LSTABP_Private_Sheets::set_private( ${ t.id }, true );
 	` );
 	mock( 'private_only' );
-	age( t.id, 180 );
+	age( t.id, 360 );
 	const v = await visit( t.url );
 	ok( 'Pro: the private sheet is checked when a visitor looks', 1 === v.asked, `asked ${ v.asked }` );
 	ok( 'Pro: through the connected account, and the new rows appear', v.last.includes( OLD ) && ! v.last.includes( NEW ), v.last.slice( 0, 80 ) );

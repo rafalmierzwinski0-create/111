@@ -56,7 +56,6 @@ class LSTABP_Plugin {
 	public function add_intervals( $intervals ) {
 		$intervals = (array) $intervals;
 
-		$intervals[120] = __( 'Every 2 minutes', 'live-sheets-table-pro' );
 		$intervals[300] = __( 'Every 5 minutes', 'live-sheets-table-pro' );
 		$intervals[900] = __( 'Every 15 minutes', 'live-sheets-table-pro' );
 
