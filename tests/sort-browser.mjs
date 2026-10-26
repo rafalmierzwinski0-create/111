@@ -75,7 +75,7 @@ const file = path.join( repo, 'build/sort-browser.html' );
 fs.mkdirSync( path.dirname( file ), { recursive: true } );
 fs.writeFileSync( file, page );
 
-const browser = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' } );
+const browser = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium' } );
 const tab = await browser.newPage();
 const errors = [];
 

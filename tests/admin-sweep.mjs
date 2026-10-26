@@ -83,7 +83,7 @@ const inspect = () => {
 	return [ ...new Set( out ) ];
 };
 
-const browser = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' } );
+const browser = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium' } );
 const page = await ( await browser.newContext( { viewport: { width: 1280, height: 900 } } ) ).newPage();
 const errors = [];
 page.on( 'pageerror', ( error ) => errors.push( error.message ) );

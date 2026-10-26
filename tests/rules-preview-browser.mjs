@@ -51,7 +51,7 @@ const file = path.join( repo, 'build/rules-card.html' );
 fs.mkdirSync( path.dirname( file ), { recursive: true } );
 fs.writeFileSync( file, `<!doctype html><meta charset="utf-8"><style>${ tableCss }${ adminCss }</style>${ markup }<script>${ adminJs }</script>` );
 
-const browser = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' } );
+const browser = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium' } );
 const tab = await browser.newPage( { viewport: { width: 1200, height: 800 } } );
 const errors = [];
 

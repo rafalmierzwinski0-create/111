@@ -77,7 +77,7 @@ const file = path.join( repo, 'build/column-looks.html' );
 fs.mkdirSync( path.dirname( file ), { recursive: true } );
 fs.writeFileSync( file, page );
 
-const browser = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' } );
+const browser = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium' } );
 const tab = await browser.newPage( { viewport: { width: 1100, height: 900 } } );
 const errors = [];
 

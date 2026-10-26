@@ -11,7 +11,7 @@ import fs from 'node:fs';
 
 const BASE = process.env.LSTAB_BASE || 'http://127.0.0.1:8089';
 const SHOTS = process.env.LSTAB_SHOTS || new URL( '../../screenshots', import.meta.url ).pathname;
-const CHROMIUM = process.env.LSTAB_CHROMIUM || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
+const CHROMIUM = process.env.LSTAB_CHROMIUM || '/opt/pw-browsers/chromium';
 fs.mkdirSync( SHOTS, { recursive: true } );
 
 let pass = 0, fail = 0;

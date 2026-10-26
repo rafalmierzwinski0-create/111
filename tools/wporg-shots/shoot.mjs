@@ -47,7 +47,7 @@ const BG = {
 const seeded = JSON.parse( execFileSync( 'php', [ path.join( here, 'seed.php' ), root ] ).toString() );
 const T = seeded.tables;
 
-const browser = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' } );
+const browser = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium' } );
 const desk = await browser.newContext( { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 } );
 const admin = await desk.newPage();
 await admin.goto( BASE + '/wp-login.php' );

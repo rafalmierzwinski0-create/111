@@ -25,7 +25,7 @@ const SITE = process.env.LSTAB_SITE || ( {
 
 const SITE_PATH = `${ SCRATCH }/${ SITE }`;
 const MOCK_STATE = `${ SITE_PATH }/wp-content/lstab-mock-state.json`;
-const CHROMIUM = process.env.LSTAB_CHROMIUM || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
+const CHROMIUM = process.env.LSTAB_CHROMIUM || '/opt/pw-browsers/chromium';
 fs.mkdirSync( SHOTS, { recursive: true } );
 
 const setMock = ( mode, tab = 'main' ) =>

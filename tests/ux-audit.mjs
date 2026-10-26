@@ -87,7 +87,7 @@ const manifest = JSON.parse( fs.readFileSync( '/tmp/lstab-env/ux-audit.json', 'u
 const sourceId = manifest.source;
 const wideId = manifest.wide;
 
-const browser = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' } );
+const browser = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium' } );
 
 const visitorContext = await browser.newContext( { viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 } );
 const visitor = await visitorContext.newPage();

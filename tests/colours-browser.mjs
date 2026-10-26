@@ -133,7 +133,7 @@ fs.mkdirSync( path.dirname( file ), { recursive: true } );
 fs.writeFileSync( file, `<!doctype html><meta charset="utf-8"><style>${ CSS } body{background:#fff;margin:0;padding:8px} .lstab-container{width:560px}</style>`
 	+ skins.map( ( skin ) => table( skin, '--lstab-bg:#ffd6d6;' ) ).join( '' ) );
 
-const browser = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' } );
+const browser = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium' } );
 const page = await browser.newPage( { viewport: { width: 640, height: 900 }, deviceScaleFactor: 1 } );
 
 await page.goto( 'file://' + file );

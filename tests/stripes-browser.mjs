@@ -55,7 +55,7 @@ const file = path.join( repo, 'build/stripes-browser.html' );
 fs.mkdirSync( path.dirname( file ), { recursive: true } );
 fs.writeFileSync( file, `<!doctype html><meta charset="utf-8"><style>${ CSS }</style>${ table( false ) }${ table( true ) }<script>${ JS_ }</script>` );
 
-const browser = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' } );
+const browser = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium' } );
 const tab = await browser.newPage( { viewport: { width: 900, height: 900 } } );
 const errors = [];
 

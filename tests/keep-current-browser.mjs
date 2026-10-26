@@ -42,7 +42,7 @@ const made = JSON.parse( php( `
 	echo wp_json_encode( array( 'id' => $id, 'page' => $page, 'url' => get_permalink( $page ) ) );
 ` ) );
 
-const b = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' } );
+const b = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium' } );
 
 const visit = async ( served, todo ) => {
 	const c = await b.newContext();

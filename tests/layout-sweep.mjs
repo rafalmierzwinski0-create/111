@@ -38,7 +38,7 @@ execFileSync( 'php', [ path.join( here, 'harness/layout-sweep-setup.php' ), SITE
 fs.copyFileSync( path.join( here, 'harness/layout-sweep-mu.php' ), MU );
 
 const m = JSON.parse( fs.readFileSync( '/tmp/lstab-env/layout-sweep.json', 'utf8' ) );
-const b = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' } );
+const b = await chromium.launch( { executablePath: '/opt/pw-browsers/chromium' } );
 
 const inspect = () => {
   const out = [];
