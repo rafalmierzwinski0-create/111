@@ -246,6 +246,12 @@ echo "=============================================="
 # over an own background. Here, while the add-on is still active, for the rule.
 node "$REPO/tests/custom-css-browser.mjs" "$SCRATCH/wp71" 8089
 
+echo
+echo "=============================================="
+echo " A heading row that sticks — nothing shows through it, in any style"
+echo "=============================================="
+node "$REPO/tests/sticky-head-browser.mjs"
+
 # The free plugin's own suite asserts the free tier, so Pro must be off for it.
 php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php
 

@@ -97,6 +97,10 @@
 	padding-bottom: 0.35em;
 }
 
+.lstab-style-cards.lstab-head-stuck {
+	--lstab-head-bg: var(--lstab-bg);
+}
+
 .lstab-style-cards .lstab-table tbody tr {
 	background-color: transparent !important;
 }
@@ -306,7 +310,7 @@
 	--lstab-fg-muted: #665c50;
 	--lstab-fg-faint: #6b6154;
 	--lstab-bg: #fdfbf5;
-	--lstab-head-bg: transparent;
+	--lstab-head-bg: var(--lstab-bg);
 	--lstab-head-fg: #2b2520;
 	--lstab-border: #e7dfcd;
 	--lstab-border-strong: #c3b393;
@@ -337,6 +341,14 @@
 .lstab-style-ledger .lstab-table tbody tr > td:nth-child( even ) {
 	background-color: color-mix( in srgb, var(--lstab-band) calc( var(--lstab-table-mode) * 100% ), transparent );
 	background-image: linear-gradient( var(--lstab-row-tint, transparent), var(--lstab-row-tint, transparent) );
+}
+
+.lstab-style-ledger.lstab-head-stuck .lstab-table thead th {
+	background-image: linear-gradient( to top, var(--lstab-fg) 0 1px, transparent 1px 2px, var(--lstab-fg) 2px 3px, transparent 3px );
+}
+
+.lstab-style-ledger.lstab-head-stuck.lstab-sticky-first .lstab-table thead th:first-child::before {
+	bottom: 3px;
 }
 
 .lstab-style-ledger .lstab-table tbody tr > td:nth-child( even ) {

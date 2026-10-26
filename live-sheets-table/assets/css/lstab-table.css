@@ -339,6 +339,10 @@
 	background-color: var(--lstab-cell-bg, transparent);
 }
 
+.lstab-container .lstab .lstab-table thead th {
+	background-color: var(--lstab-head-bg);
+}
+
 .lstab .lstab-cell-value,
 .lstab .lstab-cell-label,
 .lstab .lstab-sort-label,
