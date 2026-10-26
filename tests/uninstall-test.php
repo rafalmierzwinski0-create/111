@@ -68,7 +68,7 @@ lstab_u_assert( false !== strpos( $out, 'uninstalled ' . $plugin ) && false === 
 $after = $state();
 lstab_u_assert( ! empty( $after['table'] ), 'The tables are kept when nobody asked for them to go' );
 lstab_u_assert( in_array( 'lstab_settings', (array) $after['options'], true ), 'And so are the settings' );
-lstab_u_assert( empty( $after['tick'] ), 'The background schedule is cleared either way' );
+lstab_u_assert( empty( $after['tick'] ), 'Nothing of it is left in WP-Cron either way' );
 lstab_u_assert( ! in_array( 'lstab_seen_on', (array) $after['options'], true ) && ! in_array( 'lstab_pro_last_seen', (array) $after['options'], true ), 'And so is what an older version left behind', implode( ', ', (array) $after['options'] ) );
 lstab_u_assert( 0 === (int) $after['meta'], 'Including a note it kept on a user' );
 
@@ -86,7 +86,7 @@ echo "\n\033[1mPutting the site back\033[0m\n";
 
 lstab_u_run( 'activate.php', array( $site, $port ) );
 $back = $state();
-lstab_u_assert( ! empty( $back['active'] ) && ! empty( $back['table'] ) && ! empty( $back['tick'] ), 'Switched on again, it builds its table and its schedule anew', lstab_u_json( $back ) );
+lstab_u_assert( ! empty( $back['active'] ) && ! empty( $back['table'] ) && empty( $back['tick'] ), 'Switched on again, it builds its table anew, and still needs no timer', lstab_u_json( $back ) );
 
 echo "\n" . str_repeat( '─', 60 ) . "\n";
 echo "  \033[32m{$pass} passed\033[0m, " . ( $fail ? "\033[31m{$fail} failed\033[0m" : '0 failed' ) . "\n";

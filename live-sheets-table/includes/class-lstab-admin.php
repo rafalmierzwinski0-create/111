@@ -274,7 +274,7 @@ class LSTAB_Admin {
 			'sheet_kind'       => $reference['sheet_kind'],
 			'gid'              => $gid,
 			'tab_name'         => isset( $_POST['tab_name'] ) ? sanitize_text_field( wp_unslash( $_POST['tab_name'] ) ) : (string) ( $existing ? $existing['tab_name'] : '' ),
-			'sync_interval'    => isset( $_POST['sync_interval'] ) ? LSTAB_Limits::clamp_interval( absint( wp_unslash( $_POST['sync_interval'] ) ) ) : LSTAB_Limits::min_interval(),
+			'sync_interval'    => isset( $_POST['sync_interval'] ) ? LSTAB_Limits::clamp_interval( absint( wp_unslash( $_POST['sync_interval'] ) ) ) : ( $existing ? (int) $existing['sync_interval'] : LSTAB_Limits::starting_interval() ),
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Presence check only; the value is never used.
 			'first_row_header' => empty( $_POST['first_row_header'] ) ? 0 : 1,
 			'style_preset'     => isset( $_POST['style_preset'] ) ? LSTAB_Styles::sanitize( sanitize_key( wp_unslash( $_POST['style_preset'] ) ) ) : 'clean',
@@ -554,54 +554,6 @@ class LSTAB_Admin {
 		);
 	}
 
-	public static function print_cron_notice() {
-		$health = LSTAB_Cron::health();
-
-		if ( 'ok' === $health['state'] ) {
-			return;
-		}
-
-		?>
-		<div class="notice notice-warning lstab-cron-notice">
-			<p class="lstab-cron-line-one">
-				<strong><?php echo esc_html( $health['message'] ); ?></strong>
-				<?php echo esc_html( $health['calm'] ); ?>
-			</p>
-
-			<details class="lstab-cron-more">
-				<summary><?php esc_html_e( 'Why it happens, and how to fix it for good', 'live-sheets-table' ); ?></summary>
-
-				<p><?php echo esc_html( $health['detail'] ); ?></p>
-				<p>
-					<?php esc_html_e( 'Until it is fixed, you can update a table by hand: choose “Refresh” next to it under All tables.', 'live-sheets-table' ); ?>
-				</p>
-
-				<p>
-					<strong><?php esc_html_e( 'To update tables on time, even when nobody visits', 'live-sheets-table' ); ?></strong><br>
-					<?php esc_html_e( 'WordPress has no clock of its own: its scheduled tasks run only when somebody opens a page of your site. Most hosting control panels have a “Cron jobs” screen that runs them on a timer instead. Add a new cron job there with this line. If the screen has separate boxes for the time and the command, the part before “curl” is the time and the rest is the command.', 'live-sheets-table' ); ?>
-				</p>
-				<p class="lstab-cron-row">
-					<code class="lstab-cron-line"><?php echo esc_html( LSTAB_Cron::system_cron_line() ); ?></code>
-					<button type="button" class="lstab-copy" data-lstab-copy="<?php echo esc_attr( LSTAB_Cron::system_cron_line() ); ?>">
-						<?php echo LSTAB_Icons::icon( 'copy' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-						<span class="lstab-copy-label"><?php esc_html_e( 'Copy', 'live-sheets-table' ); ?></span>
-					</button>
-				</p>
-				<p class="lstab-help">
-					<?php esc_html_e( 'If your hosting has no cron screen, a free uptime monitor does the same job. Set it to open this address every few minutes:', 'live-sheets-table' ); ?>
-					<code><?php echo esc_html( site_url( 'wp-cron.php?doing_wp_cron' ) ); ?></code>
-				</p>
-				<p>
-					<a class="lstab-quiet" href="https://developer.wordpress.org/plugins/cron/hooking-wp-cron-into-the-system-task-scheduler/" target="_blank" rel="noopener noreferrer">
-						<?php echo LSTAB_Icons::icon( 'external' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
-						<?php esc_html_e( 'The WordPress guide to system cron', 'live-sheets-table' ); ?>
-					</a>
-				</p>
-			</details>
-		</div>
-		<?php
-	}
-
 	public static function print_notice() {
 		$key    = 'lstab_notice_' . get_current_user_id();
 		$notice = get_transient( $key );
@@ -663,16 +615,6 @@ class LSTAB_Admin {
 			number_format_i18n( count( $sources ) ),
 			number_format_i18n( $rows )
 		);
-
-		$next = wp_next_scheduled( LSTAB_Cron::TICK_HOOK );
-
-		if ( $next && $next > time() ) {
-			$line .= ' · ' . sprintf(
-				/* translators: %s: human readable duration, e.g. "13 minutes". */
-				__( 'next check in %s', 'live-sheets-table' ),
-				LSTAB_Locale::span( time(), $next )
-			);
-		}
 
 		return $line;
 	}

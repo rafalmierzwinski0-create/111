@@ -112,7 +112,9 @@ global $wpdb;
 $table  = LSTAB_Storage::table();
 $exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
 lstab_assert( $exists === $table, "Custom table {$table} created", "got: " . var_export( $exists, true ) );
-lstab_assert( (bool) wp_next_scheduled( LSTAB_Cron::TICK_HOOK ), 'Cron tick scheduled on activation' );
+// Tables are checked while somebody views them, never on a timer: nothing is
+// put into WP-Cron, so a quiet site or one with WP-Cron switched off loses nothing.
+lstab_assert( ! wp_next_scheduled( LSTAB_Cron::OLD_TICK_HOOK ), 'Activation puts no refresh timer into WP-Cron' );
 
 // dbDelta adds columns and never removes them, so a setting the plugin has
 // retired would sit in the schema for good unless it is dropped by hand.
@@ -767,13 +769,14 @@ lstab_assert( array() === (array) get_option( LSTAB_Storage::DISMISSED_OPT, arra
 
 // ---------------------------------------------------------------------------
 
-lstab_section( '8b. Refreshing while the page is being drawn' );
+lstab_section( '8b. Checking while somebody looks, never while the page is drawn' );
 
 /*
- * WP-Cron has no clock: it runs on a visit, in a request of its own, after the
- * page has been sent. The visitor who triggers a sync is therefore the one who
- * does not benefit from it. Sources may opt into being refreshed before the
- * table is drawn instead — but only if that can never cost the page.
+ * A table is checked only while somebody is looking at it, and never at the
+ * cost of their page: the page is drawn from the stored copy straight away,
+ * and the browser then asks for the check in a request of its own (what
+ * lstab_ask() stands in for), swapping the table in if it changed. There is
+ * no timer at all, so a table nobody opens costs nothing.
  */
 
 /**
@@ -788,6 +791,19 @@ function lstab_view( $shortcode ) {
 	LSTAB_Sync::reset_view_budget();
 
 	return do_shortcode( $shortcode );
+}
+
+/**
+ * The check a visitor's browser asks for once the page is on screen, followed
+ * by the page the next visitor would get.
+ *
+ * @param int $id Source ID.
+ * @return string HTML.
+ */
+function lstab_ask( $id ) {
+	LSTAB_Sync::refresh_when_asked( (int) $id, LSTAB_Freshness::ASK_BUDGET );
+
+	return lstab_view( '[sheet_table id="' . (int) $id . '"]' );
 }
 
 /**
@@ -822,24 +838,40 @@ lstab_set_mock( 'ok', 'main' );
 LSTAB_Sync::run( $source_id );
 delete_transient( 'lstab_view_refresh_' . $source_id );
 
-// Stale: the visitor who waits is the one who sees the new data. No setting
-// turns this on, because a site owner asked whether their prices should be
-// current has only one answer.
+// Stale, and still nobody waits: the page is drawn from the stored copy with
+// nothing fetched, and the check happens in the browser's own request after.
 lstab_age_source( $source_id, 86400 );
 lstab_set_mock( 'ok', 'second' );
-$on_html = lstab_view( '[sheet_table id="' . $source_id . '"]' );
-lstab_assert( false !== strpos( $on_html, 'Bike Centrum' ), 'A stale table is brought up to date on the page that asked for it' );
-lstab_assert( false === strpos( $on_html, 'Rower górski' ), 'The old copy is gone from that same page' );
+$lstab_fetches = 0;
+$lstab_count   = function ( $args ) use ( &$lstab_fetches ) {
+	$lstab_fetches++;
+	return $args;
+};
+add_filter( 'lstab_fetch_args', $lstab_count, 100 );
+$drawn_html = lstab_view( '[sheet_table id="' . $source_id . '"]' );
+remove_filter( 'lstab_fetch_args', $lstab_count, 100 );
+lstab_assert( 0 === $lstab_fetches, 'Drawing a page with a stale table fetches nothing', (string) $lstab_fetches );
+lstab_assert( false !== strpos( $drawn_html, 'Rower górski' ), 'The visitor gets the stored copy at once' );
+lstab_assert( false !== strpos( $drawn_html, 'data-lstab-next="' ), 'And the page carries what the browser needs to ask for the check' );
 
-// The rare site that would rather serve a day-old table than ever make one
-// visitor wait has a filter, not a checkbox.
+$on_html = lstab_ask( $source_id );
+lstab_assert( false !== strpos( $on_html, 'Bike Centrum' ), 'The check the browser asks for brings the table up to date' );
+lstab_assert( false === strpos( $on_html, 'Rower górski' ), 'The old copy is gone from the next page drawn' );
+
+// A table set to be refreshed only by hand is never checked by a visit.
 lstab_set_mock( 'ok', 'main' );
-lstab_age_source( $source_id, 86400 );
-add_filter( 'lstab_refresh_on_view', '__return_false' );
+LSTAB_Storage::update( $source_id, array( 'sync_interval' => LSTAB_Limits::MANUAL ) );
+lstab_age_source( $source_id, 86400 * 30 );
+lstab_assert( 'not-due' === LSTAB_Sync::refresh_when_asked( $source_id ), 'A table refreshed only by hand is not checked when a visitor asks' );
+lstab_assert( 0 === LSTAB_Freshness::next_due( LSTAB_Storage::get( $source_id ) ), 'And its page tells the browser never to ask' );
+lstab_assert( false === strpos( lstab_view( '[sheet_table id="' . $source_id . '"]' ), 'Rower górski' ), 'However old its copy is, the page keeps it' );
+LSTAB_Storage::update( $source_id, array( 'sync_interval' => 1800 ) );
+
+// The rare site that wants no checks from visits at all has a filter.
+add_filter( 'lstab_keep_current', '__return_false' );
 $off_html = lstab_view( '[sheet_table id="' . $source_id . '"]' );
-remove_filter( 'lstab_refresh_on_view', '__return_false' );
-lstab_assert( false !== strpos( $off_html, 'Bike Centrum' ), 'Switched off by filter, the stale copy is served as it always was' );
-lstab_assert( false === strpos( $off_html, 'Rower górski' ), 'And nothing is fetched' );
+remove_filter( 'lstab_keep_current', '__return_false' );
+lstab_assert( false === strpos( $off_html, 'data-lstab-next=' ), 'Switched off by filter, the page asks for no check' );
 
 // A fresh copy of the changed sheet, for the checks that follow.
 lstab_set_mock( 'ok', 'second' );
@@ -848,18 +880,19 @@ LSTAB_Sync::run( $source_id );
 // A copy younger than the schedule is left alone, so a busy page does not
 // become a stream of requests to Google.
 lstab_set_mock( 'ok', 'main' );
-$fresh_html = lstab_view( '[sheet_table id="' . $source_id . '"]' );
+$fresh_html = lstab_ask( $source_id );
 lstab_assert( false !== strpos( $fresh_html, 'Bike Centrum' ), 'A copy younger than the schedule is not fetched again' );
 
 // One request at a time. The lock is what keeps ten simultaneous visitors from
 // becoming ten fetches.
 lstab_age_source( $source_id, 86400 );
 set_transient( 'lstab_view_refresh_' . $source_id, 1, LSTAB_Sync::VIEW_LOCK );
-$locked_html = lstab_view( '[sheet_table id="' . $source_id . '"]' );
+$locked_html = lstab_ask( $source_id );
 lstab_assert( false === strpos( $locked_html, 'Rower górski' ), 'While another request is fetching, this one serves the stored copy' );
 delete_transient( 'lstab_view_refresh_' . $source_id );
 
-// The wait is capped, whatever the source's own settings say.
+// A check is capped, whatever the source's own settings say, so a slow Google
+// cannot tie up the site's workers.
 $lstab_timeouts = array();
 $lstab_spy      = function ( $args ) use ( &$lstab_timeouts ) {
 	$lstab_timeouts[] = isset( $args['timeout'] ) ? $args['timeout'] : null;
@@ -867,27 +900,26 @@ $lstab_spy      = function ( $args ) use ( &$lstab_timeouts ) {
 };
 add_filter( 'lstab_fetch_args', $lstab_spy, 100 );
 lstab_age_source( $source_id, 86400 );
-lstab_view( '[sheet_table id="' . $source_id . '"]' );
+lstab_ask( $source_id );
 remove_filter( 'lstab_fetch_args', $lstab_spy, 100 );
 lstab_assert(
-	1 === count( $lstab_timeouts ) && $lstab_timeouts[0] > 0 && $lstab_timeouts[0] <= LSTAB_Sync::VIEW_TIMEOUT,
-	'A visitor waits at most ' . LSTAB_Sync::VIEW_TIMEOUT . ' seconds for Google',
+	1 === count( $lstab_timeouts ) && $lstab_timeouts[0] > 0 && $lstab_timeouts[0] <= LSTAB_Freshness::ASK_BUDGET,
+	'A check waits at most ' . LSTAB_Freshness::ASK_BUDGET . ' seconds for Google',
 	wp_json_encode( $lstab_timeouts )
 );
 
-// A sheet whose sharing settings refuse the export endpoint is asked twice.
-// Four seconds each would be eight seconds of waiting, in precisely the case
-// where Google is already being difficult, so the cap covers the whole attempt.
+// A sheet whose sharing settings refuse the export endpoint is asked twice,
+// and the cap covers the whole attempt, not each half of it.
 lstab_set_mock( 'export_denied' );
 lstab_age_source( $source_id, 86400 );
 delete_transient( 'lstab_view_refresh_' . $source_id );
 $lstab_timeouts = array();
 add_filter( 'lstab_fetch_args', $lstab_spy, 100 );
-lstab_view( '[sheet_table id="' . $source_id . '"]' );
+lstab_ask( $source_id );
 remove_filter( 'lstab_fetch_args', $lstab_spy, 100 );
 lstab_assert( 2 === count( $lstab_timeouts ), 'Both endpoints are still tried when the first refuses', wp_json_encode( $lstab_timeouts ) );
 lstab_assert(
-	array_sum( $lstab_timeouts ) <= LSTAB_Sync::VIEW_TIMEOUT * 2,
+	array_sum( $lstab_timeouts ) <= LSTAB_Freshness::ASK_BUDGET * 2,
 	'Neither request is allowed more than the whole cap',
 	wp_json_encode( $lstab_timeouts )
 );
@@ -901,34 +933,34 @@ lstab_assert(
 lstab_age_source( $source_id, 86400 );
 delete_transient( 'lstab_view_refresh_' . $source_id );
 lstab_set_mock( 'http_403' );
-$failed_html = lstab_view( '[sheet_table id="' . $source_id . '"]' );
+$failed_html = lstab_ask( $source_id );
 lstab_assert( false !== strpos( $failed_html, '<table' ), 'A failed refresh still renders a table' );
 lstab_assert( false !== strpos( $failed_html, 'Rower górski' ), 'It is the last good copy, not an empty one' );
 lstab_assert( false === stripos( $failed_html, 'lstab-notice' ), 'And the visitor is told nothing about it' );
 
-// A source that keeps failing is retried on the schedule, not on every view.
+// A source that keeps failing is not retried on every view.
 $failed_state = LSTAB_Storage::get( $source_id );
 lstab_assert( 'error' === $failed_state['last_status'], 'The failure is recorded for the admin', $failed_state['last_status'] );
 
 // A deadline of our own invention must not be reported as the sheet's fault.
-// The scheduler gets twenty seconds; this refresh gets four. A sheet that
-// syncs perfectly well on the schedule can miss the shorter one, and turning
+// A refresh by hand gets twenty seconds; a visitor's check gets less. A sheet
+// that refreshes perfectly well by hand can miss the shorter one, and turning
 // the dashboard red over that would be a fault the plugin made up.
 lstab_set_mock( 'ok', 'main' );
 LSTAB_Sync::run( $source_id );
 lstab_age_source( $source_id, 86400 );
 delete_transient( 'lstab_view_refresh_' . $source_id );
 lstab_set_mock( 'timeout' );
-$slow_html = lstab_view( '[sheet_table id="' . $source_id . '"]' );
+$slow_html = lstab_ask( $source_id );
 $slow_state = LSTAB_Storage::get( $source_id );
 lstab_assert( false !== strpos( $slow_html, 'Rower górski' ), 'A refresh that runs out of time still shows the stored copy' );
-lstab_assert( 'ok' === $slow_state['last_status'], 'And does not report the sheet as broken over our own four-second cap', $slow_state['last_status'] );
+lstab_assert( 'ok' === $slow_state['last_status'], 'And does not report the sheet as broken over our own cap', $slow_state['last_status'] );
 lstab_assert( null === $slow_state['last_error'], 'No invented error message is left for the admin', var_export( $slow_state['last_error'], true ) );
 lstab_assert( (bool) get_transient( LSTAB_Sync::COOLDOWN_PREFIX . $source_id ), 'A cooling-off period keeps the next visitor from repeating it straight away' );
 
-// Four seconds is all a visitor can be asked for, and a large sheet may need
-// more. The same fetch is queued to run in a request of its own, where the
-// full timeout is nobody's wait, so such a sheet is not beyond a visit's reach.
+// A large sheet may need more than a visitor's check allows. The same fetch is
+// queued to run in a request of its own with the full timeout, so such a sheet
+// is not beyond a visit's reach.
 lstab_assert(
 	(bool) wp_next_scheduled( LSTAB_Cron::RETRY_HOOK, array( $source_id ) ),
 	'A check that ran out of time queues a background one with the full timeout'
@@ -942,12 +974,11 @@ wp_unschedule_event( (int) wp_next_scheduled( LSTAB_Cron::RETRY_HOOK, array( $so
 lstab_age_source( $source_id, 86400 );
 set_transient( LSTAB_Sync::COOLDOWN_PREFIX . $source_id, 1, LSTAB_Sync::VIEW_RETRY );
 
-// But it is half a minute, not the whole interval. A four-second timeout must
-// not buy fifteen more minutes of stale data: the visitor after the one who
-// waited has to be better off for that waiting, or the waiting was pointless.
+// But it is half a minute, not the whole interval: one check that ran out of
+// time must not buy another half hour of stale data.
 delete_transient( LSTAB_Sync::COOLDOWN_PREFIX . $source_id );
 lstab_set_mock( 'ok', 'second' );
-$after_timeout = lstab_view( '[sheet_table id="' . $source_id . '"]' );
+$after_timeout = lstab_ask( $source_id );
 lstab_assert( false !== strpos( $after_timeout, 'Bike Centrum' ), 'Once the cooling-off period is over, the next visitor gets the new data' );
 lstab_assert( ! get_transient( LSTAB_Sync::FAILS_PREFIX . $source_id ), 'A success forgets that the sheet was ever failing' );
 
@@ -962,33 +993,33 @@ for ( $attempt = 1; $attempt <= 3; $attempt++ ) {
 	// Still stale each round, so only the cooling-off period is under test.
 	lstab_age_source( $source_id, 86400 );
 
-	lstab_view( '[sheet_table id="' . $source_id . '"]' );
+	lstab_ask( $source_id );
 	$waits[] = (int) ( get_option( '_transient_timeout_' . LSTAB_Sync::COOLDOWN_PREFIX . $source_id ) - time() );
 	delete_transient( LSTAB_Sync::COOLDOWN_PREFIX . $source_id );
 }
 lstab_assert( $waits[1] > $waits[0] && $waits[2] > $waits[1], 'Each further failure holds off the next check for longer', wp_json_encode( $waits ) );
-lstab_assert( max( $waits ) <= 900, 'And never for longer than the interval the site asked for', wp_json_encode( $waits ) );
+lstab_assert( max( $waits ) <= 1800, 'And never for longer than the interval the site asked for', wp_json_encode( $waits ) );
 
 lstab_set_mock( 'ok', 'main' );
 LSTAB_Sync::run( $source_id );
-lstab_assert( ! get_transient( LSTAB_Sync::COOLDOWN_PREFIX . $source_id ), 'A scheduled sync that succeeds ends the cooling-off period too' );
+lstab_assert( ! get_transient( LSTAB_Sync::COOLDOWN_PREFIX . $source_id ), 'A refresh by hand that succeeds ends the cooling-off period too' );
 
 lstab_set_mock( 'timeout' );
 lstab_age_source( $source_id, 86400 );
 $slow_state = LSTAB_Storage::get( $source_id );
 
-// The scheduled run has the real timeout, so it is the honest test — and when
+// A refresh by hand has the real timeout, so it is the honest test — and when
 // it fails, the failure is reported exactly as before.
-lstab_assert( is_wp_error( LSTAB_Sync::run( $source_id ) ), 'The scheduled run still reports a timeout as a failure' );
+lstab_assert( is_wp_error( LSTAB_Sync::run( $source_id ) ), 'A refresh by hand still reports a timeout as a failure' );
 lstab_assert( 'error' === LSTAB_Storage::get( $source_id )['last_status'], 'Which is what turns the dashboard red' );
 
-// A refusal means the same thing at four seconds as at twenty, so it stands.
+// A refusal means the same thing however long the check had, so it stands.
 lstab_set_mock( 'ok', 'main' );
 LSTAB_Sync::run( $source_id );
 lstab_age_source( $source_id, 86400 );
 delete_transient( 'lstab_view_refresh_' . $source_id );
 lstab_set_mock( 'http_403' );
-lstab_view( '[sheet_table id="' . $source_id . '"]' );
+lstab_ask( $source_id );
 lstab_assert( 'error' === LSTAB_Storage::get( $source_id )['last_status'], 'A sheet made private is still reported from a view refresh' );
 
 $lstab_attempts = 0;
@@ -998,15 +1029,14 @@ $lstab_counter  = function ( $args ) use ( &$lstab_attempts ) {
 };
 add_filter( 'lstab_fetch_args', $lstab_counter, 100 );
 delete_transient( 'lstab_view_refresh_' . $source_id );
-lstab_view( '[sheet_table id="' . $source_id . '"]' );
-lstab_view( '[sheet_table id="' . $source_id . '"]' );
+lstab_ask( $source_id );
+lstab_ask( $source_id );
 remove_filter( 'lstab_fetch_args', $lstab_counter, 100 );
 lstab_assert( 0 === $lstab_attempts, 'A sheet that just failed is not retried on the very next page view', (string) $lstab_attempts );
 
-// One page load buys one refresh, however many tables the page holds. Four
-// tables that all wanted checking would otherwise be four four-second caps in
-// a row, and sixteen seconds of waiting is the fault this whole feature exists
-// to avoid.
+// The one thing still read while a page is drawn is a table that has never
+// been read at all, since there is nothing else to show. One page load buys
+// one such read, however many of them the page holds.
 lstab_set_mock( 'ok', 'main' );
 LSTAB_Sync::run( $source_id );
 $second_id = LSTAB_Storage::insert(
@@ -1016,16 +1046,20 @@ $second_id = LSTAB_Storage::insert(
 		'sheet_id'        => '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789',
 		'sheet_kind'      => 'doc',
 		'gid'             => '0',
-		'sync_interval'   => 900,
+		'sync_interval'   => 1800,
 	)
 );
-lstab_assert( ! is_wp_error( $second_id ), 'A second source for the two-table page', is_wp_error( $second_id ) ? $second_id->get_error_message() : '' );
-LSTAB_Sync::run( (int) $second_id );
-
-lstab_age_source( $source_id, 86400 );
-lstab_age_source( (int) $second_id, 86400 );
-delete_transient( 'lstab_view_refresh_' . $source_id );
-delete_transient( 'lstab_view_refresh_' . (int) $second_id );
+$third_id  = LSTAB_Storage::insert(
+	array(
+		'title'           => 'Third table on the same page',
+		'sheet_url'       => 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0',
+		'sheet_id'        => '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789',
+		'sheet_kind'      => 'doc',
+		'gid'             => '0',
+		'sync_interval'   => 1800,
+	)
+);
+lstab_assert( ! is_wp_error( $second_id ) && ! is_wp_error( $third_id ), 'Two never-read sources for the same page' );
 
 $lstab_fetches = 0;
 $lstab_count   = function ( $args ) use ( &$lstab_fetches ) {
@@ -1034,15 +1068,19 @@ $lstab_count   = function ( $args ) use ( &$lstab_fetches ) {
 };
 add_filter( 'lstab_fetch_args', $lstab_count, 100 );
 LSTAB_Sync::reset_view_budget();
-// Both tables drawn inside one page load, so no reset between them.
+// All three drawn inside one page load, so no reset between them.
 do_shortcode( '[sheet_table id="' . $source_id . '"]' );
 do_shortcode( '[sheet_table id="' . (int) $second_id . '"]' );
+do_shortcode( '[sheet_table id="' . (int) $third_id . '"]' );
 remove_filter( 'lstab_fetch_args', $lstab_count, 100 );
-lstab_assert( 1 === $lstab_fetches, 'Two stale tables on one page cost one fetch, not two', (string) $lstab_fetches );
+lstab_assert( 1 === $lstab_fetches, 'Two never-read tables on one page cost one fetch, and the table already read costs none', (string) $lstab_fetches );
+lstab_assert( 'ok' === LSTAB_Storage::get( (int) $second_id )['last_status'], 'The first of them is read while the page is drawn' );
 
 // The table that missed its turn gets it on the next page load.
-lstab_assert( LSTAB_Sync::is_due( LSTAB_Storage::get( (int) $second_id ) ), 'The table that missed its turn is still due' );
+lstab_view( '[sheet_table id="' . (int) $third_id . '"]' );
+lstab_assert( 'ok' === LSTAB_Storage::get( (int) $third_id )['last_status'], 'The other is read on the next page load' );
 LSTAB_Storage::delete( (int) $second_id );
+LSTAB_Storage::delete( (int) $third_id );
 
 // Back to a clean, unattended source for the sections that follow.
 delete_transient( 'lstab_view_refresh_' . $source_id );
@@ -1051,20 +1089,25 @@ LSTAB_Sync::run( $source_id );
 
 // ---------------------------------------------------------------------------
 
-lstab_section( '9. Cron scheduling' );
+lstab_section( '9. No timer' );
 
-lstab_assert( (bool) wp_next_scheduled( LSTAB_Cron::TICK_HOOK ), 'Tick still scheduled' );
-lstab_assert( 'lstab_15min' === LSTAB_Cron::required_schedule(), 'Tick recurrence matches the 15 minute source', LSTAB_Cron::required_schedule() );
+lstab_assert( ! wp_next_scheduled( LSTAB_Cron::OLD_TICK_HOOK ), 'Nothing is waiting in WP-Cron to check tables' );
 
 $schedules = wp_get_schedules();
-lstab_assert( isset( $schedules['lstab_15min'] ) && 900 === $schedules['lstab_15min']['interval'], 'Custom 15 minute schedule registered' );
+lstab_assert( ! array_filter( array_keys( $schedules ), function ( $name ) { return 0 === strpos( $name, 'lstab_' ); } ), 'And no schedule of the plugin\'s own is registered', implode( ', ', array_keys( $schedules ) ) );
+
+// A site that had the timer from an earlier version loses it on the next request.
+wp_schedule_event( time() + 60, 'hourly', LSTAB_Cron::OLD_TICK_HOOK );
+update_option( 'lstab_tick_schedule', 'lstab_15min' );
+LSTAB_Cron::drop_old_schedule();
+lstab_assert( ! wp_next_scheduled( LSTAB_Cron::OLD_TICK_HOOK ) && false === get_option( 'lstab_tick_schedule' ), 'A timer left by an earlier version is removed' );
 
 $source = LSTAB_Storage::get( $source_id );
 lstab_assert( ! LSTAB_Sync::is_due( $source ), 'A just-synced source is not due again' );
 
 $wpdb->update(
 	LSTAB_Storage::table(),
-	array( 'last_attempt_gmt' => gmdate( 'Y-m-d H:i:s', time() - 1000 ) ),
+	array( 'last_attempt_gmt' => gmdate( 'Y-m-d H:i:s', time() - 2000 ) ),
 	array( 'id' => $source_id ),
 	array( '%s' ),
 	array( '%d' )
@@ -1076,7 +1119,7 @@ lstab_assert( LSTAB_Sync::is_due( LSTAB_Storage::get( $source_id ) ), 'A source 
 
 lstab_set_mock( 'ok' );
 $due_results = LSTAB_Sync::run_due();
-lstab_assert( isset( $due_results[ $source_id ] ) && 'ok' === $due_results[ $source_id ], 'Cron tick syncs the due source', wp_json_encode( $due_results ) );
+lstab_assert( isset( $due_results[ $source_id ] ) && 'ok' === $due_results[ $source_id ], 'Running the due tables syncs the due source', wp_json_encode( $due_results ) );
 
 // ---------------------------------------------------------------------------
 
@@ -1138,14 +1181,21 @@ foreach ( $filler as $filler_id ) {
 	LSTAB_Storage::delete( $filler_id );
 }
 
-lstab_assert( 900 === LSTAB_Limits::min_interval(), 'Free tier floor is 15 minutes', (string) LSTAB_Limits::min_interval() );
-lstab_assert( 900 === LSTAB_Limits::interval_of( array( 'sync_interval' => 60 ) ), 'A table left at one minute by the add-on is checked every fifteen once the add-on is gone' );
+lstab_assert( 1800 === LSTAB_Limits::min_interval(), 'Free tier floor is 30 minutes', (string) LSTAB_Limits::min_interval() );
+lstab_assert( 1800 === LSTAB_Limits::interval_of( array( 'sync_interval' => 120 ) ), 'A table left at two minutes by the add-on is checked every thirty once the add-on is gone' );
+lstab_assert( 1800 === LSTAB_Limits::interval_of( array( 'sync_interval' => 900 ) ), 'And so is one left at the fifteen minutes earlier versions offered' );
+lstab_assert( isset( LSTAB_Limits::choices()[ LSTAB_Limits::MANUAL ] ), 'Refreshing only by hand is a choice in the free plugin' );
+lstab_assert( LSTAB_Limits::MANUAL === LSTAB_Limits::clamp_interval( 0 ) && LSTAB_Limits::MANUAL === LSTAB_Limits::interval_of( array( 'sync_interval' => 0 ) ), 'And saving it keeps it, rather than clamping it up' );
+lstab_assert(
+	! LSTAB_Sync::is_due( array( 'sync_interval' => 0, 'sheet_kind' => 'doc', 'last_attempt_gmt' => gmdate( 'Y-m-d H:i:s', time() - 86400 * 365 ) ) ),
+	'A table refreshed only by hand is never due, however old'
+);
 lstab_assert(
 	! LSTAB_Sync::is_due( array( 'sync_interval' => 60, 'sheet_kind' => 'doc', 'last_attempt_gmt' => gmdate( 'Y-m-d H:i:s', time() - 300 ) ) ),
 	'So five minutes after its last check it is not due yet'
 );
 lstab_assert( ! isset( LSTAB_Limits::intervals()[60] ), 'One minute interval hidden in free' );
-lstab_assert( 900 === LSTAB_Limits::clamp_interval( 60 ), 'A too-fast interval is clamped up', (string) LSTAB_Limits::clamp_interval( 60 ) );
+lstab_assert( 1800 === LSTAB_Limits::clamp_interval( 60 ), 'A too-fast interval is clamped up', (string) LSTAB_Limits::clamp_interval( 60 ) );
 lstab_assert( array( 'clean', 'striped', 'bordered', 'midnight' ) === array_keys( LSTAB_Styles::all() ), 'Four styles come with the plugin, and only those', implode( ', ', array_keys( LSTAB_Styles::all() ) ) );
 lstab_assert( 'midnight' === LSTAB_Styles::sanitize( 'midnight' ), 'Midnight is one of them' );
 lstab_assert( 'clean' === LSTAB_Styles::sanitize( 'aurora' ), 'A table saved with a style the plugin does not have is drawn in Clean', LSTAB_Styles::sanitize( 'aurora' ) );
@@ -1178,9 +1228,7 @@ add_filter( 'lstab_style_presets', $lstab_extra_style );
 
 lstab_assert( isset( LSTAB_Limits::intervals()[60] ), 'An add-on can offer a one-minute interval' );
 lstab_assert( 60 === LSTAB_Limits::min_interval(), 'And the shortest interval follows what is offered', (string) LSTAB_Limits::min_interval() );
-lstab_assert( 'lstab_1min' === LSTAB_Cron::slug_for( 60 ) && isset( LSTAB_Cron::schedule_map()['lstab_1min'] ), 'And the schedule gains a one-minute tick' );
 lstab_assert( 'probe' === LSTAB_Styles::sanitize( 'probe' ), 'An add-on can bring a style of its own' );
-lstab_assert( 'lstab_1min' === LSTAB_Cron::required_schedule() || 'lstab_15min' === LSTAB_Cron::required_schedule(), 'Cron recurrence follows the fastest source' );
 
 // Conditional formatting hook (a Pro feature) can colour a cell.
 $lstab_cell_probe = function ( $html, $value, $col ) {
@@ -1238,7 +1286,7 @@ lstab_assert( ! empty( $lstab_settings_hook['edit'] ) && ! empty( $lstab_setting
 
 remove_filter( 'lstab_sync_intervals', $lstab_minute );
 remove_filter( 'lstab_style_presets', $lstab_extra_style );
-lstab_assert( ! isset( LSTAB_Cron::schedule_map()['lstab_1min'] ), 'Without the add-on there is no one-minute tick to register' );
+lstab_assert( 1800 === LSTAB_Limits::min_interval(), 'Without the add-on the floor is thirty minutes again' );
 
 // ---------------------------------------------------------------------------
 
@@ -2058,62 +2106,40 @@ LSTAB_Storage::update( $source_id, array( 'sticky_first' => 1 ) );
 
 // ---------------------------------------------------------------------------
 
-lstab_section( '12b. Is the data actually current?' );
+lstab_section( '12b. An old copy is not a fault' );
 
 /*
- * The question worth answering is whether the tables are up to date, not
- * whether a particular mechanism is running. DISABLE_WP_CRON is the normal
- * setup on any host with a real system cron, and warning about it meant
- * warning healthy sites about a fault they did not have.
+ * A table is checked while somebody looks at it, so one nobody has opened for
+ * a week has a week-old copy and nothing is wrong. Nothing in the dashboard may
+ * call that a problem, or send the owner off to set up a system cron.
  */
-$health = LSTAB_Cron::health();
-lstab_assert( isset( $health['state'], $health['message'], $health['detail'] ), 'Health check returns a structured result' );
-lstab_assert( 'ok' === $health['state'], 'A site with fresh sheets is reported as fine, DISABLE_WP_CRON or not', $health['state'] );
-
-// A sheet well past its interval is a real problem, and is named as one.
-$wpdb->update(
-	LSTAB_Storage::table(),
-	array( 'last_success_gmt' => gmdate( 'Y-m-d H:i:s', time() - 6 * HOUR_IN_SECONDS ) ),
-	array( 'id' => $source_id ),
-	array( '%s' ),
-	array( '%d' )
-);
-LSTAB_Storage::flush_cache( $source_id );
-
-$stale = LSTAB_Cron::health();
-lstab_assert( 'stale' === $stale['state'], 'A sheet six hours past a fifteen minute interval is reported', $stale['state'] );
-lstab_assert( false !== strpos( $stale['message'], LSTAB_Storage::get( $source_id )['title'] ), 'The notice names which sheet', $stale['message'] );
-lstab_assert( '' !== $stale['detail'], 'And explains what it means for the site owner' );
-
-// Just past the interval is not yet a problem: schedules jitter.
-$wpdb->update(
-	LSTAB_Storage::table(),
-	array( 'last_success_gmt' => gmdate( 'Y-m-d H:i:s', time() - 1200 ) ),
-	array( 'id' => $source_id ),
-	array( '%s' ),
-	array( '%d' )
-);
-LSTAB_Storage::flush_cache( $source_id );
-lstab_assert( 'ok' === LSTAB_Cron::health()['state'], 'A sheet only just past its interval does not raise anything' );
+lstab_age_source( $source_id, WEEK_IN_SECONDS );
+wp_set_current_user( 1 );
+$lstab_screens = '';
+foreach ( array( 'render_start_page', 'render_list_page', 'render_settings_page' ) as $lstab_screen ) {
+	ob_start();
+	( new LSTAB_Admin() )->$lstab_screen();
+	$lstab_screens .= ob_get_clean();
+}
+$_GET['source'] = $source_id;
+ob_start();
+( new LSTAB_Admin() )->render_edit_page();
+$lstab_screens .= ob_get_clean();
+unset( $_GET['source'] );
+wp_set_current_user( 0 );
+lstab_assert( false === stripos( $lstab_screens, 'cron' ), 'No screen mentions cron', '' );
+lstab_assert( false === strpos( $lstab_screens, 'has not been updated for' ), 'And none reports a week-old copy as a problem' );
+lstab_assert( false === strpos( $lstab_screens, 'view_timeout' ), 'The setting for how long a visitor waits is gone, since nobody waits' );
+lstab_assert( false !== strpos( $lstab_screens, 'Only when I refresh it' ), 'Refreshing only by hand can be chosen' );
 
 lstab_set_mock( 'ok', 'main' );
 LSTAB_Sync::run( $source_id );
 
-// A site nobody visits runs no schedule at all, and no plugin can fix that
-// from inside PHP. What it can do is stop making the owner work out what to
-// type: the line is built from their own address and their own interval.
-LSTAB_Cron::ensure_scheduled();
-$cron_line = LSTAB_Cron::system_cron_line();
-lstab_assert( false !== strpos( $cron_line, site_url( 'wp-cron.php?doing_wp_cron' ) ), 'The cron line points at this site', $cron_line );
-lstab_assert( 0 === strpos( $cron_line, '*/15 * * * * ' ), 'And fires at the interval the schedule actually uses', $cron_line );
-lstab_assert( false !== strpos( $cron_line, 'curl -s ' ), 'It is a line a hosting panel will accept as it stands', $cron_line );
-
-// With no sources there is nothing to report on at all.
+// With no sources there is nothing left over to report on either.
 $saved_sources = LSTAB_Storage::get_all();
 foreach ( $saved_sources as $saved ) {
 	LSTAB_Storage::delete( $saved['id'] );
 }
-lstab_assert( 'ok' === LSTAB_Cron::health()['state'], 'No sources means no notice' );
 
 // Rebuild the source the later sections rely on.
 $source_id = LSTAB_Storage::insert(
@@ -2124,32 +2150,12 @@ $source_id = LSTAB_Storage::insert(
 		'sheet_kind'    => 'doc',
 		'gid'           => '0',
 		'tab_name'      => 'Cennik',
-		'sync_interval' => 900,
+		'sync_interval' => 1800,
 		'style_preset'  => 'striped',
 	)
 );
 lstab_set_mock( 'ok', 'main' );
 LSTAB_Sync::run( $source_id );
-
-// A source that has never synced says so where it is listed and in the table
-// itself, so it is not also reported here as a stale one.
-$never = (int) LSTAB_Storage::insert(
-	array(
-		'title'      => 'Never synced',
-		'sheet_url'  => 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0',
-		'sheet_id'   => '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789',
-		'sheet_kind' => 'doc',
-		'gid'        => '0',
-	)
-);
-lstab_assert( 'ok' === LSTAB_Cron::health()['state'], 'A source that never synced is not reported as a stale one' );
-LSTAB_Storage::delete( $never );
-
-// The tick must record that it ran, whether or not anything was due.
-delete_option( LSTAB_Cron::LAST_TICK_OPT );
-lstab()->cron->run_tick();
-$ticked = (int) get_option( LSTAB_Cron::LAST_TICK_OPT );
-lstab_assert( $ticked > time() - 60, 'Running the tick records that the scheduler is alive', (string) $ticked );
 
 // ---------------------------------------------------------------------------
 
@@ -3250,11 +3256,10 @@ lstab_assert( 0 === preg_match( '#<a class="lstab-sort[^>]*aria-sort#', $odd_sor
 lstab_assert( 'Price<100, Stock>5' === LSTAB_Shortcode::filter_text( 'Price<100, Stock>5' ), 'A filter keeps its comparison signs', LSTAB_Shortcode::filter_text( 'Price<100, Stock>5' ) );
 lstab_assert( 'Price is 5' === LSTAB_Shortcode::filter_text( "Price\x00is\n5 " ), 'And loses only what no filter is written with', LSTAB_Shortcode::filter_text( "Price\x00is\n5 " ) );
 
-// The background refresh puts itself back if its schedule is lost: a site
-// restored from a backup, a cron cleaner, a database tidied by hand.
+// With no timer there is nothing to lose: a site restored from a backup or
+// tidied by a cron cleaner keeps checking its tables as before.
 LSTAB_Cron::unschedule();
-LSTAB_Cron::keep_scheduled();
-lstab_assert( (bool) wp_next_scheduled( LSTAB_Cron::TICK_HOOK ), 'A lost refresh schedule is put back on the next request' );
+lstab_assert( ! wp_next_scheduled( LSTAB_Cron::OLD_TICK_HOOK ), 'Clearing WP-Cron leaves nothing that the tables depend on' );
 
 /*
  * A tab far larger than any web page should carry. Read in full, it took all

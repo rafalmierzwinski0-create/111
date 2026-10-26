@@ -563,11 +563,11 @@ ex_serve( $source_id, "Produkt,Cena\nRower,4199\n" );
 $before = LSTAB_Storage::get( $source_id );
 
 LSTAB_Plugin::on_deactivate();
-ex_assert( ! wp_next_scheduled( LSTAB_Cron::TICK_HOOK ), 'Deactivation clears the schedule' );
+ex_assert( ! wp_next_scheduled( LSTAB_Cron::OLD_TICK_HOOK ) && ! wp_next_scheduled( LSTAB_Cron::RETRY_HOOK ), 'Deactivation leaves nothing in WP-Cron' );
 
 LSTAB_Plugin::on_activate();
 $after = LSTAB_Storage::get( $source_id );
-ex_assert( (bool) wp_next_scheduled( LSTAB_Cron::TICK_HOOK ), 'Reactivation restores it' );
+ex_assert( ! wp_next_scheduled( LSTAB_Cron::OLD_TICK_HOOK ), 'Nor does reactivation put a timer there' );
 ex_assert( $before['snapshot_hash'] === $after['snapshot_hash'], 'And the stored sheet survived the round trip' );
 
 $html = ex_render( $source_id );

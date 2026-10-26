@@ -135,6 +135,12 @@ node "$REPO/tests/keep-current-browser.mjs"
 
 echo
 echo "=============================================="
+echo " Tables checked while somebody looks — free every 30 minutes, Pro every 2"
+echo "=============================================="
+node "$REPO/tests/refresh-browser.mjs"
+
+echo
+echo "=============================================="
 echo " Packaging"
 echo "=============================================="
 bash "$REPO/tools/build-zip.sh"

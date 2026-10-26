@@ -20,7 +20,7 @@ You do not need an API key, a Google Cloud project or an account with us.
 
 * The plugin downloads the sheet in the background and keeps a copy in your database.
 * Pages are built from that copy on the server, as a normal HTML table. Visitors never wait for Google, and the table is readable without JavaScript.
-* If a table is overdue for a check when someone opens the page, the plugin asks Google first, but waits only a few seconds (four by default, changeable under Settings). If Google is slower, the visitor gets the stored copy.
+* A table is checked only while someone is looking at it. When the stored copy is older than the time you chose, the plugin asks Google in the background and the table on the page updates a moment later. A table nobody opens is never downloaded.
 * It works with page caches such as LiteSpeed Cache and WP Rocket. When a table changes, the plugin clears the cached pages that show it.
 * If Google cannot be reached or the sheet stops being shared, the last good copy stays on the page. The dashboard tells you what went wrong and how to fix it. Visitors see no errors.
 
@@ -28,7 +28,7 @@ You do not need an API key, a Google Cloud project or an account with us.
 
 * Any number of sheets, and no row limit.
 * A preview of exactly what was read from the sheet before you save, and a tab picker for spreadsheets with several tabs.
-* Refresh every 15 or 30 minutes, hourly, every 6 hours or daily, plus a "Refresh" button.
+* Checks for changes every 30 minutes, hourly, every 6 hours or daily, only while the table is being viewed, or only when you choose "Refresh".
 * A warning when a row has a different number of cells from the other rows, so a value never lands in the wrong column unnoticed.
 * Rename columns for your visitors without changing the sheet.
 * Hide columns and rows by clicking them in a view of your sheet, or tuck a column into a panel that visitors open under each row.
@@ -48,7 +48,7 @@ The plugin only contacts Google, to download the sheets you add (see External se
 This plugin connects to Google Sheets (`docs.google.com`), a service run by Google, to read the spreadsheets you add to it. Without that connection there is nothing to show.
 
 * **What is sent:** the ID of the spreadsheet and the tab you chose, in an ordinary request from your web server to Google's public export address. Nothing about your visitors, your site's users or your content is sent.
-* **When:** when you preview or save a sheet in the dashboard, on the schedule you set for each table, and when a table is past its schedule as a page holding it is viewed.
+* **When:** when you preview, save or refresh a sheet in the dashboard, and when a page showing a table is viewed and its stored copy is older than the time chosen for that table.
 * **Only your server talks to Google.** Visitors' browsers never contact Google on the plugin's behalf.
 
 Google's terms of service: https://policies.google.com/terms
@@ -79,7 +79,7 @@ No. The only limit is size: one tab can hold up to 10 MB of data, which is rough
 
 = How quickly do changes appear? =
 
-By default the plugin checks Google every 15 minutes, and you can refresh a table by hand at any time. Each table can be set to every 15 or 30 minutes, hourly, every 6 hours or daily. Because pages are built from the stored copy, a change in the sheet appears after the next check, not instantly.
+Each table can be checked every 30 minutes, hourly, every 6 hours or daily, or only when you choose "Refresh" for it. The check happens while somebody is viewing the table, so a change in the sheet appears on the page within that time of someone opening it. You can refresh any table by hand at any time.
 
 = What happens if the sheet becomes private or Google is down? =
 
@@ -105,9 +105,9 @@ If you move or rename columns in Google, the plugin notices that the settings no
 
 Pick one of the four styles, then adjust colours, text size, row height, lines and corners on the table's screen. Anything you do not change follows the style. Every value is a CSS custom property on `.lstab`, so your theme's stylesheet can change them too.
 
-= Does WP-Cron have to be working? =
+= Does it need WP-Cron? =
 
-The background updates use WP-Cron, which runs only when somebody visits your site. If it is switched off or falls behind, the plugin says so in the dashboard and shows the exact line to add to your hosting's "Cron jobs" screen. Meanwhile the stored copy keeps showing, and you can update any table by hand with "Refresh".
+No. Tables are checked when someone views them, not on a timer, so it works the same on a quiet site, a busy site and a site with WP-Cron switched off.
 
 = Is the sheet content safe to display? =
 
@@ -116,7 +116,7 @@ Yes. Everything from the sheet is escaped, so a cell containing HTML or a `<scri
 == Screenshots ==
 
 1. A music venue’s listings in the dark Midnight style, read from Google Sheets and coloured to match the site.
-2. A tour company’s departures, with the seats left in each walk, read from its booking sheet every 15 minutes.
+2. A tour company’s departures, with the seats left in each walk, kept current from its booking sheet.
 3. On a phone: a wide table keeps full-size text and gets a slider, or every row becomes a card.
 4. The four built-in styles: Clean, Striped, Bordered and Midnight.
 5. Visitors search and sort. Prices sort as numbers, cheapest first.

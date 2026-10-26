@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 $lstab_is_edit    = (bool) $source;
 $lstab_defaults   = LSTAB_Storage::defaults();
 $lstab_values     = $lstab_is_edit ? $source : $lstab_defaults;
-$lstab_intervals  = LSTAB_Limits::intervals();
+$lstab_intervals  = LSTAB_Limits::choices();
 $lstab_presets    = LSTAB_Styles::all();
 $lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
 $lstab_is_sample  = $lstab_is_edit && LSTAB_Example::is_example( $source );
@@ -28,7 +28,6 @@ if ( ! $lstab_is_edit ) {
 	);
 	?>
 
-	<?php LSTAB_Admin::print_cron_notice(); ?>
 	<?php LSTAB_Admin::print_notice(); ?>
 
 	<?php if ( $lstab_is_edit && ! empty( $source['last_ragged'] ) ) : ?>
@@ -149,20 +148,12 @@ if ( ! $lstab_is_edit ) {
 					<label for="lstab-interval"><strong><?php esc_html_e( 'Check Google for changes', 'live-sheets-table' ); ?></strong></label>
 					<select id="lstab-interval" name="sync_interval">
 						<?php foreach ( $lstab_intervals as $lstab_seconds => $lstab_label ) : ?>
-							<option value="<?php echo esc_attr( (string) $lstab_seconds ); ?>" <?php selected( (int) $lstab_values['sync_interval'], (int) $lstab_seconds ); ?>>
+							<option value="<?php echo esc_attr( (string) $lstab_seconds ); ?>" <?php selected( LSTAB_Limits::clamp_interval( (int) $lstab_values['sync_interval'] ), (int) $lstab_seconds ); ?>>
 								<?php echo esc_html( $lstab_label ); ?>
 							</option>
 						<?php endforeach; ?>
 					</select>
-					<span class="lstab-help">
-						<?php
-						printf(
-							/* translators: %d: how many seconds a visitor may be made to wait. */
-							esc_html__( 'How often the plugin looks in Google for changes. This happens in the background. If a table is overdue when somebody opens the page, it is checked then, and that visitor waits at most %d seconds.', 'live-sheets-table' ),
-							(int) LSTAB_Sync::view_timeout()
-						);
-						?>
-					</span>
+					<span class="lstab-help"><?php esc_html_e( 'Checked only while someone is looking at the table, and never makes them wait: they see the saved copy, and it changes on the page a moment later if the sheet has. A table nobody opens is not checked at all.', 'live-sheets-table' ); ?></span>
 				</p>
 				<?php endif; ?>
 

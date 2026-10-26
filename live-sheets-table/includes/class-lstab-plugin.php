@@ -121,7 +121,6 @@ class LSTAB_Plugin {
 
 	public static function on_activate() {
 		LSTAB_Storage::install();
-		LSTAB_Cron::ensure_scheduled();
 	}
 
 	public static function on_deactivate() {

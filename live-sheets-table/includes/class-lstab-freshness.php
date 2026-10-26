@@ -50,7 +50,12 @@ class LSTAB_Freshness {
 
 	public static function next_due( $source ) {
 		$interval = LSTAB_Limits::interval_of( $source );
-		$success  = LSTAB_Sync::since( $source['last_success_gmt'] );
+
+		if ( LSTAB_Limits::MANUAL === $interval ) {
+			return 0;
+		}
+
+		$success = LSTAB_Sync::since( $source['last_success_gmt'] );
 		$next     = PHP_INT_MAX === $success ? time() : time() - $success + $interval;
 
 		if ( 'error' === $source['last_status'] ) {

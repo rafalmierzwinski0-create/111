@@ -6,9 +6,7 @@ class LSTAB_Sync {
 	const VIEW_TIMEOUT = 4;
 
 	public static function view_timeout() {
-		$chosen = (int) LSTAB_Settings::get( 'view_timeout', self::VIEW_TIMEOUT );
-
-		return (int) apply_filters( 'lstab_view_timeout', max( 2, min( 15, $chosen ) ) );
+		return (int) apply_filters( 'lstab_view_timeout', self::VIEW_TIMEOUT );
 	}
 
 	const VIEW_LOCK = 30;
@@ -22,7 +20,8 @@ class LSTAB_Sync {
 	protected static $view_spent = false;
 
 	protected static function start_cooldown( $id, $interval ) {
-		$fails = (int) get_transient( self::FAILS_PREFIX . $id ) + 1;
+		$interval = max( (int) $interval, self::VIEW_RETRY );
+		$fails    = (int) get_transient( self::FAILS_PREFIX . $id ) + 1;
 		$wait  = min( $interval, self::VIEW_RETRY * pow( 2, $fails - 1 ) );
 
 		set_transient( self::COOLDOWN_PREFIX . $id, 1, (int) $wait );
@@ -81,7 +80,7 @@ class LSTAB_Sync {
 	}
 
 	public static function refresh_for_view( $source ) {
-		if ( empty( $source['id'] ) ) {
+		if ( empty( $source['id'] ) || ! empty( $source['last_success_gmt'] ) ) {
 			return $source;
 		}
 
@@ -111,10 +110,6 @@ class LSTAB_Sync {
 
 		$interval = LSTAB_Limits::interval_of( $source );
 
-		if ( self::since( $source['last_success_gmt'] ) < $interval ) {
-			return $source;
-		}
-
 		self::$view_spent = true;
 		set_transient( $lock, 1, self::VIEW_LOCK );
 
@@ -143,7 +138,7 @@ class LSTAB_Sync {
 
 		$interval = LSTAB_Limits::interval_of( $source );
 
-		if ( self::since( $source['last_success_gmt'] ) < ( $interval - 30 ) ) {
+		if ( LSTAB_Limits::MANUAL === $interval || self::since( $source['last_success_gmt'] ) < ( $interval - 30 ) ) {
 			return 'not-due';
 		}
 
@@ -274,6 +269,10 @@ class LSTAB_Sync {
 		}
 
 		$interval = LSTAB_Limits::interval_of( $source );
+
+		if ( LSTAB_Limits::MANUAL === $interval ) {
+			return false;
+		}
 
 		return self::since( $source['last_attempt_gmt'] ) >= ( $interval - 30 );
 	}

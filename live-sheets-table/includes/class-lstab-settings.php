@@ -10,7 +10,6 @@ class LSTAB_Settings {
 			'manage_capability' => 'edit_pages',
 			'default_interval'  => 0,
 			'default_style'     => 'clean',
-			'view_timeout'      => LSTAB_Sync::VIEW_TIMEOUT,
 			'delete_on_uninstall' => false,
 		);
 	}
@@ -35,17 +34,13 @@ class LSTAB_Settings {
 
 		if ( isset( $input['default_interval'] ) ) {
 			$seconds = (int) $input['default_interval'];
-			$clean['default_interval'] = ( 0 === $seconds || isset( LSTAB_Limits::intervals()[ $seconds ] ) )
+			$clean['default_interval'] = ( 0 === $seconds || LSTAB_Limits::SETTING_MANUAL === $seconds || isset( LSTAB_Limits::intervals()[ $seconds ] ) )
 				? $seconds
 				: 0;
 		}
 
 		if ( isset( $input['default_style'] ) ) {
 			$clean['default_style'] = LSTAB_Styles::sanitize( (string) $input['default_style'] );
-		}
-
-		if ( isset( $input['view_timeout'] ) ) {
-			$clean['view_timeout'] = max( 2, min( 15, (int) $input['view_timeout'] ) );
 		}
 
 		$clean['delete_on_uninstall'] = ! empty( $input['delete_on_uninstall'] );

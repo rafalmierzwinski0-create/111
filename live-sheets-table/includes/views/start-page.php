@@ -66,7 +66,6 @@ $lstab_add_button = $lstab_own
 
 	<?php LSTAB_Admin::render_tabs( LSTAB_Admin::MENU_SLUG ); ?>
 
-	<?php LSTAB_Admin::print_cron_notice(); ?>
 	<?php LSTAB_Admin::print_notice(); ?>
 
 	<div class="lstab-start">

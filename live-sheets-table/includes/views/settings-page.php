@@ -51,7 +51,7 @@ defined( 'ABSPATH' ) || exit;
 				<?php echo LSTAB_Icons::badge( 'refresh', 'sky' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
 				<span>
 					<h2><?php esc_html_e( 'Checking Google', 'live-sheets-table' ); ?></h2>
-					<span class="lstab-panel-sub"><?php esc_html_e( 'How often tables are updated, and how long a visitor may wait', 'live-sheets-table' ); ?></span>
+					<span class="lstab-panel-sub"><?php esc_html_e( 'How often tables are updated', 'live-sheets-table' ); ?></span>
 				</span>
 			</div>
 
@@ -67,42 +67,21 @@ defined( 'ABSPATH' ) || exit;
 						<option value="0" <?php selected( (int) $settings['default_interval'], 0 ); ?>>
 							<?php
 							printf(
-								/* translators: %s: human readable duration, e.g. "15 minutes". */
+								/* translators: %s: human readable duration, e.g. "30 minutes". */
 								esc_html__( 'As often as possible (every %s)', 'live-sheets-table' ),
 								esc_html( LSTAB_Locale::span( 0, LSTAB_Limits::min_interval() ) )
 							);
 							?>
 						</option>
-						<?php foreach ( array_keys( LSTAB_Limits::intervals() ) as $lstab_seconds ) : ?>
+						<?php foreach ( LSTAB_Limits::intervals() as $lstab_seconds => $lstab_label ) : ?>
 							<option value="<?php echo esc_attr( (string) $lstab_seconds ); ?>" <?php selected( (int) $settings['default_interval'], $lstab_seconds ); ?>>
-								<?php
-								printf(
-									/* translators: %s: human readable duration, e.g. "15 minutes". */
-									esc_html__( 'Every %s', 'live-sheets-table' ),
-									esc_html( LSTAB_Locale::span( 0, $lstab_seconds ) )
-								);
-								?>
+								<?php echo esc_html( $lstab_label ); ?>
 							</option>
 						<?php endforeach; ?>
+						<option value="<?php echo esc_attr( (string) LSTAB_Limits::SETTING_MANUAL ); ?>" <?php selected( (int) $settings['default_interval'], LSTAB_Limits::SETTING_MANUAL ); ?>>
+							<?php echo esc_html( LSTAB_Limits::choices()[ LSTAB_Limits::MANUAL ] ); ?>
+						</option>
 					</select>
-				</div>
-			</div>
-
-			<div class="lstab-row">
-				<div class="lstab-row-say">
-					<p class="lstab-row-title"><?php esc_html_e( 'How long to wait for Google', 'live-sheets-table' ); ?></p>
-					<p class="lstab-row-help">
-						<?php esc_html_e( 'Only when somebody opens a page with a table that is overdue for a check. If Google has not answered in this time, the visitor sees the version already stored, and the check finishes later.', 'live-sheets-table' ); ?>
-					</p>
-				</div>
-				<div class="lstab-row-do">
-					<label class="lstab-timeout">
-						<input type="number"
-							name="lstab_settings[view_timeout]"
-							value="<?php echo esc_attr( (string) $settings['view_timeout'] ); ?>"
-							min="2" max="15" step="1" inputmode="numeric">
-						<span><?php esc_html_e( 'seconds', 'live-sheets-table' ); ?></span>
-					</label>
 				</div>
 			</div>
 		</div>

@@ -21,7 +21,6 @@ $lstab_add_button = sprintf(
 
 	<?php LSTAB_Admin::render_tabs( LSTAB_Admin::SOURCES_SLUG ); ?>
 
-	<?php LSTAB_Admin::print_cron_notice(); ?>
 	<?php LSTAB_Admin::print_notice(); ?>
 
 	<?php if ( ! $lstab_own ) : ?>
@@ -31,8 +30,6 @@ $lstab_add_button = sprintf(
 	<?php if ( $sources ) : ?>
 		<div class="lstab-src-list">
 			<?php
-			$lstab_intervals = LSTAB_Limits::intervals();
-
 			foreach ( $sources as $lstab_source ) :
 				$lstab_state     = LSTAB_Admin::card_state( $lstab_source );
 				$lstab_columns   = LSTAB_Admin::column_names( $lstab_source );
@@ -100,15 +97,7 @@ $lstab_add_button = sprintf(
 								<span class="lstab-fact">
 									<?php echo LSTAB_Icons::icon( 'clock' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
 									<?php
-									echo esc_html(
-										isset( $lstab_intervals[ $lstab_source['sync_interval'] ] )
-											? $lstab_intervals[ $lstab_source['sync_interval'] ]
-											: sprintf(
-												/* translators: %s: duration. */
-												__( 'Every %s', 'live-sheets-table' ),
-												LSTAB_Locale::span( 0, $lstab_source['sync_interval'] )
-											)
-									);
+									echo esc_html( LSTAB_Limits::label( $lstab_source['sync_interval'] ) );
 									?>
 								</span>
 							<?php endif; ?>

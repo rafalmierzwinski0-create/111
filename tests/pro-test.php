@@ -96,9 +96,10 @@ function lstabp_set_mock( $mode = 'ok', $tab = 'main', $oauth = 'ok' ) {
 lstabp_section( '1. The add-on loads and adds what it brings' );
 
 lstabp_assert( function_exists( 'lstabp' ), 'Pro plugin loaded' );
-lstabp_assert( 60 === LSTAB_Limits::min_interval(), 'It adds syncing every minute', (string) LSTAB_Limits::min_interval() );
-lstabp_assert( isset( LSTAB_Limits::intervals()[300] ), 'And every five minutes' );
-lstabp_assert( isset( LSTAB_Cron::schedule_map()['lstab_1min'] ), 'With a one-minute tick to run them on' );
+lstabp_assert( 120 === LSTAB_Limits::min_interval(), 'It adds checking every two minutes', (string) LSTAB_Limits::min_interval() );
+lstabp_assert( isset( LSTAB_Limits::intervals()[300], LSTAB_Limits::intervals()[900] ), 'And every five and every fifteen' );
+lstabp_assert( ! isset( LSTAB_Limits::intervals()[60] ), 'But not every minute' );
+lstabp_assert( 120 === LSTAB_Limits::starting_interval(), 'A new table starts at two minutes', (string) LSTAB_Limits::starting_interval() );
 lstabp_assert( 10 === count( LSTAB_Styles::all() ), 'It adds six styles to the four that come free', (string) count( LSTAB_Styles::all() ) );
 lstabp_assert( 'aurora' === LSTAB_Styles::sanitize( 'aurora' ), 'One of its styles renders' );
 lstabp_assert( 'aurora' === LSTAB_Styles::sanitize( 'glass' ), 'And a table saved with the old Glass style is drawn in Aurora' );
