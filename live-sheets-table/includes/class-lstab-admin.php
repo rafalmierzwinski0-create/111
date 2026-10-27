@@ -637,7 +637,7 @@ class LSTAB_Admin {
 				'icon' => 'check',
 				'text' => sprintf(
 					/* translators: %s: human readable time difference, e.g. "2 minutes". */
-					__( 'Up to date — %s ago', 'live-sheets-table' ),
+					__( 'Working — last read %s ago', 'live-sheets-table' ),
 					LSTAB_Locale::span( strtotime( $source['last_success_gmt'] . ' UTC' ), time() )
 				),
 				'note' => '',
@@ -653,7 +653,9 @@ class LSTAB_Admin {
 				'tone' => 'warn',
 				'icon' => 'alert',
 				'text' => __( 'Last check failed', 'live-sheets-table' ),
-				'note' => __( 'Visitors still see the last version that was read, so your pages keep working. The plugin tries again at the next check.', 'live-sheets-table' ) . $why,
+				'note' => ( LSTAB_Limits::is_manual( $source )
+					? __( 'Visitors still see the last version that was read, so your pages keep working. Choose “Refresh” to try again.', 'live-sheets-table' )
+					: __( 'Visitors still see the last version that was read, so your pages keep working. The plugin tries again on a later visit, or straight away when you choose “Refresh”.', 'live-sheets-table' ) ) . $why,
 			);
 		}
 

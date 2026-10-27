@@ -225,7 +225,7 @@ class LSTAB_Fetcher {
 			case 404:
 				return __( 'Google could not find this spreadsheet (error 404). Check that the link is correct and that the file has not been deleted or moved to the bin.', 'live-sheets-table' );
 			case 429:
-				return __( 'Google is getting too many requests from this site right now (error 429). The plugin tries again at the next check, and visitors keep seeing the last version.', 'live-sheets-table' );
+				return __( 'Google is getting too many requests from this site right now (error 429). The plugin tries again later, and visitors keep seeing the last version.', 'live-sheets-table' );
 			default:
 				return sprintf(
 					/* translators: %d: HTTP status code. */

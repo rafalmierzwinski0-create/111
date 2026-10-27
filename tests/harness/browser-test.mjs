@@ -133,7 +133,7 @@ await page.waitForSelector( '.lstab-src', { state: 'visible', timeout: 15000 } )
 check( await page.locator( '.lstab-src' ).count() > 0, 'Each sheet is a card, not a table row' );
 
 const statusText = await page.locator( '.lstab-state' ).first().innerText();
-check( /Up to date/.test( statusText ), 'The card says the sheet is up to date', statusText );
+check( /Working — last read/.test( statusText ), 'The card says the sheet is working', statusText );
 
 // Working normally must not be coloured: colour on every card all day is not
 // a signal, and a real fault then has nothing left to stand out against.
@@ -1596,8 +1596,9 @@ check(
 );
 await page.locator( '.wrap' ).first().screenshot( { path: `${ SHOTS }/38-settings.png` } );
 
-await page.selectOption( 'select[name="lstab_settings[default_interval]"]', '0' );
-await Promise.all( [ page.waitForURL( /lstab-saved/ ), page.locator( '.lstab-submit button[type=submit]' ).click() ] );
+// Back to no choice of its own, which the form cannot send: every option it
+// offers is a real interval.
+execFileSync( 'php', [ '-r', `define( 'WP_USE_THEMES', false ); require '${ SITE_PATH }/wp-load.php'; $s = get_option( 'lstab_settings', array() ); $s['default_interval'] = 0; update_option( 'lstab_settings', $s );` ] );
 
 section( '9b. Even column widths' );
 

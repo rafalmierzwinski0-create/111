@@ -156,11 +156,11 @@ $lstab_add_button = $lstab_own
 							if ( $lstab_failing ) {
 								printf(
 									/* translators: %s: number of tables, wrapped in <b>. */
-									esc_html( _n( '%s table is up to date.', '%s tables are up to date.', $lstab_fine, 'live-sheets-table' ) ),
+									esc_html( _n( '%s table is working.', '%s tables are working.', $lstab_fine, 'live-sheets-table' ) ),
 									'<b>' . esc_html( number_format_i18n( $lstab_fine ) ) . '</b>'
 								);
 							} else {
-								esc_html_e( 'Every table is up to date.', 'live-sheets-table' );
+								esc_html_e( 'Every table is working.', 'live-sheets-table' );
 							}
 							?>
 						</span>

@@ -78,7 +78,7 @@ if ( ! $lstab_is_edit ) {
 				<div class="lstab-card">
 					<h2 class="lstab-card-title"><?php esc_html_e( 'This is the built-in example', 'live-sheets-table' ); ?></h2>
 					<p class="lstab-help">
-						<?php esc_html_e( 'This table comes with the plugin and never contacts Google, so it has no link and no schedule. Every other setting works exactly as it does for your own sheets.', 'live-sheets-table' ); ?>
+						<?php esc_html_e( 'This table comes with the plugin and never contacts Google, so it has no link and is never checked for changes. Every other setting works exactly as it does for your own sheets.', 'live-sheets-table' ); ?>
 					</p>
 				</div>
 			<?php else : ?>
@@ -130,7 +130,7 @@ if ( ! $lstab_is_edit ) {
 			<?php endif; ?>
 
 			<div class="lstab-card">
-				<h2 class="lstab-card-title"><?php esc_html_e( 'Name it and set the schedule', 'live-sheets-table' ); ?></h2>
+				<h2 class="lstab-card-title"><?php esc_html_e( 'Name it and choose how often it is checked', 'live-sheets-table' ); ?></h2>
 
 				<p>
 					<label for="lstab-title"><strong><?php esc_html_e( 'Title', 'live-sheets-table' ); ?></strong></label>
@@ -153,7 +153,7 @@ if ( ! $lstab_is_edit ) {
 							</option>
 						<?php endforeach; ?>
 					</select>
-					<span class="lstab-help"><?php esc_html_e( 'Checked only while someone is looking at the table, and never makes them wait: they see the saved copy, and it changes on the page a moment later if the sheet has. A table nobody opens is not checked at all.', 'live-sheets-table' ); ?></span>
+					<span class="lstab-help"><?php esc_html_e( 'Google is asked only when someone opens a page with the table and the saved copy is older than this. They never wait for it: they see the saved copy at once, and if the sheet has changed, the table updates on the page a moment later. A table nobody opens is not checked at all.', 'live-sheets-table' ); ?></span>
 				</p>
 				<?php endif; ?>
 
@@ -541,11 +541,15 @@ if ( ! $lstab_is_edit ) {
 
 					<p class="lstab-help lstab-css-foot">
 						<?php
-						printf(
-							/* translators: %s: the CSS selector this table's rules are given, e.g. [data-lstab-id="7"]. */
-							esc_html__( 'Each rule is saved with %s in front, so it only ever affects this table.', 'live-sheets-table' ),
-							'<code>' . esc_html( LSTAB_Custom_Css::selector( $lstab_is_edit ? (int) $source['id'] : 0 ) ) . '</code>'
-						);
+						if ( $lstab_is_edit ) {
+							printf(
+								/* translators: %s: the CSS selector this table's rules are given, e.g. [data-lstab-id="7"]. */
+								esc_html__( 'Each rule is saved with %s in front, so it only ever affects this table.', 'live-sheets-table' ),
+								'<code>' . esc_html( LSTAB_Custom_Css::selector( (int) $source['id'] ) ) . '</code>'
+							);
+						} else {
+							esc_html_e( 'Each rule is saved with this table’s own selector in front, so it only ever affects this table. You will see the selector here once the table is saved.', 'live-sheets-table' );
+						}
 						?>
 					</p>
 				</div>

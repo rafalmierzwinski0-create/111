@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php echo LSTAB_Icons::art( 'start' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG from the plugin. ?>
 
-	<h2><?php esc_html_e( 'Your price list on the page in ten seconds', 'live-sheets-table' ); ?></h2>
+	<h2><?php esc_html_e( 'Your first table in under a minute', 'live-sheets-table' ); ?></h2>
 	<p class="lstab-welcome-lede">
 		<?php esc_html_e( 'Open your sheet in Google Sheets, copy the address from the browser’s address bar and paste it here. The table appears straight away, and nothing is saved until you choose to.', 'live-sheets-table' ); ?>
 	</p>
@@ -60,7 +60,7 @@ defined( 'ABSPATH' ) || exit;
 			<span>
 				<b><?php esc_html_e( 'Is the sheet private?', 'live-sheets-table' ); ?></b>
 				<span>
-					<?php esc_html_e( 'The plugin can read only sheets shared by link. In Google Sheets choose Share → General access → “Anyone with the link”, with the role “Viewer”. The plugin only reads the sheet and never changes it.', 'live-sheets-table' ); ?>
+					<?php esc_html_e( 'Share it by link first. In Google Sheets choose Share → General access → “Anyone with the link”, with the role “Viewer”. The plugin only reads the sheet and never changes it.', 'live-sheets-table' ); ?>
 				</span>
 			</span>
 		</div>

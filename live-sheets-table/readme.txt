@@ -28,7 +28,7 @@ You do not need an API key, a Google Cloud project or an account with us.
 
 * Any number of sheets, and no row limit.
 * A preview of exactly what was read from the sheet before you save, and a tab picker for spreadsheets with several tabs.
-* Checks for changes every 30 minutes, hourly, every 6 hours or daily, only while the table is being viewed, or only when you choose "Refresh".
+* Checks for changes while the table is being viewed: at most every 30 minutes, hourly, every 6 hours or daily, or only when you choose "Refresh".
 * A warning when a row has a different number of cells from the other rows, so a value never lands in the wrong column unnoticed.
 * Rename columns for your visitors without changing the sheet.
 * Hide columns and rows by clicking them in a view of your sheet, or tuck a column into a panel that visitors open under each row.
@@ -79,7 +79,7 @@ No. The only limit is size: one tab can hold up to 10 MB of data, which is rough
 
 = How quickly do changes appear? =
 
-Each table can be checked every 30 minutes, hourly, every 6 hours or daily, or only when you choose "Refresh" for it. The check happens while somebody is viewing the table, so a change in the sheet appears on the page within that time of someone opening it. You can refresh any table by hand at any time.
+Each table can be checked every 30 minutes, hourly, every 6 hours or daily, or only when you choose "Refresh" for it. The check happens when somebody opens a page with the table and the stored copy is older than that time: the visitor sees the stored copy at once, and if the sheet has changed, the table updates on the page a moment later. You can refresh any table by hand at any time.
 
 = What happens if the sheet becomes private or Google is down? =
 

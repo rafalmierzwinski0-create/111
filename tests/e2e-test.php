@@ -3049,7 +3049,7 @@ lstab_assert( false !== strpos( $lstab_start_html, 'Welcome back' ), 'With table
 lstab_assert( 3 === substr_count( $lstab_start_html, 'lstab-start-health-row" href' ), 'Only three failing tables are named', (string) substr_count( $lstab_start_html, 'lstab-start-health-row" href' ) );
 lstab_assert( false !== strpos( $lstab_start_html, 'and 1 more' ), 'The rest are counted, with a way to the list' );
 lstab_assert( 1 === substr_count( $lstab_start_html, 'Most often the sheet is no longer shared by link' ), 'One line gives the most common cause' );
-lstab_assert( 1 === preg_match( '#<b>\d+</b> tables? (is|are) up to date\.#', $lstab_start_html ), 'Healthy tables are a number, not a list' );
+lstab_assert( 1 === preg_match( '#<b>\d+</b> tables? (is|are) working\.#', $lstab_start_html ), 'Healthy tables are a number, not a list' );
 
 foreach ( $lstab_start_ids as $lstab_id ) {
 	LSTAB_Storage::delete( $lstab_id );
