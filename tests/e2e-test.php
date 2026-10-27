@@ -2297,11 +2297,12 @@ $foot_left  = LSTAB_Customizer::inline_style( LSTAB_Customizer::sanitize( array(
 $foot_right = LSTAB_Customizer::inline_style( LSTAB_Customizer::sanitize( array( 'pagerAlign' => 'right' ) ) );
 
 lstab_assert( false !== strpos( $foot_left, '--lstab-pager-col:1' ), 'Buttons on the left take the first track', $foot_left );
-lstab_assert( false !== strpos( $foot_left, '--lstab-meta-col:3' ), 'And the freshness line is sent to the far one', $foot_left );
-lstab_assert( false !== strpos( $foot_left, '--lstab-meta-place:end' ), 'Where it sits against the edge', $foot_left );
+lstab_assert( false !== strpos( $foot_left, '--lstab-meta-col-paged:3' ), 'And the freshness line is sent to the far one', $foot_left );
+lstab_assert( false !== strpos( $foot_left, '--lstab-meta-place-paged:end' ), 'Where it sits against the edge', $foot_left );
+lstab_assert( false === strpos( $foot_left . $foot_right, '--lstab-meta-col:' ) && false === strpos( $foot_left . $foot_right, '--lstab-meta-place:' ), 'Without pages there are no buttons, and the setting moves nothing', $foot_left . ' ' . $foot_right );
 
 lstab_assert( false !== strpos( $foot_right, '--lstab-pager-col:3' ), 'Buttons on the right take the third track', $foot_right );
-lstab_assert( false !== strpos( $foot_right, '--lstab-meta-col:1' ), 'And the freshness line stays on the left', $foot_right );
+lstab_assert( false !== strpos( $foot_right, '--lstab-meta-col-paged:1' ), 'And the freshness line stays on the left', $foot_right );
 
 lstab_assert( '' === LSTAB_Customizer::inline_style( LSTAB_Customizer::sanitize( array( 'pagerAlign' => 'normal' ) ) ), 'Centred writes nothing, because it is what the stylesheet already does' );
 

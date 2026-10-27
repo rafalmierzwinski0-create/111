@@ -98,6 +98,8 @@ class LSTAB_Customizer {
 				),
 				'pagerAlign' => array(
 					'label'   => __( 'Page buttons', 'live-sheets-table' ),
+					'note'    => __( 'Where the page buttons sit under a table split into pages. The “updated … ago” line moves to the other side.', 'live-sheets-table' ),
+					'paged'   => true,
 					'choices' => array(
 						'left'   => __( 'Left', 'live-sheets-table' ),
 						'normal' => __( 'Centred', 'live-sheets-table' ),
@@ -107,8 +109,6 @@ class LSTAB_Customizer {
 						'left'   => array(
 							'--lstab-pager-col'   => '1',
 							'--lstab-pager-place' => 'start',
-							'--lstab-meta-col'    => '3',
-							'--lstab-meta-place'  => 'end',
 							'--lstab-meta-col-paged'   => '3',
 							'--lstab-meta-place-paged' => 'end',
 						),
@@ -116,8 +116,6 @@ class LSTAB_Customizer {
 						'right'  => array(
 							'--lstab-pager-col'   => '3',
 							'--lstab-pager-place' => 'end',
-							'--lstab-meta-col'    => '1',
-							'--lstab-meta-place'  => 'start',
 							'--lstab-meta-col-paged'   => '1',
 							'--lstab-meta-place-paged' => 'start',
 						),

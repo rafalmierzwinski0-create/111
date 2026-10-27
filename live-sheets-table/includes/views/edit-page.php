@@ -493,7 +493,11 @@ if ( ! $lstab_is_edit ) {
 						<?php endforeach; ?>
 
 						<?php foreach ( LSTAB_Customizer::metrics() as $lstab_key => $lstab_metric ) : ?>
+							<?php if ( ! empty( $lstab_metric['paged'] ) ) : ?>
+							<p class="lstab-metric" data-lstab-paged-only <?php echo $lstab_per_page > 0 ? '' : 'hidden'; ?>>
+							<?php else : ?>
 							<p class="lstab-metric">
+							<?php endif; ?>
 								<label for="lstab-metric-<?php echo esc_attr( $lstab_key ); ?>">
 									<strong><?php echo esc_html( $lstab_metric['label'] ); ?></strong>
 								</label>

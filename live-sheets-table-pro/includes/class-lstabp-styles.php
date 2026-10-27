@@ -44,7 +44,7 @@ class LSTABP_Styles {
 			'lstabp-styles',
 			LSTABP_URL . 'assets/css/lstabp-styles.css',
 			array(),
-			LSTABP_VERSION
+			LSTABP_Plugin::asset_version( 'assets/css/lstabp-styles.css' )
 		);
 	}
 

@@ -53,6 +53,18 @@ class LSTABP_Plugin {
 		}
 	}
 
+	public static function asset_version( $relative_path ) {
+		$file = LSTABP_PATH . ltrim( $relative_path, '/' );
+
+		if ( ! is_readable( $file ) ) {
+			return LSTABP_VERSION;
+		}
+
+		$modified = filemtime( $file );
+
+		return $modified ? LSTABP_VERSION . '.' . $modified : LSTABP_VERSION;
+	}
+
 	public function add_intervals( $intervals ) {
 		$intervals = (array) $intervals;
 

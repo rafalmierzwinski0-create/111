@@ -29,7 +29,7 @@ class LSTABP_Facets {
 	}
 
 	public function enqueue() {
-		wp_register_script( 'lstabp-facets', LSTABP_URL . 'assets/js/lstabp-facets.js', array(), LSTABP_VERSION, true );
+		wp_register_script( 'lstabp-facets', LSTABP_URL . 'assets/js/lstabp-facets.js', array(), LSTABP_Plugin::asset_version( 'assets/js/lstabp-facets.js' ), true );
 	}
 
 	public static function all() {

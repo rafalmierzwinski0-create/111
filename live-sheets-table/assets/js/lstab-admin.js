@@ -926,6 +926,9 @@
 	if ( pagingToggle && pagingRows ) {
 		pagingToggle.addEventListener( 'change', function () {
 			pagingRows.hidden = ! pagingToggle.checked;
+			document.querySelectorAll( '[data-lstab-paged-only]' ).forEach( function ( row ) {
+				row.hidden = ! pagingToggle.checked;
+			} );
 		} );
 	}
 

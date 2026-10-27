@@ -529,14 +529,14 @@ class LSTABP_Rules {
 			'lstabp-admin',
 			LSTABP_URL . 'assets/css/lstabp-admin.css',
 			array( 'lstab-admin' ),
-			LSTABP_VERSION
+			LSTABP_Plugin::asset_version( 'assets/css/lstabp-admin.css' )
 		);
 
 		wp_enqueue_script(
 			'lstabp-admin',
 			LSTABP_URL . 'assets/js/lstabp-admin.js',
 			array(),
-			LSTABP_VERSION,
+			LSTABP_Plugin::asset_version( 'assets/js/lstabp-admin.js' ),
 			true
 		);
 
@@ -544,7 +544,7 @@ class LSTABP_Rules {
 			'lstabp-facets',
 			LSTABP_URL . 'assets/js/lstabp-facets.js',
 			array(),
-			LSTABP_VERSION,
+			LSTABP_Plugin::asset_version( 'assets/js/lstabp-facets.js' ),
 			true
 		);
 

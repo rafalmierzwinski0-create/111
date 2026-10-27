@@ -795,17 +795,21 @@
 }
 
 .lstabp-looks-how li {
+	display: grid;
+	grid-template-columns: 86px minmax( 0, 1fr );
 	align-items: center;
+	gap: 0.75rem;
 }
 
-.lstabp-looks-how .lstabp-look-face {
-	flex: 0 0 86px;
+.lstabp-looks-how li > .lstabp-look-face {
+	box-sizing: border-box;
 	width: 86px;
 	height: 24px;
+	margin: 0;
 	font-size: 11px;
 }
 
-.lstabp-looks-how .lstab-icon {
-	flex: 0 0 86px;
+.lstabp-looks-how li > .lstab-icon {
+	justify-self: center;
 	margin-top: 0;
 }

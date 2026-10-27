@@ -30,7 +30,7 @@ class LSTABP_Export {
 	}
 
 	public function enqueue() {
-		wp_register_script( 'lstabp-export', LSTABP_URL . 'assets/js/lstabp-export.js', array(), LSTABP_VERSION, true );
+		wp_register_script( 'lstabp-export', LSTABP_URL . 'assets/js/lstabp-export.js', array(), LSTABP_Plugin::asset_version( 'assets/js/lstabp-export.js' ), true );
 	}
 
 	public static function signature( $source_id, $filter ) {
