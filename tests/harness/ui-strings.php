@@ -10,7 +10,7 @@ $root  = rtrim( $argv[1], '/' );
 $found = array();
 $call  = '/(?<![\w>])(?:__|_e|_x|_n|esc_html__|esc_html_e|esc_attr__|esc_attr_e|esc_html_x|esc_attr_x)\(\s*\'((?:[^\'\\\\]|\\\\.)*)\'(?:\s*,\s*\'((?:[^\'\\\\]|\\\\.)*)\')?/';
 
-foreach ( array( 'live-sheets-table', 'live-sheets-table-pro' ) as $plugin ) {
+foreach ( array( 'tabliko', 'tabliko-pro' ) as $plugin ) {
 	$files = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( "$root/$plugin", FilesystemIterator::SKIP_DOTS ) );
 	foreach ( $files as $file ) {
 		$ext = pathinfo( (string) $file, PATHINFO_EXTENSION );

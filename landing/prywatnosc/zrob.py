@@ -65,7 +65,7 @@ EN = {
 	'oko': 'Legal',
 	'tytul': 'Privacy and terms',
 	'wstep': 'Two documents in plain language: what happens to your data, and the rules for using and buying '
-		'Live Sheets Table. If anything here is unclear, <a href="' + KONTAKT_EN + '">write to us</a>.',
+		'Tabliko. If anything here is unclear, <a href="' + KONTAKT_EN + '">write to us</a>.',
 	'data': 'Last updated: ' + DATA_EN,
 	'skrot_tytul': 'In short',
 	'skrot': (
@@ -79,16 +79,16 @@ EN = {
 		( 'privacy', 'Privacy policy', (
 			( 'kto', '1. Who is responsible for your data', (
 				'The controller of personal data collected through this website and in connection with purchases of '
-				'Live Sheets Table Pro is NAZWA-FIRMY, ADRES-FIRMY, Poland, tax ID (NIP) NIP-FIRMY ("we", "us").',
+				'Tabliko Pro is NAZWA-FIRMY, ADRES-FIRMY, Poland, tax ID (NIP) NIP-FIRMY ("we", "us").',
 				'For anything about your data, write to EMAIL-KONTAKT or use the <a href="' + KONTAKT_EN + '">contact form</a>. '
 				'We have not appointed a data protection officer, because the law does not require it for a business of our size.',
 			) ),
 			( 'wtyczka', '2. The plugin itself', (
-				'Live Sheets Table runs on your WordPress site, not on ours. When you use it:',
+				'Tabliko runs on your WordPress site, not on ours. When you use it:',
 				'- It downloads the sheets you configure from docs.google.com and stores a copy in your own WordPress database. '
 				'It sends nothing to us and contacts no other service.',
 				'- It sends no analytics, sets no cookies for your visitors and has no account system.',
-				'- Live Sheets Table Pro can read private sheets. It connects to Google through an OAuth client from your own '
+				'- Tabliko Pro can read private sheets. It connects to Google through an OAuth client from your own '
 				'Google Cloud project, asks only for read-only access to spreadsheets, and keeps the access token in your database. '
 				'We never see your sheets, your Google credentials or your token.',
 				'- When you delete the plugin, its data stays in your database unless you choose "delete data on uninstall" in its settings.',
@@ -151,8 +151,8 @@ EN = {
 		) ),
 		( 'terms', 'Terms of service', (
 			( 'definicje', '1. What these terms cover', (
-				'These terms apply to the website rizznet.pl, to Live Sheets Table (the free plugin) and to paid plans of '
-				'Live Sheets Table Pro. They are provided by NAZWA-FIRMY, ADRES-FIRMY, Poland, tax ID (NIP) NIP-FIRMY. '
+				'These terms apply to the website rizznet.pl, to Tabliko (the free plugin) and to paid plans of '
+				'Tabliko Pro. They are provided by NAZWA-FIRMY, ADRES-FIRMY, Poland, tax ID (NIP) NIP-FIRMY. '
 				'Contact: EMAIL-KONTAKT or the <a href="' + KONTAKT_EN + '">contact form</a>.',
 				'"Consumer" means a person buying outside their business. Under Polish law, a sole trader who buys for their business '
 				'something that is not of a professional nature for them (judged by the business activity they have registered) has '
@@ -171,7 +171,7 @@ EN = {
 				'Nothing in these terms limits the rights that licence gives you.',
 				'What a plan buys is a service: downloads of Pro, its updates, and support, for the plan\'s period and number of sites. '
 				'When a plan ends, the plugin keeps working on your sites; you simply stop receiving updates and support until you renew.',
-				'The GPL covers the code, not the name. "Live Sheets Table" and its logo may not be used in a way that suggests '
+				'The GPL covers the code, not the name. "Tabliko" and its logo may not be used in a way that suggests '
 				'a product comes from us when it does not.',
 			) ),
 			( 'platnosci', '4. Prices and payment', (
@@ -227,7 +227,7 @@ EN = {
 				'konsumentów) or the Trade Inspection (Inspekcja Handlowa). Disputes go to the competent common court.',
 			) ),
 			( 'znaki', '12. Trademarks', (
-				'Google Sheets is a trademark of Google LLC. Live Sheets Table is not affiliated with, endorsed or sponsored by Google.',
+				'Google Sheets is a trademark of Google LLC. Tabliko is not affiliated with, endorsed or sponsored by Google.',
 			) ),
 		) ),
 	),
@@ -240,7 +240,7 @@ PL = {
 	'oko': 'Sprawy prawne',
 	'tytul': 'Prywatność i regulamin',
 	'wstep': 'Dwa dokumenty, napisane zwykłym językiem: co dzieje się z Twoimi danymi i jakie są zasady korzystania '
-		'z Live Sheets Table i jego kupowania. Jeśli coś jest niejasne, <a href="' + KONTAKT_PL + '">napisz do nas</a>.',
+		'z Tabliko i jego kupowania. Jeśli coś jest niejasne, <a href="' + KONTAKT_PL + '">napisz do nas</a>.',
 	'data': 'Ostatnia zmiana: ' + DATA_PL,
 	'skrot_tytul': 'W skrócie',
 	'skrot': (
@@ -253,17 +253,17 @@ PL = {
 	'dokumenty': (
 		( 'prywatnosc', 'Polityka prywatności', (
 			( 'kto', '1. Kto odpowiada za Twoje dane', (
-				'Administratorem danych osobowych zbieranych przez tę stronę i w związku z zakupem Live Sheets Table Pro jest '
+				'Administratorem danych osobowych zbieranych przez tę stronę i w związku z zakupem Tabliko Pro jest '
 				'NAZWA-FIRMY, ADRES-FIRMY, NIP NIP-FIRMY („my”).',
 				'We wszystkich sprawach dotyczących danych pisz na EMAIL-KONTAKT albo przez <a href="' + KONTAKT_PL + '">formularz kontaktowy</a>. '
 				'Nie wyznaczyliśmy inspektora ochrony danych, bo przy działalności tej wielkości prawo tego nie wymaga.',
 			) ),
 			( 'wtyczka', '2. Sama wtyczka', (
-				'Live Sheets Table działa na Twojej stronie WordPress, a nie na naszej. Kiedy z niej korzystasz:',
+				'Tabliko działa na Twojej stronie WordPress, a nie na naszej. Kiedy z niej korzystasz:',
 				'- Pobiera arkusze, które wskażesz, z docs.google.com i przechowuje ich kopię w Twojej bazie WordPressa. '
 				'Niczego nie wysyła do nas i nie łączy się z żadną inną usługą.',
 				'- Nie wysyła żadnej analityki, nie ustawia ciasteczek Twoim odwiedzającym i nie ma systemu kont.',
-				'- Live Sheets Table Pro potrafi czytać arkusze prywatne. Łączy się z Google przez klienta OAuth z Twojego własnego '
+				'- Tabliko Pro potrafi czytać arkusze prywatne. Łączy się z Google przez klienta OAuth z Twojego własnego '
 				'projektu Google Cloud, prosi wyłącznie o dostęp do odczytu arkuszy, a token dostępu trzyma w Twojej bazie. '
 				'Nigdy nie widzimy Twoich arkuszy, danych logowania do Google ani tokenu.',
 				'- Po usunięciu wtyczki jej dane zostają w bazie, chyba że w ustawieniach zaznaczysz „usuń dane przy odinstalowaniu”.',
@@ -324,7 +324,7 @@ PL = {
 		) ),
 		( 'regulamin', 'Regulamin', (
 			( 'definicje', '1. Czego dotyczy regulamin', (
-				'Regulamin dotyczy strony rizznet.pl, darmowej wtyczki Live Sheets Table oraz płatnych planów Live Sheets Table Pro. '
+				'Regulamin dotyczy strony rizznet.pl, darmowej wtyczki Tabliko oraz płatnych planów Tabliko Pro. '
 				'Usługodawcą jest NAZWA-FIRMY, ADRES-FIRMY, NIP NIP-FIRMY. Kontakt: EMAIL-KONTAKT albo '
 				'<a href="' + KONTAKT_PL + '">formularz kontaktowy</a>.',
 				'„Konsument” to osoba kupująca poza swoją działalnością. Osoba prowadząca jednoosobową działalność, która zawiera umowę '
@@ -346,7 +346,7 @@ PL = {
 				'Plan to usługa: pobieranie Pro, jego aktualizacje i wsparcie, przez okres planu i na określonej liczbie stron. '
 				'Po zakończeniu planu wtyczka dalej działa na Twoich stronach; przestajesz tylko dostawać aktualizacje i wsparcie, '
 				'dopóki nie odnowisz planu.',
-				'GPL obejmuje kod, nie nazwę. Nazwy „Live Sheets Table” i logo nie wolno używać tak, żeby sugerowały, że produkt '
+				'GPL obejmuje kod, nie nazwę. Nazwy „Tabliko” i logo nie wolno używać tak, żeby sugerowały, że produkt '
 				'pochodzi od nas, jeśli tak nie jest.',
 			) ),
 			( 'platnosci', '4. Ceny i płatności', (
@@ -401,7 +401,7 @@ PL = {
 				'rzecznika konsumentów albo do Inspekcji Handlowej. Spory rozstrzyga właściwy sąd powszechny.',
 			) ),
 			( 'znaki', '12. Znaki towarowe', (
-				'Google Sheets (Arkusze Google) jest znakiem towarowym Google LLC. Live Sheets Table nie jest powiązany z Google, '
+				'Google Sheets (Arkusze Google) jest znakiem towarowym Google LLC. Tabliko nie jest powiązany z Google, '
 				'ani przez Google wspierany czy sponsorowany.',
 			) ),
 		) ),

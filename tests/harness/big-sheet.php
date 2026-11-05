@@ -7,7 +7,7 @@
  *
  * Usage: php -d memory_limit=300M tests/harness/big-sheet.php <wp root> <megabytes>
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 define( 'WP_USE_THEMES', false );

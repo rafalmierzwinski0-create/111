@@ -72,7 +72,7 @@ await p.click( '#wp-submit' );
 await p.waitForLoadState( 'networkidle' );
 
 // Ekran źródła, zakładka Wygląd: szablony, kolory i pokrętła.
-await p.goto( `${ BAZA }/wp-admin/admin.php?page=live-sheets-table-edit&source=1`, { waitUntil: 'networkidle' } );
+await p.goto( `${ BAZA }/wp-admin/admin.php?page=tabliko-edit&source=1`, { waitUntil: 'networkidle' } );
 await p.waitForTimeout( 500 );
 
 const zakladka = async ( nazwa ) => {

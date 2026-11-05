@@ -10,11 +10,11 @@ it. Entries marked (Pro) are about the add-on.
 * Changed: the free plugin offers four styles: Clean, Striped, Bordered and Midnight. Editorial, Cards, Terminal, Aurora, Ledger and Contrast come with the add-on, which registers them and ships their stylesheet.
 * Changed: the free plugin checks tables every 15 or 30 minutes, hourly, every 6 hours or daily. The add-on adds every minute and every 5 minutes.
 * Changed: the free plugin no longer advertises the add-on: no "Buy Pro", no locked styles, no notes about what Pro does.
-* Changed: the plugin is called Live Sheets Table, without "Google Sheets to WordPress".
+* Changed: the plugin is called Tabliko, without "Google Sheets to WordPress".
 * Added: the block's style menu lists every style on the site, the add-on's included.
 * Fixed: deleting the free plugin from the Plugins screen ended in a fatal error, because its uninstall routine reached for a class WordPress does not load at that point. It now clears its background schedule every time, and its table and every setting when "Delete everything" is switched on, including a few it used to leave behind.
 * Fixed (Pro): in the default "table" layout, Aurora, Editorial, Cards and Ledger drew a plain grey frame instead of their own: Aurora's violet glow, Ledger's paper edge, and no frame at all for Editorial and Cards.
-* Changed (Pro): the add-on needs Live Sheets Table 3.43.0 or newer, and says so instead of half working.
+* Changed (Pro): the add-on needs Tabliko 3.43.0 or newer, and says so instead of half working.
 
 = 3.42.2 =
 * Changed: a cell written on several lines in Google — two, three or more — is shown on those lines, in the table, in cards and under a row, and so is a heading written on more than one line. Before, the lines ran together as one.

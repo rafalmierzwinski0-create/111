@@ -4,7 +4,7 @@ These do **not** go in the plugin zip. They live in the `assets/` folder at the
 top of the plugin's SVN checkout, beside `trunk/` and `tags/`:
 
 ```
-live-sheets-table/
+tabliko/
 ├── assets/          ← these files
 ├── tags/
 └── trunk/           ← the plugin itself

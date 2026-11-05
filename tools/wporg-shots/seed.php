@@ -14,7 +14,7 @@ define( 'WP_USE_THEMES', false );
 require $argv[1] . '/wp-load.php';
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-deactivate_plugins( 'live-sheets-table-pro/live-sheets-table-pro.php', true );
+deactivate_plugins( 'tabliko-pro/tabliko-pro.php', true );
 
 $theme = get_theme_root() . '/showcase';
 if ( ! is_dir( $theme ) ) {

@@ -34,7 +34,7 @@ const check = ( ok, what, detail = '' ) => {
 };
 
 const strings = JSON.parse( execFileSync( 'php', [ path.join( here, 'harness/ui-strings.php' ), repo ] ).toString() );
-const readme = fs.readFileSync( path.join( repo, 'live-sheets-table/readme.txt' ), 'utf8' );
+const readme = fs.readFileSync( path.join( repo, 'tabliko/readme.txt' ), 'utf8' );
 
 console.log( `\n\x1b[1mThe notes for translators match their text\x1b[0m  (${ strings.length } strings)` );
 
@@ -72,7 +72,7 @@ const retired = [
 	[ /\bsheet sources?\b/i, 'table' ],
 	[ /\bsync(?:s|ed|ing)?\b/i, 'update' ],
 	[ /\bfetch(?:es|ed|ing)?\b/i, 'read' ],
-	[ /\bSheets Tables\b/, 'Live Sheets Table' ],
+	[ /\bSheets Tables\b/, 'Tabliko' ],
 	[ /\bparser\b/i, 'the plugin' ],
 	[ /\bHTTP \d{3}\b/, 'error 403 and the like' ],
 	[ /\bsaved source\b/i, 'table' ],

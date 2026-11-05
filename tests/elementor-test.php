@@ -8,7 +8,7 @@
  *
  * Usage: php tests/elementor-test.php /path/to/wordpress
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 // phpcs:disable WordPress.Security.NonceVerification, WordPress.PHP.DevelopmentFunctions
@@ -68,13 +68,13 @@ if ( ! $widget ) {
 	exit( 1 );
 }
 
-lstab_el_assert( 'Google Sheets Table' === $widget->get_title(), 'It is named for what it does', $widget->get_title() );
-lstab_el_assert( in_array( 'live-sheets-table', $widget->get_categories(), true ), 'It sits in its own panel category', implode( ',', $widget->get_categories() ) );
+lstab_el_assert( 'Tabliko Table' === $widget->get_title(), 'It is named for what it does', $widget->get_title() );
+lstab_el_assert( in_array( 'tabliko', $widget->get_categories(), true ), 'It sits in its own panel category', implode( ',', $widget->get_categories() ) );
 lstab_el_assert( in_array( 'lstab-table', $widget->get_style_depends(), true ), 'It brings the table stylesheet with it' );
 lstab_el_assert( in_array( 'lstab-table', $widget->get_script_depends(), true ), 'And the script the slider needs' );
 
 $categories = \Elementor\Plugin::instance()->elements_manager->get_categories();
-lstab_el_assert( isset( $categories['live-sheets-table'] ), 'The category is registered so the widget is not orphaned' );
+lstab_el_assert( isset( $categories['tabliko'] ), 'The category is registered so the widget is not orphaned' );
 
 // A source to point the widget at.
 foreach ( LSTAB_Storage::get_all() as $existing ) {

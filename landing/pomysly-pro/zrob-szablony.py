@@ -3,7 +3,7 @@
 # dopisać, żeby szablon istniał naprawdę.
 import html, pathlib
 
-CSS = pathlib.Path( '/home/user/111/live-sheets-table/assets/css/lstab-table.css' ).read_text()
+CSS = pathlib.Path( '/home/user/111/tabliko/assets/css/lstab-table.css' ).read_text()
 
 NAGLOWKI = [ ( 'Session', 'start' ), ( 'Starts', 'start' ), ( 'Room', 'start' ),
              ( 'Seats left', 'end' ), ( 'Status', 'start' ) ]

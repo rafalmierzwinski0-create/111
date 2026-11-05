@@ -11,7 +11,7 @@
  *
  * Usage: php tests/harness/run-uninstall.php /path/to/wp plugin-dir/plugin.php
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 /*

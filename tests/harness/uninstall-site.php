@@ -7,7 +7,7 @@
  *
  * Usage: php tests/harness/uninstall-site.php /path/to/site PORT state|keep|wipe
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 define( 'WP_USE_THEMES', false );
@@ -46,7 +46,7 @@ $table   = $wpdb->prefix . 'lstab_sources';
 
 echo wp_json_encode(
 	array(
-		'active'  => is_plugin_active( 'live-sheets-table/live-sheets-table.php' ),
+		'active'  => is_plugin_active( 'tabliko/tabliko.php' ),
 		'table'   => $table === $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ),
 		'options' => $options,
 		'tick'    => (bool) wp_next_scheduled( 'lstab_sync_tick' ),

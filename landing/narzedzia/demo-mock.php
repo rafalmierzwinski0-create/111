@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name: Live Sheets Table – dane do zrzutów (tylko lokalnie)
+ * Plugin Name: Tabliko – dane do zrzutów (tylko lokalnie)
  * Description: Podaje wtyczce czysty, pokazowy arkusz zamiast fixture'a testowego, w którym siedzą próbki XSS. Wisi na tym samym filtrze co mock testowy, ale odpowiada PO nim — pre_http_request to łańcuch, więc wygrywa ten, kto mówi ostatni. Nigdy tego nie wysyłamy dalej.
  *
- * @package LiveSheetsTable\Pokaz
+ * @package Tabliko\Pokaz
  */
 
 defined( 'ABSPATH' ) || exit;

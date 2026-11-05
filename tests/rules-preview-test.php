@@ -12,13 +12,13 @@
  *
  * Usage: php tests/rules-preview-test.php
  *
- * @package LiveSheetsTablePro\Tests
+ * @package TablikoPro\Tests
  */
 
 // phpcs:disable WordPress.Security.EscapeOutput, WordPress.PHP.DevelopmentFunctions
 
 define( 'ABSPATH', __DIR__ . '/' );
-define( 'LSTABP_PATH', __DIR__ . '/../live-sheets-table-pro/' );
+define( 'LSTABP_PATH', __DIR__ . '/../tabliko-pro/' );
 
 $GLOBALS['lstab_options'] = array();
 
@@ -84,11 +84,11 @@ class LSTAB_Icons {
 	}
 }
 
-require_once __DIR__ . '/../live-sheets-table/includes/class-lstab-limits.php';
-require_once __DIR__ . '/../live-sheets-table/includes/class-lstab-columns.php';
-require_once __DIR__ . '/../live-sheets-table/includes/class-lstab-renderer.php';
-require_once __DIR__ . '/../live-sheets-table-pro/includes/class-lstabp-filters.php';
-require_once __DIR__ . '/../live-sheets-table-pro/includes/class-lstabp-rules.php';
+require_once __DIR__ . '/../tabliko/includes/class-lstab-limits.php';
+require_once __DIR__ . '/../tabliko/includes/class-lstab-columns.php';
+require_once __DIR__ . '/../tabliko/includes/class-lstab-renderer.php';
+require_once __DIR__ . '/../tabliko-pro/includes/class-lstabp-filters.php';
+require_once __DIR__ . '/../tabliko-pro/includes/class-lstabp-rules.php';
 
 $passed = 0;
 $failed = 0;

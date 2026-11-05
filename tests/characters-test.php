@@ -17,7 +17,7 @@
  * Usage: php tests/characters-test.php /path/to/wordpress   (the add-on active,
  * servers from tests/setup-env.sh running, since downloads go over HTTP)
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 // phpcs:disable WordPress.Security.EscapeOutput, WordPress.PHP.DevelopmentFunctions, WordPress.WP.AlternativeFunctions
@@ -176,7 +176,7 @@ ch_assert( $rows === $stored['data']['rows'], 'And every value' );
 
 echo "\n\033[1m2. Showing it\033[0m\n";
 
-$plain = $view( '[sheet_table id="' . $id . '"]' );
+$plain = $view( '[tabliko id="' . $id . '"]' );
 $xpath = $dom( $plain );
 $wrong = array();
 foreach ( $xpath->query( '//tbody/tr[contains(@class,"lstab-row")]' ) as $r => $tr ) {
@@ -206,14 +206,14 @@ foreach ( $headings as $c => $heading ) {
 	$set              = $config;
 	$set[ $c ]['label'] = 'Renamed ' . $c;
 	LSTAB_Storage::update( $id, array( 'columns_config' => LSTAB_Columns::sanitize( $set ) ) );
-	if ( false === strpos( $view( '[sheet_table id="' . $id . '"]' ), 'Renamed ' . $c ) ) {
+	if ( false === strpos( $view( '[tabliko id="' . $id . '"]' ), 'Renamed ' . $c ) ) {
 		$renamed[] = $named( $c );
 	}
 
 	$set                 = $config;
 	$set[ $c ]['hidden'] = true;
 	LSTAB_Storage::update( $id, array( 'columns_config' => LSTAB_Columns::sanitize( $set ) ) );
-	$shown = substr_count( $view( '[sheet_table id="' . $id . '"]' ), 'role="columnheader"' );
+	$shown = substr_count( $view( '[tabliko id="' . $id . '"]' ), 'role="columnheader"' );
 	if ( count( $headings ) - 1 !== $shown ) {
 		$hidden[] = $named( $c ) . ": {$shown} headings";
 	}
@@ -231,7 +231,7 @@ foreach ( $headings as $c => $heading ) {
 	$want = $matching( $c, $target( $c ) );
 
 	update_option( LSTABP_Rules::OPTION, array( $id => LSTABP_Rules::sanitize( array( array( 'column' => $offered[ $c ], 'operator' => '=', 'value' => $target( $c ), 'style' => '#fbd5d5', 'scope' => 'cell' ) ) ) ), false );
-	$painted = substr_count( $view( '[sheet_table id="' . $id . '"]' ), '--lstab-row-tint:#fbd5d5' );
+	$painted = substr_count( $view( '[tabliko id="' . $id . '"]' ), '--lstab-row-tint:#fbd5d5' );
 	if ( $painted !== $want ) {
 		$ruled[] = $named( $c ) . ", value " . ch_json( $target( $c ) ) . ": {$painted} cells, want {$want}";
 	}
@@ -239,7 +239,7 @@ foreach ( $headings as $c => $heading ) {
 
 	// The menu's own link is followed, the way a visitor's click would.
 	update_option( LSTABP_Facets::OPTION, array( $id => array( $offered[ $c ] ) ), false );
-	$menu = $dom( $view( '[sheet_table id="' . $id . '"]' ) );
+	$menu = $dom( $view( '[tabliko id="' . $id . '"]' ) );
 	$link = null;
 	foreach ( $menu->query( '//a[contains(@class,"lstabp-facet-value")]' ) as $a ) {
 		$text = $menu->query( './/span[@class="lstabp-facet-text"]', $a )->item( 0 )->textContent;
@@ -253,7 +253,7 @@ foreach ( $headings as $c => $heading ) {
 		$picked = array();
 		parse_str( (string) wp_parse_url( $link, PHP_URL_QUERY ), $picked );
 		$_GET = wp_slash( $picked );
-		$got  = $rows_in( $view( '[sheet_table id="' . $id . '"]' ) );
+		$got  = $rows_in( $view( '[tabliko id="' . $id . '"]' ) );
 		$_GET = array();
 		if ( $got !== $want ) {
 			$menus[] = $named( $c ) . ', picking ' . ch_json( $target( $c ) ) . ": {$got} rows, want {$want}";
@@ -262,7 +262,7 @@ foreach ( $headings as $c => $heading ) {
 	delete_option( LSTABP_Facets::OPTION );
 
 	update_option( LSTABP_Column_Looks::OPTION, array( $id => LSTABP_Column_Looks::sanitize( array( $offered[ $c ] => array( 'look' => 'pill', 'tint' => '#5fe3cf' ) ) ) ), false );
-	$pills = substr_count( $view( '[sheet_table id="' . $id . '"]' ), 'lstabp-pill' );
+	$pills = substr_count( $view( '[tabliko id="' . $id . '"]' ), 'lstabp-pill' );
 	if ( $pills < 4 ) {
 		$looked[] = $named( $c ) . ": {$pills} pills";
 	}
@@ -290,7 +290,7 @@ foreach ( $headings as $c => $heading ) {
 		continue;
 	}
 
-	$got = $rows_in( $view( '[sheet_table id="' . $id . '" filter="' . esc_attr( $typed ) . '"]' ) );
+	$got = $rows_in( $view( '[tabliko id="' . $id . '" filter="' . esc_attr( $typed ) . '"]' ) );
 	if ( $got !== $want ) {
 		$in_shortcode[] = $named( $c ) . ', ' . ch_json( $typed ) . ": {$got} rows, want {$want}";
 	}
@@ -302,7 +302,7 @@ $set              = $config;
 $set[4]['label']  = 'Price PLN';
 $set[12]['label'] = 'Path';
 LSTAB_Storage::update( $id, array( 'columns_config' => LSTAB_Columns::sanitize( $set ) ) );
-$by_plain_name = $rows_in( $view( '[sheet_table id="' . $id . '" filter="Price PLN is ' . esc_attr( $target( 4 ) ) . ', Path is ' . esc_attr( $target( 12 ) ) . '"]' ) );
+$by_plain_name = $rows_in( $view( '[tabliko id="' . $id . '" filter="Price PLN is ' . esc_attr( $target( 4 ) ) . ', Path is ' . esc_attr( $target( 12 ) ) . '"]' ) );
 LSTAB_Storage::update( $id, array( 'columns_config' => $config ) );
 ch_assert( 2 === $by_plain_name, 'A column with "[ ]" or "\\" in its name is reached in a shortcode by a plain name given to it', (string) $by_plain_name );
 
@@ -316,7 +316,7 @@ $lost_page = wp_insert_post(
 		'post_type'    => 'page',
 		'post_status'  => 'publish',
 		'post_title'   => 'Characters lost filter',
-		'post_content' => '[sheet_table id="' . $id . '" filter="Product is <18"]',
+		'post_content' => '[tabliko id="' . $id . '" filter="Product is <18"]',
 	)
 );
 $lost_html = (string) wp_remote_retrieve_body( wp_remote_get( get_permalink( $lost_page ), array( 'timeout' => 30 ) ) );
@@ -324,14 +324,14 @@ wp_delete_post( $lost_page, true );
 ch_assert( 0 === $rows_in( $lost_html ), 'A shortcode whose filter WordPress could not read shows a visitor no rows, rather than every row', (string) $rows_in( $lost_html ) );
 
 wp_set_current_user( 1 );
-$lost_note = $view( '[sheet_table id="' . $id . '" filter="Product is &lt;18&quot;]' );
-$curly     = $view( '[sheet_table id=”' . $id . '”]' );
+$lost_note = $view( '[tabliko id="' . $id . '" filter="Product is &lt;18&quot;]' );
+$curly     = $view( '[tabliko id=”' . $id . '”]' );
 wp_set_current_user( 0 );
 ch_assert( false !== strpos( $lost_note, 'lt instead of' ), 'And tells the site owner how to write it', wp_strip_all_tags( $lost_note ) );
 ch_assert( false !== strpos( $curly, 'curly' ), 'Curly quotes pasted from a document are named as the reason a table is missing', wp_strip_all_tags( $curly ) );
 $lt_column = (int) array_search( '<18', array_map( $target, array_keys( $headings ) ), true );
 $lt_name   = trim( preg_replace( '/\s+/u', ' ', $offered[ $lt_column ] ) );
-$lt_rows   = $rows_in( $view( '[sheet_table id="' . $id . '" filter="' . esc_attr( $lt_name ) . ' is &lt;18"]' ) );
+$lt_rows   = $rows_in( $view( '[tabliko id="' . $id . '" filter="' . esc_attr( $lt_name ) . ' is &lt;18"]' ) );
 ch_assert( $matching( $lt_column, '<18' ) === $lt_rows && $lt_rows > 0, 'A "<" written as &lt; still works', $lt_name . ': ' . $lt_rows );
 
 echo "\n\033[1m6. Searching and sorting a table with pages\033[0m\n";
@@ -345,7 +345,7 @@ foreach ( $headings as $c => $heading ) {
 	$want  = $matching( $c, $target( $c ) );
 
 	$_GET = array( LSTAB_Paging::arg( $id, 'q' ) => wp_slash( $typed ) );
-	$html = $view( '[sheet_table id="' . $id . '"]' );
+	$html = $view( '[tabliko id="' . $id . '"]' );
 	$_GET = array();
 	if ( $rows_in( $html ) < $want ) {
 		$searched[] = $named( $c ) . ', searching ' . ch_json( $typed ) . ': ' . $rows_in( $html ) . " rows, want at least {$want}";
@@ -369,7 +369,7 @@ foreach ( $headings as $c => $heading ) {
 		LSTAB_Paging::arg( $id, 'sort' ) => (string) $c,
 		LSTAB_Paging::arg( $id, 'dir' )  => 'desc',
 	);
-	$got  = $rows_in( $view( '[sheet_table id="' . $id . '"]' ) );
+	$got  = $rows_in( $view( '[tabliko id="' . $id . '"]' ) );
 	$_GET = array();
 	if ( count( $rows ) !== $got ) {
 		$sorted[] = $named( $c ) . ": {$got} rows";
@@ -383,7 +383,7 @@ ch_assert( ! $sorted, 'Sorting by any column keeps every row', implode( "\n", $s
 echo "\n\033[1m7. Downloads\033[0m\n";
 
 update_option( LSTABP_Export::OPTION, array( $id => true ), true );
-$offer = $view( '[sheet_table id="' . $id . '"]' );
+$offer = $view( '[tabliko id="' . $id . '"]' );
 preg_match( '#href="([^"]*format=csv[^"]*)"#', $offer, $csv_link );
 preg_match( '#href="([^"]*format=xlsx[^"]*)"#', $offer, $xlsx_link );
 

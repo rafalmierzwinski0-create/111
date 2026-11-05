@@ -10,7 +10,7 @@
  * The log is the stored shape: "o" for a check that worked, "x" for one that
  * did not, oldest first.
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 // phpcs:disable WordPress.Security.EscapeOutput

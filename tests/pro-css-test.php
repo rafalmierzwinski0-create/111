@@ -8,7 +8,7 @@
  *
  * Usage: php tests/pro-css-test.php /absolute/path/to/wp
  *
- * @package LiveSheetsTablePro\Tests
+ * @package TablikoPro\Tests
  */
 
 // phpcs:disable WordPress.Security.EscapeOutput, WordPress.PHP.DevelopmentFunctions
@@ -83,7 +83,7 @@ lstab_section( 'A. The live preview endpoint' );
  * that overrides every one of them. Naming the table is the whole fix, and it
  * is one word in one string — worth a test that says so out loud.
  */
-$scoped = new WP_REST_Request( 'POST', '/live-sheets-table-pro/v1/scoped-css' );
+$scoped = new WP_REST_Request( 'POST', '/tabliko-pro/v1/scoped-css' );
 $scoped->set_param( 'selector', '[data-lstab-preview="stage"]' );
 $scoped->set_param( 'css', '& { --lstab-fg: #123456 } td { padding: 2em }' );
 $scoped_css = $server->dispatch( $scoped )->get_data()['css'];
@@ -101,7 +101,7 @@ lstab_assert(
 
 // A selector of somebody else's choosing must not become a way to style the
 // dashboard around the preview.
-$hostile_scope = new WP_REST_Request( 'POST', '/live-sheets-table-pro/v1/scoped-css' );
+$hostile_scope = new WP_REST_Request( 'POST', '/tabliko-pro/v1/scoped-css' );
 $hostile_scope->set_param( 'selector', 'body' );
 $hostile_scope->set_param( 'css', 'td { color: red }' );
 $hostile_css = $server->dispatch( $hostile_scope )->get_data()['css'];
@@ -306,7 +306,7 @@ lstab_assert(
 	$with_css
 );
 
-$css_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$css_html = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstab_assert(
 	false !== strpos( $css_html, '<style class="lstab-custom-css"' ),
 	'The published table carries its own style block'
@@ -319,7 +319,7 @@ lstab_assert(
 
 // The same table twice on one page is one set of rules, not two.
 LSTABP_Custom_Css::reset_printed();
-$twice = do_shortcode( '[sheet_table id="' . $source_id . '"]' ) . do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$twice = do_shortcode( '[tabliko id="' . $source_id . '"]' ) . do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstab_assert(
 	1 === substr_count( $twice, 'lstab-custom-css' ),
 	'The same table twice on a page prints its rules once',
@@ -328,7 +328,7 @@ lstab_assert(
 
 LSTABP_Custom_Css::store( $source_id, '' );
 LSTABP_Custom_Css::reset_printed();
-$without_css = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$without_css = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstab_assert(
 	false === strpos( $without_css, 'lstab-custom-css' ),
 	'A table with no CSS of its own carries no style block at all'
@@ -466,7 +466,7 @@ ex_assert(
 
 // The live preview endpoint takes the selector from the caller, so it is the
 // one place a scope could be chosen rather than given.
-$css_rest = new WP_REST_Request( 'POST', '/live-sheets-table-pro/v1/scoped-css' );
+$css_rest = new WP_REST_Request( 'POST', '/tabliko-pro/v1/scoped-css' );
 $css_rest->set_param( 'css', 'td { color: red }' );
 $css_rest->set_param( 'selector', 'body' );
 wp_set_current_user( 1 );
@@ -477,7 +477,7 @@ ex_assert(
 	(string) $css_reply['css']
 );
 
-$css_rest = new WP_REST_Request( 'POST', '/live-sheets-table-pro/v1/scoped-css' );
+$css_rest = new WP_REST_Request( 'POST', '/tabliko-pro/v1/scoped-css' );
 $css_rest->set_param( 'css', 'td { color: red }' );
 $css_rest->set_param( 'selector', '[data-lstab-preview="stage"]' );
 wp_set_current_user( 0 );

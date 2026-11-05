@@ -7,8 +7,8 @@
 # dorysowane.
 import html, pathlib
 
-CSS = pathlib.Path( '/home/user/111/live-sheets-table/assets/css/lstab-table.css' ).read_text()
-JS  = pathlib.Path( '/home/user/111/live-sheets-table/assets/js/lstab-table.js' ).read_text()
+CSS = pathlib.Path( '/home/user/111/tabliko/assets/css/lstab-table.css' ).read_text()
+JS  = pathlib.Path( '/home/user/111/tabliko/assets/js/lstab-table.js' ).read_text()
 
 NAGLOWKI = [ 'Session', 'Starts', 'Room', 'Seats left', 'Status' ]
 ROWNANIE = [ 'start', 'start', 'start', 'end', 'start' ]

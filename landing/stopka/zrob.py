@@ -33,7 +33,7 @@ EN = {
 	],
 	'przycisk': 'Download free',
 	'pod_przyciskiem': 'No account with us',
-	'stan': [ '&copy; 2026 Live Sheets Table', 'Requires WordPress 6.7+',
+	'stan': [ '&copy; 2026 Tabliko', 'Requires WordPress 6.7+',
 	          'Not affiliated with Google LLC' ],
 }
 
@@ -60,7 +60,7 @@ PL = {
 	],
 	'przycisk': 'Pobierz za darmo',
 	'pod_przyciskiem': 'Bez zakładania konta u nas',
-	'stan': [ '&copy; 2026 Live Sheets Table', 'Wymaga WordPressa 6.7+',
+	'stan': [ '&copy; 2026 Tabliko', 'Wymaga WordPressa 6.7+',
 	          'Niezwiązane z Google LLC' ],
 }
 

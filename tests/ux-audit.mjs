@@ -392,7 +392,7 @@ for ( const width of [ 1280, 1700 ] ) {
 }
 await owner.setViewportSize( { width: 1280, height: 900 } );
 
-const editUrl = ( id ) => `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ id }`;
+const editUrl = ( id ) => `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ id }`;
 
 await owner.goto( editUrl( sourceId ), { waitUntil: 'networkidle' } );
 await settle( owner, 600 );
@@ -503,7 +503,7 @@ const narrow = async ( act ) => {
 
 const redrawn = async ( act ) => {
 	await Promise.all( [
-		owner.waitForResponse( ( r ) => /live-sheets-table\/v1\/(redraw|preview)/.test( decodeURIComponent( r.url() ) ), { timeout: 4000 } ).catch( () => null ),
+		owner.waitForResponse( ( r ) => /tabliko\/v1\/(redraw|preview)/.test( decodeURIComponent( r.url() ) ), { timeout: 4000 } ).catch( () => null ),
 		act(),
 	] );
 	await owner.waitForTimeout( 650 );
@@ -1021,11 +1021,11 @@ section( 'Help text points at things that exist' );
 const strings = JSON.parse( execFileSync( 'php', [ path.join( here, 'harness/ui-strings.php' ), repo ] ).toString() );
 
 const screens = [
-	'/wp-admin/admin.php?page=live-sheets-table',
-	'/wp-admin/admin.php?page=live-sheets-table-sources',
-	'/wp-admin/admin.php?page=live-sheets-table-settings',
-	'/wp-admin/admin.php?page=live-sheets-table-pro',
-	'/wp-admin/admin.php?page=live-sheets-table-edit',
+	'/wp-admin/admin.php?page=tabliko',
+	'/wp-admin/admin.php?page=tabliko-sources',
+	'/wp-admin/admin.php?page=tabliko-settings',
+	'/wp-admin/admin.php?page=tabliko-pro',
+	'/wp-admin/admin.php?page=tabliko-edit',
 ];
 const visible = new Set();
 const remember = async ( page ) => {

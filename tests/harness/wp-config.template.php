@@ -2,7 +2,7 @@
 /**
  * Test-site configuration. __PORT__ is substituted by tests/setup-env.sh.
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 define( 'DB_NAME', 'wordpress' );

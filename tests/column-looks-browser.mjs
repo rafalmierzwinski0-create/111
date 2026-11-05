@@ -23,8 +23,8 @@ if ( ! fs.existsSync( said ) ) {
 	process.exit( 1 );
 }
 
-const CSS = fs.readFileSync( path.join( repo, 'live-sheets-table/assets/css/lstab-table.css' ), 'utf8' )
-	+ fs.readFileSync( path.join( repo, 'live-sheets-table-pro/assets/css/lstabp-styles.css' ), 'utf8' );
+const CSS = fs.readFileSync( path.join( repo, 'tabliko/assets/css/lstab-table.css' ), 'utf8' )
+	+ fs.readFileSync( path.join( repo, 'tabliko-pro/assets/css/lstabp-styles.css' ), 'utf8' );
 const table = JSON.parse( fs.readFileSync( said, 'utf8' ) );
 
 let passed = 0;
@@ -313,8 +313,8 @@ console.log( '\nThe card in the dashboard, handing the preview what is being typ
  * script is loaded on top, exactly as WordPress loads it.
  */
 const cardMarkup = fs.readFileSync( path.join( here, 'fixtures/column-looks-card.html' ), 'utf8' );
-const adminJs = fs.readFileSync( path.join( repo, 'live-sheets-table-pro/assets/js/lstabp-admin.js' ), 'utf8' );
-const adminCss = fs.readFileSync( path.join( repo, 'live-sheets-table-pro/assets/css/lstabp-admin.css' ), 'utf8' );
+const adminJs = fs.readFileSync( path.join( repo, 'tabliko-pro/assets/js/lstabp-admin.js' ), 'utf8' );
+const adminCss = fs.readFileSync( path.join( repo, 'tabliko-pro/assets/css/lstabp-admin.css' ), 'utf8' );
 const cardFile = path.join( repo, 'build/column-looks-card.html' );
 
 /*

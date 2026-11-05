@@ -10,7 +10,7 @@
  *
  * Usage: php tests/uninstall-test.php /path/to/site PORT
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 $site = isset( $argv[1] ) ? rtrim( $argv[1], '/' ) : '';
@@ -51,7 +51,7 @@ $state = static function () use ( $site, $port ) {
 	return json_decode( trim( lstab_u_run( 'uninstall-site.php', array( $site, $port, 'state' ) ) ), true );
 };
 
-$plugin = 'live-sheets-table/live-sheets-table.php';
+$plugin = 'tabliko/tabliko.php';
 
 echo "\n\033[1mDeleting the plugin, settings kept\033[0m\n";
 

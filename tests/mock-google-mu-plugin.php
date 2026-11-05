@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Live Sheets Table – Google mock (test harness)
+ * Plugin Name: Tabliko – Google mock (test harness)
  * Description: Intercepts outbound requests to docs.google.com and answers them from local fixtures, so the plugin can be exercised end to end without internet access. Never ship this.
  *
  * The interception happens at WordPress's own pre_http_request filter, which
@@ -12,7 +12,7 @@
  *             | "endpoints" | "custom" | "demo" | "demo_403",
  *     "tab": "main" | "second" }
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 defined( 'ABSPATH' ) || exit;

@@ -3,7 +3,7 @@
  * Router for PHP's built-in web server, so pretty permalinks resolve.
  * __ROOT__ is substituted by tests/setup-env.sh.
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 $root = '__ROOT__';

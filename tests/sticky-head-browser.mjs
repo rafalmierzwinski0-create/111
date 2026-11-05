@@ -47,7 +47,7 @@ const made = JSON.parse( php( `
 		LSTAB_Sync::run( $id );
 		$pages = array();
 		foreach ( array( 'inner' => '', 'page' => ',"align":"full"' ) as $how => $align ) {
-			$pages[ $how ] = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => "Sticky heading $skin $how", 'post_content' => '<!-- wp:paragraph --><p>Above.</p><!-- /wp:paragraph -->' . "\\n\\n" . '<!-- wp:live-sheets-table/sheet-table {"sourceId":' . $id . $align . '} /-->' . "\\n\\n" . str_repeat( '<!-- wp:paragraph --><p>Below.</p><!-- /wp:paragraph -->' . "\\n\\n", 30 ) ) );
+			$pages[ $how ] = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => "Sticky heading $skin $how", 'post_content' => '<!-- wp:paragraph --><p>Above.</p><!-- /wp:paragraph -->' . "\\n\\n" . '<!-- wp:tabliko/sheet-table {"sourceId":' . $id . $align . '} /-->' . "\\n\\n" . str_repeat( '<!-- wp:paragraph --><p>Below.</p><!-- /wp:paragraph -->' . "\\n\\n", 30 ) ) );
 		}
 		$out[] = array( 'skin' => $skin, 'id' => $id, 'pages' => $pages, 'inner' => get_permalink( $pages['inner'] ), 'page' => get_permalink( $pages['page'] ) );
 	}

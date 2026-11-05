@@ -74,7 +74,7 @@ make_site() {
 	# The Pro add-on is linked in but left inactive: the free plugin's suite
 	# asserts the free tier's limits, so it must not run with those lifted.
 	# tests/run-all.sh activates it for the Pro suite and deactivates it after.
-	ln -sfn "$REPO/live-sheets-table-pro" "$SCRATCH/$dir/wp-content/plugins/live-sheets-table-pro"
+	ln -sfn "$REPO/tabliko-pro" "$SCRATCH/$dir/wp-content/plugins/tabliko-pro"
 
 	# Elementor, when it has been fetched. Rebuilding a site used to drop the
 	# link and take the Elementor suite with it — silently, because run-all.sh
@@ -87,7 +87,7 @@ make_site() {
 	# wp and wp71 run the plugin straight from the working tree; wpzip gets the
 	# built archive installed into it instead.
 	if [ "$link_plugin" = "yes" ]; then
-		ln -sfn "$REPO/live-sheets-table" "$SCRATCH/$dir/wp-content/plugins/live-sheets-table"
+		ln -sfn "$REPO/tabliko" "$SCRATCH/$dir/wp-content/plugins/tabliko"
 	fi
 
 	sed -e "s#__PORT__#$port#g" "$REPO/tests/harness/wp-config.template.php" \

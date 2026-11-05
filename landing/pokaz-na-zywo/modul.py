@@ -54,7 +54,7 @@ EN = {
 	'nastepna': 'next',
 	'nic': 'Nothing matches that search.',
 	'swiezosc': 'checked 4 minutes ago',
-	'kod': L + 'sheet_table id=&quot;1&quot;' + P,
+	'kod': L + 'tabliko id=&quot;1&quot;' + P,
 	'pro_tytul': 'Three things Pro adds. Switch them on and watch the same table change.',
 	'pro': [
 		( 'reguly', 'Colour by rules', 'Anything out of stock turns amber.' ),
@@ -88,7 +88,7 @@ PL = {
 	'nastepna': 'następna',
 	'nic': 'Nic nie pasuje do tego wyszukiwania.',
 	'swiezosc': 'sprawdzone 4 minuty temu',
-	'kod': L + 'sheet_table id=&quot;1&quot;' + P,
+	'kod': L + 'tabliko id=&quot;1&quot;' + P,
 	'pro_tytul': 'Trzy rzeczy, które dokłada Pro. Włącz je i patrz, jak zmienia się ta sama tabela.',
 	'pro': [
 		( 'reguly', 'Kolorowanie regułami', 'Wszystko, czego brakuje, robi się bursztynowe.' ),

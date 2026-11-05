@@ -1,0 +1,380 @@
+<?php
+
+defined( 'ABSPATH' ) || exit;
+
+class LSTABP_Filters {
+	protected static $unknown = array();
+
+	public function register() {
+		add_filter( 'lstab_source_rows', array( $this, 'filter_rows' ), 10, 4 );
+		add_action( 'lstab_before_table', array( $this, 'say_unknown' ), 5, 2 );
+		add_filter( 'lstab_filter_supported', '__return_true' );
+		add_filter( 'lstab_shortcode_options', array( $this, 'offer_filter' ) );
+	}
+
+	public function offer_filter( $options ) {
+		$options[] = array(
+			'att'     => 'filter',
+			'type'    => 'written',
+			'write'   => __( 'filter="Column is value"', 'tabliko-pro' ),
+			'example' => 'filter="Availability is In stock"',
+			'means'   => __( 'Shows only the rows that match, so one sheet can feed different tables on different pages', 'tabliko-pro' ),
+			'note'    => __( 'Join several conditions with “and” or a comma; a row must match all of them. All the words you can use are on the Tabliko → Pro screen.', 'tabliko-pro' ),
+		);
+
+		return $options;
+	}
+
+	protected static function operators() {
+		return array( '!=', '>=', '<=', '*=', '=', '>', '<' );
+	}
+
+	protected static function word_operators() {
+		return array(
+			'is'  => '=',
+			'not' => '!=',
+			'has' => '*=',
+			'gt'  => '>',
+			'gte' => '>=',
+			'lt'  => '<',
+			'lte' => '<=',
+		);
+	}
+
+	protected static function word_readings( $part ) {
+		$tokens = preg_split( '/\s+/', trim( $part ) );
+
+		if ( ! is_array( $tokens ) || count( $tokens ) < 3 ) {
+			return array();
+		}
+
+		$words    = self::word_operators();
+		$readings = array();
+
+		for ( $i = 1; $i < count( $tokens ) - 1; $i++ ) {
+			$word = strtolower( $tokens[ $i ] );
+
+			if ( ! isset( $words[ $word ] ) ) {
+				continue;
+			}
+
+			$operator = $words[ $word ];
+			$value_at = $i + 1;
+
+			if ( '=' === $operator && 'not' === strtolower( $tokens[ $value_at ] ) && $value_at + 1 < count( $tokens ) ) {
+				$operator = '!=';
+				$value_at++;
+			}
+
+			$readings[] = array(
+				'column'   => implode( ' ', array_slice( $tokens, 0, $i ) ),
+				'operator' => $operator,
+				'value'    => implode( ' ', array_slice( $tokens, $value_at ) ),
+			);
+		}
+
+		return $readings;
+	}
+
+	protected static function parse_condition( $part ) {
+		$part = trim( $part );
+
+		if ( '' === $part ) {
+			return null;
+		}
+
+		$readings = array();
+
+		foreach ( self::operators() as $operator ) {
+			$position = strpos( $part, $operator );
+
+			if ( false === $position || 0 === $position ) {
+				continue;
+			}
+
+			$readings[] = array(
+				'column'   => trim( substr( $part, 0, $position ) ),
+				'operator' => $operator,
+				'value'    => trim( substr( $part, $position + strlen( $operator ) ) ),
+			);
+
+			break;
+		}
+
+		$readings = array_merge( $readings, self::word_readings( $part ) );
+
+		if ( ! $readings ) {
+			return null;
+		}
+
+		$condition             = $readings[0];
+		$condition['readings'] = $readings;
+
+		return $condition;
+	}
+
+	protected static function all_conditions( $parts ) {
+		if ( count( $parts ) < 2 ) {
+			return false;
+		}
+
+		foreach ( $parts as $part ) {
+			if ( ! self::parse_condition( $part ) ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	protected static function split( $expression ) {
+		$expression = trim( $expression );
+		$worded     = preg_split( '/\s+and\s+/iu', $expression );
+		$parts      = is_array( $worded ) && self::all_conditions( $worded )
+			? $worded
+			: array( $expression );
+
+		$out = array();
+
+		foreach ( $parts as $part ) {
+			$pieces = array_map( 'trim', explode( ',', $part ) );
+
+			if ( self::all_conditions( $pieces ) ) {
+				$out = array_merge( $out, $pieces );
+				continue;
+			}
+
+			$out[] = $part;
+		}
+
+		return $out;
+	}
+
+	public static function parse( $expression ) {
+		$conditions = array();
+
+		$expression = html_entity_decode( (string) $expression, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+
+		foreach ( self::split( $expression ) as $part ) {
+			$condition = self::parse_condition( $part );
+
+			if ( $condition ) {
+				$conditions[] = $condition;
+			}
+		}
+
+		return $conditions;
+	}
+
+	public function filter_rows( $rows, $headers, $source, $args ) {
+		$source_id  = isset( $source['id'] ) ? (int) $source['id'] : 0;
+		$expression = isset( $args['filter'] ) ? (string) $args['filter'] : '';
+
+		unset( self::$unknown[ $source_id ] );
+
+		if ( '' === trim( $expression ) ) {
+			return $rows;
+		}
+
+		$conditions = self::parse( $expression );
+
+		if ( ! $conditions ) {
+			return $rows;
+		}
+
+		$columns  = self::column_map( array_values( (array) $headers ), $source );
+		$missing  = array();
+		$resolved = array();
+
+		foreach ( $conditions as $condition ) {
+			$reading = self::reading_for( $condition, $columns );
+
+			if ( null === $reading ) {
+				$missing[] = $condition['column'];
+				continue;
+			}
+
+			$resolved[] = $reading;
+		}
+
+		if ( $missing ) {
+			self::$unknown[ $source_id ] = array(
+				'names'   => array_values( array_unique( $missing ) ),
+				'columns' => self::column_names( array_values( (array) $headers ), $source ),
+			);
+		}
+
+		$filtered = array();
+
+		foreach ( $rows as $row ) {
+			if ( self::matches( (array) $row, $resolved, $columns ) ) {
+				$filtered[] = $row;
+			}
+		}
+
+		return $filtered;
+	}
+
+	protected static function reading_for( $condition, $columns ) {
+		$readings = isset( $condition['readings'] ) ? (array) $condition['readings'] : array( $condition );
+
+		foreach ( $readings as $reading ) {
+			if ( isset( $columns[ self::key( $reading['column'] ) ] ) ) {
+				return $reading;
+			}
+		}
+
+		return null;
+	}
+
+	public function say_unknown( $source, $args ) {
+		$source_id = isset( $source['id'] ) ? (int) $source['id'] : 0;
+
+		if ( empty( self::$unknown[ $source_id ] ) ) {
+			return;
+		}
+
+		$found = self::$unknown[ $source_id ];
+
+		unset( self::$unknown[ $source_id ] );
+
+		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
+			return;
+		}
+
+		$message = sprintf(
+			/* translators: 1: column names the filter mentions, 2: the table's own column names. */
+			_n(
+				'Only you can see this note. The filter mentions %1$s, but this table has no column by that name, so that part of the filter is ignored. Its columns are: %2$s.',
+				'Only you can see this note. The filter mentions %1$s, but this table has no columns by those names, so those parts of the filter are ignored. Its columns are: %2$s.',
+				count( $found['names'] ),
+				'tabliko-pro'
+			),
+			'“' . implode( '”, “', $found['names'] ) . '”',
+			implode( ', ', $found['columns'] )
+		);
+
+		echo '<div class="lstab-notice lstabp-filter-note"><p>' . esc_html( $message ) . '</p></div>';
+	}
+
+	protected static function column_names( $headers, $source ) {
+		$config = isset( $source['columns_config'] ) ? (array) $source['columns_config'] : array();
+		$names  = array();
+
+		foreach ( $headers as $index => $heading ) {
+			$names[] = ! empty( $config[ $index ]['label'] ) ? (string) $config[ $index ]['label'] : sanitize_text_field( (string) $heading );
+		}
+
+		return $names;
+	}
+
+	public static function column_map( $headers, $source ) {
+		$map    = array();
+		$config = isset( $source['columns_config'] ) ? (array) $source['columns_config'] : array();
+
+		foreach ( $headers as $index => $heading ) {
+			$map[ self::key( (string) $heading ) ] = $index;
+
+			$column = isset( $config[ $index ] ) ? $config[ $index ] : array();
+
+			if ( ! empty( $column['label'] ) ) {
+				$map[ self::key( (string) $column['label'] ) ] = $index;
+			}
+		}
+
+		return $map;
+	}
+
+	public static function key( $name ) {
+		$name = (string) $name;
+
+		if ( false !== strpbrk( $name, '<%' ) ) {
+			$name = sanitize_text_field( $name );
+		}
+
+		if ( false !== strpos( $name, '&' ) ) {
+			$name = html_entity_decode( $name, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+		}
+
+		$spaced = preg_replace( '/[\s\x{00A0}\x{1680}\x{2000}-\x{200B}\x{202F}\x{205F}\x{3000}\x{FEFF}]+/u', ' ', $name );
+		$name   = trim( null === $spaced ? $name : $spaced );
+
+		return function_exists( 'mb_strtolower' ) ? mb_strtolower( $name, 'UTF-8' ) : strtolower( $name );
+	}
+
+	protected static function matches( $row, $conditions, $columns ) {
+		foreach ( $conditions as $condition ) {
+			$key = self::key( $condition['column'] );
+
+			if ( ! isset( $columns[ $key ] ) ) {
+				continue;
+			}
+
+			$cell = isset( $row[ $columns[ $key ] ] ) ? (string) $row[ $columns[ $key ] ] : '';
+
+			if ( ! self::compare( $cell, $condition['operator'], $condition['value'] ) ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	public static function compare( $cell, $operator, $value ) {
+		$left  = self::key( $cell );
+		$right = self::key( $value );
+
+		switch ( $operator ) {
+			case '=':
+				return $left === $right;
+			case '!=':
+				return $left !== $right;
+			case '*=':
+				return '' === $right || false !== strpos( $left, $right );
+		}
+
+		$left_number  = self::to_number( $cell );
+		$right_number = self::to_number( $value );
+
+		if ( null === $left_number || null === $right_number ) {
+			return false;
+		}
+
+		switch ( $operator ) {
+			case '>':
+				return $left_number > $right_number;
+			case '<':
+				return $left_number < $right_number;
+			case '>=':
+				return $left_number >= $right_number;
+			case '<=':
+				return $left_number <= $right_number;
+		}
+
+		return false;
+	}
+
+	protected static function to_number( $value ) {
+		$cleaned = preg_replace( '/[\p{Sc}%\s\x{00A0}\x{202F}\x{2009}]/u', '', (string) $value );
+		$cleaned = preg_replace( '/(?<=[0-9])\p{L}{1,3}$/u', '', (string) $cleaned );
+
+		if ( null === $cleaned || '' === $cleaned ) {
+			return null;
+		}
+
+		$last_comma = strrpos( $cleaned, ',' );
+		$last_dot   = strrpos( $cleaned, '.' );
+
+		if ( false !== $last_comma && false !== $last_dot ) {
+			$cleaned = $last_comma > $last_dot
+				? str_replace( array( '.', ',' ), array( '', '.' ), $cleaned )
+				: str_replace( ',', '', $cleaned );
+		} elseif ( false !== $last_comma ) {
+			$cleaned = substr_count( $cleaned, ',' ) > 1
+				? str_replace( ',', '', $cleaned )
+				: str_replace( ',', '.', $cleaned );
+		}
+
+		return is_numeric( $cleaned ) ? (float) $cleaned : null;
+	}
+}

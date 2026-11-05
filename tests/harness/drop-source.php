@@ -4,7 +4,7 @@
  *
  * Usage: php tests/harness/drop-source.php /path/to/wp 12
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 define( 'LSTAB_DROP_ROOT', isset( $argv[1] ) ? rtrim( $argv[1], '/' ) : '' );

@@ -8,7 +8,7 @@
  *
  * Usage: php tests/pro-test.php /absolute/path/to/wp
  *
- * @package LiveSheetsTablePro\Tests
+ * @package TablikoPro\Tests
  */
 
 // phpcs:disable WordPress.Security.EscapeOutput, WordPress.PHP.DevelopmentFunctions
@@ -396,7 +396,7 @@ foreach ( $cases as $expression => $expected ) {
 	// Both forms matter: editors store an attribute as typed, page builders
 	// often store "<" and ">" as entities, and both must behave the same.
 	foreach ( array( 'as typed' => $expression, 'entity encoded' => esc_attr( $expression ) ) as $form => $written ) {
-		$html  = do_shortcode( '[sheet_table id="' . $source_id . '" filter="' . $written . '"]' );
+		$html  = do_shortcode( '[tabliko id="' . $source_id . '" filter="' . $written . '"]' );
 		$count = substr_count( $html, '<tr role="row" class="lstab-row"' );
 
 		lstabp_assert(
@@ -408,14 +408,14 @@ foreach ( $cases as $expression => $expected ) {
 }
 
 // A filter must not change the table itself, only which rows are in it.
-$filtered_html = do_shortcode( '[sheet_table id="' . $source_id . '" filter="Dostępność=Brak"]' );
+$filtered_html = do_shortcode( '[tabliko id="' . $source_id . '" filter="Dostępność=Brak"]' );
 lstabp_assert( false !== strpos( $filtered_html, 'Produkt' ), 'A filtered table keeps its headings' );
 lstabp_assert( false !== strpos( $filtered_html, 'lstab-scrollbar' ), 'A filtered table keeps the slider' );
 lstabp_assert( false === strpos( $filtered_html, 'Kask Lazer' ), 'Rows that do not match are gone' );
 
 // The same source, filtered differently, on two pages.
-$bikes = substr_count( do_shortcode( '[sheet_table id="' . $source_id . '" filter="Cena netto>1000"]' ), '<tr role="row"' );
-$cheap = substr_count( do_shortcode( '[sheet_table id="' . $source_id . '" filter="Cena netto<100"]' ), '<tr role="row"' );
+$bikes = substr_count( do_shortcode( '[tabliko id="' . $source_id . '" filter="Cena netto>1000"]' ), '<tr role="row"' );
+$cheap = substr_count( do_shortcode( '[tabliko id="' . $source_id . '" filter="Cena netto<100"]' ), '<tr role="row"' );
 lstabp_assert( $bikes !== $cheap, 'One source can feed two differently filtered pages', "{$bikes} vs {$cheap}" );
 
 // Filters must resolve against a renamed column too, since that is the name
@@ -426,10 +426,10 @@ LSTAB_Storage::update(
 		'columns_config' => array( 2 => array( 'label' => 'Status' ) ),
 	)
 );
-$by_label = substr_count( do_shortcode( '[sheet_table id="' . $source_id . '" filter="Status=Brak"]' ), '<tr role="row" class="lstab-row"' );
+$by_label = substr_count( do_shortcode( '[tabliko id="' . $source_id . '" filter="Status=Brak"]' ), '<tr role="row" class="lstab-row"' );
 lstabp_assert( 1 === $by_label, 'A filter matches a renamed column', (string) $by_label );
 
-$by_source = substr_count( do_shortcode( '[sheet_table id="' . $source_id . '" filter="Dostępność=Brak"]' ), '<tr role="row" class="lstab-row"' );
+$by_source = substr_count( do_shortcode( '[tabliko id="' . $source_id . '" filter="Dostępność=Brak"]' ), '<tr role="row" class="lstab-row"' );
 lstabp_assert( 1 === $by_source, 'And still matches the original sheet heading', (string) $by_source );
 
 // Filtering on a hidden column must still work: it is hidden from visitors,
@@ -440,14 +440,14 @@ LSTAB_Storage::update(
 		'columns_config' => array( 2 => array( 'hidden' => true ) ),
 	)
 );
-$hidden_filter = do_shortcode( '[sheet_table id="' . $source_id . '" filter="Dostępność=Brak"]' );
+$hidden_filter = do_shortcode( '[tabliko id="' . $source_id . '" filter="Dostępność=Brak"]' );
 lstabp_assert( false === strpos( $hidden_filter, 'Dostępność' ), 'The hidden column is not shown' );
 
 // Asserting only that the column is absent is what let this break: filtering
 // ran after the column had been removed, so the condition matched nothing and
 // every row came through. The row count is the assertion that matters.
 $hidden_rows = substr_count( $hidden_filter, '<tr role="row" class="lstab-row"' );
-$all_rows    = substr_count( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), '<tr role="row" class="lstab-row"' );
+$all_rows    = substr_count( do_shortcode( '[tabliko id="' . $source_id . '"]' ), '<tr role="row" class="lstab-row"' );
 lstabp_assert( 1 === $hidden_rows, 'A filter still selects rows by a column the table hides', (string) $hidden_rows );
 lstabp_assert( $hidden_rows < $all_rows, 'Filtering on a hidden column is not a no-op', "{$hidden_rows} of {$all_rows}" );
 
@@ -459,7 +459,7 @@ LSTAB_Storage::update( $source_id, array( 'columns_config' => array() ) );
 // the filter, rather than falling back to every row. This add-on is what says
 // the ask can be met.
 lstabp_assert( apply_filters( 'lstab_filter_supported', false ), 'The add-on announces that filtering is available' );
-$honoured = do_shortcode( '[sheet_table id="' . $source_id . '" filter="Dostępność=Brak"]' );
+$honoured = do_shortcode( '[tabliko id="' . $source_id . '" filter="Dostępność=Brak"]' );
 lstabp_assert( 1 === substr_count( $honoured, '<tr role="row" class="lstab-row"' ), 'And the table renders its matching rows', (string) substr_count( $honoured, '<tr role="row" class="lstab-row"' ) );
 lstabp_assert( false === strpos( $honoured, 'not active' ), 'With the add-on there is nothing to warn about' );
 
@@ -525,7 +525,7 @@ update_option(
 	false
 );
 
-$ruled = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$ruled = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstabp_assert( false !== strpos( $ruled, 'background-color:#fbd5d5' ), 'A cell rule colours its cell' );
 lstabp_assert( false !== strpos( $ruled, 'lstab-ruled' ), 'Styled cells are marked with a class as well' );
 lstabp_assert( false !== strpos( $ruled, 'lstab-ruled lstab-painted' ), 'A coloured cell is marked as painted, so the row hover can reach it' );
@@ -563,7 +563,7 @@ update_option(
 	false
 );
 
-$worded = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$worded = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstabp_assert( false !== strpos( $worded, 'color:#d9a441' ), 'A words-only rule colours the words' );
 lstabp_assert( false === strpos( $worded, 'background-color:#d9a441' ), 'And leaves the cell its own background' );
 lstabp_assert( 1 === substr_count( $worded, 'color:#d9a441' ), 'On the matching cell alone', (string) substr_count( $worded, 'color:#d9a441' ) );
@@ -606,7 +606,7 @@ update_option(
 // A rule reads the sheet, so hiding a column changes what is on screen but not
 // what the rule can see.
 LSTAB_Storage::update( $source_id, array( 'columns_config' => array( 2 => array( 'hidden' => true ) ) ) );
-$ruled_hidden = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$ruled_hidden = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstabp_assert( false === strpos( $ruled_hidden, 'Dostępność' ), 'The column really is hidden' );
 lstabp_assert( 8 === substr_count( $ruled_hidden, 'font-weight:700' ), 'A row rule still fires with a column hidden', (string) substr_count( $ruled_hidden, 'font-weight:700' ) );
 LSTAB_Storage::update( $source_id, array( 'columns_config' => array() ) );
@@ -816,7 +816,7 @@ update_option(
 	false
 );
 
-$drawer_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$drawer_html = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 
 lstabp_assert( false !== strpos( $drawer_html, 'lstab-detail' ), 'The table has drawers to colour' );
 lstabp_assert(
@@ -885,7 +885,7 @@ lstabp_assert(
 $rule_data['headers'][2] = $was_heading;
 LSTAB_Storage::record_success( $source_id, $rule_data );
 lstabp_assert(
-	false !== strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'lstab-ruled' ),
+	false !== strpos( do_shortcode( '[tabliko id="' . $source_id . '"]' ), 'lstab-ruled' ),
 	'And it colours again the moment the heading comes back'
 );
 
@@ -895,7 +895,7 @@ lstabp_section( '5d. Taking the table away' );
 
 update_option( LSTABP_Export::OPTION, array( $source_id => true ), true );
 
-$with_buttons = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$with_buttons = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstabp_assert( false !== strpos( $with_buttons, 'lstabp-export-button' ), 'A table can offer a download and a print button' );
 lstabp_assert( false !== strpos( $with_buttons, 'lstabp_export' ), 'The download is an ordinary link' );
 
@@ -915,7 +915,7 @@ lstabp_assert(
 );
 
 update_option( LSTABP_Export::OPTION, array(), true );
-lstabp_assert( false === strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'lstabp-export-button' ), 'And does not when it is switched off' );
+lstabp_assert( false === strpos( do_shortcode( '[tabliko id="' . $source_id . '"]' ), 'lstabp-export-button' ), 'And does not when it is switched off' );
 update_option( LSTABP_Export::OPTION, array( $source_id => true ), true );
 
 /*
@@ -1066,7 +1066,7 @@ lstabp_assert( 'BA' === LSTABP_Xlsx::column_name( 52 ), 'Column 53 is BA' );
 
 // And the button that leads to it.
 update_option( LSTABP_Export::OPTION, array( $source_id => true ), true );
-$xlsx_buttons = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$xlsx_buttons = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstabp_assert( false !== strpos( $xlsx_buttons, 'format=xlsx' ), 'The table offers an Excel download' );
 lstabp_assert( false !== strpos( $xlsx_buttons, 'format=csv' ), 'And still offers CSV beside it' );
 delete_option( LSTABP_Export::OPTION );
@@ -1345,13 +1345,13 @@ lstabp_assert( LSTABP_Facets::MAX_VALUES < count( $lstabp_unique ), 'Which is mo
 
 update_option( LSTABP_Facets::OPTION, array( $source_id => array( 'Dostępność' ) ), false );
 
-$lstabp_unfiltered = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$lstabp_unfiltered = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstabp_assert( false !== strpos( $lstabp_unfiltered, 'lstabp-facets' ), 'A chosen column puts a filter above the table' );
 lstabp_assert( 7 === substr_count( $lstabp_unfiltered, '<tr role="row"' ) - 1, 'And changes nothing until it is used', (string) ( substr_count( $lstabp_unfiltered, '<tr role="row"' ) - 1 ) );
 lstabp_assert( false === strpos( $lstabp_unfiltered, 'lstabp-facets-clear' ), 'With nothing to clear, there is no clearing link' );
 
 $_GET[ 'lstab-f2-' . $source_id ] = 'W magazynie';
-$lstabp_filtered                  = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$lstabp_filtered                  = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstabp_assert( 5 === substr_count( $lstabp_filtered, '<tr role="row"' ) - 1, 'Choosing a value narrows the table to it', (string) ( substr_count( $lstabp_filtered, '<tr role="row"' ) - 1 ) );
 // Named by their product rather than by the value filtered on, which is also
 // printed in the menu of the filter itself.
@@ -1360,7 +1360,7 @@ lstabp_assert( false !== strpos( $lstabp_filtered, 'lstabp-facets-clear' ), 'A f
 lstabp_assert( false !== strpos( $lstabp_filtered, '7' ), 'Which says how many rows clearing it gives back' );
 
 $_GET[ 'lstab-f2-' . $source_id ] = 'W magazynie|Brak';
-$lstabp_two                       = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$lstabp_two                       = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstabp_assert( 6 === substr_count( $lstabp_two, '<tr role="row"' ) - 1, 'Two values are both let through', (string) ( substr_count( $lstabp_two, '<tr role="row"' ) - 1 ) );
 
 /*
@@ -1370,7 +1370,7 @@ lstabp_assert( 6 === substr_count( $lstabp_two, '<tr role="row"' ) - 1, 'Two val
  * table and read as a broken page.
  */
 $_GET[ 'lstab-f2-' . $source_id ] = '<script>alert(1)</script>';
-$lstabp_bogus                     = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$lstabp_bogus                     = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstabp_assert( 7 === substr_count( $lstabp_bogus, '<tr role="row"' ) - 1, 'A value the column does not hold is ignored, not obeyed', (string) ( substr_count( $lstabp_bogus, '<tr role="row"' ) - 1 ) );
 lstabp_assert( false === strpos( $lstabp_bogus, '<script>alert' ), 'And cannot reach the page as markup' );
 
@@ -1378,7 +1378,7 @@ lstabp_assert( false === strpos( $lstabp_bogus, '<script>alert' ), 'And cannot r
 // whatever column has ended up in that position.
 update_option( LSTABP_Facets::OPTION, array( $source_id => array( 'Kolumna, której nie ma' ) ), false );
 $_GET[ 'lstab-f2-' . $source_id ] = 'W magazynie';
-$lstabp_gone                      = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$lstabp_gone                      = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstabp_assert( false === strpos( $lstabp_gone, 'lstabp-facets' ), 'A filter on a column the sheet no longer has shows nothing' );
 lstabp_assert( 7 === substr_count( $lstabp_gone, '<tr role="row"' ) - 1, 'And narrows nothing', (string) ( substr_count( $lstabp_gone, '<tr role="row"' ) - 1 ) );
 
@@ -1390,7 +1390,7 @@ $lstabp_was_user = get_current_user_id();
 wp_set_current_user( 1 );
 update_option( LSTABP_Facets::OPTION, array(), false );
 
-$lstabp_redraw = new WP_REST_Request( 'POST', '/live-sheets-table/v1/redraw' );
+$lstabp_redraw = new WP_REST_Request( 'POST', '/tabliko/v1/redraw' );
 $lstabp_redraw->set_param( 'sourceId', $source_id );
 $lstabp_redraw->set_param( 'facets', array( 'Dostępność' ) );
 $lstabp_redrawn = (string) rest_get_server()->dispatch( $lstabp_redraw )->get_data()['html'];
@@ -1460,26 +1460,26 @@ update_option(
 	),
 	false
 );
-$odd_ruled = do_shortcode( '[sheet_table id="' . $odd_source . '"]' );
+$odd_ruled = do_shortcode( '[tabliko id="' . $odd_source . '"]' );
 lstabp_assert( 1 === substr_count( $odd_ruled, '--lstab-row-tint:#fbd5d5' ), 'A colour rule on a heading written on two lines colours its cells', (string) substr_count( $odd_ruled, '--lstab-row-tint:#fbd5d5' ) );
 lstabp_assert( 2 === substr_count( $odd_ruled, '--lstab-row-tint:#cfebd9' ), 'A rule looking for "<18" finds the cells that say <18', (string) substr_count( $odd_ruled, '--lstab-row-tint:#cfebd9' ) );
 delete_option( LSTABP_Rules::OPTION );
 
 update_option( LSTABP_Facets::OPTION, array( $odd_source => array( 'Age group', 'Price (net)' ) ), false );
-$odd_bar = do_shortcode( '[sheet_table id="' . $odd_source . '"]' );
+$odd_bar = do_shortcode( '[tabliko id="' . $odd_source . '"]' );
 lstabp_assert( false !== strpos( $odd_bar, '<b>Price (net):</b>' ), 'A "Show only" menu is offered for a heading written on two lines' );
 $_GET[ LSTAB_Paging::arg( $odd_source, 'f2' ) ] = '<18';
-$odd_picked = do_shortcode( '[sheet_table id="' . $odd_source . '"]' );
+$odd_picked = do_shortcode( '[tabliko id="' . $odd_source . '"]' );
 unset( $_GET[ LSTAB_Paging::arg( $odd_source, 'f2' ) ] );
 lstabp_assert( 2 === $odd_rows_in( $odd_picked ), 'And picking "<18" under "Show only" leaves the two rows that say it', (string) $odd_rows_in( $odd_picked ) );
 delete_option( LSTABP_Facets::OPTION );
 
 update_option( LSTABP_Column_Looks::OPTION, array( $odd_source => array( 'Price (net)' => array( 'look' => 'bar', 'tint' => '#5fe3cf', 'ink' => '', 'label' => '' ) ) ), false );
-$odd_looked = do_shortcode( '[sheet_table id="' . $odd_source . '"]' );
+$odd_looked = do_shortcode( '[tabliko id="' . $odd_source . '"]' );
 lstabp_assert( 3 === substr_count( $odd_looked, '--lstabp-bar:' ), 'A column look reaches a column whose heading is on two lines', (string) substr_count( $odd_looked, '--lstabp-bar:' ) );
 delete_option( LSTABP_Column_Looks::OPTION );
 
-lstabp_assert( 1 === $odd_rows_in( do_shortcode( '[sheet_table id="' . $odd_source . '" filter="Price (net) gt 1000"]' ) ), 'A written filter can name that column the way it reads on one line' );
+lstabp_assert( 1 === $odd_rows_in( do_shortcode( '[tabliko id="' . $odd_source . '" filter="Price (net) gt 1000"]' ) ), 'A written filter can name that column the way it reads on one line' );
 
 // The block and Elementor keep "<" and ">" in what was typed; WordPress's text
 // cleaning took "<1000, Price (net)>" for a tag and the filter was lost.
@@ -1499,12 +1499,12 @@ lstabp_assert( $odd_csv && false !== strpos( wp_remote_retrieve_body( $odd_csv )
  * owner is told, and nobody else sees the note.
  */
 wp_set_current_user( 1 );
-$odd_typo = do_shortcode( '[sheet_table id="' . $odd_source . '" filter="Colour is red"]' );
+$odd_typo = do_shortcode( '[tabliko id="' . $odd_source . '" filter="Colour is red"]' );
 lstabp_assert( false !== strpos( $odd_typo, 'lstabp-filter-note' ) && false !== strpos( $odd_typo, '“Colour”' ), 'The owner is told which column a filter names that the table lacks', wp_strip_all_tags( $odd_typo ) );
 lstabp_assert( false !== strpos( $odd_typo, 'Product, Price (net), Age group, Price [PLN]' ), 'And which columns it does have' );
 wp_set_current_user( 0 );
-lstabp_assert( false === strpos( do_shortcode( '[sheet_table id="' . $odd_source . '" filter="Colour is red"]' ), 'lstabp-filter-note' ), 'A visitor sees no such note' );
-lstabp_assert( false === strpos( do_shortcode( '[sheet_table id="' . $odd_source . '" filter="Age group is 18-25"]' ), 'lstabp-filter-note' ), 'Nor is there one when the filter is right' );
+lstabp_assert( false === strpos( do_shortcode( '[tabliko id="' . $odd_source . '" filter="Colour is red"]' ), 'lstabp-filter-note' ), 'A visitor sees no such note' );
+lstabp_assert( false === strpos( do_shortcode( '[tabliko id="' . $odd_source . '" filter="Age group is 18-25"]' ), 'lstabp-filter-note' ), 'Nor is there one when the filter is right' );
 
 // The dashboard cards show such a heading on one line and find what was saved
 // under it, rather than offering it unticked and dropping it on the next save.
@@ -1638,7 +1638,7 @@ $lstabp_seed_options = static function () {
 
 $lstabp_uninstall = static function () use ( $wp_root ) {
 	$command = escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( dirname( __FILE__ ) . '/harness/run-uninstall.php' )
-		. ' ' . escapeshellarg( $wp_root ) . ' ' . escapeshellarg( 'live-sheets-table-pro/live-sheets-table-pro.php' ) . ' 2>&1';
+		. ' ' . escapeshellarg( $wp_root ) . ' ' . escapeshellarg( 'tabliko-pro/tabliko-pro.php' ) . ' 2>&1';
 
 	exec( $command, $output, $status );
 

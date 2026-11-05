@@ -4,14 +4,14 @@
  *
  * Usage: php tests/harness/activate.php /path/to/site 8089
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 $site   = isset( $argv[1] ) ? rtrim( $argv[1], '/' ) : '';
 $port   = isset( $argv[2] ) ? (int) $argv[2] : 8089;
 // Named to avoid $plugin, which wp-settings.php overwrites while loading
 // active plugins — a collision that quietly empties it after wp-load.
-$target = isset( $argv[3] ) ? $argv[3] : 'live-sheets-table/live-sheets-table.php';
+$target = isset( $argv[3] ) ? $argv[3] : 'tabliko/tabliko.php';
 
 if ( ! $site || ! file_exists( $site . '/wp-load.php' ) ) {
 	fwrite( STDERR, "Usage: php activate.php /path/to/site PORT\n" );

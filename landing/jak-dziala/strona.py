@@ -88,7 +88,7 @@ EN = {
 		  'page a visitor receives.',
 		  '' ),
 	],
-	'kod': L + 'sheet_table id=&quot;1&quot;' + P,
+	'kod': L + 'tabliko id=&quot;1&quot;' + P,
 	'kod_opis': 'A block, an Elementor widget or this shortcode &mdash; the same table either way.',
 }
 
@@ -151,7 +151,7 @@ PL = {
 		  'kodu. Kolory są wyliczane na serwerze, więc są już w stronie, którą dostaje odwiedzający.',
 		  '' ),
 	],
-	'kod': L + 'sheet_table id=&quot;1&quot;' + P,
+	'kod': L + 'tabliko id=&quot;1&quot;' + P,
 	'kod_opis': 'Blok, widżet Elementora albo ten shortcode &mdash; ta sama tabela w każdym przypadku.',
 }
 
@@ -469,7 +469,7 @@ def okno( klucz, nazwa_okna, wysoki=False ):
 
 
 NAZWY_OKIEN = {
-	'podglad':  'WordPress &rsaquo; Live Sheets Table',
+	'podglad':  'WordPress &rsaquo; Tabliko',
 	'lista':    'WordPress &rsaquo; Sheet sources',
 	'tabela':   'yoursite.com/price-list',
 	'telefon':  'yoursite.com &mdash; phone',

@@ -1,0 +1,742 @@
+<?php
+
+defined( 'ABSPATH' ) || exit;
+
+$lstab_is_edit    = (bool) $source;
+$lstab_defaults   = LSTAB_Storage::defaults();
+$lstab_values     = $lstab_is_edit ? $source : $lstab_defaults;
+$lstab_intervals  = LSTAB_Limits::choices();
+$lstab_presets    = LSTAB_Styles::all();
+$lstab_first_row  = $lstab_is_edit ? (bool) $source['first_row_header'] : true;
+$lstab_is_sample  = $lstab_is_edit && LSTAB_Example::is_example( $source );
+
+if ( ! $lstab_is_edit ) {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only prefill of a field the person just typed.
+	$lstab_pasted = isset( $_GET['sheet_url'] ) ? esc_url_raw( wp_unslash( $_GET['sheet_url'] ) ) : '';
+
+	if ( '' !== $lstab_pasted ) {
+		$lstab_values['sheet_url'] = $lstab_pasted;
+	}
+}
+?>
+<div class="wrap lstab-admin lstab-editor">
+	<?php
+	LSTAB_Admin::render_masthead(
+		$lstab_is_edit
+			? esc_html__( 'Editing a table', 'tabliko' )
+			: esc_html__( 'Paste a link and see the table before you save it', 'tabliko' )
+	);
+	?>
+
+	<?php LSTAB_Admin::print_notice(); ?>
+
+	<?php if ( $lstab_is_edit && ! empty( $source['last_ragged'] ) ) : ?>
+		<div class="notice notice-warning inline lstab-ragged-notice">
+			<p><strong><?php esc_html_e( 'Some rows of this sheet could not be read.', 'tabliko' ); ?></strong></p>
+			<p><?php echo esc_html( LSTAB_Admin::ragged_summary( $source['last_ragged'] ) ); ?></p>
+			<p>
+				<?php esc_html_e( 'Open those rows in your sheet and compare them with the rows around them.', 'tabliko' ); ?>
+			</p>
+			<p><?php esc_html_e( 'Your page shows the table as it was read, including these rows. Fix them in Google, then choose “Save and update from Google” at the bottom of this screen.', 'tabliko' ); ?></p>
+		</div>
+	<?php endif; ?>
+
+	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="lstab-source-form">
+
+	<nav class="lstab-panes" id="lstab-panes" role="tablist">
+		<?php
+		$lstab_panes = array(
+			'general' => array( 'sliders', __( 'General', 'tabliko' ) ),
+			'look'    => array( 'brush', __( 'Appearance', 'tabliko' ) ),
+			'hide'    => array( 'columns', __( 'Columns and rows', 'tabliko' ) ),
+		);
+
+		foreach ( $lstab_panes as $lstab_pane => $lstab_meta ) :
+			?>
+			<button type="button"
+				class="lstab-pane-tab<?php echo 'general' === $lstab_pane ? ' is-on' : ''; ?>"
+				data-lstab-goto="<?php echo esc_attr( $lstab_pane ); ?>"
+				role="tab"
+				aria-selected="<?php echo 'general' === $lstab_pane ? 'true' : 'false'; ?>">
+				<?php echo LSTAB_Icons::icon( $lstab_meta[0] ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+				<?php echo esc_html( $lstab_meta[1] ); ?>
+			</button>
+		<?php endforeach; ?>
+	</nav>
+
+	<div class="lstab-editor-grid" data-lstab-panes="general look hide">
+		<div class="lstab-form">
+			<?php wp_nonce_field( 'lstab_save_source' ); ?>
+			<input type="hidden" name="action" value="lstab_save_source">
+			<input type="hidden" name="source_id" value="<?php echo esc_attr( (string) ( $lstab_is_edit ? $source['id'] : 0 ) ); ?>">
+			<input type="hidden" name="gid" id="lstab-gid" value="<?php echo esc_attr( (string) $lstab_values['gid'] ); ?>">
+			<input type="hidden" name="tab_name" id="lstab-tab-name" value="<?php echo esc_attr( (string) $lstab_values['tab_name'] ); ?>">
+
+			<div class="lstab-pane" data-lstab-pane="general">
+
+			<?php if ( $lstab_is_sample ) : ?>
+				<div class="lstab-card">
+					<h2 class="lstab-card-title"><?php esc_html_e( 'This is the built-in example', 'tabliko' ); ?></h2>
+					<p class="lstab-help">
+						<?php esc_html_e( 'This table comes with the plugin and never contacts Google, so it has no link and is never checked for changes. Every other setting works exactly as it does for your own sheets.', 'tabliko' ); ?>
+					</p>
+				</div>
+			<?php else : ?>
+			<div class="lstab-card">
+				<h2 class="lstab-card-title"><?php esc_html_e( 'Point at your sheet', 'tabliko' ); ?></h2>
+
+				<p class="lstab-help">
+					<?php esc_html_e( 'First share the sheet: in Google Sheets choose Share → General access → “Anyone with the link”, with the role “Viewer”. Then copy the address from your browser’s address bar and paste it here. No API key is needed.', 'tabliko' ); ?>
+				</p>
+
+				<p>
+					<label for="lstab-sheet-url"><strong><?php esc_html_e( 'Google Sheets link', 'tabliko' ); ?></strong></label>
+					<input type="url"
+						id="lstab-sheet-url"
+						name="sheet_url"
+						class="large-text code"
+						required
+						placeholder="https://docs.google.com/spreadsheets/d/…/edit"
+						value="<?php echo esc_attr( (string) $lstab_values['sheet_url'] ); ?>">
+				</p>
+
+				<p>
+					<button type="button" class="lstab-btn" id="lstab-preview-button">
+						<?php esc_html_e( 'Load preview', 'tabliko' ); ?>
+					</button>
+					<span class="spinner lstab-spinner" id="lstab-spinner"></span>
+				</p>
+
+				<?php
+				$lstab_tab_known = '' !== trim( (string) $lstab_values['tab_name'] );
+				?>
+				<div id="lstab-tabs-wrap" class="lstab-tabs" <?php echo $lstab_tab_known ? '' : 'hidden'; ?>>
+					<label for="lstab-tabs"><strong><?php esc_html_e( 'Sheet tab', 'tabliko' ); ?></strong></label>
+					<select id="lstab-tabs" aria-describedby="lstab-tabs-note">
+						<?php if ( $lstab_tab_known ) : ?>
+							<option value="<?php echo esc_attr( (string) $lstab_values['gid'] ); ?>" selected><?php echo esc_html( $lstab_values['tab_name'] ); ?></option>
+						<?php endif; ?>
+					</select>
+					<p class="lstab-help lstab-tabs-note" id="lstab-tabs-note" hidden></p>
+				</div>
+
+				<p class="lstab-checkbox">
+					<label>
+						<input type="checkbox" name="first_row_header" id="lstab-first-row-header" value="1" <?php checked( $lstab_first_row ); ?>>
+						<?php esc_html_e( 'The first row contains column headings', 'tabliko' ); ?>
+					</label>
+				</p>
+			</div>
+			<?php endif; ?>
+
+			<div class="lstab-card">
+				<h2 class="lstab-card-title"><?php esc_html_e( 'Name it and choose how often it is checked', 'tabliko' ); ?></h2>
+
+				<p>
+					<label for="lstab-title"><strong><?php esc_html_e( 'Title', 'tabliko' ); ?></strong></label>
+					<input type="text"
+						id="lstab-title"
+						name="title"
+						class="regular-text"
+						placeholder="<?php esc_attr_e( 'Price list', 'tabliko' ); ?>"
+						value="<?php echo esc_attr( (string) $lstab_values['title'] ); ?>">
+					<span class="lstab-help"><?php esc_html_e( 'For you, to tell your tables apart. It is not shown on the page.', 'tabliko' ); ?></span>
+				</p>
+
+				<?php if ( ! $lstab_is_sample ) : ?>
+				<p>
+					<label for="lstab-interval"><strong><?php esc_html_e( 'Check Google for changes', 'tabliko' ); ?></strong></label>
+					<select id="lstab-interval" name="sync_interval">
+						<?php foreach ( $lstab_intervals as $lstab_seconds => $lstab_label ) : ?>
+							<option value="<?php echo esc_attr( (string) $lstab_seconds ); ?>" <?php selected( LSTAB_Limits::clamp_interval( (int) $lstab_values['sync_interval'] ), (int) $lstab_seconds ); ?>>
+								<?php echo esc_html( $lstab_label ); ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+					<span class="lstab-help"><?php esc_html_e( 'Google is asked only when someone opens a page with the table and the saved copy is older than this. They never wait for it: they see the saved copy at once, and if the sheet has changed, the table updates on the page a moment later. A table nobody opens is not checked at all.', 'tabliko' ); ?></span>
+				</p>
+				<?php endif; ?>
+
+			</div>
+
+			<?php if ( $lstab_is_edit ) : ?>
+				<?php $lstab_shortcode = '[tabliko id="' . (int) $source['id'] . '"]'; ?>
+				<div class="lstab-card lstab-usage">
+					<h2 class="lstab-card-title"><?php esc_html_e( 'Put it on a page', 'tabliko' ); ?></h2>
+					<p>
+						<?php esc_html_e( 'In the block editor, add the “Tabliko Table” block and pick this table. In Elementor, use the “Tabliko Table” widget. Anywhere else, paste this shortcode:', 'tabliko' ); ?>
+					</p>
+					<p class="lstab-usage-code">
+						<code class="lstab-shortcode"><?php echo esc_html( $lstab_shortcode ); ?></code>
+						<button type="button" class="lstab-copy" data-lstab-copy="<?php echo esc_attr( $lstab_shortcode ); ?>">
+							<?php echo LSTAB_Icons::icon( 'copy' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+							<span class="lstab-copy-label"><?php esc_html_e( 'Copy', 'tabliko' ); ?></span>
+						</button>
+					</p>
+					<?php
+					$lstab_options = array(
+						array(
+							'att'   => 'search',
+							'type'  => 'toggle',
+							'label' => __( 'Search box', 'tabliko' ),
+						),
+						array(
+							'att'   => 'sort',
+							'type'  => 'toggle',
+							'label' => __( 'Sorting by column', 'tabliko' ),
+						),
+						array(
+							'att'   => 'meta',
+							'field' => 'show_meta',
+							'type'  => 'toggle',
+							'label' => __( 'The “updated … ago” line', 'tabliko' ),
+						),
+					);
+
+					$lstab_options = apply_filters( 'lstab_shortcode_options', $lstab_options, $source );
+					?>
+					<div class="lstab-shortcode-options" data-lstab-shortcode-builder="<?php echo esc_attr( (string) (int) $source['id'] ); ?>">
+						<p class="lstab-help">
+							<?php esc_html_e( 'Choose what visitors see with the table. This is saved with the table, so the shortcode stays as it is, and the block and the widget show the table the same way.', 'tabliko' ); ?>
+						</p>
+						<?php foreach ( $lstab_options as $lstab_option ) : ?>
+							<?php if ( 'toggle' === $lstab_option['type'] ) : ?>
+								<?php
+								$lstab_field = isset( $lstab_option['field'] ) ? $lstab_option['field'] : 'show_' . $lstab_option['att'];
+								$lstab_on    = ! isset( $source[ $lstab_field ] ) || (bool) $source[ $lstab_field ];
+								?>
+								<div class="lstab-showhide-row">
+									<span class="lstab-showhide-label"><?php echo esc_html( $lstab_option['label'] ); ?></span>
+									<span class="lstab-showhide" role="group" aria-label="<?php echo esc_attr( $lstab_option['label'] ); ?>"
+										data-lstab-att="<?php echo esc_attr( $lstab_option['att'] ); ?>" data-lstab-value="<?php echo $lstab_on ? 'show' : 'hide'; ?>">
+										<input type="hidden" name="<?php echo esc_attr( $lstab_field ); ?>" value="<?php echo $lstab_on ? '1' : '0'; ?>">
+										<button type="button" data-lstab-set="show" aria-pressed="<?php echo $lstab_on ? 'true' : 'false'; ?>"><?php esc_html_e( 'Show', 'tabliko' ); ?></button>
+										<button type="button" data-lstab-set="hide" aria-pressed="<?php echo $lstab_on ? 'false' : 'true'; ?>"><?php esc_html_e( 'Hide', 'tabliko' ); ?></button>
+									</span>
+								</div>
+							<?php endif; ?>
+						<?php endforeach; ?>
+						<?php
+						$lstab_written = array_filter(
+							$lstab_options,
+							function ( $lstab_option ) {
+								return 'written' === $lstab_option['type'];
+							}
+						);
+						?>
+						<?php if ( $lstab_written ) : ?>
+							<p class="lstab-help lstab-shortcode-written">
+								<?php esc_html_e( 'You can also type these into the shortcode, inside the square brackets:', 'tabliko' ); ?>
+							</p>
+							<table class="lstab-attribute-list">
+								<thead>
+									<tr>
+										<th scope="col"><?php esc_html_e( 'Write', 'tabliko' ); ?></th>
+										<th scope="col"><?php esc_html_e( 'What it does', 'tabliko' ); ?></th>
+									</tr>
+								</thead>
+								<tbody>
+									<?php foreach ( $lstab_written as $lstab_row ) : ?>
+										<tr>
+											<td>
+												<code><?php echo esc_html( $lstab_row['write'] ); ?></code>
+												<?php if ( ! empty( $lstab_row['example'] ) ) : ?>
+													<span class="lstab-attribute-values lstab-attribute-example">
+														<?php esc_html_e( 'For example:', 'tabliko' ); ?>
+														<code><?php echo esc_html( $lstab_row['example'] ); ?></code>
+													</span>
+												<?php endif; ?>
+											</td>
+											<td>
+												<?php echo esc_html( $lstab_row['means'] ); ?>
+												<?php if ( ! empty( $lstab_row['note'] ) ) : ?>
+													<span class="lstab-attribute-values"><?php echo esc_html( $lstab_row['note'] ); ?></span>
+												<?php endif; ?>
+											</td>
+										</tr>
+									<?php endforeach; ?>
+								</tbody>
+							</table>
+						<?php endif; ?>
+					</div>
+				</div>
+			<?php endif; ?>
+
+			<?php
+			do_action( 'lstab_edit_pane_cards', 'general', $lstab_is_edit ? $source : null, $lstab_is_edit );
+			?>
+
+			</div>
+
+			<div class="lstab-pane" data-lstab-pane="look" hidden>
+			<div class="lstab-card">
+				<h2 class="lstab-card-title"><?php esc_html_e( 'Look and behaviour', 'tabliko' ); ?></h2>
+
+				<?php
+				$lstab_layout  = $lstab_is_edit && ! empty( $source['layout'] ) ? $source['layout'] : 'table';
+				$lstab_layouts = array(
+					'table' => array(
+						'label' => __( 'Table with a slider', 'tabliko' ),
+						'desc'  => __( 'The table keeps its columns at every width. When it is wider than the screen, visitors scroll it sideways with a slider under it.', 'tabliko' ),
+					),
+					'auto'  => array(
+						'label' => __( 'Cards when it stops fitting', 'tabliko' ),
+						'desc'  => __( 'A normal table where it fits. Where it does not, such as on a phone, each row becomes a card that lists every value with its column name.', 'tabliko' ),
+						'note'  => __( 'Suggested', 'tabliko' ),
+					),
+					'cards' => array(
+						'label' => __( 'Always cards', 'tabliko' ),
+						'desc'  => __( 'Every row is a card, even on wide screens. Good for listings such as people or products, less good for figures you want to compare.', 'tabliko' ),
+					),
+				);
+				?>
+				<div class="lstab-choice-head">
+					<strong><?php esc_html_e( 'Behaviour on narrow screens', 'tabliko' ); ?></strong>
+					<span class="lstab-help">
+						<?php esc_html_e( 'When you pick one, the preview switches to a width where you can see the difference.', 'tabliko' ); ?>
+					</span>
+				</div>
+
+				<div class="lstab-presets lstab-layouts">
+					<?php foreach ( $lstab_layouts as $lstab_layout_key => $lstab_layout_meta ) : ?>
+						<label class="lstab-preset">
+							<input type="radio"
+								name="layout"
+								value="<?php echo esc_attr( $lstab_layout_key ); ?>"
+								data-lstab-layout
+								<?php checked( $lstab_layout, $lstab_layout_key ); ?>>
+							<span class="lstab-preset-body">
+								<span class="lstab-preset-name">
+									<?php echo esc_html( $lstab_layout_meta['label'] ); ?>
+									<?php if ( isset( $lstab_layout_meta['note'] ) ) : ?>
+										<span class="lstab-hint-badge"><?php echo esc_html( $lstab_layout_meta['note'] ); ?></span>
+									<?php endif; ?>
+								</span>
+								<span class="lstab-preset-desc"><?php echo esc_html( $lstab_layout_meta['desc'] ); ?></span>
+							</span>
+						</label>
+					<?php endforeach; ?>
+				</div>
+
+				<p class="lstab-checkbox">
+					<label>
+						<input type="checkbox" name="sticky_first" value="1"
+							<?php checked( ! $lstab_is_edit || ! empty( $source['sticky_first'] ) ); ?>>
+						<?php esc_html_e( 'Keep the first column in view', 'tabliko' ); ?>
+					</label>
+					<span class="lstab-help">
+						<?php esc_html_e( 'When the table scrolls sideways, the first column stays at the left edge. Useful when it names the row, such as a product. Turn it off if that column holds long text.', 'tabliko' ); ?>
+					</span>
+				</p>
+
+				<p class="lstab-checkbox">
+					<label>
+						<input type="checkbox" name="sticky_head" value="1"
+							<?php checked( ! $lstab_is_edit || ! empty( $source['sticky_head'] ) ); ?>>
+						<?php esc_html_e( 'Keep the headings in view', 'tabliko' ); ?>
+					</label>
+					<span class="lstab-help">
+						<?php esc_html_e( 'The row of column names stays in view while visitors scroll down a long table. A table wider than the page scrolls in a box of its own, and the names stay at the top of that box. Turn it off if your theme keeps a bar at the top of the screen and the two overlap.', 'tabliko' ); ?>
+					</span>
+				</p>
+
+				<p class="lstab-checkbox">
+					<label>
+						<input type="checkbox" name="link_cells" value="1"
+							<?php checked( ! $lstab_is_edit || ! empty( $source['link_cells'] ) ); ?>>
+						<?php esc_html_e( 'Turn addresses in cells into links', 'tabliko' ); ?>
+					</label>
+					<span class="lstab-help">
+						<?php esc_html_e( 'A cell holding a web address (http:// or https://) or an e-mail address becomes a link visitors can click.', 'tabliko' ); ?>
+					</span>
+				</p>
+
+				<?php
+				$lstab_per_page = $lstab_is_edit && isset( $source['per_page'] ) ? (int) $source['per_page'] : 0;
+				?>
+				<div class="lstab-paging">
+					<h3 class="lstab-subhead"><?php esc_html_e( 'Pagination', 'tabliko' ); ?></h3>
+
+					<input type="hidden" name="paging_touched" id="lstab-paging-touched" value="">
+
+					<p class="lstab-checkbox">
+						<label>
+							<input type="checkbox" name="paging" id="lstab-paging" value="1" <?php checked( $lstab_per_page > 0 ); ?>>
+							<?php esc_html_e( 'Split the table into pages', 'tabliko' ); ?>
+						</label>
+						<span class="lstab-help">
+							<?php esc_html_e( 'Shows a set number of rows at a time, with page buttons under the table. Searching and sorting still cover every row, not only the page on screen.', 'tabliko' ); ?>
+						</span>
+					</p>
+
+					<p class="lstab-field lstab-paging-rows" id="lstab-paging-rows" <?php echo $lstab_per_page > 0 ? '' : 'hidden'; ?>>
+						<label for="lstab-per-page"><?php esc_html_e( 'Rows on each page', 'tabliko' ); ?></label>
+						<input type="number" id="lstab-per-page" name="per_page" min="1" max="500" step="1"
+							class="small-text"
+							value="<?php echo esc_attr( (string) ( $lstab_per_page > 0 ? $lstab_per_page : 25 ) ); ?>">
+					</p>
+				</div>
+
+				<h3 class="lstab-subhead"><?php esc_html_e( 'Table style', 'tabliko' ); ?></h3>
+
+				<div class="lstab-presets lstab-style-picks">
+					<?php foreach ( $lstab_presets as $lstab_slug => $lstab_preset ) : ?>
+						<label class="lstab-preset has-thumb">
+							<?php echo LSTAB_Styles::thumbnail( $lstab_slug ); // phpcs:ignore WordPress.Security.EscapeOutput -- Built from a fixed slug, escaped inside. ?>
+							<input type="radio"
+								name="style_preset"
+								value="<?php echo esc_attr( $lstab_slug ); ?>"
+								<?php checked( $lstab_values['style_preset'], $lstab_slug ); ?>>
+							<span class="lstab-preset-body">
+								<span class="lstab-preset-name">
+									<?php echo esc_html( $lstab_preset['label'] ); ?>
+								</span>
+							</span>
+						</label>
+					<?php endforeach; ?>
+				</div>
+			</div>
+
+			<?php if ( LSTAB_Customizer::is_enabled() ) : ?>
+				<?php
+				$lstab_vars = $lstab_is_edit
+					? LSTAB_Customizer::sanitize( $source['style_vars'] )
+					: LSTAB_Customizer::defaults();
+				?>
+				<div class="lstab-card lstab-appearance" data-lstab-style="<?php echo esc_attr( (string) $lstab_values['style_preset'] ); ?>">
+					<div class="lstab-tune-head">
+						<div>
+							<h2 class="lstab-card-title"><?php esc_html_e( 'Fine-tune the look', 'tabliko' ); ?></h2>
+							<p class="lstab-help">
+								<?php esc_html_e( 'Optional. Change only what you want; everything you leave alone follows the style chosen above.', 'tabliko' ); ?>
+							</p>
+						</div>
+						<button type="button" class="lstab-mini lstab-tune-reset" id="lstab-reset-appearance">
+							<?php echo LSTAB_Icons::icon( 'refresh' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+							<?php esc_html_e( 'Reset all to the style', 'tabliko' ); ?>
+						</button>
+					</div>
+
+					<h3 class="lstab-tune-group"><?php esc_html_e( 'Colours', 'tabliko' ); ?></h3>
+					<div class="lstab-swatches">
+						<?php foreach ( LSTAB_Customizer::colors() as $lstab_key => $lstab_color ) : ?>
+							<?php $lstab_value = isset( $lstab_vars[ $lstab_key ] ) ? $lstab_vars[ $lstab_key ] : ''; ?>
+							<?php
+							$lstab_only = isset( $lstab_color['style'] ) ? (string) $lstab_color['style'] : '';
+							?>
+							<div class="lstab-swatch<?php echo $lstab_value ? ' is-set' : ''; ?>" data-lstab-token="<?php echo esc_attr( $lstab_key ); ?>" data-lstab-var="<?php echo esc_attr( $lstab_color['var'] ); ?>"
+								<?php echo '' !== $lstab_only ? 'data-lstab-only-style="' . esc_attr( $lstab_only ) . '"' : ''; ?>>
+								<span class="lstab-swatch-dot">
+									<input type="color"
+										id="lstab-color-<?php echo esc_attr( $lstab_key ); ?>"
+										class="lstab-color-input"
+										value="<?php echo esc_attr( $lstab_value ? $lstab_value : '#ffffff' ); ?>"
+										<?php echo $lstab_value ? '' : 'data-lstab-unset="1"'; ?>>
+								</span>
+								<label class="lstab-swatch-text" for="lstab-color-<?php echo esc_attr( $lstab_key ); ?>">
+									<span class="lstab-swatch-name"><?php echo esc_html( $lstab_color['label'] ); ?></span>
+									<?php if ( ! empty( $lstab_color['note'] ) ) : ?>
+										<span class="lstab-swatch-note"><?php echo esc_html( $lstab_color['note'] ); ?></span>
+									<?php endif; ?>
+								</label>
+								<span class="lstab-swatch-side">
+									<span class="lstab-swatch-hex" data-lstab-style-word="<?php esc_attr_e( 'Style', 'tabliko' ); ?>"><?php echo $lstab_value ? esc_html( strtoupper( $lstab_value ) ) : esc_html__( 'Style', 'tabliko' ); ?></span>
+									<button type="button" class="lstab-color-clear"
+										<?php disabled( '' === $lstab_value ); ?>
+										aria-label="<?php echo esc_attr( sprintf( /* translators: %s: name of a colour setting, e.g. "Background". */ __( 'Reset %s to the style', 'tabliko' ), $lstab_color['label'] ) ); ?>">
+										<?php echo LSTAB_Icons::icon( 'refresh' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+										<span class="lstab-color-clear-label"><?php esc_html_e( 'Reset', 'tabliko' ); ?></span>
+									</button>
+								</span>
+								<input type="hidden"
+									class="lstab-color-value"
+									name="style_vars[<?php echo esc_attr( $lstab_key ); ?>]"
+									value="<?php echo esc_attr( $lstab_value ); ?>">
+							</div>
+						<?php endforeach; ?>
+					</div>
+
+					<h3 class="lstab-tune-group"><?php esc_html_e( 'Text and spacing', 'tabliko' ); ?></h3>
+					<div class="lstab-metrics">
+						<?php foreach ( LSTAB_Customizer::sizes() as $lstab_key => $lstab_size ) : ?>
+							<?php $lstab_size_value = isset( $lstab_vars[ $lstab_key ] ) ? (string) $lstab_vars[ $lstab_key ] : ''; ?>
+							<p class="lstab-metric lstab-size">
+								<label for="lstab-size-<?php echo esc_attr( $lstab_key ); ?>">
+									<strong><?php echo esc_html( $lstab_size['label'] ); ?></strong>
+								</label>
+								<span class="lstab-swatch-note">
+									<?php
+									echo esc_html( $lstab_size['note'] ) . ' ';
+									printf(
+										/* translators: 1: smallest size in pixels, 2: largest size in pixels. */
+										esc_html__( 'From %1$d to %2$d px.', 'tabliko' ),
+										(int) $lstab_size['min'],
+										(int) $lstab_size['max']
+									);
+									?>
+								</span>
+								<span class="lstab-size-field">
+									<input type="number"
+										id="lstab-size-<?php echo esc_attr( $lstab_key ); ?>"
+										class="lstab-size-input"
+										name="style_vars[<?php echo esc_attr( $lstab_key ); ?>]"
+										min="<?php echo esc_attr( (string) $lstab_size['min'] ); ?>"
+										max="<?php echo esc_attr( (string) $lstab_size['max'] ); ?>"
+										step="1"
+										inputmode="numeric"
+										placeholder="<?php esc_attr_e( 'Style', 'tabliko' ); ?>"
+										value="<?php echo esc_attr( $lstab_size_value ); ?>"
+										data-lstab-var="<?php echo esc_attr( $lstab_size['var'] ); ?>">
+									<span class="lstab-size-unit" aria-hidden="true">px</span>
+								</span>
+							</p>
+						<?php endforeach; ?>
+
+						<?php foreach ( LSTAB_Customizer::metrics() as $lstab_key => $lstab_metric ) : ?>
+							<?php if ( ! empty( $lstab_metric['paged'] ) ) : ?>
+							<p class="lstab-metric" data-lstab-paged-only <?php echo $lstab_per_page > 0 ? '' : 'hidden'; ?>>
+							<?php else : ?>
+							<p class="lstab-metric">
+							<?php endif; ?>
+								<label for="lstab-metric-<?php echo esc_attr( $lstab_key ); ?>">
+									<strong><?php echo esc_html( $lstab_metric['label'] ); ?></strong>
+								</label>
+								<?php if ( ! empty( $lstab_metric['note'] ) ) : ?>
+									<span class="lstab-swatch-note"><?php echo esc_html( $lstab_metric['note'] ); ?></span>
+								<?php endif; ?>
+								<select id="lstab-metric-<?php echo esc_attr( $lstab_key ); ?>"
+									class="lstab-metric-input"
+									name="style_vars[<?php echo esc_attr( $lstab_key ); ?>]"
+									data-lstab-token="<?php echo esc_attr( $lstab_key ); ?>">
+									<?php foreach ( $lstab_metric['choices'] as $lstab_choice => $lstab_choice_label ) : ?>
+										<option value="<?php echo esc_attr( $lstab_choice ); ?>"
+											<?php selected( isset( $lstab_vars[ $lstab_key ] ) ? $lstab_vars[ $lstab_key ] : 'normal', $lstab_choice ); ?>>
+											<?php echo esc_html( $lstab_choice_label ); ?>
+										</option>
+									<?php endforeach; ?>
+								</select>
+							</p>
+						<?php endforeach; ?>
+					</div>
+
+				</div>
+			<?php endif; ?>
+
+			<?php
+			do_action( 'lstab_edit_pane_cards', 'look', $lstab_is_edit ? $source : null, $lstab_is_edit );
+			?>
+
+			</div>
+
+			<div class="lstab-pane" data-lstab-pane="hide" hidden>
+	<?php
+			$lstab_columns = ! empty( $source['columns_config'] ) ? $source['columns_config'] : array();
+			$lstab_drift   = $lstab_columns && ! empty( $source['data']['headers'] )
+				? LSTAB_Columns::drift( $lstab_columns, $source['data']['headers'] )
+				: array();
+
+			$lstab_waiting = ! $lstab_columns;
+			$lstab_rows    = $lstab_waiting
+				? array_fill( 0, 3, array( 'source' => '', 'label' => '', 'hidden' => false ) )
+				: $lstab_columns;
+			?>
+				<div class="lstab-card lstab-columns-card<?php echo $lstab_waiting ? ' is-waiting' : ''; ?>">
+					<h2 class="lstab-card-title"><?php esc_html_e( 'Columns', 'tabliko' ); ?></h2>
+					<p class="lstab-help">
+						<?php esc_html_e( 'Type a new name to rename a column for visitors. Your sheet in Google keeps its own headings.', 'tabliko' ); ?>
+						<?php if ( $lstab_is_edit ) : ?>
+							<?php esc_html_e( 'To hide a column or a row, click it in “Hide columns and rows” below.', 'tabliko' ); ?>
+						<?php endif; ?>
+					</p>
+
+					<?php if ( $lstab_waiting ) : ?>
+						<p class="lstab-columns-waiting">
+							<?php
+							echo esc_html(
+								$lstab_is_edit
+									? __( 'The sheet has not been read yet. Go to All tables and choose “Refresh” next to this table.', 'tabliko' )
+									: __( 'Save the table first. The sheet is read straight away, and its columns then appear here.', 'tabliko' )
+							);
+							?>
+						</p>
+					<?php endif; ?>
+
+					<?php if ( $lstab_drift ) : ?>
+						<div class="notice notice-warning inline lstab-drift">
+							<p><strong><?php esc_html_e( 'The columns in your sheet have moved.', 'tabliko' ); ?></strong></p>
+							<p>
+								<?php esc_html_e( 'The settings below belong to column positions, so a column added or removed in Google moves them onto a different column. Check each one:', 'tabliko' ); ?>
+							</p>
+							<ul>
+								<?php foreach ( $lstab_drift as $lstab_moved ) : ?>
+									<li>
+										<?php
+										printf(
+											/* translators: 1: column number, 2: heading that used to be there, 3: heading there now. */
+											esc_html__( 'Column %1$d was “%2$s”, now “%3$s”', 'tabliko' ),
+											(int) $lstab_moved['index'] + 1,
+											esc_html( $lstab_moved['was'] ),
+											esc_html( '' === $lstab_moved['now'] ? __( '(no longer there)', 'tabliko' ) : $lstab_moved['now'] )
+										);
+										?>
+									</li>
+								<?php endforeach; ?>
+							</ul>
+						</div>
+					<?php endif; ?>
+
+					<table class="lstab-column-list">
+						<thead>
+							<tr>
+								<th scope="col"><?php esc_html_e( 'In your sheet', 'tabliko' ); ?></th>
+								<th scope="col"><?php esc_html_e( 'Shown as', 'tabliko' ); ?></th>
+								<th scope="col"><?php esc_html_e( 'In the table', 'tabliko' ); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach ( $lstab_rows as $lstab_index => $lstab_column ) : ?>
+								<tr>
+									<td>
+										<code><?php echo esc_html( '' === $lstab_column['source'] ? sprintf( /* translators: %d: column number. */ __( 'Column %d', 'tabliko' ), (int) $lstab_index + 1 ) : $lstab_column['source'] ); ?></code>
+										<input type="hidden" <?php disabled( $lstab_waiting ); ?>
+											name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][source]"
+											value="<?php echo esc_attr( $lstab_column['source'] ); ?>">
+									</td>
+									<td>
+										<input type="text" class="regular-text"
+											<?php disabled( $lstab_waiting ); ?>
+											name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][label]"
+											value="<?php echo esc_attr( $lstab_column['label'] ); ?>"
+											placeholder="<?php echo esc_attr( $lstab_column['source'] ); ?>"
+											aria-label="<?php echo esc_attr( sprintf( /* translators: %s: the column's heading in the sheet. */ __( 'Name shown for “%s”', 'tabliko' ), '' === $lstab_column['source'] ? sprintf( /* translators: %d: column number. */ __( 'Column %d', 'tabliko' ), (int) $lstab_index + 1 ) : $lstab_column['source'] ) ); ?>">
+									</td>
+									<td class="lstab-column-state">
+										<input type="hidden" <?php disabled( $lstab_waiting ); ?>
+											name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][hidden]"
+											value="<?php echo empty( $lstab_column['hidden'] ) ? '0' : '1'; ?>">
+										<input type="hidden" <?php disabled( $lstab_waiting ); ?>
+											name="columns[<?php echo esc_attr( (string) $lstab_index ); ?>][detail]"
+											value="<?php echo empty( $lstab_column['detail'] ) ? '0' : '1'; ?>">
+										<?php if ( ! empty( $lstab_column['hidden'] ) ) : ?>
+											<span class="lstab-state-hidden"><?php esc_html_e( 'Hidden', 'tabliko' ); ?></span>
+										<?php elseif ( ! empty( $lstab_column['detail'] ) ) : ?>
+											<span class="lstab-state-detail"><?php esc_html_e( 'In the details', 'tabliko' ); ?></span>
+										<?php else : ?>
+											<span class="lstab-state-shown"><?php esc_html_e( 'Shown', 'tabliko' ); ?></span>
+										<?php endif; ?>
+									</td>
+								</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="lstab-preview-pane" data-lstab-style="<?php echo esc_attr( (string) $lstab_values['style_preset'] ); ?>">
+			<div class="lstab-preview-stick">
+			<h2><?php esc_html_e( 'Preview', 'tabliko' ); ?></h2>
+			<p class="lstab-help">
+				<?php esc_html_e( 'This is how the table will look on your page, with your current settings, even before you save. It shows the first 25 rows.', 'tabliko' ); ?>
+			</p>
+			<div id="lstab-preview-status" class="lstab-preview-status" role="status" aria-live="polite"></div>
+
+			<div class="lstab-widths" role="group" aria-label="<?php esc_attr_e( 'Preview width', 'tabliko' ); ?>">
+				<span class="lstab-widths-label"><?php esc_html_e( 'Width:', 'tabliko' ); ?></span>
+				<?php
+				$lstab_widths = array(
+					''    => __( 'Full width', 'tabliko' ),
+					'650' => __( 'Narrow column', 'tabliko' ),
+					'390' => __( 'Phone', 'tabliko' ),
+				);
+				foreach ( $lstab_widths as $lstab_width => $lstab_width_label ) :
+					?>
+					<button type="button"
+						class="lstab-mini lstab-width-button<?php echo '' === $lstab_width ? ' is-active' : ''; ?>"
+						data-lstab-width="<?php echo esc_attr( $lstab_width ); ?>"
+						aria-pressed="<?php echo '' === $lstab_width ? 'true' : 'false'; ?>">
+						<?php echo esc_html( $lstab_width_label ); ?>
+					</button>
+				<?php endforeach; ?>
+			</div>
+
+			<p class="lstab-help">
+				<?php esc_html_e( 'Try the narrower widths to see how the table behaves in a narrow page column or on a phone.', 'tabliko' ); ?>
+			</p>
+
+			<div id="lstab-preview" class="lstab-preview" tabindex="0" role="region" aria-label="<?php esc_attr_e( 'Preview of the table', 'tabliko' ); ?>">
+				<div id="lstab-preview-stage" class="lstab-preview-stage" data-lstab-preview="stage">
+					<?php
+					if ( $lstab_is_edit && ! empty( $source['data']['rows'] ) ) {
+						$lstab_preview_html = LSTAB_Renderer::render_preview(
+							$source['data'],
+							array(
+								'source_id'   => (int) $source['id'],
+								'style'       => (string) $source['style_preset'],
+								'style_vars'  => $source['style_vars'],
+								'layout'      => (string) $source['layout'],
+								'sticky'      => ! empty( $source['sticky_first'] ),
+								'sticky_head' => ! empty( $source['sticky_head'] ),
+								'link_cells'  => ! empty( $source['link_cells'] ),
+								'show_meta'   => ! empty( $source['show_meta'] ),
+								'search'      => ! empty( $source['show_search'] ),
+								'sort'        => ! empty( $source['show_sort'] ),
+								'last_success_gmt' => isset( $source['last_success_gmt'] ) ? $source['last_success_gmt'] : null,
+								'per_page'    => (int) $source['per_page'],
+								'limit'       => (int) $source['per_page'] > 0 ? 0 : 25,
+							)
+						);
+						echo $lstab_preview_html; // phpcs:ignore WordPress.Security.EscapeOutput -- Renderer escapes every cell.
+					} else {
+						?>
+						<p class="lstab-placeholder"><?php esc_html_e( 'Paste a link and choose “Load preview”.', 'tabliko' ); ?></p>
+						<?php
+					}
+					?>
+				</div>
+			</div>
+
+			<details id="lstab-raw-wrap" class="lstab-raw" hidden>
+				<summary><?php esc_html_e( 'What Google actually sent', 'tabliko' ); ?></summary>
+				<p class="lstab-help">
+					<?php esc_html_e( 'The raw data exactly as Google sent it, before the plugin turned it into a table. If a value is already wrong here, the problem is in the sheet itself.', 'tabliko' ); ?>
+				</p>
+				<p id="lstab-raw-meta" class="lstab-help"></p>
+				<textarea id="lstab-raw" class="lstab-raw-text" rows="12" readonly spellcheck="false"></textarea>
+			</details>
+			</div>
+		</div>
+	</div>
+
+	<div class="lstab-pane" data-lstab-pane="hide" hidden>
+
+	<?php
+	LSTAB_Picker::render_card( $lstab_is_edit ? $source : null, $lstab_is_edit );
+
+	do_action( 'lstab_edit_page_settings', $lstab_is_edit ? $source : null, $lstab_is_edit );
+
+	do_action( 'lstab_edit_pane_cards', 'hide', $lstab_is_edit ? $source : null, $lstab_is_edit );
+	?>
+
+	</div>
+
+	<p class="lstab-submit">
+		<button type="submit" class="lstab-btn">
+			<?php
+			if ( $lstab_is_sample ) {
+				esc_html_e( 'Save changes', 'tabliko' );
+			} else {
+				echo $lstab_is_edit
+					? esc_html__( 'Save and update from Google', 'tabliko' )
+					: esc_html__( 'Save the table', 'tabliko' );
+			}
+			?>
+		</button>
+		<a class="lstab-quiet" href="<?php echo esc_url( admin_url( 'admin.php?page=' . LSTAB_Admin::SOURCES_SLUG ) ); ?>">
+			<?php esc_html_e( 'Cancel', 'tabliko' ); ?>
+		</a>
+	</p>
+	</form>
+
+</div>

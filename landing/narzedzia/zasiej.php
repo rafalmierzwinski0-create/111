@@ -4,7 +4,7 @@
  *
  * Uruchamiane ręcznie, tylko na lokalnym WordPressie do zrzutów.
  *
- * @package LiveSheetsTable\Pokaz
+ * @package Tabliko\Pokaz
  */
 
 $_SERVER['HTTP_HOST']      = '127.0.0.1:8088';
@@ -59,7 +59,7 @@ if ( $stara ) {
 	wp_delete_post( $stara->ID, true );
 }
 
-$tresc = '<!-- wp:live-sheets-table/sheet-table {"sourceId":' . $id
+$tresc = '<!-- wp:tabliko/sheet-table {"sourceId":' . $id
 	. ',"showSearch":true,"showSort":true,"showUpdated":true,"caption":"' . $podpis . '"} /-->';
 
 $strona = wp_insert_post(

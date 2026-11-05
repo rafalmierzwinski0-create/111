@@ -138,7 +138,7 @@ $tinted_page = wp_insert_post(
 		'post_status'  => 'publish',
 		'post_title'   => 'UX audit dark header',
 		'post_name'    => 'ux-audit-dark-header',
-		'post_content' => "<!-- wp:shortcode -->[sheet_table id=\"$tinted\"]<!-- /wp:shortcode -->",
+		'post_content' => "<!-- wp:shortcode -->[tabliko id=\"$tinted\"]<!-- /wp:shortcode -->",
 	)
 );
 
@@ -196,7 +196,7 @@ foreach ( array_keys( LSTAB_Styles::all() ) as $skin ) {
 			'post_status'  => 'publish',
 			'post_title'   => "UX audit $skin",
 			'post_name'    => "ux-audit-$skin",
-			'post_content' => "<!-- wp:shortcode -->[sheet_table id=\"$id\" style=\"$skin\"]<!-- /wp:shortcode -->\n<!-- wp:paragraph --><p>" . str_repeat( 'Text under the table so the page can scroll past it. ', 60 ) . "</p><!-- /wp:paragraph -->",
+			'post_content' => "<!-- wp:shortcode -->[tabliko id=\"$id\" style=\"$skin\"]<!-- /wp:shortcode -->\n<!-- wp:paragraph --><p>" . str_repeat( 'Text under the table so the page can scroll past it. ', 60 ) . "</p><!-- /wp:paragraph -->",
 		)
 	);
 	$pages[] = array(
@@ -210,7 +210,7 @@ foreach ( array_keys( LSTAB_Styles::all() ) as $skin ) {
 			'post_status'  => 'publish',
 			'post_title'   => "UX audit $skin unpinned",
 			'post_name'    => "ux-audit-$skin-unpinned",
-			'post_content' => "<!-- wp:shortcode -->[sheet_table id=\"$free\" style=\"$skin\"]<!-- /wp:shortcode -->",
+			'post_content' => "<!-- wp:shortcode -->[tabliko id=\"$free\" style=\"$skin\"]<!-- /wp:shortcode -->",
 		)
 	);
 	$unpinned[] = array(

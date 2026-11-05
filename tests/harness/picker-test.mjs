@@ -46,7 +46,7 @@ await page.fill( '#user_login', 'admin' );
 await page.fill( '#user_pass', 'admin123' );
 await Promise.all( [ page.waitForURL( /wp-admin/ ), page.click( '#wp-submit' ) ] );
 
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-sources`, { waitUntil: 'networkidle' } );
 const editHref = await page.locator( '.lstab-src a:has-text("Edit")' ).first().getAttribute( 'href' );
 await page.goto( editHref, { waitUntil: 'networkidle' } );
 
@@ -599,7 +599,7 @@ check(
 
 section( '7. Where the add-on is in the sidebar' );
 
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko`, { waitUntil: 'networkidle' } );
 
 /*
  * The tabs across the top say these are views of one plugin, which they are.
@@ -607,16 +607,16 @@ await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table`, { waitUn
  * on the left first, and finding nothing there is a worse answer than a line
  * that repeats itself.
  */
-const menuHrefs = await page.locator( '#adminmenu a[href*="live-sheets-table"]' )
+const menuHrefs = await page.locator( '#adminmenu a[href*="tabliko"]' )
 	.evaluateAll( ( els ) => els.map( ( el ) => el.getAttribute( 'href' ) || '' ) );
 
 check(
-	menuHrefs.some( ( href ) => href.includes( 'page=live-sheets-table-settings' ) ),
+	menuHrefs.some( ( href ) => href.includes( 'page=tabliko-settings' ) ),
 	'Settings is a line under the plugin',
 	JSON.stringify( menuHrefs )
 );
 check(
-	menuHrefs.some( ( href ) => href.includes( 'page=live-sheets-table-pro' ) ),
+	menuHrefs.some( ( href ) => href.includes( 'page=tabliko-pro' ) ),
 	'And so is the add-on',
 	JSON.stringify( menuHrefs )
 );

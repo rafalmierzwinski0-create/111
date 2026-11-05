@@ -105,7 +105,7 @@ const between = async ( page, from, to, above = 32, below = 32, left = 0 ) => {
 };
 const MENU = 160;
 
-const editScreen = ( id ) => `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit${ id ? '&source=' + id : '' }`;
+const editScreen = ( id ) => `${ BASE }/wp-admin/admin.php?page=tabliko-edit${ id ? '&source=' + id : '' }`;
 const previewRows = '#lstab-preview-stage .lstab-table tbody tr';
 
 // 1. The music venue's listings, in the dark Midnight style.
@@ -145,7 +145,7 @@ console.log( '  screenshot-3.png' );
 // 4. The four styles, each with a different tab of the same spreadsheet.
 await visitor.setViewportSize( { width: 1440, height: 900 } );
 await visitor.goto( seeded.urls.styles, { waitUntil: 'networkidle' } );
-const blocks = visitor.locator( '.wp-block-live-sheets-table-sheet-table' );
+const blocks = visitor.locator( '.wp-block-tabliko-sheet-table' );
 const cards = [];
 const about = [
 	[ 'Clean', 'Thin lines and plenty of space, in your theme’s fonts.' ],
@@ -204,7 +204,7 @@ await framed( 8, await shoot( admin, 'columns', await between( admin, '.lstab-co
 mock( 'demo_403' );
 php( `global $wpdb; $wpdb->update( LSTAB_Storage::table(), array( 'last_success_gmt' => gmdate( 'Y-m-d H:i:s', time() - 3 * HOUR_IN_SECONDS ) ), array( 'id' => ${ T.plants } ) ); LSTAB_Sync::run( ${ T.plants } );` );
 await admin.setViewportSize( { width: 1440, height: 1060 } );
-await admin.goto( BASE + '/wp-admin/admin.php?page=live-sheets-table-sources', { waitUntil: 'networkidle' } );
+await admin.goto( BASE + '/wp-admin/admin.php?page=tabliko-sources', { waitUntil: 'networkidle' } );
 await framed( 9, await shoot( admin, 'list' ), 'yoursite.com/wp-admin', BG.admin );
 mock( 'demo' );
 php( `LSTAB_Sync::run( ${ T.plants } );` );
@@ -215,7 +215,7 @@ await editor.goto( `${ BASE }/wp-admin/post.php?post=${ seeded.pages.plants }&ac
 await editor.waitForFunction( () => window.wp && window.wp.data && window.wp.data.select( 'core/editor' ).getCurrentPostId() );
 await editor.evaluate( () => window.wp.data.dispatch( 'core/editor' ).setRenderingMode && window.wp.data.dispatch( 'core/editor' ).setRenderingMode( 'post-only' ) );
 const canvas = editor.frameLocator( 'iframe[name="editor-canvas"]' );
-const block = canvas.locator( '.wp-block-live-sheets-table-sheet-table' ).first();
+const block = canvas.locator( '.wp-block-tabliko-sheet-table' ).first();
 await canvas.locator( '.lstab-table' ).first().waitFor( { timeout: 30000 } );
 await block.scrollIntoViewIfNeeded();
 await block.click( { position: { x: 30, y: 10 } } );

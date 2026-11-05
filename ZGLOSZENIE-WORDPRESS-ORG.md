@@ -1,7 +1,7 @@
 # Zgłoszenie wtyczki do WordPress.org — lista
 
 Spisane 2026-10-08, uzupełnione 2026-10-13. Dotyczy darmowej wtyczki
-`live-sheets-table/`. Pro nie idzie do katalogu WordPress.org i nie musi być
+`tabliko/`. Pro nie idzie do katalogu WordPress.org i nie musi być
 gotowe, żeby wysłać darmową.
 
 **Strona nie musi być gotowa ani stać na domenie.** WordPress.org ocenia samą
@@ -30,7 +30,7 @@ ze źródeł na GitHubie, na WordPressie 7.1, także testy eksperymentalne).
 Wynik po poprawkach: **0 błędów, 0 ostrzeżeń.**
 
 Poprawione: zabezpieczenie w `blocks/sheet-table/index.asset.php`, nazwa
-wtyczki bez słowa „WordPress” (teraz „Live Sheets Table”), przestarzałe
+wtyczki bez słowa „WordPress” (teraz „Tabliko”), przestarzałe
 `seems_utf8()`, zapytania SQL z `%i`, nazwy hooków innych wtyczek oznaczone,
 historia zmian w `readme.txt` skrócona poniżej 5 000 znaków (pełna historia
 jest w `CHANGELOG.md` w repozytorium).
@@ -58,7 +58,7 @@ jest w `CHANGELOG.md` w repozytorium).
 ## Kolejność
 
 1. Właściciel podaje nazwę użytkownika → Claude wpisuje ją do `readme.txt`
-   i daje gotowy `live-sheets-table.zip` (`tools/build-zip.sh`).
+   i daje gotowy `tabliko.zip` (`tools/build-zip.sh`).
 2. Właściciel wysyła zip: https://wordpress.org/plugins/developers/add/
 3. Recenzja trwa od kilku dni do kilku tygodni. Odpowiadamy na maila
    z uwagami.

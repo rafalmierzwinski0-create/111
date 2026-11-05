@@ -73,7 +73,7 @@ foreach ( $shapes as $shape => list( $headers, $rows, $flags ) ) {
 			$content = '';
 			foreach ( $skins as $skin ) {
 				$content .= "<!-- wp:paragraph --><p>$shape / $pin / $layout / <strong>$skin</strong></p><!-- /wp:paragraph -->\n";
-				$content .= "<!-- wp:shortcode -->[sheet_table id=\"$id\" style=\"$skin\" layout=\"$layout\"]<!-- /wp:shortcode -->\n";
+				$content .= "<!-- wp:shortcode -->[tabliko id=\"$id\" style=\"$skin\" layout=\"$layout\"]<!-- /wp:shortcode -->\n";
 			}
 			$post = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => "Sweep $shape $pin $layout", 'post_name' => "sweep-$shape-$pin-$layout", 'post_content' => $content ) );
 			$pages[] = array( 'id' => $post, 'url' => get_permalink( $post ), 'shape' => $shape, 'pin' => $pin, 'layout' => $layout );

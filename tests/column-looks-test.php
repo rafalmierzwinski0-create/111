@@ -8,7 +8,7 @@
  *
  * Usage: php tests/column-looks-test.php
  *
- * @package LiveSheetsTablePro\Tests
+ * @package TablikoPro\Tests
  */
 
 // phpcs:disable WordPress.Security.EscapeOutput, WordPress.PHP.DevelopmentFunctions, WordPress.WP.AlternativeFunctions
@@ -88,14 +88,14 @@ class LSTAB_Icons {
 	}
 }
 
-define( 'LSTABP_PATH', __DIR__ . '/../live-sheets-table-pro/' );
+define( 'LSTABP_PATH', __DIR__ . '/../tabliko-pro/' );
 
-require_once __DIR__ . '/../live-sheets-table/includes/class-lstab-limits.php';
-require_once __DIR__ . '/../live-sheets-table/includes/class-lstab-columns.php';
-require_once __DIR__ . '/../live-sheets-table/includes/class-lstab-renderer.php';
-require_once __DIR__ . '/../live-sheets-table-pro/includes/class-lstabp-filters.php';
-require_once __DIR__ . '/../live-sheets-table-pro/includes/class-lstabp-rules.php';
-require_once __DIR__ . '/../live-sheets-table-pro/includes/class-lstabp-column-looks.php';
+require_once __DIR__ . '/../tabliko/includes/class-lstab-limits.php';
+require_once __DIR__ . '/../tabliko/includes/class-lstab-columns.php';
+require_once __DIR__ . '/../tabliko/includes/class-lstab-renderer.php';
+require_once __DIR__ . '/../tabliko-pro/includes/class-lstabp-filters.php';
+require_once __DIR__ . '/../tabliko-pro/includes/class-lstabp-rules.php';
+require_once __DIR__ . '/../tabliko-pro/includes/class-lstabp-column-looks.php';
 
 $passed = 0;
 $failed = 0;
@@ -260,7 +260,7 @@ lstab_check(
  * is what keeps a badge readable when somebody picks white. So the script is
  * read and held to what the server just produced.
  */
-$badge_js  = file_get_contents( dirname( __DIR__ ) . '/live-sheets-table-pro/assets/js/lstabp-admin.js' );
+$badge_js  = file_get_contents( dirname( __DIR__ ) . '/tabliko-pro/assets/js/lstabp-admin.js' );
 $badge_php = LSTABP_Rules::css_for( '#5fe3cf', 'pill' );
 $shares    = array();
 

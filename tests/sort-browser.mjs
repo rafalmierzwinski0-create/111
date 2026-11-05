@@ -22,8 +22,8 @@ import { fileURLToPath } from 'url';
 const here = path.dirname( fileURLToPath( import.meta.url ) );
 const repo = path.join( here, '..' );
 
-const CSS = fs.readFileSync( path.join( repo, 'live-sheets-table/assets/css/lstab-table.css' ), 'utf8' );
-const JS_ = fs.readFileSync( path.join( repo, 'live-sheets-table/assets/js/lstab-table.js' ), 'utf8' );
+const CSS = fs.readFileSync( path.join( repo, 'tabliko/assets/css/lstab-table.css' ), 'utf8' );
+const JS_ = fs.readFileSync( path.join( repo, 'tabliko/assets/js/lstab-table.js' ), 'utf8' );
 const cases = JSON.parse( fs.readFileSync( path.join( here, 'fixtures/sort-cases.json' ), 'utf8' ) );
 
 const saidPath = path.join( here, 'fixtures/sort-php-said.json' );

@@ -18,7 +18,7 @@
  *
  * Usage: php tests/harness/custom-css.php /absolute/path/to/wp port command [args]
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 // phpcs:disable WordPress.Security.EscapeOutput, WordPress.PHP.DevelopmentFunctions
@@ -86,7 +86,7 @@ if ( 'setup' === $command ) {
 
 	$blocks = '';
 	foreach ( array( $made['hours'], $made['workshops'], $made['hours'] ) as $id ) {
-		$blocks .= '<!-- wp:live-sheets-table/sheet-table {"sourceId":' . $id . '} /-->' . "\n\n";
+		$blocks .= '<!-- wp:tabliko/sheet-table {"sourceId":' . $id . '} /-->' . "\n\n";
 	}
 
 	$page_id = wp_insert_post(

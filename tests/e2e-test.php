@@ -1,6 +1,6 @@
 <?php
 /**
- * End-to-end test for Live Sheets Table.
+ * End-to-end test for Tabliko.
  *
  * Boots a real WordPress install, activates the plugin, drives the full
  * lifecycle (add source → sync → render → fail → fall back → recover) and
@@ -8,7 +8,7 @@
  *
  * Usage: php tests/e2e-test.php /absolute/path/to/wp
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 // phpcs:disable WordPress.Security.EscapeOutput, WordPress.PHP.DevelopmentFunctions
@@ -375,7 +375,7 @@ LSTAB_Sync::run( $source_id );
 
 lstab_section( '6. Front-end rendering' );
 
-$html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$html = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 
 lstab_assert( false !== strpos( $html, '<table' ), 'Renders a real <table> element' );
 lstab_assert( false !== strpos( $html, 'lstab-style-striped' ), 'Applies the chosen style preset' );
@@ -396,21 +396,21 @@ lstab_assert(
 	'The slider starts hidden and is revealed only when the table overflows'
 );
 
-$forced_cards = do_shortcode( '[sheet_table id="' . $source_id . '" layout="cards"]' );
+$forced_cards = do_shortcode( '[tabliko id="' . $source_id . '" layout="cards"]' );
 lstab_assert( false !== strpos( $forced_cards, 'lstab-layout-cards' ), 'layout="cards" pins the card layout' );
 
-$forced_auto = do_shortcode( '[sheet_table id="' . $source_id . '" layout="auto"]' );
+$forced_auto = do_shortcode( '[tabliko id="' . $source_id . '" layout="auto"]' );
 lstab_assert( false === strpos( $forced_auto, 'lstab-layout-' ), 'layout="auto" leaves the breakpoints in charge' );
 
-$bogus_layout = do_shortcode( '[sheet_table id="' . $source_id . '" layout="nonsense"]' );
+$bogus_layout = do_shortcode( '[tabliko id="' . $source_id . '" layout="nonsense"]' );
 lstab_assert( false !== strpos( $bogus_layout, 'lstab-layout-table' ), 'An unknown layout falls back to the table' );
 
 // A source carries its own choice, and the block or shortcode may override it.
 LSTAB_Storage::update( $source_id, array( 'layout' => 'cards' ) );
-$inherited = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$inherited = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstab_assert( false !== strpos( $inherited, 'lstab-layout-cards' ), 'A shortcode with no layout follows the source setting' );
 
-$overridden = do_shortcode( '[sheet_table id="' . $source_id . '" layout="table"]' );
+$overridden = do_shortcode( '[tabliko id="' . $source_id . '" layout="table"]' );
 lstab_assert( false !== strpos( $overridden, 'lstab-layout-table' ), 'An explicit shortcode layout overrides the source' );
 
 $block_inherits = lstab()->block->render( array( 'sourceId' => $source_id ) );
@@ -449,7 +449,7 @@ lstab_assert(
 	(bool) preg_match( '#<div class="lstab-foot">.*?class="lstab-meta"#s', $html ),
 	'And it sits inside the strip under the table'
 );
-$html_no_meta = do_shortcode( '[sheet_table id="' . $source_id . '" meta="no"]' );
+$html_no_meta = do_shortcode( '[tabliko id="' . $source_id . '" meta="no"]' );
 lstab_assert( false === strpos( $html_no_meta, 'lstab-meta' ), 'A page can still turn it off' );
 lstab_assert( false !== strpos( $html, 'lstab-search-input' ), 'Search control rendered' );
 lstab_assert( false !== strpos( $html, 'class="lstab-sort"' ), 'Sortable column buttons rendered' );
@@ -478,7 +478,7 @@ lstab_assert( 1 === preg_match( '#<span class="lstab-cell-value">[^\s<][^<]*[^\s
 lstab_assert( 0 === preg_match( '#aria-label="\s#', $html ), 'No aria-label starts with a line break' );
 
 // Shortcode option handling.
-$plain = do_shortcode( '[sheet_table id="' . $source_id . '" search="no" sort="no" meta="no"]' );
+$plain = do_shortcode( '[tabliko id="' . $source_id . '" search="no" sort="no" meta="no"]' );
 lstab_assert( false === strpos( $plain, 'lstab-search-input' ), 'search="no" removes the search box' );
 lstab_assert( false === strpos( $plain, 'class="lstab-sort"' ), 'sort="no" removes sort buttons' );
 lstab_assert( false === strpos( $plain, 'lstab-meta' ), 'meta="no" removes the freshness label' );
@@ -487,15 +487,15 @@ lstab_assert( false === strpos( $plain, 'lstab-meta' ), 'meta="no" removes the f
 // with nothing set follow it, so the shortcode never has to change.
 LSTAB_Storage::update( $source_id, array( 'show_search' => 0, 'show_sort' => 0, 'show_meta' => 0 ) );
 LSTAB_Storage::flush_cache( $source_id );
-$saved_plain = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$saved_plain = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 $saved_block = lstab()->block->render( array( 'sourceId' => $source_id ) );
 lstab_assert( false === strpos( $saved_plain, 'lstab-search-input' ) && false === strpos( $saved_plain, 'class="lstab-sort"' ) && false === strpos( $saved_plain, 'lstab-meta' ), 'A table saved without search, sorting and the updated line shows none of them through the plain shortcode' );
 lstab_assert( false === strpos( $saved_block, 'lstab-search-input' ) && false === strpos( $saved_block, 'class="lstab-sort"' ) && false === strpos( $saved_block, 'lstab-meta' ), 'Nor through a block that sets nothing itself' );
-$saved_over = do_shortcode( '[sheet_table id="' . $source_id . '" search="yes"]' );
+$saved_over = do_shortcode( '[tabliko id="' . $source_id . '" search="yes"]' );
 lstab_assert( false !== strpos( $saved_over, 'lstab-search-input' ), 'A shortcode that says search="yes" still gets its search box' );
 LSTAB_Storage::update( $source_id, array( 'show_search' => 1, 'show_sort' => 1, 'show_meta' => 1 ) );
 LSTAB_Storage::flush_cache( $source_id );
-$saved_back = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$saved_back = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstab_assert( false !== strpos( $saved_back, 'lstab-search-input' ) && false !== strpos( $saved_back, 'lstab-meta' ), 'Switched back on, they return' );
 
 // The block must produce the same table as the shortcode.
@@ -571,7 +571,7 @@ LSTAB_Storage::record_success(
 );
 LSTAB_Storage::update( $source_id, array( 'per_page' => 10, 'columns_config' => array() ) );
 
-$lstab_shortcode = '[sheet_table id="' . $source_id . '"]';
+$lstab_shortcode = '[tabliko id="' . $source_id . '"]';
 $lstab_rows_in   = function ( $html ) {
 	return substr_count( $html, '<tr role="row" class="lstab-row"' );
 };
@@ -655,7 +655,7 @@ foreach ( $failure_modes as $mode => $description ) {
 	lstab_assert( $good_hash === $after['snapshot_hash'], "{$description}: stored snapshot untouched", $after['snapshot_hash'] );
 	lstab_assert( 7 === $after['row_count'], "{$description}: row count unchanged", (string) $after['row_count'] );
 
-	$fallback_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+	$fallback_html = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 	lstab_assert( false !== strpos( $fallback_html, '<table' ), "{$description}: page still renders a table" );
 	lstab_assert( false !== strpos( $fallback_html, 'Rower górski' ), "{$description}: last good data still on the page" );
 	lstab_assert( substr_count( $fallback_html, '<tr' ) === 8, "{$description}: all seven rows still rendered" );
@@ -688,7 +688,7 @@ $switched = LSTAB_Storage::get( $source_id );
 lstab_assert( 3 === $switched['row_count'], 'New sheet content replaces the snapshot', (string) $switched['row_count'] );
 lstab_assert( $good_hash !== $switched['snapshot_hash'], 'Snapshot hash changed with the data' );
 
-$switched_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$switched_html = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstab_assert( false !== strpos( $switched_html, 'Bike Centrum' ), 'Page shows the new data' );
 lstab_assert( false === strpos( $switched_html, 'Rower górski' ), 'Old data is gone' );
 
@@ -738,7 +738,7 @@ lstab_assert(
 
 // The visitor sees a table, not a warning: the data that did arrive is still
 // worth showing, and the fault is the site owner's to fix.
-$ragged_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$ragged_html = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstab_assert( false !== strpos( $ragged_html, 'lstab-table' ), 'The table still renders' );
 lstab_assert( false === strpos( $ragged_html, 'stray quotation' ), 'No warning leaks to the visitor' );
 
@@ -803,7 +803,7 @@ function lstab_view( $shortcode ) {
 function lstab_ask( $id ) {
 	LSTAB_Sync::refresh_when_asked( (int) $id, LSTAB_Freshness::ASK_BUDGET );
 
-	return lstab_view( '[sheet_table id="' . (int) $id . '"]' );
+	return lstab_view( '[tabliko id="' . (int) $id . '"]' );
 }
 
 /**
@@ -848,7 +848,7 @@ $lstab_count   = function ( $args ) use ( &$lstab_fetches ) {
 	return $args;
 };
 add_filter( 'lstab_fetch_args', $lstab_count, 100 );
-$drawn_html = lstab_view( '[sheet_table id="' . $source_id . '"]' );
+$drawn_html = lstab_view( '[tabliko id="' . $source_id . '"]' );
 remove_filter( 'lstab_fetch_args', $lstab_count, 100 );
 lstab_assert( 0 === $lstab_fetches, 'Drawing a page with a stale table fetches nothing', (string) $lstab_fetches );
 lstab_assert( false !== strpos( $drawn_html, 'Rower górski' ), 'The visitor gets the stored copy at once' );
@@ -864,12 +864,12 @@ LSTAB_Storage::update( $source_id, array( 'sync_interval' => LSTAB_Limits::MANUA
 lstab_age_source( $source_id, 86400 * 30 );
 lstab_assert( 'not-due' === LSTAB_Sync::refresh_when_asked( $source_id ), 'A table refreshed only by hand is not checked when a visitor asks' );
 lstab_assert( 0 === LSTAB_Freshness::next_due( LSTAB_Storage::get( $source_id ) ), 'And its page tells the browser never to ask' );
-lstab_assert( false === strpos( lstab_view( '[sheet_table id="' . $source_id . '"]' ), 'Rower górski' ), 'However old its copy is, the page keeps it' );
+lstab_assert( false === strpos( lstab_view( '[tabliko id="' . $source_id . '"]' ), 'Rower górski' ), 'However old its copy is, the page keeps it' );
 LSTAB_Storage::update( $source_id, array( 'sync_interval' => 1800 ) );
 
 // The rare site that wants no checks from visits at all has a filter.
 add_filter( 'lstab_keep_current', '__return_false' );
-$off_html = lstab_view( '[sheet_table id="' . $source_id . '"]' );
+$off_html = lstab_view( '[tabliko id="' . $source_id . '"]' );
 remove_filter( 'lstab_keep_current', '__return_false' );
 lstab_assert( false === strpos( $off_html, 'data-lstab-next=' ), 'Switched off by filter, the page asks for no check' );
 
@@ -1069,15 +1069,15 @@ $lstab_count   = function ( $args ) use ( &$lstab_fetches ) {
 add_filter( 'lstab_fetch_args', $lstab_count, 100 );
 LSTAB_Sync::reset_view_budget();
 // All three drawn inside one page load, so no reset between them.
-do_shortcode( '[sheet_table id="' . $source_id . '"]' );
-do_shortcode( '[sheet_table id="' . (int) $second_id . '"]' );
-do_shortcode( '[sheet_table id="' . (int) $third_id . '"]' );
+do_shortcode( '[tabliko id="' . $source_id . '"]' );
+do_shortcode( '[tabliko id="' . (int) $second_id . '"]' );
+do_shortcode( '[tabliko id="' . (int) $third_id . '"]' );
 remove_filter( 'lstab_fetch_args', $lstab_count, 100 );
 lstab_assert( 1 === $lstab_fetches, 'Two never-read tables on one page cost one fetch, and the table already read costs none', (string) $lstab_fetches );
 lstab_assert( 'ok' === LSTAB_Storage::get( (int) $second_id )['last_status'], 'The first of them is read while the page is drawn' );
 
 // The table that missed its turn gets it on the next page load.
-lstab_view( '[sheet_table id="' . (int) $third_id . '"]' );
+lstab_view( '[tabliko id="' . (int) $third_id . '"]' );
 lstab_assert( 'ok' === LSTAB_Storage::get( (int) $third_id )['last_status'], 'The other is read on the next page load' );
 LSTAB_Storage::delete( (int) $second_id );
 LSTAB_Storage::delete( (int) $third_id );
@@ -1239,7 +1239,7 @@ $lstab_cell_probe = function ( $html, $value, $col ) {
 };
 add_filter( 'lstab_render_cell', $lstab_cell_probe, 10, 3 );
 
-$formatted = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$formatted = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstab_assert( false !== strpos( $formatted, 'lstab-flag-high' ), 'lstab_render_cell can style a cell (Pro conditional formatting)' );
 
 // Only this probe: the plugin has its own callback on this hook for linking
@@ -1292,14 +1292,14 @@ lstab_assert( 1800 === LSTAB_Limits::min_interval(), 'Without the add-on the flo
 
 lstab_section( '11. Missing and broken sources' );
 
-$missing = do_shortcode( '[sheet_table id="99999"]' );
+$missing = do_shortcode( '[tabliko id="99999"]' );
 lstab_assert( '' === $missing, 'An unknown ID renders nothing for visitors', $missing );
 
-$no_id = do_shortcode( '[sheet_table]' );
+$no_id = do_shortcode( '[tabliko]' );
 lstab_assert( '' === $no_id, 'A shortcode without an ID renders nothing for visitors', $no_id );
 
 wp_set_current_user( 1 );
-$missing_admin = do_shortcode( '[sheet_table id="99999"]' );
+$missing_admin = do_shortcode( '[tabliko id="99999"]' );
 lstab_assert( false !== strpos( $missing_admin, 'lstab-notice' ), 'Administrators do get an explanatory notice' );
 wp_set_current_user( 0 );
 
@@ -1311,7 +1311,7 @@ $never_id = LSTAB_Storage::insert(
 		'sheet_id'  => 'NEVERSYNCEDSHEETID000000000000000000',
 	)
 );
-lstab_assert( '' === do_shortcode( '[sheet_table id="' . $never_id . '"]' ), 'A never-synced source renders nothing for visitors' );
+lstab_assert( '' === do_shortcode( '[tabliko id="' . $never_id . '"]' ), 'A never-synced source renders nothing for visitors' );
 LSTAB_Storage::delete( $never_id );
 
 // ---------------------------------------------------------------------------
@@ -1319,7 +1319,7 @@ LSTAB_Storage::delete( $never_id );
 lstab_section( '11b. A cached page asks for its own overdue tables' );
 
 LSTAB_Sync::reset_view_budget();
-$lstab_kc_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$lstab_kc_html = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstab_assert( false !== strpos( $lstab_kc_html, 'data-lstab-ask="' . esc_attr( admin_url( 'admin-ajax.php', 'relative' ) ) . '"' ), 'A table on a page carries where to ask' );
 lstab_assert( 1 === preg_match( '/data-lstab-copy="[0-9a-f]{12}"/', $lstab_kc_html ), 'And a short form of the copy it shows' );
 lstab_assert( 1 === preg_match( '/data-lstab-next="(\d+)"/', $lstab_kc_html, $lstab_kc_next ) && (int) $lstab_kc_next[1] > time(), 'And when it is next due, in the future for a fresh table', isset( $lstab_kc_next[1] ) ? $lstab_kc_next[1] : '' );
@@ -1430,9 +1430,9 @@ LSTAB_Storage::update( $source_id, array( 'per_page' => 2 ) );
 LSTAB_Sync::reset_view_budget();
 $lstab_twice_key = substr( md5( 'stock is out|' ), 0, 6 );
 $_GET[ 'lstab-page-' . $source_id . '-' . $lstab_twice_key ] = '3';
-$lstab_twice = do_shortcode( '[sheet_table id="' . $source_id . '"]' . '[sheet_table id="' . $source_id . '" filter="Stock is out"]' );
+$lstab_twice = do_shortcode( '[tabliko id="' . $source_id . '"]' . '[tabliko id="' . $source_id . '" filter="Stock is out"]' );
 unset( $_GET[ 'lstab-page-' . $source_id . '-' . $lstab_twice_key ] );
-$lstab_plain_after = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$lstab_plain_after = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 LSTAB_Storage::update( $source_id, array( 'per_page' => 0 ) );
 remove_filter( 'lstab_filter_supported', '__return_true' );
 lstab_assert( 2 === preg_match_all( '/id="lstab-table-' . $source_id . '(-\d+)?"/', $lstab_twice, $lstab_ids ) && 2 === count( array_unique( $lstab_ids[0] ) ), 'Each copy has its own element id', wp_json_encode( $lstab_ids[0] ?? array() ) );
@@ -1449,10 +1449,10 @@ lstab_section( '12. REST surface' );
 $server = rest_get_server();
 $routes = $server->get_routes();
 
-lstab_assert( isset( $routes['/live-sheets-table/v1/preview'] ), 'Preview route registered' );
-lstab_assert( isset( $routes['/live-sheets-table/v1/sources'] ), 'Sources route registered' );
+lstab_assert( isset( $routes['/tabliko/v1/preview'] ), 'Preview route registered' );
+lstab_assert( isset( $routes['/tabliko/v1/sources'] ), 'Sources route registered' );
 
-$request  = new WP_REST_Request( 'POST', '/live-sheets-table/v1/preview' );
+$request  = new WP_REST_Request( 'POST', '/tabliko/v1/preview' );
 $request->set_param( 'url', 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit' );
 $response = $server->dispatch( $request );
 lstab_assert( 401 === $response->get_status() || 403 === $response->get_status(), 'Preview refuses anonymous callers', (string) $response->get_status() );
@@ -1467,7 +1467,7 @@ lstab_assert( isset( $data['html'] ) && false !== strpos( $data['html'], '<table
 
 // The preview must honour the requested preset; without this the admin screen
 // always rendered "clean" no matter which preset was selected or saved.
-$styled = new WP_REST_Request( 'POST', '/live-sheets-table/v1/preview' );
+$styled = new WP_REST_Request( 'POST', '/tabliko/v1/preview' );
 $styled->set_param( 'url', 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit' );
 $styled->set_param( 'style', 'striped' );
 $styled_data = $server->dispatch( $styled )->get_data();
@@ -1477,7 +1477,7 @@ lstab_assert(
 	'no striped class in preview HTML'
 );
 
-$unstyled = new WP_REST_Request( 'POST', '/live-sheets-table/v1/preview' );
+$unstyled = new WP_REST_Request( 'POST', '/tabliko/v1/preview' );
 $unstyled->set_param( 'url', 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit' );
 $unstyled_data = $server->dispatch( $unstyled )->get_data();
 lstab_assert(
@@ -1485,7 +1485,7 @@ lstab_assert(
 	'Preview falls back to the default preset when none is asked for'
 );
 
-$pro_styled = new WP_REST_Request( 'POST', '/live-sheets-table/v1/preview' );
+$pro_styled = new WP_REST_Request( 'POST', '/tabliko/v1/preview' );
 $pro_styled->set_param( 'url', 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit' );
 $pro_styled->set_param( 'style', 'aurora' );
 $pro_data = $server->dispatch( $pro_styled )->get_data();
@@ -1496,7 +1496,7 @@ lstab_assert(
 
 // The shortcode card's Show/Hide switches for the search box and sorting are
 // drawn in the preview straight away, before anything is saved.
-$bare = new WP_REST_Request( 'POST', '/live-sheets-table/v1/preview' );
+$bare = new WP_REST_Request( 'POST', '/tabliko/v1/preview' );
 $bare->set_param( 'url', 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit' );
 $bare->set_param( 'search', false );
 $bare->set_param( 'sort', false );
@@ -1509,12 +1509,12 @@ lstab_assert(
 	'Both of which the ordinary preview has'
 );
 
-$bad = new WP_REST_Request( 'POST', '/live-sheets-table/v1/preview' );
+$bad = new WP_REST_Request( 'POST', '/tabliko/v1/preview' );
 $bad->set_param( 'url', 'https://evil.example.com/spreadsheets/d/x/edit' );
 $bad_response = $server->dispatch( $bad );
 lstab_assert( 400 === $bad_response->get_status(), 'Preview rejects a non-Google host', (string) $bad_response->get_status() );
 
-$refresh  = new WP_REST_Request( 'POST', '/live-sheets-table/v1/sources/' . $source_id . '/refresh' );
+$refresh  = new WP_REST_Request( 'POST', '/tabliko/v1/sources/' . $source_id . '/refresh' );
 $refresh_response = $server->dispatch( $refresh );
 lstab_assert( 200 === $refresh_response->get_status(), 'Manual refresh endpoint works', (string) $refresh_response->get_status() );
 wp_set_current_user( 0 );
@@ -1528,7 +1528,7 @@ wp_set_current_user( 0 );
  */
 wp_set_current_user( 1 );
 lstab_set_mock( 'ragged' );
-$raw_request = new WP_REST_Request( 'POST', '/live-sheets-table/v1/preview' );
+$raw_request = new WP_REST_Request( 'POST', '/tabliko/v1/preview' );
 $raw_request->set_param( 'url', 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0' );
 $raw_response = rest_get_server()->dispatch( $raw_request );
 $raw_data     = $raw_response->get_data();
@@ -1549,7 +1549,7 @@ lstab_set_mock( 'ok', 'main' );
 // configured per source outside the free plugin's own table can reach it.
 $preview_route = rest_get_server()->get_routes();
 lstab_assert(
-	isset( $preview_route['/live-sheets-table/v1/preview'][0]['args']['sourceId'] ),
+	isset( $preview_route['/tabliko/v1/preview'][0]['args']['sourceId'] ),
 	'The preview endpoint accepts the source being edited'
 );
 
@@ -1558,9 +1558,9 @@ lstab_assert(
 lstab_section( '13. Block registration' );
 
 $registry = WP_Block_Type_Registry::get_instance();
-lstab_assert( $registry->is_registered( 'live-sheets-table/sheet-table' ), 'Block type registered' );
+lstab_assert( $registry->is_registered( 'tabliko/sheet-table' ), 'Block type registered' );
 
-$block_type = $registry->get_registered( 'live-sheets-table/sheet-table' );
+$block_type = $registry->get_registered( 'tabliko/sheet-table' );
 lstab_assert( is_callable( $block_type->render_callback ), 'Block has a server-side render callback' );
 
 // ---------------------------------------------------------------------------
@@ -1703,7 +1703,7 @@ LSTAB_Storage::update(
 		),
 	)
 );
-$configured_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$configured_html = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstab_assert( false !== strpos( $configured_html, 'Cena brutto' ), 'The renamed heading reaches the page' );
 lstab_assert( false === strpos( $configured_html, 'Rama aluminiowa' ), 'The hidden column\'s data never reaches the page' );
 lstab_assert( 4 === substr_count( $configured_html, '<th scope="col"' ), 'Four columns are rendered', (string) substr_count( $configured_html, '<th scope="col"' ) );
@@ -1784,15 +1784,15 @@ $attempted  = substr_count( $block_free->render( array( 'sourceId' => $source_id
 lstab_assert( $unfiltered > 0, 'The unfiltered block still renders its rows', (string) $unfiltered );
 lstab_assert( 0 === $attempted, 'A filter nothing can honour shows no rows rather than every row', (string) $attempted );
 
-$shortcode_attempt = do_shortcode( '[sheet_table id="' . $source_id . '" filter="Dostępność is Brak"]' );
+$shortcode_attempt = do_shortcode( '[tabliko id="' . $source_id . '" filter="Dostępność is Brak"]' );
 lstab_assert( 0 === substr_count( $shortcode_attempt, '<tr role="row" class="lstab-row"' ), 'The shortcode is held to the same rule' );
 
 wp_set_current_user( 1 );
-$owner_sees = do_shortcode( '[sheet_table id="' . $source_id . '" filter="Dostępność is Brak"]' );
+$owner_sees = do_shortcode( '[tabliko id="' . $source_id . '" filter="Dostępność is Brak"]' );
 lstab_assert( false !== strpos( $owner_sees, 'not active' ), 'Someone who can fix it is told why the table is empty' );
 wp_set_current_user( 0 );
 
-$visitor_sees = do_shortcode( '[sheet_table id="' . $source_id . '" filter="Dostępność is Brak"]' );
+$visitor_sees = do_shortcode( '[tabliko id="' . $source_id . '" filter="Dostępność is Brak"]' );
 lstab_assert( '' === trim( $visitor_sees ), 'A visitor is shown nothing at all, not an explanation', substr( $visitor_sees, 0, 80 ) );
 
 /*
@@ -1802,7 +1802,7 @@ lstab_assert( '' === trim( $visitor_sees ), 'A visitor is shown nothing at all, 
  */
 wp_dequeue_style( 'lstab-table' );
 wp_set_current_user( 1 );
-do_shortcode( '[sheet_table id="' . $source_id . '" filter="Dostępność is Brak"]' );
+do_shortcode( '[tabliko id="' . $source_id . '" filter="Dostępność is Brak"]' );
 lstab_assert( wp_style_is( 'lstab-table', 'enqueued' ), 'A notice brings the stylesheet with it, so it looks like a notice' );
 wp_set_current_user( 0 );
 
@@ -1937,13 +1937,13 @@ lstab_assert(
 lstab_set_mock( 'ok', 'main' );
 LSTAB_Sync::run( $source_id );
 LSTAB_Storage::update( $source_id, array( 'hidden_rows' => array( LSTAB_Hidden_Rows::entry_for( LSTAB_Storage::get( $source_id )['data']['rows'][1], 1 ) ) ) );
-$hidden_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$hidden_html = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstab_assert( false === strpos( $hidden_html, 'Kask Lazer' ), 'A hidden row is not on the page' );
 lstab_assert( false !== strpos( $hidden_html, 'Rower górski' ), 'The rest of the table is untouched' );
 
 $_GET = array( LSTAB_Paging::arg( $source_id, 'q' ) => 'Kask' );
 LSTAB_Storage::update( $source_id, array( 'per_page' => 10 ) );
-$searched = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$searched = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 $_GET     = array();
 LSTAB_Storage::update( $source_id, array( 'per_page' => 0 ) );
 lstab_assert( false === strpos( $searched, 'Kask Lazer' ), 'A hidden row cannot be found by searching for it' );
@@ -1963,14 +1963,14 @@ foreach ( array( 'is_pro', 'pro_effective', 'grace_remaining', 'note_pro_seen' )
 }
 
 lstab_assert(
-	false === strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'Kask Lazer' ),
+	false === strpos( do_shortcode( '[tabliko id="' . $source_id . '"]' ), 'Kask Lazer' ),
 	'A hidden row stays hidden with no add-on at all'
 );
 
 // A site that ran an older version may still hold its long-finished countdown.
 update_option( 'lstab_pro_last_seen', time() - 30 * DAY_IN_SECONDS, true );
 lstab_assert(
-	false === strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'Kask Lazer' ),
+	false === strpos( do_shortcode( '[tabliko id="' . $source_id . '"]' ), 'Kask Lazer' ),
 	'A countdown left by an older version changes nothing'
 );
 delete_option( 'lstab_pro_last_seen' );
@@ -1987,7 +1987,7 @@ lstab_assert( false === strpos( $lstab_notices, 'showing again' ) && false === s
 // Hidden columns follow exactly the same rule.
 LSTAB_Storage::update( $source_id, array( 'columns_config' => array( 2 => array( 'hidden' => true, 'label' => '', 'source' => 'Dostępność' ) ) ) );
 lstab_assert(
-	false === strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'Dostępność' ),
+	false === strpos( do_shortcode( '[tabliko id="' . $source_id . '"]' ), 'Dostępność' ),
 	'A hidden column is left out with no add-on at all'
 );
 
@@ -2044,12 +2044,12 @@ LSTAB_Storage::record_success(
 );
 
 LSTAB_Storage::update( $source_id, array( 'link_cells' => 1 ) );
-$linked_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$linked_html = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstab_assert( false !== strpos( $linked_html, 'href="mailto:biuro@rowery.pl"' ), 'The rendered table carries the link' );
 lstab_assert( false !== strpos( $linked_html, 'rel="nofollow ugc"' ), 'Links from a sheet are marked as not the site\'s own' );
 
 LSTAB_Storage::update( $source_id, array( 'link_cells' => 0 ) );
-$plain_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$plain_html = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstab_assert( false === strpos( $plain_html, 'href="mailto:' ), 'Switching it off stops the linking' );
 lstab_assert( false !== strpos( $plain_html, 'biuro@rowery.pl' ), 'The address is still shown as text' );
 
@@ -2061,11 +2061,11 @@ LSTAB_Sync::run( $source_id );
 
 lstab_section( '12c. Pinned column setting' );
 
-lstab_assert( false !== strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'lstab-sticky-first' ), 'Pinning is on by default' );
+lstab_assert( false !== strpos( do_shortcode( '[tabliko id="' . $source_id . '"]' ), 'lstab-sticky-first' ), 'Pinning is on by default' );
 
 LSTAB_Storage::update( $source_id, array( 'sticky_first' => 0 ) );
-lstab_assert( false === strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'lstab-sticky-first' ), 'Pinning can be switched off per source' );
-lstab_assert( false !== strpos( do_shortcode( '[sheet_table id="' . $source_id . '"]' ), 'lstab-scrollbar' ), 'Switching it off leaves the slider alone' );
+lstab_assert( false === strpos( do_shortcode( '[tabliko id="' . $source_id . '"]' ), 'lstab-sticky-first' ), 'Pinning can be switched off per source' );
+lstab_assert( false !== strpos( do_shortcode( '[tabliko id="' . $source_id . '"]' ), 'lstab-scrollbar' ), 'Switching it off leaves the slider alone' );
 
 LSTAB_Storage::update( $source_id, array( 'sticky_first' => 1 ) );
 
@@ -2181,7 +2181,7 @@ $stored = LSTAB_Storage::get( $source_id );
 lstab_assert( '#8b5cf6' === $stored['style_vars']['accent'], 'Overrides survive a round trip', wp_json_encode( $stored['style_vars'] ) );
 lstab_assert( 'compact' === $stored['style_vars']['density'], 'Metric choices survive a round trip' );
 
-$customised = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$customised = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstab_assert( false !== strpos( $customised, '--lstab-accent:#8b5cf6' ), 'The rendered table carries the override' );
 lstab_assert( false !== strpos( $customised, '--lstab-pad-y:0.42em' ), 'Compact density reaches the page' );
 lstab_assert(
@@ -2249,7 +2249,7 @@ LSTAB_Storage::update(
 		),
 	)
 );
-$typo_page = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$typo_page = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstab_assert( false !== strpos( $typo_page, '--lstab-head-font-size:14px' ), 'Large headings reach the page, in pixels' );
 lstab_assert( false !== strpos( $typo_page, '--lstab-pager-place:start' ), 'And the placement travels with them' );
 
@@ -2280,14 +2280,14 @@ lstab_assert( false !== strpos( $sheet_css, 'grid-template-columns: 1fr auto 1fr
 
 // Clearing them must actually clear them.
 LSTAB_Storage::update( $source_id, array( 'style_vars' => LSTAB_Customizer::defaults() ) );
-$cleared = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$cleared = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstab_assert( false === strpos( $cleared, '--lstab-accent' ), 'Resetting removes the override from the page' );
 lstab_assert( false === strpos( $cleared, 'style=""' ), 'No empty style attribute is left behind' );
 
 // Turning the feature off must stop it rendering, whatever is stored.
 LSTAB_Storage::update( $source_id, array( 'style_vars' => array( 'accent' => '#123456' ) ) );
 add_filter( 'lstab_customizer_enabled', '__return_false' );
-$disabled = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$disabled = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstab_assert( false === strpos( $disabled, '--lstab-accent' ), 'Disabling the editor stops overrides rendering' );
 remove_all_filters( 'lstab_customizer_enabled' );
 LSTAB_Storage::update( $source_id, array( 'style_vars' => LSTAB_Customizer::defaults() ) );
@@ -2428,7 +2428,7 @@ $detail_value   = (string) $detail_stored['data']['rows'][0][3];
 $detail_source = LSTAB_Storage::get( $source_id );
 lstab_assert( ! empty( $detail_source['columns_config'][3]['detail'] ), 'The choice survives a round trip through the database' );
 
-$detail_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$detail_html = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 
 lstab_assert( false !== strpos( $detail_html, 'lstab-detail' ), 'The table renders a drawer under its rows' );
 lstab_assert( false !== strpos( $detail_html, 'class="lstab-open"' ), 'With a button to open it' );
@@ -2460,7 +2460,7 @@ if ( preg_match( '#<td colspan="(\d+)"#', $detail_html, $span ) ) {
 // Hiding wins: a column cannot be both gone and in the drawer.
 $detail_config[3]['hidden'] = true;
 LSTAB_Storage::update( $source_id, array( 'columns_config' => $detail_config ) );
-$both_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$both_html = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstab_assert(
 	false === strpos( $both_html, esc_html( $detail_value ) ) && false === strpos( $both_html, $detail_heading ),
 	'A hidden column stays hidden, drawer or no drawer',
@@ -2477,7 +2477,7 @@ foreach ( $all_detail as $lstab_i => $lstab_column ) {
 	$all_detail[ $lstab_i ]['hidden'] = false;
 }
 LSTAB_Storage::update( $source_id, array( 'columns_config' => $all_detail ) );
-$empty_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$empty_html = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstab_assert( false === strpos( $empty_html, 'lstab-detail' ), 'Putting every column in the drawer is refused rather than rendered' );
 lstab_assert( false !== strpos( $empty_html, 'Rower' ), 'And the table is drawn as it was' );
 
@@ -2491,7 +2491,7 @@ lstab_assert(
 );
 
 // The drawer is the plugin's own: it needs no add-on and has no clock.
-$free_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$free_html = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 $free_head = substr( $free_html, (int) strpos( $free_html, '<thead' ), (int) strpos( $free_html, '</thead>' ) - (int) strpos( $free_html, '<thead' ) );
 lstab_assert( ! function_exists( 'lstabp' ) && false !== strpos( $free_html, 'lstab-detail' ), 'Without the add-on the drawer is still there' );
 lstab_assert( false === strpos( $free_head, $detail_heading ), 'And the column stays in it, not in the headings', $detail_heading );
@@ -2538,7 +2538,7 @@ $cache_page = wp_insert_post(
 		'post_title'   => 'Cennik w cache',
 		'post_status'  => 'publish',
 		'post_type'    => 'page',
-		'post_content' => '[sheet_table id="' . $source_id . '"]',
+		'post_content' => '[tabliko id="' . $source_id . '"]',
 	)
 );
 $other_page = wp_insert_post(
@@ -2721,7 +2721,7 @@ $cache_throwaway = LSTAB_Storage::insert(
 		'sheet_id'  => 'WWW',
 	)
 );
-$throwaway_page = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'Throwaway', 'post_content' => '[sheet_table id="' . $cache_throwaway . '"]' ) );
+$throwaway_page = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'Throwaway', 'post_content' => '[tabliko id="' . $cache_throwaway . '"]' ) );
 LSTAB_Usage::forget();
 LSTAB_Cache::purge( $cache_throwaway );
 lstab_assert( is_array( LSTAB_Cache::last( $cache_throwaway ) ), 'A throwaway source has a record to lose' );
@@ -2744,9 +2744,9 @@ lstab_section( '14z. No CSS of its own in the free plugin' );
 // so a table's own CSS lives in Pro. The free plugin prints no style block,
 // offers no field and has no endpoint that scopes rules.
 lstab_assert( ! class_exists( 'LSTAB_Custom_Css' ), 'The free plugin has no CSS scoper' );
-$css_free_html = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$css_free_html = do_shortcode( '[tabliko id="' . $source_id . '"]' );
 lstab_assert( false === stripos( $css_free_html, '<style' ), 'A published table carries no style block' );
-lstab_assert( ! isset( rest_get_server()->get_routes()['/live-sheets-table/v1/scoped-css'] ), 'And there is no endpoint for scoping CSS' );
+lstab_assert( ! isset( rest_get_server()->get_routes()['/tabliko/v1/scoped-css'] ), 'And there is no endpoint for scoping CSS' );
 
 // ---------------------------------------------------------------------------
 
@@ -2958,7 +2958,7 @@ foreach ( array( 1, 2, 3 ) as $odd_index ) {
 $odd_config[4]['label'] = 'Remarks';
 LSTAB_Storage::update( $odd_id, array( 'columns_config' => LSTAB_Columns::sanitize( $odd_config ) ) );
 
-$odd_html = lstab_view( '[sheet_table id="' . $odd_id . '"]' );
+$odd_html = lstab_view( '[tabliko id="' . $odd_id . '"]' );
 lstab_assert( 2 === substr_count( $odd_html, 'role="columnheader"' ), 'Columns hidden by their owner stay hidden whatever their headings hold', (string) substr_count( $odd_html, 'role="columnheader"' ) );
 lstab_assert( false === strpos( $odd_html, '4100' ) && false === strpos( $odd_html, 'Weight' ), 'Not a figure from them reaches the page' );
 lstab_assert( false !== strpos( $odd_html, 'Remarks' ), 'And a renamed column still wears its new name' );
@@ -2981,17 +2981,17 @@ LSTAB_Storage::update( $odd_id, array( 'columns_config' => array(), 'per_page' =
 LSTAB_Sync::run( $odd_id );
 
 $_GET[ LSTAB_Paging::arg( $odd_id, 'q' ) ] = '<18';
-$odd_search = lstab_view( '[sheet_table id="' . $odd_id . '"]' );
+$odd_search = lstab_view( '[tabliko id="' . $odd_id . '"]' );
 lstab_assert( 2 === substr_count( $odd_search, '<tr role="row" class="lstab-row"' ), 'A search for "<18" finds the rows that say <18', (string) substr_count( $odd_search, '<tr role="row" class="lstab-row"' ) );
 lstab_assert( false !== strpos( $odd_search, 'value="&lt;18"' ) && false === strpos( $odd_search, '&amp;lt;' ), 'And the box still says <18 afterwards' );
 
 $_GET[ LSTAB_Paging::arg( $odd_id, 'q' ) ] = '39';
-$odd_search = lstab_view( '[sheet_table id="' . $odd_id . '"]' );
+$odd_search = lstab_view( '[tabliko id="' . $odd_id . '"]' );
 lstab_assert( false !== strpos( $odd_search, 'Kids&#039; helmet <mark class="lstab-hit">39</mark>' ), 'Marking "39" leaves the apostrophe beside it alone', preg_match( '#Kids[^<]*(<mark[^>]*>[^<]*</mark>)?[^<]*#', $odd_search, $odd_m ) ? $odd_m[0] : '' );
 lstab_assert( false === strpos( $odd_search, '&amp;#0' ), 'No escaped code is left showing' );
 
 $_GET[ LSTAB_Paging::arg( $odd_id, 'q' ) ] = 'amp';
-$odd_search = lstab_view( '[sheet_table id="' . $odd_id . '"]' );
+$odd_search = lstab_view( '[tabliko id="' . $odd_id . '"]' );
 lstab_assert( false !== strpos( $odd_search, 'Rock &amp; Roll <mark class="lstab-hit">amp</mark>' ), 'A search for "amp" marks the word, not the inside of "&"', preg_match( '#Rock[^<]*(<mark[^>]*>[^<]*</mark>)?[^<]*#', $odd_search, $odd_m ) ? $odd_m[0] : '' );
 unset( $_GET[ LSTAB_Paging::arg( $odd_id, 'q' ) ] );
 
@@ -2999,7 +2999,7 @@ unset( $_GET[ LSTAB_Paging::arg( $odd_id, 'q' ) ] );
 // screen readers and the stylesheet's arrow look for it.
 $_GET[ LSTAB_Paging::arg( $odd_id, 'sort' ) ] = '1';
 $_GET[ LSTAB_Paging::arg( $odd_id, 'dir' ) ]  = 'desc';
-$odd_sorted = lstab_view( '[sheet_table id="' . $odd_id . '"]' );
+$odd_sorted = lstab_view( '[tabliko id="' . $odd_id . '"]' );
 unset( $_GET[ LSTAB_Paging::arg( $odd_id, 'sort' ) ], $_GET[ LSTAB_Paging::arg( $odd_id, 'dir' ) ] );
 lstab_assert( 1 === preg_match( '#<th scope="col" role="columnheader"[^>]*aria-sort="descending"#', $odd_sorted ), 'A paged table sorted by a column marks that heading as sorted' );
 lstab_assert( 0 === preg_match( '#<a class="lstab-sort[^>]*aria-sort#', $odd_sorted ), 'Rather than the link inside it, where it means nothing' );
@@ -3033,7 +3033,7 @@ remove_all_filters( 'lstab_max_sheet_bytes' );
 $odd_kept = LSTAB_Storage::get( $odd_id );
 lstab_assert( is_wp_error( $odd_big ) && 'lstab_too_large' === $odd_big->get_error_code(), 'A tab over the size limit is refused', is_wp_error( $odd_big ) ? $odd_big->get_error_code() : 'synced' );
 lstab_assert( false !== strpos( (string) $odd_kept['last_error'], 'Split it across several tabs' ), 'With a reason the owner can act on', (string) $odd_kept['last_error'] );
-lstab_assert( 1 === (int) $odd_kept['row_count'] && false !== strpos( lstab_view( '[sheet_table id="' . $odd_id . '"]' ), 'Kept' ), 'And the copy already held is still what visitors see' );
+lstab_assert( 1 === (int) $odd_kept['row_count'] && false !== strpos( lstab_view( '[tabliko id="' . $odd_id . '"]' ), 'Kept' ), 'And the copy already held is still what visitors see' );
 lstab_assert( false === strpos( (string) @file_get_contents( WP_CONTENT_DIR . '/lstab-mock-log.txt' ), 'gviz' ), 'The same oversized tab is not fetched a second time from the other address' );
 
 $odd_tight = json_decode( (string) shell_exec( 'php -d memory_limit=300M ' . escapeshellarg( __DIR__ . '/harness/big-sheet.php' ) . ' ' . escapeshellarg( $wp_root ) . ' 18' ), true );
@@ -3078,7 +3078,7 @@ add_filter( 'query', $odd_count );
 LSTAB_Hidden_Rows::reanchor( $odd_id, $odd_rows );
 remove_filter( 'query', $odd_count );
 lstab_assert( 0 === $odd_writes, 'A hidden row that has not moved is not written again on every refresh', (string) $odd_writes );
-lstab_assert( false === strpos( lstab_view( '[sheet_table id="' . $odd_id . '"]' ), '&lt;18 group' ), 'And it stays hidden' );
+lstab_assert( false === strpos( lstab_view( '[tabliko id="' . $odd_id . '"]' ), '&lt;18 group' ), 'And it stays hidden' );
 
 LSTAB_Storage::delete( $odd_id );
 lstab_set_mock( 'ok' );

@@ -50,7 +50,7 @@ jobs:
       - name: Check every file parses
         run: |
           set -e
-          find live-sheets-table live-sheets-table-pro tools tests -name '*.php' -print0 \
+          find tabliko tabliko-pro tools tests -name '*.php' -print0 \
             | xargs -0 -n1 php -l > /dev/null
 
       - name: Build the WordPress test sites
@@ -67,7 +67,7 @@ jobs:
 
       - name: Pro add-on
         run: |
-          php tests/harness/activate.php /tmp/lstab-env/wp71 8089 live-sheets-table-pro/live-sheets-table-pro.php
+          php tests/harness/activate.php /tmp/lstab-env/wp71 8089 tabliko-pro/tabliko-pro.php
           php tests/pro-test.php /tmp/lstab-env/wp71
 
       - name: PHP notices raised by the plugin

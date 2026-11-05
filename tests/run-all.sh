@@ -106,8 +106,8 @@ run_suite() {
 # hand would otherwise fail ten free-tier assertions for no reason of the code's.
 # Both sites the suite runs on, because a Pro zip tested by hand lands on the
 # clean one and stays there.
-php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null
-php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wpzip" 8090 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null 2>&1 || true
+php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 tabliko-pro/tabliko-pro.php > /dev/null
+php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wpzip" 8090 tabliko-pro/tabliko-pro.php > /dev/null 2>&1 || true
 
 run_suite wp    "WordPress 6.7 (the minimum the plugin claims)"
 run_suite wp71  "WordPress 7.1 (current)"
@@ -144,18 +144,18 @@ echo "=============================================="
 echo " Packaging"
 echo "=============================================="
 bash "$REPO/tools/build-zip.sh"
-bash "$REPO/tools/build-zip.sh" live-sheets-table-pro
+bash "$REPO/tools/build-zip.sh" tabliko-pro
 
 echo
 echo "=============================================="
 echo " Reinstalling the clean site from the zip"
 echo "=============================================="
-rm -rf "$SCRATCH/wpzip/wp-content/plugins/live-sheets-table"
-unzip -q "$REPO/build/live-sheets-table.zip" -d "$SCRATCH/wpzip/wp-content/plugins/"
+rm -rf "$SCRATCH/wpzip/wp-content/plugins/tabliko"
+unzip -q "$REPO/build/tabliko.zip" -d "$SCRATCH/wpzip/wp-content/plugins/"
 # Again here: the deactivation above happened before the packaging step, and
 # this is the last moment before the free tier is asserted.
-php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wpzip" 8090 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null 2>&1 || true
-echo "  Installed $( find "$SCRATCH/wpzip/wp-content/plugins/live-sheets-table" -type f | wc -l ) files from the archive"
+php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wpzip" 8090 tabliko-pro/tabliko-pro.php > /dev/null 2>&1 || true
+echo "  Installed $( find "$SCRATCH/wpzip/wp-content/plugins/tabliko" -type f | wc -l ) files from the archive"
 php "$REPO/tests/harness/activate.php" "$SCRATCH/wpzip" 8090
 
 run_suite wpzip "clean install from the built zip"
@@ -172,7 +172,7 @@ echo
 echo "=============================================="
 echo " Pro add-on suite — WordPress 7.1"
 echo "=============================================="
-php "$REPO/tests/harness/activate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php
+php "$REPO/tests/harness/activate.php" "$SCRATCH/wp71" 8089 tabliko-pro/tabliko-pro.php
 rm -f "$SCRATCH/wp71/wp-content/debug.log"
 php "$REPO/tests/pro-test.php" "$SCRATCH/wp71"
 php "$REPO/tests/pro-css-test.php" "$SCRATCH/wp71"
@@ -254,7 +254,7 @@ echo "=============================================="
 node "$REPO/tests/sticky-head-browser.mjs"
 
 # The free plugin's own suite asserts the free tier, so Pro must be off for it.
-php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php
+php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 tabliko-pro/tabliko-pro.php
 
 echo
 echo "=============================================="
@@ -305,7 +305,7 @@ echo "=============================================="
 # Clicking things is the whole point of the picker, and the only part of it PHP
 # cannot check. It comes with the free plugin, so it is driven without the
 # add-on first, then again with it for the add-on's own cards.
-php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null
+php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 tabliko-pro/tabliko-pro.php > /dev/null
 php "$SCRATCH/seed71.php" > /dev/null
 cp "$REPO/tests/harness/picker-test.mjs" "$SCRATCH/picker-test.mjs"
 cd "$SCRATCH" && LSTAB_SHOTS="$REPO/screenshots" node picker-test.mjs
@@ -314,7 +314,7 @@ echo
 echo "=============================================="
 echo " The add-on's cards in a browser — WordPress 7.1"
 echo "=============================================="
-php "$REPO/tests/harness/activate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null
+php "$REPO/tests/harness/activate.php" "$SCRATCH/wp71" 8089 tabliko-pro/tabliko-pro.php > /dev/null
 php "$SCRATCH/seed71.php" > /dev/null
 cd "$SCRATCH" && LSTAB_WITH_PRO=1 LSTAB_SHOTS="$REPO/screenshots" node picker-test.mjs
 
@@ -327,7 +327,7 @@ echo "=============================================="
 # headings one letter to a line; WordPress sizes its fields for a laptop.
 php "$SCRATCH/seed71.php" > /dev/null
 node "$REPO/tests/admin-sweep.mjs"
-php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null
+php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp71" 8089 tabliko-pro/tabliko-pro.php > /dev/null
 
 echo
 echo "=============================================="
@@ -337,7 +337,7 @@ echo "=============================================="
 # Running the add-on here is what caught add_submenu_page() being absent from a
 # command-line WordPress 6.7 — on 7.1 it happens to be loaded, so a suite that
 # only ever ran on 7.1 could not have seen it.
-php "$REPO/tests/harness/activate.php" "$SCRATCH/wp" 8088 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null
+php "$REPO/tests/harness/activate.php" "$SCRATCH/wp" 8088 tabliko-pro/tabliko-pro.php > /dev/null
 rm -f "$SCRATCH/wp/wp-content/debug.log"
 php "$REPO/tests/pro-test.php" "$SCRATCH/wp"
 
@@ -358,7 +358,7 @@ if [ -f "$SCRATCH/wp/wp-content/debug.log" ] && grep -v "$NOISE" "$SCRATCH/wp/wp
 	exit 1
 fi
 
-php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp" 8088 live-sheets-table-pro/live-sheets-table-pro.php > /dev/null
+php "$REPO/tests/harness/deactivate.php" "$SCRATCH/wp" 8088 tabliko-pro/tabliko-pro.php > /dev/null
 
 echo
 echo "=============================================="

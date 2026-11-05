@@ -4,7 +4,7 @@
 # da się zrobić.
 import html, pathlib, urllib.parse
 
-CSS = pathlib.Path( '/home/user/111/live-sheets-table/assets/css/lstab-table.css' ).read_text()
+CSS = pathlib.Path( '/home/user/111/tabliko/assets/css/lstab-table.css' ).read_text()
 
 WIERSZE = [
 	( 'Opening keynote',           '09:30', 'Main hall', 120, 'Open'     ),

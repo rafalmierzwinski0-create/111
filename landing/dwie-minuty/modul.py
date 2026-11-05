@@ -37,7 +37,7 @@ L, P = '&#91;', '&#93;'
 # Divi pusty znacznik po cichu wyrzuca. Nawias w środku znacznika sprawia, że
 # nie jest pusty i zostaje. Dla czytającego i kopiującego nic się nie zmienia.
 NAWIAS = '<span class="lst-2m-nawias">' + L + '</span>'
-PRZYKLAD = NAWIAS + 'sheet_table id=&quot;X&quot;' + P
+PRZYKLAD = NAWIAS + 'tabliko id=&quot;X&quot;' + P
 
 EN = {
 	# Kafle. Każdy ma etykietę (pytanie, na które odpowiada), zdanie-tytuł
@@ -993,7 +993,7 @@ def sprawdz( html, plik ):
 	# Nazwa shortcode'u nigdzie nie może stykać się z nawiasem, ani wprost, ani
 	# przez encję: Divi zamienia encje z powrotem na nawiasy, a WordPress
 	# wykonuje wtedy to, co miało być przykładem do przeczytania.
-	for zbitka in ( '[sheet_table', '&#91;sheet_table', '&#x5B;sheet_table' ):
+	for zbitka in ( '[tabliko', '&#91;tabliko', '&#x5B;tabliko' ):
 		if zbitka in html:
 			raise SystemExit( plik + ': „' + zbitka + '" — WordPress wykona to jako shortcode' )
 

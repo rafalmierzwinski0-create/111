@@ -774,7 +774,7 @@ console.log( '\nprzykład shortcode\'u' );
 		przed = poDivi;
 		poDivi = poDivi.replace( /<(span|i|b|em|strong)\b[^>]*><\/\1>/g, '' );
 	}
-	const zbitki = [ '[sheet_table', '[live_sheets_table' ].filter( ( z ) => poDivi.includes( z ) );
+	const zbitki = [ '[tabliko' ].filter( ( z ) => poDivi.includes( z ) );
 	/*
 	 * Przycisk siedzi w pasku z jednakowym odstępem z góry, z dołu i z prawej.
 	 * Divi zerował pasekowi dół (to ostatni akapit w bloku) i przycisk
@@ -803,7 +803,7 @@ console.log( '\nprzykład shortcode\'u' );
 		`góra ${ wPasku[ 0 ] }, dół ${ wPasku[ 1 ] }, prawo ${ wPasku[ 2 ] }` );
 
 	ok( 'przykład czyta się jak shortcode, a nie da się go wykonać, także po zapisie w Divi',
-		'[sheet_table id="X"]' === widac && 0 === zbitki.length,
+		'[tabliko id="X"]' === widac && 0 === zbitki.length,
 		`na ekranie ${ widac }, zbitek po zapisie w Divi ${ zbitki.length }` );
 
 	/*
@@ -1305,8 +1305,8 @@ for ( const [ nazwa, plik, co, zTabela ] of [
 	 */
 	ok( nazwa + ( zTabela ? ' niesie arkusz i skrypt wtyczki, bo ma tabelę' : ' nie wlecze za sobą arkusza ani skryptu wtyczki' ),
 		zTabela
-			? tresc.includes( 'lstab-style-cards' ) && tresc.includes( 'Live Sheets Table' )
-			: ! tresc.includes( 'lstab-style-cards' ) && ! tresc.includes( 'Live Sheets Table' )
+			? tresc.includes( 'lstab-style-cards' ) && tresc.includes( 'Tabliko' )
+			: ! tresc.includes( 'lstab-style-cards' ) && ! tresc.includes( 'Tabliko' )
 				&& 1 === ( tresc.match( /<script/g ) || [] ).length && tresc.length < 40 * 1024,
 		`${ Math.round( tresc.length / 1024 ) } kB` );
 	await c.close();

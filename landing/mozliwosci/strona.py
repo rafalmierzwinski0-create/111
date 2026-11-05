@@ -43,8 +43,8 @@ TU  = pathlib.Path( __file__ ).parent
 # plikach to dwie okazje, żeby zmienić jedną i zapomnieć o drugiej.
 sys.path.insert( 0, str( TU.parent / 'arkusz' ) )
 import arkusz
-CSS = pathlib.Path( '/home/user/111/live-sheets-table/assets/css/lstab-table.css' ).read_text()
-JS  = pathlib.Path( '/home/user/111/live-sheets-table/assets/js/lstab-table.js' ).read_text()
+CSS = pathlib.Path( '/home/user/111/tabliko/assets/css/lstab-table.css' ).read_text()
+JS  = pathlib.Path( '/home/user/111/tabliko/assets/js/lstab-table.js' ).read_text()
 # Filtry „Show only” działają we wtyczce na serwerze; w pokazie serwera nie
 # ma, więc dochodzi skrypt, który robi to samo na miejscu. Idzie wszędzie
 # tam, gdzie skrypt wtyczki.
@@ -453,7 +453,7 @@ BLOK_LISTY = (
 	+ lista( 'In the free plugin', WOLNE )
 	+ lista( 'Everything above, plus Pro', PRO, ' jest-pro' ) +
 	'</div>'
-	'<p class="lst-mz-kod"><span class="lst-mz-mono">' + NAWIAS + 'sheet_table id=&quot;X&quot;' + P + '</span>'
+	'<p class="lst-mz-kod"><span class="lst-mz-mono">' + NAWIAS + 'tabliko id=&quot;X&quot;' + P + '</span>'
 	'<span class="lst-mz-kod-opis">A block, an Elementor widget or this. The same table either way.</span>'
 	'<a class="lst-mz-cta" href="ADRES-POBIERANIA">Download free</a></p>'
 	'</div>' )
@@ -2369,7 +2369,7 @@ STRONA = (
 # Strażnik: nazwa shortcode'u nigdzie nie może stykać się z nawiasem, ani
 # wprost, ani przez encję. Inaczej WordPress wykona przykład zamiast go
 # pokazać, a zobaczy się to dopiero na żywej stronie.
-for _zbitka in ( '[sheet_table', '&#91;sheet_table', '&#x5B;sheet_table' ):
+for _zbitka in ( '[tabliko', '&#91;tabliko', '&#x5B;tabliko' ):
 	if _zbitka in ZNACZNIK:
 		raise SystemExit( 'w module jest „' + _zbitka + '" — WordPress wykona to jako shortcode' )
 

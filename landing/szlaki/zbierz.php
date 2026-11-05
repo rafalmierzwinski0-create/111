@@ -9,7 +9,7 @@
  *
  * Użycie: php landing/szlaki/zbierz.php /ścieżka/do/wp [adres] [plik-wyjściowy]
  *
- * @package LiveSheetsTable\Landing
+ * @package Tabliko\Landing
  */
 
 // phpcs:disable WordPress.Security.EscapeOutput, WordPress.PHP.DevelopmentFunctions
@@ -30,7 +30,7 @@ $_SERVER['REQUEST_METHOD'] = 'GET';
 require_once $wp_root . '/wp-load.php';
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-if ( ! is_plugin_active( 'live-sheets-table-pro/live-sheets-table-pro.php' ) ) {
+if ( ! is_plugin_active( 'tabliko-pro/tabliko-pro.php' ) ) {
 	fwrite( STDERR, "Dodatek Pro musi być włączony — reguły i wygląd kolumn są z niego.\n" );
 	exit( 1 );
 }

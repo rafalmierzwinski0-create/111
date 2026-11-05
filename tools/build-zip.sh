@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #
-# Packages the plugin into build/live-sheets-table.zip, laid out the way
-# WordPress expects: a single live-sheets-table/ directory at the root.
+# Packages the plugin into build/tabliko.zip, laid out the way
+# WordPress expects: a single tabliko/ directory at the root.
 #
 set -euo pipefail
 
 REPO="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
-SLUG="${1:-live-sheets-table}"
+SLUG="${1:-tabliko}"
 BUILD="$REPO/build"
 STAGE="$BUILD/$SLUG"
 
@@ -27,7 +27,7 @@ find "$STAGE" \( -name '.git*' -o -name 'node_modules' -o -name '*.map' -o -name
 # Sanity checks before we seal the archive.
 fail=0
 
-if [ "$SLUG" = "live-sheets-table" ] && [ ! -f "$STAGE/readme.txt" ]; then
+if [ "$SLUG" = "tabliko" ] && [ ! -f "$STAGE/readme.txt" ]; then
 	echo "ERROR: readme.txt missing"; fail=1
 fi
 # Both plugins are English only: no language setting and no bundled
@@ -37,7 +37,7 @@ if [ -d "$STAGE/languages" ] || [ -n "$( find "$STAGE" -name '*.mo' -o -name '*.
 	echo "ERROR: a translation is in the archive; the plugin ships in English only"; fail=1
 fi
 
-if [ "$SLUG" = "live-sheets-table" ]; then
+if [ "$SLUG" = "tabliko" ]; then
 
 	readme_version="$( grep -m1 '^Stable tag:' "$STAGE/readme.txt" | sed 's/.*Stable tag:[[:space:]]*//' )"
 	if [ "$readme_version" != "$VERSION" ]; then

@@ -37,7 +37,7 @@ mock( 'main' );
 const made = JSON.parse( php( `
 	$id = LSTAB_Storage::insert( array( 'title' => 'Keep current', 'sheet_url' => 'https://docs.google.com/spreadsheets/d/KEEPCURRENTSHEET0000000000000000000000/edit', 'sheet_id' => 'KEEPCURRENTSHEET0000000000000000000000', 'sync_interval' => 900 ) );
 	LSTAB_Sync::run( $id );
-	$page = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'Keep current', 'post_content' => '[sheet_table id="' . $id . '"]' ) );
+	$page = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'Keep current', 'post_content' => '[tabliko id="' . $id . '"]' ) );
 	LSTAB_Freshness::write();
 	echo wp_json_encode( array( 'id' => $id, 'page' => $page, 'url' => get_permalink( $page ) ) );
 ` ) );
@@ -50,7 +50,7 @@ const visit = async ( served, todo ) => {
 	const seen = { asked: 0, due: 0, swapped: 0 };
 	p.on( 'request', ( r ) => {
 		if ( r.url().includes( 'admin-ajax.php' ) && 'POST' === r.method() ) seen.asked++;
-		if ( r.url().includes( 'live-sheets-table-due.json' ) ) seen.due++;
+		if ( r.url().includes( 'tabliko-due.json' ) ) seen.due++;
 		if ( r.url().includes( 'lstab-copy=' ) ) seen.swapped++;
 	} );
 	if ( served ) {
@@ -117,7 +117,7 @@ mock( 'main' );
 const pair = JSON.parse( php( `
 	$paged = LSTAB_Storage::insert( array( 'title' => 'Paged one', 'sheet_url' => 'https://docs.google.com/spreadsheets/d/PAGEDONESHEET00000000000000000000000/edit', 'sheet_id' => 'PAGEDONESHEET00000000000000000000000', 'sync_interval' => 900, 'per_page' => 2 ) );
 	LSTAB_Sync::run( $paged );
-	$page = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'Two tables', 'post_content' => '[sheet_table id="' . $paged . '"]<p>Between</p>[sheet_table id="${ made.id }"]' ) );
+	$page = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'Two tables', 'post_content' => '[tabliko id="' . $paged . '"]<p>Between</p>[tabliko id="${ made.id }"]' ) );
 	echo wp_json_encode( array( 'id' => $paged, 'page' => $page, 'url' => get_permalink( $page ) ) );
 ` ) );
 {

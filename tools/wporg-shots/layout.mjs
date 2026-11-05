@@ -23,7 +23,7 @@ const heading = ( level, content, size, family, colour, extra = {} ) => [ 'core/
 const button = ( label, solid, colour, ink = '#ffffff' ) => [ 'core/button', solid
 	? { text: label, style: { color: { background: colour, text: ink }, border: { radius: '999px' }, spacing: { padding: { top: '15px', bottom: '15px', left: '28px', right: '28px' } } } }
 	: { text: label, style: { color: { background: 'transparent', text: colour }, border: { radius: '999px', width: '1.5px', color: colour }, spacing: { padding: { top: '13.5px', bottom: '13.5px', left: '26px', right: '26px' } } } } ];
-const table = ( sourceId, attrs = {} ) => [ 'live-sheets-table/sheet-table', { sourceId, ...attrs } ];
+const table = ( sourceId, attrs = {} ) => [ 'tabliko/sheet-table', { sourceId, ...attrs } ];
 
 const careCard = ( base, image, title, line, price ) => [ 'core/column', {}, [
 	[ 'core/image', { url: photo( base, 'twentytwentyfive', image ), alt: '', aspectRatio: '4/3', scale: 'cover', style: { border: { radius: '20px' } } } ],

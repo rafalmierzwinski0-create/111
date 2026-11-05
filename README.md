@@ -1,10 +1,10 @@
-# Live Sheets Table
+# Tabliko
 
 A WordPress plugin that publishes a Google Sheet as a fast, responsive,
 auto-refreshing table. This repository holds the plugin source, the local test
 environment used to verify it, and the packaging scripts.
 
-The distributable plugin is `live-sheets-table/`; everything else is
+The distributable plugin is `tabliko/`; everything else is
 development tooling and is not shipped.
 
 ## Why it is built this way
@@ -60,8 +60,8 @@ column.
 ## Repository layout
 
 ```
-live-sheets-table/          The plugin — this is what ships
-  live-sheets-table.php     Bootstrap and constants
+tabliko/          The plugin — this is what ships
+  tabliko.php     Bootstrap and constants
   includes/                 Classes, one responsibility each
     class-lstab-storage.php   Custom table; snapshot only replaced on success
     class-lstab-url.php       Sheet URL parsing, host allow-list, endpoints
@@ -92,7 +92,7 @@ tests/                      Verification
   setup-env.sh              Builds three WordPress sites from scratch
   run-all.sh                Runs everything
 
-live-sheets-table-pro/      The paid add-on — a separate plugin
+tabliko-pro/      The paid add-on — a separate plugin
   includes/
     class-lstabp-google-auth.php    OAuth client, token storage and refresh
     class-lstabp-private-sheets.php Authenticated fetch for private sheets
@@ -100,9 +100,9 @@ live-sheets-table-pro/      The paid add-on — a separate plugin
     class-lstabp-settings.php       Connection and per-sheet settings
 
 tools/
-  build-zip.sh              Packages build/live-sheets-table.zip
+  build-zip.sh              Packages build/tabliko.zip
 
-build/live-sheets-table.zip Installable archive
+build/tabliko.zip Installable archive
 screenshots/                Captured by the browser suite
 ```
 
@@ -169,8 +169,8 @@ cell containing `<script>alert('xss')</script>` to prove escaping.
 ## Language
 
 Both plugins are English only: there is no language setting and no bundled
-translation. Strings still go through gettext with the `live-sheets-table` and
-`live-sheets-table-pro` text domains, so translations made on
+translation. Strings still go through gettext with the `tabliko` and
+`tabliko-pro` text domains, so translations made on
 translate.wordpress.org are picked up the ordinary way. `tools/build-zip.sh`
 refuses to package a `.po`, `.mo` or `languages/` directory.
 
@@ -186,7 +186,7 @@ absent, or if any PHP file fails a syntax check.
 
 ## The Pro add-on
 
-`live-sheets-table-pro/` is a separate plugin, deliberately: WordPress.org
+`tabliko-pro/` is a separate plugin, deliberately: WordPress.org
 allows neither paid code inside a free plugin nor a free plugin that downloads
 its paid half at runtime. It reaches the free plugin only through published
 hooks, and the free plugin has no idea it exists — a claim the Pro suite
@@ -204,7 +204,7 @@ It adds:
   client would make this plugin a data processor for all of them. Only
   `spreadsheets.readonly` is requested.
 - **Filtered views.** One saved sheet feeds as many pages as you like:
-  `[sheet_table id="1" filter="Kategoria is Rowery"]`. Filtering happens at
+  `[tabliko id="1" filter="Kategoria is Rowery"]`. Filtering happens at
   render time on the stored copy, so it costs no extra request to Google.
 - Syncing every minute or every five, six more table styles, colour rules,
   column looks, filters for visitors and downloads.

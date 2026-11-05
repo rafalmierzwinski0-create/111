@@ -119,7 +119,7 @@ check( page.url().includes( 'wp-admin' ), 'Logged into the dashboard' );
 
 // ----------------------------------------------------- source list screen
 section( '2. Source list screen' );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-sources`, { waitUntil: 'networkidle' } );
 
 // Sync once so the run does not inherit a previous run's outage state.
 /*
@@ -246,7 +246,7 @@ check( sourceId > 0, `List screen exposes a usable shortcode (source #${ sourceI
 
 // REST must refuse a cookie-authenticated call that carries no nonce.
 const unauthorised = await page.evaluate( async ( base ) => {
-	const res = await fetch( base + '/wp-json/live-sheets-table/v1/preview', {
+	const res = await fetch( base + '/wp-json/tabliko/v1/preview', {
 		method: 'POST',
 		credentials: 'same-origin',
 		headers: { 'Content-Type': 'application/json' },
@@ -258,7 +258,7 @@ check( unauthorised === 401 || unauthorised === 403, 'REST preview rejects a non
 // That probe is meant to fail, so its console noise is not a plugin defect.
 consoleErrors.length = 0;
 
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
 await awaitPreview( 15000 );
 
 const previewStatus = await page.locator( '#lstab-preview-status' ).innerText();
@@ -695,7 +695,7 @@ await page.locator( '.lstab-swatch[data-lstab-token="accent"] .lstab-color-input
 	el.dispatchEvent( new Event( 'input', { bubbles: true } ) );
 } );
 await Promise.all( [
-	page.waitForURL( /page=live-sheets-table/ ),
+	page.waitForURL( /page=tabliko/ ),
 	page.locator( '#lstab-source-form button[type="submit"]' ).click(),
 ] );
 await page.waitForLoadState( 'networkidle' );
@@ -708,13 +708,13 @@ const publishedStyle = await page.evaluate( async ( base ) => {
 check( publishedStyle, 'A saved override reaches the published page' );
 
 // Put it back.
-const sourceEditUrl = `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`;
+const sourceEditUrl = `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ sourceId }`;
 await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
 await awaitPreview( 15000 );
 await pane( 'look' );
 await page.locator( '#lstab-reset-appearance' ).click();
 await Promise.all( [
-	page.waitForURL( /page=live-sheets-table/ ),
+	page.waitForURL( /page=tabliko/ ),
 	page.locator( '#lstab-source-form button[type="submit"]' ).click(),
 ] );
 await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
@@ -729,7 +729,7 @@ const builtCode = () => page.evaluate( () => ( {
 	copied: document.querySelector( '.lstab-usage .lstab-copy' ).getAttribute( 'data-lstab-copy' ),
 } ) );
 const setTo = ( att, value ) => page.locator( `.lstab-usage [data-lstab-att="${ att }"] [data-lstab-set="${ value }"]` ).click();
-const plainCode = `[sheet_table id="${ sourceId }"]`;
+const plainCode = `[tabliko id="${ sourceId }"]`;
 
 let built = await builtCode();
 check( built.shown === plainCode, 'The shortcode starts out plain', built.shown );
@@ -744,12 +744,12 @@ check(
 	await page.locator( '.lstab-usage [data-lstab-att="search"] [data-lstab-set="hide"]' ).getAttribute( 'aria-pressed' ) === 'true',
 	'The chosen side reads as pressed'
 );
-check( page.url().includes( 'live-sheets-table-edit' ), 'Choosing does not submit the form' );
+check( page.url().includes( 'tabliko-edit' ), 'Choosing does not submit the form' );
 await page.waitForTimeout( 900 );
 check( 0 === await page.locator( '#lstab-preview-stage .lstab-search-input' ).count(), 'The preview drops the search box straight away' );
 
 await Promise.all( [
-	page.waitForURL( /page=live-sheets-table/ ),
+	page.waitForURL( /page=tabliko/ ),
 	page.locator( '#lstab-source-form button[type="submit"]' ).click(),
 ] );
 await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
@@ -775,7 +775,7 @@ check( 0 === onSite.search && 0 === onSite.meta && onSite.sort > 0, 'The page wi
 await setTo( 'search', 'show' );
 await setTo( 'meta', 'show' );
 await Promise.all( [
-	page.waitForURL( /page=live-sheets-table/ ),
+	page.waitForURL( /page=tabliko/ ),
 	page.locator( '#lstab-source-form button[type="submit"]' ).click(),
 ] );
 await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
@@ -1259,9 +1259,9 @@ await mpage.screenshot( { path: `${ SHOTS }/05-frontend-mobile-slider.png`, full
 section( '9. Sync failure — visitor still sees the last good copy' );
 setMock( 'http_403' );
 
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-sources`, { waitUntil: 'networkidle' } );
 await Promise.all( [
-	page.waitForURL( /page=live-sheets-table/ ),
+	page.waitForURL( /page=tabliko/ ),
 	page.locator( '.lstab-src button:has-text("Refresh")' ).first().click(),
 ] );
 await page.waitForLoadState( 'networkidle' );
@@ -1292,7 +1292,7 @@ await apage.screenshot( { path: `${ SHOTS }/09-frontend-during-outage.png`, full
 section( '9a. Column settings' );
 setMock( 'ok' );
 
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
 await awaitPreview( 20000 );
 // The pane is chosen once the editor is on screen; asking for it on the list
 // screen, where the tabs do not exist, quietly does nothing.
@@ -1364,7 +1364,7 @@ check(
 
 await page.locator( '.lstab-submit button[type=submit]' ).click();
 await page.waitForLoadState( 'networkidle' );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
 
 /*
  * Opening a sheet starts at the beginning, wherever the last visit ended up.
@@ -1401,7 +1401,7 @@ section( '9c. The plugin\'s own screens' );
 // remove_submenu_page() looks like the way to keep a screen off the sidebar and
 // is not: it also removes the right to open it, and the page then answers with
 // "Sorry, you are not allowed". Only a real request finds that out.
-const settingsResponse = await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-settings`, { waitUntil: 'networkidle' } );
+const settingsResponse = await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-settings`, { waitUntil: 'networkidle' } );
 check( settingsResponse.status() === 200, 'The settings screen opens', String( settingsResponse.status() ) );
 check(
 	! ( await page.locator( 'body' ).innerText() ).includes( 'not allowed' ),
@@ -1422,7 +1422,7 @@ check(
  * one question the picture invited had no answer at all.
  */
 setSyncLog( 'ooxoxo' );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-sources`, { waitUntil: 'networkidle' } );
 
 const checksFact = page.locator( '.lstab-fact--checks' ).first();
 check(
@@ -1453,14 +1453,14 @@ check(
 );
 
 setSyncLog( 'oooooo' );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-sources`, { waitUntil: 'networkidle' } );
 check(
 	0 === ( await page.locator( '.lstab-fact--checks .lstab-spark-failed' ).count() ),
 	'A clean run says nothing about failures'
 );
 
 // Back to the screen this section is about.
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-settings`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-settings`, { waitUntil: 'networkidle' } );
 
 /*
  * And in the sidebar too. The tabs say these are views of one plugin, which
@@ -1468,9 +1468,9 @@ await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-settings`,
  * on the left, and finding nothing there is a worse answer than a line that
  * repeats itself.
  */
-const sidebar = await page.locator( '#adminmenu a[href*="live-sheets-table"]' ).evaluateAll( ( els ) => els.map( ( e ) => e.getAttribute( 'href' ) ) );
+const sidebar = await page.locator( '#adminmenu a[href*="tabliko"]' ).evaluateAll( ( els ) => els.map( ( e ) => e.getAttribute( 'href' ) ) );
 check(
-	sidebar.some( ( href ) => href && href.includes( 'live-sheets-table-settings' ) ),
+	sidebar.some( ( href ) => href && href.includes( 'tabliko-settings' ) ),
 	'Settings is a line in the sidebar as well as a tab',
 	JSON.stringify( sidebar )
 );
@@ -1552,7 +1552,7 @@ await apage.locator( '.lstab' ).first().screenshot( { path: `${ SHOTS }/14-even-
 
 // Put the source back the way the rest of the run expects to find it. The
 // editor opens at the beginning now, so the column list has to be asked for.
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
 await pane( 'hide' );
 await columnRows.nth( 0 ).locator( 'input[type=text]' ).fill( '' );
 await page.locator( '.lstab-submit button[type=submit]' ).click();
@@ -1838,7 +1838,7 @@ section( '5e. The headings stay where you can read them' );
 // ------------------------------------------- the two settings nobody found
 section( '5f. Choosing a layout, and finding pagination' );
 
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
 await awaitPreview( 20000 );
 await pane( 'look' );
 await page.waitForTimeout( 300 );
@@ -1997,7 +1997,7 @@ check(
 );
 
 // Off again, so the rest of the run finds the whole sheet where it expects it.
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
 await pane( 'look' );
 await page.locator( '#lstab-paging' ).uncheck();
 await page.locator( 'input[data-lstab-layout][value="table"]' ).check();
@@ -2005,7 +2005,7 @@ await page.locator( '.lstab-submit button[type=submit]' ).click();
 await page.waitForLoadState( 'networkidle' );
 
 // The panel that settles "is it the sheet or the plugin?".
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
 await awaitPreview( 20000 );
 await page.waitForTimeout( 400 );
 const rawPanel = page.locator( '#lstab-raw-wrap' );
@@ -2021,7 +2021,7 @@ section( '9c. A sheet that arrives malformed' );
 // The fetch succeeds, so nothing else in the plugin notices. Only someone who
 // can fix it is told, and the public page carries on as normal.
 setMock( 'ragged' );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-sources`, { waitUntil: 'networkidle' } );
 await page.locator( '.lstab-src button:has-text("Refresh")' ).first().click();
 await page.waitForLoadState( 'networkidle' );
 
@@ -2039,7 +2039,7 @@ check( ! /quotation mark|cudzysłów/i.test( publicBody ), 'The visitor is told 
 
 // Back to a clean sheet; the warning must clear itself rather than linger.
 setMock( 'ok' );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-sources`, { waitUntil: 'networkidle' } );
 await page.locator( '.lstab-src button:has-text("Refresh")' ).first().click();
 await page.waitForLoadState( 'networkidle' );
 check( await page.locator( '.lstab-src-note--warn' ).count() === 0, 'A clean sync clears the warning' );
@@ -2055,14 +2055,14 @@ check( /\d/.test( syncText ) && syncText.length > 40, 'It says what was wrong, n
 await syncNotice.screenshot( { path: `${ SHOTS }/24-after-sync-notice.png` } );
 
 await page.goto( `${ BASE }/wp-admin/index.php`, { waitUntil: 'networkidle' } );
-const elsewhere = page.locator( '.notice-warning:has-text("Live Sheets Table")' );
+const elsewhere = page.locator( '.notice-warning:has-text("Tabliko")' );
 check( await elsewhere.count() === 1, 'The warning follows you around the dashboard, not only the plugin screens' );
 check( /\brow 3\b/i.test( await elsewhere.first().innerText() ), 'And still names the row', ( await elsewhere.first().innerText() ).replace( /\s+/g, ' ' ).slice( 0, 90 ) );
 await elsewhere.first().screenshot( { path: `${ SHOTS }/23-global-notice.png` } );
 
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-sources`, { waitUntil: 'networkidle' } );
 check(
-	await page.locator( '.notice-warning:has-text("Live Sheets Table:")' ).count() === 0,
+	await page.locator( '.notice-warning:has-text("Tabliko:")' ).count() === 0,
 	'It is not repeated on the screen that already shows it beside the source'
 );
 
@@ -2070,10 +2070,10 @@ check(
 await page.goto( `${ BASE }/wp-admin/index.php`, { waitUntil: 'networkidle' } );
 await page.locator( 'a:has-text("Hide this")' ).first().click();
 await page.waitForLoadState( 'networkidle' );
-check( await page.locator( '.notice-warning:has-text("Live Sheets Table")' ).count() === 0, 'Dismissing it works' );
+check( await page.locator( '.notice-warning:has-text("Tabliko")' ).count() === 0, 'Dismissing it works' );
 
 setMock( 'ok' );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-sources`, { waitUntil: 'networkidle' } );
 await page.locator( '.lstab-src button:has-text("Refresh")' ).first().click();
 await page.waitForLoadState( 'networkidle' );
 setMock( 'ragged' );
@@ -2081,18 +2081,18 @@ await page.locator( '.lstab-src button:has-text("Refresh")' ).first().click();
 await page.waitForLoadState( 'networkidle' );
 await page.goto( `${ BASE }/wp-admin/index.php`, { waitUntil: 'networkidle' } );
 check(
-	await page.locator( '.notice-warning:has-text("Live Sheets Table")' ).count() === 1,
+	await page.locator( '.notice-warning:has-text("Tabliko")' ).count() === 1,
 	'A fault that returns after being dismissed is raised again'
 );
 
 setMock( 'ok' );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-sources`, { waitUntil: 'networkidle' } );
 await page.locator( '.lstab-src button:has-text("Refresh")' ).first().click();
 await page.waitForLoadState( 'networkidle' );
 
 section( '9d. Links in cells' );
 
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
 await pane( 'look' );
 const linkToggle = page.locator( 'input[name="link_cells"]' );
 check( await linkToggle.count() === 1, 'The source screen offers the setting' );
@@ -2101,7 +2101,7 @@ check( await linkToggle.isChecked(), 'It is on for a new source' );
 await linkToggle.uncheck();
 await page.locator( '.lstab-submit button[type=submit]' ).click();
 await page.waitForLoadState( 'networkidle' );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
 await pane( 'look' );
 check( ! ( await page.locator( 'input[name="link_cells"]' ).isChecked() ), 'Turning it off sticks' );
 
@@ -2216,7 +2216,7 @@ section( '9e2. The preview tells the truth about the drawer' );
  * something the published page would not do.
  */
 await setDetailColumn( 1, true );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
 await awaitPreview( 15000 );
 await page.waitForTimeout( 800 );
 
@@ -2259,7 +2259,7 @@ section( '9f. The two columns of the editor' );
  * with every tab. They are one grid row now, and a row has one height.
  */
 await page.setViewportSize( { width: 1700, height: 1000 } );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
 await awaitPreview( 15000 );
 
 /*
@@ -2334,14 +2334,14 @@ section( '9f2. Choosing which tab of the sheet to publish' );
  * did, below the button somebody had just finished looking at. It is drawn
  * carrying the tab the source is set to, and the rest are added when they come.
  */
-await page.route( '**live-sheets-table/v1/preview**', async ( route ) => {
+await page.route( '**tabliko/v1/preview**', async ( route ) => {
 	await new Promise( ( r ) => setTimeout( r, 2500 ) );
 
 	// The page may have moved on by the time this wakes up; that is the point
 	// of holding it, not a failure of the test.
 	await route.continue().catch( () => {} );
 } );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'domcontentloaded' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ sourceId }`, { waitUntil: 'domcontentloaded' } );
 await page.waitForTimeout( 700 );
 
 const tabsWaiting = await page.evaluate( () => {
@@ -2361,9 +2361,9 @@ check(
 );
 // Let the held request finish before taking the handler away.
 await page.waitForTimeout( 2500 );
-await page.unroute( '**live-sheets-table/v1/preview**' );
+await page.unroute( '**tabliko/v1/preview**' );
 
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
 await page.waitForTimeout( 2500 );
 const tabsThere = await page.locator( '#lstab-tabs option' ).allInnerTexts();
 check( tabsThere.length > 1, 'And the sheet\'s other tabs once it has been read', JSON.stringify( tabsThere ) );
@@ -2377,13 +2377,13 @@ check( tabsQuiet, 'With nothing wrong, nothing extra is read out either' );
  * A tab list that cannot be read is not a reason to take away the one control
  * that could change the tab: the sheet still has the one it was saved with.
  */
-await page.route( '**live-sheets-table/v1/preview**', async ( route ) => {
+await page.route( '**tabliko/v1/preview**', async ( route ) => {
 	const response = await route.fetch();
 	const body = await response.json();
 	body.tabs = [];
 	await route.fulfill( { response, body: JSON.stringify( body ) } );
 } );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
 await page.waitForTimeout( 2500 );
 
 const tabsUnread = await page.evaluate( () => {
@@ -2413,7 +2413,7 @@ check( '' !== tabsUnread.note, 'And says why, beside it', JSON.stringify( tabsUn
 // Seeing the sentence is not the same as being told it. Without this, somebody
 // on a screen reader hears a list holding one tab and no reason for it.
 check( tabsUnread.describedBy === tabsUnread.note, 'And a screen reader is told the same thing, with the field', JSON.stringify( tabsUnread ) );
-await page.unroute( '**live-sheets-table/v1/preview**' );
+await page.unroute( '**tabliko/v1/preview**' );
 
 // ------------------------------------------------- which tab the editor opens
 section( '9g. Where the editor opens' );
@@ -2424,7 +2424,7 @@ const paneNow = () => page.evaluate( () => {
 	return on ? on.getAttribute( 'data-lstab-goto' ) : '(none)';
 } );
 
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
 await page.waitForTimeout( 600 );
 check( 'general' === ( await paneNow() ), 'Opening a sheet starts at the beginning', await paneNow() );
 
@@ -2437,13 +2437,13 @@ check( 'look' === ( await paneNow() ), 'Clicking a tab moves to it' );
  * wherever the last person had been working. A new sheet starts at the
  * beginning, the same as opening an existing one.
  */
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-sources`, { waitUntil: 'networkidle' } );
 await page.locator( 'a.lstab-btn:has-text("Add a table")' ).first().click();
 await page.waitForLoadState( 'networkidle' );
 await page.waitForTimeout( 600 );
 check( 'general' === ( await paneNow() ), 'And "Add a sheet" does too, wherever the last visit ended', await paneNow() );
 
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ sourceId }`, { waitUntil: 'networkidle' } );
 await page.waitForTimeout( 600 );
 check( 'general' === ( await paneNow() ), 'And so does opening that sheet again', await paneNow() );
 
@@ -2496,7 +2496,7 @@ fs.writeFileSync( `${ SITE_PATH }/wp-content/lstab-mock-custom.csv`, longSheet )
 setMock( 'custom' );
 
 const addLongSheet = async ( title ) => {
-	await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit`, { waitUntil: 'networkidle' } );
+	await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-edit`, { waitUntil: 'networkidle' } );
 	await page.fill( '#lstab-sheet-url', 'https://docs.google.com/spreadsheets/d/1LongSheetForPagingTest0000000000000000/edit#gid=0' );
 	await page.click( '#lstab-preview-button' );
 	await awaitPreview( 20000 );
@@ -2505,7 +2505,7 @@ const addLongSheet = async ( title ) => {
 
 await addLongSheet( 'Długi cennik' );
 await Promise.all( [
-	page.waitForURL( /lstab-saved|page=live-sheets-table/ ),
+	page.waitForURL( /lstab-saved|page=tabliko/ ),
 	page.locator( '.lstab-submit button[type=submit]' ).click(),
 ] );
 await page.waitForLoadState( 'networkidle' );
@@ -2533,7 +2533,7 @@ const idOfSheet = async ( title ) => {
 
 const longId = await idOfSheet( 'Długi cennik' );
 check( longId > 0, 'The new sheet is on the list', String( longId ) );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ longId }`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ longId }`, { waitUntil: 'networkidle' } );
 await pane( 'look' );
 check( await page.locator( '#lstab-paging' ).isChecked(), 'Pages really are on, not merely announced' );
 check( '50' === await page.locator( '#lstab-per-page' ).inputValue(), 'Fifty rows to a page' );
@@ -2544,19 +2544,19 @@ await pane( 'look' );
 await page.locator( '#lstab-paging' ).check();
 await page.locator( '#lstab-paging' ).uncheck();
 await Promise.all( [
-	page.waitForURL( /lstab-saved|page=live-sheets-table/ ),
+	page.waitForURL( /lstab-saved|page=tabliko/ ),
 	page.locator( '.lstab-submit button[type=submit]' ).click(),
 ] );
 await page.waitForLoadState( 'networkidle' );
 
 const declinedId = await idOfSheet( 'Długi cennik bez stron' );
 check( declinedId > 0 && declinedId !== longId, 'And so is the second one', String( declinedId ) );
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ declinedId }`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ declinedId }`, { waitUntil: 'networkidle' } );
 await pane( 'look' );
 check( ! ( await page.locator( '#lstab-paging' ).isChecked() ), 'Switching pages off on the way in is respected' );
 
 // And the sheet that was already there is asked rather than changed.
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-sources`, { waitUntil: 'networkidle' } );
 const offer = cardOfSheet( 'Długi cennik bez stron' ).locator( '.lstab-src-offer' ).first();
 check( await offer.count() > 0, 'A long sheet already saved is offered pages on its card' );
 const offerSaid = await offer.innerText();
@@ -2564,16 +2564,16 @@ check( /260/.test( offerSaid ), 'The offer names the number that prompted it', o
 await offer.screenshot( { path: `${ SHOTS }/26-paging-offer.png` } ).catch( () => {} );
 
 await Promise.all( [
-	page.waitForURL( /page=live-sheets-table/ ),
+	page.waitForURL( /page=tabliko/ ),
 	offer.locator( 'button:has-text("Yes")' ).click(),
 ] );
 await page.waitForLoadState( 'networkidle' );
 
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ declinedId }`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ declinedId }`, { waitUntil: 'networkidle' } );
 await pane( 'look' );
 check( await page.locator( '#lstab-paging' ).isChecked(), 'Saying yes on the card turns them on' );
 
-await page.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-sources`, { waitUntil: 'networkidle' } );
+await page.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-sources`, { waitUntil: 'networkidle' } );
 check(
 	0 === await cardOfSheet( 'Długi cennik bez stron' ).locator( '.lstab-src-offer' ).count(),
 	'And the card stops asking'

@@ -1,8 +1,8 @@
 // Co wtyczka naprawdę robi z godzinami, datami i innymi "prawie liczbami".
 import { chromium } from '/tmp/lstab-env/node_modules/playwright/index.mjs';
 import fs from 'fs';
-const CSS = fs.readFileSync('/home/user/111/live-sheets-table/assets/css/lstab-table.css', 'utf8');
-const JS_ = fs.readFileSync('/home/user/111/live-sheets-table/assets/js/lstab-table.js', 'utf8');
+const CSS = fs.readFileSync('/home/user/111/tabliko/assets/css/lstab-table.css', 'utf8');
+const JS_ = fs.readFileSync('/home/user/111/tabliko/assets/js/lstab-table.js', 'utf8');
 
 const zestawy = {
   'godziny 24h':        ['09:30', '17:45', '13:00', '10:45', '08:05'],

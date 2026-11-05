@@ -234,7 +234,7 @@ TRESC_A = ( NAGLOWEK +
 	'<div class="a-kroki">'
 	'<div class="a-krok"><span class="a-nr">1</span><div><b>Share the sheet</b><span>Anyone with the link, as a Viewer.</span></div></div>'
 	'<div class="a-krok"><span class="a-nr">2</span><div><b>Paste the link, check the preview</b><span>Nothing goes live until you save.</span></div></div>'
-	'<div class="a-krok"><span class="a-nr">3</span><div><b>Put it on the page</b><span>A block, an Elementor widget or <code>' + NAWIAS + 'sheet_table id=&quot;X&quot;' + P + '</code>.</span></div></div>'
+	'<div class="a-krok"><span class="a-nr">3</span><div><b>Put it on the page</b><span>A block, an Elementor widget or <code>' + NAWIAS + 'tabliko id=&quot;X&quot;' + P + '</code>.</span></div></div>'
 	'</div></div>'
 
 	# Zaufanie
@@ -312,7 +312,7 @@ TARCZA = mala( '<path d="M8 1.8 3 3.8v3.7c0 2.9 2.1 5.4 5 6.4 2.9-1 5-3.5 5-6.4V
 ZEGAR = mala( '<circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/>' )
 
 TRESC_B = ( NAGLOWEK +
-	'<p class="p-wstep">Live Sheets Table turns a Google Sheet into a real, responsive table on your WordPress '
+	'<p class="p-wstep">Tabliko turns a Google Sheet into a real, responsive table on your WordPress '
 	'page. You keep editing the sheet; the page keeps up.</p>'
 	'<div class="b-dla"><span>Made for</span>' + zetony( 6 ) + '</div>'
 	'<div class="b-uklad">'

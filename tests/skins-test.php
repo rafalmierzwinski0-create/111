@@ -13,7 +13,7 @@
  *
  * Usage: php tests/skins-test.php /absolute/path/to/wp [base-url]
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 // phpcs:disable WordPress.Security.EscapeOutput, WordPress.PHP.DevelopmentFunctions
@@ -80,9 +80,9 @@ function lstab_skins_section( $title ) {
 
 echo "\n\033[1mWhole-table skins — " . $wp_root . "\033[0m\n";
 
-if ( ! is_plugin_active( 'live-sheets-table-pro/live-sheets-table-pro.php' ) ) {
+if ( ! is_plugin_active( 'tabliko-pro/tabliko-pro.php' ) ) {
 	fwrite( STDERR, "The Pro add-on has to be active: the skins are premium.\n" );
-	fwrite( STDERR, "  php tests/harness/activate.php {$wp_root} 8089 live-sheets-table-pro/live-sheets-table-pro.php\n" );
+	fwrite( STDERR, "  php tests/harness/activate.php {$wp_root} 8089 tabliko-pro/tabliko-pro.php\n" );
 	exit( 1 );
 }
 
@@ -107,8 +107,8 @@ lstab_skins_assert( $free === array_slice( array_keys( $all ), 0, 4 ), 'The four
  * registered and then never drawn. The free plugin draws its four, the add-on
  * the rest, and neither carries the other's.
  */
-$free_css = file_get_contents( dirname( __DIR__ ) . '/live-sheets-table/assets/css/lstab-table.css' );
-$pro_css  = file_get_contents( dirname( __DIR__ ) . '/live-sheets-table-pro/assets/css/lstabp-styles.css' );
+$free_css = file_get_contents( dirname( __DIR__ ) . '/tabliko/assets/css/lstab-table.css' );
+$pro_css  = file_get_contents( dirname( __DIR__ ) . '/tabliko-pro/assets/css/lstabp-styles.css' );
 
 foreach ( array_keys( $all ) as $slug ) {
 	if ( 'clean' === $slug ) {
@@ -127,8 +127,8 @@ foreach ( array_keys( $all ) as $slug ) {
  * markup painted by the admin stylesheet, so a style registered without its
  * rules there would arrive in the picker as a plain white tile.
  */
-$admin_css = file_get_contents( dirname( __DIR__ ) . '/live-sheets-table/assets/css/lstab-admin.css' )
-	. file_get_contents( dirname( __DIR__ ) . '/live-sheets-table-pro/assets/css/lstabp-admin.css' );
+$admin_css = file_get_contents( dirname( __DIR__ ) . '/tabliko/assets/css/lstab-admin.css' )
+	. file_get_contents( dirname( __DIR__ ) . '/tabliko-pro/assets/css/lstabp-admin.css' );
 
 foreach ( array_keys( $all ) as $slug ) {
 	$thumb = LSTAB_Styles::thumbnail( $slug );
@@ -314,7 +314,7 @@ foreach ( $variants as $variant ) {
 		);
 
 		$blocks .= '<!-- wp:heading {"level":2} --><h2>' . esc_html( ucfirst( $skin ) ) . '</h2><!-- /wp:heading -->' . "\n";
-		$blocks .= '<!-- wp:live-sheets-table/sheet-table {"sourceId":' . (int) $source_id . ',"align":"wide","showSearch":true,"showSort":true,"showUpdated":true} /-->' . "\n\n";
+		$blocks .= '<!-- wp:tabliko/sheet-table {"sourceId":' . (int) $source_id . ',"align":"wide","showSearch":true,"showSort":true,"showUpdated":true} /-->' . "\n\n";
 	}
 
 	$slug     = 'lstab-skins-' . $variant['slug'];
@@ -425,7 +425,7 @@ $tuned_page = wp_insert_post(
 	array(
 		'post_title'   => 'Skins — tuned by hand',
 		'post_name'    => $slug,
-		'post_content' => '<!-- wp:live-sheets-table/sheet-table {"sourceId":' . (int) $tuned_id . ',"align":"wide","showSearch":true,"showSort":true,"showUpdated":true} /-->',
+		'post_content' => '<!-- wp:tabliko/sheet-table {"sourceId":' . (int) $tuned_id . ',"align":"wide","showSearch":true,"showSort":true,"showUpdated":true} /-->',
 		'post_status'  => 'publish',
 		'post_type'    => 'page',
 	)
@@ -531,7 +531,7 @@ foreach ( $skins as $skin ) {
 	);
 
 	$pill_blocks .= '<!-- wp:heading {"level":2} --><h2>' . esc_html( ucfirst( $skin ) ) . '</h2><!-- /wp:heading -->' . "\n";
-	$pill_blocks .= '<!-- wp:live-sheets-table/sheet-table {"sourceId":' . (int) $pill_id . ',"align":"wide","showSearch":false,"showSort":false,"showUpdated":false} /-->' . "\n\n";
+	$pill_blocks .= '<!-- wp:tabliko/sheet-table {"sourceId":' . (int) $pill_id . ',"align":"wide","showSearch":false,"showSort":false,"showUpdated":false} /-->' . "\n\n";
 }
 
 update_option( 'lstabp_column_looks', $pill_looks, false );

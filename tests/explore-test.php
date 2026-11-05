@@ -8,7 +8,7 @@
  *
  * Usage: php tests/explore-test.php /path/to/wordpress
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 // phpcs:disable WordPress.Security.EscapeOutput, WordPress.PHP.DevelopmentFunctions, WordPress.DB.DirectDatabaseQuery
@@ -102,7 +102,7 @@ function ex_serve( $id, $csv ) {
 function ex_render( $id, $extra = '' ) {
 	LSTAB_Sync::reset_view_budget();
 
-	return do_shortcode( '[sheet_table id="' . $id . '"' . ( $extra ? ' ' . $extra : '' ) . ']' );
+	return do_shortcode( '[tabliko id="' . $id . '"' . ( $extra ? ' ' . $extra : '' ) . ']' );
 }
 
 // ---------------------------------------------------------------------------
@@ -261,16 +261,16 @@ ex_assert( false === strpos( $echoed, '"><script>' ), 'The search box does not r
 ex_section( 'C. Shortcodes written by hand' );
 
 $shortcodes = array(
-	'[sheet_table]'                        => 'no id at all',
-	'[sheet_table id=""]'                  => 'an empty id',
-	'[sheet_table id="abc"]'               => 'an id that is not a number',
-	'[sheet_table id="0"]'                 => 'a zero id',
-	'[sheet_table id="-1"]'                => 'a negative id',
-	'[sheet_table id="999999"]'            => 'an id that does not exist',
-	'[sheet_table id="1 OR 1=1"]'          => 'an id carrying SQL',
-	'[sheet_table id="' . $source_id . '" per_page="abc"]' => 'a per_page that is not a number',
-	'[sheet_table id="' . $source_id . '" per_page="-5"]'  => 'a negative per_page',
-	'[sheet_table id="' . $source_id . '" unknown="x"]'    => 'an attribute that does not exist',
+	'[tabliko]'                        => 'no id at all',
+	'[tabliko id=""]'                  => 'an empty id',
+	'[tabliko id="abc"]'               => 'an id that is not a number',
+	'[tabliko id="0"]'                 => 'a zero id',
+	'[tabliko id="-1"]'                => 'a negative id',
+	'[tabliko id="999999"]'            => 'an id that does not exist',
+	'[tabliko id="1 OR 1=1"]'          => 'an id carrying SQL',
+	'[tabliko id="' . $source_id . '" per_page="abc"]' => 'a per_page that is not a number',
+	'[tabliko id="' . $source_id . '" per_page="-5"]'  => 'a negative per_page',
+	'[tabliko id="' . $source_id . '" unknown="x"]'    => 'an attribute that does not exist',
 );
 
 foreach ( $shortcodes as $shortcode => $label ) {
@@ -303,8 +303,8 @@ ex_serve( $second_id, "Produkt,Cena\nAlfa,1\nBeta,2\nGamma,3\nDelta,4\n" );
 // Page two of the first table must not move the second one.
 $_GET = array( LSTAB_Paging::arg( $source_id, 'page' ) => '2' );
 LSTAB_Sync::reset_view_budget();
-$first_html  = do_shortcode( '[sheet_table id="' . $source_id . '"]' );
-$second_html = do_shortcode( '[sheet_table id="' . $second_id . '"]' );
+$first_html  = do_shortcode( '[tabliko id="' . $source_id . '"]' );
+$second_html = do_shortcode( '[tabliko id="' . $second_id . '"]' );
 $_GET        = array();
 
 ex_assert( false !== strpos( $first_html, 'Lampka' ), 'Paging one table moves that table', $first_html );
@@ -313,7 +313,7 @@ ex_assert( false !== strpos( $second_html, 'Alfa' ), 'And leaves the other one o
 // The same source twice on one page is the case nobody plans for.
 $_GET = array( LSTAB_Paging::arg( $source_id, 'page' ) => '2' );
 LSTAB_Sync::reset_view_budget();
-$twice = do_shortcode( '[sheet_table id="' . $source_id . '"]' ) . do_shortcode( '[sheet_table id="' . $source_id . '"]' );
+$twice = do_shortcode( '[tabliko id="' . $source_id . '"]' ) . do_shortcode( '[tabliko id="' . $source_id . '"]' );
 $_GET  = array();
 ex_assert( 2 === substr_count( $twice, '<table' ), 'The same table twice on one page renders twice', (string) substr_count( $twice, '<table' ) );
 ex_note( 'The same source twice shares one set of paging links, so both copies turn the page together.' );

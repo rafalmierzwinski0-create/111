@@ -28,8 +28,8 @@ import pathlib
 import re
 
 TU  = pathlib.Path( __file__ ).parent
-CSS = pathlib.Path( '/home/user/111/live-sheets-table/assets/css/lstab-table.css' ).read_text()
-JS  = pathlib.Path( '/home/user/111/live-sheets-table/assets/js/lstab-table.js' ).read_text()
+CSS = pathlib.Path( '/home/user/111/tabliko/assets/css/lstab-table.css' ).read_text()
+JS  = pathlib.Path( '/home/user/111/tabliko/assets/js/lstab-table.js' ).read_text()
 M   = json.loads( ( TU / 'markup.json' ).read_text() )
 
 # Ile wierszy pokazuje arkusz po lewej. Dalej i tak nie widać, bo okienko ma

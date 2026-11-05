@@ -24,7 +24,7 @@ import { fileURLToPath } from 'url';
 const here = path.dirname( fileURLToPath( import.meta.url ) );
 const SITE = '/tmp/lstab-env/wp71';
 const PORT = '8089';
-const PRO = 'live-sheets-table-pro/live-sheets-table-pro.php';
+const PRO = 'tabliko-pro/tabliko-pro.php';
 
 let pass = 0, fail = 0;
 const ok = ( name, cond, detail = '' ) => {
@@ -58,7 +58,7 @@ const table = ( title, interval ) => {
 	const out = JSON.parse( php( `
 		$id = LSTAB_Storage::insert( array( 'title' => '${ title }', 'sheet_url' => 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0', 'sheet_id' => '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789', 'sheet_kind' => 'doc', 'gid' => '0', 'sync_interval' => ${ interval } ) );
 		LSTAB_Sync::run( $id );
-		$page = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => '${ title }', 'post_content' => '[sheet_table id="' . $id . '"]' ) );
+		$page = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => '${ title }', 'post_content' => '[tabliko id="' . $id . '"]' ) );
 		LSTAB_Freshness::write();
 		echo wp_json_encode( array( 'id' => $id, 'page' => $page, 'url' => get_permalink( $page ) ) );
 	` ) );

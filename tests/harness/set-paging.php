@@ -8,7 +8,7 @@
  *
  * Usage: php tests/harness/set-paging.php /path/to/wp <source-id> <per-page>
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 // phpcs:disable WordPress.Security.EscapeOutput

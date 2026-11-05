@@ -215,7 +215,7 @@ try {
 	await admin.fill( '#user_pass', 'admin123' );
 	await admin.click( '#wp-submit' );
 	await admin.waitForURL( /wp-admin/ );
-	await admin.goto( `${ BASE }/wp-admin/admin.php?page=live-sheets-table-edit&source=${ HOURS }` );
+	await admin.goto( `${ BASE }/wp-admin/admin.php?page=tabliko-edit&source=${ HOURS }` );
 	await admin.click( '.lstab-pane-tab[data-lstab-goto="look"]' );
 	await admin.evaluate( helpers( '#lstab-preview-stage .lstab' ) );
 

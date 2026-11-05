@@ -50,7 +50,7 @@ await p.waitForLoadState('networkidle');
 // =====================================================================
 console.log('\n1. wklejasz link i widzisz tabelę zanim zapiszesz');
 stan({});
-await p.goto(`${BAZA}/wp-admin/admin.php?page=live-sheets-table-edit`);
+await p.goto(`${BAZA}/wp-admin/admin.php?page=tabliko-edit`);
 await p.waitForTimeout(500);
 await p.fill('#lstab-sheet-url', 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0');
 await p.click('text=Load preview');
@@ -76,7 +76,7 @@ if (await zakladki.count()) {
 
 // =====================================================================
 console.log('\n3. wygląd i kolumny — edycja istniejącego źródła');
-await p.goto(`${BAZA}/wp-admin/admin.php?page=live-sheets-table-edit&id=1`);
+await p.goto(`${BAZA}/wp-admin/admin.php?page=tabliko-edit&id=1`);
 await p.waitForTimeout(1200);
 
 const paski = p.locator('.lstab-pane-tab');
@@ -119,7 +119,7 @@ if (ile > 1) {
 
 // =====================================================================
 console.log('\n5. lista źródeł');
-await p.goto(`${BAZA}/wp-admin/admin.php?page=live-sheets-table`);
+await p.goto(`${BAZA}/wp-admin/admin.php?page=tabliko`);
 await p.waitForTimeout(900);
 await kadr('11-lista-zrodel', '#wpbody-content .lstab-admin', 10);
 
@@ -158,7 +158,7 @@ await t.close();
 // =====================================================================
 console.log('\n8. awaria po stronie Google');
 stan({ tryb: 'awaria' });
-await p.goto(`${BAZA}/wp-admin/admin.php?page=live-sheets-table`);
+await p.goto(`${BAZA}/wp-admin/admin.php?page=tabliko`);
 await p.waitForTimeout(500);
 const odswiez = p.locator('button:has-text("Check now"), a:has-text("Check now"), button:has-text("Sync")').first();
 if (await odswiez.count()) { await odswiez.click(); await p.waitForTimeout(2500); }

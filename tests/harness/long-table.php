@@ -7,7 +7,7 @@
  *
  * Usage: php -d memory_limit=160M tests/harness/long-table.php <wp root> <rows> [fixed]
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 define( 'WP_USE_THEMES', false );
@@ -46,7 +46,7 @@ LSTAB_Storage::record_success(
 unset( $rows );
 
 wp_set_current_user( 1 );
-$html = do_shortcode( '[sheet_table id="' . $id . '"]' );
+$html = do_shortcode( '[tabliko id="' . $id . '"]' );
 
 echo wp_json_encode(
 	array(

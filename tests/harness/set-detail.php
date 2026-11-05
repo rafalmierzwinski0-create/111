@@ -7,7 +7,7 @@
  *
  * Usage: php tests/harness/set-detail.php /path/to/wp <source-id> <column> <1|0>
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 // phpcs:disable WordPress.Security.EscapeOutput

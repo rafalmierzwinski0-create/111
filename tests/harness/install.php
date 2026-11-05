@@ -4,7 +4,7 @@
  *
  * Usage: php tests/harness/install.php /path/to/site 8089
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 $site = isset( $argv[1] ) ? rtrim( $argv[1], '/' ) : '';
@@ -28,7 +28,7 @@ if ( is_blog_installed() ) {
 	exit( 0 );
 }
 
-$result = wp_install( 'Live Sheets Table – Test Site', 'admin', 'admin@example.com', true, '', 'admin123' );
+$result = wp_install( 'Tabliko – Test Site', 'admin', 'admin@example.com', true, '', 'admin123' );
 
 update_option( 'permalink_structure', '/%postname%/' );
 flush_rewrite_rules( false );

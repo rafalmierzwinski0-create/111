@@ -23,12 +23,12 @@ import { chromium } from '/tmp/lstab-env/node_modules/playwright/index.mjs';
 const BASE = process.env.LSTAB_BASE || 'http://127.0.0.1:8089';
 
 const screens = [
-	[ 'start', 'live-sheets-table', [] ],
-	[ 'sources', 'live-sheets-table-sources', [] ],
-	[ 'edit', 'live-sheets-table-edit&source=1', [ 'general', 'look', 'hide' ] ],
-	[ 'new sheet', 'live-sheets-table-edit', [ 'general', 'look', 'hide' ] ],
-	[ 'settings', 'live-sheets-table-settings', [] ],
-	[ 'pro', 'live-sheets-table-pro', [] ],
+	[ 'start', 'tabliko', [] ],
+	[ 'sources', 'tabliko-sources', [] ],
+	[ 'edit', 'tabliko-edit&source=1', [ 'general', 'look', 'hide' ] ],
+	[ 'new sheet', 'tabliko-edit', [ 'general', 'look', 'hide' ] ],
+	[ 'settings', 'tabliko-settings', [] ],
+	[ 'pro', 'tabliko-pro', [] ],
 ];
 
 const inspect = () => {

@@ -11,7 +11,7 @@
  *
  * Usage: php tests/harness/drop-skins.php /absolute/path/to/wp [base-url]
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 // phpcs:disable WordPress.Security.EscapeOutput

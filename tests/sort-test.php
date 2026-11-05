@@ -14,15 +14,15 @@
  *
  * Usage: php tests/sort-test.php
  *
- * @package LiveSheetsTable\Tests
+ * @package Tabliko\Tests
  */
 
 // phpcs:disable WordPress.Security.EscapeOutput, WordPress.PHP.DevelopmentFunctions
 
 define( 'ABSPATH', __DIR__ . '/' );
 
-require_once __DIR__ . '/../live-sheets-table/includes/class-lstab-renderer.php';
-require_once __DIR__ . '/../live-sheets-table/includes/class-lstab-paging.php';
+require_once __DIR__ . '/../tabliko/includes/class-lstab-renderer.php';
+require_once __DIR__ . '/../tabliko/includes/class-lstab-paging.php';
 
 $passed = 0;
 $failed = 0;

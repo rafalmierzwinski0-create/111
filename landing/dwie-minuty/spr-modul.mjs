@@ -132,7 +132,7 @@ console.log('\n1400 px, zwykła strona');
   ok('zmieniona komórka i ten sam wiersz na stronie', r.zmiana.includes('→') && r.nowy.includes('319'), `${r.zmiana} → ${r.nowy}`);
   ok('przyciski prowadzą do cennika i porównania', r.przyciskow === 2 && r.adresy === '#pricing #compare', r.adresy);
   ok('równo z resztą strony, bez suwaka', Math.abs(r.lewa - r.odn) <= 1 && r.poziom === 0, `${r.lewa} vs ${r.odn}, suwak ${r.poziom}`);
-  ok('shortcode w nawiasach, nie wykonany', r.przyklad === '[sheet_table id="X"]', r.przyklad);
+  ok('shortcode w nawiasach, nie wykonany', r.przyklad === '[tabliko id="X"]', r.przyklad);
   const kTekst = kontrast(r.kolory.tekst, r.kolory.kafel);
   const kEtykieta = kontrast(r.kolory.etykieta, r.kolory.kafel);
   const kPowod = kontrast(r.kolory.powod, r.kolory.kafel);
@@ -174,7 +174,7 @@ console.log('\nprzykład po zapisie w Divi');
     przed = poDivi;
     poDivi = poDivi.replace(/<(span|i|b|em|strong)\b[^>]*><\/\1>/g, '');
   }
-  const zbitki = ['[sheet_table', '[live_sheets_table'].filter(z => poDivi.includes(z));
+  const zbitki = ['[tabliko'].filter(z => poDivi.includes(z));
   ok('shortcode nie da się wykonać nawet po zapisie w Divi', zbitki.length === 0, `zbitek ${zbitki.length}`);
   /*
    * Po zapisie w Divi znaczników nie może przybyć. „&lt;table&gt;” w zdaniu
