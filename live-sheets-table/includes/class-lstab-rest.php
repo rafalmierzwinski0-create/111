@@ -146,26 +146,6 @@ class LSTAB_Rest {
 
 		register_rest_route(
 			self::NAMESPACE_V1,
-			'/scoped-css',
-			array(
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'scoped_css' ),
-				'permission_callback' => array( $this, 'can_write_css' ),
-				'args'                => array(
-					'css'      => array(
-						'type'    => 'string',
-						'default' => '',
-					),
-					'selector' => array(
-						'type'    => 'string',
-						'default' => '',
-					),
-				),
-			)
-		);
-
-		register_rest_route(
-			self::NAMESPACE_V1,
 			'/sources/(?P<id>\d+)/refresh',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
@@ -256,7 +236,6 @@ class LSTAB_Rest {
 						'source_id'   => $source_id,
 						'columns'    => LSTAB_Columns::sanitize( (array) $request->get_param( 'columns' ) ),
 						'style_vars' => isset( $source['style_vars'] ) ? $source['style_vars'] : array(),
-						'custom_css' => isset( $source['custom_css'] ) ? $source['custom_css'] : '',
 					)
 				),
 			)
@@ -282,35 +261,6 @@ class LSTAB_Rest {
 		}
 
 		$_SERVER['REQUEST_URI'] = add_query_arg( array_map( 'rawurlencode', $carried ), wp_parse_url( admin_url( 'admin.php' ), PHP_URL_PATH ) );
-	}
-
-	public function can_write_css() {
-		if ( current_user_can( LSTAB_Limits::capability() ) && LSTAB_Custom_Css::user_can_edit() ) {
-			return true;
-		}
-
-		return new WP_Error(
-			'lstab_forbidden',
-			__( 'You are not allowed to write CSS on this site.', 'live-sheets-table' ),
-			array( 'status' => rest_authorization_required_code() )
-		);
-	}
-
-	public function scoped_css( $request ) {
-		$selector = trim( (string) $request->get_param( 'selector' ) );
-
-		if ( ! preg_match( '#^\[data-lstab-preview="[a-z0-9-]{1,40}"\]$#', $selector ) ) {
-			$selector = '[data-lstab-preview="none"]';
-		}
-
-		return rest_ensure_response(
-			array(
-				'css' => LSTAB_Custom_Css::scope(
-					LSTAB_Custom_Css::sanitize( (string) $request->get_param( 'css' ) ),
-					$selector . ' .lstab'
-				),
-			)
-		);
 	}
 
 	public function preview( $request ) {

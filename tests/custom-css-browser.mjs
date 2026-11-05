@@ -234,8 +234,8 @@ try {
 				sheet.removeAttribute( 'data-lstab-css' );
 			}
 		} );
-		await admin.fill( '#lstab-custom-css', css );
-		await admin.locator( '#lstab-custom-css' ).dispatchEvent( 'change' );
+		await admin.fill( '#lstabp-custom-css', css );
+		await admin.locator( '#lstabp-custom-css' ).dispatchEvent( 'change' );
 
 		let result = [ false, '' ];
 		try {
@@ -250,6 +250,31 @@ try {
 		}
 		check( result[ 0 ], 'preview: ' + name, result[ 1 ] );
 	}
+
+	/*
+	 * And the rules survive the preview being drawn again. A redraw happens for
+	 * reasons that have nothing to do with the field, a column renamed or a
+	 * colour picked, and it throws away the style block the field put there.
+	 */
+	await admin.fill( '#lstabp-custom-css', '& { --lstab-fg: rgb(9, 8, 7); }' );
+	await admin.locator( '#lstabp-custom-css' ).dispatchEvent( 'change' );
+	await admin.waitForTimeout( 1200 );
+	const inkFirst = await admin.locator( '#lstab-preview-stage .lstab-table tbody td' ).first().evaluate( ( el ) => getComputedStyle( el ).color );
+	check( 'rgb(9, 8, 7)' === inkFirst, 'preview: a colour set on the table itself reaches it', inkFirst );
+
+	await admin.click( '.lstab-pane-tab[data-lstab-goto="hide"]' );
+	const nameField = admin.locator( 'input[name="columns[0][label]"]' );
+	const oldName = await nameField.inputValue();
+	await nameField.fill( oldName + ' (redraw)' );
+	await nameField.blur();
+	await admin.waitForTimeout( 2500 );
+	const inkAfter = await admin.locator( '#lstab-preview-stage .lstab-table tbody td' ).first().evaluate( ( el ) => getComputedStyle( el ).color );
+	check( 'rgb(9, 8, 7)' === inkAfter, 'preview: and is still there after the preview is drawn again', inkAfter );
+	await nameField.fill( oldName );
+	await admin.click( '.lstab-pane-tab[data-lstab-goto="look"]' );
+
+	const outside = await admin.evaluate( () => getComputedStyle( document.querySelector( '.lstab-editor-grid' ) || document.body ).color );
+	check( 'rgb(9, 8, 7)' !== outside, 'preview: nothing outside the table is touched', outside );
 
 	console.log( '\nIn the block editor' );
 

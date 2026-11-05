@@ -24,7 +24,6 @@ define( 'LSTAB_BASENAME', plugin_basename( __FILE__ ) );
 require_once LSTAB_PATH . 'includes/class-lstab-limits.php';
 require_once LSTAB_PATH . 'includes/class-lstab-columns.php';
 require_once LSTAB_PATH . 'includes/class-lstab-customizer.php';
-require_once LSTAB_PATH . 'includes/class-lstab-custom-css.php';
 require_once LSTAB_PATH . 'includes/class-lstab-links.php';
 require_once LSTAB_PATH . 'includes/class-lstab-paging.php';
 require_once LSTAB_PATH . 'includes/class-lstab-hidden-rows.php';

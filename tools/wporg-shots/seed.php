@@ -41,31 +41,15 @@ foreach ( get_posts( array( 'post_type' => array( 'page', 'post', 'wp_template',
 	wp_delete_post( $post->ID, true );
 }
 
-$plants_css = 'th { letter-spacing: 0.08em; }
-td[data-label="Plant"] { font-weight: 600; }
-td[data-label="Price"] { font-weight: 600; font-variant-numeric: tabular-nums; }
-td[data-label="Light"], td[data-label="Pot"] { color: #6b665c; }';
-
-$walks_css = 'th { letter-spacing: 0.08em; }
-td[data-label="Walk"] { font-weight: 600; }
-td[data-label="Price"] { font-weight: 600; }
-td[data-label="Date"], td[data-label="Starts"] { font-variant-numeric: tabular-nums; }';
-
-$gigs_css = 'th { letter-spacing: 0.1em; }
-td[data-label="Artist"] { font-weight: 700; color: #ffffff; }
-td[data-label="Date"] { color: #ff8a5c; font-weight: 600; font-variant-numeric: tabular-nums; }
-td[data-label="Genre"], td[data-label="Doors"] { color: #a39d94; }
-td[data-label="From"] { font-weight: 700; color: #ffffff; }';
-
 $sheet  = '1FernH0useSh0pSheet2026xYz0aBcDeFgHiJkLmN';
 $tables = array(
-	'plants'    => array( 'Plant price list', '0', 'Plants', 3600, 'clean', 'table', array( 'text' => '#24231f', 'headerBg' => '#f6f1e7', 'headerText' => '#5b5345', 'border' => '#ece6da', 'hover' => '#f8f4ec', 'accent' => '#2f6b4f', 'density' => 'roomy', 'corners' => 'pill', 'fontSize' => 16, 'headFontSize' => 12 ), $plants_css ),
-	'walks'     => array( 'Tour departures', '556677889', 'Tour departures', 900, 'striped', 'auto', array( 'text' => '#1d232b', 'headerBg' => '#18222f', 'headerText' => '#f3ead8', 'stripe' => '#faf6ee', 'hover' => '#f4ecdc', 'border' => '#ece4d4', 'accent' => '#9a6a22', 'density' => 'roomy', 'fontSize' => 16, 'headFontSize' => 12 ), $walks_css ),
-	'workshops' => array( 'Workshops', '1734829105', 'Workshops', 86400, 'striped', 'table', array(), '' ),
-	'shops'     => array( 'Our greenhouses', '884466221', 'Shops', 21600, 'clean', 'cards', array(), '' ),
-	'hours'     => array( 'Opening hours', '1122334455', 'Opening hours', 86400, 'bordered', 'table', array(), '' ),
-	'delivery'  => array( 'Delivery areas', '2233445566', 'Delivery', 86400, 'midnight', 'table', array(), '' ),
-	'gigs'      => array( 'Gig listings', '3344556677', 'Gigs', 900, 'midnight', 'auto', array( 'background' => '#12151c', 'headerBg' => '#0b0d12', 'headerText' => '#ff8a5c', 'text' => '#ece8e1', 'border' => '#222631', 'hover' => '#1a1e27', 'accent' => '#ff8a5c', 'density' => 'roomy', 'corners' => 'pill', 'fontSize' => 16, 'headFontSize' => 12 ), $gigs_css ),
+	'plants'    => array( 'Plant price list', '0', 'Plants', 3600, 'clean', 'table', array( 'text' => '#24231f', 'headerBg' => '#f6f1e7', 'headerText' => '#5b5345', 'border' => '#ece6da', 'hover' => '#f8f4ec', 'accent' => '#2f6b4f', 'density' => 'roomy', 'corners' => 'pill', 'fontSize' => 16, 'headFontSize' => 12 ) ),
+	'walks'     => array( 'Tour departures', '556677889', 'Tour departures', 1800, 'striped', 'auto', array( 'text' => '#1d232b', 'headerBg' => '#18222f', 'headerText' => '#f3ead8', 'stripe' => '#faf6ee', 'hover' => '#f4ecdc', 'border' => '#ece4d4', 'accent' => '#9a6a22', 'density' => 'roomy', 'fontSize' => 16, 'headFontSize' => 12 ) ),
+	'workshops' => array( 'Workshops', '1734829105', 'Workshops', 86400, 'striped', 'table', array() ),
+	'shops'     => array( 'Our greenhouses', '884466221', 'Shops', 21600, 'clean', 'cards', array() ),
+	'hours'     => array( 'Opening hours', '1122334455', 'Opening hours', 86400, 'bordered', 'table', array() ),
+	'delivery'  => array( 'Delivery areas', '2233445566', 'Delivery', 86400, 'midnight', 'table', array() ),
+	'gigs'      => array( 'Gig listings', '3344556677', 'Gigs', 1800, 'midnight', 'auto', array( 'background' => '#12151c', 'headerBg' => '#0b0d12', 'headerText' => '#ff8a5c', 'text' => '#ece8e1', 'border' => '#222631', 'hover' => '#1a1e27', 'accent' => '#ff8a5c', 'density' => 'roomy', 'corners' => 'pill', 'fontSize' => 16, 'headFontSize' => 12 ) ),
 );
 $made   = array();
 foreach ( $tables as $key => $t ) {
@@ -81,7 +65,6 @@ foreach ( $tables as $key => $t ) {
 			'style_preset'  => $t[4],
 			'layout'        => $t[5],
 			'style_vars'    => $t[6],
-			'custom_css'    => $t[7],
 			'sticky_head'   => 1,
 			'sticky_first'  => 1,
 			'link_cells'    => 1,

@@ -175,6 +175,7 @@ echo "=============================================="
 php "$REPO/tests/harness/activate.php" "$SCRATCH/wp71" 8089 live-sheets-table-pro/live-sheets-table-pro.php
 rm -f "$SCRATCH/wp71/wp-content/debug.log"
 php "$REPO/tests/pro-test.php" "$SCRATCH/wp71"
+php "$REPO/tests/pro-css-test.php" "$SCRATCH/wp71"
 
 if [ -f "$SCRATCH/wp71/wp-content/debug.log" ] && grep -v "$NOISE" "$SCRATCH/wp71/wp-content/debug.log" | grep -q .; then
 	echo

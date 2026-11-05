@@ -27,6 +27,7 @@ class LSTABP_Plugin {
 		( new LSTABP_Export() )->register();
 		( new LSTABP_Facets() )->register();
 		( new LSTABP_Column_Looks() )->register();
+		( new LSTABP_Custom_Css() )->register();
 		( new LSTABP_Settings() )->register();
 
 		add_action( 'admin_init', array( $this, 'forget_vanished_sources' ) );

@@ -145,7 +145,6 @@
 	var preview = document.getElementById( 'lstab-preview' );
 	var stage = document.getElementById( 'lstab-preview-stage' ) || preview;
 
-	var refreshLiveCss = function () {};
 	var widthButtons = document.querySelectorAll( '.lstab-width-button' );
 	var tabsWrap = document.getElementById( 'lstab-tabs-wrap' );
 	var tabsSelect = document.getElementById( 'lstab-tabs' );
@@ -472,7 +471,7 @@
 			stage.innerHTML = response.html || '';
 			applyAppearance();
 			followPresetWhereUnset();
-			refreshLiveCss();
+			document.dispatchEvent( new CustomEvent( 'lstab:preview-drawn' ) );
 			if ( window.lstabInit ) {
 				window.lstabInit();
 			}
@@ -546,68 +545,6 @@
 		} );
 	}
 
-	( function () {
-		var field = document.getElementById( 'lstab-custom-css' );
-
-		if ( ! field || ! stage ) {
-			return;
-		}
-
-		var sheet = document.createElement( 'style' );
-		var timer = null;
-		var pending = null;
-
-		sheet.className = 'lstab-live-css';
-		stage.parentNode.insertBefore( sheet, stage.nextSibling );
-
-		function refresh() {
-			var css = field.value;
-
-			var stored = stage.querySelector( 'style.lstab-custom-css' );
-			if ( stored ) {
-				stored.parentNode.removeChild( stored );
-			}
-
-			if ( ! css.trim() ) {
-				sheet.textContent = '';
-				return;
-			}
-
-			if ( pending === css ) {
-				return;
-			}
-			pending = css;
-
-			window.wp.apiFetch( {
-				path: '/live-sheets-table/v1/scoped-css',
-				method: 'POST',
-				data: {
-					css: css,
-					selector: '[data-lstab-preview="stage"]'
-				}
-			} ).then(
-				function ( response ) {
-					if ( pending === css ) {
-						sheet.textContent = response.css || '';
-					}
-				},
-				function () {
-				}
-			);
-		}
-
-		field.addEventListener( 'input', function () {
-			window.clearTimeout( timer );
-			timer = window.setTimeout( refresh, 400 );
-		} );
-
-		field.addEventListener( 'change', refresh );
-
-		refreshLiveCss = function () {
-			pending = null;
-			refresh();
-		};
-	}() );
 
 	var swatches = document.querySelectorAll( '.lstab-swatch' );
 	var metricInputs = document.querySelectorAll( '.lstab-metric-input' );
@@ -1049,7 +986,7 @@
 				stage.innerHTML = response.html || '';
 				applyAppearance();
 				followPresetWhereUnset();
-				refreshLiveCss();
+				document.dispatchEvent( new CustomEvent( 'lstab:preview-drawn' ) );
 				if ( window.lstabInit ) {
 					window.lstabInit();
 				}

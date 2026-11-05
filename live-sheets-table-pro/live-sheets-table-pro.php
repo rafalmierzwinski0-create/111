@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Live Sheets Table Pro
- * Description:       Extends Live Sheets Table with private Google Sheets, filters, filter menus for visitors, colour rules, column looks, Excel, CSV and print downloads, six more table styles and updates as often as every 5 minutes.
+ * Description:       Extends Live Sheets Table with private Google Sheets, filters, filter menus for visitors, colour rules, column looks, your own CSS per table, Excel, CSV and print downloads, six more table styles and updates as often as every 5 minutes.
  * Version:           1.0.0
  * Requires at least: 6.7
  * Requires PHP:      8.0
@@ -35,6 +35,7 @@ require_once LSTABP_PATH . 'includes/class-lstabp-xlsx.php';
 require_once LSTABP_PATH . 'includes/class-lstabp-export.php';
 require_once LSTABP_PATH . 'includes/class-lstabp-facets.php';
 require_once LSTABP_PATH . 'includes/class-lstabp-column-looks.php';
+require_once LSTABP_PATH . 'includes/class-lstabp-custom-css.php';
 require_once LSTABP_PATH . 'includes/class-lstabp-settings.php';
 require_once LSTABP_PATH . 'includes/class-lstabp-plugin.php';
 

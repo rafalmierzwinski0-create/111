@@ -112,7 +112,8 @@ if ( 'setup' === $command ) {
 if ( 'css' === $command ) {
 	$id     = isset( $argv[4] ) ? (int) $argv[4] : 0;
 	$file   = isset( $argv[5] ) ? $argv[5] : '';
-	$update = array( 'custom_css' => (string) file_get_contents( $file ) );
+	$update = array();
+	LSTABP_Custom_Css::store( $id, (string) file_get_contents( $file ) );
 
 	foreach ( array_slice( $argv, 6 ) as $flag ) {
 		list( $name, $value ) = array_pad( explode( '=', $flag, 2 ), 2, '' );

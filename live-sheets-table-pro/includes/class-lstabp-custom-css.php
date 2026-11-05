@@ -2,7 +2,11 @@
 
 defined( 'ABSPATH' ) || exit;
 
-class LSTAB_Custom_Css {
+class LSTABP_Custom_Css {
+	const OPTION = 'lstabp_custom_css';
+
+	const REST_NAMESPACE = 'live-sheets-table-pro/v1';
+
 	const MAX_LENGTH = 20000;
 
 	const MAX_DEPTH = 16;
@@ -10,6 +14,158 @@ class LSTAB_Custom_Css {
 	const PINNED = ':is(&,&>td):is(.lstab-sticky-first tr:not(.lstab-detail)>:first-child:not(.lstab-painted))';
 
 	protected static $printed = array();
+
+	public function register() {
+		add_filter( 'lstab_rendered_table', array( $this, 'add_style' ), 10, 2 );
+		add_action( 'lstab_edit_pane_cards', array( $this, 'render_pane_card' ), 30, 3 );
+		add_action( 'lstab_source_saved', array( $this, 'save' ) );
+		add_action( 'lstab_source_deleted', array( $this, 'forget' ) );
+		add_action( 'lstabp_forget_source', array( $this, 'forget' ) );
+		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
+	}
+
+	public function enqueue( $hook ) {
+		if ( false === strpos( (string) $hook, LSTAB_Admin::EDIT_SLUG ) || ! self::user_can_edit() ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'lstabp-css',
+			LSTABP_URL . 'assets/js/lstabp-css.js',
+			array( 'wp-api-fetch' ),
+			LSTABP_Plugin::asset_version( 'assets/js/lstabp-css.js' ),
+			true
+		);
+	}
+
+	public static function all() {
+		$stored = get_option( self::OPTION, array() );
+
+		return is_array( $stored ) ? $stored : array();
+	}
+
+	public static function for_source( $source_id ) {
+		$all = self::all();
+
+		return isset( $all[ (int) $source_id ] ) ? (string) $all[ (int) $source_id ] : '';
+	}
+
+	public static function store( $source_id, $css ) {
+		$all = self::all();
+		$css = self::sanitize( $css );
+
+		if ( '' === $css ) {
+			unset( $all[ (int) $source_id ] );
+		} else {
+			$all[ (int) $source_id ] = $css;
+		}
+
+		update_option( self::OPTION, $all, false );
+	}
+
+	public function add_style( $html, $source ) {
+		$source_id = isset( $source['id'] ) ? (int) $source['id'] : 0;
+
+		if ( $source_id <= 0 ) {
+			return $html;
+		}
+
+		$tag = self::style_tag( $source_id, self::for_source( $source_id ) );
+
+		if ( '' === $tag ) {
+			return $html;
+		}
+
+		$opening = '<div class="lstab-container">';
+		$at      = strpos( $html, $opening );
+
+		if ( false === $at ) {
+			return $tag . $html;
+		}
+
+		return substr_replace( $html, $opening . $tag, $at, strlen( $opening ) );
+	}
+
+	public function save( $source_id ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Runs inside the core plugin's save handler, after its nonce and capability checks.
+		if ( ! isset( $_POST['_lstabp_custom_css_present'] ) || ! self::user_can_edit() ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- Cleaned in sanitize(); sanitize_text_field would eat the newlines and braces this is made of.
+		self::store( $source_id, wp_unslash( $_POST['lstabp_custom_css'] ?? '' ) );
+	}
+
+	public function forget( $source_id ) {
+		$all = self::all();
+
+		if ( ! isset( $all[ (int) $source_id ] ) ) {
+			return;
+		}
+
+		unset( $all[ (int) $source_id ] );
+		update_option( self::OPTION, $all, false );
+	}
+
+	public function render_pane_card( $pane, $source, $is_edit ) {
+		if ( 'look' !== $pane || ! self::user_can_edit() ) {
+			return;
+		}
+
+		$lstabp_css_id    = ( $is_edit && $source ) ? (int) $source['id'] : 0;
+		$lstabp_css_value = $lstabp_css_id ? self::for_source( $lstabp_css_id ) : '';
+
+		require LSTABP_PATH . 'includes/views/custom-css-card.php';
+	}
+
+	public function register_routes() {
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/scoped-css',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'scoped_css' ),
+				'permission_callback' => array( $this, 'can_write_css' ),
+				'args'                => array(
+					'css'      => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+					'selector' => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+				),
+			)
+		);
+	}
+
+	public function can_write_css() {
+		if ( current_user_can( LSTAB_Limits::capability() ) && self::user_can_edit() ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'lstabp_forbidden',
+			__( 'You are not allowed to write CSS on this site.', 'live-sheets-table-pro' ),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	public function scoped_css( $request ) {
+		$selector = trim( (string) $request->get_param( 'selector' ) );
+
+		if ( ! preg_match( '#^\[data-lstab-preview="[a-z0-9-]{1,40}"\]$#', $selector ) ) {
+			$selector = '[data-lstab-preview="none"]';
+		}
+
+		return rest_ensure_response(
+			array(
+				'css' => self::scope( self::sanitize( (string) $request->get_param( 'css' ) ), $selector . ' .lstab' ),
+			)
+		);
+	}
 
 	public static function user_can_edit() {
 		return current_user_can( 'unfiltered_html' );

@@ -783,115 +783,12 @@ await awaitPreview( 15000 );
 
 // ---------------------------------------------------------------- own CSS
 
-section( '3d. A table with its own CSS' );
+section( '3d. No CSS field without Pro' );
 
+// WordPress.org takes no plugin that stores code its users type, so a table's
+// own CSS is a Pro feature, tested in tests/custom-css-browser.mjs.
 await pane( 'look' );
-const cssField = page.locator( '#lstab-custom-css' );
-check( await cssField.count() > 0, 'The Appearance tab offers a CSS field' );
-
-await cssField.fill( 'td { outline: 2px dotted rgb(4, 5, 6); }\n.nothing-here { color: red }' );
-// The field asks the server for the scoped form 400ms after the last keystroke.
-await page.waitForTimeout( 1200 );
-
-const liveCss = await page.locator( 'style.lstab-live-css' ).evaluate( ( el ) => el.textContent );
-check(
-	liveCss.includes( ':is([data-lstab-preview="stage"] .lstab, #lstab-none) td' ),
-	'What is typed is confined to the table in the preview, not let loose on the dashboard',
-	liveCss
-);
-
-const previewOutline = await page.locator( '.lstab-preview tbody td' ).first().evaluate(
-	( el ) => getComputedStyle( el ).outlineColor
-);
-check( previewOutline.includes( 'rgb(4, 5, 6)' ), 'And it is visibly applied to the preview', previewOutline );
-
-/*
- * Colours are custom properties, and the table sets them on itself. Confining
- * the field to the frame around the table left those rules inheriting into an
- * element that overrode every one of them, so sizes and spacings worked while
- * every colour typed into the field did nothing at all. It looked like a field
- * that was half alive, which is worse than one that is plainly broken.
- */
-await cssField.fill( '& { --lstab-fg: rgb(9, 8, 7); }' );
-await page.waitForTimeout( 1200 );
-
-const previewInk = await page.locator( '.lstab-preview .lstab-table tbody td' ).first().evaluate(
-	( el ) => getComputedStyle( el ).color
-);
-check( previewInk.includes( 'rgb(9, 8, 7)' ), 'A colour set on the table itself reaches the preview', previewInk );
-
-/*
- * And survives the preview being drawn again. A redraw happens for reasons
- * that have nothing to do with the field — a colour picked, a tab switched —
- * and it throws away the style block the field put there. Until this, the
- * field's rules came back only when somebody typed in it again.
- */
-const nameField = page.locator( 'input[name="columns[0][label]"]' );
-const oldName = await nameField.inputValue();
-
-await pane( 'hide' );
-await nameField.fill( oldName + ' (przerysuj)' );
-await nameField.blur();
-await page.waitForTimeout( 2500 );
-await pane( 'look' );
-
-const inkAfterRedraw = await page.locator( '.lstab-preview .lstab-table tbody td' ).first().evaluate(
-	( el ) => getComputedStyle( el ).color
-);
-check( inkAfterRedraw.includes( 'rgb(9, 8, 7)' ), 'And is still there after the preview is drawn again', inkAfterRedraw );
-
-// Put the name back and restore the rule the checks below expect.
-await pane( 'hide' );
-await nameField.fill( oldName );
-await nameField.blur();
-await page.waitForTimeout( 2500 );
-await pane( 'look' );
-await cssField.fill( 'td { outline: 2px dotted rgb(4, 5, 6); }\n.nothing-here { color: red }' );
-await page.waitForTimeout( 1200 );
-
-// The point of scoping: a rule for "td" must not reach the dashboard's own
-// tables or anything else on the screen.
-const escaped = await page.evaluate( () => {
-	const outside = document.querySelector( '.lstab-editor-grid' );
-	return outside ? getComputedStyle( outside ).outlineColor : '';
-} );
-check( ! escaped.includes( 'rgb(4, 5, 6)' ), 'Nothing outside the table is touched by it', escaped );
-
-// Save, and check the published page.
-await Promise.all( [
-	page.waitForURL( /page=live-sheets-table/ ),
-	page.locator( '#lstab-source-form button[type="submit"]' ).click(),
-] );
-
-const publishedCss = await page.evaluate( async ( base ) => {
-	const res = await fetch( base + '/cennik/', { credentials: 'same-origin' } );
-	const html = await res.text();
-	return {
-		hasBlock: html.includes( 'lstab-custom-css' ),
-		scoped: /:is\(\[data-lstab-id="\d+"\], #lstab-none\) td\{outline: 2px dotted rgb\(4, 5, 6\);\}/.test( html ),
-		unscoped: html.includes( '<style class="lstab-custom-css" data-lstab-css="0"' ),
-	};
-}, BASE );
-check( publishedCss.hasBlock, 'The published page carries the table\'s own style block' );
-check( publishedCss.scoped, 'And every rule in it names that table' );
-
-// Put it back, so the rest of the run sees a plain table.
-await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
-await awaitPreview( 15000 );
-await pane( 'look' );
-await page.locator( '#lstab-custom-css' ).fill( '' );
-await Promise.all( [
-	page.waitForURL( /page=live-sheets-table/ ),
-	page.locator( '#lstab-source-form button[type="submit"]' ).click(),
-] );
-await page.goto( sourceEditUrl, { waitUntil: 'networkidle' } );
-await awaitPreview( 15000 );
-
-const clearedCss = await page.evaluate( async ( base ) => {
-	const res = await fetch( base + '/cennik/', { credentials: 'same-origin' } );
-	return ( await res.text() ).includes( 'lstab-custom-css' );
-}, BASE );
-check( ! clearedCss, 'Clearing the field takes the style block off the page again' );
+check( 0 === await page.locator( '#lstabp-custom-css, textarea[name="custom_css"]' ).count(), 'The free plugin offers no CSS field' );
 
 // Switching tab re-fetches the preview.
 section( '4. Switching sheet tab' );

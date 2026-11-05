@@ -249,12 +249,9 @@ foreach ( $variants as $variant ) {
 			'lines'   => $variant['lines'],
 		);
 
-		$custom_css = '';
-
 		$source_id = LSTAB_Storage::insert(
 			array(
 				'title'         => ucfirst( $skin ) . ' — ' . $variant['title'],
-				'custom_css'    => $custom_css,
 				'sheet_url'     => 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0',
 				'sheet_id'      => '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789',
 				'sheet_kind'    => 'doc',
@@ -494,7 +491,6 @@ foreach ( $skins as $skin ) {
 	$pill_id = LSTAB_Storage::insert(
 		array(
 			'title'         => 'Pills — ' . ucfirst( $skin ),
-			'custom_css'    => '',
 			'sheet_url'     => 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit#gid=0',
 			'sheet_id'      => '1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789',
 			'sheet_kind'    => 'doc',

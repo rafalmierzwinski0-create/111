@@ -22,6 +22,7 @@ function lstabp_uninstall_site( $everything ) {
 
 	delete_option( 'lstabp_google_client' );
 	delete_option( 'lstabp_column_looks' );
+	delete_option( 'lstabp_custom_css' );
 	delete_option( 'lstabp_rules' );
 	delete_option( 'lstabp_facets' );
 	delete_option( 'lstabp_export_sources' );

@@ -14,7 +14,6 @@ class LSTAB_Renderer {
 			'class'       => '',
 			'layout'      => 'inherit',
 			'style_vars'  => array(),
-			'custom_css'  => '',
 			'columns'     => null,
 			'sticky'      => null,
 			'sticky_head' => null,
@@ -140,10 +139,7 @@ class LSTAB_Renderer {
 			'last_success_gmt' => isset( $args['last_success_gmt'] ) ? $args['last_success_gmt'] : null,
 			'link_cells'       => ! isset( $args['link_cells'] ) || (bool) $args['link_cells'],
 			'style_vars'       => isset( $args['style_vars'] ) ? $args['style_vars'] : array(),
-			'custom_css'       => isset( $args['custom_css'] ) ? (string) $args['custom_css'] : '',
 		);
-
-		LSTAB_Custom_Css::reset_printed();
 
 		return self::render_table( $source, $args );
 	}
@@ -258,12 +254,9 @@ class LSTAB_Renderer {
 
 		self::enqueue_assets();
 
-		$custom_css = isset( $source['custom_css'] ) ? (string) $source['custom_css'] : '';
-
 		ob_start();
 		?>
 		<div class="lstab-container">
-		<?php echo LSTAB_Custom_Css::style_tag( $source_id, $custom_css ); // phpcs:ignore WordPress.Security.EscapeOutput -- Cleaned and rebuilt in LSTAB_Custom_Css; escaping here would print the rules rather than apply them. ?>
 		<div class="<?php echo esc_attr( implode( ' ', array_map( 'sanitize_html_class', $classes ) ) ); ?>"
 			data-lstab-id="<?php echo esc_attr( (string) $source_id ); ?>"
 			<?php echo empty( $args['keep_current'] ) ? '' : self::attributes( $args['keep_current'] ); // phpcs:ignore WordPress.Security.EscapeOutput -- Built by attributes(), which escapes every name and value. ?>

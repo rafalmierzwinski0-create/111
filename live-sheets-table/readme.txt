@@ -36,7 +36,7 @@ You do not need an API key, a Google Cloud project or an account with us.
 * Headings stay visible while the page scrolls, and the first column can stay in place while the table scrolls sideways.
 * A visible slider under tables that are too wide for the page, or, if you prefer, one card per row on narrow screens.
 * Web and e-mail addresses in cells become links. This can be turned off per table.
-* Four styles (Clean, Striped, Bordered and Midnight), an appearance editor for colours, text size, row height and corners, and your own CSS per table.
+* Four styles (Clean, Striped, Bordered and Midnight) and an appearance editor for colours, text size, row height, lines and corners.
 * A list of your tables in the dashboard, showing for each one when it was last updated, its size and the pages that use it.
 
 = Privacy =

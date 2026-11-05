@@ -44,7 +44,6 @@ class LSTAB_Storage {
 			columns_config text NULL,
 			hidden_rows text NULL,
 			style_vars text NULL,
-			custom_css text NULL,
 			snapshot longtext NULL,
 			snapshot_hash varchar(32) NOT NULL DEFAULT '',
 			row_count int(10) unsigned NOT NULL DEFAULT 0,
@@ -101,7 +100,6 @@ class LSTAB_Storage {
 			'columns_config'   => array(),
 			'hidden_rows'      => array(),
 			'style_vars'       => LSTAB_Customizer::defaults(),
-			'custom_css'       => '',
 		);
 	}
 
@@ -132,7 +130,6 @@ class LSTAB_Storage {
 			'columns_config'   => wp_json_encode( LSTAB_Columns::sanitize( $data['columns_config'] ) ),
 			'hidden_rows'      => wp_json_encode( LSTAB_Hidden_Rows::sanitize( isset( $data['hidden_rows'] ) ? $data['hidden_rows'] : array() ) ),
 			'style_vars'       => wp_json_encode( LSTAB_Customizer::sanitize( $data['style_vars'] ) ),
-			'custom_css'       => LSTAB_Custom_Css::sanitize( isset( $data['custom_css'] ) ? $data['custom_css'] : '' ),
 			'snapshot'         => null,
 			'snapshot_hash'    => '',
 			'row_count'        => 0,
@@ -200,7 +197,6 @@ class LSTAB_Storage {
 			'columns_config'   => '%s',
 			'hidden_rows'      => '%s',
 			'style_vars'       => '%s',
-			'custom_css'       => '%s',
 		);
 
 		$row     = array();
@@ -214,8 +210,6 @@ class LSTAB_Storage {
 				$row[ $column ] = wp_json_encode( LSTAB_Customizer::sanitize( $data[ $column ] ) );
 			} elseif ( 'hidden_rows' === $column ) {
 				$row[ $column ] = wp_json_encode( LSTAB_Hidden_Rows::sanitize( $data[ $column ] ) );
-			} elseif ( 'custom_css' === $column ) {
-				$row[ $column ] = LSTAB_Custom_Css::sanitize( $data[ $column ] );
 			} elseif ( 'columns_config' === $column ) {
 				$row[ $column ] = wp_json_encode( LSTAB_Columns::sanitize( $data[ $column ] ) );
 			} elseif ( '%d' === $format ) {
@@ -428,7 +422,7 @@ class LSTAB_Storage {
 		return explode(
 			', ',
 			'id, title, sheet_url, sheet_id, sheet_kind, gid, tab_name, sync_interval, '
-				. 'first_row_header, style_preset, layout, sticky_first, sticky_head, link_cells, show_search, show_sort, show_meta, per_page, columns_config, hidden_rows, style_vars, custom_css, '
+				. 'first_row_header, style_preset, layout, sticky_first, sticky_head, link_cells, show_search, show_sort, show_meta, per_page, columns_config, hidden_rows, style_vars, '
 				. 'snapshot_hash, row_count, col_count, sync_log, '
 				. 'last_status, last_error, last_ragged, last_attempt_gmt, last_success_gmt, created_gmt, updated_gmt'
 		);
@@ -524,7 +518,6 @@ class LSTAB_Storage {
 			isset( $row['style_vars'] ) ? json_decode( (string) $row['style_vars'], true ) : array()
 		);
 
-		$row['custom_css'] = isset( $row['custom_css'] ) ? (string) $row['custom_css'] : '';
 
 		if ( array_key_exists( 'snapshot', $row ) ) {
 			$decoded = ( null === $row['snapshot'] || '' === $row['snapshot'] )

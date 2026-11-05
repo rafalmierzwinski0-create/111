@@ -87,3 +87,21 @@ body:has(.sc-venue) { background: #0b0d12; }
 .sc-venue-foot { background: #07080c; color: #a39d94; border-top: 1px solid #1c1f27; }
 .sc-venue-foot .sc-logo { color: #fff; font-family: "Platypi", serif; }
 .sc-venue-foot .sc-foot-base { color: #7d776f; border-top-color: #1c1f27; }
+
+/* The tables, styled by the theme as any site's theme may: the plugin itself stores no CSS. */
+body .lstab-container .lstab:has(td[data-label="Plant"]) .lstab-table th,
+body .lstab-container .lstab:has(td[data-label="Walk"]) .lstab-table th { letter-spacing: 0.08em; }
+body .lstab-container .lstab .lstab-table td[data-label="Plant"],
+body .lstab-container .lstab .lstab-table td[data-label="Walk"] { font-weight: 600; }
+body .lstab-container .lstab:has(td[data-label="Plant"]) .lstab-table td[data-label="Price"] { font-weight: 600; font-variant-numeric: tabular-nums; }
+body .lstab-container .lstab:has(td[data-label="Walk"]) .lstab-table td[data-label="Price"] { font-weight: 600; }
+body .lstab-container .lstab .lstab-table td[data-label="Light"],
+body .lstab-container .lstab .lstab-table td[data-label="Pot"] { color: #6b665c; }
+body .lstab-container .lstab:has(td[data-label="Walk"]) .lstab-table td[data-label="Date"],
+body .lstab-container .lstab .lstab-table td[data-label="Starts"] { font-variant-numeric: tabular-nums; }
+body .lstab-container .lstab:has(td[data-label="Artist"]) .lstab-table th { letter-spacing: 0.1em; }
+body .lstab-container .lstab .lstab-table td[data-label="Artist"] { font-weight: 700; color: #ffffff; }
+body .lstab-container .lstab:has(td[data-label="Artist"]) .lstab-table td[data-label="Date"] { color: #ff8a5c; font-weight: 600; font-variant-numeric: tabular-nums; }
+body .lstab-container .lstab .lstab-table td[data-label="Genre"],
+body .lstab-container .lstab .lstab-table td[data-label="Doors"] { color: #a39d94; }
+body .lstab-container .lstab .lstab-table td[data-label="From"] { font-weight: 700; color: #ffffff; }
