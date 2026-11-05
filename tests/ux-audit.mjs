@@ -1059,7 +1059,7 @@ const outside = /^(share|general access|anyone with the link|viewer|restricted|i
 const paths = new Set();
 const quoted = new Set();
 for ( const s of strings ) {
-	for ( const m of s.text.matchAll( /([A-Z][\w &]{1,30}?) → ([A-Z][\w &]{1,30}?)(?=[.,:;)”"]|\s(?:and|to|or|screen|and then)\b|$)/g ) ) {
+	for ( const m of s.text.matchAll( /([A-Z][\w&]*(?: [A-Z&][\w&]*)*) → ([A-Z][\w &]{1,30}?)(?=[.,:;)”"]|\s(?:and|to|or|screen|and then)\b|$)/g ) ) {
 		paths.add( JSON.stringify( [ m[ 1 ].trim(), m[ 2 ].trim(), s.where ] ) );
 	}
 	for ( const m of s.text.matchAll( /“([^”]{2,40})”/g ) ) {

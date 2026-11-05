@@ -76,3 +76,15 @@ jest w `CHANGELOG.md` w repozytorium).
 - Formularz na stronie Kontakt: czeka na shortcode z wtyczki formularzy.
 - Dane firmy w polityce prywatności i regulaminie (NAZWA-FIRMY, ADRES-FIRMY,
   NIP-FIRMY, EMAIL-KONTAKT, HOSTING-FIRMA, POCZTA-FIRMA, PLATNOSCI-FIRMA).
+
+## Odpowiedź na pierwszą recenzję (5.11.2026)
+
+Wgrać `build/tabliko.zip` na stronie „Add your plugin” (konto blackkiwi534), potem odpisać w tym samym wątku:
+
+> Hi, thank you for the review. I've uploaded an updated version.
+>
+> Please change the slug to **tabliko**. The plugin is now called "Tabliko – Tables for Google Sheets", and the text domain is already tabliko.
+>
+> One note: the public admin-ajax action `lstab_keep_current` (wp_ajax_nopriv) has no nonce on purpose. Visitors' browsers call it from pages that are often cached, where a nonce would expire. It changes no settings or content: it only lets the plugin re-read a table from Google when the stored copy is older than the interval the site owner chose. Table IDs are cast to integers, at most 20 are accepted per request, and each table has a cooldown.
+>
+> Thanks!
