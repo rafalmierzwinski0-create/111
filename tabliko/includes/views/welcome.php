@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 <div class="lstab-welcome">
 	<span class="lstab-handle" aria-hidden="true"></span>
 
-	<?php echo LSTAB_Icons::art( 'start' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG from the plugin. ?>
+	<?php echo wp_kses( LSTAB_Icons::art( 'start' ), LSTAB_Icons::allowed() ); ?>
 
 	<h2><?php esc_html_e( 'Your first table in under a minute', 'tabliko' ); ?></h2>
 	<p class="lstab-welcome-lede">
@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 	<form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" class="lstab-welcome-form">
 		<input type="hidden" name="page" value="<?php echo esc_attr( LSTAB_Admin::EDIT_SLUG ); ?>">
 		<span class="lstab-field">
-			<?php echo LSTAB_Icons::icon( 'link' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+			<?php echo wp_kses( LSTAB_Icons::icon( 'link' ), LSTAB_Icons::allowed() ); ?>
 			<label class="screen-reader-text" for="lstab-welcome-url"><?php esc_html_e( 'Google Sheets link', 'tabliko' ); ?></label>
 			<input type="url"
 				id="lstab-welcome-url"
@@ -25,20 +25,20 @@ defined( 'ABSPATH' ) || exit;
 				placeholder="https://docs.google.com/spreadsheets/d/…">
 		</span>
 		<button type="submit" class="lstab-btn">
-			<?php echo LSTAB_Icons::icon( 'eye' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+			<?php echo wp_kses( LSTAB_Icons::icon( 'eye' ), LSTAB_Icons::allowed() ); ?>
 			<?php esc_html_e( 'Show me the table', 'tabliko' ); ?>
 		</button>
 	</form>
 
 	<div class="lstab-sells">
-		<span><?php echo LSTAB_Icons::icon( 'bolt' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?><?php esc_html_e( 'Loads fast — the page uses a copy kept on your site', 'tabliko' ); ?></span>
-		<span><?php echo LSTAB_Icons::icon( 'refresh' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?><?php esc_html_e( 'Changes in the sheet appear on the page by themselves', 'tabliko' ); ?></span>
-		<span><?php echo LSTAB_Icons::icon( 'shield' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?><?php esc_html_e( 'Read-only — nothing is ever written to your sheet', 'tabliko' ); ?></span>
+		<span><?php echo wp_kses( LSTAB_Icons::icon( 'bolt' ), LSTAB_Icons::allowed() ); ?><?php esc_html_e( 'Loads fast — the page uses a copy kept on your site', 'tabliko' ); ?></span>
+		<span><?php echo wp_kses( LSTAB_Icons::icon( 'refresh' ), LSTAB_Icons::allowed() ); ?><?php esc_html_e( 'Changes in the sheet appear on the page by themselves', 'tabliko' ); ?></span>
+		<span><?php echo wp_kses( LSTAB_Icons::icon( 'shield' ), LSTAB_Icons::allowed() ); ?><?php esc_html_e( 'Read-only — nothing is ever written to your sheet', 'tabliko' ); ?></span>
 	</div>
 
 	<div class="lstab-forks">
 		<div class="lstab-fork">
-			<?php echo LSTAB_Icons::icon( 'play' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+			<?php echo wp_kses( LSTAB_Icons::icon( 'play' ), LSTAB_Icons::allowed() ); ?>
 			<span>
 				<b><?php esc_html_e( 'No spreadsheet yet?', 'tabliko' ); ?></b>
 				<span>
@@ -56,7 +56,7 @@ defined( 'ABSPATH' ) || exit;
 		</div>
 
 		<div class="lstab-fork">
-			<?php echo LSTAB_Icons::icon( 'lock' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+			<?php echo wp_kses( LSTAB_Icons::icon( 'lock' ), LSTAB_Icons::allowed() ); ?>
 			<span>
 				<b><?php esc_html_e( 'Is the sheet private?', 'tabliko' ); ?></b>
 				<span>

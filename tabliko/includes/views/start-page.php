@@ -172,22 +172,22 @@ $lstab_add_button = $lstab_own
 			<form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" class="lstab-start-form">
 				<input type="hidden" name="page" value="<?php echo esc_attr( LSTAB_Admin::EDIT_SLUG ); ?>">
 				<span class="lstab-field">
-					<?php echo LSTAB_Icons::icon( 'link' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+					<?php echo wp_kses( LSTAB_Icons::icon( 'link' ), LSTAB_Icons::allowed() ); ?>
 					<label class="screen-reader-text" for="lstab-start-url"><?php esc_html_e( 'Google Sheets link', 'tabliko' ); ?></label>
 					<input type="url" id="lstab-start-url" name="sheet_url" inputmode="url" autocomplete="off"
 						placeholder="<?php echo esc_attr( $lstab_own ? __( 'Paste another Google Sheets link', 'tabliko' ) : 'https://docs.google.com/spreadsheets/d/…' ); ?>">
 				</span>
 				<button type="submit" class="lstab-btn">
-					<?php echo LSTAB_Icons::icon( $lstab_own ? 'plus' : 'eye' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+					<?php echo wp_kses( LSTAB_Icons::icon( $lstab_own ? 'plus' : 'eye' ), LSTAB_Icons::allowed() ); ?>
 					<?php echo esc_html( $lstab_own ? __( 'Add a table', 'tabliko' ) : __( 'Show me the table', 'tabliko' ) ); ?>
 				</button>
 			</form>
 
 			<?php if ( ! $lstab_own ) : ?>
 				<ul class="lstab-start-ticks">
-					<li><?php echo LSTAB_Icons::icon( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?><?php esc_html_e( 'No API key', 'tabliko' ); ?></li>
-					<li><?php echo LSTAB_Icons::icon( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?><?php esc_html_e( 'No row limit', 'tabliko' ); ?></li>
-					<li><?php echo LSTAB_Icons::icon( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?><?php esc_html_e( 'Read-only — nothing is written to Google', 'tabliko' ); ?></li>
+					<li><?php echo wp_kses( LSTAB_Icons::icon( 'check' ), LSTAB_Icons::allowed() ); ?><?php esc_html_e( 'No API key', 'tabliko' ); ?></li>
+					<li><?php echo wp_kses( LSTAB_Icons::icon( 'check' ), LSTAB_Icons::allowed() ); ?><?php esc_html_e( 'No row limit', 'tabliko' ); ?></li>
+					<li><?php echo wp_kses( LSTAB_Icons::icon( 'check' ), LSTAB_Icons::allowed() ); ?><?php esc_html_e( 'Read-only — nothing is written to Google', 'tabliko' ); ?></li>
 				</ul>
 			<?php endif; ?>
 		</div>
@@ -214,7 +214,7 @@ $lstab_add_button = $lstab_own
 
 	<div class="lstab-start-cards">
 		<div class="lstab-start-card">
-			<span class="lstab-start-ico"><?php echo LSTAB_Icons::icon( 'grid' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?></span>
+			<span class="lstab-start-ico"><?php echo wp_kses( LSTAB_Icons::icon( 'grid' ), LSTAB_Icons::allowed() ); ?></span>
 			<h3><?php esc_html_e( 'No spreadsheet yet?', 'tabliko' ); ?></h3>
 			<p><?php esc_html_e( 'Add an example price list that comes with the plugin and try every setting on it. It never contacts Google, and you can delete it at any time.', 'tabliko' ); ?></p>
 			<?php if ( $lstab_example ) : ?>

@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
 
 		<div class="lstab-panel">
 			<div class="lstab-panel-head">
-				<?php echo LSTAB_Icons::badge( 'shield', 'indigo' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+				<?php echo wp_kses( LSTAB_Icons::badge( 'shield', 'indigo' ), LSTAB_Icons::allowed() ); ?>
 				<span>
 					<h2><?php esc_html_e( 'Access', 'tabliko' ); ?></h2>
 					<span class="lstab-panel-sub"><?php esc_html_e( 'Who is trusted with the tables on this site', 'tabliko' ); ?></span>
@@ -48,7 +48,7 @@ defined( 'ABSPATH' ) || exit;
 
 		<div class="lstab-panel">
 			<div class="lstab-panel-head">
-				<?php echo LSTAB_Icons::badge( 'refresh', 'sky' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+				<?php echo wp_kses( LSTAB_Icons::badge( 'refresh', 'sky' ), LSTAB_Icons::allowed() ); ?>
 				<span>
 					<h2><?php esc_html_e( 'Checking Google', 'tabliko' ); ?></h2>
 					<span class="lstab-panel-sub"><?php esc_html_e( 'How often tables are updated', 'tabliko' ); ?></span>
@@ -80,7 +80,7 @@ defined( 'ABSPATH' ) || exit;
 
 		<div class="lstab-panel">
 			<div class="lstab-panel-head">
-				<?php echo LSTAB_Icons::badge( 'brush', 'violet' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+				<?php echo wp_kses( LSTAB_Icons::badge( 'brush', 'violet' ), LSTAB_Icons::allowed() ); ?>
 				<span>
 					<h2><?php esc_html_e( 'Appearance', 'tabliko' ); ?></h2>
 					<span class="lstab-panel-sub"><?php esc_html_e( 'How a new table looks before you change anything', 'tabliko' ); ?></span>
@@ -112,7 +112,7 @@ defined( 'ABSPATH' ) || exit;
 
 		<div class="lstab-panel">
 			<div class="lstab-panel-head">
-				<?php echo LSTAB_Icons::badge( 'trash', 'rose' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+				<?php echo wp_kses( LSTAB_Icons::badge( 'trash', 'rose' ), LSTAB_Icons::allowed() ); ?>
 				<span>
 					<h2><?php esc_html_e( 'When this plugin is deleted', 'tabliko' ); ?></h2>
 					<span class="lstab-panel-sub"><?php esc_html_e( 'The one setting here that cannot be undone', 'tabliko' ); ?></span>

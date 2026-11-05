@@ -114,7 +114,7 @@ class LSTAB_Hidden_Alerts {
 	}
 
 	public static function print_notice() {
-		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
+		if ( ! current_user_can( LSTAB_Limits::capability() ) || ! LSTAB_Admin::is_notice_screen( true ) ) {
 			return;
 		}
 

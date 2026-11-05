@@ -58,7 +58,7 @@ if ( ! $lstab_is_edit ) {
 				data-lstab-goto="<?php echo esc_attr( $lstab_pane ); ?>"
 				role="tab"
 				aria-selected="<?php echo 'general' === $lstab_pane ? 'true' : 'false'; ?>">
-				<?php echo LSTAB_Icons::icon( $lstab_meta[0] ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+				<?php echo wp_kses( LSTAB_Icons::icon( $lstab_meta[0] ), LSTAB_Icons::allowed() ); ?>
 				<?php echo esc_html( $lstab_meta[1] ); ?>
 			</button>
 		<?php endforeach; ?>
@@ -169,7 +169,7 @@ if ( ! $lstab_is_edit ) {
 					<p class="lstab-usage-code">
 						<code class="lstab-shortcode"><?php echo esc_html( $lstab_shortcode ); ?></code>
 						<button type="button" class="lstab-copy" data-lstab-copy="<?php echo esc_attr( $lstab_shortcode ); ?>">
-							<?php echo LSTAB_Icons::icon( 'copy' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+							<?php echo wp_kses( LSTAB_Icons::icon( 'copy' ), LSTAB_Icons::allowed() ); ?>
 							<span class="lstab-copy-label"><?php esc_html_e( 'Copy', 'tabliko' ); ?></span>
 						</button>
 					</p>
@@ -382,7 +382,7 @@ if ( ! $lstab_is_edit ) {
 				<div class="lstab-presets lstab-style-picks">
 					<?php foreach ( $lstab_presets as $lstab_slug => $lstab_preset ) : ?>
 						<label class="lstab-preset has-thumb">
-							<?php echo LSTAB_Styles::thumbnail( $lstab_slug ); // phpcs:ignore WordPress.Security.EscapeOutput -- Built from a fixed slug, escaped inside. ?>
+							<?php echo wp_kses( LSTAB_Styles::thumbnail( $lstab_slug ), LSTAB_Icons::allowed() ); ?>
 							<input type="radio"
 								name="style_preset"
 								value="<?php echo esc_attr( $lstab_slug ); ?>"
@@ -412,7 +412,7 @@ if ( ! $lstab_is_edit ) {
 							</p>
 						</div>
 						<button type="button" class="lstab-mini lstab-tune-reset" id="lstab-reset-appearance">
-							<?php echo LSTAB_Icons::icon( 'refresh' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+							<?php echo wp_kses( LSTAB_Icons::icon( 'refresh' ), LSTAB_Icons::allowed() ); ?>
 							<?php esc_html_e( 'Reset all to the style', 'tabliko' ); ?>
 						</button>
 					</div>
@@ -444,7 +444,7 @@ if ( ! $lstab_is_edit ) {
 									<button type="button" class="lstab-color-clear"
 										<?php disabled( '' === $lstab_value ); ?>
 										aria-label="<?php echo esc_attr( sprintf( /* translators: %s: name of a colour setting, e.g. "Background". */ __( 'Reset %s to the style', 'tabliko' ), $lstab_color['label'] ) ); ?>">
-										<?php echo LSTAB_Icons::icon( 'refresh' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+										<?php echo wp_kses( LSTAB_Icons::icon( 'refresh' ), LSTAB_Icons::allowed() ); ?>
 										<span class="lstab-color-clear-label"><?php esc_html_e( 'Reset', 'tabliko' ); ?></span>
 									</button>
 								</span>

@@ -42,7 +42,7 @@ $lstab_add_button = sprintf(
 					<div class="lstab-src-body">
 						<div class="lstab-src-top">
 							<h2 class="lstab-src-title">
-								<?php echo LSTAB_Icons::icon( 'grid' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+								<?php echo wp_kses( LSTAB_Icons::icon( 'grid' ), LSTAB_Icons::allowed() ); ?>
 								<?php echo esc_html( $lstab_source['title'] ); ?>
 							</h2>
 
@@ -59,7 +59,7 @@ $lstab_add_button = sprintf(
 										)
 									);
 									?>
-								"><?php echo LSTAB_Icons::icon( 'pencil' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?><?php esc_html_e( 'Edit', 'tabliko' ); ?></a>
+								"><?php echo wp_kses( LSTAB_Icons::icon( 'pencil' ), LSTAB_Icons::allowed() ); ?><?php esc_html_e( 'Edit', 'tabliko' ); ?></a>
 
 								<?php if ( ! $lstab_is_sample ) : ?>
 									<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="lstab-inline-form">
@@ -67,7 +67,7 @@ $lstab_add_button = sprintf(
 										<input type="hidden" name="action" value="lstab_refresh_source">
 										<input type="hidden" name="source_id" value="<?php echo esc_attr( (string) $lstab_source['id'] ); ?>">
 										<button type="submit" class="lstab-mini">
-											<?php echo LSTAB_Icons::icon( 'refresh' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+											<?php echo wp_kses( LSTAB_Icons::icon( 'refresh' ), LSTAB_Icons::allowed() ); ?>
 											<?php esc_html_e( 'Refresh', 'tabliko' ); ?>
 										</button>
 									</form>
@@ -77,12 +77,12 @@ $lstab_add_button = sprintf(
 
 						<div class="lstab-src-facts">
 							<span class="lstab-state lstab-state--<?php echo esc_attr( $lstab_state['tone'] ); ?>">
-								<?php echo LSTAB_Icons::icon( $lstab_state['icon'] ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+								<?php echo wp_kses( LSTAB_Icons::icon( $lstab_state['icon'] ), LSTAB_Icons::allowed() ); ?>
 								<?php echo esc_html( $lstab_state['text'] ); ?>
 							</span>
 
 							<span class="lstab-fact">
-								<?php echo LSTAB_Icons::icon( 'columns' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+								<?php echo wp_kses( LSTAB_Icons::icon( 'columns' ), LSTAB_Icons::allowed() ); ?>
 								<?php
 								printf(
 									/* translators: 1: row count, 2: column count. */
@@ -95,7 +95,7 @@ $lstab_add_button = sprintf(
 
 							<?php if ( ! $lstab_is_sample ) : ?>
 								<span class="lstab-fact">
-									<?php echo LSTAB_Icons::icon( 'clock' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+									<?php echo wp_kses( LSTAB_Icons::icon( 'clock' ), LSTAB_Icons::allowed() ); ?>
 									<?php
 									echo esc_html( LSTAB_Limits::label( $lstab_source['sync_interval'] ) );
 									?>
@@ -104,7 +104,7 @@ $lstab_add_button = sprintf(
 
 							<?php if ( $lstab_source['tab_name'] ) : ?>
 								<span class="lstab-fact">
-									<?php echo LSTAB_Icons::icon( 'layers' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+									<?php echo wp_kses( LSTAB_Icons::icon( 'layers' ), LSTAB_Icons::allowed() ); ?>
 									<?php
 									printf(
 										/* translators: %s: the name of the tab inside the spreadsheet. */
@@ -122,7 +122,7 @@ $lstab_add_button = sprintf(
 								} ) );
 								?>
 								<span class="lstab-fact lstab-fact--checks">
-									<?php echo LSTAB_Icons::icon( 'refresh' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+									<?php echo wp_kses( LSTAB_Icons::icon( 'refresh' ), LSTAB_Icons::allowed() ); ?>
 									<?php esc_html_e( 'Last checks', 'tabliko' ); ?>
 
 									<span class="lstab-spark" aria-hidden="true">
@@ -168,7 +168,7 @@ $lstab_add_button = sprintf(
 
 						<?php if ( ! empty( $lstab_source['last_ragged'] ) ) : ?>
 							<p class="lstab-src-note lstab-src-note--warn">
-								<?php echo LSTAB_Icons::icon( 'alert' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+								<?php echo wp_kses( LSTAB_Icons::icon( 'alert' ), LSTAB_Icons::allowed() ); ?>
 								<?php echo esc_html( LSTAB_Admin::ragged_summary( $lstab_source['last_ragged'] ) ); ?>
 							</p>
 						<?php endif; ?>
@@ -176,7 +176,7 @@ $lstab_add_button = sprintf(
 						<?php if ( LSTAB_Paging::should_offer( $lstab_source ) ) : ?>
 							<div class="lstab-src-offer">
 								<p class="lstab-src-offer-say">
-									<?php echo LSTAB_Icons::icon( 'pages' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+									<?php echo wp_kses( LSTAB_Icons::icon( 'pages' ), LSTAB_Icons::allowed() ); ?>
 									<span>
 										<?php
 										printf(
@@ -240,7 +240,7 @@ $lstab_add_button = sprintf(
 						<?php endif; ?>
 
 						<p class="lstab-used">
-							<?php echo LSTAB_Icons::icon( 'doc' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+							<?php echo wp_kses( LSTAB_Icons::icon( 'doc' ), LSTAB_Icons::allowed() ); ?>
 							<?php if ( $lstab_places ) : ?>
 								<?php esc_html_e( 'Used on', 'tabliko' ); ?>
 								<?php
@@ -273,7 +273,7 @@ $lstab_add_button = sprintf(
 						?>
 						<?php if ( $lstab_purge && ! empty( $lstab_purge['time'] ) && 'pages' === $lstab_purge['scope'] ) : ?>
 							<p class="lstab-used lstab-purged">
-								<?php echo LSTAB_Icons::icon( 'bolt' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+								<?php echo wp_kses( LSTAB_Icons::icon( 'bolt' ), LSTAB_Icons::allowed() ); ?>
 								<?php
 								printf(
 									esc_html(
@@ -298,7 +298,7 @@ $lstab_add_button = sprintf(
 							<button type="button"
 								class="lstab-copy"
 								data-lstab-copy="<?php echo esc_attr( $lstab_shortcode ); ?>">
-								<?php echo LSTAB_Icons::icon( 'copy' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+								<?php echo wp_kses( LSTAB_Icons::icon( 'copy' ), LSTAB_Icons::allowed() ); ?>
 								<span class="lstab-copy-label"><?php esc_html_e( 'Copy', 'tabliko' ); ?></span>
 							</button>
 
@@ -306,7 +306,7 @@ $lstab_add_button = sprintf(
 								<?php if ( ! $lstab_is_sample ) : ?>
 									<a class="lstab-quiet" target="_blank" rel="noopener noreferrer"
 										href="<?php echo esc_url( LSTAB_Url::edit_url( $lstab_source['sheet_id'], $lstab_source['gid'], $lstab_source['sheet_kind'] ) ); ?>">
-										<?php echo LSTAB_Icons::icon( 'external' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+										<?php echo wp_kses( LSTAB_Icons::icon( 'external' ), LSTAB_Icons::allowed() ); ?>
 										<?php esc_html_e( 'In Google', 'tabliko' ); ?>
 									</a>
 								<?php endif; ?>
@@ -317,7 +317,7 @@ $lstab_add_button = sprintf(
 									<input type="hidden" name="action" value="lstab_delete_source">
 									<input type="hidden" name="source_id" value="<?php echo esc_attr( (string) $lstab_source['id'] ); ?>">
 									<button type="submit" class="lstab-quiet lstab-quiet--danger">
-										<?php echo LSTAB_Icons::icon( 'trash' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+										<?php echo wp_kses( LSTAB_Icons::icon( 'trash' ), LSTAB_Icons::allowed() ); ?>
 										<?php esc_html_e( 'Delete', 'tabliko' ); ?>
 									</button>
 								</form>
@@ -332,7 +332,7 @@ $lstab_add_button = sprintf(
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="lstab-example-offer">
 				<input type="hidden" name="action" value="lstab_add_example">
 				<?php wp_nonce_field( 'lstab_add_example' ); ?>
-				<?php echo LSTAB_Icons::icon( 'play' ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG. ?>
+				<?php echo wp_kses( LSTAB_Icons::icon( 'play' ), LSTAB_Icons::allowed() ); ?>
 				<span><?php esc_html_e( 'Add the example price list that comes with the plugin and try the settings on it. It never contacts Google.', 'tabliko' ); ?></span>
 				<button type="submit" class="lstab-mini lstab-mini--strong"><?php esc_html_e( 'Add the example', 'tabliko' ); ?></button>
 			</form>

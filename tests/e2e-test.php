@@ -1984,6 +1984,21 @@ $lstab_notices = (string) ob_get_clean();
 wp_set_current_user( $lstab_prior_user );
 lstab_assert( false === strpos( $lstab_notices, 'showing again' ) && false === strpos( $lstab_notices, 'lstab-grace-notice' ), 'And the dashboard counts nothing down' );
 
+// Warnings in the dashboard stay where they belong: the Dashboard, the
+// Plugins screen and the plugin's own screens, never every screen of the admin.
+require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+require_once ABSPATH . 'wp-admin/includes/screen.php';
+set_current_screen( 'dashboard' );
+lstab_assert( LSTAB_Admin::is_notice_screen( false ), 'A warning may show on the Dashboard' );
+set_current_screen( 'plugins' );
+lstab_assert( LSTAB_Admin::is_notice_screen( false ), 'And on the Plugins screen' );
+set_current_screen( 'edit-post' );
+lstab_assert( ! LSTAB_Admin::is_notice_screen( true ), 'But not while someone writes a post' );
+set_current_screen( 'toplevel_page_' . LSTAB_Admin::MENU_SLUG );
+lstab_assert( LSTAB_Admin::is_notice_screen( true ), 'On the plugin\'s own screens when they do not show it themselves' );
+lstab_assert( ! LSTAB_Admin::is_notice_screen( false ), 'And not twice where they already do' );
+$GLOBALS['current_screen'] = null;
+
 // Hidden columns follow exactly the same rule.
 LSTAB_Storage::update( $source_id, array( 'columns_config' => array( 2 => array( 'hidden' => true, 'label' => '', 'source' => 'Dostępność' ) ) ) );
 lstab_assert(

@@ -3,6 +3,75 @@
 defined( 'ABSPATH' ) || exit;
 
 class LSTAB_Icons {
+	public static function allowed() {
+		$svg = array(
+			'class'             => true,
+			'viewbox'           => true,
+			'fill'              => true,
+			'stroke'            => true,
+			'stroke-width'      => true,
+			'stroke-linecap'    => true,
+			'stroke-linejoin'   => true,
+			'stroke-dasharray'  => true,
+			'opacity'           => true,
+			'aria-hidden'       => true,
+			'focusable'         => true,
+			'role'              => true,
+			'width'             => true,
+			'height'            => true,
+			'xmlns'             => true,
+		);
+		$shape = array(
+			'd'                => true,
+			'cx'               => true,
+			'cy'               => true,
+			'r'                => true,
+			'x'                => true,
+			'y'                => true,
+			'rx'               => true,
+			'width'            => true,
+			'height'           => true,
+			'fill'             => true,
+			'stroke'           => true,
+			'stroke-width'     => true,
+			'stroke-linecap'   => true,
+			'stroke-linejoin'  => true,
+			'stroke-dasharray' => true,
+			'opacity'          => true,
+		);
+
+		return array(
+			'svg'            => $svg,
+			'path'           => $shape,
+			'circle'         => $shape,
+			'rect'           => $shape,
+			'defs'           => array(),
+			'lineargradient' => array(
+				'id' => true,
+				'x1' => true,
+				'y1' => true,
+				'x2' => true,
+				'y2' => true,
+			),
+			'stop'           => array(
+				'offset'     => true,
+				'stop-color' => true,
+			),
+			'span'           => array(
+				'class'       => true,
+				'aria-hidden' => true,
+			),
+			'i'              => array(
+				'class'       => true,
+				'aria-hidden' => true,
+			),
+		);
+	}
+
+	public static function html_allowed() {
+		return array_merge( wp_kses_allowed_html( 'post' ), self::allowed() );
+	}
+
 	public static function icon( $name, $class = '' ) {
 		$paths = self::paths();
 

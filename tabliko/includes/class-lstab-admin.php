@@ -100,7 +100,7 @@ class LSTAB_Admin {
 				'<a href="%1$s" class="nav-tab%2$s">%3$s%4$s</a>',
 				esc_url( admin_url( 'admin.php?page=' . $slug ) ),
 				$slug === $current ? ' nav-tab-active' : '',
-				LSTAB_Icons::icon( isset( $icons[ $slug ] ) ? $icons[ $slug ] : 'grid' ), // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG.
+				wp_kses( LSTAB_Icons::icon( isset( $icons[ $slug ] ) ? $icons[ $slug ] : 'grid' ), LSTAB_Icons::allowed() ),
 				esc_html( $label )
 			);
 		}
@@ -399,13 +399,26 @@ class LSTAB_Admin {
 		);
 	}
 
+	public static function is_notice_screen( $own_screens ) {
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+
+		if ( ! $screen ) {
+			return false;
+		}
+
+		if ( in_array( $screen->id, array( 'dashboard', 'plugins' ), true ) ) {
+			return true;
+		}
+
+		return $own_screens && false !== strpos( (string) $screen->id, self::MENU_SLUG );
+	}
+
 	public function print_global_notice() {
 		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
 			return;
 		}
 
-		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-		if ( $screen && false !== strpos( (string) $screen->id, self::MENU_SLUG ) ) {
+		if ( ! self::is_notice_screen( false ) ) {
 			return;
 		}
 
@@ -577,7 +590,7 @@ class LSTAB_Admin {
 	public static function render_masthead( $sub = '', $actions = '' ) {
 		?>
 		<div class="lstab-masthead">
-			<span class="lstab-logo"><?php echo LSTAB_Icons::mark( 38 ); // phpcs:ignore WordPress.Security.EscapeOutput -- Static SVG from the plugin. ?></span>
+			<span class="lstab-logo"><?php echo wp_kses( LSTAB_Icons::mark( 38 ), LSTAB_Icons::allowed() ); ?></span>
 			<span class="lstab-masthead-text">
 				<h1>
 					<?php esc_html_e( 'Tabliko', 'tabliko' ); ?>
@@ -588,7 +601,7 @@ class LSTAB_Admin {
 				<?php endif; ?>
 			</span>
 			<?php if ( '' !== $actions ) : ?>
-				<span class="lstab-masthead-actions"><?php echo $actions; // phpcs:ignore WordPress.Security.EscapeOutput -- Caller escapes. ?></span>
+				<span class="lstab-masthead-actions"><?php echo wp_kses( $actions, LSTAB_Icons::html_allowed() ); ?></span>
 			<?php endif; ?>
 		</div>
 		<hr class="wp-header-end">
