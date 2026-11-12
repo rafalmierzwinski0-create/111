@@ -75,8 +75,11 @@ class LSTAB_Settings {
 
 		check_admin_referer( 'lstab_save_settings' );
 
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Every value is checked against a known list in save().
-		self::save( isset( $_POST['lstab_settings'] ) ? (array) wp_unslash( $_POST['lstab_settings'] ) : array() );
+		$input = isset( $_POST['lstab_settings'] ) && is_array( $_POST['lstab_settings'] )
+			? map_deep( wp_unslash( $_POST['lstab_settings'] ), 'sanitize_text_field' )
+			: array();
+
+		self::save( $input );
 
 		do_action( 'lstab_settings_saved' );
 

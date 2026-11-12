@@ -1452,6 +1452,21 @@ $routes = $server->get_routes();
 lstab_assert( isset( $routes['/tabliko/v1/preview'] ), 'Preview route registered' );
 lstab_assert( isset( $routes['/tabliko/v1/sources'] ), 'Sources route registered' );
 
+// The list of tables is for the people who manage them, not for everyone who
+// can write a post: an author sees the table a block already shows, but not
+// the titles, sizes and states of every table on the site.
+$lstab_author = wp_insert_user( array( 'user_login' => 'lstab-author-' . wp_generate_password( 6, false ), 'user_pass' => wp_generate_password(), 'role' => 'author' ) );
+wp_set_current_user( (int) $lstab_author );
+$listed = $server->dispatch( new WP_REST_Request( 'GET', '/tabliko/v1/sources' ) );
+lstab_assert( 403 === $listed->get_status() || 401 === $listed->get_status(), 'An author cannot list the tables', (string) $listed->get_status() );
+lstab_assert( 1 === count( LSTAB_Elementor::source_options() ), 'Nor see them in the Elementor widget' );
+wp_set_current_user( 1 );
+$listed = $server->dispatch( new WP_REST_Request( 'GET', '/tabliko/v1/sources' ) );
+lstab_assert( 200 === $listed->get_status() && is_array( $listed->get_data() ), 'Someone who manages tables can', (string) $listed->get_status() );
+wp_set_current_user( 0 );
+require_once ABSPATH . 'wp-admin/includes/user.php';
+wp_delete_user( (int) $lstab_author );
+
 $request  = new WP_REST_Request( 'POST', '/tabliko/v1/preview' );
 $request->set_param( 'url', 'https://docs.google.com/spreadsheets/d/1AbC-dEf_GhIjKlMnOpQrStUvWxYz0123456789/edit' );
 $response = $server->dispatch( $request );

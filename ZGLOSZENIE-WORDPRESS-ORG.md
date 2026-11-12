@@ -88,3 +88,13 @@ Wgrać `build/tabliko.zip` na stronie „Add your plugin” (konto blackkiwi534)
 > One note: the public admin-ajax action `lstab_keep_current` (wp_ajax_nopriv) has no nonce on purpose. Visitors' browsers call it from pages that are often cached, where a nonce would expire. It changes no settings or content: it only lets the plugin re-read a table from Google when the stored copy is older than the interval the site owner chose. Table IDs are cast to integers, at most 20 are accepted per request, and each table has a cooldown.
 >
 > Thanks!
+
+## Odpowiedź na drugą recenzję (12.11.2026)
+
+Wgrać nowy `build/tabliko.zip`, potem odpisać w tym samym wątku:
+
+> Hi, thank you for the second review. I've uploaded an updated version.
+>
+> The /tabliko/v1/sources endpoint now requires the capability that manages tables (the one chosen in the plugin's settings) instead of edit_posts, and the Elementor widget's table list follows the same rule. The arrays read from $_POST (settings, columns, hidden rows, appearance) are now sanitized with map_deep() and sanitize_text_field() as soon as they are read, and then validated key by key.
+>
+> Thanks!

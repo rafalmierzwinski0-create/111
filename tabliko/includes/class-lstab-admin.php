@@ -281,9 +281,8 @@ class LSTAB_Admin {
 			'layout'           => isset( $_POST['layout'] ) && in_array( sanitize_key( wp_unslash( $_POST['layout'] ) ), array( 'table', 'auto', 'cards' ), true )
 				? sanitize_key( wp_unslash( $_POST['layout'] ) )
 				: 'table',
-			'style_vars'       => isset( $_POST['style_vars'] ) ? LSTAB_Customizer::sanitize( wp_unslash( $_POST['style_vars'] ) ) : LSTAB_Customizer::defaults(), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Sanitised field by field in LSTAB_Columns.
-			'columns_config'   => isset( $_POST['columns'] ) ? LSTAB_Columns::sanitize( wp_unslash( $_POST['columns'] ) ) : array(),
+			'style_vars'       => isset( $_POST['style_vars'] ) && is_array( $_POST['style_vars'] ) ? LSTAB_Customizer::sanitize( map_deep( wp_unslash( $_POST['style_vars'] ), 'sanitize_text_field' ) ) : LSTAB_Customizer::defaults(),
+			'columns_config'   => isset( $_POST['columns'] ) && is_array( $_POST['columns'] ) ? LSTAB_Columns::sanitize( map_deep( wp_unslash( $_POST['columns'] ), 'sanitize_text_field' ) ) : array(),
 			'sticky_first'     => empty( $_POST['sticky_first'] ) ? 0 : 1,
 			'sticky_head'      => empty( $_POST['sticky_head'] ) ? 0 : 1,
 			'link_cells'       => empty( $_POST['link_cells'] ) ? 0 : 1,
@@ -300,8 +299,7 @@ class LSTAB_Admin {
 
 
 		if ( isset( $_POST['_lstab_hidden_rows_present'] ) ) {
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Sanitised key by key in LSTAB_Hidden_Rows.
-			$data['hidden_rows'] = isset( $_POST['hidden_rows'] ) ? LSTAB_Hidden_Rows::sanitize( wp_unslash( $_POST['hidden_rows'] ) ) : array();
+			$data['hidden_rows'] = isset( $_POST['hidden_rows'] ) && is_array( $_POST['hidden_rows'] ) ? LSTAB_Hidden_Rows::sanitize( map_deep( wp_unslash( $_POST['hidden_rows'] ), 'sanitize_text_field' ) ) : array();
 		}
 
 		if ( '' === $data['title'] ) {

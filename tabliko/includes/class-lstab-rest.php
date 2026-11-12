@@ -84,7 +84,7 @@ class LSTAB_Rest {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'list_sources' ),
-				'permission_callback' => array( $this, 'can_edit_posts' ),
+				'permission_callback' => array( $this, 'can_manage' ),
 			)
 		);
 
@@ -169,18 +169,6 @@ class LSTAB_Rest {
 		return new WP_Error(
 			'lstab_forbidden',
 			__( 'You are not allowed to manage tables.', 'tabliko' ),
-			array( 'status' => rest_authorization_required_code() )
-		);
-	}
-
-	public function can_edit_posts() {
-		if ( current_user_can( 'edit_posts' ) ) {
-			return true;
-		}
-
-		return new WP_Error(
-			'lstab_forbidden',
-			__( 'You are not allowed to see the list of tables.', 'tabliko' ),
 			array( 'status' => rest_authorization_required_code() )
 		);
 	}

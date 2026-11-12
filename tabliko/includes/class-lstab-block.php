@@ -29,6 +29,7 @@ class LSTAB_Block {
 				'editUrl'   => admin_url( 'admin.php?page=' . LSTAB_Admin::EDIT_SLUG . '&source=' ),
 				'addUrl'    => admin_url( 'admin.php?page=' . LSTAB_Admin::EDIT_SLUG ),
 				'canFilter' => (bool) apply_filters( 'lstab_filter_supported', false ),
+				'canChoose' => current_user_can( LSTAB_Limits::capability() ),
 				'presets'   => self::preset_options(),
 			)
 		);

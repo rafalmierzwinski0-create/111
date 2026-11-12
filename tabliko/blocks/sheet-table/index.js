@@ -37,6 +37,11 @@
 		useEffect( function () {
 			var cancelled = false;
 
+			if ( ! lstabBlock.canChoose ) {
+				setSources( [] );
+				return;
+			}
+
 			wp.apiFetch( { path: '/tabliko/v1/sources' } )
 				.then( function ( response ) {
 					if ( ! cancelled ) {
@@ -88,7 +93,11 @@
 				el(
 					PanelBody,
 					{ title: __( 'Table', 'tabliko' ), initialOpen: true },
-					el( SelectControl, {
+					! lstabBlock.canChoose ? el(
+						'p',
+						{ className: 'lstab-block-hint' },
+						__( 'Only people who manage tables on this site can choose which table this block shows.', 'tabliko' )
+					) : el( SelectControl, {
 						label: __( 'Table to show', 'tabliko' ),
 						value: attributes.sourceId,
 						options: options,
@@ -97,7 +106,7 @@
 						},
 						__nextHasNoMarginBottom: true
 					} ),
-					el(
+					lstabBlock.canChoose ? el(
 						'p',
 						{ className: 'lstab-block-hint' },
 						el(
@@ -105,7 +114,7 @@
 							{ href: lstabBlock.manageUrl },
 							__( 'Manage tables', 'tabliko' )
 						)
-					)
+					) : null
 				),
 				el(
 					PanelBody,
@@ -166,7 +175,21 @@
 
 			var body;
 
-			if ( loaded.loading ) {
+			if ( ! lstabBlock.canChoose && ! attributes.sourceId ) {
+				body = el(
+					Placeholder,
+					{
+						icon: blockIcon,
+						label: __( 'Tabliko Table', 'tabliko' ),
+						instructions: __( 'Only people who manage tables on this site can choose which table this block shows.', 'tabliko' )
+					}
+				);
+			} else if ( ! lstabBlock.canChoose ) {
+				body = el( ServerSideRender, {
+					block: 'tabliko/sheet-table',
+					attributes: attributes
+				} );
+			} else if ( loaded.loading ) {
 				body = el( Placeholder, { label: __( 'Tabliko Table', 'tabliko' ) }, el( Spinner ) );
 			} else if ( ! loaded.sources.length ) {
 				body = el(

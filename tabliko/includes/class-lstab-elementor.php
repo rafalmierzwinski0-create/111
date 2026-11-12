@@ -33,6 +33,10 @@ class LSTAB_Elementor {
 	}
 
 	public static function source_options() {
+		if ( ! current_user_can( LSTAB_Limits::capability() ) ) {
+			return array( 0 => __( 'Only people who manage tables can choose one', 'tabliko' ) );
+		}
+
 		$options = array( 0 => __( 'Select a sheet…', 'tabliko' ) );
 
 		foreach ( LSTAB_Storage::get_all() as $source ) {
